@@ -39,56 +39,67 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
 
             double lenght = element.Length;
+
             double E = material.E;
             double G = material.G;
 
             double A = section.Area;
-            double Ixx = section.J11;
-            double Iyy = section.J22;
+            double I11 = section.J11;
+            double I22 = section.J22;
             double J = section.Jt;
-
 
             NodalLocalDegreeOfFreedom[] nodalDegree = GetNodalDegreeOfFreedom();
 
             ElementStiffnessMatrix matrix = new ElementStiffnessMatrix(nodalDegree);
 
+
+            int axialDofIndex = 2;
+            int shear2DofIndex = 1;
+            int shear1DofIndex = 0;
+
+            int totalDof = 6;
+            int displacementsDof = 3;
+
             // Diagonale
-            matrix.SetElementAt(nodalDegree[0], E * A / lenght);
-            matrix.SetElementAt(nodalDegree[1], 12.0 * E * Ixx / Math.Pow(lenght, 3));
-            matrix.SetElementAt(nodalDegree[2], 12.0 * E * Iyy / Math.Pow(lenght, 3));
-            matrix.SetElementAt(nodalDegree[3], G * J / lenght);
-            matrix.SetElementAt(nodalDegree[4], 4.0 * E * Iyy / lenght);
-            matrix.SetElementAt(nodalDegree[5], 4.0 * E * Ixx / lenght);
+            matrix.SetElementAt(nodalDegree[shear1DofIndex], 12.0 * E * I22 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex], 12.0 * E * I11 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[axialDofIndex], E * A / lenght);
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + displacementsDof], 4.0 * E * I11 / lenght);
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + displacementsDof], 4.0 * E * I22 / lenght);
+            matrix.SetElementAt(nodalDegree[axialDofIndex + displacementsDof], G * J / lenght);
 
 
-            matrix.SetElementAt(nodalDegree[6], E * A / lenght);
-            matrix.SetElementAt(nodalDegree[7], 12.0 * E * Ixx / Math.Pow(lenght, 3));
-            matrix.SetElementAt(nodalDegree[8], 12.0 * E * Iyy / Math.Pow(lenght, 3));
-            matrix.SetElementAt(nodalDegree[9], G * J / lenght);
-            matrix.SetElementAt(nodalDegree[10], 4.0 * E * Iyy / lenght);
-            matrix.SetElementAt(nodalDegree[11], 4.0 * E * Ixx / lenght);
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + totalDof], 12.0 * E * I22 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + totalDof], 12.0 * E * I11 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[axialDofIndex + totalDof], E * A / lenght);
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + displacementsDof], 4.0 * E * I11 / lenght);
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + displacementsDof], 4.0 * E * I22 / lenght);
+            matrix.SetElementAt(nodalDegree[axialDofIndex + displacementsDof], G * J / lenght);
 
 
             // Fuori Diagonale
-            matrix.SetElementAtSymmetric(nodalDegree[4], nodalDegree[2], -6.0 * E * Iyy / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[5], nodalDegree[1], +6.0 * E * Ixx / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[6], nodalDegree[0], -E * A / lenght);
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear1DofIndex + totalDof], -12.0 * E * I22 / Math.Pow(lenght, 3));
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
 
-            matrix.SetElementAtSymmetric(nodalDegree[7], nodalDegree[1], -12.0 * E * Ixx / Math.Pow(lenght, 3));
-            matrix.SetElementAtSymmetric(nodalDegree[7], nodalDegree[5], -6.0 * E * Iyy / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear2DofIndex + totalDof], -12.0 * E * I11 / Math.Pow(lenght, 3));
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + totalDof + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
 
-            matrix.SetElementAtSymmetric(nodalDegree[8], nodalDegree[2], -12.0 * E * Iyy / Math.Pow(lenght, 3));
-            matrix.SetElementAtSymmetric(nodalDegree[8], nodalDegree[4], +6.0 * E * Iyy / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], -E * A / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[9], nodalDegree[4], -G * J / lenght);
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +2.0 * E * I11 / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[10], nodalDegree[2], -6.0 * E * Iyy / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[10], nodalDegree[4], +2.0 * E * Iyy / lenght);
-            matrix.SetElementAtSymmetric(nodalDegree[10], nodalDegree[8], +6.0 * E * Iyy / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +2.0 * E * I22 / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[11], nodalDegree[1], +6.0 * E * Ixx / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[11], nodalDegree[5], +2.0 * E * Ixx / lenght);
-            matrix.SetElementAtSymmetric(nodalDegree[11], nodalDegree[7], -6.0 * E * Ixx / Math.Pow(lenght, 2));
+            matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex + displacementsDof], nodalDegree[axialDofIndex + displacementsDof + totalDof], -G * J / lenght);
+
+            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + totalDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
+
+            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + totalDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
+
 
 
             return matrix;
@@ -97,7 +108,6 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         protected override NodalLocalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
-
             NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalLocalDegreeOfFreedom[12];
             nodalDegreeOfFreedoms[0] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D1);
             nodalDegreeOfFreedoms[1] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D2);
@@ -124,21 +134,23 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         public NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node nodeStart, Node NodeEnd)
         {
+            var localDegrees = GetNodalDegreeOfFreedom();
+
             NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalGlobalDegreeOfFreedom[12];
 
-            nodalDegreeOfFreedoms[0] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
-            nodalDegreeOfFreedoms[1] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
-            nodalDegreeOfFreedoms[2] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
-            nodalDegreeOfFreedoms[3] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
-            nodalDegreeOfFreedoms[4] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
-            nodalDegreeOfFreedoms[5] = new NodalGlobalDegreeOfFreedom(nodeStart, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
+            nodalDegreeOfFreedoms[0] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[0].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[1] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[1].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[2] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[2].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[3] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[3].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[4] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[4].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[5] = new NodalGlobalDegreeOfFreedom(nodeStart, localDegrees[5].DegreeOfFreedom.ToGlobal());
 
-            nodalDegreeOfFreedoms[6] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX);
-            nodalDegreeOfFreedoms[7] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY);
-            nodalDegreeOfFreedoms[8] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ);
-            nodalDegreeOfFreedoms[9] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX);
-            nodalDegreeOfFreedoms[10] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY);
-            nodalDegreeOfFreedoms[11] = new NodalGlobalDegreeOfFreedom(NodeEnd, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ);
+            nodalDegreeOfFreedoms[6] = new NodalGlobalDegreeOfFreedom(NodeEnd, localDegrees[6].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[7] = new NodalGlobalDegreeOfFreedom(NodeEnd, localDegrees[7].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[8] = new NodalGlobalDegreeOfFreedom(NodeEnd, localDegrees[8].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[9] = new NodalGlobalDegreeOfFreedom(NodeEnd, localDegrees[9].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[10] = new NodalGlobalDegreeOfFreedom(NodeEnd,localDegrees[10].DegreeOfFreedom.ToGlobal());
+            nodalDegreeOfFreedoms[11] = new NodalGlobalDegreeOfFreedom(NodeEnd, localDegrees[11].DegreeOfFreedom.ToGlobal());
 
 
             return nodalDegreeOfFreedoms;

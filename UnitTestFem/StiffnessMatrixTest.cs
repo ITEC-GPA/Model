@@ -46,7 +46,7 @@ namespace UnitTestFem
             Assert.AreEqual(777777.7778, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY)), tol);
 
             Assert.AreEqual(583333333.334, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY),
-                new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)), tol);
+                new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)), tol);
 
             Assert.AreEqual(-777777.7778, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY),
                 new NodalGlobalDegreeOfFreedom(node2, DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY)), tol);

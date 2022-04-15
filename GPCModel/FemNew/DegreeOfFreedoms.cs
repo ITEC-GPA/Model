@@ -35,22 +35,22 @@ namespace GPC.Model.Fem
         {
             switch (local)
             {
-                case LocalDegreeOfFreedoms.D1:
+                case LocalDegreeOfFreedoms.D3:
                     return GlobalDegreeOfFreedoms.DX;
 
                 case LocalDegreeOfFreedoms.D2:
                     return GlobalDegreeOfFreedoms.DY;
 
-                case LocalDegreeOfFreedoms.D3:
+                case LocalDegreeOfFreedoms.D1:
                     return GlobalDegreeOfFreedoms.DZ;
 
-                case LocalDegreeOfFreedoms.R1:
+                case LocalDegreeOfFreedoms.R3:
                     return GlobalDegreeOfFreedoms.RX;
 
                 case LocalDegreeOfFreedoms.R2:
                     return GlobalDegreeOfFreedoms.RY;
 
-                case LocalDegreeOfFreedoms.R3:
+                case LocalDegreeOfFreedoms.R1:
                     return GlobalDegreeOfFreedoms.RZ;
 
                 default:
@@ -65,22 +65,22 @@ namespace GPC.Model.Fem
             {
 
                 case GlobalDegreeOfFreedoms.DX:
-                    return LocalDegreeOfFreedoms.D1;
+                    return LocalDegreeOfFreedoms.D3;
 
                 case GlobalDegreeOfFreedoms.DY:
                     return LocalDegreeOfFreedoms.D2;
 
                 case GlobalDegreeOfFreedoms.DZ:
-                    return LocalDegreeOfFreedoms.D3;
+                    return LocalDegreeOfFreedoms.D1;
 
                 case GlobalDegreeOfFreedoms.RX:
-                    return LocalDegreeOfFreedoms.R1;
+                    return LocalDegreeOfFreedoms.R3;
 
                 case GlobalDegreeOfFreedoms.RY:
                     return LocalDegreeOfFreedoms.R2;
 
                 case GlobalDegreeOfFreedoms.RZ:
-                    return LocalDegreeOfFreedoms.R3;
+                    return LocalDegreeOfFreedoms.R1;
 
                 default:
                     throw new NotImplementedException();

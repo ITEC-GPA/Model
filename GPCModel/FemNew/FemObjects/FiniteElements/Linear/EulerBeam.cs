@@ -40,12 +40,12 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
                 nodalDegreeOfFreedoms[1].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
-                nodalDegreeOfFreedoms[6].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
+                nodalDegreeOfFreedoms[6].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
                 nodalDegreeOfFreedoms[7].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[8].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)
+                nodalDegreeOfFreedoms[8].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX)
             {
                 var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
                 matrix.SetSubMatrix(0, 0, submatrix);
@@ -58,12 +58,12 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             }
 
 
-            if (nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
+            if (nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
                 nodalDegreeOfFreedoms[4].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
-                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
-                nodalDegreeOfFreedoms[9].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
+                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
+                nodalDegreeOfFreedoms[9].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
                 nodalDegreeOfFreedoms[10].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
-                nodalDegreeOfFreedoms[11].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ)
+                nodalDegreeOfFreedoms[11].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX)
             {
                 var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
                 matrix.SetSubMatrix(3, 3, submatrix);
