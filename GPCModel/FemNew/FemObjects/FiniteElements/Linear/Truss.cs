@@ -66,7 +66,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
             NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = trussStiffnessMatrix.GetGlobalDegreeOfFreedom(NodeStart, NodeEnd);
 
-            ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.LocalStiffnessMatrix);
+            ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.StiffnessMatrix);
 
             globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
 

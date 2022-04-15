@@ -17,12 +17,12 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
     {
 
 
-        public Node NodeStart => _localNodes[0];
-        public Node NodeEnd => _localNodes.Last();
+        public Node NodeStart => _nodes[0];
+        public Node NodeEnd => _nodes.Last();
 
 
         public EulerBernulliStifnessMatrix(EulerBeam beam)
-            : base(new Node[] { new Node(new Geometry.Point3d(0, 0, 0), 1), new Node(new Geometry.Point3d(0, 0, beam.Length), 0) }, beam)
+            : base(new Node[] { new Node(new Geometry.Point3d(0, 0, 0), 1), new Node(new Geometry.Point3d(0, 0, beam.Length), 2) }, beam)
         {
 
         }
@@ -97,6 +97,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         protected override NodalLocalDegreeOfFreedom[] GetNodalDegreeOfFreedom()
         {
+
             NodalLocalDegreeOfFreedom[] nodalDegreeOfFreedoms = new NodalLocalDegreeOfFreedom[12];
             nodalDegreeOfFreedoms[0] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D1);
             nodalDegreeOfFreedoms[1] = new NodalLocalDegreeOfFreedom(NodeStart, DegreeOfFreedoms.LocalDegreeOfFreedoms.D2);

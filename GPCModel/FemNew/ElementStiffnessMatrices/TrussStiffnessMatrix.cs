@@ -14,8 +14,8 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
     internal class TrussStiffnessMatrix : FiniteElementLocalStiffnessMatrix
     {
 
-        public Node NodeStart => _localNodes[0];
-        public Node NodeEnd => _localNodes.Last();
+        public Node NodeStart => _nodes[0];
+        public Node NodeEnd => _nodes.Last();
 
 
         public TrussStiffnessMatrix(Truss truss)

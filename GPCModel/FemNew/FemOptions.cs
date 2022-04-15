@@ -49,6 +49,11 @@ namespace GPC.Model.Fem
         public double ToleranceLocalAxis { get; set; }
 
         /// <summary>
+        /// Rapresent the minimum distance allowed to consider two node coincident
+        /// </summary>
+        public double ToleranceNodeDistance { get; set; }
+
+        /// <summary>
         /// Rapresent the value of the elastic modulus to be used to replace zero in case numerical singularity must be avoided 
         /// </summary>
         public double ZeroElasticModulus { get; set; }

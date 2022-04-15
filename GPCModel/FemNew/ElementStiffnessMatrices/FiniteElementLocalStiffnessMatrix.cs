@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GPC.Model.Maths.Matrices;
 using GPC.Model.Fem.FemObjects;
-using GPC.Model.Sections;
 using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Fem.Materials;
+using GPC.Model.Maths.Matrices;
+using GPC.Model.Sections;
 
 namespace GPC.Model.Fem.ElementStiffnessMatrices
 {
@@ -15,28 +15,29 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
     internal abstract class FiniteElementLocalStiffnessMatrix : ModelObjectId
     {
 
-        protected Node[] _localNodes;
+        protected Node[] _nodes;
 
-        private readonly ElementStiffnessMatrix _localStiffnessMatrix;
+        private readonly ElementStiffnessMatrix _stiffnessMatrix;
 
         protected NodalLocalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
 
 
-        public ElementStiffnessMatrix LocalStiffnessMatrix => _localStiffnessMatrix;
+        public ElementStiffnessMatrix StiffnessMatrix => _stiffnessMatrix;
 
         public NodalLocalDegreeOfFreedom[] NodalDegreeOfFreedom => _nodalDegreeOfFreedoms;
 
 
-        public FiniteElementLocalStiffnessMatrix(Node[] localNodes, FiniteElement element)
+        public FiniteElementLocalStiffnessMatrix(Node[] nodes, FiniteElement element)
         {
-            _localNodes = localNodes;
+            _nodes = nodes;
 
-            _localStiffnessMatrix = GetStiffnessMatrix(element);
+            _stiffnessMatrix = GetStiffnessMatrix(element);
 
             _nodalDegreeOfFreedoms = GetNodalDegreeOfFreedom();
         }
 
         protected abstract NodalLocalDegreeOfFreedom[] GetNodalDegreeOfFreedom();
+
         public abstract NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node[] nodes);
 
         protected abstract ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element);

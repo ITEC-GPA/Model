@@ -43,13 +43,25 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
                 throw new ArgumentNullException(nameof(nodeEnd));
             }
 
+            if (nodeStart.Position.SquareDistanceTo(nodeEnd.Position) < FemOptions.Instance.ToleranceNodeDistance * FemOptions.Instance.ToleranceNodeDistance)
+            {
+                throw new ArgumentException("Nodes are coincident");
+            }
         }
 
 
         protected LinearElement(Node[] nodes)
             : base(nodes)
         {
+            if (nodes.Where(i => i is null).Count() > 0)
+            {
+                throw new ArgumentNullException(nameof(nodes));
+            }
 
+            if (nodes.Skip(1).Where(i => i.Position.SquareDistanceTo(nodes[0].Position) < FemOptions.Instance.ToleranceNodeDistance * FemOptions.Instance.ToleranceNodeDistance).Count() > 0)
+            {
+                throw new ArgumentException("Nodes are coincident");
+            }
         }
 
         protected LinearElement(SerializationInfo info, StreamingContext context)
