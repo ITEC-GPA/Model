@@ -11,12 +11,13 @@ namespace GPC.Model.Fem
 
     public struct NodalLocalDegreeOfFreedom : IEquatable<NodalLocalDegreeOfFreedom>, INodalDegreeOfFreedom
     {
-        public DegreeOfFreedoms.LocalDegreeOfFreedoms DegreeOfFreedom { get; }
+
+        public DegreeOfFreedom DegreeOfFreedom { get; }
 
         public Node Node { get; }
 
 
-        public NodalLocalDegreeOfFreedom(Node node, DegreeOfFreedoms.LocalDegreeOfFreedoms degreeOfFreedom)
+        public NodalLocalDegreeOfFreedom(Node node, DegreeOfFreedom degreeOfFreedom)
         {
             DegreeOfFreedom = degreeOfFreedom;
             Node = node ?? throw new ArgumentNullException(nameof(node));
@@ -60,17 +61,4 @@ namespace GPC.Model.Fem
         #endregion
     }
 
-    //public static class NodalLocalDegreeOfFreedomExtensions
-    //{
-    //    public static NodalGlobalDegreeOfFreedom[] ToGlobal(this NodalLocalDegreeOfFreedom[] local)
-    //    {
-    //        return local.Select(i => i.ToGlobal()).ToArray();
-    //    }
-
-    //    public static NodalGlobalDegreeOfFreedom ToGlobal(this NodalLocalDegreeOfFreedom local)
-    //    {
-    //        return new NodalGlobalDegreeOfFreedom(local.Node, local.DegreeOfFreedom.ToGlobal());
-    //    }
-
-    //}
 }

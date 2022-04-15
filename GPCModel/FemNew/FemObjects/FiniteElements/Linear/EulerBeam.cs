@@ -13,8 +13,9 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
     public class EulerBeam : LinearElement
     {
 
-        public EulerBeam(Node node1, Node node2)
-            : base(node1, node2)
+        /// <inheritdoc/>
+        public EulerBeam(Node node1, Node node2, double angle = 0)
+            : base(node1, node2, angle)
         {
 
         }
@@ -40,14 +41,14 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
-                nodalDegreeOfFreedoms[1].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
-                nodalDegreeOfFreedoms[6].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ &&
-                nodalDegreeOfFreedoms[7].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[8].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX)
+            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
+                nodalDegreeOfFreedoms[1].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[2].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
+                nodalDegreeOfFreedoms[6].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
+                nodalDegreeOfFreedoms[7].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[8].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X)
             {
-                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
+                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3); 
                 matrix.SetSubMatrix(0, 0, submatrix);
                 matrix.SetSubMatrix(6, 6, submatrix);
             }
@@ -58,12 +59,12 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             }
 
 
-            if (nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
-                nodalDegreeOfFreedoms[4].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
-                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX &&
-                nodalDegreeOfFreedoms[9].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RZ &&
-                nodalDegreeOfFreedoms[10].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RY &&
-                nodalDegreeOfFreedoms[11].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.RX)
+            if (nodalDegreeOfFreedoms[3].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
+                nodalDegreeOfFreedoms[4].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[5].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
+                nodalDegreeOfFreedoms[9].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
+                nodalDegreeOfFreedoms[10].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[11].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X)
             {
                 var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
                 matrix.SetSubMatrix(3, 3, submatrix);
@@ -84,7 +85,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             EulerBernulliStifnessMatrix eulerBernulliLocalStifnessMatrix = new EulerBernulliStifnessMatrix(this);
 
             NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = eulerBernulliLocalStifnessMatrix.GetGlobalDegreeOfFreedom(NodeStart, NodeEnd);
-
+            
             ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, eulerBernulliLocalStifnessMatrix.StiffnessMatrix);
 
             globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
