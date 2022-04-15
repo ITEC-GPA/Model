@@ -32,7 +32,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             base.SetProperty(property);
         }
 
-        protected override CoordinateSystem GetCoordinateSystem()
+        protected override CoordinateSystem GetCoordinateSystem(double angle)
         {
             throw new NotImplementedException();
         }

@@ -23,6 +23,8 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         // Local axis of the element
         protected CoordinateSystem _coordinateSystem;
 
+        protected double _localAngle;
+
 
         protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
         protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
@@ -32,7 +34,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         //contains the nodes in global coordinates
         protected Node[] _nodes;
 
-
+        protected double LocalAngle { get => _localAngle; set => _localAngle = value; }
 
         //protected readonly ModelObjectSet<FiniteElementResult> _results;
 
@@ -68,20 +70,14 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         #region Constructor
 
         /// <param name="nodes">Nodes of the element</param>
-        internal FiniteElement(Node[] nodes) 
+        internal FiniteElement(Node[] nodes, double angle = 0) 
         {
             _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));            
             if (nodes.Where(i => i == null).Count() > 0)
                 throw new ArgumentNullException(nameof(nodes));
 
 
-            _coordinateSystem = GetCoordinateSystem();
-
-            //if (_nodalDegreeOfFreedoms == null)
-            //    throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
-
-            //if (_nodalDegreeOfFreedoms.Where(i => i == null).Count() > 0)
-            //    throw new ArgumentNullException(nameof(_nodalDegreeOfFreedoms));
+            _coordinateSystem = GetCoordinateSystem(angle);
             
 
             _attributesLoadCase = new AttributesCollection<LoadCaseAttribute>();
@@ -153,7 +149,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         public abstract FiniteElement Duplicate();
 
-        protected abstract CoordinateSystem GetCoordinateSystem();
+        protected abstract CoordinateSystem GetCoordinateSystem(double angle);
 
         protected internal abstract ElementStiffnessMatrix GetGlobalStiffnessMatrix();
 

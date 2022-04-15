@@ -5,15 +5,16 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Model.Fem.Attributes;
-using GPC.Model.Fem.Properties;
 using GPC.Model.Fem.ElementStiffnessMatrices;
+using GPC.Model.Fem.Properties;
 
 namespace GPC.Model.Fem.FemObjects.FiniteElements
 {
     public class Truss : LinearElement
     {
-        public Truss(Node node1, Node node2)
-            : base(node1, node2)
+        /// <inheritdoc/>
+        public Truss(Node node1, Node node2, double angle = 0)
+            : base(node1, node2, angle)
         {
 
         }
@@ -39,12 +40,12 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         {
             TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
 
-            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
-                nodalDegreeOfFreedoms[1].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[2].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ && 
-                nodalDegreeOfFreedoms[3].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DX &&
-                nodalDegreeOfFreedoms[4].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DY &&
-                nodalDegreeOfFreedoms[5].DegreeOfFreedom == DegreeOfFreedoms.GlobalDegreeOfFreedoms.DZ)
+            if (nodalDegreeOfFreedoms[0].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
+                nodalDegreeOfFreedoms[1].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[2].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
+                nodalDegreeOfFreedoms[3].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
+                nodalDegreeOfFreedoms[4].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
+                nodalDegreeOfFreedoms[5].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z)
             {
                 var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
                 matrix.SetSubMatrix(0, 0, submatrix);

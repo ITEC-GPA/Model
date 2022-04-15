@@ -67,7 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StiffnessMatrixTest.cs" />
+    <Compile Include="CoordinateSystemTest.cs" />
+    <Compile Include="LinearBeamStiffnessMatrixTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

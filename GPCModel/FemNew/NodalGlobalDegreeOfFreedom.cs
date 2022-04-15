@@ -10,17 +10,16 @@ namespace GPC.Model.Fem
 
     public struct NodalGlobalDegreeOfFreedom : IEquatable<NodalGlobalDegreeOfFreedom>, INodalDegreeOfFreedom
     {
-        public DegreeOfFreedoms.GlobalDegreeOfFreedoms DegreeOfFreedom { get; }
+        public GlobalDegreeOfFreedom DegreeOfFreedom { get; }
 
         public Node Node { get; }
 
 
-        public NodalGlobalDegreeOfFreedom(Node node, DegreeOfFreedoms.GlobalDegreeOfFreedoms degreeOfFreedom)
+        public NodalGlobalDegreeOfFreedom(Node node, GlobalDegreeOfFreedom degreeOfFreedom)
         {
             DegreeOfFreedom = degreeOfFreedom;
             Node = node ?? throw new ArgumentNullException(nameof(node));
         }
-
 
 
         #region Equals, Hascode, operators
@@ -46,6 +45,11 @@ namespace GPC.Model.Fem
             }
         }
 
+        public override string ToString()
+        {
+            return $"{Node.ToString()} {DegreeOfFreedom}";
+        }
+
         public static bool operator ==(NodalGlobalDegreeOfFreedom left, NodalGlobalDegreeOfFreedom right)
         {
             return left.Equals(right);
@@ -61,16 +65,4 @@ namespace GPC.Model.Fem
 
     }
 
-    //public static class NodalGlobalDegreeOfFreedomExtensions
-    //{
-    //    public static NodalLocalDegreeOfFreedom[] ToLocal(this NodalGlobalDegreeOfFreedom[] global)
-    //    {
-    //        return global.Select(i => i.ToLocal()).ToArray();
-    //    }
-
-    //    public static NodalLocalDegreeOfFreedom ToLocal(this NodalGlobalDegreeOfFreedom global)
-    //    {
-    //        return new NodalLocalDegreeOfFreedom(global.Node, global.DegreeOfFreedom.ToLocal());
-    //    }
-    //}
 }
