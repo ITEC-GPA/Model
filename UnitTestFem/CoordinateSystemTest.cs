@@ -10,11 +10,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Utilities.Maths;
 using GPC.Utilities.Extensions;
 using GPC.Utilities.Units;
+using GPC.TestUtilities;
 
 namespace UnitTestFem
 {
     [TestClass]
-    public class CoordinateSystemTest
+    public class CoordinateSystemTest : UnitTestBase
     {
 
 
