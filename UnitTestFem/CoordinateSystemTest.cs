@@ -6,11 +6,11 @@ using GPC.Model.Fem.FemObjects;
 using GPC.Model.Fem.FemObjects.FiniteElements;
 using GPC.Model.Materials;
 using GPC.Model.Sections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Utilities.Maths;
-using GPC.Utilities.Extensions;
-using GPC.Utilities.Units;
 using GPC.TestUtilities;
+using GPC.Utilities.Extensions;
+using GPC.Utilities.Maths;
+using GPC.Utilities.Units;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTestFem
 {
