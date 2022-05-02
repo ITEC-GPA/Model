@@ -48,14 +48,20 @@
     <Reference Include="GPCUtilities, Version=1.0.32.2, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.32.2\lib\net472\GPCUtilities.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.15.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.15.0\lib\net461\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net461\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics.Providers.MKL, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.Providers.MKL.5.0.0\lib\net461\MathNet.Numerics.Providers.MKL.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -326,6 +332,7 @@
     <Compile Include="Sections\ThinWallSection.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
@@ -334,9 +341,9 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets'))" />
     <Error Condition="!Exists('..\packages\GMsh.Net.1.0.495\build\GMsh.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GMsh.Net.1.0.495\build\GMsh.Net.targets'))" />
+    <Error Condition="!Exists('..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets'))" />
   </Target>
-  <Import Project="..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win-x64.2.5.0\build\MathNet.Numerics.MKL.Win-x64.targets')" />
   <Import Project="..\packages\GMsh.Net.1.0.495\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.495\build\GMsh.Net.targets')" />
+  <Import Project="..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets')" />
 </Project>
