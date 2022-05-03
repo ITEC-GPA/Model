@@ -32,9 +32,9 @@ namespace UnitTestFem
             var v2 = beam.CoordinateSystem.V2;
             var v3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(0, 0, 1), v1);
-            Assert.AreEqual(new Vector3d(1, 0, 0), v2);
-            Assert.AreEqual(new Vector3d(0, 1, 0), v3);
+            Assert.AreEqual(new Vector3d(1, 0, 0), v1);
+            Assert.AreEqual(new Vector3d(0, 1, 0), v2);
+            Assert.AreEqual(new Vector3d(0, 0, 1), v3);
 
         }
 
@@ -55,11 +55,12 @@ namespace UnitTestFem
             Console.WriteLine($"V2: {v2}");
             Console.WriteLine($"V3: {v3}");
 
-            Assert.AreEqual(new Vector3d(0, 0, 1), v1);
-            Assert.AreEqual(new Vector3d(0.707106781186548, 0.707106781186548, 0), v2);
-            Assert.AreEqual(new Vector3d(-0.707106781186548, 0.707106781186548, 0), v3);
+            Assert.AreEqual(new Vector3d(0.707106781186548, +0.707106781186548, 0), v1);
+            Assert.AreEqual(new Vector3d(0.707106781186548, -0.707106781186548, 0), v2);
+            Assert.AreEqual(new Vector3d(0, 0, 1), v3);
 
         }
+
 
         [TestMethod]
         public void LinearBeamParallelX()
@@ -78,9 +79,9 @@ namespace UnitTestFem
             Console.WriteLine($"V2: {v2}");
             Console.WriteLine($"V3: {v3}");
 
-            Assert.AreEqual(new Vector3d(1, 0, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, 0, 1), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0, -1, 0), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0, 0, -1), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(0, 1, 0), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(1, 0, 0), v3, "Axis 3");
 
         }
 
@@ -103,9 +104,9 @@ namespace UnitTestFem
             Console.WriteLine($"V2: {v2}");
             Console.WriteLine($"V3: {v3}");
 
-            Assert.AreEqual(new Vector3d(1, 0, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, -0.707106781186547, 0.707106781186547), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0, -0.707106781186547, -0.707106781186547), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0, +0.707106781186547, -0.707106781186547), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(0, +0.707106781186547, +0.707106781186547), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(1, 0, 0), v3, "Axis 3");
 
         }
 
@@ -122,9 +123,9 @@ namespace UnitTestFem
             Vector3d v2 = beam.CoordinateSystem.V2;
             Vector3d v3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(-1, 0, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, 0, 1), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0, +1, 0), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(+0, 0, -1), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(+0, -1, 0), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(-1, 0, 0), v3, "Axis 3");
 
         }
 
@@ -141,9 +142,9 @@ namespace UnitTestFem
             Vector3d v2 = beam.CoordinateSystem.V2;
             Vector3d v3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(0, 1, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, 0, 1), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(1, 0, 0), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0, 0, -1), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(-1, 0, 0), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(0, 1, 0), v3, "Axis 3");
 
         }
 
@@ -166,9 +167,9 @@ namespace UnitTestFem
             Console.WriteLine($"V2: {v2}");
             Console.WriteLine($"V3: {v3}");
 
-            Assert.AreEqual(new Vector3d(0, 1, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0.707106781186547, 0, 0.707106781186547), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0.707106781186547, 0, -0.707106781186547), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(-0.707106781186547, 0, -0.707106781186547), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(-0.707106781186547, 0, +0.707106781186547), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(0, 1, 0), v3, "Axis 3");
 
         }
 
@@ -185,9 +186,9 @@ namespace UnitTestFem
             Vector3d v2 = beam.CoordinateSystem.V2;
             Vector3d v3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(0, -1, 0), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, 0, 1), v2, "Axis 2");
-            Assert.AreEqual(new Vector3d(-1, 0, 0), v3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0, 0, -1), v1, "Axis 1");
+            Assert.AreEqual(new Vector3d(1, 0,  0), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(0, -1, 0), v3, "Axis 3");
 
         }
 
@@ -204,9 +205,9 @@ namespace UnitTestFem
             Vector3d V2 = beam.CoordinateSystem.V2;
             Vector3d V3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(+0.707106781186548, 0, 0.707106781186548), V1, "Axis 1");
-            Assert.AreEqual(new Vector3d(-0.707106781186548, 0, 0.707106781186548), V2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0, -1, 0), V3, "Axis 3");
+            Assert.AreEqual(new Vector3d(+0.707106781186548, 0, -0.707106781186548), V1, "Axis 1");
+            Assert.AreEqual(new Vector3d(0, 1, 0), V2, "Axis 2");
+            Assert.AreEqual(new Vector3d(+0.707106781186548, 0, 0.707106781186548), V3, "Axis 3");
 
         }
 
@@ -223,9 +224,9 @@ namespace UnitTestFem
             Vector3d V2 = beam.CoordinateSystem.V2;
             Vector3d V3 = beam.CoordinateSystem.V3;
 
-            Assert.AreEqual(new Vector3d(0, +0.707106781186548, 0.707106781186548), V1, "Axis 1");
-            Assert.AreEqual(new Vector3d(0, -0.707106781186548, 0.707106781186548), V2, "Axis 2");
-            Assert.AreEqual(new Vector3d(1, 0, 0), V3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0, +0.707106781186548, -0.707106781186548), V1, "Axis 1");
+            Assert.AreEqual(new Vector3d(-1, 0, 0), V2, "Axis 2");
+            Assert.AreEqual(new Vector3d(0, +0.707106781186548, 0.707106781186548), V3, "Axis 3");
 
         }
 
@@ -246,9 +247,9 @@ namespace UnitTestFem
             Console.WriteLine($"V2: {V2}");
             Console.WriteLine($"V3: {V3}");
 
-            Assert.AreEqual(new Vector3d(0.577350269189626, 0.577350269189626, 0.577350269189626), V1, "Axis 1");
-            Assert.AreEqual(new Vector3d(-0.408248290463863, -0.408248290463863, 0.816496580927726), V2, "Axis 2");
-            Assert.AreEqual(new Vector3d(0.707106781186548, -0.707106781186548, 0), V3, "Axis 3");
+            Assert.AreEqual(new Vector3d(0.408248290463863, 0.408248290463863, -0.816496580927726), V1, "Axis 1");
+            Assert.AreEqual(new Vector3d(-0.707106781186548, 0.707106781186548, 0), V2, "Axis 2");
+            Assert.AreEqual(new Vector3d(0.577350269189626, 0.577350269189626, 0.577350269189626), V3, "Axis 3");
 
         }
 

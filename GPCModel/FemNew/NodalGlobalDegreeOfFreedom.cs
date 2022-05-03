@@ -50,6 +50,11 @@ namespace GPC.Model.Fem
             return $"{Node.ToString()} {DegreeOfFreedom}";
         }
 
+        public string ToStringDegreeOfFreedom()
+        {
+            return DegreeOfFreedom.ToString();
+        }
+
         public static bool operator ==(NodalGlobalDegreeOfFreedom left, NodalGlobalDegreeOfFreedom right)
         {
             return left.Equals(right);

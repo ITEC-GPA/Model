@@ -26,6 +26,17 @@ namespace GPC.Model.Fem
 
         #region Equals, Hascode, operators
 
+        public override string ToString()
+        {
+            return $"{Node.ToString()} {DegreeOfFreedom}";
+        }
+
+        public string ToStringDegreeOfFreedom()
+        {
+            return DegreeOfFreedom.ToString();
+        }
+
+
         public override bool Equals(object obj)
         {
             return obj is NodalLocalDegreeOfFreedom freedom && Equals(freedom);

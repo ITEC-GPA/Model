@@ -30,14 +30,22 @@ namespace UnitTestFem
             Node node1 = new Node(new Point3d(0, 0, 0));
             Node node2 = new Node(new Point3d(1500, 0, 0));
 
-
             EulerBeam beam = new EulerBeam(node1, node2);
             beam.SetProperty(sec);
 
             ElementStiffnessMatrix matrix = beam.GetGlobalStiffnessMatrix();
 
-            Console.Write(matrix);
+            Console.WriteLine(sec.Material.E);
+            Console.WriteLine(sec.Material.Ni);
+            Console.WriteLine(sec.Material.GetShearModule());
 
+            Console.WriteLine(sec.Jxx);
+            Console.WriteLine(sec.Jyy);
+            Console.WriteLine(sec.Jt);
+
+            Console.WriteLine(matrix.ToStringKeyMatrix());
+            
+            // Assert
             Assert.IsTrue(matrix.IsSymmetric());
 
             var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
@@ -55,6 +63,7 @@ namespace UnitTestFem
             Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX)));
             Assert.AreEqual(-7000000, matrix[0, 6]);
             Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX), new NodalGlobalDegreeOfFreedom(node2, dofDX)));
+
 
             // FY
             Assert.AreEqual(777777.7778, matrix[2, 2], tol);
@@ -79,10 +88,27 @@ namespace UnitTestFem
 
 
             // MX
-            Assert.AreEqual(7862253415.109, matrix[3, 3]);
-            Assert.AreEqual(7862253415.109, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX)), tol);
+            Assert.AreEqual(7843740513, matrix[3, 3], tol * 1000);
+            Assert.AreEqual(7843740513, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX)), tol * 1000);
 
-            Assert.AreEqual(-7862253415.109, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofRX)));
+            Assert.AreEqual(-7843740513, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofRX)), tol * 1000);
+
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofDX)), tol * 1000);
+
+
+            // MY
+            //Assert.AreEqual(583333333333.333, matrix[4, 4], tol);
+            Assert.AreEqual(583333333333.333, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRY), new NodalGlobalDegreeOfFreedom(node1, dofRY)));
+            Assert.AreEqual(291666666667, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRY), new NodalGlobalDegreeOfFreedom(node2, dofRY)));
+
+
+            Assert.AreEqual(583333333333.333, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRY)), tol);
+            Assert.AreEqual(-583333333, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDZ)), tol);
+
+            Assert.AreEqual(203621746.1, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofRX)));
+            Assert.AreEqual(407243.492, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofDZ)));
+
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofRX), new NodalGlobalDegreeOfFreedom(node2, dofDX)));
 
 
         }
@@ -104,30 +130,27 @@ namespace UnitTestFem
 
             ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
 
-            Console.Write(matrix);
+            var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
+            var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);
+            var dofDZ = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z);
+
+            Console.Write(matrix.ToStringKeyMatrix());
 
             Assert.IsTrue(matrix.IsSymmetric());
 
             Assert.AreEqual(7000000, matrix[0, 0]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X))));
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX)));
 
             Assert.AreEqual(-7000000, matrix[0, 3]);
-            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X)),
-                new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X))));
+            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX), new NodalGlobalDegreeOfFreedom(node2, dofDX)));
 
             Assert.AreEqual(7000000, matrix[3, 3]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X))));
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2, dofDX)));
 
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDY)));
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDZ)));
 
         }
 
@@ -146,30 +169,27 @@ namespace UnitTestFem
 
             ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
 
-            Console.Write(matrix);
+            var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
+            var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);
+            var dofDZ = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z);
+
+            Console.Write(matrix.ToStringKeyMatrix());
 
             Assert.IsTrue(matrix.IsSymmetric());
 
-            Assert.AreEqual(7000000, matrix[2, 2]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y))));
+            Assert.AreEqual(7000000, matrix[1, 1]);
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDY)));
 
-            Assert.AreEqual(-7000000, matrix[2, 5]);
-            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y)),
-                new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y))));
+            Assert.AreEqual(-7000000, matrix[1, 4]);
+            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDY), new NodalGlobalDegreeOfFreedom(node2, dofDY)));
 
-            Assert.AreEqual(7000000, matrix[5, 5]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y))));
+            Assert.AreEqual(7000000, matrix[4, 4]);
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2, dofDY)));
 
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX)));
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDZ)));
 
         }
 
@@ -189,30 +209,27 @@ namespace UnitTestFem
 
             ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
 
-            Console.Write(matrix);
+            var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
+            var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);
+            var dofDZ = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z);
+
+            Console.Write(matrix.ToStringKeyMatrix());
 
             Assert.IsTrue(matrix.IsSymmetric());
 
-            Assert.AreEqual(7000000, matrix[1, 1]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z))));
+            Assert.AreEqual(7000000, matrix[2, 2]);
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDZ)));
 
-            Assert.AreEqual(-7000000, matrix[1, 4]);
-            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z)),
-                new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z))));
+            Assert.AreEqual(-7000000, matrix[2, 5]);
+            Assert.AreEqual(-7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDZ), new NodalGlobalDegreeOfFreedom(node2, dofDZ)));
 
-            Assert.AreEqual(7000000, matrix[4, 4]);
-            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z))));
+            Assert.AreEqual(7000000, matrix[5, 5]);
+            Assert.AreEqual(7000000, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node2, dofDZ)));
 
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDY)));
 
-            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1,
-                new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X))));
+            Assert.AreEqual(0, matrix.GetElementAt(new NodalGlobalDegreeOfFreedom(node1, dofDX)));
 
         }
 

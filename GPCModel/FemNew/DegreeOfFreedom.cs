@@ -120,15 +120,15 @@ namespace GPC.Model.Fem
                     break;
 
                 case DegreeOfFreedom.DegreeOfFreedomLocalDirections.Axis1:
-                    DegreeOfFreedomGlobalDirection = DegreeOfFreedomGlobalDirections.X;
-                    break;
-
-                case DegreeOfFreedom.DegreeOfFreedomLocalDirections.Axis2:
                     DegreeOfFreedomGlobalDirection = DegreeOfFreedomGlobalDirections.Z;
                     break;
 
-                case DegreeOfFreedom.DegreeOfFreedomLocalDirections.Axis3:
+                case DegreeOfFreedom.DegreeOfFreedomLocalDirections.Axis2:
                     DegreeOfFreedomGlobalDirection = DegreeOfFreedomGlobalDirections.Y;
+                    break;
+
+                case DegreeOfFreedom.DegreeOfFreedomLocalDirections.Axis3:
+                    DegreeOfFreedomGlobalDirection = DegreeOfFreedomGlobalDirections.X;
                     break;
 
                 default:
