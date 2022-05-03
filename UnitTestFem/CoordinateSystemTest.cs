@@ -56,7 +56,7 @@ namespace UnitTestFem
             Console.WriteLine($"V3: {v3}");
 
             Assert.AreEqual(new Vector3d(0.707106781186548, +0.707106781186548, 0), v1);
-            Assert.AreEqual(new Vector3d(0.707106781186548, -0.707106781186548, 0), v2);
+            Assert.AreEqual(new Vector3d(-0.707106781186548, 0.707106781186548, 0), v2);
             Assert.AreEqual(new Vector3d(0, 0, 1), v3);
 
         }
@@ -187,7 +187,7 @@ namespace UnitTestFem
             Vector3d v3 = beam.CoordinateSystem.V3;
 
             Assert.AreEqual(new Vector3d(0, 0, -1), v1, "Axis 1");
-            Assert.AreEqual(new Vector3d(1, 0,  0), v2, "Axis 2");
+            Assert.AreEqual(new Vector3d(1, 0, 0), v2, "Axis 2");
             Assert.AreEqual(new Vector3d(0, -1, 0), v3, "Axis 3");
 
         }
