@@ -68,6 +68,13 @@ namespace GPC.Model.Maths.Matrices
             return _columnKeyIndex[column];
         }
 
+        /// <exception cref="KeyNotFoundException"></exception>
+        // serve per evitare ambiguità se le chiavi sono uguali 
+        protected int GetRowIndex(TRow row)
+        {
+            return _rowKeyIndex[row];
+        }
+
         public bool ContainsKey(TRow row)
         {
             return _rowKeyIndex.ContainsKey(row);
@@ -86,5 +93,6 @@ namespace GPC.Model.Maths.Matrices
         {
             return _rowKeyIndex.Keys.ToArray();
         }
+
     }
 }

@@ -7,91 +7,53 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace GPC.Model.Maths.Matrices
 {
-    public class KeySquareSymmetricDenseMatrix<TKey> : DenseMatrix, IKeyMatrix<TKey, TKey>
+    public class KeySquareSymmetricDenseMatrix<TKey> : KeyDenseMatrix<TKey, TKey>
     {
-
-        protected Dictionary<TKey, int> _keyIndex;
 
 
         public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys, DenseMatrix matrix)
-            : this(keys)
+            : base(keys, keys, matrix)
         {
-            SetSubMatrix(0, 0, matrix);
+
         }
 
         public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys, MathNet.Numerics.LinearAlgebra.Matrix<double> matrix)
-            : this(keys)
+            : base(keys, keys, matrix)
         {
             SetSubMatrix(0, 0, matrix);
         }
 
         public KeySquareSymmetricDenseMatrix(IEnumerable<TKey> keys)
-            : base(keys.Count())
-        {
-            _keyIndex = new Dictionary<TKey, int>();
-            InitKeyIndices(keys);
-
-        }
-
-
-        private void InitKeyIndices(IEnumerable<TKey> keys)
+            : base(keys, keys)
         {
 
-            int i = 0;
-            foreach (var item in keys)
-            {
-                _keyIndex.Add(item, i++);
-            }
-
         }
-
-
-        public bool ContainsKey(TKey key)
-        {
-            return _keyIndex.ContainsKey(key);
-        }
-
-
-        public int GetIndex(TKey key)
-        {
-            return _keyIndex[key];
-        }
-
 
 
         /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int, T)"/>
         public void SetElementAt(TKey key, double value)
         {
-            At(GetIndex(key), GetIndex(key), value);
+            At(GetRowIndex(key), GetRowIndex(key), value);
         }
 
         /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int, T)"/>
         public void SetElementAtSymmetric(TKey row, TKey column, double value)
         {
-            At(GetIndex(row), GetIndex(column), value);
-            At(GetIndex(column), GetIndex(row), value);
+            At(GetRowIndex(row), GetRowIndex(column), value);
+            At(GetRowIndex(column), GetRowIndex(row), value);
         }
 
         /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int)"/>
         public double GetElementAt(TKey row)
         {
-            return At(GetIndex(row), GetIndex(row));
+            return At(GetRowIndex(row), GetRowIndex(row));
         }
 
         /// <inheritdoc cref="MathNet.Numerics.LinearAlgebra.Matrix{T}.At(int, int)"/>
         public double GetElementAt(TKey row, TKey column)
         {
-            return At(GetIndex(row), GetIndex(column));
+            return At(GetRowIndex(row), GetRowIndex(column));
         }
 
-        public TKey[] GetColumnKeys()
-        {
-            return _keyIndex.Keys.ToArray();
-        }
-
-        public TKey[] GetRowKeys()
-        {
-            return _keyIndex.Keys.ToArray();
-        }
     }
 }

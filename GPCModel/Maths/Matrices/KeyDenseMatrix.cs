@@ -21,6 +21,11 @@ namespace GPC.Model.Maths.Matrices
             SetSubMatrix(0, 0, matrix);
         }
 
+        public KeyDenseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns, MathNet.Numerics.LinearAlgebra.Matrix<double> matrix)
+            : this(rows, columns)
+        {
+            SetSubMatrix(0, 0, matrix);
+        }
 
         /// <inheritdoc cref="KeySparseMatrix{TRow, TColumn}.KeySparseMatrix(IEnumerable{TRow}, IEnumerable{TColumn})"/>
         public KeyDenseMatrix(IEnumerable<TRow> rows, IEnumerable<TColumn> columns)
@@ -69,6 +74,12 @@ namespace GPC.Model.Maths.Matrices
             return _columnKeyIndex[column];
         }
 
+        /// <exception cref="KeyNotFoundException"></exception>
+        // serve per evitare ambiguità se le chiavi sono uguali 
+        protected int GetRowIndex(TRow row)
+        {
+            return _rowKeyIndex[row];
+        }
 
         public bool ContainsKey(TRow row)
         {
@@ -89,6 +100,7 @@ namespace GPC.Model.Maths.Matrices
         {
             return _rowKeyIndex.Keys.ToArray();
         }
+
     }
 
 
