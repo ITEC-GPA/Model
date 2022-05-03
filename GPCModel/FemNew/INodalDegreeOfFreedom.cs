@@ -11,5 +11,7 @@ namespace GPC.Model.Fem
     public interface INodalDegreeOfFreedom
     {
         Node Node { get; }
+
+        string ToStringDegreeOfFreedom();
     }
 }

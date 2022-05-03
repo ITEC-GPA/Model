@@ -61,5 +61,33 @@ namespace GPC.Model.Fem
             return new ElementStiffnessMatrix(GetRowKeys(), transformationMatrix.TransposeThisAndMultiply(this).Multiply(transformationMatrix));
         }
 
+
+        internal string ToStringKeyMatrix()
+        {
+            int padSize = 7;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(base.ToTypeString());
+
+            INodalDegreeOfFreedom[] columnKeys = GetColumnKeys();
+            INodalDegreeOfFreedom[] rowsKeys = GetRowKeys();
+
+            sb.Append("".PadLeft(padSize));
+            columnKeys.ToList().ForEach(i => sb.Append(i.ToStringDegreeOfFreedom().PadLeft(padSize)));
+            sb.Append(Environment.NewLine);
+
+
+            for (int r = 0; r < RowCount; r++)
+            {
+                sb.Append(rowsKeys[r].ToStringDegreeOfFreedom().PadLeft(padSize));
+
+                for (int c = 0; c < ColumnCount; c++)
+                {
+                    sb.Append(this[r, c].ToString("G6").PadLeft(padSize));
+                }
+                sb.Append(Environment.NewLine);
+            }
+
+            return sb.ToString();
+        }
     }
 }
