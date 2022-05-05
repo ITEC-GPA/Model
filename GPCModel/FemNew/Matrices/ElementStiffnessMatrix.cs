@@ -64,7 +64,7 @@ namespace GPC.Model.Fem
 
         internal string ToStringKeyMatrix()
         {
-            int padSize = 7;
+            int padSize = 8;
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(base.ToTypeString());
 
@@ -82,7 +82,7 @@ namespace GPC.Model.Fem
 
                 for (int c = 0; c < ColumnCount; c++)
                 {
-                    sb.Append(this[r, c].ToString("G6").PadLeft(padSize));
+                    sb.Append(this[r, c].ToString("G2").PadLeft(padSize));
                 }
                 sb.Append(Environment.NewLine);
             }

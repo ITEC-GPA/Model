@@ -58,7 +58,6 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
             // Fuori Diagonale
             matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], - ka);
 
-            Console.Write(matrix);
             return matrix;
         }
 

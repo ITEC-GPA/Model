@@ -38,8 +38,6 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         public override TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
-            TransformationMatrix matrix = new TransformationMatrix(nodalDegreeOfFreedoms);
-
             if (nodalDegreeOfFreedoms[0].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
                 nodalDegreeOfFreedoms[1].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
                 nodalDegreeOfFreedoms[2].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z &&
@@ -47,30 +45,30 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
                 nodalDegreeOfFreedoms[4].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
                 nodalDegreeOfFreedoms[5].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Z)
             {
-                var submatrix = _coordinateSystem.TrfMatrix.RemoveColumn(3);
-                matrix.SetSubMatrix(0, 0, submatrix);
-                matrix.SetSubMatrix(3, 3, submatrix);
+
+                return new TransformationMatrix(nodalDegreeOfFreedoms, _coordinateSystem);
             }
             else
             {
                 // Bisogna editare la trfMatrix se l'ordine dei dof è scambiato
                 throw new NotImplementedException();
             }
-            Console.WriteLine(matrix);
 
-            return matrix;
         }
 
 
         protected internal override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
         {
             TrussStiffnessMatrix trussStiffnessMatrix = new TrussStiffnessMatrix(this);
-
             NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = trussStiffnessMatrix.GetGlobalDegreeOfFreedom(NodeStart, NodeEnd);
+
+
 
             ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.StiffnessMatrix);
 
             globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
+
+
 
 
             return globalStiffnessMatrix;
