@@ -26,12 +26,12 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         }
 
-        protected override ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element)
+        protected override ElementLocalStiffnessMatrix GetStiffnessMatrix(FiniteElement element)
         {
             return GetStiffnessMatrix((EulerBeam)element);
         }
 
-        protected ElementStiffnessMatrix GetStiffnessMatrix(EulerBeam element)
+        protected ElementLocalStiffnessMatrix GetStiffnessMatrix(EulerBeam element)
         {
             Section section = element.Section;
             IsotropicFemMaterial material = section.GetIsotropicFemMaterial();
@@ -49,7 +49,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
             NodalLocalDegreeOfFreedom[] nodalDegree = GetNodalDegreeOfFreedom();
 
-            ElementStiffnessMatrix matrix = new ElementStiffnessMatrix(nodalDegree);
+            ElementLocalStiffnessMatrix matrix = new ElementLocalStiffnessMatrix(nodalDegree);
 
 
             int shear1DofIndex = 0;
@@ -77,27 +77,27 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
 
             // Fuori Diagonale
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear1DofIndex + totalDof], -12.0 * E * I22 / Math.Pow(lenght, 3));
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear1DofIndex], nodalDegree[shear1DofIndex + totalDof], -12.0 * E * I22 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[shear1DofIndex], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +6.0 * E * I22 / Math.Pow(lenght, 2));
 
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear2DofIndex + totalDof], -12.0 * E * I11 / Math.Pow(lenght, 3));
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + totalDof + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex], nodalDegree[shear2DofIndex + totalDof], -12.0 * E * I11 / Math.Pow(lenght, 3));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex], nodalDegree[shear1DofIndex + totalDof + displacementsDof], -6.0 * E * I11 / Math.Pow(lenght, 2));
 
-            matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], -E * A / lenght);
+            matrix.SetElementAt(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], -E * A / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear2DofIndex + totalDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +2.0 * E * I11 / lenght);
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear2DofIndex + totalDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +2.0 * E * I11 / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +2.0 * E * I22 / lenght);
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear1DofIndex + totalDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + displacementsDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], +2.0 * E * I22 / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex + displacementsDof], nodalDegree[axialDofIndex + displacementsDof + totalDof], -G * J / lenght);
+            matrix.SetElementAt(nodalDegree[axialDofIndex + displacementsDof], nodalDegree[axialDofIndex + displacementsDof + totalDof], -G * J / lenght);
 
-            matrix.SetElementAtSymmetric(nodalDegree[shear1DofIndex + totalDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear1DofIndex + totalDof], nodalDegree[shear2DofIndex + totalDof + displacementsDof], -6.0 * E * I22 / Math.Pow(lenght, 2));
 
-            matrix.SetElementAtSymmetric(nodalDegree[shear2DofIndex + totalDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
+            matrix.SetElementAt(nodalDegree[shear2DofIndex + totalDof], nodalDegree[shear1DofIndex + totalDof + displacementsDof], +6.0 * E * I11 / Math.Pow(lenght, 2));
 
 
 

@@ -41,7 +41,7 @@ namespace GPC.Model.Fem
         }
 
         public DegreeOfFreedomTypes DegreeOfFreedomType { get; }
-        public DegreeOfFreedomLocalDirections DegreeOfFreedomLocalDirection { get;  }
+        public DegreeOfFreedomLocalDirections DegreeOfFreedomLocalDirection { get; }
 
         public DegreeOfFreedom(DegreeOfFreedomTypes degreeOfFreedomType, DegreeOfFreedomLocalDirections degreeOfFreedomLocalDirection)
         {

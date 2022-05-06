@@ -17,12 +17,12 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         protected Node[] _nodes;
 
-        private readonly ElementStiffnessMatrix _stiffnessMatrix;
+        private readonly ElementLocalStiffnessMatrix _stiffnessMatrix;
 
         protected NodalLocalDegreeOfFreedom[] _nodalDegreeOfFreedoms;
 
 
-        public ElementStiffnessMatrix StiffnessMatrix => _stiffnessMatrix;
+        public ElementLocalStiffnessMatrix StiffnessMatrix => _stiffnessMatrix;
 
         public NodalLocalDegreeOfFreedom[] NodalDegreeOfFreedom => _nodalDegreeOfFreedoms;
 
@@ -40,7 +40,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
         public abstract NodalGlobalDegreeOfFreedom[] GetGlobalDegreeOfFreedom(Node[] nodes);
 
-        protected abstract ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element);
+        protected abstract ElementLocalStiffnessMatrix GetStiffnessMatrix(FiniteElement element);
 
 
     }

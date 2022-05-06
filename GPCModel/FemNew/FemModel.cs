@@ -1811,13 +1811,27 @@ namespace GPC.Model.Fem
 
         public virtual void Solve()
         {
-            throw new NotImplementedException();
+            var matrix = GetStiffnessMatrix();
+
+            MathNet.Numerics.LinearAlgebra.Double.DenseVector vector = new MathNet.Numerics.LinearAlgebra.Double.DenseVector(matrix.GlobalStiffnessMatrix.ColumnCount);
+
+            var keys = matrix.GlobalStiffnessMatrix.GetColumnKeys();
+
+            
+            Console.Write(matrix.GlobalStiffnessMatrix.ToString()) ;
         }
 
 
         public virtual void SolveStaged()
         {
             throw new NotImplementedException();
+        }
+
+        private FemModelGlobalStiffnessMatrix GetStiffnessMatrix()
+        {
+            LinearStaticStiffnessMatrix matrix = new LinearStaticStiffnessMatrix(_elements);
+
+            return matrix;
         }
 
 

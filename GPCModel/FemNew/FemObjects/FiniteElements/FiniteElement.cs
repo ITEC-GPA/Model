@@ -70,6 +70,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         #region Constructor
 
         /// <param name="nodes">Nodes of the element</param>
+        /// <param name="angle"></param>
         internal FiniteElement(Node[] nodes, double angle = 0) 
         {
             _nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));            
@@ -151,7 +152,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
 
         protected abstract CoordinateSystem GetCoordinateSystem(double angle);
 
-        protected internal abstract ElementStiffnessMatrix GetGlobalStiffnessMatrix();
+        protected internal abstract ElementGlobalStiffnessMatrix GetGlobalStiffnessMatrix();
 
         #endregion
 

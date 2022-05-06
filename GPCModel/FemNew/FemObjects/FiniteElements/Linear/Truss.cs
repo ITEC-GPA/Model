@@ -36,7 +36,7 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
             throw new NotImplementedException();
         }
 
-        public override TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms)
+        protected override TransformationMatrix GetTransformationMatrix(NodalGlobalDegreeOfFreedom[] nodalDegreeOfFreedoms)
         {
             if (nodalDegreeOfFreedoms[0].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X &&
                 nodalDegreeOfFreedoms[1].DegreeOfFreedom.DegreeOfFreedomGlobalDirection == GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y &&
@@ -57,14 +57,14 @@ namespace GPC.Model.Fem.FemObjects.FiniteElements
         }
 
 
-        protected internal override ElementStiffnessMatrix GetGlobalStiffnessMatrix()
+        protected internal override ElementGlobalStiffnessMatrix GetGlobalStiffnessMatrix()
         {
             TrussStiffnessMatrix trussStiffnessMatrix = new TrussStiffnessMatrix(this);
             NodalGlobalDegreeOfFreedom[] nodalGlobalDegreeOfFreedom = trussStiffnessMatrix.GetGlobalDegreeOfFreedom(NodeStart, NodeEnd);
 
 
 
-            ElementStiffnessMatrix globalStiffnessMatrix = new ElementStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.StiffnessMatrix);
+            ElementGlobalStiffnessMatrix globalStiffnessMatrix = new ElementGlobalStiffnessMatrix(nodalGlobalDegreeOfFreedom, trussStiffnessMatrix.StiffnessMatrix);
 
             globalStiffnessMatrix = globalStiffnessMatrix.PrePostMultiply(GetTransformationMatrix(nodalGlobalDegreeOfFreedom));
 

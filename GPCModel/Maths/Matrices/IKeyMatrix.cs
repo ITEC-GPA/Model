@@ -10,8 +10,15 @@ namespace GPC.Model.Maths.Matrices
     {
         double this[int row, int column] { get; set; }
 
+
+        void SetElementAt(TRow row, TColumn column, double value);
+        void SumElementAt(TRow row, TColumn column, double value);
+
+        void AddMatrix(TRow[] row, TColumn[] column, MathNet.Numerics.LinearAlgebra.Matrix<double> matrix);
+
         int GetIndex(TRow row);
         int GetIndex(TColumn column);
+
 
         bool ContainsKey(TRow row);
         bool ContainsKey(TColumn column);

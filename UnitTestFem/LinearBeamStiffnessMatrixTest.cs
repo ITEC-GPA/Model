@@ -33,7 +33,7 @@ namespace UnitTestFem
             EulerBeam beam = new EulerBeam(node1, node2);
             beam.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = beam.GetGlobalStiffnessMatrix();
+            var matrix = beam.GetGlobalStiffnessMatrix();
 
             Console.WriteLine(sec.Material.E);
             Console.WriteLine(sec.Material.Ni);
@@ -123,7 +123,7 @@ namespace UnitTestFem
             EulerBeam beam = new EulerBeam(node1, node2);
             beam.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = beam.GetGlobalStiffnessMatrix();
+            var matrix = beam.GetGlobalStiffnessMatrix();
 
 
             Console.WriteLine(matrix.ToStringKeyMatrix());
@@ -195,7 +195,7 @@ namespace UnitTestFem
             EulerBeam beam = new EulerBeam(node1, node2);
             beam.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = beam.GetGlobalStiffnessMatrix();
+            var matrix = beam.GetGlobalStiffnessMatrix();
 
 
             Console.WriteLine(matrix.ToStringKeyMatrix());
@@ -265,7 +265,7 @@ namespace UnitTestFem
             Truss truss = new Truss(node1, node2);
             truss.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
+            var matrix = truss.GetGlobalStiffnessMatrix();
 
             var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
             var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);
@@ -304,7 +304,7 @@ namespace UnitTestFem
             Truss truss = new Truss(node1, node2);
             truss.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
+            var matrix = truss.GetGlobalStiffnessMatrix();
 
             var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
             var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);
@@ -344,7 +344,7 @@ namespace UnitTestFem
             Truss truss = new Truss(node1, node2);
             truss.SetProperty(sec);
 
-            ElementStiffnessMatrix matrix = truss.GetGlobalStiffnessMatrix();
+            var matrix = truss.GetGlobalStiffnessMatrix();
 
             var dofDX = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.X);
             var dofDY = new GlobalDegreeOfFreedom(DegreeOfFreedom.DegreeOfFreedomTypes.Displacement, GlobalDegreeOfFreedom.DegreeOfFreedomGlobalDirections.Y);

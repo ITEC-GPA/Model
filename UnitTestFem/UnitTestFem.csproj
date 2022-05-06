@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoordinateSystemTest.cs" />
+    <Compile Include="FemModelBeamTest.cs" />
     <Compile Include="LinearBeamStiffnessMatrixTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

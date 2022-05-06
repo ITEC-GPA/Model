@@ -25,12 +25,12 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
         }
 
 
-        protected override ElementStiffnessMatrix GetStiffnessMatrix(FiniteElement element)
+        protected override ElementLocalStiffnessMatrix GetStiffnessMatrix(FiniteElement element)
         {
             return GetStiffnessMatrix((Truss)element);
         }
 
-        protected ElementStiffnessMatrix GetStiffnessMatrix(Truss element)
+        protected ElementLocalStiffnessMatrix GetStiffnessMatrix(Truss element)
         {
             Section section = element.Section;
             IsotropicFemMaterial material = section.GetIsotropicFemMaterial();
@@ -44,7 +44,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
 
             NodalLocalDegreeOfFreedom[] nodalDegree = GetNodalDegreeOfFreedom();
 
-            ElementStiffnessMatrix matrix = new ElementStiffnessMatrix(nodalDegree);
+            ElementLocalStiffnessMatrix matrix = new ElementLocalStiffnessMatrix(nodalDegree);
 
             int axialDofIndex = 2;
             int totalDof = 3;
@@ -56,7 +56,7 @@ namespace GPC.Model.Fem.ElementStiffnessMatrices
             matrix.SetElementAt(nodalDegree[axialDofIndex + totalDof], + ka);
 
             // Fuori Diagonale
-            matrix.SetElementAtSymmetric(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], - ka);
+            matrix.SetElementAt(nodalDegree[axialDofIndex], nodalDegree[axialDofIndex + totalDof], - ka);
 
             return matrix;
         }
