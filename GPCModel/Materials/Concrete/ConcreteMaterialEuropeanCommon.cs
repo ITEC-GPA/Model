@@ -454,40 +454,32 @@ namespace GPC.Model.Materials
 
         public override double CalculateFctd(Standards.Standard standard)
         {
-            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
-            {
-                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
-            }
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)            
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;            
             else
                 throw new ArgumentException();
         }
 
         public override double CalculateFcdAccidental(Standards.Standard standard)
         {
-            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
-            {
-                return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaCAccidental;
-            }
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)            
+                return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaCAccidental;            
             else
                 throw new ArgumentException();
         }
 
         public override double CalculateFctdAccidental(Standards.Standard standard)
         {
-            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
-            {
-                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaCAccidental;
-            }
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)            
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaCAccidental;            
             else
                 throw new ArgumentException();
         }
 
         public override double CalculateECd(Standards.Standard standard)
         {
-            if (standard is Standards.StandardModelCode2010 standardModelCode2010)
-            {
-                return E / standardModelCode2010.GammaCE;
-            }
+            if (standard is Standards.StandardModelCode2010 standardModelCode2010)            
+                return E / standardModelCode2010.GammaCE;            
             else
                 throw new ArgumentException();
         }
@@ -497,14 +489,9 @@ namespace GPC.Model.Materials
             if (standard is Standards.StandardModelCode2010 standardModelCode2010)
             {
                 if (strain < 0)
-                {
-                    // compressione
-                    return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);
-                }
-                else
-                {
-                    return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);
-                }
+                    return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);                
+                else                
+                    return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);                
             }
             else
                 throw new ArgumentException();
