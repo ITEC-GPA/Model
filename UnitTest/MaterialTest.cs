@@ -839,6 +839,30 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void RebarTest4()
+        {
+            SteelMaterial steel = SteelMaterial.B450C;
+            StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
+            double strain1 = 0.001955 * 0.5;
+            double strain2 = 0.001955;
+            double strain3 = 0.001955 * 1.5;
+            double strain4 = 0.001955 * 2;
+            double stress1 = steel.CalculateDesignStressRebar(standardModelCode2010, strain1);
+            double stress2 = steel.CalculateDesignStressRebar(standardModelCode2010, strain2);
+            double stress3 = steel.CalculateDesignStressRebar(standardModelCode2010, strain3);
+            double stress4 = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+            double stressTest = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+
+            double expValue = steel.Fyk / 1.15;
+
+            Assert.IsTrue(Math.Abs(stress1 - expValue / 2.0) / stress1 < 0.001);
+            Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
+            Assert.IsTrue(Math.Abs(stress3 - expValue) / stress3 < 0.001);
+            Assert.IsTrue(Math.Abs(stress4 - expValue) / stress4 < 0.001);
+            Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
+        }
+
+        [TestMethod]
         public void TendonTest1()
         {
             SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800);

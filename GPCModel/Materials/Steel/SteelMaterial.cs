@@ -367,7 +367,7 @@ namespace GPC.Model.Materials
             double strainYd = CalculateDesignYieldingStrainRebar(standard);
 
             if (Math.Abs(strain + epsilonP) <= strainYd)
-                return CalculateDesignStress(standard, CalculateStress(strain + epsilonP));
+                return CalculateStress(strain + epsilonP);
 
             else
             {
@@ -377,11 +377,6 @@ namespace GPC.Model.Materials
                 return CalculateStress(strain + Math.Sign(strain) * deltaStrain + epsilonP) - Math.Sign(strain) * deltaStress;
             }
         }
-
-        private double CalculateDesignStress(Standards.StandardModelCode2010 standard, double stress)
-		{
-            return stress * CalculateFyd(standard) / Fyk;
-		}
 
 		#endregion
 
