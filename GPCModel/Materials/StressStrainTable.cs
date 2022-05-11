@@ -44,23 +44,6 @@ namespace GPC.Model.Materials
             if (stresses.Length != strains.Length)
                 throw new ArgumentException();
 
-            /*if (stresses.Length < 2 || strains.Length < 2) // servono almeno due valori
-                throw new ArgumentException();
-
-            if (stresses[0] != 0)
-            {
-                var buffer = new List<double>() { 0 };
-                buffer.AddRange(stresses);
-                _stresses = buffer.ToArray();
-            }
-
-            if (strains[0] != 0)
-            {
-                var buffer = new List<double>() { 0 };
-                buffer.AddRange(strains);
-                _strains = buffer.ToArray();
-            }
-            */
             if (stresses == null)
                 stresses = new double[0];
             if (strains == null)
@@ -265,11 +248,27 @@ namespace GPC.Model.Materials
             return 0.0;
         }
 
-        #endregion
+        public bool IsHardening()
+		{
+            int sign = Math.Sign(_stresses[1] - _stresses[0]);
 
-        #region Equals - hashcode - operators
+            for (int i = 1; i < _stresses.Length - 1; i++)
+			{
+                double diff = _stresses[i + 1] - _stresses[i];
+                int signBuffer = Math.Sign(diff);
 
-        public override bool Equals(object obj)
+                if (signBuffer != sign && signBuffer != 0)
+                    return false;
+			}
+
+            return true;
+		}
+
+		#endregion
+
+		#region Equals - hashcode - operators
+
+		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
                 return true;
