@@ -618,6 +618,28 @@ namespace ModelObjectTest
             c.StressStrainTableCompression.GetLastStrain();
         }
 
+        [TestMethod]
+        public void ConcreteFRCTest12()
+        {
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
+            bool comp = concreteMC.StressStrainTableCompression.IsHardening();
+            bool tens = concreteMC.StressStrainTableTension.IsHardening();
+
+            Assert.IsTrue(comp);
+            Assert.IsFalse(tens);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest13()
+        {
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
+            bool comp = concreteMC.StressStrainTableCompression.IsHardening();
+            bool tens = concreteMC.StressStrainTableTension.IsHardening();
+
+            Assert.IsTrue(comp);
+            Assert.IsFalse(tens);
+        }
+
         #endregion
 
         #region ModelCode 2010 Concrete Material Test
