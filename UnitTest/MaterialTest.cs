@@ -869,10 +869,20 @@ namespace ModelObjectTest
             double strain2 = 0.001955;
             double strain3 = 0.001955 * 1.5;
             double strain4 = 0.001955 * 2;
+            double strain5 = 0.02;
+            double strain6 = 0.04;
+            double strain7 = 0.06;
+            double strain8 = 0.08;
+            double strain9 = 0.1;
             double stress1 = steel.CalculateDesignStressRebar(standardModelCode2010, strain1);
             double stress2 = steel.CalculateDesignStressRebar(standardModelCode2010, strain2);
             double stress3 = steel.CalculateDesignStressRebar(standardModelCode2010, strain3);
             double stress4 = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+            double stress5 = steel.CalculateDesignStressRebar(standardModelCode2010, strain5);
+            double stress6 = steel.CalculateDesignStressRebar(standardModelCode2010, strain6);
+            double stress7 = steel.CalculateDesignStressRebar(standardModelCode2010, strain7);
+            double stress8 = steel.CalculateDesignStressRebar(standardModelCode2010, strain8);
+            double stress9 = steel.CalculateDesignStressRebar(standardModelCode2010, strain9);
             double stressTest = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
 
             double expValue = steel.Fyk / 1.15;
@@ -881,6 +891,11 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
             Assert.IsTrue(Math.Abs(stress3 - expValue) / stress3 < 0.001);
             Assert.IsTrue(Math.Abs(stress4 - expValue) / stress4 < 0.001);
+            Assert.IsTrue(Math.Abs(stress5 - expValue) / stress5 < 0.001);
+            Assert.IsTrue(Math.Abs(stress6 - expValue) / stress6 < 0.001);
+            Assert.IsTrue(Math.Abs(stress7 - expValue) / stress7 < 0.001);
+            Assert.IsTrue(Math.Abs(stress8 - expValue) / stress8 < 0.001);
+            Assert.IsTrue(Math.Abs(stress9 - expValue) / stress9 < 0.001);
             Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
         }
 
