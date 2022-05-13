@@ -62,7 +62,7 @@ namespace GPC.Model.Materials
             set
             {
                 SetConcreteType(value);
-                RecalculateMechanicalProperties();                
+                //RecalculateMechanicalProperties();                
             }
         }
 

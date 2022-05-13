@@ -416,6 +416,30 @@ namespace GPC.Model.Materials
 
         #endregion
 
+        public override bool Equals(object obj)
+        {
+            return obj is SteelMaterial material &&
+                   base.Equals(obj) &&
+                   _fyk == material._fyk &&
+                   _fu == material._fu &&
+                   _strainU == material._strainU &&
+                   _steelType == material._steelType;
+        }
+
+        public override int GetHashCode()
+        {
+			unchecked
+			{
+				int hashCode = -17;
+				hashCode = hashCode * -17 + base.GetHashCode();
+				hashCode = hashCode * -17 + _fyk.GetHashCode();
+				hashCode = hashCode * -17 + _fu.GetHashCode();
+				hashCode = hashCode * -17 + _strainU.GetHashCode();
+				hashCode = hashCode * -17 + _steelType.GetHashCode();
+				return hashCode; 
+			}
+        }
+
         #endregion
     }
 }
