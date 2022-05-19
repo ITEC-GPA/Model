@@ -189,9 +189,7 @@ namespace GPC.Model.Materials
 
 		#region Constructor
 
-		/// <summary>
-		/// 
-		/// </summary>
+
 		/// <param name="name"></param>
 		/// <param name="elasticModulus">Steel elastic modulus</param>
 		/// <param name="fyk">Yielding stress</param>
