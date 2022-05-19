@@ -8,6 +8,20 @@ namespace GPC.Model.Maths.GaussIntegrations
 {
     public static class QuadrangleGaussPoints
     {
+
+        public enum GaussPointNumber
+        {
+            Quad1 = 1,
+            Quad4 = 4,
+            Quad8 = 8,
+            Quad12 = 12,
+            Quad25 = 25,
+            Quad49 = 49,
+            Quad121 = 121,
+            Quad400 = 400,
+        }
+
+
         public static readonly GaussPoint[] Quad1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 4.0, 1) };
 
         public static readonly GaussPoint[] Quad4 = new GaussPoint[] { new GaussPoint(+0.577350269189626, +0.577350269189626, 1.0, 1),

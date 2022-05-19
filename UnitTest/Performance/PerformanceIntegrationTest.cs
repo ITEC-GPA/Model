@@ -25,12 +25,11 @@ namespace PerformanceTest
 
             Func<double, double, double> func = (x, y) => constant * x * x;
 
-            int nrGaussPoints = 400;
 
             double result = 0;
             Action ac2 = new Action(() =>
             {
-                result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, polygon, nrGaussPoints);
+                result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, polygon, QuadrangleGaussPoints.GaussPointNumber.Quad400);
             });
 
             var bb0 = MeasureTime.FunctionExecutionTime(20, ac2, true); ;
@@ -47,40 +46,34 @@ namespace PerformanceTest
             Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0), new Point3d(5.0, 10.0, 0.0) };
             Func<double, double, double> func = (double x, double y) => x * x + y / 2 + x;
 
-            int nrGaussPoints = 400;
             Action actionP79 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad400);
             });
 
-            nrGaussPoints = 121;
             Action actionP61 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad121);
             });
 
-            nrGaussPoints = 49;
             Action actionP48 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad49);
             });
 
-            nrGaussPoints = 25;
             Action actionP33 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad25);
             });
 
-            nrGaussPoints = 12;
             Action actionP12 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad12);
             });
 
-            nrGaussPoints = 8;
             Action actionP6 = new Action(() =>
             {
-                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad8);
             });
 
             MeasureTime.FunctionExecutionTime(numberOfExecutons, actionP79, true, "400 Gauss Points");
@@ -99,40 +92,34 @@ namespace PerformanceTest
             Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
             Func<double, double, double> func = (double x, double y) => x * x + y / 2 + x;
 
-            int nrGaussPoints = 79;
             Action actionP79 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri79);
             });
 
-            nrGaussPoints = 61;
             Action actionP61 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri61);
             });
 
-            nrGaussPoints = 48;
             Action actionP48 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri48);
             });
 
-            nrGaussPoints = 33;
             Action actionP33 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri33);
             });
 
-            nrGaussPoints = 12;
             Action actionP12 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri12);
             });
 
-            nrGaussPoints = 6;
             Action actionP6 = new Action(() =>
             {
-                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, nrGaussPoints);
+                GaussIntegration.IntegrationTriangularLinearShapeFunction(func, vertices, TriangleGaussPoints.GaussPointNumber.Tri6);
             });
 
             MeasureTime.FunctionExecutionTime(numberOfExecutons, actionP79, true, "79 Gauss Points");
@@ -143,5 +130,32 @@ namespace PerformanceTest
             MeasureTime.FunctionExecutionTime(numberOfExecutons, actionP6, true, "6 Gauss Points");
         }
 
+
+
+        [TestMethod]
+        public void IntegrationQuadFunction()
+        {
+
+            Point3d[] vertices = new Point3d[] { new Point3d(-23, -21, 0), new Point3d(-10, -3, 0), new Point3d(6, -17, 0), new Point3d(18, -12, 0) };
+
+            Func<double, double, double> func = (double x, double y) => Math.Pow(Math.Sin(x), 2) * Math.Pow(Math.Cos(y), 3) + 11;
+
+
+            double value = GaussIntegration.IntegrationQuadrilateral(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad400,
+                GPC.Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction,
+                GPC.Utilities.Fem.LinearShapeFunctionQuad4.DNdCsi, GPC.Utilities.Fem.LinearShapeFunctionQuad4.DNdEta, 4);
+
+            Console.WriteLine(value);
+
+            //int numberOfExecutons = 1000;
+
+
+            //int nrGaussPoints = 79;
+
+            //Action actionP79 = new Action(() =>
+            //{
+            //    GaussIntegration.IntegrationQuadrilateral(func, vertices, nrGaussPoints);
+            //});
+        }
     }
 }

@@ -8,6 +8,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 {
     public class TriangleGaussPoints
     {
+
+
+        public enum GaussPointNumber
+        {
+            Tri1 = 1,
+            Tri3 = 3,
+            Tri4 = 4,
+            Tri6 = 6,
+            Tri12 = 12,
+            Tri33 = 33,
+            Tri48 = 48,
+            Tri61 = 61,
+            Tri79 = 79,
+        }
+
+
         public static readonly GaussPoint[] Tri1 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0, 1.0, 1) };
 
         public static readonly GaussPoint[] Tri3 = new GaussPoint[] { new GaussPoint(0.5, 0.5, 0, 1.0 / 6.0, 1),

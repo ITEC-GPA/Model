@@ -26,7 +26,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
-        public static double IntegrationLine(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints,
+        public static double IntegrationLine(Func<double, double, double> function, Point3d[] vertices, LineGaussPoints.GaussPointNumber numberOfGaussPoints,
             Func<int, double, double> shapeFunction, Func<int, double, double> dNdCsi, int numberOFShapeFunction)
         {
             if (vertices.Length != 2)
@@ -34,7 +34,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
-            switch (numberOfGaussPoints)
+            switch ((int)numberOfGaussPoints)
             {
                 case 1:
                     gaussPoints = LineGaussPoints.Line1;
@@ -109,7 +109,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static double IntegrationLineLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationLineLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationLine(function, vertices, numberOfGaussPoints, LinearShapeFunctionsLine2.NaturalShapeFunction,
                 LinearShapeFunctionsLine2.DNdCsi, 2);
@@ -123,7 +123,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Quadratic shape functions and its derivatives are used</remarks>
-        public static double IntegrationLineQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationLineQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationLine(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionLine3.NaturalShapeFunction,
                 QuadraticShapeFunctionLine3.DNdCsi, 3);
@@ -144,7 +144,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
-        public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
+        public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, TriangleGaussPoints.GaussPointNumber numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
             Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, int numberOFShapeFunction)
         {
             if (vertices.Length != 3)
@@ -152,7 +152,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
-            switch (numberOfGaussPoints)
+            switch ((int)numberOfGaussPoints)
             {
                 case 1:
                     gaussPoints = TriangleGaussPoints.Tri1;
@@ -240,7 +240,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static double IntegrationTriangularLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationTriangularLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, TriangleGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationTriangular(function, vertices, numberOfGaussPoints, LinearShapeFunctionsTri3.NaturalShapeFunction,
                 LinearShapeFunctionsTri3.DNdCsi, LinearShapeFunctionsTri3.DNdEta, 3);
@@ -254,7 +254,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Quadratic shape functions and its derivatives are used</remarks>
-        public static double IntegrationTriangularQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationTriangularQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, TriangleGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationTriangular(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionsTri6.NaturalShapeFunction,
                 QuadraticShapeFunctionsTri6.DNdCsi, QuadraticShapeFunctionsTri6.DNdEta, 6);
@@ -275,7 +275,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
-        public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
+        public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
             Func<int, double, double, double> dNdCsi, Func<int, double, double, double> dNdEta, int numberOFShapeFunction)
         {
             if (vertices.Length != 4)
@@ -283,7 +283,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
-            switch (numberOfGaussPoints)
+            switch ((int)numberOfGaussPoints)
             {
                 case 1:
                     gaussPoints = QuadrangleGaussPoints.Quad1;
@@ -369,7 +369,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static double IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double> function, Point3d[] vertices, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, LinearShapeFunctionQuad4.NaturalShapeFunction,
                 LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, 4);
@@ -383,7 +383,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Quadratic shape functions and its derivatives are used</remarks>
-        public static double IntegrationQuadrilateralQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationQuadrilateralQuadraticShapeFunction(Func<double, double, double> function, Point3d[] vertices, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, QuadraticShapeFunctionQuad8.NaturalShapeFunction,
                 QuadraticShapeFunctionQuad8.DNdCsi, QuadraticShapeFunctionQuad8.DNdEta, 8);
@@ -408,7 +408,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <remarks>The vertices must be added with this order:
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th
         /// </remarks>
-        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, int numberOfGaussPoints,
+        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints,
             Func<int, double, double, double, double> shapeFunction, Func<int, double, double, double, double> dNdCsi,
             Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, int numberOFShapeFunction)
         {
@@ -417,7 +417,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
-            switch (numberOfGaussPoints)
+            switch ((int)numberOfGaussPoints)
             {
                 case 1:
                     gaussPoints = HexahedroGaussPoints.Hexa1;
@@ -466,7 +466,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
         /// Linear shape functions and its derivative are used
         /// </remarks>
-        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, int numberOfGaussPoints)
+        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationHexaedron(function, vertices, numberOfGaussPoints, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction,
                 TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, 8);

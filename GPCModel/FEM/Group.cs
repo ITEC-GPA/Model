@@ -22,7 +22,7 @@ namespace GPC.Model.Fem
 
         }
 
-        protected Group(SerializationInfo info, StreamingContext context)
+        private Group(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

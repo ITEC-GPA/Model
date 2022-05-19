@@ -8,6 +8,20 @@ namespace GPC.Model.Maths.GaussIntegrations
 {
     public static class LineGaussPoints
     {
+        public enum GaussPointNumber
+        {
+            Line1 = 1,
+            Line2 = 2,
+            Line3 = 3,
+            Line4 = 4,
+            Line6 = 6,
+            Line9 = 9,
+            Line16 = 16,
+            Line20 = 20,
+            Line32 = 32,
+        }
+
+
         public static readonly GaussPoint[] Line1 = new GaussPoint[] { new GaussPoint(0, 0, 0, 2.0, 1) };
 
         public static readonly GaussPoint[] Line2 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), 1.0, 1),
