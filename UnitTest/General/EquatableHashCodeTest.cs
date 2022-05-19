@@ -5,16 +5,16 @@ using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Geometry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Properties;
 using System;
 using System.Linq;
 using System.IO;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Model.Combinations;
 using System.Collections.Generic;
 using GPC.Model.Loads;
 using GPC.TestUtilities;
-using GPC.Model.FEM.Collections;
+using GPC.Model.Fem.Collections;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Geometry.Meshes;
@@ -268,8 +268,8 @@ namespace GeneralTest
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(Point3d.Origin, 2);
 
-            Dictionary<FEMObject, int> dictWithComparer = new Dictionary<FEMObject, int>(new FEMObject.FemObjectWithIdComparer());
-            Dictionary<FEMObject, int> dict = new Dictionary<FEMObject, int>();
+            Dictionary<FemObject, int> dictWithComparer = new Dictionary<FemObject, int>(new FemObject.FemObjectWithIdComparer());
+            Dictionary<FemObject, int> dict = new Dictionary<FemObject, int>();
 
             dictWithComparer.Add(n1, 1);
             dictWithComparer.Add(n2, 1);
@@ -289,7 +289,7 @@ namespace GeneralTest
             Node n2 = new Node(Point3d.Origin, 2);
             Node n3 = new Node(Point3d.Origin, 2);
 
-            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FEMObject.FemObjectWithIdComparer());
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FemObject.FemObjectWithIdComparer());
             Dictionary<Node, int> dict = new Dictionary<Node, int>();
 
             dictWithComparer.Add(n1, 1);
@@ -311,7 +311,7 @@ namespace GeneralTest
             Node n3 = new Node(Point3d.Origin, 2);
             Node n4 = new Node(Point3d.Origin, 2);
 
-            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FEMObject.FemObjectOnlyIdComparer());
+            Dictionary<Node, int> dictWithComparer = new Dictionary<Node, int>(new FemObject.FemObjectOnlyIdComparer());
             Dictionary<Node, int> dict = new Dictionary<Node, int>();
 
             dictWithComparer.Add(n1, 1);

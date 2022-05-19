@@ -1,22 +1,22 @@
-﻿using GPC.Model.Materials;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Glasses;
-using System.Collections.Generic;
+using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     public class LaminatedGlassProperty : ElementProperty, IPlateProperty, IGlassProperty, IEquatable<LaminatedGlassProperty>
     {
 
-        private List<double> _glassBendingThickness;
-        private List<double> _glassMembraneThickness;
+        private readonly List<double> _glassBendingThickness;
+        private readonly List<double> _glassMembraneThickness;
 
-        private List<double> _interlayerThickness;
+        private readonly List<double> _interlayerThickness;
 
-        private List<GlassMaterial> _glassMaterials;
-        private List<InterlayerMaterial> _interlayerMaterials;
+        private readonly List<GlassMaterial> _glassMaterials;
+        private readonly List<InterlayerMaterial> _interlayerMaterials;
 
 
         public List<double> GlassBendingThickness => _glassBendingThickness;
@@ -48,7 +48,7 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public LaminatedGlassProperty(SerializationInfo info, StreamingContext context) 
+        protected LaminatedGlassProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -85,24 +85,21 @@ namespace GPC.Model.FEM.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassBendingThickness);
-            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassMembraneThickness);
-            hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_interlayerThickness);
-            hashCode = hashCode * -17 + EqualityComparer<List<GlassMaterial>>.Default.GetHashCode(_glassMaterials);
-            hashCode = hashCode * -17 + EqualityComparer<List<InterlayerMaterial>>.Default.GetHashCode(_interlayerMaterials);
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassBendingThickness);
+                hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_glassMembraneThickness);
+                hashCode = hashCode * -17 + EqualityComparer<List<double>>.Default.GetHashCode(_interlayerThickness);
+                hashCode = hashCode * -17 + EqualityComparer<List<GlassMaterial>>.Default.GetHashCode(_glassMaterials);
+                hashCode = hashCode * -17 + EqualityComparer<List<InterlayerMaterial>>.Default.GetHashCode(_interlayerMaterials);
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(LaminatedGlassProperty obj1, LaminatedGlassProperty obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
-
             return obj1.Equals(obj2);
         }
 

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// 1993 - GENERALIZED CONFORMING QUADRILATERAL - YUQIU YIN
@@ -161,7 +161,8 @@ namespace GPC.Model.FEM.FiniteElements
                     if (dofGlobalToLocalTranspose[r, c] != t[r, c])
                     {
                         throw new Exception(dofGlobalToLocalTranspose[r, c] + " vs " + t[r, c] + "refactoring matrice di rotazione non corretta");
-                    } else
+                    }
+                    else
                     {
                         Console.WriteLine("Assicurarsi con vari test che matrice sia corretta");
                     }
@@ -189,7 +190,7 @@ namespace GPC.Model.FEM.FiniteElements
             #region stiffnessMatrixInLocalCoordinates
             double thk = ((PlateProperty)_property).MembraneThickness;
 
-            Func<double, double, mnl.Matrix<double>> funJacobiano = FEMUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _nodesLocal);
+            Func<double, double, mnl.Matrix<double>> funJacobiano = FemUtilities.J2D(LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, _nodesLocal);
 
             Func<double, double, mnl.Matrix<double>> BTraspDB = (double csi, double eta) =>
             {
@@ -213,14 +214,14 @@ namespace GPC.Model.FEM.FiniteElements
         {
             Func<double, double, mnl.Matrix<double>> fJacob = (double varCsi, double varEta) =>
             {
-                return FEMUtilities.Jacob2D(varCsi, varEta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
+                return FemUtilities.Jacob2D(varCsi, varEta, LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, nodes);
             };
-            
+
             mnl.Matrix<double> B = mnl.Matrix<double>.Build.Dense(3, 0);
             for (int i = 1; i <= nodes.Length; i++)
             {
-                var dNdCsi = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi);
-                var dNdEta = FEMUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta);
+                var dNdCsi = FemUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdCsi);
+                var dNdEta = FemUtilities.FFirstFix<int, double, double, double>(i, LinearShapeFunctionQuad4.DNdEta);
 
 
                 Func<double, double, double> fdNuThetadCsi = (double varCsi, double varEta) =>
@@ -243,15 +244,15 @@ namespace GPC.Model.FEM.FiniteElements
                     return DNvThetadEta(i, varCsi, varEta, nodes); //fix "i" and "nodes"
                 };
 
-                mnl.Vector<double> dNidLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, fJacob);
+                mnl.Vector<double> dNidLocal = FemUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, fJacob);
                 double dNidX = dNidLocal[0];
                 double dNidY = dNidLocal[1];
 
-                mnl.Vector<double> dNuThetadLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNuThetadCsi, fdNuThetadEta, fJacob);
+                mnl.Vector<double> dNuThetadLocal = FemUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNuThetadCsi, fdNuThetadEta, fJacob);
                 double dNuThetadX = dNuThetadLocal[0];
                 double dNuThetadY = dNuThetadLocal[1];
 
-                mnl.Vector<double> dNvThetadLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNvThetadCsi, fdNvThetadEta, fJacob);
+                mnl.Vector<double> dNvThetadLocal = FemUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, fdNvThetadCsi, fdNvThetadEta, fJacob);
                 double dNvThetadX = dNvThetadLocal[0];
                 double dNvThetadY = dNvThetadLocal[1];
 
@@ -276,7 +277,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             double b1 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (+1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (-1) * nodes[4 - 1].Position.Y);
             double b2 = 1.0 / 4.0 * ((-1.0) * nodes[1 - 1].Position.Y + (-1.0) * nodes[2 - 1].Position.Y + (+1.0) * nodes[3 - 1].Position.Y + (+1) * nodes[4 - 1].Position.Y);
-            double b3 = 1.0 / 4.0 * ((-1.0)*(-1.0) * nodes[1 - 1].Position.Y + (+1.0)*(-1.0) * nodes[2 - 1].Position.Y + (+1.0)*(+1.0) * nodes[3 - 1].Position.Y + (-1)*(+1.0) * nodes[4 - 1].Position.Y);
+            double b3 = 1.0 / 4.0 * ((-1.0) * (-1.0) * nodes[1 - 1].Position.Y + (+1.0) * (-1.0) * nodes[2 - 1].Position.Y + (+1.0) * (+1.0) * nodes[3 - 1].Position.Y + (-1) * (+1.0) * nodes[4 - 1].Position.Y);
 
             double a = 0.0;
             double b = 0.0;
@@ -293,7 +294,7 @@ namespace GPC.Model.FEM.FiniteElements
                 case 3:
                     a = (b1 + b3 * (+1.0)); //eta_i
                     b = (b2 + b3 * (+1.0)); //csi_i
-                    return -1.0 / 8.0 * (eta + 1.0) * (2.0 * a *csi + b * (eta - 1.0));
+                    return -1.0 / 8.0 * (eta + 1.0) * (2.0 * a * csi + b * (eta - 1.0));
                 case 4:
                     a = (b1 + b3 * (+1.0)); //eta_i
                     b = (b2 + b3 * (-1.0)); //csi_i
@@ -453,20 +454,20 @@ namespace GPC.Model.FEM.FiniteElements
                         Console.WriteLine("N4(" + csi + "," + eta + ") = " + Quad4Element.N4nodes(4, csi, eta));
                         Console.WriteLine("F: detJ(" + csi + "," + eta + ") = " + detJ);*/
 
-                        /*_fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
-                        _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
+            /*_fLocalCoord[0] = _fLocalCoord[0] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * px; //node1
+            _fLocalCoord[1] = _fLocalCoord[1] + Quad4Element.N4nodes(1, csi, eta) * detJ * gaussWeight * py; //node1
 
-                        _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
-                        _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
+            _fLocalCoord[2] = _fLocalCoord[2] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * px; //node2
+            _fLocalCoord[3] = _fLocalCoord[3] + Quad4Element.N4nodes(2, csi, eta) * detJ * gaussWeight * py; //node2
 
-                        _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
-                        _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
-                    
-                        _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
-                        _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
-                    }
-                }
-            }*/
+            _fLocalCoord[4] = _fLocalCoord[4] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * px; //node3
+            _fLocalCoord[5] = _fLocalCoord[5] + Quad4Element.N4nodes(3, csi, eta) * detJ * gaussWeight * py; //node3
+
+            _fLocalCoord[6] = _fLocalCoord[6] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * px; //node4
+            _fLocalCoord[7] = _fLocalCoord[7] + Quad4Element.N4nodes(4, csi, eta) * detJ * gaussWeight * py; //node4
+        }
+    }
+}*/
             return _fLocalCoord;
         }
 
@@ -477,7 +478,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> vecLocalDispl = mnl.Vector<double>.Build.Dense(localDisplacements);
 
             //TODO: aggiornare
-            
+
             Point2d[] naturalCoordNodes = new Point2d[4];
             naturalCoordNodes[0] = new Point2d(-1.0, -1.0);
             naturalCoordNodes[1] = new Point2d(+1.0, -1.0);
@@ -518,7 +519,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
 
-            for (int i = 0; i < naturalCoordNodes.Length; i++) {
+            for (int i = 0; i < naturalCoordNodes.Length; i++)
+            {
                 #region CalculationOfStressAndDeformationsInLocalCoordinates
                 epsilonLocal[i] = GetB(naturalCoordNodes[i].X, naturalCoordNodes[i].Y) * vecLocalDispl; //epsilon_xx; epsilon_yy; epsilon_xy
                 stressLocal[i] = D * epsilonLocal[i]; //sigma_xx; sigma_yy; tau_xy
@@ -533,8 +535,8 @@ namespace GPC.Model.FEM.FiniteElements
 
                 epsilonLocalCouchy[i][0, 1] = epsilonLocal[i][2]; //epsilon_xy
                 epsilonLocalCouchy[i][1, 0] = epsilonLocal[i][2]; //epsilon_yx
-                                                            //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
-                                                            //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
+                                                                  //epsilonCouchy[2, 2] = -ni / E * (sigma_xx + sigma_yy) + alpha * Temperature ; //epsilon_zz
+                                                                  //Console.WriteLine("Epsilon local coordinate:" + epsilonCouchy.ToString());
 
                 stressLocalCouchy[i] = mnl.Matrix<double>.Build.Dense(3, 3);
                 stressLocalCouchy[i][0, 0] = stressLocal[i][0]; //sigma_xx
@@ -542,7 +544,7 @@ namespace GPC.Model.FEM.FiniteElements
 
                 stressLocalCouchy[i][0, 1] = stressLocal[i][2]; //sigma_xy
                 stressLocalCouchy[i][1, 0] = stressLocal[i][2]; //sigma_yx
-                                                          //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
+                                                                //Console.WriteLine("Stress local coordinate:" + stressCouchy.ToString());
 
                 //Second order tensor -> Trotated = Q * T * Q^T
                 epsilonGlobalCouchy[i] = rotation * epsilonLocalCouchy[i] * rotation.Transpose();

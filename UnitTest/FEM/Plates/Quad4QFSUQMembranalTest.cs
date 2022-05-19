@@ -2,16 +2,16 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest
 {
@@ -59,7 +59,7 @@ namespace FemTest.SolverTest
             nds.ToList().ForEach(x => {
                 i++;
                 Console.WriteLine("B signed in Node " + i);
-                FEMUtilities.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
+                FemUtilities.WriteMatrix(Quad4QFSUQMembranal.BMatrix(x.Position.X, x.Position.Y, nds));
                 }
             );
         }
@@ -94,7 +94,7 @@ namespace FemTest.SolverTest
 
             for (int i = 0; i < Lm.Count; i++)
             {
-                FEMUtilities.WriteMatrix(Lm[i] - Lm2[i]);
+                FemUtilities.WriteMatrix(Lm[i] - Lm2[i]);
             }
         }
             
@@ -122,7 +122,7 @@ namespace FemTest.SolverTest
             {
                 //M = M + Quad4QFSUQMembranal.MMatrix(pts[i].Point.X, pts[i].Point.Y, D, nds).Inverse();
             }
-            FEMUtilities.WriteMatrix(M,"F3");
+            FemUtilities.WriteMatrix(M,"F3");
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace FemTest.SolverTest
             k1 = el.KElementGlobalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");

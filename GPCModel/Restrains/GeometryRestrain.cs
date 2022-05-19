@@ -1,12 +1,12 @@
-﻿using GPC.Geometry;
-using GPC.Model.FEM;
-using GPC.Model.FreedomCases;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
+using GPC.Model.Fem;
+using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains
 {
@@ -24,7 +24,7 @@ namespace GPC.Model.Restrains
         public CoordinateSystem CoordinateSystem => _coordinateSystem;
         public List<DofRestrain> Restrains => _restrains;
 
-        public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name) 
+        public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name)
             : base(guid, name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
@@ -32,7 +32,7 @@ namespace GPC.Model.Restrains
             _restrains = restrains ?? new List<DofRestrain>();
         }
 
-        public GeometryRestrain(SerializationInfo info, StreamingContext context) 
+        public GeometryRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
@@ -147,7 +147,7 @@ namespace GPC.Model.Restrains
                 hashCode = hashCode * -17 + EqualityComparer<FreedomCase>.Default.GetHashCode(_freedomCases);
                 hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
                 hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_restrains);
-                return hashCode; 
+                return hashCode;
             }
         }
     }

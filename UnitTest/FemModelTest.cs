@@ -9,18 +9,18 @@ using GPC.Model.Loads;
 using GPC.Model.LoadCases;
 using GPC.Model.Combinations;
 using GPC.Model.FreedomCases;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
 using GPC.TestUtilities;
 using GPC.Model.Sections;
-using GPC.Model.FEM.Collections;
+using GPC.Model.Fem.Collections;
 using GPC.Model.Sections.Concrete;
 
 namespace FemTest
@@ -592,12 +592,12 @@ namespace FemTest
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            int r1 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
+            int r1 = femModel.AddCostrain(new GPC.Model.Fem.Costrains.RigidLink(new Node(0, 0, 0), new Node(0, 0, 1)));
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R1");
 
             stopWatch.Restart();
-            int r2 = femModel.AddCostrain(new GPC.Model.FEM.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
+            int r2 = femModel.AddCostrain(new GPC.Model.Fem.Costrains.RigidLink(new Node(0, 0, 1), new Node(0, 0, 2)));
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "R2");
         }

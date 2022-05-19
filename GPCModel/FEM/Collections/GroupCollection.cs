@@ -1,9 +1,9 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
     /// Collection of <see cref="Group"/> with unique name.
@@ -24,7 +24,7 @@ namespace GPC.Model.FEM.Collections
             _ids = new HashSet<int>();
         }
 
-        public GroupCollection(SerializationInfo info, StreamingContext context)
+        protected GroupCollection(SerializationInfo info, StreamingContext context)
         {
             _ids = (HashSet<int>)info.GetValue("Ids", typeof(HashSet<int>));
         }

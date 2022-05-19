@@ -2,14 +2,14 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 using GPC.Model.Sections;
 
@@ -408,10 +408,10 @@ namespace FemTest.SolverTest
 
             els[0].BuildMatrix();
             Console.WriteLine("Matrix Beam");
-            FEMUtilities.WriteMatrix(els[0].KElementGlobalCoord, "F3");
+            FemUtilities.WriteMatrix(els[0].KElementGlobalCoord, "F3");
             els[1].BuildMatrix();
             Console.WriteLine("Tetraedron");
-            FEMUtilities.WriteMatrix(els[1].KElementGlobalCoord, "F3");
+            FemUtilities.WriteMatrix(els[1].KElementGlobalCoord, "F3");
 
             LinearSolver fem = new LinearSolver(els);
         }

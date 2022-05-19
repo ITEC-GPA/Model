@@ -56,7 +56,7 @@ namespace GPC.Model
 
 
         /// <summary>
-        /// Get the item index by his id. Since the list is ID ordered, implements the non-recursive binary search algorithm.
+        /// Get the item index by its id. Since the list is ID ordered, implements the non-recursive binary search algorithm.
         /// </summary>
         /// <param name="id">The item index or -1 if not found</param>
         public int GetIndexById(int id)

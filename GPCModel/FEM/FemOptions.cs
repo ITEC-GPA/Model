@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
     // https://csharpindepth.com/articles/singleton
 

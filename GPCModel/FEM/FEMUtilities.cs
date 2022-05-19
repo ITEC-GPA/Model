@@ -1,14 +1,14 @@
-﻿using GPC.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Geometry;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM
+namespace GPC.Model.Fem
 {
-    public static class FEMUtilities
+    public static class FemUtilities
     {
         #region Misc
         /// <summary>
@@ -18,69 +18,69 @@ namespace GPC.Model.FEM
         /// <param name="format"></param>
         public static void WriteMatrix(mnl.Matrix<double> m, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             Console.WriteLine("dim: " + m.RowCount + " x " + m.ColumnCount);
             for (int r = 0; r < m.RowCount; r++)
             {
                 for (int c = 0; c < m.ColumnCount; c++)
                 {
-                    Console.Write(m[r,c].ToString(format) + " \t");
+                    Console.Write(m[r, c].ToString(format) + " \t");
                 }
                 Console.WriteLine();
             }
-            #endif
+#endif
         }
 
         public static void WriteMatrix(string s, mnl.Matrix<double> m, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             Console.WriteLine(s);
             WriteMatrix(m, format);
-            #endif
+#endif
         }
 
         public static void WriteMatrix(mnl.Vector<double> v, string format = "F2")
         {
-            #if DEBUG
-            Console.WriteLine("dim: "+ v.Count);
+#if DEBUG
+            Console.WriteLine("dim: " + v.Count);
             for (int r = 0; r < v.Count; r++)
             {
-                 Console.WriteLine(v[r].ToString(format));
+                Console.WriteLine(v[r].ToString(format));
             }
-            #endif
+#endif
         }
 
         public static void WriteMatrix(string s, mnl.Vector<double> v, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             Console.WriteLine(s);
-            WriteMatrix(v, format);            
-            #endif
+            WriteMatrix(v, format);
+#endif
         }
 
         public static void WriteVector(mnl.Vector<double> v, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             WriteMatrix(v, format);
-            #endif
+#endif
         }
 
         public static void WriteVector(double[] v, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             for (int i = 0; i < v.Length; i++)
             {
                 Console.WriteLine(v[i].ToString(format));
             }
-            #endif
+#endif
         }
 
         public static void WriteVector(string s, double[] v, string format = "F2")
         {
-            #if DEBUG
+#if DEBUG
             Console.WriteLine(s);
-            WriteVector(v,format);
-            #endif
+            WriteVector(v, format);
+#endif
         }
         #endregion
 
@@ -88,14 +88,15 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Return F(x,y,z) = F(x,y,z) with "x" assigned
         /// </summary>
-        public static Func<T2, T3, TOut> FFirstFix<T1, T2, T3, TOut>(T1 input1, Func<T1, T2, T3, TOut> fun) {
+        public static Func<T2, T3, TOut> FFirstFix<T1, T2, T3, TOut>(T1 input1, Func<T1, T2, T3, TOut> fun)
+        {
             return (T2 input2, T3 input3) => fun(input1, input2, input3);
         }
 
         /// <summary>
         /// Return F(x,y,z) = F(x,y,z) with "x" assigned
         /// </summary>
-        public static Func<T2, T3, TOut> FirstFix<T1,T2,T3, TOut>(this Func<T1, T2, T3, TOut> fun, T1 input1)
+        public static Func<T2, T3, TOut> FirstFix<T1, T2, T3, TOut>(this Func<T1, T2, T3, TOut> fun, T1 input1)
         {
             return (T2 input2, T3 input3) => fun(input1, input2, input3);
         }
@@ -103,7 +104,8 @@ namespace GPC.Model.FEM
         /// <summary>
         /// Return F(x,y) = F(x,y,nodes) with "nodes" assigned
         /// </summary>
-        public static Func<double, double, mnl.Matrix<double>> FFixedNodes (Func<double, double, Node[], mnl.Matrix<double>> fun, Node[] nodes) {
+        public static Func<double, double, mnl.Matrix<double>> FFixedNodes(Func<double, double, Node[], mnl.Matrix<double>> fun, Node[] nodes)
+        {
             return (double x, double y) => fun(x, y, nodes);
         }
         #endregion
@@ -264,7 +266,8 @@ namespace GPC.Model.FEM
         /// Return J(x,y,z) = J(x,y,z, dNdCsi, dNdEta,dNdZeta, nodes) with "nodes" and derivative of shape function assigned
         /// arg1 = dFdInput1; arg2 = dFdInput2, arg3 = dFdInput3, arg4 = nodes
         /// </summary>
-        public static Func<double, double, double, mnl.Matrix<double>> J3D (Func<int, double, double, double, double> dFdInput1, Func<int, double, double, double, double> dFdInput2, Func<int, double, double, double, double> dFdInput3, Node[] nodes) {
+        public static Func<double, double, double, mnl.Matrix<double>> J3D(Func<int, double, double, double, double> dFdInput1, Func<int, double, double, double, double> dFdInput2, Func<int, double, double, double, double> dFdInput3, Node[] nodes)
+        {
             return (double input1, double input2, double input3) => Jacob3D(input1, input2, input3, dFdInput1, dFdInput2, dFdInput3, nodes);
         }
 
@@ -296,7 +299,7 @@ namespace GPC.Model.FEM
         public static double GetLocalCoordinate3D(string direction, double csi, double eta, double zeta, Func<int, double, double, double, double> ShapeFunctions, Node[] nodes)
         {
             double val = 0;
-            
+
             for (int i = 1; i <= nodes.Length; i++)
             {
                 double factor;
@@ -388,7 +391,8 @@ namespace GPC.Model.FEM
                 rotation[2, 0] = xVersor.Z;
                 rotation[2, 1] = yVersor.Z;
                 rotation[2, 2] = zVersor.Z;*/
-            } else
+            }
+            else
             {
                 //TODO: to be checked
                 rotation[0, 0] = xVersor.DotProduct(newSys.V1);

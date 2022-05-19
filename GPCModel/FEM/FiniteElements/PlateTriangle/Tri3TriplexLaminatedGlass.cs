@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// A plate finite element for modelling of tripled laminated glass and comparison with other computational method
@@ -121,7 +121,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //calculation of matrix for transformation from Local to Global coordinates
             #region TransformationMatrixLocalCoordinatesToGlobalCoordinates
-            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(9*3, 5*3); //(DDX, DDY, DDZ, DX, DY, DZ, RX, RY, RZ) * 3 nodes - (ddx, ddy, w, rx, ry) * 3 nodes
+            mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(9 * 3, 5 * 3); //(DDX, DDY, DDZ, DX, DY, DZ, RX, RY, RZ) * 3 nodes - (ddx, ddy, w, rx, ry) * 3 nodes
 
             Vector3d localX = LocalCoordinateSystem.V1;
             Vector3d localY = LocalCoordinateSystem.V2;
@@ -170,7 +170,7 @@ namespace GPC.Model.FEM.FiniteElements
                 dofGlobalToLocalTranspose[i * dimRow + 8, i * dimCol + 4] = yZ;
             }
             #endregion
-            
+
             _dofGlobalToLocal = dofGlobalToLocalTranspose.Transpose();
 
             /*Console.WriteLine("dofGlobalToLocalTranspose:");
@@ -205,8 +205,8 @@ namespace GPC.Model.FEM.FiniteElements
                 return Bg.Transpose() * _Dg * Bg; //equation 49
             }
 
-            Func<double, double, mnl.Matrix<double>> jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
-            
+            Func<double, double, mnl.Matrix<double>> jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+
             _kLayer = OldGaussIntegration.IntegrationTriangular(fKLayer, jacob, 3);
             _kGlass = OldGaussIntegration.IntegrationTriangular(fKGlass, jacob, 3);
 
@@ -310,16 +310,16 @@ namespace GPC.Model.FEM.FiniteElements
                     double py = attribute.P1 * dirX.DotProduct(vecY) + attribute.P2 * dirY.DotProduct(vecY) + attribute.P3 * dirZ.DotProduct(vecY);
                     double pz = attribute.P1 * dirX.DotProduct(vecZ) + attribute.P2 * dirY.DotProduct(vecZ) + attribute.P3 * dirZ.DotProduct(vecZ);
 
-                    var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+                    var jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
 
                     #region DKT
                     mnl.Matrix<double> Np(double csi, double eta)
                     {
-                        var Ni = mnl.Matrix<double>.Build.Dense(4,1);
-                        Ni[0,0] = Tri3Element.GetShapeFunction(1, csi, eta);
-                        Ni[1,0] = Tri3Element.GetShapeFunction(2, csi, eta);
-                        Ni[2,0] = Tri3Element.GetShapeFunction(3, csi, eta);
-                        
+                        var Ni = mnl.Matrix<double>.Build.Dense(4, 1);
+                        Ni[0, 0] = Tri3Element.GetShapeFunction(1, csi, eta);
+                        Ni[1, 0] = Tri3Element.GetShapeFunction(2, csi, eta);
+                        Ni[2, 0] = Tri3Element.GetShapeFunction(3, csi, eta);
+
                         return Ni * pz;
                     }
                     mnl.Matrix<double> fDKT = OldGaussIntegration.IntegrationTriangular(Np, jacob, 3);
@@ -335,7 +335,7 @@ namespace GPC.Model.FEM.FiniteElements
                     fLocalCoord[10] = fDKT[2, 0]; //node 3
                 }
             }
-            
+
             return fLocalCoord;
         }
 
@@ -364,9 +364,9 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Matrix<double> Bg = mnl.Matrix<double>.Build.Dense(6, 0);
             for (int indexNode = 1; indexNode <= 3; indexNode++)
             {
-                #if DEBUG
-                    //Console.WriteLine("GetBg: x = " + x + " y = " + y);
-                #endif
+#if DEBUG
+                //Console.WriteLine("GetBg: x = " + x + " y = " + y);
+#endif
                 mnl.Matrix<double> bgNode = GetBgi(indexNode, csi, eta);
                 Bg = Bg.Append(bgNode);
             }
@@ -376,7 +376,7 @@ namespace GPC.Model.FEM.FiniteElements
         //TODO: Da ottimizzare/scrivere
         public void GetNodesResults(double[] globalDisplacementsNodes, out double[] localDisplacements, out mnl.Matrix<double>[] gloabalPseudoDeformation, out mnl.Matrix<double>[] localPseudoDeformation, out mnl.Matrix<double>[] globalForces, out mnl.Matrix<double>[] localForces, out mnl.Matrix<double>[] globalStress, out mnl.Matrix<double>[] localStress, out mnl.Matrix<double>[] globalEpsilon, out mnl.Matrix<double>[] localEpsilon)
         {
-            
+
             //TODO: "aggiornare";
             throw new NotImplementedException();
         }
@@ -497,7 +497,8 @@ namespace GPC.Model.FEM.FiniteElements
             {
                 k = 2; //glass in +z
                 h = _h1;
-            } else
+            }
+            else
             {
                 k = 1; //glass in -z
                 h = _h2;
@@ -510,7 +511,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             if (face == Face.Top)
             {
-                strainsXX += + h / 2.0 * curvatures[0];
+                strainsXX += +h / 2.0 * curvatures[0];
                 strainsYY += h / 2.0 * curvatures[1];
                 strainsXY += h / 2.0 * curvatures[2];
             }
@@ -556,7 +557,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = mLocal[2];
             localTensor[1, 1] = mLocal[1];
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassCurvatures(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -570,7 +571,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2]; //kxy
             localTensor[1, 1] = local[1]; //kyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassForces(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -584,7 +585,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //fyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassStrains(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -598,7 +599,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //eyy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetGlassStress(Glass g, Face face, double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -612,7 +613,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[1, 0] = local[2];
             localTensor[1, 1] = local[1]; //syy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
         #endregion
 
@@ -631,7 +632,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             var localDisplacement = _dofGlobalToLocal * mnl.Vector<double>.Build.DenseOfArray(globalDisplacementsNodes);
 
-            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(5*3);
+            var localDisplacementReordered = mnl.Vector<double>.Build.Dense(5 * 3);
 
             for (int i = 0; i < _nodesLocal.Count(); i++)
             {
@@ -718,7 +719,7 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[2, 0] = local[0]; //tau_zx
             localTensor[2, 1] = local[1]; //tau_zy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
 
         public mnl.Matrix<double> GetInterlayerStrains(double csi, double eta, double[] globalDisplacementNodes, CoordinateSystem newSys = null)
@@ -732,14 +733,14 @@ namespace GPC.Model.FEM.FiniteElements
             localTensor[2, 0] = local[0]; //gamma_zx
             localTensor[2, 1] = local[1]; //gamma_zy
 
-            return FEMUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
+            return FemUtilities.RotateTensor(localTensor, _localCoordinateSystem, newSys);
         }
         #endregion
         #endregion
 
         #region PrivateInternalFunctions
 
-         #region ShapeFunction
+        #region ShapeFunction
         /// <summary>
         /// Shape functions for this element
         /// </summary>
@@ -790,11 +791,13 @@ namespace GPC.Model.FEM.FiniteElements
 
         private static Dictionary<int, (int, int)> GetIndices()
         {
-            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>();
-            //eq. 59    i|  a  b
-            indexes.Add(1, (1, 1));
-            indexes.Add(2, (2, 1));
-            indexes.Add(3, (2, 2));
+            Dictionary<int, (int, int)> indexes = new Dictionary<int, (int, int)>
+            {
+                //eq. 59    i|  a  b
+                { 1, (1, 1) },
+                { 2, (2, 1) },
+                { 3, (2, 2) }
+            };
             return indexes;
         }
         #endregion
@@ -858,11 +861,11 @@ namespace GPC.Model.FEM.FiniteElements
         {
             mnl.Matrix<double> bg = mnl.Matrix<double>.Build.Dense(6, 5);
 
-            var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
-            var dNdCsi = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdCsi);
-            var dNdEta = FEMUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdEta);
+            var jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+            var dNdCsi = FemUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdCsi);
+            var dNdEta = FemUtilities.FFirstFix<int, double, double, double>(indexNode, Tri3Element.GetdNdEta);
 
-            var dNdLocal = FEMUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, jacob);
+            var dNdLocal = FemUtilities.GetdNdLocalFromdNdNatural2D(csi, eta, dNdCsi, dNdEta, jacob);
 
             bg[0, 0] = dNdLocal[0];
 
@@ -886,10 +889,12 @@ namespace GPC.Model.FEM.FiniteElements
                 var dH1yDy = 1.0 / (doubleAreaElement) * (-_x31 * dH1yDCsi(csi, eta) - _x12 * dH1yDEta(csi, eta));
                 var dH1xDyPlusdH1yDx = 1.0 / (doubleAreaElement) * (-_x31 * dH1xDCsi(csi, eta) - _x12 * dH1xDEta(csi, eta) + _y31 * dH1yDCsi(csi, eta) + _y12 * dH1yDEta(csi, eta));
 
-                Dictionary<string, double> output = new Dictionary<string, double>();
-                output.Add("dx", dH1xDx);
-                output.Add("dy", dH1yDy);
-                output.Add("dxdy", dH1xDyPlusdH1yDx);
+                Dictionary<string, double> output = new Dictionary<string, double>
+                {
+                    { "dx", dH1xDx },
+                    { "dy", dH1yDy },
+                    { "dxdy", dH1xDyPlusdH1yDx }
+                };
 
                 return output;
             }
@@ -998,6 +1003,6 @@ namespace GPC.Model.FEM.FiniteElements
         {
             return (2.0 * _h0 + _h1 + _h2) / 2.0;
         }
-#endregion
+        #endregion
     }
 }

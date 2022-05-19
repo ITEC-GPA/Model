@@ -618,6 +618,28 @@ namespace ModelObjectTest
             c.StressStrainTableCompression.GetLastStrain();
         }
 
+        [TestMethod]
+        public void ConcreteFRCTest12()
+        {
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
+            bool comp = concreteMC.StressStrainTableCompression.IsHardening();
+            bool tens = concreteMC.StressStrainTableTension.IsHardening();
+
+            Assert.IsTrue(comp);
+            Assert.IsFalse(tens);
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest13()
+        {
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
+            bool comp = concreteMC.StressStrainTableCompression.IsHardening();
+            bool tens = concreteMC.StressStrainTableTension.IsHardening();
+
+            Assert.IsTrue(comp);
+            Assert.IsFalse(tens);
+        }
+
         #endregion
 
         #region ModelCode 2010 Concrete Material Test
@@ -839,6 +861,45 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void RebarTest4()
+        {
+            SteelMaterial steel = SteelMaterial.B450C;
+            StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
+            double strain1 = 0.001955 * 0.5;
+            double strain2 = 0.001955;
+            double strain3 = 0.001955 * 1.5;
+            double strain4 = 0.001955 * 2;
+            double strain5 = 0.02;
+            double strain6 = 0.04;
+            double strain7 = 0.06;
+            double strain8 = 0.08;
+            double strain9 = 0.1;
+            double stress1 = steel.CalculateDesignStressRebar(standardModelCode2010, strain1);
+            double stress2 = steel.CalculateDesignStressRebar(standardModelCode2010, strain2);
+            double stress3 = steel.CalculateDesignStressRebar(standardModelCode2010, strain3);
+            double stress4 = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+            double stress5 = steel.CalculateDesignStressRebar(standardModelCode2010, strain5);
+            double stress6 = steel.CalculateDesignStressRebar(standardModelCode2010, strain6);
+            double stress7 = steel.CalculateDesignStressRebar(standardModelCode2010, strain7);
+            double stress8 = steel.CalculateDesignStressRebar(standardModelCode2010, strain8);
+            double stress9 = steel.CalculateDesignStressRebar(standardModelCode2010, strain9);
+            double stressTest = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+
+            double expValue = steel.Fyk / 1.15;
+
+            Assert.IsTrue(Math.Abs(stress1 - expValue / 2.0) / stress1 < 0.001);
+            Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
+            Assert.IsTrue(Math.Abs(stress3 - expValue) / stress3 < 0.001);
+            Assert.IsTrue(Math.Abs(stress4 - expValue) / stress4 < 0.001);
+            Assert.IsTrue(Math.Abs(stress5 - expValue) / stress5 < 0.001);
+            Assert.IsTrue(Math.Abs(stress6 - expValue) / stress6 < 0.001);
+            Assert.IsTrue(Math.Abs(stress7 - expValue) / stress7 < 0.001);
+            Assert.IsTrue(Math.Abs(stress8 - expValue) / stress8 < 0.001);
+            Assert.IsTrue(Math.Abs(stress9 - expValue) / stress9 < 0.001);
+            Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
+        }
+
+        [TestMethod]
         public void TendonTest1()
         {
             SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800);
@@ -849,6 +910,31 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
+        }
+
+        [TestMethod]
+        public void TendonTest2()
+        {
+            SteelMaterial tendon = SteelMaterial.Y1770C;
+            StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
+            double strain1 = 0.0017128174817783004;
+            double strain2 = 0.0057628174817783004;
+            double strain3 = 0.010628174817783005;
+            double strain4 = 0.017928174817783004;
+            double epsilonP = 0.0071794871794871795;
+            double stress1 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain1, epsilonP);
+            double stress2 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain2, epsilonP);
+            double stress3 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain3, epsilonP);
+            double stress4 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4, epsilonP);
+            double stressTest = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4 + epsilonP);
+
+            double expValue = tendon.Fyk / 1.15;
+
+            Assert.IsTrue(Math.Abs(stress1 - expValue) / stress1 < 0.001);
+            Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
+            Assert.IsTrue(Math.Abs(stress3 - expValue) / stress3 < 0.001);
+            Assert.IsTrue(Math.Abs(stress4 - expValue) / stress4 < 0.001);
+            Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
         }
 
         #endregion

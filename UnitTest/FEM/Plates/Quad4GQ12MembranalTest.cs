@@ -2,14 +2,14 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 
 namespace FemTest.SolverTest
@@ -65,7 +65,7 @@ namespace FemTest.SolverTest
             mnl.Matrix<double> k1 = el.KElementLocalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             nds[0] = new Node(0.0, 0.0, 0, "1");
             nds[1] = new Node(2.0, 0.0, 0, "2");
@@ -78,7 +78,7 @@ namespace FemTest.SolverTest
             k1 = el.KElementLocalCoord;
 
             Console.WriteLine("k1 ");
-            FEMUtilities.WriteMatrix(k1, "F3");
+            FemUtilities.WriteMatrix(k1, "F3");
 
             //Console.WriteLine("k2 Correct = ");
             //Util.WriteMatrix(k2, "F3");

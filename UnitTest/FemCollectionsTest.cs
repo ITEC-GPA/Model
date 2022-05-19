@@ -1,14 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using GPC.Model.FEM.Collections;
-using GPC.Model.FEM;
-using GPC.Model.FEM.FiniteElements;
+using GPC.Model.Fem.Collections;
+using GPC.Model.Fem;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Geometry;
 using GPC.TestUtilities;
 using GPC.Model.LoadCases;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,13 +51,13 @@ namespace FemTest
             FemObjectCollection<FiniteElement> cfe = new FemObjectCollection<FiniteElement>();
 
             Plate p1 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) } );
-            p1.SetId(1);
+            p1.Id = 1;
 
             Plate p2 = new Plate(new Node[] { new Node(new Point3d(0, 2, 2), 1), new Node(new Point3d(1, 2, 2), 2), new Node(new Point3d(2, 3, 2), 3), new Node(new Point3d(3, 4, 2), 4) });
-            p2.SetId(1);
+            p2.Id = 1;
 
             Plate p3 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
-            p3.SetId(1);
+            p3.Id = 1;
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -162,13 +162,13 @@ namespace FemTest
             FiniteElementStageCollection<FiniteElement, Stage.StageProperty> nodes = new FiniteElementStageCollection<FiniteElement, Stage.StageProperty>();
 
             Plate p1 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
-            p1.SetId(1);
+            p1.Id = 1;
 
             Plate p2 = new Plate(new Node[] { new Node(new Point3d(0, 2, 2), 1), new Node(new Point3d(1, 2, 2), 2), new Node(new Point3d(2, 3, 2), 3), new Node(new Point3d(3, 4, 2), 4) });
-            p2.SetId(2);
+            p2.Id = 2;
 
             Plate p3 = new Plate(new Node[] { new Node(new Point3d(0, 1, 2), 1), new Node(new Point3d(1, 1, 2), 2), new Node(new Point3d(2, 1, 2), 3), new Node(new Point3d(3, 1, 2), 4) });
-            p3.SetId(1);
+            p3.Id = 1;
 
 
             Stage.StageFiniteElementProperty sp1 = new Stage.StageFiniteElementProperty("m1");

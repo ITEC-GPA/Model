@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using System.Collections.Generic;
-using GPC.Model.FEM.Materials;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// FINITE ELEMENT ANALYSIS OF 2-D STRUCTURES BY NEW STRAIN BASED TRIANGULAR ELEMENT - C. Rebiai - 2019
@@ -67,7 +67,7 @@ namespace GPC.Model.FEM.FiniteElements
             _localNodes = Tri3Element.GetLocalNodes(_nodesGlobal, out _localCoordinateSystem); //take global node and transform in local nodes
             Console.WriteLine("Element Local Nodes");
             _localNodes.ToList().ForEach(x => Console.WriteLine(x));
-            
+
             _dofGlobalToLocal = mnl.Matrix<double>.Build.Dense(9, 18);
             mnl.Matrix<double> dofGlobalToLocalTranspose = mnl.Matrix<double>.Build.Dense(18, 9);
 
@@ -95,7 +95,7 @@ namespace GPC.Model.FEM.FiniteElements
             dofGlobalToLocalTranspose[4, 2] = localZ.DotProduct(globalY);
             dofGlobalToLocalTranspose[5, 2] = localZ.DotProduct(globalZ);
             #endregion
-            
+
             #region localToGlobalNode2
             //local node2 x-displacement in global coordinate
             dofGlobalToLocalTranspose[6, 3] = localX.DotProduct(globalX);
@@ -145,7 +145,8 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region stiffnessMatrixInLocalCoordinates
-            Func<Point3d, mnl.Matrix<double>> C = delegate (Point3d p) {
+            Func<Point3d, mnl.Matrix<double>> C = delegate (Point3d p)
+            {
                 mnl.Matrix<double> matrix = mnl.Matrix<double>.Build.Dense(3, 9);
                 double x = p.X;
                 double y = p.Y;
@@ -154,17 +155,17 @@ namespace GPC.Model.FEM.FiniteElements
                 matrix[1 - 1, 3 - 1] = -y;
                 matrix[1 - 1, 4 - 1] = x;
                 matrix[1 - 1, 5 - 1] = x * y;
-                matrix[1 - 1, 7 - 1] = - y*y / 2.0;
+                matrix[1 - 1, 7 - 1] = -y * y / 2.0;
                 matrix[1 - 1, 8 - 1] = y / 2.0;
-                matrix[1 - 1, 9 - 1] = x* y*y + 2.0 * y*y*y / 3.0;
+                matrix[1 - 1, 9 - 1] = x * y * y + 2.0 * y * y * y / 3.0;
 
                 matrix[2 - 1, 2 - 1] = 1.0;
                 matrix[2 - 1, 3 - 1] = x;
-                matrix[2 - 1, 5 - 1] = - x*x / 2.0;
+                matrix[2 - 1, 5 - 1] = -x * x / 2.0;
                 matrix[2 - 1, 6 - 1] = y;
                 matrix[2 - 1, 7 - 1] = x * y;
                 matrix[2 - 1, 8 - 1] = x / 2.0;
-                matrix[2 - 1, 9 - 1] = (x*x* y + 2.0 *x*x*x / 3.0);
+                matrix[2 - 1, 9 - 1] = (x * x * y + 2.0 * x * x * x / 3.0);
 
                 matrix[3 - 1, 5 - 1] = -x;
                 matrix[3 - 1, 7 - 1] = y;
@@ -189,7 +190,7 @@ namespace GPC.Model.FEM.FiniteElements
             Console.WriteLine("C = " + _C);
 
             double areaElement = 0.5 * ((-_localNodes[1 - 1].Position.X + _localNodes[2 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[3 - 1].Position.Y)
-                                       -(-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));
+                                       - (-_localNodes[1 - 1].Position.X + _localNodes[3 - 1].Position.X) * (-_localNodes[1 - 1].Position.Y + _localNodes[2 - 1].Position.Y));
 
             Console.WriteLine("area element = " + areaElement);
 
@@ -364,20 +365,20 @@ namespace GPC.Model.FEM.FiniteElements
             globalStress = stressGlobalCouchy;
 
             double thickness = ((PlateProperty)_property).MembraneThickness;
-            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray() ;
+            globalForces = stressGlobalCouchy.Select(stressGlobalCouchyElement => thickness * stressGlobalCouchyElement).ToArray();
             localForces = stressLocalCouchy.Select(stressLocalCouchyElement => thickness * stressLocalCouchyElement).ToArray();
-                        
+
             globalEpsilon = epsilonGlobalCouchy;
             localEpsilon = stressGlobalCouchy;
         }
-        
+
         /// <summary>
         /// 3 x 9 matrix
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        private mnl.Matrix<double> GetQ (double x, double y)
+        private mnl.Matrix<double> GetQ(double x, double y)
         {
             mnl.Matrix<double> Q = mnl.Matrix<double>.Build.Dense(3, 9);
             Q[1 - 1, 4 - 1] = 1.0;
@@ -386,10 +387,10 @@ namespace GPC.Model.FEM.FiniteElements
 
             Q[2 - 1, 6 - 1] = 1.0;
             Q[2 - 1, 7 - 1] = x;
-            Q[2 - 1, 9 - 1] = x*x;
+            Q[2 - 1, 9 - 1] = x * x;
 
             Q[3 - 1, 8 - 1] = 1.0;
-            Q[3 - 1, 9 - 1] = 2.0*(x*x + y*y + 2 * x*y);
+            Q[3 - 1, 9 - 1] = 2.0 * (x * x + y * y + 2 * x * y);
             return Q;
         }
 

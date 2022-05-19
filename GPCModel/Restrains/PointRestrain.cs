@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Linq;
+using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains
@@ -44,7 +44,7 @@ namespace GPC.Model.Restrains
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
-        public PointRestrain(SerializationInfo info, StreamingContext context) 
+        public PointRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _point = (Point3d)info.GetValue("Point", typeof(Point3d));
@@ -54,7 +54,7 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
         /// </summary>
-        public static PointRestrain GetAllFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem) 
+        public static PointRestrain GetAllFixed(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem)
         {
 
             return new PointRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
@@ -65,7 +65,7 @@ namespace GPC.Model.Restrains
                                                                             new DofRestrain(Solver.DOF.RX),
                                                                             new DofRestrain(Solver.DOF.RY),
                                                                             new DofRestrain(Solver.DOF.RZ)
-                                                                        });        
+                                                                        });
         }
 
         /// <summary>

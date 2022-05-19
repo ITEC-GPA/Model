@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GPC.Model.FEM.Costrains
+namespace GPC.Model.Fem.Costrains
 {
-    public abstract class Costrain : FEMObject
+    public abstract class Costrain : FemObject
     {
 
         protected Node _startNode;

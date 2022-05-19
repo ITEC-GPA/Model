@@ -1,6 +1,6 @@
 ﻿using GPC.Geometry;
-using GPC.Model.FEM;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Attributes;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -38,7 +38,7 @@ namespace FemTest
         /// <summary>
         /// This class is only a kind of Moq class for testing since Plate is abstract
         /// </summary>
-        internal class GhostPlate : GPC.Model.FEM.FiniteElements.Plate
+        internal class GhostPlate : GPC.Model.Fem.FiniteElements.Plate
         {
 
             public GhostPlate(Node[] nodes) : base(nodes)

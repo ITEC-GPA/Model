@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 
 namespace FemTest.SolverTest
@@ -135,7 +135,7 @@ namespace FemTest.SolverTest
             Tethraedron4 e = new Tethraedron4(nds.ToArray(), brickProperty);
             e.BuildMatrix();
 
-            FEMUtilities.WriteMatrix(e.KElementLocalCoord);
+            FemUtilities.WriteMatrix(e.KElementLocalCoord);
 
             //Local axis == global axis
             for (int r = 0; r < 12; r++)

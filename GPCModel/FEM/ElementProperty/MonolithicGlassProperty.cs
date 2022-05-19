@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Runtime.Serialization;
-using GPC.Model.Materials;
-using GPC.Model.Glasses;
-using GPC.Model.FEM.Materials;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Glasses;
+using GPC.Model.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [Serializable]
     public sealed class MonolithicGlassProperty : PlateProperty, IGlassProperty, IPlateProperty, IEquatable<MonolithicGlassProperty>, ISerializable
@@ -20,10 +20,10 @@ namespace GPC.Model.FEM.Properties
         public MonolithicGlassProperty(double thickness, FemMaterial material, string name)
             : this(thickness, thickness, material, name)
         {
-            
+
         }
 
-        public MonolithicGlassProperty(double tb, double tm, FemMaterial material, string name) 
+        public MonolithicGlassProperty(double tb, double tm, FemMaterial material, string name)
             : base(material, tb, tm, name)
         {
 
@@ -54,19 +54,16 @@ namespace GPC.Model.FEM.Properties
 
         public override int GetHashCode()
         {
-            int hashCode = 23;
-            hashCode = hashCode * -17 + base.GetHashCode();
-            return hashCode;
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                return hashCode; 
+            }
         }
 
         public static bool operator ==(MonolithicGlassProperty obj1, MonolithicGlassProperty obj2)
         {
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
-            if (obj1 is null || obj2 is null)
-                return false;
-
             return obj1.Equals(obj2);
         }
 

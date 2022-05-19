@@ -1,4 +1,4 @@
-﻿using GPC.Model.FEM.Materials;
+﻿using GPC.Model.Fem.Materials;
 using GPC.Utilities.Attributes;
 using GPC.Utilities.Converters;
 using System;
@@ -59,17 +59,23 @@ namespace GPC.Model.Materials
         public static SteelMaterial B500C => new SteelMaterial("B500C", 200000, 500, 500, 0.075, SteelTypes.Rebar);
         public static SteelMaterial B500CHardening => new SteelMaterial("B500C Hardening", 200000, 500, 575, 0.075, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade40 => new SteelMaterial("Grade 40", 199947.9615, 413.6854, 413.6854, 0.10, SteelTypes.Rebar);
-        public static SteelMaterial Grade40Hardening => new SteelMaterial("Grade 40 Hardening", 199947.9615, 413.6854, 455.05398, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade40 => new SteelMaterial("Grade 40", 199947.9615, 275.790, 275.790, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade40Hardening => new SteelMaterial("Grade 40 Hardening", 199947.9615, 275.790, 379.901, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade60 => new SteelMaterial("Grade 60", 199947.9615, 551.58058, 551.58058, 0.10, SteelTypes.Rebar);
-        public static SteelMaterial Grade60Hardening => new SteelMaterial("Grade 60 Hardening", 199947.9615, 551.58058, 606.73864, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade50 => new SteelMaterial("Grade 50", 199947.9615, 344.7378, 344.7378, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade50Hardening => new SteelMaterial("Grade 50 Hardening", 199947.9615, 344.7378, 450.2276, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade80 => new SteelMaterial("Grade 80", 199947.9615, 689.47573, 689.47573, 0.10, SteelTypes.Rebar);
-        public static SteelMaterial Grade80Hardening => new SteelMaterial("Grade 80 Hardening", 199947.9615, 689.47573, 758.423302, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade60 => new SteelMaterial("Grade 60", 199947.9615, 413.685, 413.685, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade60Hardening => new SteelMaterial("Grade 60 Hardening", 199947.9615, 413.685, 551.580, 0.10, SteelTypes.Rebar);
 
-        public static SteelMaterial Grade100 => new SteelMaterial("Grade 100", 199947.9615, 792.897089, 792.897089, 0.10, SteelTypes.Rebar);
-        public static SteelMaterial Grade100Hardening => new SteelMaterial("Grade 100 Hardening", 199947.9615, 792.897089, 872.186798, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade80 => new SteelMaterial("Grade 80", 199947.9615, 551.58058, 551.58058, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade80Hardening => new SteelMaterial("Grade 80 Hardening", 199947.9615, 551.58058, 620.5281, 0.10, SteelTypes.Rebar);
+
+        public static SteelMaterial Grade100 => new SteelMaterial("Grade 100", 199947.9615, 689.47573, 689.47573, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade100Hardening => new SteelMaterial("Grade 100 Hardening", 199947.9615, 689.47573, 758.423302, 0.10, SteelTypes.Rebar);
+
+        public static SteelMaterial Grade115 => new SteelMaterial("Grade 115", 199947.9615, 792.897089, 792.897089, 0.10, SteelTypes.Rebar);
+        public static SteelMaterial Grade115Hardening => new SteelMaterial("Grade 115 Hardening", 199947.9615, 792.897089, 872.186798, 0.10, SteelTypes.Rebar);
 
 		#endregion
 
@@ -183,9 +189,7 @@ namespace GPC.Model.Materials
 
 		#region Constructor
 
-		/// <summary>
-		/// 
-		/// </summary>
+
 		/// <param name="name"></param>
 		/// <param name="elasticModulus">Steel elastic modulus</param>
 		/// <param name="fyk">Yielding stress</param>
@@ -219,18 +223,6 @@ namespace GPC.Model.Materials
             double fu, double strainU, SteelTypes steelType, double density, double alfaThermalExpansion, Guid guid)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
         {
-            if (elasticModulus == 0)
-                throw new ArgumentException($"{nameof(elasticModulus)} cannot be zero");
-
-            if (poisson == 0)
-                throw new ArgumentException($"{nameof(poisson)} cannot be zero");
-
-            if (poisson > 0.5)
-                throw new ArgumentException($"{nameof(poisson)} cannot be major than 0.5");
-
-            if (density <= 0)
-                throw new ArgumentException($"{nameof(density)} cannot be minor than zero");
-
             _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
             _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
             _strainU = strainU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : strainU;
@@ -337,7 +329,7 @@ namespace GPC.Model.Materials
 
         public double CalculateUltimateDesignStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Tendon || SteelType == SteelTypes.Bars)
                 return StrainU * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
@@ -345,23 +337,22 @@ namespace GPC.Model.Materials
 
         public double CalculateDesignYieldingStressRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
                 return Fyk / standard.GammaS;
+            else if (SteelType == SteelTypes.Tendon)
+                return Fyk / standard.GammaSPrestress;
             else
                 throw new Exception();
         }
 
         public double CalculateDesignYieldingStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return CalculateDesignYieldingStressRebar(standard) / E;            
-            else
-                throw new Exception();
+            return CalculateDesignYieldingStressRebar(standard) / E;   
         }
 
         public double CalculateDesignUltimateStrainRebar(Standards.StandardModelCode2010 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon)
                 return StrainU * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
@@ -373,7 +364,7 @@ namespace GPC.Model.Materials
             double fyd = CalculateDesignYieldingStressRebar(standard);
             double strainYd = CalculateDesignYieldingStrainRebar(standard);
 
-            if (Math.Abs(strain) <= strainYd)
+            if (Math.Abs(strain + epsilonP) <= strainYd)
                 return CalculateStress(strain + epsilonP);
 
             else
@@ -397,34 +388,22 @@ namespace GPC.Model.Materials
 
         public double CalculateUltimateDesignStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return StrainU;
-            else
-                throw new Exception();
+            return StrainU;
         }
 
-        public double CalculateDesignYieldingStressRebar(Standards.StandardACI318 standard)
+        public double CalculateDesignYieldingStress(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return Fyk;
-            else
-                throw new Exception();
+            return Fyk;
         }
 
         public double CalculateDesignYieldingStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return CalculateDesignYieldingStressRebar(standard) / E;
-            else
-                throw new Exception();
+            return CalculateDesignYieldingStress(standard) / E;
         }
 
         public double CalculateDesignUltimateStrainRebar(Standards.StandardACI318 standard)
         {
-            if (SteelType == SteelTypes.Rebar)
-                return StrainU;
-            else
-                throw new Exception();
+            return StrainU;
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
@@ -434,6 +413,30 @@ namespace GPC.Model.Materials
         }
 
         #endregion
+
+        public override bool Equals(object obj)
+        {
+            return obj is SteelMaterial material &&
+                   base.Equals(obj) &&
+                   _fyk == material._fyk &&
+                   _fu == material._fu &&
+                   _strainU == material._strainU &&
+                   _steelType == material._steelType;
+        }
+
+        public override int GetHashCode()
+        {
+			unchecked
+			{
+				int hashCode = -17;
+				hashCode = hashCode * -17 + base.GetHashCode();
+				hashCode = hashCode * -17 + _fyk.GetHashCode();
+				hashCode = hashCode * -17 + _fu.GetHashCode();
+				hashCode = hashCode * -17 + _strainU.GetHashCode();
+				hashCode = hashCode * -17 + _steelType.GetHashCode();
+				return hashCode; 
+			}
+        }
 
         #endregion
     }

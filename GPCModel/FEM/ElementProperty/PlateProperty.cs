@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using GPC.Model.Fem.Materials;
 using GPC.Model.Materials;
-using GPC.Model.FEM.Materials;
 
-namespace GPC.Model.FEM.Properties
+namespace GPC.Model.Fem.Properties
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]
@@ -47,7 +47,7 @@ namespace GPC.Model.FEM.Properties
         }
 
 
-        public PlateProperty(SerializationInfo info, StreamingContext context)
+        protected PlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _bendingThickness = info.GetDouble("BendingThickness");
@@ -69,12 +69,6 @@ namespace GPC.Model.FEM.Properties
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
             return (obj is PlateProperty objCasted) && _bendingThickness == objCasted._bendingThickness &&
                                            _membraneThickness == objCasted._membraneThickness &&
                                            _material == objCasted._material &&
@@ -90,7 +84,7 @@ namespace GPC.Model.FEM.Properties
                 hashCode = hashCode * -17 + _bendingThickness.GetHashCode();
                 hashCode = hashCode * -17 + _membraneThickness.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<FemMaterial>.Default.GetHashCode(_material);
-                return hashCode; 
+                return hashCode;
             }
         }
 
@@ -101,14 +95,6 @@ namespace GPC.Model.FEM.Properties
 
         public static bool operator ==(PlateProperty obj1, PlateProperty obj2)
         {
-            if (obj1 is null)
-            {
-                return obj2 is null;
-            }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
-
             return obj1.Equals(obj2);
         }
 

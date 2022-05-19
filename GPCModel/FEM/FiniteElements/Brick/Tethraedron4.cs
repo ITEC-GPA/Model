@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
+using GPC.Model.Fem.Properties;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Refecente to Finite Element Method by Rao
     /// </summary>
     public class Tethraedron4 : Brick
     {
-        internal Tethraedron4(Node[] globalNodes, BrickProperty brickProperty) :base(globalNodes)
+        internal Tethraedron4(Node[] globalNodes, BrickProperty brickProperty) : base(globalNodes)
         {
             _DOF.Add(LinearSolver.DOF.DX);
             _DOF.Add(LinearSolver.DOF.DY);
@@ -46,7 +46,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //For this element there is not advantage in setting up a local coordinate system
             // -> local axis coincide with global axis -> ref. Finite Element Method - by Rao §11.2
-            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4*3, 1.0);
+            _dofGlobalToLocal = mnl.Matrix<double>.Build.DenseDiagonal(4 * 3, 1.0);
 
             /*double E = ((BrickProperty)_property).GetE();
             double ni = ((BrickProperty)_property).GetNi();*/
@@ -129,7 +129,7 @@ namespace GPC.Model.FEM.FiniteElements
 
             //ripartire secondo V/4 ed eventualmente per pressioni su facce come A/3
 
-            return mnl.Vector<double>.Build.Dense(4*3);
+            return mnl.Vector<double>.Build.Dense(4 * 3);
         }
 
         /// <summary>
@@ -154,7 +154,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(0, 4);
             int i = 0;
-            rows.ForEach(r => {
+            rows.ForEach(r =>
+            {
                 m = m.InsertRow(i, r);
                 i++;
             });
@@ -165,31 +166,31 @@ namespace GPC.Model.FEM.FiniteElements
         internal static Node[] OrderNode(int i, Node[] nodes)
         {
             Node[] list = new Node[4];
-            switch(i)
+            switch (i)
             {
                 case 1:
-                    list[0] = nodes[1-1]; //I
-                    list[1] = nodes[2-1]; //J
-                    list[2] = nodes[3-1]; //K
-                    list[3] = nodes[4-1]; //L
+                    list[0] = nodes[1 - 1]; //I
+                    list[1] = nodes[2 - 1]; //J
+                    list[2] = nodes[3 - 1]; //K
+                    list[3] = nodes[4 - 1]; //L
                     break;
                 case 2:
-                    list[0] = nodes[2-1];
-                    list[1] = nodes[1-1];
-                    list[2] = nodes[3-1];
-                    list[3] = nodes[4-1];
+                    list[0] = nodes[2 - 1];
+                    list[1] = nodes[1 - 1];
+                    list[2] = nodes[3 - 1];
+                    list[3] = nodes[4 - 1];
                     break;
                 case 3:
-                    list[0] = nodes[3-1];
-                    list[1] = nodes[1-1];
-                    list[2] = nodes[2-1];
-                    list[3] = nodes[4-1];
+                    list[0] = nodes[3 - 1];
+                    list[1] = nodes[1 - 1];
+                    list[2] = nodes[2 - 1];
+                    list[3] = nodes[4 - 1];
                     break;
                 case 4:
-                    list[0] = nodes[4-1];
-                    list[1] = nodes[1-1];
-                    list[2] = nodes[2-1];
-                    list[3] = nodes[3-1];
+                    list[0] = nodes[4 - 1];
+                    list[1] = nodes[1 - 1];
+                    list[2] = nodes[2 - 1];
+                    list[3] = nodes[3 - 1];
                     break;
             }
             return list;
@@ -197,7 +198,7 @@ namespace GPC.Model.FEM.FiniteElements
 
         internal static double GetCoefficientShapeFunction(int index, string nameCoefficient, Node[] nodes)
         {
-            Node[] nodeOrdered = OrderNode(index,nodes);
+            Node[] nodeOrdered = OrderNode(index, nodes);
             /*nodeOrdered.ToList().ForEach(x => Console.WriteLine(x));
             Console.WriteLine();*/
 
@@ -267,7 +268,8 @@ namespace GPC.Model.FEM.FiniteElements
 
             mnl.Matrix<double> m = mnl.Matrix<double>.Build.Dense(0, 3);
             int i = 0;
-            rows.ForEach(r => {
+            rows.ForEach(r =>
+            {
                 m = m.InsertRow(i, r);
                 i++;
             });

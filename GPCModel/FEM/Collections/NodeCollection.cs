@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     [Serializable]
     public class NodeCollection : SortedCollection<Node>
@@ -24,13 +24,13 @@ namespace GPC.Model.FEM.Collections
         }
 
         public NodeCollection()
-            :base()
+            : base()
         {
         }
 
-        public NodeCollection(SerializationInfo info, StreamingContext context)
-            :base (info, context)
-        { 
+        protected NodeCollection(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         protected static PositionComparer _positionComparer = new PositionComparer();

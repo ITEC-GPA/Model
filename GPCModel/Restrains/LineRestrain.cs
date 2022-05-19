@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.FEM;
+using GPC.Model.Fem;
 using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains
@@ -31,16 +31,16 @@ namespace GPC.Model.Restrains
 
         }
 
-        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains) 
+        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains)
             : this(line, freedomCase, coordinateSystem, restrains, Guid.NewGuid(), string.Empty)
         {
 
         }
 
-        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name) 
+        public LineRestrain(Line3d line, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name)
             : base(freedomCase, coordinateSystem, restrains, guid, name)
         {
-            this._line = line ?? throw new ArgumentNullException("Base line is null");
+            _line = line ?? throw new ArgumentNullException("Base line is null");
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace GPC.Model.Restrains
 
         #endregion
 
-      
+
         public override GeometryBase GetGeometry() => _line;
 
 

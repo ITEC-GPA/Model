@@ -62,7 +62,7 @@ namespace GPC.Model.Materials
             set
             {
                 SetConcreteType(value);
-                RecalculateMechanicalProperties();                
+                //RecalculateMechanicalProperties();                
             }
         }
 
@@ -124,6 +124,20 @@ namespace GPC.Model.Materials
 
         public abstract double CalculateECd(Standards.Standard standard);
 
+
+		#endregion
+
+		#region Public Setter
+
+        public void SetStressStrainTableCompression(StressStrainTable stressStrainTable)
+		{
+            _stressStrainTableCompression = stressStrainTable;
+		}
+
+        public void SetStressStrainTableTension(StressStrainTable stressStrainTable)
+        {
+            _stressStrainTableTension = stressStrainTable;
+        }
 
         #endregion
 

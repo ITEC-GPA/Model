@@ -78,12 +78,6 @@ namespace GPC.Model
         /// <remarks>Equality is not checked against <see cref="ModelObjectId.Id"/> </remarks>
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
             // ID non viene messo in equals in quanto non tutte le derivate devono ritornare true se gli id sono uguali. 
             // Se ne deve occupare la derivata
 
@@ -92,7 +86,10 @@ namespace GPC.Model
 
         public override int GetHashCode()
         {
-            return 17 * base.GetHashCode();
+            unchecked
+            {
+                return 17 * base.GetHashCode(); 
+            }
         }
 
         public static bool operator ==(ModelObjectId obj1, ModelObjectId obj2)
@@ -101,9 +98,6 @@ namespace GPC.Model
             {
                 return obj2 is null;
             }
-
-            if (ReferenceEquals(obj1, obj2))
-                return true;
 
             return obj1.Equals(obj2);
         }
@@ -147,7 +141,10 @@ namespace GPC.Model
             /// <remarks> Only <see cref="ModelObjectId.Id"/> is used as equality parameter </remarks>
             int IEqualityComparer<ModelObjectId>.GetHashCode(ModelObjectId obj)
             {
-                return -17 * obj.Id.GetHashCode();
+                unchecked
+                {
+                    return -17 * obj.Id.GetHashCode(); 
+                }
             }
         }
 

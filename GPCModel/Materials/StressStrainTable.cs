@@ -44,23 +44,6 @@ namespace GPC.Model.Materials
             if (stresses.Length != strains.Length)
                 throw new ArgumentException();
 
-            /*if (stresses.Length < 2 || strains.Length < 2) // servono almeno due valori
-                throw new ArgumentException();
-
-            if (stresses[0] != 0)
-            {
-                var buffer = new List<double>() { 0 };
-                buffer.AddRange(stresses);
-                _stresses = buffer.ToArray();
-            }
-
-            if (strains[0] != 0)
-            {
-                var buffer = new List<double>() { 0 };
-                buffer.AddRange(strains);
-                _strains = buffer.ToArray();
-            }
-            */
             if (stresses == null)
                 stresses = new double[0];
             if (strains == null)
@@ -138,7 +121,7 @@ namespace GPC.Model.Materials
         /// </summary>
         /// <param name="pos"></param>
         public void Remove(int pos)
-		{
+        {
             double[] newStesses = new double[_stresses.Length - 1];
             for (int i = 0; i < _stresses.Length; i++)
             {
@@ -166,9 +149,9 @@ namespace GPC.Model.Materials
         /// <param name="stress"></param>
         /// <param name="pos"></param>
         public void SetStress(double stress, int pos)
-		{
+        {
             _stresses[pos] = stress;
-		}
+        }
 
         /// <summary>
         /// Set the value <paramref name="strain"/> at the position <paramref name="pos"/>
@@ -176,9 +159,9 @@ namespace GPC.Model.Materials
         /// <param name="strain"></param>
         /// <param name="pos"></param>
         public void SetStrain(double strain, int pos)
-		{
+        {
             _strains[pos] = strain;
-		}
+        }
 
         /// <summary>
         /// Get stress associated to <paramref name="strain"/>
@@ -195,8 +178,8 @@ namespace GPC.Model.Materials
                 if (_strains[i] == strain)
                     return _stresses[i];
 
-                if (Math.Abs(_strains[i]) > Math.Abs(strain) && i > 0)                
-                    return Utilities.Maths.Interpolation.GetLinearInterpolation(_strains[i], _strains[i - 1], _stresses[i], _stresses[i - 1], strain);                
+                if (Math.Abs(_strains[i]) > Math.Abs(strain) && i > 0)
+                    return Utilities.Maths.Interpolation.GetLinearInterpolation(_strains[i], _strains[i - 1], _stresses[i], _stresses[i - 1], strain);
             }
 
             return 0;
@@ -240,7 +223,7 @@ namespace GPC.Model.Materials
         public double GetMinimumStress(out double strain)
         {
             double min = _stresses.Min();
-            
+
             int index = Array.IndexOf(_stresses, min);
             strain = _strains[index];
 
@@ -264,6 +247,22 @@ namespace GPC.Model.Materials
 
             return 0.0;
         }
+
+        public bool IsHardening()
+		{
+            int sign = Math.Sign(_stresses[1] - _stresses[0]);
+
+            for (int i = 1; i < _stresses.Length - 1; i++)
+			{
+                double diff = _stresses[i + 1] - _stresses[i];
+                int signBuffer = Math.Sign(diff);
+
+                if (signBuffer != sign && signBuffer != 0)
+                    return false;
+			}
+
+            return true;
+		}
 
 		#endregion
 
@@ -304,6 +303,6 @@ namespace GPC.Model.Materials
             return !(left == right);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

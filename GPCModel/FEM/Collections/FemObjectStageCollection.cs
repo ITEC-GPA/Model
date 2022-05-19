@@ -1,22 +1,22 @@
-﻿using GPC.Utilities.Extensions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Utilities.Extensions;
 
-namespace GPC.Model.FEM.Collections
+namespace GPC.Model.Fem.Collections
 {
     /// <summary>
-    /// This class rapresent an association between a <see cref="FEMObject"/> and a property override <see cref="Stage.StageProperty"/>
+    /// This class rapresent an association between a <see cref="FemObject"/> and a property override <see cref="Stage.StageProperty"/>
     /// </summary>
     /// <remarks>This should be accessed only from the class <see cref="Stage"/> since it does not implement any check on the element duplicates</remarks>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="D"></typeparam>
     /// <remarks>The collection is thread-safe</remarks>
     [Serializable]
-    public abstract class FemObjectStageCollection<T, D>  where T : FEMObject where D : Stage.StageProperty, ISerializable
+    public abstract class FemObjectStageCollection<T, D> where T : FemObject where D : Stage.StageProperty, ISerializable
     {
         protected readonly object _locker = new object();
 
@@ -33,8 +33,8 @@ namespace GPC.Model.FEM.Collections
         }
 
 
-        public FemObjectStageCollection(SerializationInfo info, StreamingContext context) 
-        {           
+        public FemObjectStageCollection(SerializationInfo info, StreamingContext context)
+        {
             _stageFiniteElementProperty = (List<KeyValuePair<T, D>>)info.GetValue("StageFiniteElementProperty", typeof(List<KeyValuePair<T, D>>));
         }
 
@@ -61,7 +61,7 @@ namespace GPC.Model.FEM.Collections
                     var kvp = new KeyValuePair<T, D>(el.Key, (D)el.Value.Merge(stageFiniteElementProperty));
                     _stageFiniteElementProperty.Remove(el);
                     _stageFiniteElementProperty.Add(kvp);
-                } 
+                }
             }
         }
 
@@ -106,7 +106,7 @@ namespace GPC.Model.FEM.Collections
             lock (_locker)
             {
                 KeyValuePair<T, D> el = _stageFiniteElementProperty.Where(i => i.Key == item).SingleOrDefault();
-            
+
                 if (el.Equals(default(KeyValuePair<T, D>)))
                 {
                     // Elemento non presente
@@ -136,7 +136,7 @@ namespace GPC.Model.FEM.Collections
             {
                 lock (_locker)
                 {
-                    return _stageFiniteElementProperty.Where(i => i.Key.Id == id).FirstOrDefault().Key; 
+                    return _stageFiniteElementProperty.Where(i => i.Key.Id == id).FirstOrDefault().Key;
                 }
             }
         }
@@ -161,7 +161,7 @@ namespace GPC.Model.FEM.Collections
                 else
                 {
                     return el.Value;
-                } 
+                }
             }
         }
 
@@ -185,7 +185,7 @@ namespace GPC.Model.FEM.Collections
                 else
                 {
                     return el.Value;
-                } 
+                }
             }
         }
 
@@ -207,7 +207,7 @@ namespace GPC.Model.FEM.Collections
         /// <remarks>This is a O(n^2) operations</remarks>
         public bool Remove(T item)
         {
-            lock(_locker)
+            lock (_locker)
             {
                 return _stageFiniteElementProperty.Remove(_stageFiniteElementProperty.SingleOrDefault(i => i.Key == item));
             }
@@ -235,8 +235,8 @@ namespace GPC.Model.FEM.Collections
         {
             lock (_locker)
             {
-                return obj is FemObjectStageCollection<T, D> collection 
-                                    && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty) 
+                return obj is FemObjectStageCollection<T, D> collection
+                                    && _stageFiniteElementProperty.ScrambledEquals(collection._stageFiniteElementProperty)
                                     && base.Equals(collection);
             }
         }
@@ -251,11 +251,11 @@ namespace GPC.Model.FEM.Collections
 
                     foreach (var element in _stageFiniteElementProperty)
                     {
-                        hashCode += EqualityComparer<FEMObject>.Default.GetHashCode(element.Key);
+                        hashCode += EqualityComparer<FemObject>.Default.GetHashCode(element.Key);
                         hashCode += EqualityComparer<Stage.StageProperty>.Default.GetHashCode(element.Value);
                     }
 
-                    return hashCode;  
+                    return hashCode;
                 }
             }
         }

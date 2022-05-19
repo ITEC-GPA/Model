@@ -2,15 +2,15 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.FEM.FiniteElements;
-using GPC.Model.FEM;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem;
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
 using GPC.Model.FreedomCases;
 using GPC.Geometry;
-using GPC.Model.FEM.Properties;
-using GPC.Model.FEM.Attributes;
+using GPC.Model.Fem.Properties;
+using GPC.Model.Fem.Attributes;
 using GPC.Model.LoadCases;
 
 namespace FemTest.SolverTest
@@ -83,7 +83,7 @@ namespace FemTest.SolverTest
 
             e0.BuildMatrix();
 
-            FEMUtilities.WriteMatrix(e0.KElementLocalCoord);
+            FemUtilities.WriteMatrix(e0.KElementLocalCoord);
 
             mnl.Matrix<double> SAPkMatrix = mnl.Matrix<double>.Build.Dense(0, 9);
 
@@ -498,7 +498,7 @@ namespace FemTest.SolverTest
             e0.SetProperty(prop);
 
             e0.BuildMatrix();
-            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+            FemUtilities.WriteMatrix(e0.KElementGlobalCoord);
         }
 
         [TestMethod]
@@ -520,7 +520,7 @@ namespace FemTest.SolverTest
             e0.SetProperty(prop);
 
             e0.BuildMatrix();
-            FEMUtilities.WriteMatrix(e0.KElementGlobalCoord);
+            FemUtilities.WriteMatrix(e0.KElementGlobalCoord);
         }
 
         /// <summary>

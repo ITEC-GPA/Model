@@ -1,13 +1,13 @@
 ﻿using System;
-using GPC.Model.FEM.Properties;
-using GPC.Geometry;
-using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.FEM.Attributes;
-using GPC.Model.FEM.Materials;
-using GPC.Utilities.Fem;
 using System.Collections.Generic;
+using GPC.Geometry;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Properties;
+using GPC.Utilities.Fem;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
-namespace GPC.Model.FEM.FiniteElements
+namespace GPC.Model.Fem.FiniteElements
 {
     /// <summary>
     /// Discrete Kirchoff Triangle - A study of three-node triangular plate bending elements - Jean-Louis Batoz
@@ -171,13 +171,13 @@ namespace GPC.Model.FEM.FiniteElements
             #endregion
 
             #region matrixK
-            mnl.Matrix<double> bTdb (double csi, double eta)
+            mnl.Matrix<double> bTdb(double csi, double eta)
             {
                 mnl.Matrix<double> b = GetB(csi, eta);
                 return b.Transpose() * _d * b;
             }
 
-            var jacob = FEMUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
+            var jacob = FemUtilities.J2D(Tri3Element.GetdNdCsi, Tri3Element.GetdNdEta, _nodesLocal);
 
             _kElementLocalCoord = OldGaussIntegration.IntegrationTriangular(bTdb, jacob, 3);
             #endregion
@@ -295,7 +295,7 @@ namespace GPC.Model.FEM.FiniteElements
             mnl.Vector<double> r2 = -_x31 * hxdCsi - _x12 * hxdEta + _y31 * hydCsi + _y12 * hydEta;
             #endregion
 
-            mnl.Matrix<double> b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0,r1,r2);
+            mnl.Matrix<double> b = mnl.Matrix<double>.Build.DenseOfRowVectors(r0, r1, r2);
             b = 1.0 / (2.0 * _areaElement) * b;
             //Console.WriteLine("B(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + b);
             return b;
@@ -499,7 +499,7 @@ namespace GPC.Model.FEM.FiniteElements
         {
             //derivative of "new shape function"
             #region formuleFornite
-            
+
             double P4 = -6.0 * _x23 / Math.Pow(_l23, 2.0);
             double P5 = -6.0 * _x31 / Math.Pow(_l31, 2.0);
             double P6 = -6.0 * _x12 / Math.Pow(_l12, 2.0);
@@ -516,7 +516,8 @@ namespace GPC.Model.FEM.FiniteElements
             double t5 = -6.0 * _y31 / Math.Pow(_l31, 2.0);
             double t6 = -6.0 * _y12 / Math.Pow(_l12, 2.0);
 
-            if (dir.ToLower() == "x") {
+            if (dir.ToLower() == "x")
+            {
                 if (deriv.ToLower() == "csi")
                 {
                     //hx,Csi
@@ -544,7 +545,8 @@ namespace GPC.Model.FEM.FiniteElements
                             throw new ArgumentOutOfRangeException();
                     }
                     //Console.WriteLine("Hx,Csi(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hxCsi);
-                } else if (deriv.ToLower() == "eta")
+                }
+                else if (deriv.ToLower() == "eta")
                 {
                     //hx,Eta
                     switch (indexFunction)
@@ -569,13 +571,15 @@ namespace GPC.Model.FEM.FiniteElements
                             return (double csi, double eta) => -2.0 + 6.0 * eta + r5 * (1.0 - 2.0 * eta) + csi * (r4 - r5);
                         default:
                             throw new ArgumentOutOfRangeException();
-                    }                  
+                    }
                     //Console.WriteLine("Hx,Eta(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hxEta);
-                } else
+                }
+                else
                 {
                     throw new ArgumentOutOfRangeException();
                 }
-            } else if (dir.ToLower() == "y")
+            }
+            else if (dir.ToLower() == "y")
             {
                 if (deriv == "csi")
                 {
@@ -604,7 +608,8 @@ namespace GPC.Model.FEM.FiniteElements
                             throw new ArgumentOutOfRangeException();
                     }
                     //Console.WriteLine("Hy,Csi(csi=" + csi.ToString("F2") + " ,eta=" + eta.ToString("F2") + ") = " + hyCsi);
-                } else if (deriv == "eta")
+                }
+                else if (deriv == "eta")
                 {
                     //hy,Eta
                     switch (indexFunction)
