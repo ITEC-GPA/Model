@@ -30,8 +30,7 @@ namespace MathTest
                 {
                     Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
                 }
-            }
-            
+            }           
 
         }
 

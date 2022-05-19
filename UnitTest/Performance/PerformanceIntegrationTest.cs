@@ -14,6 +14,26 @@ namespace PerformanceTest
     [TestClass]
     public class PerformanceIntegrationTest : UnitTestBase
     {
+        public void CommonEqualAssert(double result, double expectedValue)
+        {
+            if (expectedValue == 0)
+            {
+                Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+            }
+            else
+            {
+                if (result != 0)
+                {
+                    Assert.IsTrue(Math.Abs((result - expectedValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+                }
+                else
+                {
+                    Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+                }
+            }
+        }
+
+
 
         [TestMethod]
         public void IntegrationTest1()
@@ -136,26 +156,28 @@ namespace PerformanceTest
         public void IntegrationQuadFunction()
         {
 
-            Point3d[] vertices = new Point3d[] { new Point3d(-23, -21, 0), new Point3d(-10, -3, 0), new Point3d(6, -17, 0), new Point3d(18, -12, 0) };
+            Point3d[] vertices = new Point3d[] { new Point3d(5, 51, 0), new Point3d(18, 27, 0), new Point3d(34, 13, 0), new Point3d(46, 18, 0) };
+            Polygon3d poly = new Polygon3d(vertices);
+            
 
-            Func<double, double, double> func = (double x, double y) => Math.Pow(Math.Sin(x), 2) * Math.Pow(Math.Cos(y), 3) + 11;
+            Func<double, double, double> func = (double x, double y) => Math.Pow(Math.Sin(x), 12) + Math.Pow(Math.Cos(y), 6) + 1;
+            double expectedValue = 628;
 
-
-            double value = GaussIntegration.IntegrationQuadrilateral(func, vertices, QuadrangleGaussPoints.GaussPointNumber.Quad400,
-                GPC.Utilities.Fem.LinearShapeFunctionQuad4.NaturalShapeFunction,
-                GPC.Utilities.Fem.LinearShapeFunctionQuad4.DNdCsi, GPC.Utilities.Fem.LinearShapeFunctionQuad4.DNdEta, 4);
+            double value = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly.ToArray(), QuadrangleGaussPoints.GaussPointNumber.Quad400);
 
             Console.WriteLine(value);
+            CommonEqualAssert(value, expectedValue);
 
-            //int numberOfExecutons = 1000;
+
+            Action action = new Action(() =>
+            {
+                GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly.ToArray(), QuadrangleGaussPoints.GaussPointNumber.Quad400);
+            });
 
 
-            //int nrGaussPoints = 79;
-
-            //Action actionP79 = new Action(() =>
-            //{
-            //    GaussIntegration.IntegrationQuadrilateral(func, vertices, nrGaussPoints);
-            //});
+            MeasureTime.FunctionExecutionTime(100, action, true);
         }
+
+
     }
 }

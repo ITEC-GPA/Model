@@ -94,8 +94,8 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode);
-                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi).Determinant() * function(point.X, point.Y);
+                var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode);
+                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi).Determinant() * function(point.Item1, point.Item2);
             });
 
             return ris.Sum();
@@ -152,6 +152,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
+            bool parallelComputing = false;
             switch ((int)numberOfGaussPoints)
             {
                 case 1:
@@ -171,15 +172,19 @@ namespace GPC.Model.Maths.GaussIntegrations
                     break;
                 case 33:
                     gaussPoints = TriangleGaussPoints.Tri33;
+                    parallelComputing = true;
                     break;
                 case 48:
                     gaussPoints = TriangleGaussPoints.Tri48;
+                    parallelComputing = true;
                     break;
                 case 61:
                     gaussPoints = TriangleGaussPoints.Tri61;
+                    parallelComputing = true;
                     break;
                 case 79:
                     gaussPoints = TriangleGaussPoints.Tri79;
+                    parallelComputing = true;
                     break;
 
                 default:
@@ -210,26 +215,36 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
 
-            double[] ris = new double[gaussPoints.Length];
 
-            if (gaussPoints.Length >= 33)
+            double res = 0;
+            if (parallelComputing)
             {
+                double[] ris = new double[gaussPoints.Length];
+
                 Parallel.For(0, gaussPoints.Length, (i) =>
                 {
-                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                    double x = 0;
+                    double y = 0;
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(x, y);
                 });
+
+                res = ris.Sum() / 2.0;
             }
             else
             {
+                double x = 0;
+                double y = 0;
                 for (int i = 0; i < gaussPoints.Length; i++)
                 {
-                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                    res += gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(x, y);
                 }
+
+                res = res / 2.0;
             }
 
-            return ris.Sum() / 2.0;
+            return res;
         }
 
         /// <summary>
@@ -283,6 +298,8 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             GaussPoint[] gaussPoints;
 
+            bool parallelComputing = false;
+
             switch ((int)numberOfGaussPoints)
             {
                 case 1:
@@ -302,12 +319,15 @@ namespace GPC.Model.Maths.GaussIntegrations
                     break;
                 case 49:
                     gaussPoints = QuadrangleGaussPoints.Quad49;
+                    parallelComputing = true;
                     break;
                 case 121:
                     gaussPoints = QuadrangleGaussPoints.Quad121;
+                    parallelComputing = true;
                     break;
                 case 400:
                     gaussPoints = QuadrangleGaussPoints.Quad400;
+                    parallelComputing = true;
                     break;
 
                 default:
@@ -339,26 +359,34 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
 
-            double[] ris = new double[gaussPoints.Length];
-
-            if (gaussPoints.Length >= 49)
+            double res = 0;
+            if (parallelComputing)
             {
+                double[] ris = new double[gaussPoints.Length];
+
                 Parallel.For(0, gaussPoints.Length, (i) =>
                 {
-                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                    double x = 0;
+                    double y = 0;
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(x, y);
                 });
+
+                res = ris.Sum();
+
             }
             else
             {
+                double x = 0;
+                double y = 0;
                 for (int i = 0; i < gaussPoints.Length; i++)
                 {
-                    Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode);
-                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(point.X, point.Y);
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                    res += gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant() * function(x, y);
                 }
             }
 
-            return ris.Sum();
+            return res;
         }
 
         /// <summary>
@@ -447,8 +475,8 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             Parallel.For(0, gaussPoints.Length, (i) =>
             {
-                Point3d point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
-                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.X, point.Y, point.Z);
+                var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
             });
 
             return ris.Sum();
@@ -659,7 +687,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="shapeFunction">Shape functions</param>
         /// <param name="vertices">The domain</param>
         /// <returns>Point3d</returns>
-        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, double eta, double zeta, Func<int, double, double, double, double> shapeFunction, Point3d[] vertices)
+        private static (double, double, double) TransformNaturalCoordToGlobalCoord(double csi, double eta, double zeta, Func<int, double, double, double, double> shapeFunction, Point3d[] vertices)
         {
             double valueX = 0;
             double valueY = 0;
@@ -671,7 +699,32 @@ namespace GPC.Model.Maths.GaussIntegrations
                 valueZ += shapeFunction(i + 1, csi, eta, zeta) * vertices[i].Z;
             }
 
-            return new Point3d(valueX, valueY, valueZ);
+            return (valueX, valueY, valueZ);
+        }
+
+
+        /// <summary>
+        /// Transform natural coordinate <paramref name="csi"/>, <paramref name="eta"/> into a 3D point in global coordinate
+        /// </summary>
+        /// <param name="csi">First natural coordinate</param>
+        /// <param name="eta">Second natural coordinate</param>
+        /// <param name="shapeFunction">Shape functions</param>
+        /// <param name="vertices">The domain</param>
+        /// <param name="valueX"></param>
+        /// <param name="valueY"></param>
+        /// <returns>Point3d</returns>
+        private static void TransformNaturalCoordToGlobalCoord(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] vertices, out double valueX, out double valueY)
+        {
+            double locvalueX = 0;
+            double locvalueY = 0;
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                locvalueX += shapeFunction(i + 1, csi, eta) * vertices[i].X;
+                locvalueY += shapeFunction(i + 1, csi, eta) * vertices[i].Y;
+            }
+
+            valueX = locvalueX;
+            valueY = locvalueY;
         }
 
         /// <summary>
@@ -682,7 +735,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="shapeFunction">Shape functions</param>
         /// <param name="vertices">The domain</param>
         /// <returns>Point3d</returns>
-        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] vertices)
+        private static (double, double, double) TransformNaturalCoordToGlobalCoord(double csi, double eta, Func<int, double, double, double> shapeFunction, Point3d[] vertices)
         {
             double valueX = 0;
             double valueY = 0;
@@ -692,8 +745,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                 valueY += shapeFunction(i + 1, csi, eta) * vertices[i].Y;
             }
 
-            return new Point3d(valueX, valueY, 0);
+            return (valueX, valueY, 0);
         }
+
 
         /// <summary>
         /// Transform natural coordinate <paramref name="csi"/> into a 3D point in global coordinate
@@ -702,12 +756,12 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="shapeFunction">Shape functions</param>
         /// <param name="vertices">The domain</param>
         /// <returns>Point3d</returns>
-        private static Point3d TransformNaturalCoordToGlobalCoord(double csi, Func<int, double, double> shapeFunction, Point3d[] vertices)
+        private static (double, double, double) TransformNaturalCoordToGlobalCoord(double csi, Func<int, double, double> shapeFunction, Point3d[] vertices)
         {
             double valueX = shapeFunction(1, csi) * vertices[0].X + shapeFunction(2, csi) * vertices[1].X;
             double valueY = shapeFunction(1, csi) * vertices[0].Y + shapeFunction(2, csi) * vertices[1].Y;
 
-            return new Point3d(valueX, valueY, 0);
+            return (valueX, valueY, 0);
         }
 
         #endregion
