@@ -100,7 +100,6 @@
     <Compile Include="Fem\FemUtilitiesTest.cs" />
     <Compile Include="General\OperatorsTest.cs" />
     <Compile Include="Performance\PerformanceIntegrationTest.cs" />
-    <Compile Include="Maths\IntegrationTest.cs" />
     <Compile Include="InterlayerMaterialTest.cs" />
     <Compile Include="Performance\PerformanceSectionTest.cs" />
     <Compile Include="ResultTest.cs" />
