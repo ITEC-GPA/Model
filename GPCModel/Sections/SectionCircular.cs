@@ -1,38 +1,32 @@
+using System;
+using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
-using System;
-using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
     public class SectionCircular : Section, ISection, ISerializable
     {
-		#region Variables
 
-		protected double _diameter;
+        protected double _diameter;
 
-		#endregion
+        /// <summary>
+        /// The diameter
+        /// </summary>
+        public double Diameter => _diameter;
 
-		#region Properties
 
-		/// <summary>
-		/// The diameter
-		/// </summary>
-		public double Diameter => _diameter;
+        #region Public Constructors
 
-		#endregion
-
-		#region Public Constructors
-
-		/// <summary>
-		/// The default constructor
-		/// </summary>
-		/// <param name="diameter">The diameter</param>
-		/// <param name="material">The material</param>
-		/// <param name="name">The section name</param>
-		public SectionCircular(double diameter, Material material, string name = "")
+        /// <summary>
+        /// The default constructor
+        /// </summary>
+        /// <param name="diameter">The diameter</param>
+        /// <param name="material">The material</param>
+        /// <param name="name">The section name</param>
+        public SectionCircular(double diameter, Material material, string name = "")
             : base(material, name)
         {
             _diameter = diameter;
@@ -45,6 +39,7 @@ namespace GPC.Model.Sections
         {
 
         }
+
 
         protected SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -78,7 +73,7 @@ namespace GPC.Model.Sections
 
         protected Mesh GetMesh(int numberOfEdges = 16)
         {
-			Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, _centroid) });
+            Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, _centroid) });
 
             Mesh mesh = new Mesh();
 
@@ -174,11 +169,11 @@ namespace GPC.Model.Sections
             return true;
         }
 
-		#endregion
+        #endregion
 
-		#region Public Method
+        #region Public Method
 
-		public override string ToString()
+        public override string ToString()
         {
             return $"Circular {_diameter}";
         }
@@ -209,6 +204,6 @@ namespace GPC.Model.Sections
             return !(left == right);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -8,21 +8,24 @@ namespace GPC.Model
     public abstract class ModelObject : ISerializable
     {
 
-        #region Variables
 
         protected Guid _guid;
 
         protected string _name;
 
-        #endregion 
+        private int _serializationVersion;
 
-        #region Properties
+        /// <summary>
+        /// Default value is zero.
+        /// Increment this parameter if you have modified a class already serialized. Then handle the deserialiazation in the constructor
+        /// </summary>
+        protected int SerializationVersion { get => _serializationVersion; set => _serializationVersion = value; }
 
         public Guid Guid => _guid;
 
         public string Name => _name; // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
-        #endregion 
+
 
         #region Public Constructors
 
@@ -57,6 +60,17 @@ namespace GPC.Model
 
         protected ModelObject(SerializationInfo info, StreamingContext context)
         {
+            try
+            {
+                // se va in eccezione stai deserializzando un file senza la versione salvata.
+                // impostiamo a zero che rappresenta la prima versione del file 
+                _serializationVersion = info.GetInt32("SerializationVersion");
+            }
+            catch (SerializationException)
+            {
+                _serializationVersion = 0;
+            }
+
             _guid = (Guid)info.GetValue("Guid", typeof(Guid));
             _name = info.GetString("Name");
         }
@@ -69,10 +83,12 @@ namespace GPC.Model
             return _guid.Equals(guid);
         }
 
+
         #region Equals - HashCode - Operators
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("SerializationVersion", _serializationVersion);
             info.AddValue("Guid", _guid);
             info.AddValue("Name", _name);
         }
