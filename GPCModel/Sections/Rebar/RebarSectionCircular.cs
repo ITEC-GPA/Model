@@ -9,15 +9,11 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections.Rebar
 {
     [Serializable]
-    public class RebarSectionCircular : SectionCircular, IRebarSection
+    public class RebarSectionCircular : SectionCircular, IRebarSection, ISerializable
     {
-        #region Properties
 
         public SteelMaterial RebarMaterial => (SteelMaterial)_material;
 
-        #endregion
-
-        #region Public Constructors
 
         /// <summary>
         /// 
@@ -42,20 +38,18 @@ namespace GPC.Model.Sections.Rebar
         {
         }
 
+
         protected RebarSectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+
         }
 
-        #endregion
-
-        #region Equals - hashcode - Operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
         }
 
-        #endregion
     }
 }
