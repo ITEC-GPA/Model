@@ -39,7 +39,7 @@ namespace GPC.Model.Results
         protected FiniteElementResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _stageId = (int)info.GetValue("StageId", typeof(int));
+            _stageId = info.GetInt32("StageId");
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace GPC.Model.Results
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("StageId", _stageId, typeof(ResultLocation[]));
+            info.AddValue("StageId", _stageId, typeof(int));
         }
 
 		#endregion
