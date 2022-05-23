@@ -37,7 +37,7 @@ namespace GPC.Model.Results
             _location = location;
         }
 
-        internal ResultLocationPoint(SerializationInfo info, StreamingContext context)
+        private ResultLocationPoint(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _location = (Point2d)info.GetValue("Location", typeof(Point2d));

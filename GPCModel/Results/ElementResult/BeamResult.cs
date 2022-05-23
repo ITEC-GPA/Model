@@ -29,7 +29,7 @@ namespace GPC.Model.Results
                 throw new ArgumentException("All Result Station must have the same length");
         }
 
-        internal BeamResult(SerializationInfo info, StreamingContext context) 
+        private BeamResult(SerializationInfo info, StreamingContext context) 
             : base(info, context)
 		{
 		}

@@ -41,7 +41,7 @@ namespace GPC.Model.Results
             _upperFace = upperFace ?? throw new ArgumentNullException(nameof(upperFace));
         }
 
-        internal ResultPlateStress(SerializationInfo info, StreamingContext context)
+        private ResultPlateStress(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _lowerFace = (ResultStress)info.GetValue("ResultStressLower", typeof(ResultStress));

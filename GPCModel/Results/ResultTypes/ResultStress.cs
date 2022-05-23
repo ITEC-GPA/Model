@@ -120,7 +120,7 @@ namespace GPC.Model.Results
             _syz = syz;
         }
 
-        internal ResultStress(SerializationInfo info, StreamingContext context)
+        private ResultStress(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _sxx = (double)info.GetValue("Sxx", typeof(double));

@@ -45,7 +45,7 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Result type is not a IplateResult");
         }
 
-        internal PlateResult(SerializationInfo info, StreamingContext context)
+        private PlateResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

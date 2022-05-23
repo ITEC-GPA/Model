@@ -76,7 +76,7 @@ namespace GPC.Model.Results
             _r3 = r3;
         }
 
-        internal ResultDisplacement(SerializationInfo info, StreamingContext context)
+        private ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _d1 = info.GetDouble("D1");

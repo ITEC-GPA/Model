@@ -24,7 +24,7 @@ namespace GPC.Model.Results
                 throw new ArgumentException("Result type is not a IBrickResult");
         }
 
-        internal BrickResult(SerializationInfo info, StreamingContext context) 
+        private BrickResult(SerializationInfo info, StreamingContext context) 
             : base(info, context)
 		{
 		}
