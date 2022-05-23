@@ -118,17 +118,17 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            LoadCase lcSdl = new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid());
+            LoadCase lcSdl = new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight);
             loadCases.Add(lcSdl);
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             loadCases.Add(sdl);
             coefficients.Add(4);
             loadCases.Add(sdl);
