@@ -1,4 +1,4 @@
-﻿using GPC.Model.Standards;
+using GPC.Model.Standards;
 using GPC.Utilities.Converters;
 using System;
 using System.Collections.Generic;
@@ -205,10 +205,19 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, tensionStressStrainDiagrams);
         }
 
-        protected override void RecalculateMechanicalProperties()
-		{
-			throw new NotImplementedException();
-		}
+        public override void RecalculateMechanicalProperties()
+        {
+            SetMechanicalProperties(_fc, _fct, _fctu, _strainYTension, _strainUTension,
+                _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+
+            SetMechanicalProperties(_fc, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+
+            SetStressStrainTableCompression(_fc, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+            SetStressStrainTableTension(_fct, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+        }
 
         protected double CalculateElasticModulus(double fc)
 		{
