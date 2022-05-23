@@ -1,4 +1,4 @@
-using GPC.Model.Standards;
+﻿using GPC.Model.Standards;
 using GPC.Utilities.Converters;
 using System;
 using System.Collections.Generic;
@@ -55,9 +55,9 @@ namespace GPC.Model.Materials
 
         public static ConcreteMaterialACI318 Fc4000 => new ConcreteMaterialACI318("fc' 4000 psi", 27.579, CompressionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialACI318 Fc5000 => new ConcreteMaterialACI318("fc' 4000 psi", 34.4738, CompressionStressStrainDiagrams.Bilinear);
+        public static ConcreteMaterialACI318 Fc5000 => new ConcreteMaterialACI318("fc' 5000 psi", 34.4738, CompressionStressStrainDiagrams.Bilinear);
 
-        public static ConcreteMaterialACI318 Fc6000 => new ConcreteMaterialACI318("fc' 4000 psi", 41.3685, CompressionStressStrainDiagrams.Bilinear);
+        public static ConcreteMaterialACI318 Fc6000 => new ConcreteMaterialACI318("fc' 6000 psi", 41.3685, CompressionStressStrainDiagrams.Bilinear);
 
         #endregion
 
