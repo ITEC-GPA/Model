@@ -547,20 +547,20 @@ namespace GPC.Model.Materials
 			}
 		}
 
-		public override double CalculateFcd(Standards.Standard standard)
+		public override double CalculateDesignCompressiveStrength(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 			{
 				if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)
 				{
-					if (Fc > 90)
+					if (Math.Abs(Fc) > 90)
 						throw new ArgumentException("Fck > 90 not supported by Stress block");
 
 					double eta;
-					if (Fc <= 50.0)
+					if (Math.Abs(Fc) <= 50.0)
 						eta = 1.0;
 					else
-						eta = 1.0 - (Fc - 50.0) / 200;
+						eta = 1.0 - (Math.Abs(Fc) - 50.0) / 200;
 
 					return eta * standardModelCode2010.AlphaCC * Fc / standardModelCode2010.GammaC;
 				}
@@ -577,7 +577,12 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateFctd(Standards.Standard standard)
+		public virtual double CalculateDesignCompressiveStrength(StandardACI318 standard)
+		{
+			return Fc;
+		}
+
+		public override double CalculateDesignTensileStrength(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 				return standardModelCode2010.AlphaCT * Fct / standardModelCode2010.GammaC;
@@ -587,34 +592,9 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateFcdAccidental(Standards.Standard standard)
+		public virtual double CalculateDesignTensileStrength(StandardACI318 standard)
 		{
-			if (standard is StandardModelCode2010 standardModelCode2010)
-				return standardModelCode2010.AlphaCC * Fc / standardModelCode2010.GammaCAccidental;
-			else if (standard is StandardACI318)
-				return Fc;
-			else
-				throw new ArgumentException();
-		}
-
-		public override double CalculateFctdAccidental(Standards.Standard standard)
-		{
-			if (standard is StandardModelCode2010 standardModelCode2010)
-				return standardModelCode2010.AlphaCT * Fct / standardModelCode2010.GammaCAccidental;
-			else if (standard is StandardACI318)
-				return Fct;
-			else
-				throw new ArgumentException();
-		}
-
-		public override double CalculateECd(Standards.Standard standard)
-		{
-			if (standard is StandardModelCode2010 standardModelCode2010)
-				return E / standardModelCode2010.GammaCE;
-			else if (standard is StandardACI318)
-				return E;
-			else
-				throw new ArgumentException();
+			return Fct;
 		}
 
 		public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
@@ -622,14 +602,19 @@ namespace GPC.Model.Materials
 			if (standard is StandardModelCode2010 standardModelCode2010)
 			{
 				if (strain < 0)
-					return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fc);
+					return GetStress(strain) * Math.Abs(CalculateDesignCompressiveStrength(standardModelCode2010) / Fc);
 				else
-					return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fct);
+					return GetStress(strain) * Math.Abs(CalculateDesignTensileStrength(standardModelCode2010) / Fct);
 			}
 			else if (standard is StandardACI318)
 				return GetStress(strain);
 			else
 				throw new ArgumentException();
+		}
+
+		public virtual double CalculateDesignStressConcrete(StandardACI318 standard, double strain)
+		{
+			return GetStress(strain);
 		}
 
 		public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)

@@ -114,16 +114,9 @@ namespace GPC.Model.Materials
 
         public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
 
-        public abstract double CalculateFcd(Standards.Standard standard);
+        public abstract double CalculateDesignCompressiveStrength(Standards.Standard standard);
 
-        public abstract double CalculateFctd(Standards.Standard standard);
-
-        public abstract double CalculateFcdAccidental(Standards.Standard standard);
-
-        public abstract double CalculateFctdAccidental(Standards.Standard standard);
-
-        public abstract double CalculateECd(Standards.Standard standard);
-
+        public abstract double CalculateDesignTensileStrength(Standards.Standard standard);
 
 		#endregion
 
