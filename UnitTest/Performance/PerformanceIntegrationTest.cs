@@ -1,10 +1,18 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Model.Materials;
 using GPC.Model.Maths.GaussIntegrations;
+using GPC.Model.Sections;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Rebar;
 using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +22,7 @@ namespace PerformanceTest
     [TestClass]
     public class PerformanceIntegrationTest : UnitTestBase
     {
-        public void CommonEqualAssert(double result, double expectedValue)
+        protected void CommonEqualAssert(double result, double expectedValue)
         {
             if (expectedValue == 0)
             {
@@ -33,6 +41,37 @@ namespace PerformanceTest
             }
         }
 
+
+
+        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, double rebarDiameter = 18, double concreteCover = 50,
+            int numberOfRebars = 16, ConcreteMaterial concreteMaterial = null, SteelMaterial rebarMaterial = null)
+        {
+
+            if (concreteMaterial == null)
+                concreteMaterial = ConcreteMaterialEN1992.C25_30;
+
+            if (rebarMaterial == null)
+                rebarMaterial = SteelMaterial.B450C;
+
+            Shape2d shape = new Shape2d(new Polygon2d(diameter, 32));
+
+            ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, rebarMaterial);
+
+
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[numberOfRebars];
+
+            var rebarPerimeter = new Polygon2d(diameter - concreteCover * 2, numberOfRebars);
+            for (int j = 0; j < rebarPerimeter.Count; j++)
+            {
+                rebars[j] = new ReinforcedConcreteRebar(rebar, rebarPerimeter[j]);
+            }
+
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            section.AddRebars(rebars);
+
+            return section;
+        }
 
 
         [TestMethod]
@@ -178,6 +217,37 @@ namespace PerformanceTest
             MeasureTime.FunctionExecutionTime(100, action, true);
         }
 
+
+        [TestMethod]
+        public void IntegrateCircular()
+        {
+            var section = GetCircularSection();
+
+            double area = section.Area;
+            double xg = section.Centroid.X;
+            double yg = section.Centroid.Y;
+
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+
+            Func<double, double, double> func = new Func<double, double, double>( (x, y) => { return x * y; } );
+
+            var arrayFunc = new Func<double, double, double>[16 * 49];
+            arrayFunc = arrayFunc.Select(i => func).ToArray();
+
+
+            double[] results = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(arrayFunc, section.Mesh, QuadrangleGaussPoints.GaussPointNumber.Quad400);
+
+
+            watch.Stop();
+            Console.WriteLine($"Parallel + parallel: {watch.ElapsedMilliseconds}");
+
+            Assert.IsTrue(results[0] != 0);
+            Assert.AreEqual(results.Sum() / results.Length, results[0], 0.0001);
+
+
+        }
 
     }
 }

@@ -399,7 +399,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static double[][] IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double>[] function, Mesh mesh, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints)
+        public static double[] IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double>[] function, Mesh mesh, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
 
             Func<int, double, double, double> shapeFunction = LinearShapeFunctionQuad4.NaturalShapeFunction;
@@ -449,6 +449,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             var facesEnumerator = mesh.GetFacesEnumerator();
 
+
             GlobalGaussPoint[][] globalGaussPoints = new GlobalGaussPoint[faceCount][];
             int index = 0;
             while (facesEnumerator.MoveNext())
@@ -461,33 +462,53 @@ namespace GPC.Model.Maths.GaussIntegrations
 
                 var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
 
-                double x = 0;
-                double y = 0;
-                for (int i = 0; i < gaussPoints.Length; i++)
+
+                if (parallelComputing)
                 {
-                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
-                    globalGaussPoints[index][i] = new GlobalGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant(), gaussPoints[i].Weight);
+                    Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPoints.Length), (range) =>
+                    {
+                        double x = 0;
+                        double y = 0;
+                        for (int i = range.Item1; i < range.Item2; i++)
+                        {
+                            TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                            globalGaussPoints[index][i] = new GlobalGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant(), gaussPoints[i].Weight);
+                        }
+                    });
+
                 }
+                else
+                {
+                    double x = 0;
+                    double y = 0;
+                    for (int i = 0; i < gaussPoints.Length; i++)
+                    {
+                        TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                        globalGaussPoints[index][i] = new GlobalGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant(), gaussPoints[i].Weight);
+                    }
+                }
+
 
                 index++;
             }
 
 
-            double[][] res = new double[function.Length][];
-            for (int f = 0; f < function.Length; f++)
+            double[] res = new double[function.Length];
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, function.Length), (range) =>
             {
-                res[f] = new double[faceCount];
-
-                for (int g = 0; g < globalGaussPoints.Length; g++)
+                for (int f = range.Item1; f < range.Item2; f++)
                 {
-
-                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    for (int g = 0; g < globalGaussPoints.Length; g++)
                     {
-                        res[f][g] += globalGaussPoints[g][j].EvaluateFunction(function[f]);  
-                    }
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            res[f] += globalGaussPoints[g][j].EvaluateFunction(function[f]);
+                        }
 
+                    }
                 }
-            }
+            });
+
 
             return res;
         }
@@ -875,11 +896,11 @@ namespace GPC.Model.Maths.GaussIntegrations
         protected struct GlobalGaussPoint
         {
 
-            public double GpX { get;  }
-            public double GpY { get;  }
+            public double GpX { get; }
+            public double GpY { get; }
             public double GpZ { get; }
 
-            public double JacobianDeterminant { get;  }
+            public double JacobianDeterminant { get; }
 
             public double GaussPointWeight { get; }
 
