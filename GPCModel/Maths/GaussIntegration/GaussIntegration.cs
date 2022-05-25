@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Utilities.Fem;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -389,6 +390,109 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="mesh"></param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        public static double[][] IntegrationQuadrilateralLinearShapeFunction(Func<double, double, double>[] function, Mesh mesh, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints)
+        {
+
+            Func<int, double, double, double> shapeFunction = LinearShapeFunctionQuad4.NaturalShapeFunction;
+            Func<int, double, double, double> dNdCsi = LinearShapeFunctionQuad4.DNdCsi;
+            Func<int, double, double, double> dNdEta = LinearShapeFunctionQuad4.DNdEta;
+
+
+
+            GaussPoint[] gaussPoints;
+
+            bool parallelComputing = false;
+            switch ((int)numberOfGaussPoints)
+            {
+                case 1:
+                    gaussPoints = QuadrangleGaussPoints.Quad1;
+                    break;
+                case 4:
+                    gaussPoints = QuadrangleGaussPoints.Quad4;
+                    break;
+                case 8:
+                    gaussPoints = QuadrangleGaussPoints.Quad8;
+                    break;
+                case 12:
+                    gaussPoints = QuadrangleGaussPoints.Quad12;
+                    break;
+                case 25:
+                    gaussPoints = QuadrangleGaussPoints.Quad25;
+                    break;
+                case 49:
+                    gaussPoints = QuadrangleGaussPoints.Quad49;
+                    parallelComputing = true;
+                    break;
+                case 121:
+                    gaussPoints = QuadrangleGaussPoints.Quad121;
+                    parallelComputing = true;
+                    break;
+                case 400:
+                    gaussPoints = QuadrangleGaussPoints.Quad400;
+                    parallelComputing = true;
+                    break;
+
+                default:
+                    throw new ArgumentException("Wrong number of Gauss Points");
+            }
+
+            int faceCount = mesh.FacesCount;
+
+            var facesEnumerator = mesh.GetFacesEnumerator();
+
+            GlobalGaussPoint[][] globalGaussPoints = new GlobalGaussPoint[faceCount][];
+            int index = 0;
+            while (facesEnumerator.MoveNext())
+            {
+                var face = facesEnumerator.Current;
+
+                Point3d[] shapeFunctionNode = mesh.GetFacePoints(face);
+
+                globalGaussPoints[index] = new GlobalGaussPoint[gaussPoints.Length];
+
+                var jacobian = JacobianMatrix2D(dNdCsi, dNdEta, shapeFunctionNode);
+
+                double x = 0;
+                double y = 0;
+                for (int i = 0; i < gaussPoints.Length; i++)
+                {
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, shapeFunction, shapeFunctionNode, out x, out y);
+                    globalGaussPoints[index][i] = new GlobalGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta).Determinant(), gaussPoints[i].Weight);
+                }
+
+                index++;
+            }
+
+
+            double[][] res = new double[function.Length][];
+            for (int f = 0; f < function.Length; f++)
+            {
+                res[f] = new double[faceCount];
+
+                for (int g = 0; g < globalGaussPoints.Length; g++)
+                {
+
+                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    {
+                        res[f][g] += globalGaussPoints[g][j].EvaluateFunction(function[f]);  
+                    }
+
+                }
+            }
+
+            return res;
+        }
+
+
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
@@ -402,6 +506,8 @@ namespace GPC.Model.Maths.GaussIntegrations
             return IntegrationQuadrilateral(function, vertices, numberOfGaussPoints, LinearShapeFunctionQuad4.NaturalShapeFunction,
                 LinearShapeFunctionQuad4.DNdCsi, LinearShapeFunctionQuad4.DNdEta, 4);
         }
+
+
 
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
@@ -765,5 +871,37 @@ namespace GPC.Model.Maths.GaussIntegrations
         }
 
         #endregion
+
+        protected struct GlobalGaussPoint
+        {
+
+            public double GpX { get;  }
+            public double GpY { get;  }
+            public double GpZ { get; }
+
+            public double JacobianDeterminant { get;  }
+
+            public double GaussPointWeight { get; }
+
+            public GlobalGaussPoint(double gpX, double gpY, double gpZ, double jacobianDeterminant, double gaussPointWeight)
+            {
+                GpX = gpX;
+                GpY = gpY;
+                GpZ = gpZ;
+                JacobianDeterminant = jacobianDeterminant;
+                GaussPointWeight = gaussPointWeight;
+            }
+
+
+            public double EvaluateFunction(Func<double, double, double> function)
+            {
+                return GaussPointWeight * JacobianDeterminant * function(GpX, GpY);
+            }
+
+            public double EvaluateFunction(Func<double, double, double, double> function)
+            {
+                return GaussPointWeight * JacobianDeterminant * function(GpX, GpY, GpZ);
+            }
+        }
     }
 }
