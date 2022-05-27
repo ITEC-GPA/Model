@@ -299,6 +299,35 @@ namespace PerformanceTest
 		}
 
 		[TestMethod]
+		[Description("Not implemented")]
+		public void IntegrateCircular_3()
+		{
+			double diameter = 300;
+
+			ReinforcedConcreteSection section = GetCircularSection(diameter, 32, ConcreteMaterialEN1992.C25_30);
+			double expJ = Math.PI / 64 * Math.Pow(diameter, 4);
+
+			var watch = new System.Diagnostics.Stopwatch();
+			watch.Start();
+
+			Func<double, double, (double, double)> func = new Func<double, double, (double, double)>((x, y) => { return (x * x, y * y); });
+
+			Func<double, double, (double, double)>[] arrayFunc = new Func<double, double, (double, double)>[16 * 49];
+			arrayFunc = arrayFunc.Select(i => func).ToArray();
+
+			(double, double)[] results = GaussIntegration.IntegrationLinearShapeFunction(arrayFunc, section.Mesh, QuadrangleGaussPoints.GaussPointNumber.Quad400, TriangleGaussPoints.GaussPointNumber.Tri79);
+
+			watch.Stop();
+			Console.WriteLine($"Parallel + parallel: {watch.ElapsedMilliseconds}");
+
+			for(int i = 0; i < results.Length; i++)
+			{
+				CommonEqualAssert(results[i].Item1, expJ);
+				CommonEqualAssert(results[i].Item2, expJ);
+			}
+		}
+
+		[TestMethod]
 		public void IntegrateRectangular_1()
 		{
 			int numberOfFuncions = 16;
