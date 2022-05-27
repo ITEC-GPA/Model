@@ -299,7 +299,7 @@ namespace PerformanceTest
 		}
 
 		[TestMethod]
-		[Description("Not implemented")]
+		[TestCategory("Not implemented")]
 		public void IntegrateCircular_3()
 		{
 			double diameter = 300;
