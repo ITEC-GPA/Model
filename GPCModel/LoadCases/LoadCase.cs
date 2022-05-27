@@ -1,4 +1,4 @@
-﻿using GPC.Utilities.Converters;
+using GPC.Utilities.Converters;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -54,7 +54,7 @@ namespace GPC.Model.LoadCases
             _loadCaseType = loadCaseType;
         }
 
-        public LoadCase(SerializationInfo info, StreamingContext context)
+        protected LoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _loadCaseType = (LoadCaseTypes)info.GetValue("LoadCaseType", typeof(LoadCaseTypes));

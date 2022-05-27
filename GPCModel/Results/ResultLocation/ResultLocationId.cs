@@ -36,7 +36,7 @@ namespace GPC.Model.Results
 
         }
 
-        internal ResultLocationId(SerializationInfo info, StreamingContext context)
+        private ResultLocationId(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 

@@ -159,7 +159,7 @@ namespace GPC.Model.Materials
                 return -1;
         }
 
-        public override double CalculateFctd(Standards.Standard standard)
+        public override double CalculateDesignTensileStrength(Standards.Standard standard)
         {
             if (standard is Standards.StandardModelCode2010 standardModelCode2010)
             {
@@ -265,7 +265,7 @@ namespace GPC.Model.Materials
             return 1.0;
 		}
 
-		protected override void RecalculateMechanicalProperties()
+        public override void RecalculateMechanicalProperties()
 		{
             if (_concreteType == ConcreteTypes.FRC)
             {

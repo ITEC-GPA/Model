@@ -78,7 +78,7 @@ namespace GPC.Model.Results
             _myz = 0;
         }
 
-        internal ResultPlateForces(SerializationInfo info, StreamingContext context)
+        private ResultPlateForces(SerializationInfo info, StreamingContext context)
             : base(info, context)
 		{
             _fxx = info.GetDouble("Fxx");

@@ -29,11 +29,16 @@ namespace GPC.Model.Results
                 throw new ArgumentException("All Result Station must have the same length");
         }
 
-        #endregion
+        private BeamResult(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+		{
+		}
 
-        #region Public Methods
+		#endregion
 
-        public override int GetHashCode()
+		#region Public Methods
+
+		public override int GetHashCode()
         {
             return base.GetHashCode();
         }
@@ -54,7 +59,12 @@ namespace GPC.Model.Results
             return base.Equals(other);
         }
 
-        public static bool operator ==(BeamResult obj1, BeamResult obj2)
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+		}
+
+		public static bool operator ==(BeamResult obj1, BeamResult obj2)
         {
             if (obj1 is null)            
                 return obj2 is null;            

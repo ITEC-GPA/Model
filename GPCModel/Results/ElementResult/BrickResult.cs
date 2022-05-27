@@ -18,17 +18,22 @@ namespace GPC.Model.Results
         {
             if (resultLocations is null)            
                 throw new ArgumentNullException(nameof(resultLocations));
-            
-            // controllo che siano iplate result
+
+            // controllo che siano IBrickResult
             if (!(resultLocations.First().GetResults().First() is IBrickResult))
-                throw new ArgumentException("Result type is not a IplateResult");
+                throw new ArgumentException("Result type is not a IBrickResult");
         }
 
-        #endregion
+        private BrickResult(SerializationInfo info, StreamingContext context) 
+            : base(info, context)
+		{
+		}
 
-        #region Public Methods
+		#endregion
 
-        public override int GetHashCode()
+		#region Public Methods
+
+		public override int GetHashCode()
         {
             return base.GetHashCode();
         }
@@ -49,7 +54,17 @@ namespace GPC.Model.Results
             return base.Equals(other);
         }
 
-        public static bool operator ==(BrickResult obj1, BrickResult obj2)
+		public override string ToString()
+		{
+			return base.ToString();
+		}
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
+		}
+
+		public static bool operator ==(BrickResult obj1, BrickResult obj2)
         {
             if (obj1 is null)            
                 return obj2 is null;            

@@ -77,7 +77,7 @@ namespace GPC.Model.Materials
             _concreteType = ConcreteTypes.Normal;
         }
 
-        protected override void RecalculateMechanicalProperties()
+        public override void RecalculateMechanicalProperties()
 		{
             SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 

@@ -12,17 +12,17 @@ namespace GPC.Model.Sections
     internal static class SectionHelper
     {
 
-        /// <summary>
-        /// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
-        /// </summary>
-        /// <param name="shape">The shape</param>
-        /// <param name="size">The mesh size</param>
-        /// <returns></returns>
-        internal static Mesh GenerateMesh(Shape2d shape, double size = 0)
+		/// <summary>
+		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
+		/// </summary>
+		/// <param name="shape">The shape</param>
+		/// <param name="size">The mesh size</param>
+		/// <param name="recombine">If true, recombine the mesh into quad mesh</param>
+		/// <returns></returns>
+		internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool recombine = true)
         {
             if (shape is null)
                 return null;
-
 
             if (size <= 0)
             {
@@ -33,10 +33,9 @@ namespace GPC.Model.Sections
             Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
             {
                 Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
-                Recombine = true,
+                Recombine = recombine,
                 RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
                 UseGlobalProgressID = true,
-
                 MeshSize = size,
             };
 
@@ -65,10 +64,7 @@ namespace GPC.Model.Sections
             if (Jyy < Jxx)
                 angle += Math.PI / 2.0;
 
-            if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
-                return 0.0;
-
-            if (Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
+            if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
                 return 0.0;
 
             return angle;
