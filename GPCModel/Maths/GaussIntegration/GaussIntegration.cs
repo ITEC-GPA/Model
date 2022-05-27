@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Utilities.Fem;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -389,6 +390,9 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+
+
+
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
@@ -498,6 +502,306 @@ namespace GPC.Model.Maths.GaussIntegrations
         {
             return IntegrationHexaedron(function, vertices, numberOfGaussPoints, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction,
                 TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, 8);
+        }
+
+        #endregion
+
+        #region Mesh
+
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="mesh"></param>
+        /// <param name="quadNumberOfGaussPoints">The number of Gauss points for quad face</param>
+        /// <param name="triNumberOfGaussPoints">The number of Gauss points for tri face</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh,
+            QuadrangleGaussPoints.GaussPointNumber quadNumberOfGaussPoints, TriangleGaussPoints.GaussPointNumber triNumberOfGaussPoints)
+        {
+            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction<T>(mesh, quadNumberOfGaussPoints, triNumberOfGaussPoints));
+        }
+
+
+        public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
+        {
+            double[] res = new double[function.Length];
+
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, function.Length), (range) =>
+            {
+                for (int f = range.Item1; f < range.Item2; f++)
+                {
+                    res[f] = IntegrationLinearShapeFunction(function[f], globalGaussPoints);
+                }
+            });
+
+            return res;
+        }
+
+
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
+        {
+            T[] res = new T[function.Length];
+
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, function.Length), (range) =>
+            {
+                for (int f = range.Item1; f < range.Item2; f++)
+                {
+                    res[f] = IntegrationLinearShapeFunction(function[f], globalGaussPoints);
+                }
+            });
+
+            return res;
+        }
+
+
+        public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[][] globalGaussPoints, bool parallelComputing = false)
+        {
+            if (parallelComputing)
+            {
+
+                T[][] results = new T[globalGaussPoints.Length][];
+
+                Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
+                {
+                    for (int g = range.Item1; g < range.Item2; g++)
+                    {
+                        results[g] = new T[globalGaussPoints[g].Length];
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            results[g][j] = globalGaussPoints[g][j].EvaluateFunction(function);
+                        }
+                    }
+
+                });
+
+                return GlobalCoordinateGaussPoint.MassSum<T>(results);
+            }
+            else
+            {               
+
+                T[][] results = new T[globalGaussPoints.Length][];
+                for (int g = 0; g < globalGaussPoints.Length; g++)
+                {
+                    results[g] = new T[globalGaussPoints[g].Length];
+                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    {
+                        results[g][j] = globalGaussPoints[g][j].EvaluateFunction(function);
+                    }
+                }
+
+
+                return GlobalCoordinateGaussPoint.MassSum<T>(results);
+            }
+        }
+
+        public static double IntegrationLinearShapeFunction(Func<double, double, double> function, GlobalCoordinateGaussPoint[][] globalGaussPoints, bool parallelComputing = false)
+        {
+            if (parallelComputing)
+            {
+                List<double> results = new List<double>();
+
+                Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
+                {
+                    double res = 0;
+                    for (int g = range.Item1; g < range.Item2; g++)
+                    {
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            res += globalGaussPoints[g][j].EvaluateFunction(function);
+                        }
+                    }
+
+                    results.Add(res);
+                });
+
+                return results.Sum();
+            }
+            else
+            {
+
+                double results = 0;
+                for (int g = 0; g < globalGaussPoints.Length; g++)
+                {
+                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    {
+                        results += globalGaussPoints[g][j].EvaluateFunction(function);
+                    }
+                }
+
+
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// Get the mesh gauss points in global coordinate system associated with relative multiplicative factor
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="quadNumberOfGaussPoints">The number of Gauss points for quad face</param>
+        /// <param name="triNumberOfGaussPoints">The number of Gauss points for tri face</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction<T>(Mesh mesh,
+            QuadrangleGaussPoints.GaussPointNumber quadNumberOfGaussPoints, TriangleGaussPoints.GaussPointNumber triNumberOfGaussPoints)
+        {
+            Func<int, double, double, double> shapeFunctionQuad = LinearShapeFunctionQuad4.NaturalShapeFunction;
+            Func<int, double, double, double> dNdCsiQuad = LinearShapeFunctionQuad4.DNdCsi;
+            Func<int, double, double, double> dNdEtaQuad = LinearShapeFunctionQuad4.DNdEta;
+
+            Func<int, double, double, double> shapeFunctionTri = LinearShapeFunctionsTri3.NaturalShapeFunction;
+            Func<int, double, double, double> dNdCsiTri = LinearShapeFunctionsTri3.DNdCsi;
+            Func<int, double, double, double> dNdEtaTri = LinearShapeFunctionsTri3.DNdEta;
+
+            GaussPoint[] gaussPointsQuad;
+            GaussPoint[] gaussPointsTri;
+
+            bool parallelComputing = false;
+            switch ((int)quadNumberOfGaussPoints)
+            {
+                case 1:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad1;
+                    break;
+                case 4:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad4;
+                    break;
+                case 8:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad8;
+                    break;
+                case 12:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad12;
+                    break;
+                case 25:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad25;
+                    break;
+                case 49:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad49;
+                    parallelComputing = true;
+                    break;
+                case 121:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad121;
+                    parallelComputing = true;
+                    break;
+                case 400:
+                    gaussPointsQuad = QuadrangleGaussPoints.Quad400;
+                    parallelComputing = true;
+                    break;
+
+                default:
+                    throw new ArgumentException("Wrong number of Gauss Points");
+            }
+
+            switch ((int)triNumberOfGaussPoints)
+            {
+                case 1:
+                    gaussPointsTri = TriangleGaussPoints.Tri1;
+                    break;
+                case 3:
+                    gaussPointsTri = TriangleGaussPoints.Tri3;
+                    break;
+                case 4:
+                    gaussPointsTri = TriangleGaussPoints.Tri4;
+                    break;
+                case 6:
+                    gaussPointsTri = TriangleGaussPoints.Tri6;
+                    break;
+                case 12:
+                    gaussPointsTri = TriangleGaussPoints.Tri12;
+                    break;
+                case 33:
+                    gaussPointsTri = TriangleGaussPoints.Tri33;
+                    break;
+                case 48:
+                    gaussPointsTri = TriangleGaussPoints.Tri48;
+                    parallelComputing = true;
+                    break;
+                case 61:
+                    gaussPointsTri = TriangleGaussPoints.Tri61;
+                    parallelComputing = true;
+                    break;
+                case 79:
+                    gaussPointsTri = TriangleGaussPoints.Tri79;
+                    parallelComputing = true;
+                    break;
+
+                default:
+                    throw new ArgumentException("Wrong number of Gauss Points");
+            }
+
+            int faceCount = mesh.FacesCount;
+            IEnumerator<MeshFace> facesEnumerator = mesh.GetFacesEnumerator();
+
+            GlobalCoordinateGaussPoint[][] globalGaussPoints = new GlobalCoordinateGaussPoint[faceCount][];
+            int index = 0;
+
+            while (facesEnumerator.MoveNext())
+            {
+                Point3d[] shapeFunctionNode = mesh.GetFacePoints(facesEnumerator.Current);
+
+                if (facesEnumerator.Current.IsQuad)
+                {
+                    globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsQuad.Length];
+                    Func<double, double, Matrix<double>> jacobian = JacobianMatrix2D(dNdCsiQuad, dNdEtaQuad, shapeFunctionNode);
+
+                    if (parallelComputing)
+                    {
+                        Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPointsQuad.Length), (range) =>
+                        {
+                            double x = 0;
+                            double y = 0;
+                            for (int i = range.Item1; i < range.Item2; i++)
+                            {
+                                TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, shapeFunctionQuad, shapeFunctionNode, out x, out y);
+                                globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        double x = 0;
+                        double y = 0;
+                        for (int i = 0; i < gaussPointsQuad.Length; i++)
+                        {
+                            TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, shapeFunctionQuad, shapeFunctionNode, out x, out y);
+                            globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+                        }
+                    }
+                }
+                else
+                {
+                    globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsTri.Length];
+                    Func<double, double, Matrix<double>> jacobian = JacobianMatrix2D(dNdCsiTri, dNdEtaTri, shapeFunctionNode);
+
+                    if (parallelComputing)
+                    {
+                        Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPointsTri.Length), (range) =>
+                        {
+                            double x = 0;
+                            double y = 0;
+                            for (int i = range.Item1; i < range.Item2; i++)
+                            {
+                                TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, shapeFunctionTri, shapeFunctionNode, out x, out y);
+                                globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta).Determinant(), gaussPointsTri[i].Weight, 0.5);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        double x = 0;
+                        double y = 0;
+                        for (int i = 0; i < gaussPointsTri.Length; i++)
+                        {
+                            TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, shapeFunctionTri, shapeFunctionNode, out x, out y);
+                            globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta).Determinant(), gaussPointsTri[i].Weight, 0.5);
+                        }
+                    }
+                }
+
+                index++;
+            }
+
+            return globalGaussPoints;
         }
 
         #endregion
@@ -765,5 +1069,259 @@ namespace GPC.Model.Maths.GaussIntegrations
         }
 
         #endregion
+
+        public struct GlobalCoordinateGaussPoint
+        {
+            /// <summary>
+            /// X coordinate of Gauss in global coordinate system
+            /// </summary>
+            public double GpX { get; }
+
+            /// <summary>
+            /// Y coordinate of Gauss in global coordinate system
+            /// </summary>
+            public double GpY { get; }
+
+            /// <summary>
+            /// Z coordinate of Gauss in global coordinate system
+            /// </summary>
+            public double GpZ { get; }
+
+
+            private readonly double _determinantWeightFactorMultiplication;
+
+
+            private static IGaussPointCalculator calculator;
+
+            private bool _calculatorInstantiated;
+
+
+            /// <param name="gpX">X coordinate of Gauss in global coordinate system</param>
+            /// <param name="gpY">Y coordinate of Gauss in global coordinate system</param>
+            /// <param name="gpZ">Z coordinate of Gauss in global coordinate system</param>
+            /// <param name="jacobianDeterminant">The determinant of the Jacobian matrix of trasformation</param>
+            /// <param name="gaussPointWeight">The Gauss point weight</param>
+            /// <param name="factor">Multiplicative factor for function evaluation</param>
+            public GlobalCoordinateGaussPoint(double gpX, double gpY, double gpZ, double jacobianDeterminant, double gaussPointWeight, double factor = 1.0)
+            {
+                GpX = gpX;
+                GpY = gpY;
+                GpZ = gpZ;
+
+                _determinantWeightFactorMultiplication = jacobianDeterminant * gaussPointWeight * factor;
+
+                _calculatorInstantiated = false;
+            }
+
+
+
+            /// <exception cref="KeyNotFoundException"></exception>
+            public T EvaluateFunction<T>(Func<double, T> function)
+            {
+                if (!_calculatorInstantiated)
+                {
+                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculatorInstantiated = true;
+                }
+
+                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX));
+            }
+
+
+            public double EvaluateFunction(Func<double, double, double> function)
+            {
+                return _determinantWeightFactorMultiplication * function(GpX, GpY);
+            }
+
+
+            /// <exception cref="KeyNotFoundException"></exception>
+            public T EvaluateFunction<T>(Func<double, double, T> function)
+            {
+                if (!_calculatorInstantiated)
+                {
+                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculatorInstantiated = true;
+                }
+
+                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY));
+            }
+
+            /// <exception cref="KeyNotFoundException"></exception>
+            public T EvaluateFunction<T>(Func<double, double, double, T> function)
+            {
+                if (!_calculatorInstantiated)
+                {
+                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculatorInstantiated = true;
+                }
+
+                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY, GpZ));
+            }
+
+
+            /// <exception cref="KeyNotFoundException"></exception>
+            public static T MassSum<T>(T[][] values)
+            {
+                calculator = GaussPointCalculator.GetInstance<T>();
+
+                return ((ICalculator<T>)calculator).MassSum(values);
+            }
+
+        }
+
+
+        protected static class GaussPointCalculator
+        {
+            public static readonly Dictionary<Type, IGaussPointCalculator> calculators = new Dictionary<Type, IGaussPointCalculator>() 
+            {
+                { typeof(double), new DoubleCalculator() },
+                { typeof(Tuple<double>), new TupleOneDoubleCalculator() },
+                { typeof(Tuple<double, double>), new ValueTupleTwoDoubleCalculator() },
+                { typeof((double, double)), new TupleTwoDoubleCalculator() },
+                { typeof(Tuple<double, double, double>), new TupleThreeDoubleCalculator() },
+                { typeof((double, double, double)), new ValueTupleThreeDoubleCalculator() }
+            };
+
+            public static ICalculator<T> GetInstance<T>()
+            {
+                return (ICalculator<T>)calculators[typeof(T)];
+            }
+        }
+
+        protected interface ICalculator<T> : IGaussPointCalculator
+        {
+            T Multiply(double constants, T function);
+            T MassSum(T[][] value);
+        }
+
+        protected interface IGaussPointCalculator 
+        {
+
+        }
+
+
+        protected class DoubleCalculator : ICalculator<double>
+        {
+            public double Multiply(double constants, double function) { return constants * function; }
+            public double MassSum(double[][] value) 
+            { 
+                return value.Select(i => i.Sum()).Sum(); 
+            }
+        }
+
+        protected class TupleOneDoubleCalculator : ICalculator<Tuple<double>>
+        {
+            public Tuple<double> Multiply(double constants, Tuple<double> function)
+            {
+                return new Tuple<double>(constants * function.Item1);
+            }
+
+            public Tuple<double> MassSum(Tuple<double>[][] value)
+            {                
+                return new Tuple<double>(value.Select(i => i.Select(j => j.Item1).Sum()).Sum());
+            }
+        }
+
+        protected class TupleTwoDoubleCalculator : ICalculator<Tuple<double, double>>
+        {
+            public Tuple<double, double> Multiply(double constants, Tuple<double, double> function)
+            {
+                return new Tuple<double, double>(constants * function.Item1, constants * function.Item2);
+            }
+
+            public Tuple<double, double> MassSum(Tuple<double, double>[][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        res1 = value[i][j].Item1;
+                        res2 = value[i][j].Item2;
+                    }
+                }
+
+                return new Tuple<double, double>(res1, res2);
+            }
+        }
+
+        protected class ValueTupleTwoDoubleCalculator : ICalculator<(double, double)>
+        {
+            public (double, double) Multiply(double constants, (double, double) function)
+            {
+                return (constants * function.Item1, constants * function.Item2);
+            }
+
+            public (double, double) MassSum((double, double)[][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        res1 = value[i][j].Item1;
+                        res2 = value[i][j].Item2;
+                    }
+                }
+
+                return (res1, res2);
+            }
+        }
+
+        protected class TupleThreeDoubleCalculator : ICalculator<Tuple<double, double, double>>
+        {
+            public Tuple<double, double, double> Multiply(double constants, Tuple<double, double, double> function) 
+            { 
+                return new Tuple<double, double, double>(constants * function.Item1, constants * function.Item2, constants * function.Item3);
+            }
+
+            public Tuple<double, double, double> MassSum(Tuple<double, double, double>[][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                double res3 = 0;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        res1 = value[i][j].Item1;
+                        res2 = value[i][j].Item2;
+                        res3 = value[i][j].Item3;
+                    }
+                }
+
+                return new Tuple<double, double, double>(res1, res2, res3);
+            }
+        }
+
+        protected class ValueTupleThreeDoubleCalculator : ICalculator<(double, double, double)>
+        {
+            public (double, double, double) Multiply(double constants, (double, double, double) function)
+            {
+                return (constants * function.Item1, constants * function.Item2, constants * function.Item3);
+            }
+            public (double, double, double) MassSum((double, double, double)[][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                double res3 = 0;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        res1 = value[i][j].Item1;
+                        res2 = value[i][j].Item2;
+                        res3 = value[i][j].Item3;
+                    }
+                }
+
+                return (res1, res2, res3);
+            }
+        }
     }
+
 }
