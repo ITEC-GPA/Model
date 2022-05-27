@@ -574,7 +574,7 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return GlobalCoordinateGaussPoint.MassSum<T>(results);
             }
             else
-            {     
+            {
                 T[][] results = new T[globalGaussPoints.Length][];
                 for (int g = 0; g < globalGaussPoints.Length; g++)
                 {
@@ -1155,12 +1155,12 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         protected static class GaussPointCalculator
         {
-            public static readonly Dictionary<Type, IGaussPointCalculator> calculators = new Dictionary<Type, IGaussPointCalculator>() 
+            public static readonly Dictionary<Type, IGaussPointCalculator> calculators = new Dictionary<Type, IGaussPointCalculator>()
             {
                 { typeof(double), new DoubleCalculator() },
                 { typeof(Tuple<double>), new TupleOneDoubleCalculator() },
-                { typeof(Tuple<double, double>), new ValueTupleTwoDoubleCalculator() },
-                { typeof((double, double)), new TupleTwoDoubleCalculator() },
+                { typeof(Tuple<double, double>), new TupleTwoDoubleCalculator() },
+                { typeof((double, double)), new ValueTupleTwoDoubleCalculator () },
                 { typeof(Tuple<double, double, double>), new TupleThreeDoubleCalculator() },
                 { typeof((double, double, double)), new ValueTupleThreeDoubleCalculator() }
             };
@@ -1177,7 +1177,7 @@ namespace GPC.Model.Maths.GaussIntegrations
             T MassSum(T[][] value);
         }
 
-        protected interface IGaussPointCalculator 
+        protected interface IGaussPointCalculator
         {
 
         }
@@ -1186,9 +1186,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         protected class DoubleCalculator : ICalculator<double>
         {
             public double Multiply(double constants, double function) { return constants * function; }
-            public double MassSum(double[][] value) 
-            { 
-                return value.Select(i => i.Sum()).Sum(); 
+            public double MassSum(double[][] value)
+            {
+                return value.Select(i => i.Sum()).Sum();
             }
         }
 
@@ -1200,7 +1200,7 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
 
             public Tuple<double> MassSum(Tuple<double>[][] value)
-            {                
+            {
                 return new Tuple<double>(value.Select(i => i.Select(j => j.Item1).Sum()).Sum());
             }
         }
@@ -1220,8 +1220,8 @@ namespace GPC.Model.Maths.GaussIntegrations
                 {
                     for (int j = 0; j < value[i].Length; j++)
                     {
-                        res1 = value[i][j].Item1;
-                        res2 = value[i][j].Item2;
+                        res1 += value[i][j].Item1;
+                        res2 += value[i][j].Item2;
                     }
                 }
 
@@ -1244,8 +1244,8 @@ namespace GPC.Model.Maths.GaussIntegrations
                 {
                     for (int j = 0; j < value[i].Length; j++)
                     {
-                        res1 = value[i][j].Item1;
-                        res2 = value[i][j].Item2;
+                        res1 += value[i][j].Item1;
+                        res2 += value[i][j].Item2;
                     }
                 }
 
@@ -1255,8 +1255,8 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         protected class TupleThreeDoubleCalculator : ICalculator<Tuple<double, double, double>>
         {
-            public Tuple<double, double, double> Multiply(double constants, Tuple<double, double, double> function) 
-            { 
+            public Tuple<double, double, double> Multiply(double constants, Tuple<double, double, double> function)
+            {
                 return new Tuple<double, double, double>(constants * function.Item1, constants * function.Item2, constants * function.Item3);
             }
 
@@ -1270,9 +1270,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                 {
                     for (int j = 0; j < value[i].Length; j++)
                     {
-                        res1 = value[i][j].Item1;
-                        res2 = value[i][j].Item2;
-                        res3 = value[i][j].Item3;
+                        res1 += value[i][j].Item1;
+                        res2 += value[i][j].Item2;
+                        res3 += value[i][j].Item3;
                     }
                 }
 
@@ -1296,9 +1296,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                 {
                     for (int j = 0; j < value[i].Length; j++)
                     {
-                        res1 = value[i][j].Item1;
-                        res2 = value[i][j].Item2;
-                        res3 = value[i][j].Item3;
+                        res1 += value[i][j].Item1;
+                        res2 += value[i][j].Item2;
+                        res3 += value[i][j].Item3;
                     }
                 }
 
