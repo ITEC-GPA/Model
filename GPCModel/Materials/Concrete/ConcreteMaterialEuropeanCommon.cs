@@ -660,6 +660,11 @@ namespace GPC.Model.Materials
 					_stressStrainTableTension = new StressStrainTable(new double[] { fctk, fctk }, new double[] { 0, strainUTension });
 					break;
 
+				case TensionStressStrainDiagrams.Generic:
+
+					_stressStrainTableTension = new StressStrainTable();
+					break;
+
 				default:
 					throw new NotSupportedException();
 			}
