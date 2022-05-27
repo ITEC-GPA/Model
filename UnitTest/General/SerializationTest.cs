@@ -2185,8 +2185,10 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes ||
-                        m.Id != oggettoDeserializzato.Id)
+                    for(int i = 0; i < m.ResultTypes.Length; i++)
+                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
+                            check = false;
+                    if (m.Id != oggettoDeserializzato.Id)
                         check = false;
                 }
                 else
@@ -2222,11 +2224,13 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes ||
-                        m.DistanceFromStartPoint != oggettoDeserializzato.DistanceFromStartPoint ||
+                    if (m.DistanceFromStartPoint != oggettoDeserializzato.DistanceFromStartPoint ||
                         m.ElementLenght != oggettoDeserializzato.ElementLenght ||
                         m.Id != oggettoDeserializzato.Id)
                         check = false;
+                    for (int i = 0; i < m.ResultTypes.Length; i++)
+                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
+                            check = false;
                 }
                 else
                 {
@@ -2262,9 +2266,11 @@ namespace GeneralTest
                 if (m.Equals(oggettoDeserializzato))
                 {
                     if (m.Location != oggettoDeserializzato.Location ||
-                        m.ResultTypes != oggettoDeserializzato.ResultTypes ||
                         m.Id != oggettoDeserializzato.Id)
                         check = false;
+                    for (int i = 0; i < m.ResultTypes.Length; i++)
+                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
+                            check = false;
                 }
                 else
                 {
@@ -2285,7 +2291,8 @@ namespace GeneralTest
         {
             bool check = true;
 
-            BeamResult m = new BeamResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationStation[] { }, 2);
+            BeamResult m = new BeamResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), 
+                new ResultLocationStation[] {new ResultLocationStation(new ResultBeamForces[]{}, 5, 10, 3)}, 2);
 
             using (var ms = new MemoryStream())
             {
@@ -2298,12 +2305,15 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.Case != oggettoDeserializzato.Case ||
-                        m.Length != oggettoDeserializzato.Length ||
+                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                        check = false;
+                    if (m.Length != oggettoDeserializzato.Length ||
                         m.Name != oggettoDeserializzato.Name ||
-                        m.ResultLocations != oggettoDeserializzato.ResultLocations ||
                         m.StageId != oggettoDeserializzato.StageId)
                         check = false;
+                    for (int i = 0; i < m.ResultLocations.Length; i++)
+                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                            check = false;
                 }
                 else
                 {
@@ -2325,8 +2335,8 @@ namespace GeneralTest
             bool check = true;
 
             BrickResult m = new BrickResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
-                new ResultLocationPoint[] { new ResultLocationPoint(new ResultPlateForces[]{
-                    new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 22)}, Point2d.Origin, 5) }, 5);
+                new ResultLocationPoint[] { new ResultLocationPoint(new ResultStress[]{
+                    new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "Test", 22)}, Point2d.Origin, 5) }, 5);
 
             using (var ms = new MemoryStream())
             {
@@ -2339,11 +2349,14 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.Case != oggettoDeserializzato.Case ||
-                        m.Name != oggettoDeserializzato.Name ||
-                        m.ResultLocations != oggettoDeserializzato.ResultLocations ||
+                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                        check = false;
+                    if (m.Name != oggettoDeserializzato.Name ||
                         m.StageId != oggettoDeserializzato.StageId)
                         check = false;
+                    for (int i = 0; i < m.ResultLocations.Length; i++)
+                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                            check = false;
                 }
                 else
                 {
@@ -2358,44 +2371,7 @@ namespace GeneralTest
 
             Assert.IsTrue(check);
         }
-
-        [TestMethod]
-        public void Result_SectionResultTest()
-        {
-            bool check = true;
-
-            SectionResult m = new SectionResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, "");
-
-            using (var ms = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(ms, m);
-                ms.Position = 0;
-
-                var casted = formatter.Deserialize(ms);
-                SectionResult oggettoDeserializzato = (SectionResult)casted;
-
-                if (m.Equals(oggettoDeserializzato))
-                {
-                    if (m.Case != oggettoDeserializzato.Case ||
-                        m.Name != oggettoDeserializzato.Name ||
-                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
-                        check = false;
-                }
-                else
-                {
-                    check = false;
-                }
-            }
-
-            if (check)
-                Console.WriteLine($"Class {m} is serializable");
-            else
-                Console.WriteLine($"Warning: Class {m} is not serializable");
-
-            Assert.IsTrue(check);
-        }
-
+                
         [TestMethod]
         public void Result_NodeResultTest()
         {
@@ -2414,10 +2390,13 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.Case != oggettoDeserializzato.Case ||
-                        m.Name != oggettoDeserializzato.Name ||
-                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
+                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
                         check = false;
+                    if (m.Name != oggettoDeserializzato.Name)
+                        check = false;
+                    for (int i = 0; i < m.ResultLocations.Length; i++)
+                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                            check = false;
                 }
                 else
                 {
@@ -2438,7 +2417,8 @@ namespace GeneralTest
         {
             bool check = true;
 
-            PlateResult m = new PlateResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, 3, "a");
+            PlateResult m = new PlateResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { 
+            new ResultLocationId(new ResultPlateForces[]{new ResultPlateForces(CoordinateSystem.Global, 1,2,3,4,5,6,7,8,2)}, 3)}, 3, "a");
 
             using (var ms = new MemoryStream())
             {
@@ -2451,10 +2431,91 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.Case != oggettoDeserializzato.Case ||
-                        m.Name != oggettoDeserializzato.Name ||
-                        m.StageId != oggettoDeserializzato.StageId ||
-                        m.ResultLocations != oggettoDeserializzato.ResultLocations)
+                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                        check = false;
+                    if (m.Name != oggettoDeserializzato.Name ||
+                        m.StageId != oggettoDeserializzato.StageId)
+                        check = false;
+                    for (int i = 0; i < m.ResultLocations.Length; i++)
+                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                            check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        #endregion
+
+        #region Load Case
+
+        [TestMethod]
+        public void LoadCase_LoadCase()
+        {
+            bool check = true;
+
+            LoadCase m = new LoadCase("LC Test", LoadCase.LoadCaseTypes.Prestress);
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                LoadCase oggettoDeserializzato = (LoadCase)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Name != oggettoDeserializzato.Name ||
+                        m.LoadCaseType != oggettoDeserializzato.LoadCaseType ||
+                        m.Guid != oggettoDeserializzato.Guid)
+                        check = false;
+                }
+                else
+                {
+                    check = false;
+                }
+
+                if (m != oggettoDeserializzato)
+                    check = false;                
+            }
+
+            if (check)
+                Console.WriteLine($"Class {m} is serializable");
+            else
+                Console.WriteLine($"Warning: Class {m} is not serializable");
+
+            Assert.IsTrue(check);
+        }
+
+        [TestMethod]
+        public void LoadCase_LoadCaseBase()
+        {
+            bool check = true;
+
+            LoadCaseBase m = new LoadCaseBase("LC Test");
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, m);
+                ms.Position = 0;
+
+                var casted = formatter.Deserialize(ms);
+                LoadCaseBase oggettoDeserializzato = (LoadCaseBase)casted;
+
+                if (m.Equals(oggettoDeserializzato))
+                {
+                    if (m.Name != oggettoDeserializzato.Name ||
+                        m.Guid != oggettoDeserializzato.Guid)
                         check = false;
                 }
                 else

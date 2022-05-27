@@ -31,7 +31,7 @@ namespace GPC.Model.Results
             _stageId = stageId;
         }
 
-        internal NodeResult(SerializationInfo info, StreamingContext context)
+        private NodeResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _stageId = (int)info.GetValue("StageId", typeof(int));

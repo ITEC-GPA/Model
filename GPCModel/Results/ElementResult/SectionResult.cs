@@ -20,7 +20,7 @@ namespace GPC.Model.Results
 
         }
 
-        internal SectionResult(SerializationInfo info, StreamingContext context)
+        private SectionResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
 
