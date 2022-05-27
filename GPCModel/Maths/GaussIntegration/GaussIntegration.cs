@@ -520,9 +520,8 @@ namespace GPC.Model.Maths.GaussIntegrations
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh,
             QuadrangleGaussPoints.GaussPointNumber quadNumberOfGaussPoints, TriangleGaussPoints.GaussPointNumber triNumberOfGaussPoints)
         {
-            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction<T>(mesh, quadNumberOfGaussPoints, triNumberOfGaussPoints));
+            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(mesh, quadNumberOfGaussPoints, triNumberOfGaussPoints));
         }
-
 
         public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
         {
@@ -539,7 +538,6 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
-
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
         {
             T[] res = new T[function.Length];
@@ -555,12 +553,10 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
-
         public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[][] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
             {
-
                 T[][] results = new T[globalGaussPoints.Length][];
 
                 Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
@@ -573,14 +569,12 @@ namespace GPC.Model.Maths.GaussIntegrations
                             results[g][j] = globalGaussPoints[g][j].EvaluateFunction(function);
                         }
                     }
-
                 });
 
                 return GlobalCoordinateGaussPoint.MassSum<T>(results);
             }
             else
-            {               
-
+            {     
                 T[][] results = new T[globalGaussPoints.Length][];
                 for (int g = 0; g < globalGaussPoints.Length; g++)
                 {
@@ -590,7 +584,6 @@ namespace GPC.Model.Maths.GaussIntegrations
                         results[g][j] = globalGaussPoints[g][j].EvaluateFunction(function);
                     }
                 }
-
 
                 return GlobalCoordinateGaussPoint.MassSum<T>(results);
             }
@@ -620,7 +613,6 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
             else
             {
-
                 double results = 0;
                 for (int g = 0; g < globalGaussPoints.Length; g++)
                 {
@@ -643,7 +635,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="triNumberOfGaussPoints">The number of Gauss points for tri face</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction<T>(Mesh mesh,
+        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(Mesh mesh,
             QuadrangleGaussPoints.GaussPointNumber quadNumberOfGaussPoints, TriangleGaussPoints.GaussPointNumber triNumberOfGaussPoints)
         {
             Func<int, double, double, double> shapeFunctionQuad = LinearShapeFunctionQuad4.NaturalShapeFunction;
@@ -1087,11 +1079,9 @@ namespace GPC.Model.Maths.GaussIntegrations
             /// </summary>
             public double GpZ { get; }
 
-
             private readonly double _determinantWeightFactorMultiplication;
 
-
-            private static IGaussPointCalculator calculator;
+            private static IGaussPointCalculator _calculator;
 
             private bool _calculatorInstantiated;
 
@@ -1113,37 +1103,33 @@ namespace GPC.Model.Maths.GaussIntegrations
                 _calculatorInstantiated = false;
             }
 
-
-
             /// <exception cref="KeyNotFoundException"></exception>
             public T EvaluateFunction<T>(Func<double, T> function)
             {
                 if (!_calculatorInstantiated)
                 {
-                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculator = GaussPointCalculator.GetInstance<T>();
                     _calculatorInstantiated = true;
                 }
 
-                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX));
+                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX));
             }
-
 
             public double EvaluateFunction(Func<double, double, double> function)
             {
                 return _determinantWeightFactorMultiplication * function(GpX, GpY);
             }
 
-
             /// <exception cref="KeyNotFoundException"></exception>
             public T EvaluateFunction<T>(Func<double, double, T> function)
             {
                 if (!_calculatorInstantiated)
                 {
-                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculator = GaussPointCalculator.GetInstance<T>();
                     _calculatorInstantiated = true;
                 }
 
-                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY));
+                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY));
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
@@ -1151,24 +1137,21 @@ namespace GPC.Model.Maths.GaussIntegrations
             {
                 if (!_calculatorInstantiated)
                 {
-                    calculator = GaussPointCalculator.GetInstance<T>();
+                    _calculator = GaussPointCalculator.GetInstance<T>();
                     _calculatorInstantiated = true;
                 }
 
-                return ((ICalculator<T>)calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY, GpZ));
+                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY, GpZ));
             }
-
 
             /// <exception cref="KeyNotFoundException"></exception>
             public static T MassSum<T>(T[][] values)
             {
-                calculator = GaussPointCalculator.GetInstance<T>();
+                _calculator = GaussPointCalculator.GetInstance<T>();
 
-                return ((ICalculator<T>)calculator).MassSum(values);
+                return ((ICalculator<T>)_calculator).MassSum(values);
             }
-
         }
-
 
         protected static class GaussPointCalculator
         {
