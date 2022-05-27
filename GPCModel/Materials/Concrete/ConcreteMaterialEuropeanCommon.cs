@@ -422,22 +422,22 @@ namespace GPC.Model.Materials
 
 		#endregion
 
-		#region Public Methods Override
+		#region Public Methods Override/Overload
 
-		public override double CalculateFcd(Standards.Standard standard)
+		public override double CalculateDesignCompressiveStrength(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 			{
 				if (CompressionStressStrainDiagram == ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock)
 				{
-					if (Fck > 90)
+					if (Math.Abs(Fck) > 90)
 						throw new ArgumentException("Fck > 90 not supported by Stress block");
 
 					double eta;
-					if (Fck <= 50.0)
+					if (Math.Abs(Fck) <= 50.0)
 						eta = 1.0;
 					else
-						eta = 1.0 - (Fck - 50.0) / 200;
+						eta = 1.0 - (Math.Abs(Fck) - 50.0) / 200;
 
 					return eta * standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
 				}
@@ -454,7 +454,29 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateFctd(Standards.Standard standard)
+		public virtual double CalculateFcd(StandardModelCode2010 standardModelCode2010)
+		{
+
+			if (CompressionStressStrainDiagram == ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock)
+			{
+				if (Math.Abs(Fck) > 90)
+					throw new ArgumentException("Fck > 90 not supported by Stress block");
+
+				double eta;
+				if (Math.Abs(Fck) <= 50.0)
+					eta = 1.0;
+				else
+					eta = 1.0 - (Math.Abs(Fck) - 50.0) / 200;
+
+				return eta * standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
+			}
+			else
+			{
+				return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
+			}
+		}
+
+		public override double CalculateDesignTensileStrength(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 				return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
@@ -464,7 +486,12 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateFcdAccidental(Standards.Standard standard)
+		public virtual double CalculateFctd(StandardModelCode2010 standardModelCode2010)
+		{
+			return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
+		}
+
+		public virtual double CalculateFcdAccidental(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 				return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaCAccidental;
@@ -474,7 +501,12 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateFctdAccidental(Standards.Standard standard)
+		public virtual double CalculateFcdAccidental(StandardModelCode2010 standardModelCode2010)
+		{
+			return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaCAccidental;
+		}
+
+		public virtual double CalculateFctdAccidental(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 				return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaCAccidental;
@@ -484,7 +516,12 @@ namespace GPC.Model.Materials
 				throw new ArgumentException();
 		}
 
-		public override double CalculateECd(Standards.Standard standard)
+		public virtual double CalculateFctdAccidental(StandardModelCode2010 standardModelCode2010)
+		{
+			return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaCAccidental;
+		}
+
+		public virtual double CalculateECd(Standards.Standard standard)
 		{
 			if (standard is StandardModelCode2010 standardModelCode2010)
 				return E / standardModelCode2010.GammaCE;
@@ -492,6 +529,11 @@ namespace GPC.Model.Materials
 				return E;
 			else
 				throw new ArgumentException();
+		}
+
+		public virtual double CalculateECd(StandardModelCode2010 standardModelCode2010)
+		{
+			return E / standardModelCode2010.GammaCE;
 		}
 
 		public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
@@ -507,6 +549,14 @@ namespace GPC.Model.Materials
 				return GetStress(strain);
 			else
 				throw new ArgumentException();
+		}
+
+		public virtual double CalculateDesignStressConcrete(StandardModelCode2010 standardModelCode2010, double strain)
+		{
+			if (strain < 0)
+				return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);
+			else
+				return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);
 		}
 
 		#endregion
