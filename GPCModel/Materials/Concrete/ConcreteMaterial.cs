@@ -1,11 +1,11 @@
-﻿using GPC.Utilities.Converters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using GPC.Utilities.Converters;
 
 namespace GPC.Model.Materials
 {
@@ -42,7 +42,7 @@ namespace GPC.Model.Materials
         /// Characteristic Stress strain table in comrpession
         /// </summary>
         public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
-        
+
         /// <summary>
         /// Characteristic Stress strain table in tension
         /// </summary>
@@ -62,7 +62,7 @@ namespace GPC.Model.Materials
             set
             {
                 SetConcreteType(value);
-                RecalculateMechanicalProperties();                
+                RecalculateMechanicalProperties();
             }
         }
 
@@ -78,7 +78,7 @@ namespace GPC.Model.Materials
 
             _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
             _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;            
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
         }
 
         public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
@@ -118,14 +118,14 @@ namespace GPC.Model.Materials
 
         public abstract double CalculateDesignTensileStrength(Standards.Standard standard);
 
-		#endregion
+        #endregion
 
-		#region Public Setter
+        #region Public Setter
 
         public void SetStressStrainTableCompression(StressStrainTable stressStrainTable)
-		{
+        {
             _stressStrainTableCompression = stressStrainTable;
-		}
+        }
 
         public void SetStressStrainTableTension(StressStrainTable stressStrainTable)
         {
@@ -145,8 +145,8 @@ namespace GPC.Model.Materials
             _concreteType = concreteType;
         }
 
-		/// <returns>The characteristic stress related to <paramref name="strain"/></returns>
-		public double GetStress(double strain)
+        /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
+        public double GetStress(double strain)
         {
             if (strain > 0)
             {
@@ -159,7 +159,7 @@ namespace GPC.Model.Materials
         }
 
         public virtual void RecalculateMechanicalProperties()
-		{
+        {
 
         }
 
@@ -199,7 +199,7 @@ namespace GPC.Model.Materials
             }
         }
 
-		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
@@ -212,6 +212,6 @@ namespace GPC.Model.Materials
             return !(obj1 == obj2);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

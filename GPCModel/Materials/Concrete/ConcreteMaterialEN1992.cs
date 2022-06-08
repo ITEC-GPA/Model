@@ -38,23 +38,23 @@ namespace GPC.Model.Materials
 
         public static ConcreteMaterialEN1992 C80_95 => new ConcreteMaterialEN1992("C80/90", 80, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-        public static ConcreteMaterialEN1992 C90_105 =>new ConcreteMaterialEN1992("C90/105", 90, CompressionStressStrainDiagrams.ParabolaRectangle);
+        public static ConcreteMaterialEN1992 C90_105 => new ConcreteMaterialEN1992("C90/105", 90, CompressionStressStrainDiagrams.ParabolaRectangle);
 
-		#endregion
+        #endregion
 
-		#region Constructor
+        #region Constructor
 
-		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN) 
+        public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
             : base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
 
-        public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression, 
+        public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression,
             StressStrainTable stressStrainTableTension,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, 
-            CementType cementType = CementType.ClassN) 
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
+            CementType cementType = CementType.ClassN)
             : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
         {
 
@@ -78,7 +78,7 @@ namespace GPC.Model.Materials
         }
 
         public override void RecalculateMechanicalProperties()
-		{
+        {
             SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
@@ -105,12 +105,12 @@ namespace GPC.Model.Materials
             unchecked
             {
                 int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();;
+                hashCode = hashCode * -17 + base.GetHashCode(); ;
                 return hashCode;
             }
         }
 
-		public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
+        public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;

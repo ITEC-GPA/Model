@@ -11,10 +11,10 @@ namespace GPC.Model.Materials
         public static ConcreteMaterialModelCode2010 C20_25 => new ConcreteMaterialModelCode2010("C20/25", 20,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C25_30 => new ConcreteMaterialModelCode2010("C25/30", 25, 
+        public static ConcreteMaterialModelCode2010 C25_30 => new ConcreteMaterialModelCode2010("C25/30", 25,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C28_35 => new ConcreteMaterialModelCode2010("C28/35", 28, 
+        public static ConcreteMaterialModelCode2010 C28_35 => new ConcreteMaterialModelCode2010("C28/35", 28,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
         public static ConcreteMaterialModelCode2010 C30_37 => new ConcreteMaterialModelCode2010("C30/37", 30,
@@ -23,42 +23,42 @@ namespace GPC.Model.Materials
         public static ConcreteMaterialModelCode2010 C32_40 => new ConcreteMaterialModelCode2010("C32/40", 32,
     CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C35_45 => new ConcreteMaterialModelCode2010("C35/45", 35, 
+        public static ConcreteMaterialModelCode2010 C35_45 => new ConcreteMaterialModelCode2010("C35/45", 35,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C40_50 => new ConcreteMaterialModelCode2010("C40/50", 40, 
+        public static ConcreteMaterialModelCode2010 C40_50 => new ConcreteMaterialModelCode2010("C40/50", 40,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C45_55 => new ConcreteMaterialModelCode2010("C45/55", 45, 
+        public static ConcreteMaterialModelCode2010 C45_55 => new ConcreteMaterialModelCode2010("C45/55", 45,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C50_60 => new ConcreteMaterialModelCode2010("C50/60", 50, 
+        public static ConcreteMaterialModelCode2010 C50_60 => new ConcreteMaterialModelCode2010("C50/60", 50,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C55_67 => new ConcreteMaterialModelCode2010("C55/67", 55, 
+        public static ConcreteMaterialModelCode2010 C55_67 => new ConcreteMaterialModelCode2010("C55/67", 55,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C60_75 => new ConcreteMaterialModelCode2010("C60/75", 60, 
+        public static ConcreteMaterialModelCode2010 C60_75 => new ConcreteMaterialModelCode2010("C60/75", 60,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C70_85 => new ConcreteMaterialModelCode2010("C70/85", 70, 
+        public static ConcreteMaterialModelCode2010 C70_85 => new ConcreteMaterialModelCode2010("C70/85", 70,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C80_95 => new ConcreteMaterialModelCode2010("C80/90", 80, 
+        public static ConcreteMaterialModelCode2010 C80_95 => new ConcreteMaterialModelCode2010("C80/90", 80,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C90_105 => new ConcreteMaterialModelCode2010("C90/105", 90, 
+        public static ConcreteMaterialModelCode2010 C90_105 => new ConcreteMaterialModelCode2010("C90/105", 90,
             CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteTypes.Normal);
 
-        public static ConcreteMaterialModelCode2010 C25_30_5 => new ConcreteMaterialModelCode2010("C25/30 5 kg/m³", 25, 
-            CompressionStressStrainDiagrams.ParabolaRectangle, 0.4905, 0.302, 0.4905 / ConcreteMaterialEN1992.C25_30.E * 5, 0.02, 
+        public static ConcreteMaterialModelCode2010 C25_30_5 => new ConcreteMaterialModelCode2010("C25/30 5 kg/m³", 25,
+            CompressionStressStrainDiagrams.ParabolaRectangle, 0.4905, 0.302, 0.4905 / ConcreteMaterialEN1992.C25_30.E * 5, 0.02,
             TensionStressStrainDiagrams.Bilinear, ConcreteTypes.FRC);
 
-        public static ConcreteMaterialModelCode2010 C25_30_10 => new ConcreteMaterialModelCode2010("C25/30 10 kg/m³", 25, 
+        public static ConcreteMaterialModelCode2010 C25_30_10 => new ConcreteMaterialModelCode2010("C25/30 10 kg/m³", 25,
             CompressionStressStrainDiagrams.ParabolaRectangle, 0.6975, 0.505, 0.6975 / ConcreteMaterialEN1992.C25_30.E * 5, 0.02,
             TensionStressStrainDiagrams.Bilinear, ConcreteTypes.FRC);
 
-        public static ConcreteMaterialModelCode2010 C25_30_17 => new ConcreteMaterialModelCode2010("C25/30 17 kg/m³", 25, 
+        public static ConcreteMaterialModelCode2010 C25_30_17 => new ConcreteMaterialModelCode2010("C25/30 17 kg/m³", 25,
             CompressionStressStrainDiagrams.ParabolaRectangle, 1.0845, 0.843, 1.0845 / ConcreteMaterialEN1992.C25_30.E * 5, 0.02,
             TensionStressStrainDiagrams.Bilinear, ConcreteTypes.FRC);
 
@@ -102,7 +102,7 @@ namespace GPC.Model.Materials
 
         #region Constructors
 
-        public ConcreteMaterialModelCode2010(string name, double strainYCompression, double strainYTension, 
+        public ConcreteMaterialModelCode2010(string name, double strainYCompression, double strainYTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
@@ -179,13 +179,13 @@ namespace GPC.Model.Materials
         #region Public Method
 
         public double CalculateFFTu(double fr1, double fr3)
-		{
-            if(_tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
-			{
+        {
+            if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.RigidPlastic)
+            {
                 return fr3 / 3.0;
-			}
+            }
             else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Bilinear)
-			{
+            {
                 double ffts = CalculateFFTs(fr1, fr3);
                 return Math.Max(ffts - (GetLinearCoefficient()) * (ffts - 0.5 * fr3 + 0.2 * fr1), 0.0);
             }
@@ -212,7 +212,7 @@ namespace GPC.Model.Materials
                 return 0.45 * fr1;
             }
             else if (_tensionStressStrainDiagrams == TensionStressStrainDiagrams.Linear)
-			{
+            {
                 return 0.45 * fr1;
             }
             else
@@ -261,12 +261,12 @@ namespace GPC.Model.Materials
         }
 
         protected double GetLinearCoefficient()
-		{
+        {
             return 1.0;
-		}
+        }
 
         public override void RecalculateMechanicalProperties()
-		{
+        {
             if (_concreteType == ConcreteTypes.FRC)
             {
                 SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
@@ -275,17 +275,17 @@ namespace GPC.Model.Materials
                 SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
                 SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
             }
-            else if(_concreteType == ConcreteTypes.Normal)
-			{
+            else if (_concreteType == ConcreteTypes.Normal)
+            {
                 SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
                 SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
                 SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
             }
             else
-			{
+            {
 
-			}
+            }
         }
 
         #endregion
@@ -315,7 +315,7 @@ namespace GPC.Model.Materials
             }
         }
 
-		public static bool operator ==(ConcreteMaterialModelCode2010 obj1, ConcreteMaterialModelCode2010 obj2)
+        public static bool operator ==(ConcreteMaterialModelCode2010 obj1, ConcreteMaterialModelCode2010 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
