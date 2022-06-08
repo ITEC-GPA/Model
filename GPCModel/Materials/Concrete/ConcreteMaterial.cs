@@ -158,10 +158,7 @@ namespace GPC.Model.Materials
             }
         }
 
-        public virtual void RecalculateMechanicalProperties()
-        {
-
-        }
+        public abstract void RecalculateMechanicalProperties();
 
         #endregion
 
