@@ -1412,6 +1412,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Jt / section.Jt) - 1, 0, 0.001);
         }
 
+
         #endregion
 
         #region Section Generic
@@ -1727,7 +1728,7 @@ namespace ModelObjectTest
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-            Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001);
+            Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001, section.AngleX1.ToString());
         }
 
         [TestMethod]
@@ -1837,6 +1838,63 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 54653616364) / mechanicalProperties.J22H * 100 < 1);
         }
 
+
+        [TestMethod]
+        public void RCCHSSection3()
+        {
+
+            double rebarDiameter = 8;
+            double externalDiameter = 500;
+            double thickness = 100;
+            double concreteCover = 50;
+            int numberOfRebars = 12;
+            int discretization = 16;
+
+            var material = ConcreteMaterialModelCode2010.C28_35;
+            var steelMaterial = SteelMaterial.B450C;
+
+            Polygon2d fill = new Polygon2d(externalDiameter, discretization);
+            Polygon2d hole = new Polygon2d(externalDiameter - 2 * thickness, discretization);
+
+            fill.Move(250, 250, 0);
+            hole.Move(250, 250, 0);
+
+            Shape2d shape2D = new Shape2d(fill, new Polygon2d[] { hole });
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(new ShapeEx(shape2D, material));
+
+            Polygon2d rebarPolygon = new Polygon2d(externalDiameter - concreteCover * 2.0, numberOfRebars, section.Centroid);
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[rebarPolygon.Count];
+
+            RebarSectionCircular rebarSection = new RebarSectionCircular(rebarDiameter, steelMaterial);
+            for (int i = 0; i < rebarPolygon.Count; i++)
+                rebars[i] = new ReinforcedConcreteRebar(rebarSection, rebarPolygon[i]);
+            section.AddRebars(rebars);
+
+            var mechanicalPropertiesH = section.GetHomogeneizedMechanicalProperties(1);
+
+            Console.WriteLine(section.Jxy);
+            Console.WriteLine(section.Rxy);
+
+            Assert.AreEqual(122458, section.Area, 1);
+            Assert.AreEqual(2.54e9, section.J11, 1e7);
+            Assert.AreEqual(2.54e9, section.J22, 1e7);
+
+            Assert.AreEqual(250, section.Centroid.X, 0.001);
+            Assert.AreEqual(250, section.Centroid.Y, 0.001);
+            Assert.AreEqual(0, section.AngleX1, 0.001);
+
+
+            Assert.AreEqual(129926, section.GetHomogenizedArea(1), 1);
+            Assert.AreEqual(2.67e9, section.GetHomogeneizedJ11(1), 1e7);
+            Assert.AreEqual(2.67e9, section.GetHomogeneizedJ22(1), 1e7);
+
+            Assert.AreEqual(0, mechanicalPropertiesH.angleX, 0.1);
+
+            Assert.AreEqual(250, mechanicalPropertiesH.centroidH.X, 0.1);
+            Assert.AreEqual(250, mechanicalPropertiesH.centroidH.Y, 0.1);
+
+
+        }
         #endregion
     }
 }
