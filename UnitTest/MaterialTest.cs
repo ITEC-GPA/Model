@@ -640,6 +640,16 @@ namespace ModelObjectTest
             Assert.IsFalse(tens);
         }
 
+        [TestMethod]
+        public void ConcreteFRCTest14()
+        {
+            ConcreteMaterialModelCode2010 concreteMaterial = new ConcreteMaterialModelCode2010("", -0.002, 0.0001,
+                    new StressStrainTable(new double[] { 0, -50, -50 }, new double[] { 0, -0.02, -0.035 }),
+                    new StressStrainTable(new double[] { 0, 5 }, new double[] { 0, 0.001 }), ConcreteMaterial.ConcreteTypes.FRC);
+
+            Assert.IsTrue(concreteMaterial.StrainYPureCompression == -0.02);
+        }
+
         #endregion
 
         #region ModelCode 2010 Concrete Material Test

@@ -377,14 +377,14 @@ namespace GPC.Model.Sections.Concrete
 
             _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
 
-            ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double _);
+            ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
 
             _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
             _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
             _jxx = Jxx;
             _jyy = Jyy;
             _jxy = Jxy;
-            _jp = _jxx + _jyy;
+            _jp = Jp;
             _angleX1 = SectionHelper.CalculateAngle(_j11, _j22, Jxx, Jyy, Jxy);
 
             _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
