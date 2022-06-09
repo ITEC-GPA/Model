@@ -36,16 +36,21 @@ namespace GPC.Model.Sections.Concrete
                 throw new ArgumentException();
         }
 
+        /// <summary>
+        /// Return ES / EC
+        /// </summary>
         internal static double CalculateN(ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
         {
             return rebar.RebarMaterial.E / concreteMaterial.E;
         }
+
 
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
 
             double[] SxArray = new double[mesh.FacesCount];
             double[] SyArray = new double[mesh.FacesCount];
+
 
             Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, mesh.FacesCount), (range) =>
             {
@@ -54,8 +59,8 @@ namespace GPC.Model.Sections.Concrete
                     double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
                     Point2d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
 
-                    SxArray[i] += area * centroid.Y;
-                    SyArray[i] += area * centroid.X;
+                    SxArray[i] = area * centroid.Y;
+                    SyArray[i] = area * centroid.X;
                 }
 
             });
@@ -63,6 +68,24 @@ namespace GPC.Model.Sections.Concrete
 
             Sx = SxArray.Sum();
             Sy = SyArray.Sum();
+
+        }
+
+        internal static void CalculateHomogeneizedStaticMoments(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog)
+        {
+
+            CalculateStaticMoments(mesh, out double Sx, out double Sy);
+
+            SxHomog = Sx;
+            SyHomog = Sy;
+
+            for (int i = 0; i < rebars.Count(); i++)
+            {
+                double n = CalculateN(rebars[i], concreteMaterial);
+
+                SxHomog += n * rebars[i].Area * rebars[i].Position.Y;
+                SyHomog += n * rebars[i].Area * rebars[i].Position.X;
+            }
 
         }
 
@@ -90,6 +113,9 @@ namespace GPC.Model.Sections.Concrete
             Jyy = JyyArray.Sum();
             Jxy = JxyArray.Sum();
             Jp = Jxx + Jyy;
+
+            if (Jxy < 0)
+                Jxy = 0.0; // non può essere negativo. Se la sezione simmetrica vale zero e può diventare negativo per errore numerico 
         }
 
         internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,
@@ -105,16 +131,16 @@ namespace GPC.Model.Sections.Concrete
             {
                 double n = CalculateN(rebars[i], concreteMaterial);
 
-                JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * Math.Pow(rebars[i].Position.Y - centroid.Y, 2));
-                JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * Math.Pow(rebars[i].Position.X - centroid.X, 2));
-                JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
+                JxxHomogenized += n * (rebars[i].RebarSection.Jxx + rebars[i].Area * Math.Pow(rebars[i].Position.Y - centroid.Y, 2));
+                JyyHomogenized += n * (rebars[i].RebarSection.Jyy + rebars[i].Area * Math.Pow(rebars[i].Position.X - centroid.X, 2));
+                JxyHomogenized += n * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
             }
-
-            JpHomogenized = JxxHomogenized + JyyHomogenized;
 
             JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
             JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
             JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
+
+            JpHomogenized = JxxHomogenized + JyyHomogenized;
         }
 
         internal static void CalculateHomogeneizedInertiaMoments(double phi, ConcreteMaterial concreteMaterial, ReinforcedConcreteRebar[] rebars,
@@ -132,9 +158,9 @@ namespace GPC.Model.Sections.Concrete
 
             for (int i = 0; i < rebars.Count(); i++)
             {
-                JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * (Math.Pow((rebars[i].Position.Y - centroid.Y), 2)));
-                JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * (Math.Pow((rebars[i].Position.X - centroid.X), 2)));
-                JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
+                JxxHomogenized += n * (rebars[i].RebarSection.Jxx + rebars[i].Area * (Math.Pow((rebars[i].Position.Y - centroid.Y), 2)));
+                JyyHomogenized += n * (rebars[i].RebarSection.Jyy + rebars[i].Area * (Math.Pow((rebars[i].Position.X - centroid.X), 2)));
+                JxyHomogenized += n * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
             }
 
             JpHomogenized = JxxHomogenized + JyyHomogenized;
@@ -156,19 +182,7 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The centroid</returns>
         internal static Point2d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
         {
-
-            CalculateStaticMoments(mesh, out double Sx, out double Sy);
-
-            SxHomog = Sx;
-            SyHomog = Sy;
-
-            for (int i = 0; i < rebars.Count(); i++)
-            {
-                double n = CalculateN(rebars[i], concreteMaterial) - 1;
-
-                SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-                SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
-            }
+            CalculateHomogeneizedStaticMoments(mesh, rebars, concreteMaterial, out SxHomog, out SyHomog);
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area));
         }
@@ -195,8 +209,8 @@ namespace GPC.Model.Sections.Concrete
 
             for (int i = 0; i < rebars.Count(); i++)
             {
-                SxHomog += (n) * rebars[i].Area * rebars[i].Position.Y;
-                SyHomog += (n) * rebars[i].Area * rebars[i].Position.X;
+                SxHomog += n * rebars[i].Area * rebars[i].Position.Y;
+                SyHomog += n * rebars[i].Area * rebars[i].Position.X;
             }
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area));
@@ -213,7 +227,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns>The centroid</returns>
-        internal static Point2d GetHomogenizedCentroid(double Sx, double Sy, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
+        internal static Point2d GetHomogenizedCentroid(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double Sx, double Sy, double area, out double SxHomog, out double SyHomog)
         {
 
             SxHomog = Sx;
@@ -222,8 +236,8 @@ namespace GPC.Model.Sections.Concrete
             for (int i = 0; i < rebars.Count(); i++)
             {
                 double n = CalculateN(rebars[i], concreteMaterial);
-                SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-                SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
+                SxHomog += n * rebars[i].Area * rebars[i].Position.Y;
+                SyHomog += n * rebars[i].Area * rebars[i].Position.X;
             }
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area));
@@ -241,7 +255,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SxHomog">The first moment of area respect X-Axis</param>
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <returns></returns>
-        internal static Point3d GetHomogenizedCentroid(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double Sx, double Sy, double area, out double SxHomog, out double SyHomog)
+        internal static Point2d GetHomogenizedCentroid(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double Sx, double Sy, double area, out double SxHomog, out double SyHomog)
         {
             double n = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
 
@@ -250,8 +264,8 @@ namespace GPC.Model.Sections.Concrete
 
             for (int i = 0; i < rebars.Count(); i++)
             {
-                SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-                SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
+                SxHomog += n * rebars[i].Area * rebars[i].Position.Y;
+                SyHomog += n * rebars[i].Area * rebars[i].Position.X;
             }
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area));
@@ -263,14 +277,14 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The homogenized area</returns>
         internal static double GetHomogenizedArea(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area)
         {
-            double[] AreaHomogArray = new double[rebars.Count()];
 
-            Parallel.For(0, rebars.Count(), (i) =>
+            double areaH = 0;
+            for (int i = 0; i < rebars.Length; i++)
             {
-                AreaHomogArray[i] = (CalculateN(rebars[i], concreteMaterial) - 1) * rebars[i].Area;
-            });
+                areaH += CalculateN(rebars[i], concreteMaterial) * rebars[i].Area;
+            }
 
-            return area + AreaHomogArray.Sum();
+            return area + areaH;
         }
 
         /// <summary>
@@ -285,10 +299,14 @@ namespace GPC.Model.Sections.Concrete
         {
             double[] AreaHomogArray = new double[rebars.Count()];
 
-            Parallel.For(0, rebars.Count(), (i) =>
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, rebars.Count()), (range) =>
             {
-                AreaHomogArray[i] = (CalculateHomogenizedFactorN(phi, rebars[i], concreteMaterial)) * rebars[i].Area;
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    AreaHomogArray[i] = (CalculateHomogenizedFactorN(phi, rebars[i], concreteMaterial)) * rebars[i].Area;
+                }
             });
+
 
             return area + AreaHomogArray.Sum();
         }
@@ -343,11 +361,17 @@ namespace GPC.Model.Sections.Concrete
             return rebars;
         }
 
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
         {
             return (rebar.RebarMaterial.E / (concreteMaterial.E / (1 + phi)));
         }
 
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
         {
             return (rebars.Select(i => i.RebarMaterial.E).Average() / (concreteMaterial.E / (1 + phi)));
