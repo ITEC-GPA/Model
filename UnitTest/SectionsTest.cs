@@ -1501,9 +1501,15 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.J22 - 1125000000) / section.J22 * 100 < 1);
             Assert.AreEqual(0, section.AngleX1, 0.001);
 
-            Assert.AreEqual(165270, mechanicalProperties.areaH, 2);
-            Assert.AreEqual(3735800000, mechanicalProperties.J11H, 2e6);
-            Assert.AreEqual(1277700000, mechanicalProperties.J22H, 2e6);
+            Assert.AreEqual(165270 - rebars.Select(i => i.Area).Sum(), mechanicalProperties.areaH, 2);
+
+
+            var expectedJ11H = 3735800000 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            var expectedJ22H = 1277700000 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ22(phi)) < 0.005);
+
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
 
 
@@ -1521,9 +1527,14 @@ namespace ModelObjectTest
 
 
             Assert.AreEqual(0, sectionRectangular.AngleX1, 0.001);
-            Assert.AreEqual(165270, mechanicalProperties.areaH, 2);
-            Assert.AreEqual(3735800000, mechanicalProperties.J11H, 2e6);
-            Assert.AreEqual(1277700000, mechanicalProperties.J22H, 2e6);
+            Assert.AreEqual(165270 - sectionRectangular.GetRebars().Select(i => i.Area).Sum(), mechanicalProperties.areaH, 2);
+
+            expectedJ11H = 3735800000 - sectionRectangular.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            expectedJ22H = 1277700000 - sectionRectangular.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ22(phi)) < 0.005);
+
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
         }
 
@@ -1614,9 +1625,14 @@ namespace ModelObjectTest
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
-            Assert.AreEqual(174132, mechanicalProperties.areaH, 5);
-            Assert.AreEqual(4090280029, mechanicalProperties.J11H, 2e6);
-            Assert.AreEqual(1259063991, mechanicalProperties.J22H, 2e7);
+            Assert.AreEqual(174132 - section.GetRebars().Select(i => i.Area).Sum(), mechanicalProperties.areaH, 5);
+
+            var expectedJ11H = 4090280029 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            var expectedJ22H = 1259063991 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.015);
+
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
 
 
@@ -1627,9 +1643,14 @@ namespace ModelObjectTest
             mechanicalProperties = sectionRectangular.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
-            Assert.AreEqual(174132, mechanicalProperties.areaH, 5);
-            Assert.AreEqual(4090280029, mechanicalProperties.J11H, 2e6);
-            Assert.AreEqual(1259063991, mechanicalProperties.J22H, 2e7);
+            Assert.AreEqual(174132 - sectionRectangular.GetRebars().Select(i => i.Area).Sum(), mechanicalProperties.areaH, 5);
+
+            expectedJ11H = 4090280029 - sectionRectangular.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            expectedJ22H = 1259063991 - sectionRectangular.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.015);
+
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
         }
 
@@ -1815,11 +1836,15 @@ namespace ModelObjectTest
             double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
-            //valori calcolati con VCASLU
+            //valori calcolati con VCASLU a cui viene tolta la parte di cls sostituita dalla barra
 
-            Assert.AreEqual(176830, mechanicalProperties.areaH, 350);
-            Assert.AreEqual(3686823706, mechanicalProperties.J11H, 1e8);
-            Assert.AreEqual(3686823706, mechanicalProperties.J22H, 1e8);
+            Assert.AreEqual(176830 - section.GetRebars().Select(i => i.Area).Sum(), mechanicalProperties.areaH, 350);
+
+            var expectedJ11H = 3686823706 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            var expectedJ22H = 3686823706 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.005);
 
         }
 
@@ -1842,9 +1867,11 @@ namespace ModelObjectTest
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
-            //valori calcolati con VCASLU
-            Assert.AreEqual(56363826745, mechanicalProperties.J11H, 2e8);
-            Assert.AreEqual(56363826745, mechanicalProperties.J22H, 2e8);
+            var expectedJ11H = 56363826745 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            var expectedJ22H = 56363826745 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.005);
         }
 
 
@@ -1892,7 +1919,7 @@ namespace ModelObjectTest
             double expectedArea = Math.PI * externalDiameter * externalDiameter / 4.0 - Math.PI * (externalDiameter - 2 * thickness) * (externalDiameter - 2 * thickness) / 4.0;
             double expectedI = Math.PI * Math.Pow(externalDiameter, 4) / 64.0 - Math.PI * Math.Pow(externalDiameter - 2 * thickness, 4) / 64.0;
 
-            double expectedAreah = expectedArea + rebars.Select(i => i.Area * n).Sum();
+            double expectedAreah = expectedArea + rebars.Select(i => i.Area * (n - 1)).Sum();
 
             Assert.AreEqual(expectedArea, section.Area, 60);
             Assert.AreEqual(expectedI, section.J11, 1e7);
@@ -1904,8 +1931,14 @@ namespace ModelObjectTest
 
 
             Assert.AreEqual(expectedAreah, section.GetHomogenizedArea(phi), 60);
-            Assert.AreEqual(2732065437, section.GetHomogeneizedJ11(phi), 1e8); //VCA slu
-            Assert.AreEqual(2732065437, section.GetHomogeneizedJ22(phi), 1e8); //VCA slu
+
+
+            var expectedJ11H = 2732065437 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
+            var expectedJ22H = 2732065437 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
+
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
+            Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ11(phi)) < 0.005);
+
 
             Assert.AreEqual(0, mechanicalPropertiesH.angleX, 0.1);
 
@@ -1947,14 +1980,14 @@ namespace ModelObjectTest
 
 
             double expectedArea = width * height;
-            double expectedAreaH = expectedArea + rebars.Select(i => i.Area * expectedN).Sum();
-            double expectedAreaH1 = expectedArea + rebars.Select(i => i.Area * expectedNMod).Sum();
+            double expectedAreaH = expectedArea + rebars.Select(i => i.Area * (expectedN - 1)).Sum();
+            double expectedAreaH1 = expectedArea + rebars.Select(i => i.Area * (expectedNMod - 1)).Sum();
 
             double expectedSx = expectedArea * height / 2.0;
             double expectedSy = expectedArea * width / 2.0;
 
-            double expectedSxH = expectedSx + rebars.Select(i => i.Area * i.Position.Y * expectedN).Sum();
-            double expectedSyH = expectedSy + rebars.Select(i => i.Area * i.Position.X * expectedN).Sum();
+            double expectedSxH = expectedSx + rebars.Select(i => i.Area * i.Position.Y * (expectedN - 1)).Sum();
+            double expectedSyH = expectedSy + rebars.Select(i => i.Area * i.Position.X * (expectedN - 1)).Sum();
 
             double expectedJxx = 1 / 12.0 * width * Math.Pow(height, 3);
             double expectedJyy = 1 / 12.0 * height * Math.Pow(width, 3);
@@ -1962,15 +1995,15 @@ namespace ModelObjectTest
             double expectedJp = 1 / 12.0 * width * height * (Math.Pow(height, 2) + Math.Pow(width, 2));
 
 
-            double expectedJxxH = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * expectedN).Sum();
-            double expectedJyyH = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * expectedN).Sum();
-            double expectedJxyH = expectedJxy + rebars.Select(i => (i.RebarSection.Jxy + i.Area * (i.Position.X - section.Centroid.X) * (i.Position.Y - section.Centroid.Y) * expectedN)).Sum();
+            double expectedJxxH = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * (expectedN - 1)).Sum();
+            double expectedJyyH = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * (expectedN - 1)).Sum();
+            double expectedJxyH = expectedJxy + rebars.Select(i => (i.RebarSection.Jxy + i.Area * (i.Position.X - section.Centroid.X) * (i.Position.Y - section.Centroid.Y) * (expectedN - 1))).Sum();
             double expectedJpH = expectedJxxH + expectedJyyH;
 
 
-            double expectedJxxH1 = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * expectedNMod).Sum();
-            double expectedJyyH1 = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * expectedNMod).Sum();
-            double expectedJxyH1 = expectedJxy + rebars.Select(i => (i.RebarSection.Jxy + i.Area * (i.Position.X - section.Centroid.X) * (i.Position.Y - section.Centroid.Y) * expectedNMod)).Sum();
+            double expectedJxxH1 = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * (expectedNMod - 1)).Sum();
+            double expectedJyyH1 = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * (expectedNMod - 1)).Sum();
+            double expectedJxyH1 = expectedJxy + rebars.Select(i => (i.RebarSection.Jxy + i.Area * (i.Position.X - section.Centroid.X) * (i.Position.Y - section.Centroid.Y) * (expectedNMod - 1))).Sum();
             double expectedJpH1 = expectedJxxH1 + expectedJyyH1;
 
             Assert.AreEqual(expectedN, ConcreteSectionHelper.CalculateN(rebars.First(), section.ConcreteMaterial), 0.0001);
