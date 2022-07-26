@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.Materials;
-
 
 namespace GPC.Model.Sections.Concrete
 {

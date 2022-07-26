@@ -1490,7 +1490,7 @@ namespace ModelObjectTest
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
@@ -1564,7 +1564,7 @@ namespace ModelObjectTest
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
@@ -1621,7 +1621,7 @@ namespace ModelObjectTest
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
             section.AddRebars(rebars);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
@@ -1787,7 +1787,7 @@ namespace ModelObjectTest
             ConcreteSectionCircular section = new ConcreteSectionCircular(diameter, ConcreteMaterialEN1992.C25_30);
             section.AddRebars(rebars);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU
@@ -1833,7 +1833,7 @@ namespace ModelObjectTest
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
             //valori calcolati con VCASLU a cui viene tolta la parte di cls sostituita dalla barra
@@ -1863,7 +1863,7 @@ namespace ModelObjectTest
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
 
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
 
             var mechanicalProperties = section.GetHomogeneizedMechanicalProperties(phi);
 
@@ -1909,7 +1909,7 @@ namespace ModelObjectTest
             var mechanicalPropertiesH = section.GetHomogeneizedMechanicalProperties(1);
 
             double n = ConcreteSectionHelper.CalculateN(rebars.First(), material);
-            double phi = n * section.Material.E / section.GetRebars().FirstOrDefault().RebarMaterial.E - 1;
+            double phi = n * section.Material.ElasticModulusCompression / section.GetRebars().FirstOrDefault().RebarMaterial.ElasticModulusCompression - 1;
 
             Console.WriteLine($"n: {n}");
             Console.WriteLine($"phi: {phi}");
@@ -1944,15 +1944,12 @@ namespace ModelObjectTest
 
             Assert.AreEqual(250, mechanicalPropertiesH.centroidH.X, 0.1);
             Assert.AreEqual(250, mechanicalPropertiesH.centroidH.Y, 0.1);
-
-
         }
 
 
         [TestMethod]
         public void HomogenizedProperties()
         {
-
             var material = ConcreteMaterialModelCode2010.C28_35;
             var steelMaterial = SteelMaterial.B450C;
 
@@ -1975,8 +1972,8 @@ namespace ModelObjectTest
             var rebars = section.Rebars.ToArray();
             var mesh = section.Mesh;
 
-            double expectedN = rebarSection.RebarMaterial.E / section.Material.E;
-            double expectedNMod = rebarSection.RebarMaterial.E / (section.Material.E / (1.0 + phi));
+            double expectedN = rebarSection.RebarMaterial.ElasticModulusCompression / section.Material.ElasticModulusCompression;
+            double expectedNMod = rebarSection.RebarMaterial.ElasticModulusCompression / (section.Material.ElasticModulusCompression / (1.0 + phi));
 
 
             double expectedArea = width * height;
@@ -2055,9 +2052,6 @@ namespace ModelObjectTest
             Assert.AreEqual(expectedJyyH1, JyyH1, 0.0001);
             Assert.AreEqual(expectedJxyH1, JxyH1, 0.0001);
             Assert.AreEqual(expectedJpH1, JpH1, 0.0001);
-
-
-
         }
 
         #endregion

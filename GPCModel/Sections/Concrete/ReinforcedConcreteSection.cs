@@ -42,16 +42,13 @@ namespace GPC.Model.Sections.Concrete
 		protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
             : base(reinforcedConcreteSection.Material, reinforcedConcreteSection.Name)
         {
-            if (reinforcedConcreteSection is null)
-            {
-                throw new ArgumentNullException(nameof(reinforcedConcreteSection));
-            }
+            if (reinforcedConcreteSection is null)            
+                throw new ArgumentNullException(nameof(reinforcedConcreteSection));            
 
             _shapeEx = reinforcedConcreteSection.ShapeEx;
             _rebars = new RebarCollection();
 
             SetMechanicalProperties();
-
         }
 
         public ReinforcedConcreteSection(ShapeEx shapeEx, string name = "")
@@ -419,7 +416,6 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>0 if <paramref name="rebarId"/> not found</returns>
         public virtual double CalculateN(int rebarId)
         {
-
             try
             {
                 ReinforcedConcreteRebar rebar = _rebars.GetById(rebarId);

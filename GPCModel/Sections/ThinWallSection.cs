@@ -29,7 +29,6 @@ namespace GPC.Model.Sections
         internal ThinWallSection(Material material, string name)
             : base(material, name)
         {
-
         }
 
         protected ThinWallSection(SerializationInfo info, StreamingContext context)
@@ -45,13 +44,11 @@ namespace GPC.Model.Sections
 
         protected void SetThinWalls(ThinWall[] thinWalls, Point2d[] points)
         {
-
             _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
             _points = points ?? throw new ArgumentNullException(nameof(points));
 
             if (thinWalls.Length != points.Length)
                 throw new ArgumentException();
-
         }
 
         #endregion
