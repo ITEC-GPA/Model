@@ -306,7 +306,7 @@ namespace GPC.Model.Standards
             return CalculateDesignYieldingStressRebar(material) / material.ElasticModulusCompression;
         }
 
-        public double CalculateDesignUltimateStrainRebar(SteelMaterial material)
+        public double CalculateUltimateDesignStrainRebar(SteelMaterial material)
         {
             return material.StrainU * SteelCoefficientStrainTension;
         }

@@ -293,6 +293,19 @@ namespace GPC.Model.Materials
 
         #region Public Standard Methods
 
+        public double CalculateDesignStressRebar(Standards.Standard standard, double strain, double epsilonP = 0)
+		{
+			switch (standard)
+			{
+				case Standards.StandardModelCode2010 mc:
+					return CalculateDesignStressRebar(mc, strain, epsilonP);
+				case Standards.StandardACI318 aci:
+					return CalculateDesignStressRebar(aci, strain, epsilonP);
+                default: 
+                    return 0; 
+			}
+		}
+
         #region ModelCode2010
 
         /// <returns>The design rebar yielding stress</returns>
