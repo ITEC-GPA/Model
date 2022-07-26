@@ -278,7 +278,7 @@ namespace GPC.Model.Standards
         {
             if (strain < CalculateDesignYieldingStrainRebar(material))
             {
-                return material.CalculateStress(strain);
+                return material.GetStress(strain);
             }
             else
             {
@@ -303,7 +303,7 @@ namespace GPC.Model.Standards
 
         public double CalculateDesignYieldingStrainRebar(SteelMaterial material)
         {
-            return CalculateDesignYieldingStressRebar(material) / material.E;
+            return CalculateDesignYieldingStressRebar(material) / material.ElasticModulusCompression;
         }
 
         public double CalculateDesignUltimateStrainRebar(SteelMaterial material)
@@ -317,14 +317,14 @@ namespace GPC.Model.Standards
             double strainYd = CalculateDesignYieldingStrainRebar(rebar.RebarMaterial);
 
             if (Math.Abs(strain) <= strainYd)
-                return rebar.RebarMaterial.CalculateStress(strain + rebar.EpsilonP);
+                return rebar.RebarMaterial.GetStress(strain + rebar.EpsilonP);
 
             else
             {
                 double deltaStress = rebar.RebarMaterial.Fyk - fyd;
-                double deltaStrain = deltaStress / rebar.RebarMaterial.E;
+                double deltaStrain = deltaStress / rebar.RebarMaterial.ElasticModulusCompression;
 
-                return rebar.RebarMaterial.CalculateStress(strain + Math.Sign(strain) * deltaStrain + rebar.EpsilonP) - Math.Sign(strain) * deltaStress;
+                return rebar.RebarMaterial.GetStress(strain + Math.Sign(strain) * deltaStrain + rebar.EpsilonP) - Math.Sign(strain) * deltaStress;
             }
         }
 

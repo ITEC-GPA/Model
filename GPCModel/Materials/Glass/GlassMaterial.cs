@@ -1,4 +1,4 @@
-﻿using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Materials;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -18,7 +18,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">Alfa linear thermal expansion coefficient</param>
         /// <param name="guid">Guid of the material</param>
         protected GlassMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
-            : base(name, elasticModulus, poisson, density, alfaThermalExpansion, guid)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
         {
             if (elasticModulus == 0)
                 throw new ArgumentException($"{nameof(elasticModulus)} cannot be equal to zero");

@@ -17,8 +17,8 @@ namespace GPC.Model.Materials
         [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum ConcreteTypes
         {
-            [Description("Normal")]
-            Normal,
+            [Description("Concrete")]
+            Concrete,
 
             [Description("Fiber-Reinforced")]
             FRC,
@@ -28,30 +28,11 @@ namespace GPC.Model.Materials
 
         #region Variables
 
-        protected StressStrainTable _stressStrainTableCompression;
-        protected StressStrainTable _stressStrainTableTension;
-
-        protected double _elasticModulusTension;
         protected ConcreteTypes _concreteType;
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Characteristic Stress strain table in comrpession
-        /// </summary>
-        public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
-
-        /// <summary>
-        /// Characteristic Stress strain table in tension
-        /// </summary>
-        public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
-
-        /// <summary>
-        /// Elastic modulus of concrete in tension
-        /// </summary>
-        public double ElasticModulusTension => _elasticModulusTension;
 
         /// <summary>
         /// Type of concrete
@@ -70,42 +51,27 @@ namespace GPC.Model.Materials
 
         #region Public Constructor
 
-        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
-            : base(name)
-        {
-            if (poisson > 0.5)
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
-
-            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
-            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
-        }
-
         public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
             StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
             double poisson, double density, double alfaThermalExpansion)
-            : base(name)
+            : base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension,
+                  poisson, density, alfaThermalExpansion)
+        {            
+        }
+
+        protected ConcreteMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
+        {            
+        }
+
+        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+            : base(name, 0, poisson, density, alfaThermalExpansion)
         {
-            if (poisson > 0.5)
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
-
-            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
-            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
-
-            _stressStrainTableCompression = stressStrainTableCompression;
-            _stressStrainTableTension = stressStrainTableTension;
-
-            _elasticModulusTension = elasticModulusTension;
-            _elasticModulus = elasticModulusCompression;
         }
 
         protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-            _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
-            _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
-            _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+        {            
         }
 
         #endregion
@@ -120,20 +86,6 @@ namespace GPC.Model.Materials
 
         #endregion
 
-        #region Public Setter
-
-        public void SetStressStrainTableCompression(StressStrainTable stressStrainTable)
-        {
-            _stressStrainTableCompression = stressStrainTable;
-        }
-
-        public void SetStressStrainTableTension(StressStrainTable stressStrainTable)
-        {
-            _stressStrainTableTension = stressStrainTable;
-        }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
@@ -145,19 +97,6 @@ namespace GPC.Model.Materials
             _concreteType = concreteType;
         }
 
-        /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
-        public double GetStress(double strain)
-        {
-            if (strain > 0)
-            {
-                return StressStrainTableTension.GetStress(strain);
-            }
-            else
-            {
-                return StressStrainTableCompression.GetStress(strain);
-            }
-        }
-
         public abstract void RecalculateMechanicalProperties();
 
         #endregion
@@ -166,10 +105,7 @@ namespace GPC.Model.Materials
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData(info, context);
-            info.AddValue("TableCompression", _stressStrainTableCompression);
-            info.AddValue("TableTension", _stressStrainTableTension);
-            info.AddValue("ElasticModulusTension", _elasticModulusTension);
+            base.GetObjectData(info, context);            
         }
 
         public override bool Equals(object obj)
@@ -177,10 +113,7 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is ConcreteMaterial objCasted) && objCasted._elasticModulusTension.Equals(_elasticModulusTension) &&
-                                                          objCasted._stressStrainTableCompression.Equals(_stressStrainTableCompression) &&
-                                                          objCasted._stressStrainTableTension.Equals(_stressStrainTableTension) &&
-                                                          base.Equals(objCasted);
+            return (obj is ConcreteMaterial objCasted) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -188,10 +121,7 @@ namespace GPC.Model.Materials
             unchecked
             {
                 int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _elasticModulusTension.GetHashCode();
-                hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
-                hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
+                hashCode = hashCode * -17 + base.GetHashCode();                
                 return hashCode;
             }
         }

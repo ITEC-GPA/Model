@@ -289,7 +289,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
+        /// Set <see cref="Material._elasticModulusTension"/>, <see cref="Material._elasticModulusCompression"/>
         /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
         /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
@@ -300,7 +300,7 @@ namespace GPC.Model.Materials
             {
                 case CompressionStressStrainDiagrams.StressBlock:
                     _fc = 0.85 * fc;
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
@@ -309,7 +309,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
 
                     _fc = fc;
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
@@ -317,7 +317,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.Generic:
 
                     _fc = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
                     _strainYCompression = fckStrain;
                     break;
