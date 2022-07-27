@@ -196,14 +196,7 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
-
-            _strainYCompression = info.GetDouble("StrainYCompression");
-            _strainUCompression = info.GetDouble("StrainUCompression");
-            _strainYTension = info.GetDouble("StrainYTension");
-            _strainUTension = info.GetDouble("StrainUTension");
-
             _cementType = (CementType)info.GetInt32("CementType");
-
             _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
             _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
         }
@@ -1014,10 +1007,6 @@ namespace GPC.Model.Materials
             info.AddValue("Fck", _fck);
             info.AddValue("Fctk", _fctk);
             info.AddValue("Fctu", _fctu);
-            info.AddValue("StrainYCompression", _strainYCompression);
-            info.AddValue("StrainUCompression", _strainUCompression);
-            info.AddValue("StrainYTension", _strainYTension);
-            info.AddValue("StrainUTension", _strainUTension);
             info.AddValue("CementType", _cementType);
             info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
             info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
@@ -1032,10 +1021,6 @@ namespace GPC.Model.Materials
                 objCasted._fck.Equals(_fck) &&
                objCasted._fctk.Equals(_fctk) &&
                objCasted._fctu.Equals(_fctu) &&
-               objCasted._strainUCompression.Equals(_strainUCompression) &&
-               objCasted._strainYCompression.Equals(_strainYCompression) &&
-               objCasted._strainYTension.Equals(_strainYTension) &&
-               objCasted._strainUTension.Equals(_strainUTension) &&
                objCasted._cementType.Equals(_cementType) &&
                objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
                objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
@@ -1051,10 +1036,6 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _fck.GetHashCode();
                 hashCode = hashCode * -17 + _fctk.GetHashCode();
                 hashCode = hashCode * -17 + _fctu.GetHashCode();
-                hashCode = hashCode * -17 + _strainUCompression.GetHashCode();
-                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
-                hashCode = hashCode * -17 + _strainYTension.GetHashCode();
-                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
                 hashCode = hashCode * -17 + _cementType.GetHashCode();
                 hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
                 hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
