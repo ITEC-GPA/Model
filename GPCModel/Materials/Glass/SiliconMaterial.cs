@@ -1,4 +1,4 @@
-﻿using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
@@ -14,7 +14,7 @@ namespace GPC.Model.Materials
         public double AdhesiveStress => _adhesiveStress;
 
         public SiliconMaterial(double adhesiveStress, double density, double alfaThermalExpansion, Guid guid)
-            : base("", 0, 0, density, alfaThermalExpansion, guid)
+            : base("", 0, 0, density, alfaThermalExpansion)
         {
             if (adhesiveStress <= 0.001)
             {

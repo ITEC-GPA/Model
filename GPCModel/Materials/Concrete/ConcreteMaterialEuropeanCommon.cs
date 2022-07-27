@@ -63,12 +63,6 @@ namespace GPC.Model.Materials
         protected double _fctk;
         protected double _fctu;
 
-        protected double _strainYCompression;
-        protected double _strainUCompression;
-
-        protected double _strainYTension;
-        protected double _strainUTension;
-
         protected CementType _cementType;
 
         protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
@@ -120,26 +114,6 @@ namespace GPC.Model.Materials
         public double StrainYPureCompression => GetStrainYPureCompression(CompressionStressStrainDiagram);
 
         /// <summary>
-        /// Strain in the concrete at the peak compressive stress fc
-        /// </summary>
-        public double StrainYCompression => _strainYCompression;
-
-        /// <summary>
-        /// Ultimate strain in compression
-        /// </summary>
-        public double StrainUCompression => _strainUCompression;
-
-        /// <summary>
-        /// Strain in the concrete at the peak tensile stress ftc
-        /// </summary>
-        public double StrainYTension => _strainYTension;
-
-        /// <summary>
-        /// Ultimate strain in tension
-        /// </summary>
-        public double StrainUTension => _strainUTension;
-
-        /// <summary>
         /// The compression stress-strain relationship 
         /// </summary>
         public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
@@ -152,7 +126,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Tangent modulus of elasticity
         /// </summary>
-        public double Ec => 1.05 * E;
+        public double Ec => 1.05 * ElasticModulusCompression;
 
         #endregion
 
@@ -524,16 +498,16 @@ namespace GPC.Model.Materials
         public virtual double CalculateECd(Standards.Standard standard)
         {
             if (standard is StandardModelCode2010 standardModelCode2010)
-                return E / standardModelCode2010.GammaCE;
+                return ElasticModulusCompression / standardModelCode2010.GammaCE;
             else if (standard is StandardACI318)
-                return E;
+                return ElasticModulusCompression;
             else
                 throw new ArgumentException();
         }
 
         public virtual double CalculateECd(StandardModelCode2010 standardModelCode2010)
         {
-            return E / standardModelCode2010.GammaCE;
+            return ElasticModulusCompression / standardModelCode2010.GammaCE;
         }
 
         public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
@@ -671,7 +645,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
+        /// Set <see cref="Material._elasticModulusTension"/>, <see cref="Material._elasticModulusCompression"/>
         /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
         /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
@@ -686,7 +660,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.NonLinear:
 
                     _fck = fck;
-                    _elasticModulus = GetEcm(GetFcm());
+                    _elasticModulusCompression = GetEcm(GetFcm());
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
@@ -694,7 +668,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.Generic:
 
                     _fck = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
-                    _elasticModulus = GetEcm(GetFcm());
+                    _elasticModulusCompression = GetEcm(GetFcm());
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
                     if (strainYCompression == 0)
                         _strainYCompression = fckStrain;

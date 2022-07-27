@@ -8,10 +8,8 @@ using GPC.Geometry.Meshes;
 
 namespace GPC.Model.Sections
 {
-
     internal static class SectionHelper
     {
-
 		/// <summary>
 		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
 		/// </summary>
@@ -44,7 +42,6 @@ namespace GPC.Model.Sections
             else
                 throw new ArgumentException($"Fail to create mesh. {meshStatus.GetLastCustomErrorMessage()}");
         }
-
 
         internal static Point2d CalculateCentroid(double Sx, double Sy, double area)
         {
@@ -88,7 +85,5 @@ namespace GPC.Model.Sections
         {
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
-
-
     }
 }

@@ -42,7 +42,7 @@ namespace GPC.Model.Materials
         #region CONSTRUCTOR
 
         public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
-            : base(name, 0, 0, density, alfaThermalExpansion, guid)
+            : base(name, 0, 0, density, alfaThermalExpansion)
         {
             _shearModulus = new List<LoadDurationShearModules>();
             _type = type;

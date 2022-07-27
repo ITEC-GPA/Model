@@ -116,7 +116,7 @@ namespace GPC.Model.Sections.Concrete
             Jp = Jxx + Jyy;
 
             if (Jxy < 0)
-                Jxy = 0.0; // non può essere negativo. Se la sezione simmetrica vale zero e può diventare negativo per errore numerico 
+                Jxy = 0.0; // non puï¿½ essere negativo. Se la sezione simmetrica vale zero e puï¿½ diventare negativo per errore numerico 
         }
 
         internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,

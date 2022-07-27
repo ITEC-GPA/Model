@@ -1,4 +1,4 @@
-﻿using GPC.Model.Fem.Materials;
+using GPC.Model.Fem.Materials;
 using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
@@ -26,7 +26,7 @@ namespace GPC.Model.Materials
         /// <remarks>Name is empty</remarks>
         public RebarMaterial(string name, double elasticModulus, double fy, double fu, double strainU = 0.075, 
             double poisson = 0.28, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
-            : base(name, elasticModulus, poisson, fy, fu, strainU, SteelTypes.Rebar, density, alfaThermalExpansion, new Guid())
+            : base(name, elasticModulus, poisson, fy, fu, strainU, SteelTypes.Rebar, density, alfaThermalExpansion)
         {
         }
 
@@ -42,7 +42,6 @@ namespace GPC.Model.Materials
         protected RebarMaterial(SerializationInfo info, StreamingContext context) 
             : base(info, context)
         {
-
         }
 
         #endregion 

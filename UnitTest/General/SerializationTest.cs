@@ -1694,7 +1694,7 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Ni != oggettoDeserializzato.Ni)
@@ -1737,7 +1737,7 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fck != oggettoDeserializzato.Fck ||
@@ -1787,7 +1787,7 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fck != oggettoDeserializzato.Fck ||
@@ -1836,7 +1836,7 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fc != oggettoDeserializzato.Fc ||
@@ -1883,12 +1883,12 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fyk != oggettoDeserializzato.Fyk ||
                         m.Fu != oggettoDeserializzato.Fu ||
-                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
                         m.Ni != oggettoDeserializzato.Ni)
                         check = false;
                 }
@@ -1925,12 +1925,12 @@ namespace GeneralTest
                 {
                     if (m.AlfaThermalExpansion != oggettoDeserializzato.AlfaThermalExpansion ||
                         m.Density != oggettoDeserializzato.Density ||
-                        m.E != oggettoDeserializzato.E ||
+                        m.ElasticModulusCompression != oggettoDeserializzato.ElasticModulusCompression ||
                         m.Name != oggettoDeserializzato.Name ||
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fyk != oggettoDeserializzato.Fyk ||
                         m.Fu != oggettoDeserializzato.Fu ||
-                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
                         m.Ni != oggettoDeserializzato.Ni)
                         check = false;
                 }

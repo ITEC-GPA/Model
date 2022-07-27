@@ -32,14 +32,14 @@ namespace ModelObjectTest
             Assert.AreEqual(steelDeserialized.Name, steel.Name, "Nome diverso");
             Assert.AreEqual(steelDeserialized.AlfaThermalExpansion, steel.AlfaThermalExpansion, "Alfa expansion diverso");
             Assert.AreEqual(steelDeserialized.Density, steel.Density, "Density diverso");
-            Assert.AreEqual(steelDeserialized.E, steel.E, "E diverso");
-            Assert.AreEqual(steelDeserialized.StrainU, steel.StrainU, "EpsiolonU diverso");
+            Assert.AreEqual(steelDeserialized.ElasticModulusCompression, steel.ElasticModulusCompression, "E diverso");
+            Assert.AreEqual(steelDeserialized.StrainUTension, steel.StrainUTension, "EpsiolonU diverso");
             Assert.AreEqual(steelDeserialized.Fu, steel.Fu, "Fu diverso");
             Assert.AreEqual(steelDeserialized.Fyk, steel.Fyk, "Fyk diverso");
             Assert.AreEqual(steelDeserialized.Ni, steel.Ni, "Ni diverso");
             Assert.AreEqual(steelDeserialized.Guid, steel.Guid, "Guid diverso");
 
-            Console.WriteLine(steelDeserialized.E + " " + steel.E);
+            Console.WriteLine(steelDeserialized.ElasticModulusCompression + " " + steel.ElasticModulusCompression);
         }
 
 		#region Glass Test
@@ -92,7 +92,7 @@ namespace ModelObjectTest
 		{
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 31.0 * 1000) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.1);
@@ -108,7 +108,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 39.0 * 1000) / concrete.ElasticModulusCompression) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
@@ -124,7 +124,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 31.0 * 1000) / concrete.ElasticModulusCompression) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
@@ -140,7 +140,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.Bilinear);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 39.0 * 1000) / concrete.ElasticModulusCompression) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
@@ -156,7 +156,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 31.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 31.0 * 1000) / concrete.ElasticModulusCompression) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 33.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 1.8) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.5);
@@ -172,7 +172,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 60, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.ParabolaRectangle);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 39.0 * 1000) / concrete.E) < 0.5);
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 39.0 * 1000) / concrete.ElasticModulusCompression) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fcm + 68.0) < 0.5);
             Assert.IsTrue(Math.Abs(concrete.Fctk05 - 3.1) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctm - 4.4) < 0.1);
@@ -534,14 +534,14 @@ namespace ModelObjectTest
         public void ConcreteFRCTest8()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C45_55_10;
-            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C45_55;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
@@ -550,7 +550,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
         }
@@ -559,14 +559,14 @@ namespace ModelObjectTest
         public void ConcreteFRCTest9()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
-            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
@@ -575,7 +575,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
         }
@@ -584,14 +584,14 @@ namespace ModelObjectTest
         public void ConcreteFRCTest10()
         {
             ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
-            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Normal;
+            concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
             ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
 
@@ -600,7 +600,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctu - concreteEN.Fctu) < 0.01);
-            Assert.IsTrue(Math.Abs(concreteMC.E - concreteEN.E) < 0.01);
+            Assert.IsTrue(Math.Abs(concreteMC.ElasticModulusCompression - concreteEN.ElasticModulusCompression) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk95 - concreteEN.Fctk95) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctm - concreteEN.Fctm) < 0.01);
         }
@@ -675,7 +675,7 @@ namespace ModelObjectTest
         public void ConcreteModelCodeTest2()
         {
             ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010.C25_30;
-            concrete.ConcreteType = ConcreteMaterial.ConcreteTypes.Normal;
+            concrete.ConcreteType = ConcreteMaterial.ConcreteTypes.Concrete;
             concrete.ConcreteType = ConcreteMaterial.ConcreteTypes.FRC;
 
             List<(double, double)> stresses = new List<(double, double)>();
@@ -701,7 +701,7 @@ namespace ModelObjectTest
             ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
                 ConcreteMaterialACI318.CompressionStressStrainDiagrams.Bilinear);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 24855) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
@@ -715,7 +715,7 @@ namespace ModelObjectTest
             ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
                 ConcreteMaterialACI318.CompressionStressStrainDiagrams.StressBlock);
 
-            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 24855) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 23.442) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
@@ -728,7 +728,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc3000;
 
-            Assert.IsTrue(Math.Abs((concrete.E - 21525.562) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 21525.562) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 20.6843) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
@@ -740,7 +740,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc4000;
 
-            Assert.IsTrue(Math.Abs((concrete.E - 24855) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 24855) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
@@ -752,7 +752,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
 
-            Assert.IsTrue(Math.Abs((concrete.E - 27789.382) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 27789.382) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 34.4738) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
@@ -764,7 +764,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc6000;
 
-            Assert.IsTrue(Math.Abs((concrete.E - 30441.742) / concrete.E) < 0.5, concrete.E.ToString());
+            Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 30441.742) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 41.3685) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
@@ -808,7 +808,7 @@ namespace ModelObjectTest
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
-                stresses.Add(steel.CalculateStress(i / 1000.0));
+                stresses.Add(steel.GetStress(i / 1000.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
@@ -821,7 +821,7 @@ namespace ModelObjectTest
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
-                stresses.Add(steel.CalculateStress(i / 1000.0));
+                stresses.Add(steel.GetStress(i / 1000.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
@@ -834,7 +834,7 @@ namespace ModelObjectTest
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
-                stresses.Add(steel.CalculateStress(i / 1000.0));
+                stresses.Add(steel.GetStress(i / 1000.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
@@ -847,7 +847,7 @@ namespace ModelObjectTest
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
-                stresses.Add(steel.CalculateStress(i / 1000.0));
+                stresses.Add(steel.GetStress(i / 1000.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
@@ -858,11 +858,11 @@ namespace ModelObjectTest
         {
             SteelMaterial steel = SteelMaterial.B450C;
 
-            double stressYTension = steel.CalculateStress(0.001955);
-            double stressYCompression = steel.CalculateStress(-0.001955);
+            double stressYTension = steel.GetStress(0.001955);
+            double stressYCompression = steel.GetStress(-0.001955);
 
-            double stressYTest1 = steel.CalculateStress(0.0008243);
-            double stressYTest2 = steel.CalculateStress(0.0001708);
+            double stressYTest1 = steel.GetStress(0.0008243);
+            double stressYTest2 = steel.GetStress(0.0001708);
 
             Assert.IsTrue(Math.Abs(stressYTension - 391) < 1);
             Assert.IsTrue(Math.Abs(stressYCompression + 391) < 1);
@@ -880,22 +880,22 @@ namespace ModelObjectTest
             double strain3 = 0.001955 * 1.5;
             double strain4 = 0.001955 * 2;
             double strain5 = 0.02;
-            double strain6 = 0.04;
-            double strain7 = 0.06;
-            double strain8 = 0.08;
-            double strain9 = 0.1;
-            double stress1 = steel.CalculateDesignStressRebar(standardModelCode2010, strain1);
-            double stress2 = steel.CalculateDesignStressRebar(standardModelCode2010, strain2);
-            double stress3 = steel.CalculateDesignStressRebar(standardModelCode2010, strain3);
-            double stress4 = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
-            double stress5 = steel.CalculateDesignStressRebar(standardModelCode2010, strain5);
-            double stress6 = steel.CalculateDesignStressRebar(standardModelCode2010, strain6);
-            double stress7 = steel.CalculateDesignStressRebar(standardModelCode2010, strain7);
-            double stress8 = steel.CalculateDesignStressRebar(standardModelCode2010, strain8);
-            double stress9 = steel.CalculateDesignStressRebar(standardModelCode2010, strain9);
-            double stressTest = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+            double strain6 = 0.03;
+            double strain7 = 0.05;
+            double strain8 = 0.07;
+            double strain9 = 0.075;
+            double stress1 = steel.CalculateDesignStress(standardModelCode2010, strain1);
+            double stress2 = steel.CalculateDesignStress(standardModelCode2010, strain2);
+            double stress3 = steel.CalculateDesignStress(standardModelCode2010, strain3);
+            double stress4 = steel.CalculateDesignStress(standardModelCode2010, strain4);
+            double stress5 = steel.CalculateDesignStress(standardModelCode2010, strain5);
+            double stress6 = steel.CalculateDesignStress(standardModelCode2010, strain6);
+            double stress7 = steel.CalculateDesignStress(standardModelCode2010, strain7);
+            double stress8 = steel.CalculateDesignStress(standardModelCode2010, strain8);
+            double stress9 = steel.CalculateDesignStress(standardModelCode2010, strain9);
+            double stressTest = steel.CalculateDesignStress(standardModelCode2010, strain4);
 
-            double expValue = steel.Fyk / 1.15;
+            double expValue = steel.CalculateDesignYieldingStress(standardModelCode2010);
 
             Assert.IsTrue(Math.Abs(stress1 - expValue / 2.0) / stress1 < 0.001);
             Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
@@ -910,13 +910,33 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void RebarTest5()
+        {
+            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.SteelTypes.Rebar);
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+
+            for (int i = 25; i >= -25; i--)
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            for (int i = 0; i < stresses.Count - 1; i++)
+            {
+                Assert.IsTrue(stresses[i].Item1 >= stresses[i+1].Item1);
+                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStress(standard));                
+            }
+        }
+
+        [TestMethod]
         public void TendonTest1()
         {
-            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800);
+            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.SteelTypes.Tendon);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
-                stresses.Add(tendon.CalculateStress(i / 1000.0));
+                stresses.Add(tendon.GetStress(i / 1000.0));
 
             for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine(stresses[i]);
@@ -932,11 +952,11 @@ namespace ModelObjectTest
             double strain3 = 0.010628174817783005;
             double strain4 = 0.017928174817783004;
             double epsilonP = 0.0071794871794871795;
-            double stress1 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain1, epsilonP);
-            double stress2 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain2, epsilonP);
-            double stress3 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain3, epsilonP);
-            double stress4 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4, epsilonP);
-            double stressTest = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4 + epsilonP);
+            double stress1 = tendon.CalculateDesignStress(standardModelCode2010, strain1, epsilonP);
+            double stress2 = tendon.CalculateDesignStress(standardModelCode2010, strain2, epsilonP);
+            double stress3 = tendon.CalculateDesignStress(standardModelCode2010, strain3, epsilonP);
+            double stress4 = tendon.CalculateDesignStress(standardModelCode2010, strain4, epsilonP);
+            double stressTest = tendon.CalculateDesignStress(standardModelCode2010, strain4 + epsilonP);
 
             double expValue = tendon.Fyk / 1.15;
 

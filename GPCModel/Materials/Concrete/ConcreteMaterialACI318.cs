@@ -64,12 +64,6 @@ namespace GPC.Model.Materials
         protected double _fct;
         protected double _fctu;
 
-        protected double _strainYCompression;
-        protected double _strainUCompression;
-
-        protected double _strainYTension;
-        protected double _strainUTension;
-
         protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
         protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
@@ -92,26 +86,6 @@ namespace GPC.Model.Materials
         /// Ultimate strain in tension
         /// </summary>
         public double Fctu => _fctu;
-
-        /// <summary>
-        /// Strain in the concrete at the peak compressive stress fc
-        /// </summary>
-        public double StrainYCompression => _strainYCompression;
-
-        /// <summary>
-        /// Ultimate strain in compression
-        /// </summary>
-        public double StrainUCompression => _strainUCompression;
-
-        /// <summary>
-        /// Strain in the concrete at the peak tensile stress ftc
-        /// </summary>
-        public double StrainYTension => _strainYTension;
-
-        /// <summary>
-        /// Ultimate strain in tension
-        /// </summary>
-        public double StrainUTension => _strainUTension;
 
         /// <summary>
         /// The compression stress-strain relationship 
@@ -289,7 +263,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Set <see cref="ConcreteMaterial._elasticModulusTension"/>, <see cref="Material._elasticModulus"/>
+        /// Set <see cref="Material._elasticModulusTension"/>, <see cref="Material._elasticModulusCompression"/>
         /// <see cref="ConcreteMaterialEuropeanCommon._fctk"/>, 
         /// <see cref="ConcreteMaterialEuropeanCommon._fck"/>
         /// </summary>
@@ -300,7 +274,7 @@ namespace GPC.Model.Materials
             {
                 case CompressionStressStrainDiagrams.StressBlock:
                     _fc = 0.85 * fc;
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
@@ -309,7 +283,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
 
                     _fc = fc;
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
                     break;
@@ -317,7 +291,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.Generic:
 
                     _fc = _stressStrainTableCompression.GetMinimumStress(out double fckStrain);
-                    _elasticModulus = CalculateElasticModulus(fc);
+                    _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = _stressStrainTableCompression.GetLastStrain();
                     _strainYCompression = fckStrain;
                     break;

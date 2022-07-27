@@ -46,7 +46,7 @@ namespace GPC.Model.Materials
 
         public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
-            : base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
@@ -55,7 +55,7 @@ namespace GPC.Model.Materials
             StressStrainTable stressStrainTableTension,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
             CementType cementType = CementType.ClassN)
-            : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Normal, poisson, density, alfaThermalExpansion, cementType)
+            : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
         {
 
         }
@@ -74,7 +74,7 @@ namespace GPC.Model.Materials
         /// <param name="concreteType"></param>
         public override void SetConcreteType(ConcreteTypes concreteType)
         {
-            _concreteType = ConcreteTypes.Normal;
+            _concreteType = ConcreteTypes.Concrete;
         }
 
         public override void RecalculateMechanicalProperties()

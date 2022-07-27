@@ -9,26 +9,140 @@ namespace GPC.Model.Materials
     {
         #region Variables
 
-        protected double _elasticModulus;
+        protected double _elasticModulusCompression;
+        protected double _elasticModulusTension;
+
+        protected double _strainYCompression;
+        protected double _strainUCompression;
+
+        protected double _strainYTension;
+        protected double _strainUTension;
+
+        protected double _stressYCompression;
+        protected double _stressUCompression;
+
+        protected double _stressYTension;
+        protected double _stressUTension;
+
         protected double _ni;
         protected double _alfaThermalExpansion;
         protected double _density;
 
-        #endregion 
+        protected StressStrainTable _stressStrainTableCompression;
+        protected StressStrainTable _stressStrainTableTension;
+
+        #endregion
 
         #region Properties
 
-        public virtual double E => _elasticModulus;
+        /// <summary>
+        /// Elastic modulus of material in compression
+        /// </summary>
+        public virtual double ElasticModulusCompression => _elasticModulusCompression;
 
+        /// <summary>
+        /// Elastic modulus of material in tension
+        /// </summary>
+        public double ElasticModulusTension => _elasticModulusTension;
+
+        public double E
+		{
+			get
+			{
+                if (_elasticModulusCompression == _elasticModulusTension)
+                    return _elasticModulusCompression;
+                else
+                    return 0;
+			}
+		}
+
+        /// <summary>
+        /// Strain in the material at the yelding stress 
+        /// </summary>
+        public double StrainYCompression => _strainYCompression;
+
+        /// <summary>
+        /// Ultimate strain in compression
+        /// </summary>
+        public double StrainUCompression => _strainUCompression;
+
+        /// <summary>
+        /// Strain in the material at the yelding stress
+        /// </summary>
+        public double StrainYTension => _strainYTension;
+
+        /// <summary>
+        /// Ultimate strain in tension
+        /// </summary>
+        public double StrainUTension => _strainUTension;
+
+        /// <summary>
+        /// Yelding stress in compression
+        /// </summary>
+        public double StressYCompression => _stressYCompression;
+
+        /// <summary>
+        /// Ultimate stress in compression
+        /// </summary>
+        public double StressUCompression => _stressUCompression;
+
+        /// <summary>
+        /// Yelding stress in tension
+        /// </summary>
+        public double StressYTension => _stressYTension;
+
+        /// <summary>
+        /// Ultimate stress in tension
+        /// </summary>
+        public double StressUTension => _stressUTension;
+
+        /// <summary>
+        /// Poisson's ratio of material
+        /// </summary>
         public double Ni => _ni;
 
+        /// <summary>
+        /// Alfa thermal expansion coefficient of material
+        /// </summary>
         public double AlfaThermalExpansion => _alfaThermalExpansion;
 
+        /// <summary>
+        /// Density of material
+        /// </summary>
         public double Density => _density;
+
+        /// <summary>
+        /// Characteristic Stress strain table in comrpession
+        /// </summary>
+        public StressStrainTable StressStrainTableCompression => _stressStrainTableCompression;
+
+        /// <summary>
+        /// Characteristic Stress strain table in tension
+        /// </summary>
+        public StressStrainTable StressStrainTableTension => _stressStrainTableTension;
 
         #endregion
 
         #region Public Constructor
+
+        public Material(string name, StressStrainTable stressStrainTableCompression,
+            StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
+            double poisson, double density, double alfaThermalExpansion)
+            : base(name)
+        {
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
+
+            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
+
+            _stressStrainTableCompression = stressStrainTableCompression;
+            _stressStrainTableTension = stressStrainTableTension;
+
+            _elasticModulusTension = elasticModulusTension < 0 ? throw new ArgumentException($"{nameof(elasticModulusTension)} cannot be lower than zero") : elasticModulusTension;
+            _elasticModulusCompression = elasticModulusCompression < 0 ? throw new ArgumentException($"{nameof(elasticModulusCompression)} cannot be lower than zero") : elasticModulusCompression;
+        }
 
         /// <summary>
         /// </summary>
@@ -38,35 +152,8 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
         /// <param name="density"> Density [T/mm^3]</param>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
-            : this(name, elasticModulus, poisson, density, alfaThermalExpansion, Guid.NewGuid())
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
-        /// <param name="poisson"> Poisson modulus </param>
-        /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
-        /// <param name="guid"></param>
-        /// <param name="density"> Density [T/mm^3]</param>
-        public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion, Guid guid)
-            : base(guid, name)
-        {
-            _elasticModulus = elasticModulus < 0 ? throw new ArgumentException($"{nameof(elasticModulus)} cannot be lower than zero") : elasticModulus;
-
-            if (poisson > 0.5)
-                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
-
-            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
-
-            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
-
-            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
-        }
-
-        public Material(string name, double elasticModulus, double ni, Guid guid)
-            : this(name, elasticModulus, ni, 0, 0, guid)
+            : this(name, new StressStrainTable(), new StressStrainTable(), elasticModulus, elasticModulus,
+                  poisson, density, alfaThermalExpansion)
         {
         }
 
@@ -81,8 +168,19 @@ namespace GPC.Model.Materials
         {
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
             _density = info.GetDouble("Density");
-            _elasticModulus = info.GetDouble("ElasticModulus");
+            _elasticModulusCompression = info.GetDouble("ElasticModulusCompression");
+            _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+            _strainYCompression = info.GetDouble("StrainYCompression");
+            _strainUCompression = info.GetDouble("StrainUCompression");
+            _strainYTension = info.GetDouble("StrainYTension");
+            _strainUTension = info.GetDouble("StrainUTension");
+            _stressYCompression = info.GetDouble("StressYCompression");
+            _stressUCompression = info.GetDouble("StressUCompression");
+            _stressYTension = info.GetDouble("StressYTension");
+            _stressUTension = info.GetDouble("StressUTension");
             _ni = info.GetDouble("Ni");
+            _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+            _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
         }
 
         #endregion
@@ -91,7 +189,7 @@ namespace GPC.Model.Materials
 
         public virtual double GetShearModule()
         {
-            return E / (2.0 * (1.0 + Ni));
+            return ElasticModulusCompression / (2.0 * (1.0 + Ni));
         }
 
         public virtual Fem.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
@@ -110,6 +208,33 @@ namespace GPC.Model.Materials
                 _name = name;
         }
 
+        /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
+        public double GetStress(double strain)
+        {
+            if (strain > 0)
+            {
+                return StressStrainTableTension.GetStress(strain);
+            }
+            else
+            {
+                return StressStrainTableCompression.GetStress(strain);
+            }
+        }
+
+        #endregion
+
+        #region Public Setter
+
+        public void SetStressStrainTableCompression(StressStrainTable stressStrainTable)
+        {
+            _stressStrainTableCompression = stressStrainTable;
+        }
+
+        public void SetStressStrainTableTension(StressStrainTable stressStrainTable)
+        {
+            _stressStrainTableTension = stressStrainTable;
+        }
+
         #endregion
 
         #region Equals - HashCode - Operators
@@ -119,8 +244,23 @@ namespace GPC.Model.Materials
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
             info.AddValue("Density", _density);
-            info.AddValue("ElasticModulus", _elasticModulus);
+
+            info.AddValue("ElasticModulusCompression", _elasticModulusCompression);
+            info.AddValue("ElasticModulusTension", _elasticModulusTension);
+
+            info.AddValue("StrainYCompression", _strainYCompression);
+            info.AddValue("StrainUCompression", _strainUCompression);
+            info.AddValue("StrainYTension", _strainYTension);
+            info.AddValue("StrainUTension", _strainUTension);
+
+            info.AddValue("StressYCompression", _stressYCompression);
+            info.AddValue("StressUCompression", _stressUCompression);
+            info.AddValue("StressYTension", _stressYTension);
+            info.AddValue("StressUTension", _stressUTension);
+
             info.AddValue("Ni", _ni);
+            info.AddValue("TableCompression", _stressStrainTableCompression);
+            info.AddValue("TableTension", _stressStrainTableTension);
         }
 
         public override bool Equals(object obj)
@@ -128,10 +268,13 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is Material objCasted) && objCasted._elasticModulus.Equals(_elasticModulus) &&
+            return (obj is Material objCasted) && objCasted._elasticModulusCompression.Equals(_elasticModulusCompression) &&
+                                                  objCasted._elasticModulusTension.Equals(_elasticModulusTension) &&
                                                   objCasted._ni.Equals(_ni) &&
                                                   objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
                                                   objCasted._density.Equals(_density) &&
+                                                  objCasted._stressStrainTableCompression.Equals(_stressStrainTableCompression) &&
+                                                  objCasted._stressStrainTableTension.Equals(_stressStrainTableTension) &&
                                                   base.Equals(objCasted);
         }
 
@@ -141,10 +284,13 @@ namespace GPC.Model.Materials
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _elasticModulus.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulusCompression.GetHashCode();
+                hashCode = hashCode * -17 + _elasticModulusTension.GetHashCode();
                 hashCode = hashCode * -17 + _ni.GetHashCode();
                 hashCode = hashCode * -17 + _alfaThermalExpansion.GetHashCode();
                 hashCode = hashCode * -17 + _density.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
+                hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
                 return hashCode;
             }
         }
