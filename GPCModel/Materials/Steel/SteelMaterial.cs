@@ -298,9 +298,9 @@ namespace GPC.Model.Materials
 			switch (standard)
 			{
 				case Standards.StandardModelCode2010 mc:
-					return CalculateDesignStressRebar(mc, strain, epsilonP);
+					return CalculateDesignStress(mc, strain, epsilonP);
 				case Standards.StandardACI318 aci:
-					return CalculateDesignStressRebar(aci, strain, epsilonP);
+					return CalculateDesignStress(aci, strain, epsilonP);
                 default: 
                     return 0; 
 			}
@@ -314,15 +314,7 @@ namespace GPC.Model.Materials
             return Fyk / standard.GammaS;
         }
 
-        public double CalculateUltimateDesignStrainRebar(Standards.StandardModelCode2010 standard)
-        {
-            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Tendon || SteelType == SteelTypes.Bars)
-                return StrainU * standard.SteelCoefficientStrainTension;
-            else
-                throw new Exception();
-        }
-
-        public double CalculateDesignYieldingStressRebar(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignYieldingStress(Standards.StandardModelCode2010 standard)
         {
             if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
                 return Fyk / standard.GammaS;
@@ -332,12 +324,12 @@ namespace GPC.Model.Materials
                 throw new Exception();
         }
 
-        public double CalculateDesignYieldingStrainRebar(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignYieldingStrain(Standards.StandardModelCode2010 standard)
         {
-            return CalculateDesignYieldingStressRebar(standard) / ElasticModulusCompression;   
+            return CalculateDesignYieldingStress(standard) / ElasticModulusCompression;   
         }
 
-        public double CalculateDesignUltimateStrainRebar(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
         {
             if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon)
                 return StrainU * standard.SteelCoefficientStrainTension;
@@ -346,10 +338,10 @@ namespace GPC.Model.Materials
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
-        public double CalculateDesignStressRebar(Standards.StandardModelCode2010 standard, double strain, double epsilonP = 0)
+        public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double strain, double epsilonP = 0)
         {
-            double fyd = CalculateDesignYieldingStressRebar(standard);
-            double strainYd = CalculateDesignYieldingStrainRebar(standard);
+            double fyd = CalculateDesignYieldingStress(standard);
+            double strainYd = CalculateDesignYieldingStrain(standard);
 
             if (Math.Abs(strain + epsilonP) <= strainYd)
                 return GetStress(strain + epsilonP);
@@ -359,7 +351,15 @@ namespace GPC.Model.Materials
                 double deltaStress = Fyk - fyd;
                 double deltaStrain = deltaStress / ElasticModulusCompression;
 
-                return GetStress(strain + Math.Sign(strain) * deltaStrain + epsilonP) - Math.Sign(strain) * deltaStress;
+                double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
+                double designUltimateStrain = StrainU;
+
+                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(strain) <= designUltimateStrain)
+                    stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
+                else if(Math.Abs(strain) > designUltimateStrain)
+                    return 0;
+
+                return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
             }
         }
 
@@ -373,28 +373,23 @@ namespace GPC.Model.Materials
             return Fyk;
         }
 
-        public double CalculateUltimateDesignStrainRebar(Standards.StandardACI318 standard)
-        {
-            return StrainU;
-        }
-
         public double CalculateDesignYieldingStress(Standards.StandardACI318 standard)
         {
             return Fyk;
         }
 
-        public double CalculateDesignYieldingStrainRebar(Standards.StandardACI318 standard)
+        public double CalculateDesignYieldingStrain(Standards.StandardACI318 standard)
         {
             return CalculateDesignYieldingStress(standard) / ElasticModulusCompression;
         }
 
-        public double CalculateDesignUltimateStrainRebar(Standards.StandardACI318 standard)
+        public double CalculateDesignUltimateStrain(Standards.StandardACI318 standard)
         {
             return StrainU;
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
-        public double CalculateDesignStressRebar(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
+        public double CalculateDesignStress(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
         {
             return GetStress(strain + epsilonP);
         }

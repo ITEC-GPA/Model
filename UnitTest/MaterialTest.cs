@@ -880,22 +880,22 @@ namespace ModelObjectTest
             double strain3 = 0.001955 * 1.5;
             double strain4 = 0.001955 * 2;
             double strain5 = 0.02;
-            double strain6 = 0.04;
-            double strain7 = 0.06;
-            double strain8 = 0.08;
-            double strain9 = 0.1;
-            double stress1 = steel.CalculateDesignStressRebar(standardModelCode2010, strain1);
-            double stress2 = steel.CalculateDesignStressRebar(standardModelCode2010, strain2);
-            double stress3 = steel.CalculateDesignStressRebar(standardModelCode2010, strain3);
-            double stress4 = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
-            double stress5 = steel.CalculateDesignStressRebar(standardModelCode2010, strain5);
-            double stress6 = steel.CalculateDesignStressRebar(standardModelCode2010, strain6);
-            double stress7 = steel.CalculateDesignStressRebar(standardModelCode2010, strain7);
-            double stress8 = steel.CalculateDesignStressRebar(standardModelCode2010, strain8);
-            double stress9 = steel.CalculateDesignStressRebar(standardModelCode2010, strain9);
-            double stressTest = steel.CalculateDesignStressRebar(standardModelCode2010, strain4);
+            double strain6 = 0.03;
+            double strain7 = 0.05;
+            double strain8 = 0.07;
+            double strain9 = 0.075;
+            double stress1 = steel.CalculateDesignStress(standardModelCode2010, strain1);
+            double stress2 = steel.CalculateDesignStress(standardModelCode2010, strain2);
+            double stress3 = steel.CalculateDesignStress(standardModelCode2010, strain3);
+            double stress4 = steel.CalculateDesignStress(standardModelCode2010, strain4);
+            double stress5 = steel.CalculateDesignStress(standardModelCode2010, strain5);
+            double stress6 = steel.CalculateDesignStress(standardModelCode2010, strain6);
+            double stress7 = steel.CalculateDesignStress(standardModelCode2010, strain7);
+            double stress8 = steel.CalculateDesignStress(standardModelCode2010, strain8);
+            double stress9 = steel.CalculateDesignStress(standardModelCode2010, strain9);
+            double stressTest = steel.CalculateDesignStress(standardModelCode2010, strain4);
 
-            double expValue = steel.Fyk / 1.15;
+            double expValue = steel.CalculateDesignYieldingStress(standardModelCode2010);
 
             Assert.IsTrue(Math.Abs(stress1 - expValue / 2.0) / stress1 < 0.001);
             Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
@@ -910,9 +910,29 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void RebarTest5()
+        {
+            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.SteelTypes.Rebar);
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+
+            for (int i = 25; i >= -25; i--)
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            for (int i = 0; i < stresses.Count - 1; i++)
+            {
+                Assert.IsTrue(stresses[i].Item1 >= stresses[i+1].Item1);
+                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStress(standard));                
+            }
+        }
+
+        [TestMethod]
         public void TendonTest1()
         {
-            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800);
+            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.SteelTypes.Tendon);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -932,11 +952,11 @@ namespace ModelObjectTest
             double strain3 = 0.010628174817783005;
             double strain4 = 0.017928174817783004;
             double epsilonP = 0.0071794871794871795;
-            double stress1 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain1, epsilonP);
-            double stress2 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain2, epsilonP);
-            double stress3 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain3, epsilonP);
-            double stress4 = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4, epsilonP);
-            double stressTest = tendon.CalculateDesignStressRebar(standardModelCode2010, strain4 + epsilonP);
+            double stress1 = tendon.CalculateDesignStress(standardModelCode2010, strain1, epsilonP);
+            double stress2 = tendon.CalculateDesignStress(standardModelCode2010, strain2, epsilonP);
+            double stress3 = tendon.CalculateDesignStress(standardModelCode2010, strain3, epsilonP);
+            double stress4 = tendon.CalculateDesignStress(standardModelCode2010, strain4, epsilonP);
+            double stressTest = tendon.CalculateDesignStress(standardModelCode2010, strain4 + epsilonP);
 
             double expValue = tendon.Fyk / 1.15;
 
