@@ -64,12 +64,6 @@ namespace GPC.Model.Materials
         protected double _fct;
         protected double _fctu;
 
-        protected double _strainYCompression;
-        protected double _strainUCompression;
-
-        protected double _strainYTension;
-        protected double _strainUTension;
-
         protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
         protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
@@ -92,26 +86,6 @@ namespace GPC.Model.Materials
         /// Ultimate strain in tension
         /// </summary>
         public double Fctu => _fctu;
-
-        /// <summary>
-        /// Strain in the concrete at the peak compressive stress fc
-        /// </summary>
-        public double StrainYCompression => _strainYCompression;
-
-        /// <summary>
-        /// Ultimate strain in compression
-        /// </summary>
-        public double StrainUCompression => _strainUCompression;
-
-        /// <summary>
-        /// Strain in the concrete at the peak tensile stress ftc
-        /// </summary>
-        public double StrainYTension => _strainYTension;
-
-        /// <summary>
-        /// Ultimate strain in tension
-        /// </summary>
-        public double StrainUTension => _strainUTension;
 
         /// <summary>
         /// The compression stress-strain relationship 

@@ -1888,7 +1888,7 @@ namespace GeneralTest
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fyk != oggettoDeserializzato.Fyk ||
                         m.Fu != oggettoDeserializzato.Fu ||
-                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
                         m.Ni != oggettoDeserializzato.Ni)
                         check = false;
                 }
@@ -1930,7 +1930,7 @@ namespace GeneralTest
                         m.Guid != oggettoDeserializzato.Guid ||
                         m.Fyk != oggettoDeserializzato.Fyk ||
                         m.Fu != oggettoDeserializzato.Fu ||
-                        m.StrainU != oggettoDeserializzato.StrainU ||
+                        m.StrainUTension != oggettoDeserializzato.StrainUTension ||
                         m.Ni != oggettoDeserializzato.Ni)
                         check = false;
                 }

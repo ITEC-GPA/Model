@@ -148,7 +148,6 @@ namespace GPC.Model.Materials
 
         protected double _fyk;
         protected double _fu;
-        protected double _strainU;
         protected SteelTypes _steelType;
 
         #endregion 
@@ -164,16 +163,6 @@ namespace GPC.Model.Materials
         /// Ultimate strength
         /// </summary>
         public double Fu => _fu;
-
-        /// <summary>
-        /// Yielding strain
-        /// </summary>
-        public double StrainY => _fyk / _elasticModulusCompression;
-
-        /// <summary>
-        /// Ultimate strain
-        /// </summary>
-        public double StrainU => _strainU;
 
         /// <summary>
         /// Strain hardening modulus
@@ -222,9 +211,10 @@ namespace GPC.Model.Materials
             double fu, double strainU, SteelTypes steelType, double density, double alfaThermalExpansion)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
         {
-            _fu = fu <= 0 ? throw new ArgumentException($"{nameof(fu)} cannot be zero or lower") : fu;
-            _fyk = fyk <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : fyk;
-            _strainU = strainU <= 0 ? throw new ArgumentException($"{nameof(fyk)} cannot be zero or lower") : strainU;
+            _fu = Math.Abs(fu);
+            _fyk = Math.Abs(fyk);
+            _strainUTension = Math.Abs(strainU);
+            _strainUCompression = -Math.Abs(strainU);
             _steelType = steelType;
 
             SetMechanicalProperties();
@@ -235,7 +225,6 @@ namespace GPC.Model.Materials
         {
             _fu = info.GetDouble("Fu");
             _fyk = info.GetDouble("Fyk");
-            _strainU = info.GetDouble("EpsilonU");
             _steelType = (SteelTypes)info.GetInt32("SteelType");
         }
 
@@ -256,7 +245,6 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("EpsilonU", _strainU);
             info.AddValue("Fyk", _fyk);
             info.AddValue("Fu", _fu);
             info.AddValue("SteelType", _steelType);
@@ -276,17 +264,25 @@ namespace GPC.Model.Materials
             if (Math.Abs(Fu - Fyk) < Geometry.GeometryBase.GetDefaultTolerance())
                 return 0.0;
             else
-                return (Fu - Fyk) / (StrainU - StrainY);
+                return (Fu - Fyk) / (StrainUTension - StrainYTension);
 		}
 
         protected void SetMechanicalProperties()
 		{
             _stressStrainTableCompression = new StressStrainTable(
                 new double[] { 0, -_fyk, -_fu },
-                new double[] { 0, -_fyk / _elasticModulusCompression, -_strainU });
+                new double[] { 0, -_fyk / _elasticModulusCompression, _strainUCompression });
             _stressStrainTableTension = new StressStrainTable(
                 new double[] { 0, _fyk, _fu },
-                new double[] { 0, _fyk / _elasticModulusTension, _strainU });
+                new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
+
+            _strainYTension = _fyk / _elasticModulusTension;
+            _strainYCompression = -_fyk / _elasticModulusCompression;
+
+            _stressUCompression = -_fu;
+            _stressUTension = _fu;
+            _stressYCompression = -_fyk;
+            _stressYTension = _fyk;
         }
 
         #endregion
@@ -332,7 +328,7 @@ namespace GPC.Model.Materials
         public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
         {
             if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon)
-                return StrainU * standard.SteelCoefficientStrainTension;
+                return StrainUTension * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
         }
@@ -352,7 +348,7 @@ namespace GPC.Model.Materials
                 double deltaStrain = deltaStress / ElasticModulusCompression;
 
                 double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
-                double designUltimateStrain = StrainU;
+                double designUltimateStrain = StrainUTension;
 
                 if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(strain) <= designUltimateStrain)
                     stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
@@ -385,7 +381,7 @@ namespace GPC.Model.Materials
 
         public double CalculateDesignUltimateStrain(Standards.StandardACI318 standard)
         {
-            return StrainU;
+            return StrainUTension;
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
@@ -402,7 +398,6 @@ namespace GPC.Model.Materials
                    base.Equals(obj) &&
                    _fyk == material._fyk &&
                    _fu == material._fu &&
-                   _strainU == material._strainU &&
                    _steelType == material._steelType;
         }
 
@@ -414,7 +409,6 @@ namespace GPC.Model.Materials
 				hashCode = hashCode * -17 + base.GetHashCode();
 				hashCode = hashCode * -17 + _fyk.GetHashCode();
 				hashCode = hashCode * -17 + _fu.GetHashCode();
-				hashCode = hashCode * -17 + _strainU.GetHashCode();
 				hashCode = hashCode * -17 + _steelType.GetHashCode();
 				return hashCode; 
 			}

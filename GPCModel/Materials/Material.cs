@@ -12,6 +12,18 @@ namespace GPC.Model.Materials
         protected double _elasticModulusCompression;
         protected double _elasticModulusTension;
 
+        protected double _strainYCompression;
+        protected double _strainUCompression;
+
+        protected double _strainYTension;
+        protected double _strainUTension;
+
+        protected double _stressYCompression;
+        protected double _stressUCompression;
+
+        protected double _stressYTension;
+        protected double _stressUTension;
+
         protected double _ni;
         protected double _alfaThermalExpansion;
         protected double _density;
@@ -43,6 +55,46 @@ namespace GPC.Model.Materials
                     return 0;
 			}
 		}
+
+        /// <summary>
+        /// Strain in the material at the yelding stress 
+        /// </summary>
+        public double StrainYCompression => _strainYCompression;
+
+        /// <summary>
+        /// Ultimate strain in compression
+        /// </summary>
+        public double StrainUCompression => _strainUCompression;
+
+        /// <summary>
+        /// Strain in the material at the yelding stress
+        /// </summary>
+        public double StrainYTension => _strainYTension;
+
+        /// <summary>
+        /// Ultimate strain in tension
+        /// </summary>
+        public double StrainUTension => _strainUTension;
+
+        /// <summary>
+        /// Yelding stress in compression
+        /// </summary>
+        public double StressYCompression => _stressYCompression;
+
+        /// <summary>
+        /// Ultimate stress in compression
+        /// </summary>
+        public double StressUCompression => _stressUCompression;
+
+        /// <summary>
+        /// Yelding stress in tension
+        /// </summary>
+        public double StressYTension => _stressYTension;
+
+        /// <summary>
+        /// Ultimate stress in tension
+        /// </summary>
+        public double StressUTension => _stressUTension;
 
         /// <summary>
         /// Poisson's ratio of material
@@ -118,6 +170,14 @@ namespace GPC.Model.Materials
             _density = info.GetDouble("Density");
             _elasticModulusCompression = info.GetDouble("ElasticModulusCompression");
             _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+            _strainYCompression = info.GetDouble("StrainYCompression");
+            _strainUCompression = info.GetDouble("StrainUCompression");
+            _strainYTension = info.GetDouble("StrainYTension");
+            _strainUTension = info.GetDouble("StrainUTension");
+            _stressYCompression = info.GetDouble("StressYCompression");
+            _stressUCompression = info.GetDouble("StressUCompression");
+            _stressYTension = info.GetDouble("StressYTension");
+            _stressUTension = info.GetDouble("StressUTension");
             _ni = info.GetDouble("Ni");
             _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
             _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
@@ -184,8 +244,20 @@ namespace GPC.Model.Materials
             base.GetObjectData(info, context);
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
             info.AddValue("Density", _density);
+
             info.AddValue("ElasticModulusCompression", _elasticModulusCompression);
             info.AddValue("ElasticModulusTension", _elasticModulusTension);
+
+            info.AddValue("StrainYCompression", _strainYCompression);
+            info.AddValue("StrainUCompression", _strainUCompression);
+            info.AddValue("StrainYTension", _strainYTension);
+            info.AddValue("StrainUTension", _strainUTension);
+
+            info.AddValue("StressYCompression", _stressYCompression);
+            info.AddValue("StressUCompression", _stressUCompression);
+            info.AddValue("StressYTension", _stressYTension);
+            info.AddValue("StressUTension", _stressUTension);
+
             info.AddValue("Ni", _ni);
             info.AddValue("TableCompression", _stressStrainTableCompression);
             info.AddValue("TableTension", _stressStrainTableTension);

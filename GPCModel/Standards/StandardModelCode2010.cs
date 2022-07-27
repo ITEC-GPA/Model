@@ -288,12 +288,12 @@ namespace GPC.Model.Standards
 
         public double CalculateUltimateDesignStrainRebar(ReinforcedConcreteRebar rebar)
         {
-            return rebar.RebarMaterial.StrainU * SteelCoefficientStrainTension;
+            return rebar.RebarMaterial.StrainUTension * SteelCoefficientStrainTension;
         }
 
         public double CalculateUltimateDesignStrainRebar(IConcreteSection concreteSection, int rebarId)
         {
-            return concreteSection.GetRebarById(rebarId).RebarMaterial.StrainU * SteelCoefficientStrainTension;
+            return concreteSection.GetRebarById(rebarId).RebarMaterial.StrainUTension * SteelCoefficientStrainTension;
         }
 
         public double CalculateDesignYieldingStressRebar(SteelMaterial material)
@@ -308,7 +308,7 @@ namespace GPC.Model.Standards
 
         public double CalculateUltimateDesignStrainRebar(SteelMaterial material)
         {
-            return material.StrainU * SteelCoefficientStrainTension;
+            return material.StrainUTension * SteelCoefficientStrainTension;
         }
 
         public double CalculateDesignStressRebar(ReinforcedConcreteRebar rebar, double strain)
