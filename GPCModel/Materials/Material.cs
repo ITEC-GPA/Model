@@ -183,11 +183,41 @@ namespace GPC.Model.Materials
             _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
         }
 
-        #endregion
+		public Material(string name, double elasticModulusCompression, double elasticModulusTension, 
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
+            double poisson, double alfaThermalExpansion, double density)
+            :base(name)
+		{
+            if (poisson > 0.5)
+                throw new ArgumentException($"{nameof(poisson)} cannot be greater than 0.5");
 
-        #region Public Methods
+            _elasticModulusTension = elasticModulusTension < 0 ? throw new ArgumentException($"{nameof(elasticModulusTension)} cannot be lower than zero") : elasticModulusTension;
+            _elasticModulusCompression = elasticModulusCompression < 0 ? throw new ArgumentException($"{nameof(elasticModulusCompression)} cannot be lower than zero") : elasticModulusCompression;
 
-        public virtual double GetShearModule()
+            _strainYCompression = strainYCompression;
+			_strainUCompression = strainUCompression;
+			_strainYTension = strainYTension;
+			_strainUTension = strainUTension;
+			_stressYCompression = stressYCompression;
+			_stressUCompression = stressUCompression;
+			_stressYTension = stressYTension;
+			_stressUTension = stressUTension;
+
+            _ni = poisson < 0 ? throw new ArgumentException($"Poisson cannot be lower than zero") : poisson;
+            _alfaThermalExpansion = alfaThermalExpansion < 0 ? throw new ArgumentException($"{nameof(alfaThermalExpansion)} cannot be lower than zero") : alfaThermalExpansion;
+            _density = density < 0 ? throw new ArgumentException($"{nameof(density)} cannot be lower than zero") : density;
+
+            _stressStrainTableCompression = stressStrainTableCompression;
+			_stressStrainTableTension = stressStrainTableTension;
+		}
+
+		#endregion
+
+		#region Public Methods
+
+		public virtual double GetShearModule()
         {
             return ElasticModulusCompression / (2.0 * (1.0 + Ni));
         }
