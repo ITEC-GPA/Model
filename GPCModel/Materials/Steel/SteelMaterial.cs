@@ -206,6 +206,8 @@ namespace GPC.Model.Materials
             stressStrainTableCompression, stressStrainTableTensio, poisson, density, alfaThermalExpansion)
         {
             _steelType = steelType;
+            _fyk = stressYTension;
+            _fu = stressUTension;
         }
 
         /// <summary>
@@ -302,7 +304,7 @@ namespace GPC.Model.Materials
 
         #region Public Standard Methods
 
-        public double CalculateDesignStressRebar(Standards.Standard standard, double strain, double epsilonP = 0)
+        public double CalculateDesignStress(Standards.Standard standard, double strain, double epsilonP = 0)
 		{
 			switch (standard)
 			{
@@ -335,7 +337,7 @@ namespace GPC.Model.Materials
 
         public double CalculateDesignYieldingStrain(Standards.StandardModelCode2010 standard)
         {
-            return CalculateDesignYieldingStress(standard) / ElasticModulusCompression;   
+            return CalculateDesignYieldingStress(standard) / ElasticModulusTension;   
         }
 
         public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
@@ -358,7 +360,7 @@ namespace GPC.Model.Materials
             else
             {
                 double deltaStress = Fyk - fyd;
-                double deltaStrain = deltaStress / ElasticModulusCompression;
+                double deltaStrain = deltaStress / ElasticModulusTension;
 
                 double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
                 double designUltimateStrain = StrainUTension;
@@ -389,7 +391,7 @@ namespace GPC.Model.Materials
 
         public double CalculateDesignYieldingStrain(Standards.StandardACI318 standard)
         {
-            return CalculateDesignYieldingStress(standard) / ElasticModulusCompression;
+            return CalculateDesignYieldingStress(standard) / ElasticModulusTension;
         }
 
         public double CalculateDesignUltimateStrain(Standards.StandardACI318 standard)
