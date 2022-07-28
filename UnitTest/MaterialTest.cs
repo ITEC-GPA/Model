@@ -923,8 +923,40 @@ namespace ModelObjectTest
             Assert.IsTrue(stresses[0].Item1 == 0);
             Assert.IsTrue(stresses[1].Item1 == 0);
             Assert.IsTrue(stresses[2].Item1 == 0);
-            Assert.IsTrue(stresses[3].Item1 == 680/1.15);
-            Assert.IsTrue(stresses[4].Item1 == 680/1.15);
+            Assert.IsTrue(stresses[3].Item1 == 680 / 1.15);
+            Assert.IsTrue(stresses[4].Item1 == 680 / 1.15);
+        }
+
+        [TestMethod]
+        public void SteelTest6()
+        {
+            SteelMaterial steelMaterial = SteelMaterial.B450C;
+
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+
+            for (int i = 0; i < steelMaterial.StressStrainTableCompression.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableCompression.Stresses[i];
+                double strain = steelMaterial.StressStrainTableCompression.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+            for (int i = 0; i < steelMaterial.StressStrainTableTension.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableTension.Stresses[i];
+                double strain = steelMaterial.StressStrainTableTension.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            Assert.IsTrue(Math.Abs(stresses[0].Item1 - 0) < 0.1);
+            Assert.IsTrue(Math.Abs(stresses[1].Item1 + 450 / 1.15) < 0.1);
+            Assert.IsTrue(Math.Abs(stresses[2].Item1 + 450 / 1.15) < 0.1);
+            Assert.IsTrue(Math.Abs(stresses[3].Item1 - 0) < 0.1);
+            Assert.IsTrue(Math.Abs(stresses[4].Item1 - 450 / 1.15) < 0.1);
+            Assert.IsTrue(Math.Abs(stresses[5].Item1 - 450 / 1.15) < 0.1);
         }
 
         [TestMethod]
@@ -1024,8 +1056,8 @@ namespace ModelObjectTest
 
             for (int i = 0; i < stresses.Count - 1; i++)
             {
-                Assert.IsTrue(stresses[i].Item1 >= stresses[i+1].Item1);
-                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStressTension(standard));                
+                Assert.IsTrue(stresses[i].Item1 >= stresses[i + 1].Item1);
+                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStressTension(standard));
             }
         }
 
@@ -1074,7 +1106,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void StressStrainTableTest1()
         {
-            StressStrainTable stressStrainTable = new StressStrainTable(new double[] {}, new double[] {});
+            StressStrainTable stressStrainTable = new StressStrainTable(new double[] { }, new double[] { });
 
             Assert.IsTrue(stressStrainTable.Stresses[0] == 0);
             Assert.IsTrue(stressStrainTable.Strains[0] == 0);

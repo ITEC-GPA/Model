@@ -402,12 +402,11 @@ namespace GPC.Model.Materials
                 {
                     double fyd = CalculateDesignYieldingStressTension(standard);
                     double deltaStress = StressYTension - fyd;
-                    double designUltimateStrain = StrainUTension;
 
-                    if (Math.Abs(strain) > designUltimateStrain)
+                    if (strain > StrainUTension)
                         return 0;
 
-                    return stress - Math.Sign(strain) * deltaStress;
+                    return stress - deltaStress;
                 }
             }
 			else
@@ -421,12 +420,11 @@ namespace GPC.Model.Materials
                 {
                     double fyd = CalculateDesignYieldingStressCompression(standard);
                     double deltaStress = StressYCompression - fyd;
-                    double designUltimateStrain = StrainUTension;
 
-                    if (Math.Abs(strain) > designUltimateStrain)
+                    if (strain < StrainUCompression)
                         return 0;
 
-                    return stress - Math.Sign(strain) * deltaStress;
+                    return stress - deltaStress;
                 }
             }
 		}
@@ -460,6 +458,11 @@ namespace GPC.Model.Materials
         public double CalculateDesignStress(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
         {
             return GetStress(strain + epsilonP);
+        }
+
+        public double CalculateDesignStress(Standards.StandardACI318 standard, double stress, double strain, double epsilonP = 0)
+        {
+            return stress;
         }
 
         #endregion
