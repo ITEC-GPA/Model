@@ -195,19 +195,32 @@ namespace GPC.Model.Materials
 
         }
 
-		/// <summary>
-		/// Protected steelMaterial constructor 
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="elasticModulus">Steel elastic modulus</param>
-		/// <param name="poisson">Poissoins's Ratio</param>
-		/// <param name="fyk">Yielding stress</param>
-		/// <param name="fu">Ultimate stress</param>
-		/// <param name="strainU">The ultimate strain</param>
-		/// <param name="steelType">Type of steel</param>
-		/// <param name="density">Density of material</param>
-		/// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
-		protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk,
+        public SteelMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Undefined,
+             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            : base(name, elasticModulusCompression, elasticModulusTension,
+            strainYCompression, strainUCompression, strainYTension, strainUTension,
+            stressYCompression, stressUCompression, stressYTension, stressUTension,
+            stressStrainTableCompression, stressStrainTableTensio, poisson, density, alfaThermalExpansion)
+        {
+            _steelType = steelType;
+        }
+
+        /// <summary>
+        /// Protected steelMaterial constructor 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="elasticModulus">Steel elastic modulus</param>
+        /// <param name="poisson">Poissoins's Ratio</param>
+        /// <param name="fyk">Yielding stress</param>
+        /// <param name="fu">Ultimate stress</param>
+        /// <param name="strainU">The ultimate strain</param>
+        /// <param name="steelType">Type of steel</param>
+        /// <param name="density">Density of material</param>
+        /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
+        protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk,
             double fu, double strainU, SteelTypes steelType, double density, double alfaThermalExpansion)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
         {
@@ -250,7 +263,7 @@ namespace GPC.Model.Materials
             info.AddValue("SteelType", _steelType);
         }
 
-        public void RecalculateMechanicalProperties()
+        public virtual void RecalculateMechanicalProperties()
 		{
             SetMechanicalProperties();
 		}
@@ -267,7 +280,7 @@ namespace GPC.Model.Materials
                 return (Fu - Fyk) / (StrainUTension - StrainYTension);
 		}
 
-        protected void SetMechanicalProperties()
+        protected virtual void SetMechanicalProperties()
 		{
             _stressStrainTableCompression = new StressStrainTable(
                 new double[] { 0, -_fyk, -_fu },
