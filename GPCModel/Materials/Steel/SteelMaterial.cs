@@ -460,6 +460,11 @@ namespace GPC.Model.Materials
             return GetStress(strain + epsilonP);
         }
 
+        public double CalculateDesignStress(Standards.StandardACI318 standard, double stress, double strain, double epsilonP = 0)
+        {
+            return stress;
+        }
+
         #endregion
 
         public override bool Equals(object obj)
