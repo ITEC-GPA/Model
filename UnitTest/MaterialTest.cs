@@ -828,6 +828,33 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SteelTest3()
+        {
+            double fy = 680;
+            double epsY = 0.01;
+            SteelMaterial steelMaterial = new SteelMaterial("test", 0, fy / epsY, 0, 0, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0 }, new double[] { 0 }),
+                new StressStrainTable(new double[] { 0, fy }, new double[] { 0, epsY }),
+                SteelMaterial.SteelTypes.Rebar);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+            standard.SetGammaS(1.0);
+
+            for (int i = 100; i >= -100; i--)
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            for (int i = 0; i < stresses.Count - 1; i++)
+            {
+                Assert.IsTrue(stresses[i].Item1 >= stresses[i + 1].Item1);
+                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.Fu);
+            }
+        }
+
+        [TestMethod]
         public void RebarTest1()
         {
             SteelMaterial steel = SteelMaterial.B450C;
