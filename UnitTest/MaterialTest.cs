@@ -42,9 +42,9 @@ namespace ModelObjectTest
             Console.WriteLine(steelDeserialized.ElasticModulusCompression + " " + steel.ElasticModulusCompression);
         }
 
-		#region Glass Test
+        #region Glass Test
 
-		[TestMethod]
+        [TestMethod]
         public void GlassResistance1()
         {
             double baseStress = 23.3;
@@ -62,7 +62,7 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(false, 86400), baseStress * 0.906 * 0.526 * psiSurf, 0.01);
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.526 * psiSurf, 0.01);
         }
-                
+
         [TestMethod]
         public void GlassResistance2()
         {
@@ -82,14 +82,14 @@ namespace ModelObjectTest
             Assert.AreEqual(gma.GetGlassResistance(true, 86400), baseEdgeStress * 0.906 * 0.806 * psiSurf, 0.01);
         }
 
-		#endregion
+        #endregion
 
-		#region EN1922 Concrete Material Test
+        #region EN1922 Concrete Material Test
 
-		[TestMethod]
+        [TestMethod]
         [Description("C25/30 StressBlock")]
         public void ConcreteENTest1()
-		{
+        {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEN1992.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 31.0 * 1000) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
@@ -98,7 +98,7 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(concrete.Fctm - 2.6) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.Fctk95 - 3.3) < 0.1);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.0035) < 0.01);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0007) < 0.01);       
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0007) < 0.01);
             //Assert.IsTrue(Math.Abs(concrete.Fcd - 16.66) < 0.01);
         }
 
@@ -237,8 +237,8 @@ namespace ModelObjectTest
                 var strains = concrete.StressStrainTableCompression.Strains;
 
                 Assert.IsTrue(stresses[0] == 0);
-                Assert.IsTrue(stresses[stresses.Length - 2] == - 60.0, stresses[1].ToString());
-                Assert.IsTrue(stresses[stresses.Length - 1] == - 60.0, stresses[2].ToString());
+                Assert.IsTrue(stresses[stresses.Length - 2] == -60.0, stresses[1].ToString());
+                Assert.IsTrue(stresses[stresses.Length - 1] == -60.0, stresses[2].ToString());
 
                 Assert.IsTrue(strains[0] == 0);
                 Assert.IsTrue(strains[strains.Length - 2] == concrete.StrainYCompression);
@@ -297,7 +297,7 @@ namespace ModelObjectTest
 
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
-                       
+
             for (int i = 0; i < stresses.Count; i++)
                 Assert.IsTrue(stresses[i] <= 0.0);
 
@@ -817,7 +817,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SteelTest2()
         {
-            SteelMaterial steel = new SteelMaterial("", 200000, 275, 275*1.15);
+            SteelMaterial steel = new SteelMaterial("", 200000, 275, 275 * 1.15);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -832,9 +832,9 @@ namespace ModelObjectTest
         {
             double fy = 680;
             double epsY = 0.01;
-            SteelMaterial steelMaterial = new SteelMaterial("test", 0, fy / epsY, 0, 0, epsY, epsY, 0, 0, fy, fy,
-                new StressStrainTable(new double[] { 0 }, new double[] { 0 }),
-                new StressStrainTable(new double[] { 0, fy }, new double[] { 0, epsY }),
+            SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
@@ -852,6 +852,79 @@ namespace ModelObjectTest
                 Assert.IsTrue(stresses[i].Item1 >= stresses[i + 1].Item1);
                 Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.Fu);
             }
+        }
+
+        [TestMethod]
+        public void SteelTest4()
+        {
+            double fy = 680;
+            double epsY = 0.01;
+            SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                SteelMaterial.SteelTypes.Rebar);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+            standard.SetGammaS(1.0);
+
+            for (int i = 0; i < steelMaterial.StressStrainTableCompression.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableCompression.Stresses[i];
+                double strain = steelMaterial.StressStrainTableCompression.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+            for (int i = 0; i < steelMaterial.StressStrainTableTension.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableTension.Stresses[i];
+                double strain = steelMaterial.StressStrainTableTension.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            Assert.IsTrue(stresses[0].Item1 == 0);
+            Assert.IsTrue(stresses[1].Item1 == 0);
+            Assert.IsTrue(stresses[2].Item1 == 0);
+            Assert.IsTrue(stresses[3].Item1 == 680);
+            Assert.IsTrue(stresses[4].Item1 == 680);
+        }
+
+        [TestMethod]
+        public void SteelTest5()
+        {
+            double fy = 680;
+            double epsY = 0.01;
+            SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                SteelMaterial.SteelTypes.Rebar);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+
+            for (int i = 0; i < steelMaterial.StressStrainTableCompression.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableCompression.Stresses[i];
+                double strain = steelMaterial.StressStrainTableCompression.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+            for (int i = 0; i < steelMaterial.StressStrainTableTension.Stresses.Length; i++)
+            {
+                double stress = steelMaterial.StressStrainTableTension.Stresses[i];
+                double strain = steelMaterial.StressStrainTableTension.Strains[i];
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, stress, strain, 0), strain));
+            }
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{stresses[i].Item1}, {stresses[i].Item2}");
+
+            Assert.IsTrue(stresses[0].Item1 == 0);
+            Assert.IsTrue(stresses[1].Item1 == 0);
+            Assert.IsTrue(stresses[2].Item1 == 0);
+            Assert.IsTrue(stresses[3].Item1 == 680/1.15);
+            Assert.IsTrue(stresses[4].Item1 == 680/1.15);
         }
 
         [TestMethod]
@@ -922,7 +995,7 @@ namespace ModelObjectTest
             double stress9 = steel.CalculateDesignStress(standardModelCode2010, strain9);
             double stressTest = steel.CalculateDesignStress(standardModelCode2010, strain4);
 
-            double expValue = steel.CalculateDesignYieldingStress(standardModelCode2010);
+            double expValue = steel.CalculateDesignYieldingStressTension(standardModelCode2010);
 
             Assert.IsTrue(Math.Abs(stress1 - expValue / 2.0) / stress1 < 0.001);
             Assert.IsTrue(Math.Abs(stress2 - expValue) / stress2 < 0.001);
@@ -952,7 +1025,7 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count - 1; i++)
             {
                 Assert.IsTrue(stresses[i].Item1 >= stresses[i+1].Item1);
-                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStress(standard));                
+                Assert.IsTrue(Math.Abs(stresses[i].Item1) <= steelMaterial.CalculateDesignYieldingStressTension(standard));                
             }
         }
 

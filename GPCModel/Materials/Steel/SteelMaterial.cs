@@ -325,19 +325,34 @@ namespace GPC.Model.Materials
             return Fyk / standard.GammaS;
         }
 
-        public double CalculateDesignYieldingStress(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignYieldingStressTension(Standards.StandardModelCode2010 standard)
         {
             if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
-                return Fyk / standard.GammaS;
+                return StressYTension / standard.GammaS;
             else if (SteelType == SteelTypes.Tendon)
-                return Fyk / standard.GammaSPrestress;
+                return StressYTension / standard.GammaSPrestress;
             else
                 throw new Exception();
         }
 
-        public double CalculateDesignYieldingStrain(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignYieldingStressCompression(Standards.StandardModelCode2010 standard)
         {
-            return CalculateDesignYieldingStress(standard) / ElasticModulusTension;   
+            if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
+                return StressYCompression / standard.GammaS;
+            else if (SteelType == SteelTypes.Tendon)
+                return StressYCompression / standard.GammaSPrestress;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStrainTension(Standards.StandardModelCode2010 standard)
+        {
+            return CalculateDesignYieldingStressTension(standard) / ElasticModulusTension;   
+        }
+
+        public double CalculateDesignYieldingStrainCompression(Standards.StandardModelCode2010 standard)
+        {
+            return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
         }
 
         public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
@@ -351,8 +366,8 @@ namespace GPC.Model.Materials
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
         public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double strain, double epsilonP = 0)
         {
-            double fyd = CalculateDesignYieldingStress(standard);
-            double strainYd = CalculateDesignYieldingStrain(standard);
+            double fyd = CalculateDesignYieldingStressTension(standard);
+            double strainYd = CalculateDesignYieldingStrainTension(standard);
 
             if (Math.Abs(strain + epsilonP) <= strainYd)
                 return GetStress(strain + epsilonP);
@@ -373,6 +388,48 @@ namespace GPC.Model.Materials
                 return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
             }
         }
+
+        public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double stress, double strain, double epsilonP = 0)
+		{
+            if (strain >= 0)
+			{
+                double strainYd = CalculateDesignYieldingStrainTension(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressTension(standard);
+                    double deltaStress = StressYTension - fyd;
+                    double designUltimateStrain = StrainUTension;
+
+                    if (Math.Abs(strain) > designUltimateStrain)
+                        return 0;
+
+                    return stress - Math.Sign(strain) * deltaStress;
+                }
+            }
+			else
+			{
+                double strainYd = CalculateDesignYieldingStrainCompression(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressCompression(standard);
+                    double deltaStress = StressYCompression - fyd;
+                    double designUltimateStrain = StrainUTension;
+
+                    if (Math.Abs(strain) > designUltimateStrain)
+                        return 0;
+
+                    return stress - Math.Sign(strain) * deltaStress;
+                }
+            }
+		}
 
 		#endregion
 
