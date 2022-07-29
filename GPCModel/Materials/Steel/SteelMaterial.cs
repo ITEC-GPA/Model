@@ -232,7 +232,7 @@ namespace GPC.Model.Materials
             _strainUCompression = -Math.Abs(strainU);
             _steelType = steelType;
 
-            SetMechanicalProperties();
+            SetDefaultMechanicalProperties();
         }
 
         protected SteelMaterial(SerializationInfo info, StreamingContext context) :
@@ -267,22 +267,21 @@ namespace GPC.Model.Materials
 
         public virtual void RecalculateMechanicalProperties()
 		{
-            SetMechanicalProperties();
-		}
+            _stressStrainTableCompression = new StressStrainTable(
+                new double[] { 0, _stressYCompression, _stressUCompression },
+                new double[] { 0, _stressYCompression / _elasticModulusCompression, _strainUCompression });
+            _stressStrainTableTension = new StressStrainTable(
+                new double[] { 0, _stressYTension, _stressUTension },
+                new double[] { 0, _stressYTension / _elasticModulusTension, _strainUTension });
 
-        #endregion 
+            _strainYTension = _stressYTension / _elasticModulusTension;
+            _strainYCompression = _stressYCompression / _elasticModulusCompression;
 
-        #region Protected Methods
+            _fu = _stressUTension;
+            _fyk = _stressYTension;
+        }
 
-        protected double GetEt()
-		{
-            if (Math.Abs(Fu - Fyk) < Geometry.GeometryBase.GetDefaultTolerance())
-                return 0.0;
-            else
-                return (Fu - Fyk) / (StrainUTension - StrainYTension);
-		}
-
-        protected virtual void SetMechanicalProperties()
+        public virtual void SetDefaultMechanicalProperties()
 		{
             _stressStrainTableCompression = new StressStrainTable(
                 new double[] { 0, -_fyk, -_fu },
@@ -299,6 +298,18 @@ namespace GPC.Model.Materials
             _stressYCompression = -_fyk;
             _stressYTension = _fyk;
         }
+
+        #endregion 
+
+        #region Protected Methods
+
+        protected double GetEt()
+		{
+            if (Math.Abs(Fu - Fyk) < Geometry.GeometryBase.GetDefaultTolerance())
+                return 0.0;
+            else
+                return (Fu - Fyk) / (StrainUTension - StrainYTension);
+		}
 
         #endregion
 

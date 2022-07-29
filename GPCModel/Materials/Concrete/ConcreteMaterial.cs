@@ -74,11 +74,24 @@ namespace GPC.Model.Materials
         {            
         }
 
-        #endregion
+		protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension, 
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension, 
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
+            double poisson, double alfaThermalExpansion, double density) 
+            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, 
+                  strainUCompression, strainYTension, strainUTension, stressYCompression, 
+                  stressUCompression, stressYTension, stressUTension, stressStrainTableCompression, 
+                  stressStrainTableTension, poisson, alfaThermalExpansion, density)
+		{
+            _concreteType = concreteType;
+        }
 
-        #region Public abstract Methods
+		#endregion
 
-        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+		#region Public abstract Methods
+
+		public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
 
         public abstract double CalculateDesignCompressiveStrength(Standards.Standard standard);
 
