@@ -960,6 +960,51 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SteelTest7()
+        {
+            double fy = 680;
+            double epsY = 0.01;
+            SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                SteelMaterial.SteelTypes.Rebar);
+
+            List<(double, double)> stresses = new List<(double, double)>();
+            StandardModelCode2010 standard = new StandardModelCode2010();
+            standard.SetGammaS(1.0);
+
+            for (int i = 100; i >= -100; i--)
+                stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)}, {stresses[i].Item2}");
+        }
+
+        [TestMethod]
+        public void SteelTest8()
+        {
+            double fy = 680;
+            double epsY = 0.01;
+            SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
+                new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                SteelMaterial.SteelTypes.Rebar);
+
+            List<double> stresses = new List<double>();
+            StandardModelCode2010 standard = new StandardModelCode2010();  
+            
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.01)));
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.009)));
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.008)));
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.005)));
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.003)));
+            stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.001)));
+
+            for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(Math.Abs(stresses[i]) < 0.1);
+        }
+
+        [TestMethod]
         public void RebarTest1()
         {
             SteelMaterial steel = SteelMaterial.B450C;

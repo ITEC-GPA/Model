@@ -396,7 +396,10 @@ namespace GPC.Model.Materials
                 else if(Math.Abs(strain) > designUltimateStrain)
                     return 0;
 
-                return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
+                if(GetStress(stressCalc) != 0)
+                    return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
+                else
+                    return GetStress(stressCalc);
             }
         }
 
