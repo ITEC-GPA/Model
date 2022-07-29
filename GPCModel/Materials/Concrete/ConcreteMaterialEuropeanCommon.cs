@@ -201,11 +201,22 @@ namespace GPC.Model.Materials
             _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
         }
 
-        #endregion
+		protected ConcreteMaterialEuropeanCommon(string name, double elasticModulusCompression, double elasticModulusTension, 
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension, 
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType, 
+            double poisson, double alfaThermalExpansion, double density) 
+            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression, 
+                  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension, 
+                  stressStrainTableCompression, stressStrainTableTension, concreteType, poisson, alfaThermalExpansion, density)
+		{
+		}
 
-        #region Public methods
+		#endregion
 
-        public virtual double GetFctk05(double days)
+		#region Public methods
+
+		public virtual double GetFctk05(double days)
         {
             return 0.7 * GetFctm(days);
         }

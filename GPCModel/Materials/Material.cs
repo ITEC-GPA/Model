@@ -183,7 +183,7 @@ namespace GPC.Model.Materials
             _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
         }
 
-		public Material(string name, double elasticModulusCompression, double elasticModulusTension, 
+		protected Material(string name, double elasticModulusCompression, double elasticModulusTension, 
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension,
