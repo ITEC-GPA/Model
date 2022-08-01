@@ -635,7 +635,7 @@ namespace GPC.Model.Materials
 
                 case TensionStressStrainDiagrams.RigidPlastic:
 
-                    _stressStrainTableTension = new StressStrainTable(new double[] { fctk, fctk }, new double[] { 0, strainUTension });
+                    _stressStrainTableTension = new StressStrainTable(new double[] { fctu, fctu }, new double[] { 0, strainUTension });
                     break;
 
                 case TensionStressStrainDiagrams.Generic:
@@ -724,11 +724,15 @@ namespace GPC.Model.Materials
                         break;
 
                     case TensionStressStrainDiagrams.RigidPlastic:
-                        _fctk = fctk;
-                        _fctk = fctk;
+                        _fctk = fFtu;
+                        _fctu = fFtu;
                         _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-                        _strainYTension = 0.0;
+                        if(strainYTension > 0)
+                            _strainYTension = strainYTension;
+                        else
+                            _strainYTension = fctk / _elasticModulusTension;
+
                         _strainUTension = strainUTension;
                         break;
 
