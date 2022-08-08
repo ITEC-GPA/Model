@@ -87,6 +87,16 @@ namespace GPC.Model.Materials
                 _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
                 _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
                 _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+
+                _strainYCompression = info.GetDouble("StrainYCompression");
+                _strainUCompression = info.GetDouble("StrainUCompression");
+                _strainYTension = info.GetDouble("StrainYTension");
+                _strainUTension = info.GetDouble("StrainUTension");
+
+                _stressYCompression = _stressStrainTableCompression.GetStress(_strainYCompression);
+                _stressUCompression = _stressStrainTableCompression.GetStress(_strainUCompression);
+                _stressYTension = _stressStrainTableTension.GetStress(_strainYTension);
+                _stressUTension = _stressStrainTableTension.GetStress(_strainUTension);
             }
         }
 
