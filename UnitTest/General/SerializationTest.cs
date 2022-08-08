@@ -1,4 +1,4 @@
-﻿using GPC.Model.Elements;
+using GPC.Model.Elements;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
@@ -542,7 +542,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            StandardUNIEn1992p11 s = new StandardUNIEn1992p11();
+            StandardUNIEN1992p11 s = new StandardUNIEN1992p11();
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -550,7 +550,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                StandardUNIEn1992p11 oggettoDeserializzato = (StandardUNIEn1992p11)casted;
+                StandardUNIEN1992p11 oggettoDeserializzato = (StandardUNIEN1992p11)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {

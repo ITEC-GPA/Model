@@ -141,17 +141,25 @@ namespace GPC.Model.Materials
         protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _fc = info.GetDouble("Fc");
-            _fct = info.GetDouble("Fct");
-            _fctu = info.GetDouble("Fctu");
+            int version;
+            try
+            {
+                version = info.GetInt32("ConcreteMaterialACIVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
 
-            _strainYCompression = info.GetDouble("StrainYCompression");
-            _strainUCompression = info.GetDouble("StrainUCompression");
-            _strainYTension = info.GetDouble("StrainYTension");
-            _strainUTension = info.GetDouble("StrainUTension");
+            if (version >= 2)
+            {
+                _fc = info.GetDouble("Fc");
+                _fct = info.GetDouble("Fct");
+                _fctu = info.GetDouble("Fctu");
 
-            _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
-            _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
+                _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
+                _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
+            }
         }
 
         #endregion
@@ -473,13 +481,14 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+
+            info.AddValue("ConcreteMaterialACIVersion", version);
+
             info.AddValue("Fc", _fc);
             info.AddValue("Fct", _fct);
             info.AddValue("Fctu", _fctu);
-            info.AddValue("StrainYCompression", _strainYCompression);
-            info.AddValue("StrainUCompression", _strainUCompression);
-            info.AddValue("StrainYTension", _strainYTension);
-            info.AddValue("StrainUTension", _strainUTension);
             info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
             info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
         }

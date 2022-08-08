@@ -190,17 +190,6 @@ namespace GPC.Model.Materials
             _cementType = cementType;
         }
 
-        protected ConcreteMaterialEuropeanCommon(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _fck = info.GetDouble("Fck");
-            _fctk = info.GetDouble("Fctk");
-            _fctu = info.GetDouble("Fctu");
-            _cementType = (CementType)info.GetInt32("CementType");
-            _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
-            _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
-        }
-
 		protected ConcreteMaterialEuropeanCommon(string name, double elasticModulusCompression, double elasticModulusTension, 
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension, 
@@ -211,8 +200,45 @@ namespace GPC.Model.Materials
                   stressStrainTableCompression, stressStrainTableTension, concreteType, poisson, alfaThermalExpansion, density)
 		{
 		}
+        protected ConcreteMaterialEuropeanCommon(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("MaterialVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
 
-		#endregion
+            if (version >= 2)
+            {
+
+            }
+            else if (version == 1)
+			{
+                _strainYCompression = info.GetDouble("StrainYCompression");
+                _strainUCompression = info.GetDouble("StrainUCompression");
+                _strainYTension = info.GetDouble("StrainYTension");
+                _strainUTension = info.GetDouble("StrainUTension");
+
+                _stressYCompression = _stressStrainTableCompression.GetStress(_strainYCompression);
+                _stressUCompression = _stressStrainTableCompression.GetStress(_strainUCompression);
+                _stressYTension = _stressStrainTableTension.GetStress(_strainYTension);
+                _stressUTension = _stressStrainTableTension.GetStress(_strainUTension);
+            }
+
+            _fck = info.GetDouble("Fck");
+            _fctk = info.GetDouble("Fctk");
+            _fctu = info.GetDouble("Fctu");
+            _cementType = (CementType)info.GetInt32("CementType");
+            _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
+            _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
+        }
+                
+        #endregion
 
 		#region Public methods
 
@@ -1019,6 +1045,10 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            int version = 2;
+            info.AddValue("ConcreteMaterialEuropeanCommonVersion", version);
+
             info.AddValue("Fck", _fck);
             info.AddValue("Fctk", _fctk);
             info.AddValue("Fctu", _fctu);
@@ -1034,12 +1064,12 @@ namespace GPC.Model.Materials
 
             return (obj is ConcreteMaterialEuropeanCommon objCasted) &&
                 objCasted._fck.Equals(_fck) &&
-               objCasted._fctk.Equals(_fctk) &&
-               objCasted._fctu.Equals(_fctu) &&
-               objCasted._cementType.Equals(_cementType) &&
-               objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
-               objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
-               base.Equals(objCasted);
+                objCasted._fctk.Equals(_fctk) &&
+                objCasted._fctu.Equals(_fctu) &&
+                objCasted._cementType.Equals(_cementType) &&
+                objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
+                objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
+                base.Equals(objCasted);
         }
 
         public override int GetHashCode()

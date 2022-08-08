@@ -145,6 +145,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
@@ -152,7 +153,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
         /// <param name="density"> Density [T/mm^3]</param>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
-            : this(name, new StressStrainTable(), new StressStrainTable(), elasticModulus, elasticModulus,
+            : this(name, new StressStrainTable(null, null), new StressStrainTable(null, null), elasticModulus, elasticModulus,
                   poisson, density, alfaThermalExpansion)
         {
         }
@@ -161,26 +162,6 @@ namespace GPC.Model.Materials
             : base(Guid.NewGuid(), name)
         {
 
-        }
-
-        protected Material(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
-            _density = info.GetDouble("Density");
-            _elasticModulusCompression = info.GetDouble("ElasticModulusCompression");
-            _elasticModulusTension = info.GetDouble("ElasticModulusTension");
-            _strainYCompression = info.GetDouble("StrainYCompression");
-            _strainUCompression = info.GetDouble("StrainUCompression");
-            _strainYTension = info.GetDouble("StrainYTension");
-            _strainUTension = info.GetDouble("StrainUTension");
-            _stressYCompression = info.GetDouble("StressYCompression");
-            _stressUCompression = info.GetDouble("StressUCompression");
-            _stressYTension = info.GetDouble("StressYTension");
-            _stressUTension = info.GetDouble("StressUTension");
-            _ni = info.GetDouble("Ni");
-            _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
-            _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
         }
 
 		protected Material(string name, double elasticModulusCompression, double elasticModulusTension, 
@@ -212,6 +193,47 @@ namespace GPC.Model.Materials
             _stressStrainTableCompression = stressStrainTableCompression;
 			_stressStrainTableTension = stressStrainTableTension;
 		}
+
+        protected Material(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+			double version;
+			try
+            {
+                version = info.GetInt64("MaterialVersion");
+            }
+            catch (Exception) 
+            {
+                version = 1;
+            }
+
+            if (version >= 2)
+            {
+                _elasticModulusCompression = info.GetDouble("ElasticModulusCompression");
+                _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+
+                _strainYCompression = info.GetDouble("StrainYCompression");
+                _strainUCompression = info.GetDouble("StrainUCompression");
+                _strainYTension = info.GetDouble("StrainYTension");
+                _strainUTension = info.GetDouble("StrainUTension");
+
+                _stressYCompression = info.GetDouble("StressYCompression");
+                _stressUCompression = info.GetDouble("StressUCompression");
+                _stressYTension = info.GetDouble("StressYTension");
+                _stressUTension = info.GetDouble("StressUTension");
+
+                _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+                _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
+            }
+            else
+            {
+                _elasticModulusCompression = info.GetDouble("ElasticModulus");
+            }
+            
+            _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
+            _density = info.GetDouble("Density");
+            _ni = info.GetDouble("Ni");
+        }
 
 		#endregion
 
@@ -272,6 +294,11 @@ namespace GPC.Model.Materials
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+
+            info.AddValue("MaterialVersion", version);
+
             info.AddValue("AlfaThermalExpansion", _alfaThermalExpansion);
             info.AddValue("Density", _density);
 

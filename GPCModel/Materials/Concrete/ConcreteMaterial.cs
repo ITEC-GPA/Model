@@ -71,7 +71,23 @@ namespace GPC.Model.Materials
 
         protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {            
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("ConcreteMaterialVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
+            if(version == 1)
+			{
+                _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+                _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
+                _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+            }
         }
 
 		protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension, 
@@ -118,7 +134,11 @@ namespace GPC.Model.Materials
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData(info, context);            
+            base.GetObjectData(info, context);
+
+            double version = 2;
+
+            info.AddValue("ConcreteMaterialVersion", version);
         }
 
         public override bool Equals(object obj)
