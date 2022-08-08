@@ -320,21 +320,6 @@ namespace GPC.Model.Materials
             info.AddValue("TableTension", _stressStrainTableTension);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return (obj is Material objCasted) && objCasted._elasticModulusCompression.Equals(_elasticModulusCompression) &&
-                                                  objCasted._elasticModulusTension.Equals(_elasticModulusTension) &&
-                                                  objCasted._ni.Equals(_ni) &&
-                                                  objCasted._alfaThermalExpansion.Equals(_alfaThermalExpansion) &&
-                                                  objCasted._density.Equals(_density) &&
-                                                  objCasted._stressStrainTableCompression.Equals(_stressStrainTableCompression) &&
-                                                  objCasted._stressStrainTableTension.Equals(_stressStrainTableTension) &&
-                                                  base.Equals(objCasted);
-        }
-
         public override int GetHashCode()
         {
             unchecked
@@ -352,7 +337,31 @@ namespace GPC.Model.Materials
             }
         }
 
-        public static bool operator ==(Material obj1, Material obj2)
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return obj is Material material &&
+                   base.Equals(obj) &&
+                   _elasticModulusCompression == material._elasticModulusCompression &&
+                   _elasticModulusTension == material._elasticModulusTension &&
+                   _strainYCompression == material._strainYCompression &&
+                   _strainUCompression == material._strainUCompression &&
+                   _strainYTension == material._strainYTension &&
+                   _strainUTension == material._strainUTension &&
+                   _stressYCompression == material._stressYCompression &&
+                   _stressUCompression == material._stressUCompression &&
+                   _stressYTension == material._stressYTension &&
+                   _stressUTension == material._stressUTension &&
+                   _ni == material._ni &&
+                   _alfaThermalExpansion == material._alfaThermalExpansion &&
+                   _density == material._density &&
+                   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
+                   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
+        }
+
+		public static bool operator ==(Material obj1, Material obj2)
         {
             if (ReferenceEquals(obj1, obj2))
                 return true;
