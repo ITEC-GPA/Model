@@ -275,13 +275,17 @@ namespace GPC.Model.Materials
 
 					SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
 					SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
-					break;
+
+                    SetStressProperties();
+                    break;
 				case ConcreteTypes.Concrete:
 					SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
 					SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
 					SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
-					break;
+
+                    SetStressProperties();
+                    break;
 				default:
 					break;
 			}

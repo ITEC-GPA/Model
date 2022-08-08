@@ -146,6 +146,8 @@ namespace GPC.Model.Materials
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
+            SetStressProperties();
+
             _cementType = cementType;
         }
 
@@ -164,6 +166,8 @@ namespace GPC.Model.Materials
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+
+            SetStressProperties();
 
             _cementType = cementType;
         }
@@ -186,6 +190,8 @@ namespace GPC.Model.Materials
             SetMechanicalProperties(stressStrainTableCompression.GetMinimumStress(), stressStrainTableTension.GetStress(strainYTension),
                 stressStrainTableTension.GetLastStress(), strainYTension, stressStrainTableTension.GetLastStrain(),
                 _compressionStressStrainDiagrams, _tensionStressStrainDiagrams, strainYCompression);
+
+            SetStressProperties();
 
             _cementType = cementType;
         }
@@ -772,6 +778,8 @@ namespace GPC.Model.Materials
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, tensionStressStrainDiagrams);
+
+            SetStressProperties();
 
             _cementType = cementType;
         }

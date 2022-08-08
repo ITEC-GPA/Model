@@ -91,6 +91,8 @@ namespace GPC.Model.Materials
 
             SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+
+            SetStressProperties();
         }
 
         #region Equals, hashcode, operators

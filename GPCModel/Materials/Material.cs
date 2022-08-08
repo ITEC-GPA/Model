@@ -273,6 +273,14 @@ namespace GPC.Model.Materials
             }
         }
 
+        protected virtual void SetStressProperties()
+		{
+            _stressYCompression = _stressStrainTableCompression.GetStress(_strainYCompression);
+            _stressUCompression = _stressStrainTableCompression.GetStress(_strainUCompression);
+            _stressYTension = _stressStrainTableTension.GetStress(_strainYTension);
+            _stressUTension = _stressStrainTableTension.GetStress(_strainUTension);
+        }
+
         #endregion
 
         #region Public Setter
