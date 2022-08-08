@@ -12,19 +12,6 @@ namespace GPC.Model.Standards
     [Serializable]
     public class StandardEN1993p11 : Standard, ISerializable
     {
-		#region Enum
-
-		/// <summary>
-		/// The limit states. Reference: EN 1990:2002/A1:2005 
-		/// </summary>
-		public enum LimitStates
-        {
-            UltimateLimitState,
-            ServiceabilityLimitState,
-        }
-
-		#endregion
-
 		#region Variables
 
 		protected double _gammaM0;
