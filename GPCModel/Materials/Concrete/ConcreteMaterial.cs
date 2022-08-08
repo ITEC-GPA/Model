@@ -82,8 +82,8 @@ namespace GPC.Model.Materials
                 version = 1;
             }
 
-            if(version == 1)
-			{
+            if (version == 1)
+            {
                 _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
                 _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
                 _elasticModulusTension = info.GetDouble("ElasticModulusTension");
@@ -93,7 +93,16 @@ namespace GPC.Model.Materials
                 _strainYTension = info.GetDouble("StrainYTension");
                 _strainUTension = info.GetDouble("StrainUTension");
 
+                if (_stressStrainTableTension.Strains.Length > 2)
+                    _concreteType = ConcreteTypes.FRC;
+                else
+                    _concreteType = ConcreteTypes.Concrete;
+
                 SetStressProperties();
+            }
+            else if (version >= 2)
+            {
+                _concreteType = (ConcreteTypes)info.GetValue("ConcreteType", typeof(ConcreteTypes));
             }
         }
 
@@ -146,6 +155,7 @@ namespace GPC.Model.Materials
             double version = 2;
 
             info.AddValue("ConcreteMaterialVersion", version);
+            info.AddValue("ConcreteType", _concreteType);
         }
 
         public override bool Equals(object obj)
