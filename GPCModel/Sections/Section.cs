@@ -634,7 +634,7 @@ namespace GPC.Model.Sections
 
         protected virtual Mesh GenerateMesh()
         {
-            return SectionHelper.GenerateMesh(GetShape(), _meshSize);
+            return SectionHelper.GenerateGMesh(GetShape(), _meshSize);
         }
 
         private double GetMax(double[] array)
