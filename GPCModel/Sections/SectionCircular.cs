@@ -44,6 +44,16 @@ namespace GPC.Model.Sections
         protected SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionCircularVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _diameter = info.GetDouble("Diameter");
         }
 
@@ -54,6 +64,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionCircularVersion", version);
+
             info.AddValue("Diameter", _diameter);
         }
 

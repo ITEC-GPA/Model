@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Geometry.Meshes.GMesh;
 
 namespace GPC.Model.Sections
 {
@@ -17,7 +15,7 @@ namespace GPC.Model.Sections
 		/// <param name="size">The mesh size</param>
 		/// <param name="recombine">If true, recombine the mesh into quad mesh</param>
 		/// <returns></returns>
-		internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool recombine = true)
+		internal static Mesh GenerateGMesh(Shape2d shape, double size = 0, bool recombine = true)
         {
             if (shape is null)
                 return null;
@@ -28,16 +26,16 @@ namespace GPC.Model.Sections
                 size = Math.Max(bBox.Size.X, bBox.Size.Y);
             }
 
-            Mesh.GenerateOptions generateOptions = new Mesh.GenerateOptions()
+            GMesh.GMeshGenerateOptions generateOptions = new GMesh.GMeshGenerateOptions()
             {
-                Algorithm = Mesh.GenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
+                Algorithm = GMesh.GMeshGenerateOptions.MeshAlgorithm.FrontalDelaunayForQuads,
                 Recombine = recombine,
-                RecombinationAlgorithm = Mesh.GenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
+                RecombinationAlgorithm = GMesh.GMeshGenerateOptions.RecombinationMeshAlgorithm.SimpleFullQuad,
                 UseGlobalProgressID = true,
                 MeshSize = size,
             };
 
-            if (Mesh.Generate(new Shape2d[] { shape }, generateOptions, out List<Mesh> meshes, out Mesh.GenerateMeshStatus meshStatus))
+            if (GMesh.Generate(new Shape2d[] { shape }, generateOptions, out List<Mesh> meshes, out GMesh.GMeshGenerateMeshStatus meshStatus))
                 return meshes[0];
             else
                 throw new ArgumentException($"Fail to create mesh. {meshStatus.GetLastCustomErrorMessage()}");

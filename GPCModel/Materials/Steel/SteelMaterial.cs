@@ -238,9 +238,32 @@ namespace GPC.Model.Materials
         protected SteelMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SteelMaterialVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _fu = info.GetDouble("Fu");
             _fyk = info.GetDouble("Fyk");
             _steelType = (SteelTypes)info.GetInt32("SteelType");
+
+            if (version == 1)
+            {
+                _elasticModulusTension = info.GetDouble("ElasticModulus");
+                _strainUTension = info.GetDouble("EpsilonU");
+                _strainUCompression = - info.GetDouble("EpsilonU");
+
+                SetDefaultMechanicalProperties();
+            }
+            else if (version >= 2)
+			{
+
+			}
         }
 
         #endregion
@@ -255,14 +278,6 @@ namespace GPC.Model.Materials
         public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
         {
             return new OrthotropicFemMaterial(ElasticModulusCompression, ElasticModulusCompression, ElasticModulusCompression, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("Fyk", _fyk);
-            info.AddValue("Fu", _fu);
-            info.AddValue("SteelType", _steelType);
         }
 
         public virtual void RecalculateMechanicalProperties()
@@ -481,6 +496,21 @@ namespace GPC.Model.Materials
 
         #endregion
 
+        #endregion
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            double version = 2;
+
+            info.AddValue("SteelMaterialVersion", version);
+
+            info.AddValue("Fyk", _fyk);
+            info.AddValue("Fu", _fu);
+            info.AddValue("SteelType", _steelType);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is SteelMaterial material &&
@@ -502,7 +532,5 @@ namespace GPC.Model.Materials
 				return hashCode; 
 			}
         }
-
-        #endregion
     }
 }

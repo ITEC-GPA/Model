@@ -17,6 +17,7 @@ using GPC.Model.Loads;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Model.Sections;
+using GPC.Geometry.Meshes.GMesh;
 
 namespace GPC.Model.Fem
 {
@@ -941,7 +942,7 @@ namespace GPC.Model.Fem
         /// <param name="restrains"></param>
         public virtual void AddShape(Shape shape,
                                      string platePropertyName,
-                                     Mesh.GenerateOptions options,
+                                     GMesh.GMeshGenerateOptions options,
                                      List<Load> loads,
                                      List<GeometryRestrain> restrains)
         {
@@ -962,7 +963,7 @@ namespace GPC.Model.Fem
         /// <param name="restrainNodeIdMap">Map between load and restrain ids</param>
         public virtual void AddShape(Shape shape,
                                      string platePropertyName,
-                                     Mesh.GenerateOptions options,
+                                     GMesh.GMeshGenerateOptions options,
                                      List<Load> loads,
                                      List<GeometryRestrain> restrains,
                                      out Dictionary<Load, int[]> loadNodeIdMap,
@@ -1027,10 +1028,10 @@ namespace GPC.Model.Fem
             }
 
             // Genera la mesh
-            bool status = Mesh.Generate(new List<Shape> { shape },
+            bool status = GMesh.Generate(new List<Shape> { shape },
                                         new Dictionary<Shape, GeometryBase[]>() { [shape] = embeddedGeometries.ToArray() },
                                         options,
-                                        out List<Mesh> meshes, out Mesh.GenerateMeshStatus generateMeshStatus);
+                                        out List<Mesh> meshes, out GMesh.GMeshGenerateMeshStatus generateMeshStatus);
 
             if (!status)
             {
@@ -1160,7 +1161,7 @@ namespace GPC.Model.Fem
         /// <param name="restrains"></param>
         public virtual void AddShapes(List<Shape> shapes,
                                       List<string> platePropertyNames,
-                                      Mesh.GenerateOptions options,
+                                      GMesh.GMeshGenerateOptions options,
                                       List<List<Load>> loads,
                                       List<List<GeometryRestrain>> restrains)
         {

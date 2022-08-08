@@ -39,11 +39,14 @@
     <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GMesh, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMesh.1.0.0\lib\net472\GMesh.dll</HintPath>
+    </Reference>
     <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.484.3\lib\netstandard2.0\GMsh.Net.dll</HintPath>
     </Reference>
     <Reference Include="GPCGeometry, Version=1.1.4.7, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.1.4.7\lib\net472\GPCGeometry.dll</HintPath>
+      <HintPath>..\packages\GPCGeometry.1.1.4.8\lib\net472\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCUtilities, Version=1.0.34.1, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GPCUtilities.1.0.34.1\lib\net472\GPCUtilities.dll</HintPath>
@@ -148,9 +151,9 @@
     <Compile Include="Standards\StandardEN1992p11.cs" />
     <Compile Include="Standards\StandardNTC2018Concrete.cs" />
     <Compile Include="Standards\StandardNTC2018Steel.cs" />
-    <Compile Include="Standards\StandardUNIEn1992p11.cs" />
-    <Compile Include="Standards\StandardUNIEn1993p11.cs" />
-    <Compile Include="Standards\StandardEn1993p11.cs" />
+    <Compile Include="Standards\StandardUNIEN1992p11.cs" />
+    <Compile Include="Standards\StandardUNIEN1993p11.cs" />
+    <Compile Include="Standards\StandardEN1993p11.cs" />
     <Compile Include="Standards\StandardUNIEN1990.cs" />
     <Compile Include="Elements\GhostElement.cs" />
     <Compile Include="Fem\Attributes\FreedomCase\BeamReleasesAttribute.cs" />

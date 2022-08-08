@@ -85,6 +85,16 @@ namespace GPC.Model.Sections
         protected SectionRectangular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionRectangularVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _height = info.GetDouble("Height");
             _width = info.GetDouble("Width");
             _angle = info.GetDouble("Angle");
@@ -264,6 +274,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionRectangularVersion", version);
+
             info.AddValue("Height", _height);
             info.AddValue("Width", _width);
             info.AddValue("Angle", _angle);

@@ -131,19 +131,32 @@ namespace GPC.Model.Standards
         }
 
         protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
-            :base(info, context)
-		{
-            _gammaC = info.GetDouble("GammaC");
-            _gammaCAccidental = info.GetDouble("GammaCAccidental");
-            _gammaCE = info.GetDouble("GammaCE");
-            _gammaS = info.GetDouble("GammaS");
-            _gammaSAccidental = info.GetDouble("GammaSAccidental");
-            _gammaSPrestress = info.GetDouble("GammaSPrestress");
-            _gammaSPrestressAccidental = info.GetDouble("GammaSPrestressAccidental");
-            _alphaCC = info.GetDouble("AlphaCC");
-            _alphaCT = info.GetDouble("AlphaCT");
-            _gammaF = info.GetDouble("GammaF");
-            _steelCoefficientStrainTension = info.GetDouble("SteelCoefficientStrainTension");
+            : base(info, context)
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("StandardModelCode2010Version");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
+            if (version == 1)
+            {
+                _gammaC = info.GetDouble("GammaC");
+                _gammaCAccidental = info.GetDouble("GammaCAccidental");
+                _gammaCE = info.GetDouble("GammaCE");
+                _gammaS = info.GetDouble("GammaS");
+                _gammaSAccidental = info.GetDouble("GammaSAccidental");
+                _gammaSPrestress = info.GetDouble("GammaSPrestress");
+                _gammaSPrestressAccidental = info.GetDouble("GammaSPrestressAccidental");
+                _alphaCC = info.GetDouble("AlphaCC");
+                _alphaCT = info.GetDouble("AlphaCT");
+                _gammaF = info.GetDouble("GammaF");
+                _steelCoefficientStrainTension = info.GetDouble("SteelCoefficientStrainTension");
+            }
         }
 
         #endregion
@@ -153,6 +166,11 @@ namespace GPC.Model.Standards
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 1;
+
+            info.AddValue("StandardModelCode2010Version", version);
+
             info.AddValue("GammaC", _gammaC);
             info.AddValue("GammaCAccidental", _gammaCAccidental);
             info.AddValue("GammaCE", _gammaCE);
@@ -263,71 +281,6 @@ namespace GPC.Model.Standards
             _steelCoefficientStrainTension = coef;
 		}
 
-		#endregion
-
-        #region Public Steel Methods - Design stress
-
-        /// <returns>The design rebar yielding stress</returns>
-        public double CalculateFyd(SteelMaterial material)
-        {
-            return material.Fyk / GammaS;
-        }
-
-        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
-        public double CalculateDesignStressRebar(double strain, SteelMaterial material)
-        {
-            if (strain < CalculateDesignYieldingStrainRebar(material))
-            {
-                return material.GetStress(strain);
-            }
-            else
-            {
-                return CalculateFyd(material) + (strain - CalculateDesignYieldingStrainRebar(material)) * material.Et;
-            }
-        }
-
-        public double CalculateUltimateDesignStrainRebar(ReinforcedConcreteRebar rebar)
-        {
-            return rebar.RebarMaterial.StrainUTension * SteelCoefficientStrainTension;
-        }
-
-        public double CalculateUltimateDesignStrainRebar(IConcreteSection concreteSection, int rebarId)
-        {
-            return concreteSection.GetRebarById(rebarId).RebarMaterial.StrainUTension * SteelCoefficientStrainTension;
-        }
-
-        public double CalculateDesignYieldingStressRebar(SteelMaterial material)
-        {
-            return material.Fyk / GammaS;
-        }
-
-        public double CalculateDesignYieldingStrainRebar(SteelMaterial material)
-        {
-            return CalculateDesignYieldingStressRebar(material) / material.ElasticModulusCompression;
-        }
-
-        public double CalculateUltimateDesignStrainRebar(SteelMaterial material)
-        {
-            return material.StrainUTension * SteelCoefficientStrainTension;
-        }
-
-        public double CalculateDesignStressRebar(ReinforcedConcreteRebar rebar, double strain)
-        {
-            double fyd = CalculateDesignYieldingStressRebar(rebar.RebarMaterial);
-            double strainYd = CalculateDesignYieldingStrainRebar(rebar.RebarMaterial);
-
-            if (Math.Abs(strain) <= strainYd)
-                return rebar.RebarMaterial.GetStress(strain + rebar.EpsilonP);
-
-            else
-            {
-                double deltaStress = rebar.RebarMaterial.Fyk - fyd;
-                double deltaStrain = deltaStress / rebar.RebarMaterial.ElasticModulusCompression;
-
-                return rebar.RebarMaterial.GetStress(strain + Math.Sign(strain) * deltaStrain + rebar.EpsilonP) - Math.Sign(strain) * deltaStress;
-            }
-        }
-
-        #endregion
+		#endregion        
     }
 }

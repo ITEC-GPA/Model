@@ -71,7 +71,39 @@ namespace GPC.Model.Materials
 
         protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {            
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("ConcreteMaterialVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
+            if (version == 1)
+            {
+                _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+                _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
+                _elasticModulusTension = info.GetDouble("ElasticModulusTension");
+
+                _strainYCompression = info.GetDouble("StrainYCompression");
+                _strainUCompression = info.GetDouble("StrainUCompression");
+                _strainYTension = info.GetDouble("StrainYTension");
+                _strainUTension = info.GetDouble("StrainUTension");
+
+                if (_stressStrainTableTension.Strains.Length > 2)
+                    _concreteType = ConcreteTypes.FRC;
+                else
+                    _concreteType = ConcreteTypes.Concrete;
+
+                SetStressProperties();
+            }
+            else if (version >= 2)
+            {
+                _concreteType = (ConcreteTypes)info.GetValue("ConcreteType", typeof(ConcreteTypes));
+            }
         }
 
 		protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension, 
@@ -118,7 +150,12 @@ namespace GPC.Model.Materials
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData(info, context);            
+            base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("ConcreteMaterialVersion", version);
+
+            info.AddValue("ConcreteType", _concreteType);
         }
 
         public override bool Equals(object obj)

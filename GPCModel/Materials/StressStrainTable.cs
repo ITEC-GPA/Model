@@ -24,6 +24,7 @@ namespace GPC.Model.Materials
         #region Properties
 
         public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
+
         public double[] Strains => (double[])_strains.Clone();
 
         #endregion
@@ -41,8 +42,9 @@ namespace GPC.Model.Materials
         /// </remarks>
         public StressStrainTable(double[] stresses, double[] strains)
         {
-            if (stresses.Length != strains.Length)
-                throw new ArgumentException();
+            if (stresses != null && strains != null)
+                if (stresses.Length != strains.Length && stresses != null && strains != null)
+                    throw new ArgumentException();
 
             if (stresses == null)
                 stresses = new double[0];

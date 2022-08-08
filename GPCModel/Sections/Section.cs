@@ -341,6 +341,16 @@ namespace GPC.Model.Sections
         protected Section(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _material = (Material)info.GetValue("Material", typeof(Material));
             _area = info.GetDouble("Area");
             _jxx = info.GetDouble("Jxx");
@@ -624,7 +634,7 @@ namespace GPC.Model.Sections
 
         protected virtual Mesh GenerateMesh()
         {
-            return SectionHelper.GenerateMesh(GetShape(), _meshSize);
+            return SectionHelper.GenerateGMesh(GetShape(), _meshSize);
         }
 
         private double GetMax(double[] array)
@@ -660,6 +670,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionVersion", version);
+
             info.AddValue("Material", _material);
             info.AddValue("Area", _area);
             info.AddValue("Jxx", _jxx);
