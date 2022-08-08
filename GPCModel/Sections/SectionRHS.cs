@@ -76,6 +76,16 @@ namespace GPC.Model.Sections
         protected SectionRHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionRHSVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _h = info.GetDouble("Height");
             _b = info.GetDouble("Base");
             _tfTop = info.GetDouble("ThicknessTop");
@@ -241,6 +251,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionRHSVersion", version);
+
             info.AddValue("Height", _h);
             info.AddValue("Base", _b);
             info.AddValue("ThicknessTop", _tfTop);

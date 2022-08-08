@@ -153,8 +153,8 @@ namespace GPC.Model.Materials
             base.GetObjectData(info, context);
 
             double version = 2;
-
             info.AddValue("ConcreteMaterialVersion", version);
+
             info.AddValue("ConcreteType", _concreteType);
         }
 

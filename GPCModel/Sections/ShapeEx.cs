@@ -48,6 +48,16 @@ namespace GPC.Model.Sections
 		protected ShapeEx(SerializationInfo info, StreamingContext context) :
 			base(info, context)
 		{
+			int version;
+			try
+			{
+				version = info.GetInt32("ShapeExVersion");
+			}
+			catch (Exception)
+			{
+				version = 1;
+			}
+
 			_material = (Material)info.GetValue("Material", typeof(Material));
 		}
 
@@ -67,6 +77,10 @@ namespace GPC.Model.Sections
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
+
+			double version = 2;
+			info.AddValue("ShapeExVersion", version);
+
 			info.AddValue("Material", _material);
 		}
 

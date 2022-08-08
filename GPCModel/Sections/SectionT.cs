@@ -66,6 +66,16 @@ namespace GPC.Model.Sections
         protected SectionT(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionTVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _h = info.GetDouble("Height");
             _tw = info.GetDouble("ThicknessWeb");
             _tf = info.GetDouble("ThicknessFlange");
@@ -79,6 +89,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionTVersion", version);
+
             info.AddValue("Height", _h);
             info.AddValue("ThicknessWeb", _tw);
             info.AddValue("ThicknessFlange", _tf);
@@ -173,7 +187,6 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
-
         protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] {
@@ -187,7 +200,6 @@ namespace GPC.Model.Sections
                                                             new Point2d(0.0 , HeightWeb)
                                                         }));
         }
-
 
         protected override Point2d CalculateShearCenter()
         {
@@ -218,7 +230,6 @@ namespace GPC.Model.Sections
         {
             return $"T {_h}x{_tw}x{_b}x{_tf}";
         }
-
 
         #endregion
     }

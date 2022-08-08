@@ -63,6 +63,16 @@ namespace GPC.Model.Sections.Concrete
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("ReinforcedConcreteSectionVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
         }
@@ -604,6 +614,10 @@ namespace GPC.Model.Sections.Concrete
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("ReinforcedConcreteSectionVersion", version);
+
             info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
             info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
         }

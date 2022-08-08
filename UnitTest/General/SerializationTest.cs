@@ -8,7 +8,6 @@ using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Model.Standards;
-using static System.Collections.Specialized.BitVector32;
 using GPC.Model.Materials;
 using GPC.Geometry;
 using GPC.Model.Results;
@@ -2532,6 +2531,6 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
-        #endregion
+        #endregion                
     }
 }

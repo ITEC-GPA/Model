@@ -14,7 +14,6 @@ namespace GPC.Model.Sections.Concrete
 {
     internal static class ConcreteSectionHelper
     {
-
         internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point2d centroid, out double jxx, out double jyy, out double jxy)
         {
             double area = mesh.GetFaceArea(face);
@@ -43,7 +42,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return rebar.RebarMaterial.E / concreteMaterial.E;
         }
-
 
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
