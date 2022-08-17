@@ -25,7 +25,8 @@ namespace GPC.Model.Sections
 
             if (size <= 0)
             {
-                size = 1E+22;
+                BoundingBox3d bBox = shape.GetBoundingBox();
+                size = Math.Min(bBox.Size.X, bBox.Size.Y) / 2.0;
             }
 
             DelaunayMesh.DelaunayGenerateOptions generateOptions = new DelaunayMesh.DelaunayGenerateOptions()
