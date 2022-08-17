@@ -135,6 +135,15 @@ namespace ModelObjectTest
             return points.ToArray();
         }
 
+        protected Shape2d GetRectangularShape2d(double width, double heigth)
+		{
+            return new Shape2d(new Polygon2d(new Point2d[] {
+                new Point2d(0, 0),
+                new Point2d(width, 0),
+                new Point2d(width, heigth),
+                new Point2d(0, heigth) }));
+        }
+
         #region Section CHS
 
         [TestMethod]
@@ -1474,11 +1483,7 @@ namespace ModelObjectTest
             double n = 15;
 
             // sezione rettangolare 300x500
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                    new Point2d(width, 0),
-                                                                    new Point2d(width, heigth),
-                                                                    new Point2d(0, heigth) }));
-
+            Shape2d shape = GetRectangularShape2d(width, heigth);
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
 
@@ -1503,15 +1508,12 @@ namespace ModelObjectTest
 
             Assert.AreEqual(165270 - rebars.Select(i => i.Area).Sum(), mechanicalProperties.areaH, 2);
 
-
             var expectedJ11H = 3735800000 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
             var expectedJ22H = 1277700000 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ22(phi)) < 0.005);
-
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
-
 
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
@@ -1524,8 +1526,6 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.Jyy - 1125000000) / section.J22 * 100 < 1);
             Assert.IsTrue(Math.Abs(sectionRectangular.J11 - 3125000000) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(sectionRectangular.J22 - 1125000000) / section.J22 * 100 < 1);
-
-
             Assert.AreEqual(0, sectionRectangular.AngleX1, 0.001);
             Assert.AreEqual(165270 - sectionRectangular.GetRebars().Select(i => i.Area).Sum(), mechanicalProperties.areaH, 2);
 
@@ -1534,7 +1534,6 @@ namespace ModelObjectTest
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ22(phi)) < 0.005);
-
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
         }
 
@@ -1547,10 +1546,7 @@ namespace ModelObjectTest
             double n = 15;
 
             // sezione rettangolare 300x500
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                    new Point2d(width, 0),
-                                                                    new Point2d(width, heigth),
-                                                                    new Point2d(0, heigth), }));
+            Shape2d shape = GetRectangularShape2d(width, heigth);
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
@@ -1589,7 +1585,6 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(mechanicalProperties.J11H - 3644680436) / mechanicalProperties.J11H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.J22H - 1213900000) / mechanicalProperties.J22H * 100 < 1);
             Assert.IsTrue(Math.Abs(mechanicalProperties.angleX) < 0.001);
-
         }
 
         [TestMethod]
@@ -1600,10 +1595,7 @@ namespace ModelObjectTest
             double rebarDiameter = 16;
             double n = 15;
 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                        new Point2d(width, 0),
-                                                                        new Point2d(width, heigth),
-                                                                        new Point2d(0, heigth), }));
+            Shape2d shape = GetRectangularShape2d(width, heigth);
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterial.B450C);
@@ -1632,10 +1624,7 @@ namespace ModelObjectTest
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.015);
-
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
-
-
 
             ConcreteSectionRectangular sectionRectangular = new ConcreteSectionRectangular(heigth, width, ConcreteMaterialEN1992.C25_30);
             sectionRectangular.AddRebars(rebars);
@@ -1650,7 +1639,6 @@ namespace ModelObjectTest
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.015);
-
             Assert.AreEqual(0, mechanicalProperties.angleX, 0.001);
         }
 
@@ -1659,12 +1647,7 @@ namespace ModelObjectTest
         {
             double heigth = 400;
 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
-                new Point2d(0, 0),
-                new Point2d(heigth, 0),
-                new Point2d(heigth, heigth),
-                new Point2d(0, heigth) }));
-
+            Shape2d shape = GetRectangularShape2d(heigth, heigth);
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
@@ -1676,12 +1659,7 @@ namespace ModelObjectTest
         {
             double heigth = 600;
 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
-                new Point2d(0, 0),
-                new Point2d(heigth, 0),
-                new Point2d(heigth, heigth),
-                new Point2d(0, heigth) }));
-
+            Shape2d shape = GetRectangularShape2d(heigth, heigth);
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
@@ -1692,10 +1670,11 @@ namespace ModelObjectTest
         public void RCGenericSection1()
         {
             // sezion generica a 4 punti
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                        new Point2d(500, 100),
-                                                                        new Point2d(400, 300),
-                                                                        new Point2d(100, 200) }));
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+                new Point2d(0, 0),
+                new Point2d(500, 100),
+                new Point2d(400, 300),
+                new Point2d(100, 200) }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
@@ -1715,14 +1694,15 @@ namespace ModelObjectTest
         public void RCTSection1()
         {
             // sezion a T tovescia 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                        new Point2d(500, 0),
-                                                                        new Point2d(500, 500),
-                                                                        new Point2d(400, 500),
-                                                                        new Point2d(400, 1000),
-                                                                        new Point2d(100, 1000),
-                                                                        new Point2d(100, 500),
-                                                                        new Point2d(0, 500) }));
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+                new Point2d(0, 0),
+                new Point2d(500, 0),
+                new Point2d(500, 500),
+                new Point2d(400, 500),
+                new Point2d(400, 1000),
+                new Point2d(100, 1000),
+                new Point2d(100, 500),
+                new Point2d(0, 500) }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] { };
@@ -1742,14 +1722,15 @@ namespace ModelObjectTest
         public void RCTSection2()
         {
             // sezion a T tovescia 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   new Point2d(0, 0),
-                                                                        new Point2d(500, 0),
-                                                                        new Point2d(500, 400),
-                                                                        new Point2d(350, 400),
-                                                                        new Point2d(350, 800),
-                                                                        new Point2d(150, 800),
-                                                                        new Point2d(150, 400),
-                                                                        new Point2d(0, 400) }));
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+                new Point2d(0, 0),
+                new Point2d(500, 0),
+                new Point2d(500, 400),
+                new Point2d(350, 400),
+                new Point2d(350, 800),
+                new Point2d(150, 800),
+                new Point2d(150, 400),
+                new Point2d(0, 400) }));
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
@@ -1845,7 +1826,6 @@ namespace ModelObjectTest
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / mechanicalProperties.J11H) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.005);
-
         }
 
         [TestMethod]
@@ -1874,11 +1854,9 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / mechanicalProperties.J22H) < 0.005);
         }
 
-
         [TestMethod]
         public void RCCHSSection3()
         {
-
             double rebarDiameter = 8;
             double externalDiameter = 500;
             double thickness = 100;
@@ -1886,8 +1864,8 @@ namespace ModelObjectTest
             int numberOfRebars = 12;
             int discretization = 128;
 
-            var material = ConcreteMaterialModelCode2010.C28_35;
-            var steelMaterial = SteelMaterial.B450C;
+			ConcreteMaterialModelCode2010 material = ConcreteMaterialModelCode2010.C28_35;
+			SteelMaterial steelMaterial = SteelMaterial.B450C;
 
             Polygon2d fill = new Polygon2d(externalDiameter, discretization);
             Polygon2d hole = new Polygon2d(externalDiameter - 2 * thickness, discretization);
@@ -1918,30 +1896,22 @@ namespace ModelObjectTest
 
             double expectedArea = Math.PI * externalDiameter * externalDiameter / 4.0 - Math.PI * (externalDiameter - 2 * thickness) * (externalDiameter - 2 * thickness) / 4.0;
             double expectedI = Math.PI * Math.Pow(externalDiameter, 4) / 64.0 - Math.PI * Math.Pow(externalDiameter - 2 * thickness, 4) / 64.0;
-
             double expectedAreah = expectedArea + rebars.Select(i => i.Area * (n - 1)).Sum();
 
             Assert.AreEqual(expectedArea, section.Area, 60);
             Assert.AreEqual(expectedI, section.J11, 1e7);
             Assert.AreEqual(expectedI, section.J22, 1e7);
-
             Assert.AreEqual(250, section.Centroid.X, 0.001);
             Assert.AreEqual(250, section.Centroid.Y, 0.001);
             Assert.AreEqual(0, section.AngleX1, 0.001);
-
-
             Assert.AreEqual(expectedAreah, section.GetHomogenizedArea(phi), 60);
-
 
             var expectedJ11H = 2732065437 - section.GetRebars().Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2))).Sum();
             var expectedJ22H = 2732065437 - section.GetRebars().Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2))).Sum();
 
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ11H) / section.GetHomogeneizedJ11(phi)) < 0.005);
             Assert.IsTrue(Math.Abs(1 - Math.Abs(expectedJ22H) / section.GetHomogeneizedJ11(phi)) < 0.005);
-
-
             Assert.AreEqual(0, mechanicalPropertiesH.angleX, 0.1);
-
             Assert.AreEqual(250, mechanicalPropertiesH.centroidH.X, 0.1);
             Assert.AreEqual(250, mechanicalPropertiesH.centroidH.Y, 0.1);
         }
@@ -1968,13 +1938,11 @@ namespace ModelObjectTest
             section.AddRebar(new ReinforcedConcreteRebar(rebarSection, new Point2d(cover, height - cover)));
             section.AddRebar(new ReinforcedConcreteRebar(rebarSection, new Point2d(width - cover, height - cover)));
 
-
             var rebars = section.Rebars.ToArray();
             var mesh = section.Mesh;
 
             double expectedN = rebarSection.RebarMaterial.ElasticModulusCompression / section.Material.ElasticModulusCompression;
             double expectedNMod = rebarSection.RebarMaterial.ElasticModulusCompression / (section.Material.ElasticModulusCompression / (1.0 + phi));
-
 
             double expectedArea = width * height;
             double expectedAreaH = expectedArea + rebars.Select(i => i.Area * (expectedN - 1)).Sum();
@@ -1991,12 +1959,10 @@ namespace ModelObjectTest
             double expectedJxy = 0;
             double expectedJp = 1 / 12.0 * width * height * (Math.Pow(height, 2) + Math.Pow(width, 2));
 
-
             double expectedJxxH = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * (expectedN - 1)).Sum();
             double expectedJyyH = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * (expectedN - 1)).Sum();
             double expectedJxyH = expectedJxy + rebars.Select(i => (i.RebarSection.Jxy + i.Area * (i.Position.X - section.Centroid.X) * (i.Position.Y - section.Centroid.Y) * (expectedN - 1))).Sum();
             double expectedJpH = expectedJxxH + expectedJyyH;
-
 
             double expectedJxxH1 = expectedJxx + rebars.Select(i => (i.RebarSection.Jxx + i.Area * Math.Pow(i.Position.Y - section.Centroid.Y, 2)) * (expectedNMod - 1)).Sum();
             double expectedJyyH1 = expectedJyy + rebars.Select(i => (i.RebarSection.Jyy + i.Area * Math.Pow(i.Position.X - section.Centroid.X, 2)) * (expectedNMod - 1)).Sum();
@@ -2010,17 +1976,15 @@ namespace ModelObjectTest
             Assert.AreEqual(expectedAreaH, ConcreteSectionHelper.GetHomogenizedArea(rebars, section.ConcreteMaterial, expectedArea), 0.0001);
             Assert.AreEqual(expectedAreaH1, ConcreteSectionHelper.GetHomogenizedArea(phi, rebars, section.ConcreteMaterial, expectedArea), 0.0001);
 
-            ConcreteSectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
+            SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
             Assert.AreEqual(expectedSx, Sx, 0.0001);
             Assert.AreEqual(expectedSy, Sy, 0.0001);
-
 
             ConcreteSectionHelper.CalculateHomogeneizedStaticMoments(mesh, rebars, material, out double SxH, out double SyH);
             Assert.AreEqual(expectedSxH, SxH, 0.0001);
             Assert.AreEqual(expectedSyH, SyH, 0.0001);
 
-
-            ConcreteSectionHelper.CalculateInertiaMoments(mesh, section.Centroid, out double jxx, out double jyy, out double jxy, out double jp);
+            SectionHelper.CalculateInertiaMoments(mesh, section.Centroid, out double jxx, out double jyy, out double jxy, out double jp);
             Assert.AreEqual(expectedJxx, jxx, 0.0001);
             Assert.AreEqual(expectedJyy, jyy, 0.0001);
             Assert.AreEqual(expectedJxy, jxy, 0.0001);
@@ -2028,7 +1992,6 @@ namespace ModelObjectTest
 
             Assert.AreEqual(new Point2d(100, 250), SectionHelper.CalculateCentroid(Sx, Sy, section.Area));
             Assert.AreEqual(new Point2d(100, 250), SectionHelper.CalculateCentroid(expectedSxH, expectedSyH, expectedAreaH));
-
 
             Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(mesh, rebars, material, expectedArea, out double _, out double _), section.Centroid);
             Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(phi, mesh, rebars, material, expectedArea, out double _, out double _), section.Centroid);
@@ -2043,7 +2006,6 @@ namespace ModelObjectTest
             Assert.AreEqual(expectedJyyH, JyyH, 0.0001);
             Assert.AreEqual(expectedJxyH, JxyH, 0.0001);
             Assert.AreEqual(expectedJpH, JpH, 0.0001);
-
 
             ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, material, rebars, section.Centroid, section.Centroid, expectedJxx, expectedJyy, expectedJxy, expectedArea,
                 out double JxxH1, out double JyyH1, out double JxyH1, out double JpH1);

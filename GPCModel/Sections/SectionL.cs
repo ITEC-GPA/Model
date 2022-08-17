@@ -64,6 +64,16 @@ namespace GPC.Model.Sections
         protected SectionL(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionLVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _horizontalLegLength = info.GetDouble("HorizontalLegLength");
             _horizontalLegThickness = info.GetDouble("HorizontalLegThickness");
             _verticalLegLength = info.GetDouble("VerticalLegLength");
@@ -273,6 +283,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionLVersion", version);
+
             info.AddValue("HorizontalLegLength", _horizontalLegLength);
             info.AddValue("HorizontalLegThickness", _horizontalLegThickness);
             info.AddValue("VerticalLegLength", _verticalLegLength);

@@ -75,11 +75,9 @@ namespace GPC.Model.Standards
 
 		public abstract class CombinationsOptions
         {
-
             public override abstract bool Equals(object obj);
 
             public override abstract int GetHashCode();
-
         }
 
 		#endregion

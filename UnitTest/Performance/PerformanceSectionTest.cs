@@ -38,14 +38,14 @@ namespace PerformanceTest
 
             Action actionStaticMoments = new Action(() =>
             {
-                ConcreteSectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);
+                SectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);
             });
 
             var centroid = SectionHelper.CalculateCentroid(Sx, Sy, area);
 
             Action actionInertia = new Action(() =>
             {
-                ConcreteSectionHelper.CalculateInertiaMoments(mesh, centroid, out Jxx, out Jyy, out Jxy, out double _);
+                SectionHelper.CalculateInertiaMoments(mesh, centroid, out Jxx, out Jyy, out Jxy, out double _);
             });
 
             Action actionInertiaPrincipal = new Action(() =>

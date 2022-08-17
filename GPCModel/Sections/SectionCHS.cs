@@ -60,6 +60,16 @@ namespace GPC.Model.Sections
         protected SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("SectionCHSVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _externalDiameter = info.GetDouble("D");
             _thickness = info.GetDouble("T");
         }
@@ -183,6 +193,10 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("SectionCHSVersion", version);
+
             info.AddValue("D", _externalDiameter);
             info.AddValue("T", _thickness);
         }

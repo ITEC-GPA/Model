@@ -22,6 +22,7 @@ using GPC.TestUtilities;
 using GPC.Model.Sections;
 using GPC.Model.Fem.Collections;
 using GPC.Model.Sections.Concrete;
+using GPC.Geometry.Meshes.GMesh;
 
 namespace FemTest
 {
@@ -180,7 +181,7 @@ namespace FemTest
 
 
             // Act
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
 
@@ -234,11 +235,11 @@ namespace FemTest
 
 
             // Act
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 10
             };
@@ -277,14 +278,14 @@ namespace FemTest
         public void AddShape2()
         {
             double maximumEdgeLenght = 20;
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(100, 200);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "mgp");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions();
             meshOptions.MeshSize = 10;
 
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCaseBase("LC1"));
@@ -320,7 +321,7 @@ namespace FemTest
             double maximumEdgeLenght = meshSize*1.2;
 
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(100, 200);
             Shape s2 = new Shape(s1);
@@ -329,7 +330,7 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions();
             meshOptions.MeshSize = meshSize;
 
             PointLoad p1 = new PointLoad(1, 2, 3, 4, 5, 6, new Point3d(35, 35, 0), new LoadCaseBase("LC1"));
@@ -364,14 +365,14 @@ namespace FemTest
             double maximumEdgeLenght = 55;
 
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions();
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions();
             meshOptions.MeshSize = 50;
 
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(0, 500, 0), new Point3d(800, 500, 0)), new LoadCaseBase("LC2"));
@@ -408,7 +409,7 @@ namespace FemTest
             double loadWidth = 300 / 2.0;
 
             // Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(minorSide, majorSide);
 
@@ -416,7 +417,7 @@ namespace FemTest
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
             femModel.AddProperty(pp);
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 40
             };
@@ -481,7 +482,7 @@ namespace FemTest
             double loadHeight3 = 1500;
 
             // Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(minorSide, majorSide);
 
@@ -489,7 +490,7 @@ namespace FemTest
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
             femModel.AddProperty(pp);
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 40
             };
@@ -559,13 +560,13 @@ namespace FemTest
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 50
             };
 
 
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
@@ -607,14 +608,14 @@ namespace FemTest
         public void Attributes1()
         {
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(800, 1600);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 50
             };
@@ -640,14 +641,14 @@ namespace FemTest
         public void Attributes2()
         {
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(320, 800);
 
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            Mesh.GenerateOptions meshOptions = new Mesh.GenerateOptions
+            GMesh.GMeshGenerateOptions meshOptions = new GMesh.GMeshGenerateOptions
             {
                 MeshSize = 16
             };

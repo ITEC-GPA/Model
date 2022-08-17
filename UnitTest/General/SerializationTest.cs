@@ -1,4 +1,4 @@
-﻿using GPC.Model.Elements;
+using GPC.Model.Elements;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
@@ -8,7 +8,6 @@ using System.IO;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Model.Standards;
-using static System.Collections.Specialized.BitVector32;
 using GPC.Model.Materials;
 using GPC.Geometry;
 using GPC.Model.Results;
@@ -542,7 +541,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            StandardUNIEn1992p11 s = new StandardUNIEn1992p11();
+            StandardUNIEN1992p11 s = new StandardUNIEN1992p11();
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -550,7 +549,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                StandardUNIEn1992p11 oggettoDeserializzato = (StandardUNIEn1992p11)casted;
+                StandardUNIEN1992p11 oggettoDeserializzato = (StandardUNIEN1992p11)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -2532,6 +2531,6 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
-        #endregion
+        #endregion                
     }
 }

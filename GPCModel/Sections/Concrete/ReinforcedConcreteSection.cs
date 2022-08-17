@@ -63,6 +63,16 @@ namespace GPC.Model.Sections.Concrete
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
+            int version;
+            try
+            {
+                version = info.GetInt32("ReinforcedConcreteSectionVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
         }
@@ -370,11 +380,11 @@ namespace GPC.Model.Sections.Concrete
         {
             _area = CalculateArea();
 
-            ConcreteSectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
+            SectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
 
             _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
 
-            ConcreteSectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
 
             _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
             _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
@@ -604,6 +614,10 @@ namespace GPC.Model.Sections.Concrete
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("ReinforcedConcreteSectionVersion", version);
+
             info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
             info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
         }
