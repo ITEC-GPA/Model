@@ -181,7 +181,7 @@ namespace FemTest
 
 
             // Act
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
 
@@ -235,7 +235,7 @@ namespace FemTest
 
 
             // Act
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddProperty(bp);
 
@@ -278,7 +278,7 @@ namespace FemTest
         public void AddShape2()
         {
             double maximumEdgeLenght = 20;
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(100, 200);
 
@@ -321,7 +321,7 @@ namespace FemTest
             double maximumEdgeLenght = meshSize*1.2;
 
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(100, 200);
             Shape s2 = new Shape(s1);
@@ -365,7 +365,7 @@ namespace FemTest
             double maximumEdgeLenght = 55;
 
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(800, 1600);
 
@@ -409,7 +409,7 @@ namespace FemTest
             double loadWidth = 300 / 2.0;
 
             // Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(minorSide, majorSide);
 
@@ -482,7 +482,7 @@ namespace FemTest
             double loadHeight3 = 1500;
 
             // Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(minorSide, majorSide);
 
@@ -566,7 +566,7 @@ namespace FemTest
             };
 
 
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddShape(s1, pp.Name, meshOptions, null, null);
 
@@ -608,7 +608,7 @@ namespace FemTest
         public void Attributes1()
         {
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(800, 1600);
 
@@ -641,7 +641,7 @@ namespace FemTest
         public void Attributes2()
         {
             //Arrange
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
 
             Shape s1 = CreateSimpleShape(320, 800);
 

@@ -89,7 +89,7 @@ namespace FemTest
             PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3).GetIsotropicFemMaterial(), 1, 2, "P1");
             PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3).GetIsotropicFemMaterial(), 10, 20, "P2");
 
-            FemModel model = new FemModel();
+            FemModelBuilder model = new FemModelBuilder();
             model.AddProperty(p1);
             model.AddProperty(p2);
             Mesh mesh = CreateSimpleMesh(10, 10, 2, 4, 0);
@@ -133,7 +133,7 @@ namespace FemTest
             PlateProperty p1 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3).GetIsotropicFemMaterial(), 1, 2, "P1");
             PlateProperty p2 = new PlateProperty(new SteelMaterial("", 1, 0.1, 2, 3).GetIsotropicFemMaterial(), 10, 20, "P2");
 
-            FemModel model = new FemModel();
+            FemModelBuilder model = new FemModelBuilder();
 
             model.AddProperty(p1);
             model.AddProperty(p2);

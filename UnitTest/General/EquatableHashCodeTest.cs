@@ -453,7 +453,7 @@ namespace GeneralTest
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddMesh(mesh, pp.Name, null, null, null, null, null);
 
@@ -471,7 +471,7 @@ namespace GeneralTest
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
-            FemModel femModel = new FemModel();
+            FemModelBuilder femModel = new FemModelBuilder();
             femModel.AddProperty(pp);
             femModel.AddMesh(mesh, pp.Name, null, null, null, null, null, "gp1");
 

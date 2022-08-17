@@ -37,3 +37,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.1.10.3")]
 
 [assembly: InternalsVisibleTo("UnitTest")]
+[assembly: InternalsVisibleTo("GPCFemModel")]
