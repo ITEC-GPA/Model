@@ -196,16 +196,16 @@ namespace GPC.Model.Materials
             _cementType = cementType;
         }
 
-		protected ConcreteMaterialEuropeanCommon(string name, double elasticModulusCompression, double elasticModulusTension, 
-            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
-            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension, 
-            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType, 
-            double poisson, double alfaThermalExpansion, double density) 
-            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression, 
-                  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension, 
+        protected ConcreteMaterialEuropeanCommon(string name, double elasticModulusCompression, double elasticModulusTension,
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
+            double poisson, double alfaThermalExpansion, double density)
+            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression,
+                  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension,
                   stressStrainTableCompression, stressStrainTableTension, concreteType, poisson, alfaThermalExpansion, density)
-		{
-		}
+        {
+        }
         protected ConcreteMaterialEuropeanCommon(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -224,7 +224,7 @@ namespace GPC.Model.Materials
 
             }
             else if (version == 1)
-			{
+            {
 
             }
 
@@ -235,12 +235,12 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
             _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
         }
-                
+
         #endregion
 
-		#region Public methods
+        #region Public methods
 
-		public virtual double GetFctk05(double days)
+        public virtual double GetFctk05(double days)
         {
             return 0.7 * GetFctm(days);
         }
@@ -458,24 +458,7 @@ namespace GPC.Model.Materials
 
         public virtual double CalculateFcd(StandardModelCode2010 standardModelCode2010)
         {
-
-            if (CompressionStressStrainDiagram == ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock)
-            {
-                if (Math.Abs(Fck) > 90)
-                    throw new ArgumentException("Fck > 90 not supported by Stress block");
-
-                double eta;
-                if (Math.Abs(Fck) <= 50.0)
-                    eta = 1.0;
-                else
-                    eta = 1.0 - (Math.Abs(Fck) - 50.0) / 200;
-
-                return eta * standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
-            }
-            else
-            {
-                return standardModelCode2010.AlphaCC * Fck / standardModelCode2010.GammaC;
-            }
+            return GetFcdReduction(standardModelCode2010) * Fck;            
         }
 
         public override double CalculateDesignTensileStrength(Standards.Standard standard)
@@ -490,7 +473,12 @@ namespace GPC.Model.Materials
 
         public virtual double CalculateFctd(StandardModelCode2010 standardModelCode2010)
         {
-            return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
+            if (ConcreteType == ConcreteTypes.Concrete)
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaC;
+            else if (ConcreteType == ConcreteTypes.FRC)
+                return standardModelCode2010.AlphaCT * Fctk05 / standardModelCode2010.GammaF;
+            else
+                return 0;
         }
 
         public virtual double CalculateFcdAccidental(Standards.Standard standard)
@@ -541,12 +529,7 @@ namespace GPC.Model.Materials
         public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
         {
             if (standard is StandardModelCode2010 standardModelCode2010)
-            {
-                if (strain < 0)
-                    return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);
-                else
-                    return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);
-            }
+                return CalculateDesignStressConcrete(standardModelCode2010, strain);
             else if (standard is StandardACI318)
                 return GetStress(strain);
             else
@@ -556,9 +539,9 @@ namespace GPC.Model.Materials
         public virtual double CalculateDesignStressConcrete(StandardModelCode2010 standardModelCode2010, double strain)
         {
             if (strain < 0)
-                return GetStress(strain) * Math.Abs(CalculateFcd(standardModelCode2010) / Fck);
+                return GetStress(strain) * GetFcdReduction(standardModelCode2010);
             else
-                return GetStress(strain) * Math.Abs(CalculateFctd(standardModelCode2010) / Fctk05);
+                return GetStress(strain) * standardModelCode2010.AlphaCT / standardModelCode2010.GammaF;
         }
 
         #endregion
@@ -752,7 +735,7 @@ namespace GPC.Model.Materials
                         _fctu = fFtu;
                         _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-                        if(strainYTension > 0)
+                        if (strainYTension > 0)
                             _strainYTension = strainYTension;
                         else
                             _strainYTension = fctk / _elasticModulusTension;
@@ -1037,6 +1020,28 @@ namespace GPC.Model.Materials
                     throw new ArgumentException();
             }
         }
+
+        protected double GetFcdReduction(StandardModelCode2010 standardModelCode2010)
+        {
+            if (CompressionStressStrainDiagram == ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock)
+            {
+                if (Math.Abs(Fck) > 90)
+                    throw new ArgumentException("Fck > 90 not supported by Stress block");
+
+                double eta;
+                if (Math.Abs(Fck) <= 50.0)
+                    eta = 1.0;
+                else
+                    eta = 1.0 - (Math.Abs(Fck) - 50.0) / 200;
+
+                return eta * standardModelCode2010.AlphaCC / standardModelCode2010.GammaC;
+            }
+            else
+            {
+                return standardModelCode2010.AlphaCC / standardModelCode2010.GammaC;
+            }
+        }
+
 
         #endregion
 
