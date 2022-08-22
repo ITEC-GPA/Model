@@ -24,11 +24,55 @@ namespace GPC.Model.Materials
             FRC,
         }
 
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum CompressionStressStrainDiagrams
+        {
+            [Description("Parabola-Rectangle")]
+            ParabolaRectangle,
+
+            [Description("Bilinear")]
+            Bilinear,
+
+            [Description("Stress Block")]
+            StressBlock,
+
+            [Description("Non Linear")]
+            NonLinear,
+
+            [Description("Generic")]
+            Generic,
+        }
+
+        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
+        public enum TensionStressStrainDiagrams
+        {
+            [Description("Linear")]
+            Linear,
+
+            [Description("Bilinear")]
+            Bilinear,
+
+            [Description("Rigid-Plastic")]
+            RigidPlastic,
+
+            [Description("Generic")]
+            Generic,
+        }
+
+        public enum CementType
+        {
+            ClassR,
+            ClassN,
+            ClassS,
+        }
+
         #endregion
 
         #region Variables
 
         protected ConcreteTypes _concreteType;
+        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
         #endregion
 
@@ -47,6 +91,32 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        {
+            get => _compressionStressStrainDiagrams;
+			set
+			{
+                SetCompressionStressStrainDiagram(value);
+                RecalculateMechanicalProperties();
+			}
+        }
+
+        /// <summary>
+        /// The tension stress-strain relationship 
+        /// </summary>
+        public TensionStressStrainDiagrams TensionStressStrainDiagram
+        {
+            get => _tensionStressStrainDiagrams;
+			set
+			{
+                SetTensionStressStrainDiagrams(value);
+                RecalculateMechanicalProperties();
+			}
+        }
+
         #endregion
 
         #region Public Constructor
@@ -56,17 +126,30 @@ namespace GPC.Model.Materials
             double poisson, double density, double alfaThermalExpansion)
             : base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension,
                   poisson, density, alfaThermalExpansion)
-        {            
+        {
         }
 
         protected ConcreteMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
-        {            
+        {
         }
 
         protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
             : base(name, 0, poisson, density, alfaThermalExpansion)
         {
+        }
+
+        protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
+            double poisson, double alfaThermalExpansion, double density)
+            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression,
+                  strainUCompression, strainYTension, strainUTension, stressYCompression,
+                  stressUCompression, stressYTension, stressUTension, stressStrainTableCompression,
+                  stressStrainTableTension, poisson, alfaThermalExpansion, density)
+        {
+            _concreteType = concreteType;
         }
 
         protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
@@ -100,30 +183,22 @@ namespace GPC.Model.Materials
 
                 SetStressProperties();
             }
-            else if (version >= 2)
+            if (version >= 2)
             {
                 _concreteType = (ConcreteTypes)info.GetValue("ConcreteType", typeof(ConcreteTypes));
             }
+            if(version >= 3)
+			{
+                _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
+                _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
+            }
         }
 
-		protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension, 
-            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension, 
-            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension, 
-            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
-            double poisson, double alfaThermalExpansion, double density) 
-            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, 
-                  strainUCompression, strainYTension, strainUTension, stressYCompression, 
-                  stressUCompression, stressYTension, stressUTension, stressStrainTableCompression, 
-                  stressStrainTableTension, poisson, alfaThermalExpansion, density)
-		{
-            _concreteType = concreteType;
-        }
+        #endregion
 
-		#endregion
+        #region Public abstract Methods
 
-		#region Public abstract Methods
-
-		public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
 
         public abstract double CalculateDesignCompressiveStrength(Standards.Standard standard);
 
@@ -144,6 +219,16 @@ namespace GPC.Model.Materials
 
         public abstract void RecalculateMechanicalProperties();
 
+        public virtual void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+		{
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+		}
+
+        public virtual void SetTensionStressStrainDiagrams(TensionStressStrainDiagrams tensionStressStrainDiagrams)
+		{
+            _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+		}
+
         #endregion
 
         #region Equals - hashcode - operators
@@ -152,10 +237,12 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            double version = 2;
+            double version = 3;
             info.AddValue("ConcreteMaterialVersion", version);
 
             info.AddValue("ConcreteType", _concreteType);
+            info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
+            info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
         }
 
         public override bool Equals(object obj)
@@ -163,7 +250,11 @@ namespace GPC.Model.Materials
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is ConcreteMaterial objCasted) && base.Equals(objCasted);
+            return (obj is ConcreteMaterial objCasted) && 
+                objCasted._concreteType.Equals(_concreteType) &&
+                objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
+                objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
+                base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -171,7 +262,10 @@ namespace GPC.Model.Materials
             unchecked
             {
                 int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();                
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _concreteType.GetHashCode();
+                hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
+                hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
                 return hashCode;
             }
         }

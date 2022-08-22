@@ -17,6 +17,7 @@ namespace GPC.Model.Sections.Concrete
         double Area { get; }
 
         double AreaRebars { get; }
+
         int RebarsCount { get; }
 
         double R11 { get; }
