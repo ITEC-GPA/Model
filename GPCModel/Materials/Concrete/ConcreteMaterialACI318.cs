@@ -243,7 +243,6 @@ namespace GPC.Model.Materials
                     break;
 
                 case TensionStressStrainDiagrams.Generic:
-
                     _stressStrainTableTension = new StressStrainTable();
                     break;
 

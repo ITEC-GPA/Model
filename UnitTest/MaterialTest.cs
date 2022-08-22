@@ -398,6 +398,9 @@ namespace ModelObjectTest
                 Assert.IsTrue(stresses[i].Item1 <= 0.0);
 
             for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 >= concrete.CalculateDesignStressConcrete(standardModelCode2010, -0.0035));
+
+            for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
         }
 
