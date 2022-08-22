@@ -1,51 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Standards;
-using GPC.Utilities.Converters;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
     public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
-    {
-        #region Public Enum        
-
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum CompressionStressStrainDiagrams
-        {
-            [Description("Parabola-Rectangle")]
-            ParabolaRectangle,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Stress Block")]
-            StressBlock,
-
-            [Description("Generic")]
-            Generic,
-        }
-
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum TensionStressStrainDiagrams
-        {
-            [Description("Linear")]
-            Linear,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Rigid-Plastic")]
-            RigidPlastic,
-
-            [Description("Generic")]
-            Generic,
-        }
-
-        #endregion
-
+    {        
         #region Static Properties
 
         public static ConcreteMaterialACI318 Fc3000 => new ConcreteMaterialACI318("fc' 3000 psi", 20.6843, CompressionStressStrainDiagrams.Bilinear);
@@ -64,8 +26,7 @@ namespace GPC.Model.Materials
         protected double _fct;
         protected double _fctu;
 
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
+
 
         #endregion
 
@@ -86,16 +47,6 @@ namespace GPC.Model.Materials
         /// Ultimate strain in tension
         /// </summary>
         public double Fctu => _fctu;
-
-        /// <summary>
-        /// The compression stress-strain relationship 
-        /// </summary>
-        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
-
-        /// <summary>
-        /// The tension stress-strain relationship 
-        /// </summary>
-        public TensionStressStrainDiagrams TensionStressStrainDiagram => _tensionStressStrainDiagrams;
 
         #endregion
 
@@ -151,20 +102,18 @@ namespace GPC.Model.Materials
                 version = 1;
             }
 
-            if (version >= 2)
+            if (version == 2)
             {
-                _fc = info.GetDouble("Fc");
-                _fct = info.GetDouble("Fct");
-                _fctu = info.GetDouble("Fctu");
-
                 _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
                 _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
             }
+            else if (version == 1) { }
+            else if (version == 3) { }
+
+            _fc = info.GetDouble("Fc");
+            _fct = info.GetDouble("Fct");
+            _fctu = info.GetDouble("Fctu");
         }
-
-        #endregion
-
-        #region Public methods
 
         #endregion
 
@@ -242,6 +191,34 @@ namespace GPC.Model.Materials
                     _stressStrainTableCompression = new StressStrainTable(stresses, strains);
                     break;
 
+                case CompressionStressStrainDiagrams.NonLinear:
+
+                    double fcm = GetFcm();
+                    double K = 1.05 * GetEcm(Math.Abs(fcm)) * Math.Abs(strainYCompression) / Math.Abs(fcm);
+
+                    double[] stressesNl = new double[14];
+                    double[] strainsNl = new double[14] { 0,
+                            strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
+                            strainYCompression / 8.0 * 3, strainYCompression / 8.0 * 4,
+                            strainYCompression / 8.0 * 5, strainYCompression / 8.0 * 6,
+                            strainYCompression / 8.0 * 7, strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 1 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 2 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 3 + strainYCompression,
+                            (strainUCompression - strainYCompression) / 4.0 * 4 + strainYCompression,
+                            strainUCompression }; // discretiziamo il diagramma in 10 punti totali
+
+                    stressesNl[0] = 0;
+
+                    for (int i = 0; i < strainsNl.Length; i++)
+                    {
+                        double eta = Math.Abs(strainsNl[i] / strainYCompression);
+                        stressesNl[i] = fc * (K * eta - eta * eta) / (1.0 + (K - 2.0) * eta);
+                    }
+
+                    _stressStrainTableCompression = new StressStrainTable(stressesNl, strainsNl);
+                    break;
+
                 default:
                     throw new NotSupportedException();
             }
@@ -263,6 +240,11 @@ namespace GPC.Model.Materials
 
                 case TensionStressStrainDiagrams.RigidPlastic:
                     _stressStrainTableTension = new StressStrainTable(new double[] { fctk, fctk }, new double[] { 0, strainUTension });
+                    break;
+
+                case TensionStressStrainDiagrams.Generic:
+
+                    _stressStrainTableTension = new StressStrainTable();
                     break;
 
                 default:
@@ -474,61 +456,19 @@ namespace GPC.Model.Materials
                 return _fc * (1.0 - Math.Pow(1.0 - Math.Abs(strain / strainY), 2.0));
         }
 
+        protected virtual double GetFcm()
+        {
+            return Math.Sign(_fc) * (Math.Abs(_fc) + 8.0);
+        }
+
+        protected virtual double GetEcm(double fcm)
+        {
+            return Math.Abs(22.0 * Math.Pow(Math.Abs(fcm) / 10.0, 0.30) * 1000);
+        }
+
         #endregion
 
-        #region Equals, hashcode, operators
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-
-            double version = 2;
-
-            info.AddValue("ConcreteMaterialACIVersion", version);
-
-            info.AddValue("Fc", _fc);
-            info.AddValue("Fct", _fct);
-            info.AddValue("Fctu", _fctu);
-            info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
-            info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            return (obj is ConcreteMaterialACI318 objCasted) &&
-                objCasted._fc.Equals(_fc) &&
-               objCasted._fct.Equals(_fct) &&
-               objCasted._fctu.Equals(_fctu) &&
-               objCasted._strainUCompression.Equals(_strainUCompression) &&
-               objCasted._strainYCompression.Equals(_strainYCompression) &&
-               objCasted._strainYTension.Equals(_strainYTension) &&
-               objCasted._strainUTension.Equals(_strainUTension) &&
-               objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
-               objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
-               base.Equals(objCasted);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _fc.GetHashCode();
-                hashCode = hashCode * -17 + _fct.GetHashCode();
-                hashCode = hashCode * -17 + _fctu.GetHashCode();
-                hashCode = hashCode * -17 + _strainUCompression.GetHashCode();
-                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
-                hashCode = hashCode * -17 + _strainYTension.GetHashCode();
-                hashCode = hashCode * -17 + _strainYCompression.GetHashCode();
-                hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
-                hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
-                return hashCode;
-            }
-        }
+        #region Public methods
 
         public override double CalculateDesignCompressiveStrength(Standards.Standard standard)
         {
@@ -598,6 +538,48 @@ namespace GPC.Model.Materials
         public virtual double CalculateDesignStressConcrete(StandardACI318 standard, double strain)
         {
             return GetStress(strain);
+        }
+
+		#endregion
+
+		#region Equals, hashcode, operators
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            double version = 3;
+
+            info.AddValue("ConcreteMaterialACIVersion", version);
+
+            info.AddValue("Fc", _fc);
+            info.AddValue("Fct", _fct);
+            info.AddValue("Fctu", _fctu);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return (obj is ConcreteMaterialACI318 objCasted) &&
+                objCasted._fc.Equals(_fc) &&
+                objCasted._fct.Equals(_fct) &&
+                objCasted._fctu.Equals(_fctu) &&
+                base.Equals(objCasted);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _fc.GetHashCode();
+                hashCode = hashCode * -17 + _fct.GetHashCode();
+                hashCode = hashCode * -17 + _fctu.GetHashCode();
+                return hashCode;
+            }
         }
 
         public static bool operator ==(ConcreteMaterialACI318 obj1, ConcreteMaterialACI318 obj2)

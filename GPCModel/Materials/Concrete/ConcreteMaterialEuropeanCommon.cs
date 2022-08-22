@@ -1,9 +1,7 @@
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Standards;
-using GPC.Utilities.Converters;
 using GPC.Utilities.Maths;
 
 namespace GPC.Model.Materials
@@ -11,52 +9,6 @@ namespace GPC.Model.Materials
     [Serializable]
     public abstract class ConcreteMaterialEuropeanCommon : ConcreteMaterial, ISerializable
     {
-        #region Enum
-
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum CompressionStressStrainDiagrams
-        {
-            [Description("Parabola-Rectangle")]
-            ParabolaRectangle,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Stress Block")]
-            StressBlock,
-
-            [Description("Non Linear")]
-            NonLinear,
-
-            [Description("Generic")]
-            Generic,
-        }
-
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
-        public enum TensionStressStrainDiagrams
-        {
-            [Description("Linear")]
-            Linear,
-
-            [Description("Bilinear")]
-            Bilinear,
-
-            [Description("Rigid-Plastic")]
-            RigidPlastic,
-
-            [Description("Generic")]
-            Generic,
-        }
-
-        public enum CementType
-        {
-            ClassR,
-            ClassN,
-            ClassS,
-        }
-
-        #endregion
-
         #region Variables 
 
         protected double _fck;
@@ -64,9 +16,6 @@ namespace GPC.Model.Materials
         protected double _fctu;
 
         protected CementType _cementType;
-
-        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
         #endregion
 
@@ -112,16 +61,6 @@ namespace GPC.Model.Materials
         /// Strain in the concrete for the pure compression case
         /// </summary>
         public double StrainYPureCompression => GetStrainYPureCompression(CompressionStressStrainDiagram);
-
-        /// <summary>
-        /// The compression stress-strain relationship 
-        /// </summary>
-        public CompressionStressStrainDiagrams CompressionStressStrainDiagram => _compressionStressStrainDiagrams;
-
-        /// <summary>
-        /// The tension stress-strain relationship 
-        /// </summary>
-        public TensionStressStrainDiagrams TensionStressStrainDiagram => _tensionStressStrainDiagrams;
 
         /// <summary>
         /// Tangent modulus of elasticity
@@ -219,21 +158,18 @@ namespace GPC.Model.Materials
                 version = 1;
             }
 
-            if (version >= 2)
+            if (version == 2)
             {
-
+                _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
+                _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
             }
-            else if (version == 1)
-            {
-
-            }
+            else if (version == 1) { }
+            else if (version == 3) { }
 
             _fck = info.GetDouble("Fck");
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
             _cementType = (CementType)info.GetInt32("CementType");
-            _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
-            _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
         }
 
         #endregion
@@ -1051,15 +987,13 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            int version = 2;
+            int version = 3;
             info.AddValue("ConcreteMaterialEuropeanCommonVersion", version);
 
             info.AddValue("Fck", _fck);
             info.AddValue("Fctk", _fctk);
             info.AddValue("Fctu", _fctu);
             info.AddValue("CementType", _cementType);
-            info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
-            info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
         }
 
         public override bool Equals(object obj)
@@ -1072,8 +1006,6 @@ namespace GPC.Model.Materials
                 objCasted._fctk.Equals(_fctk) &&
                 objCasted._fctu.Equals(_fctu) &&
                 objCasted._cementType.Equals(_cementType) &&
-                objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
-                objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
                 base.Equals(objCasted);
         }
 
@@ -1087,8 +1019,6 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _fctk.GetHashCode();
                 hashCode = hashCode * -17 + _fctu.GetHashCode();
                 hashCode = hashCode * -17 + _cementType.GetHashCode();
-                hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
-                hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
                 return hashCode;
             }
         }
