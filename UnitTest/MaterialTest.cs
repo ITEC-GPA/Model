@@ -694,6 +694,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
                 2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
+
             StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -705,6 +706,28 @@ namespace ModelObjectTest
                 Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
                 Assert.IsTrue(stresses[i].Item1 >= -40 / 1.5);
                 Assert.IsTrue(stresses[i].Item1 <= 2.75 * 0.45 / 1.5);
+            }
+        }
+
+        [TestMethod]
+        public void ConcreteFRCTest17()
+        {
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
+                2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
+
+            StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
+            standardModelCode2010.SetAlphaCT(0.85);
+            standardModelCode2010.SetAlphaCC(0.85);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 200; i >= -35; i--)
+                stresses.Add((concrete.CalculateDesignStressConcrete(standardModelCode2010, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+            {
+                Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
+                Assert.IsTrue(stresses[i].Item1 >= - 0.85 * 40 / 1.5);
+                Assert.IsTrue(stresses[i].Item1 <= 0.85 * 2.75 * 0.45 / 1.5);
             }
         }
 
