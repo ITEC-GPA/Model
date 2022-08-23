@@ -727,7 +727,7 @@ namespace ModelObjectTest
             {
                 Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
                 Assert.IsTrue(stresses[i].Item1 >= - 0.85 * 40 / 1.5);
-                Assert.IsTrue(stresses[i].Item1 <= 0.85 * 2.75 * 0.45 / 1.5);
+                Assert.IsTrue(stresses[i].Item1 - 0.85 * 2.75 * 0.45 / 1.5 <= 0.0001);
             }
         }
 
