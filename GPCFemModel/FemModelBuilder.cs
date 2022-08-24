@@ -1,11 +1,6 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Geometry.Meshes.GMesh;
-using GPC.Model.Fem.Attributes;
-using GPC.Model.Fem.FiniteElements;
-using GPC.Model.Fem.Properties;
-using GPC.Model.FreedomCases;
-using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Restrains;
 using System;

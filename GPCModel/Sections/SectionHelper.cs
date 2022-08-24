@@ -31,6 +31,7 @@ namespace GPC.Model.Sections
 
             DelaunayMesh.DelaunayGenerateOptions generateOptions = new DelaunayMesh.DelaunayGenerateOptions()
             {
+                Recombine = recombine,
                 MeshSize = size,
             };
 
