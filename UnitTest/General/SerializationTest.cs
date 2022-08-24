@@ -16,6 +16,8 @@ using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
+using GPC.Model.Data.Concrete;
+using GPC.Model.Data.Steel;
 
 namespace GeneralTest
 {
@@ -1000,11 +1002,11 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992.C25_30, "section");
+            ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992Data.C25_30, "section");
             s.AddRebars(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10))});
 
             using (var ms = new MemoryStream())
             {
@@ -1042,11 +1044,11 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992.C25_30, "section");
+            ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992Data.C25_30, "section");
             s.AddRebars(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10))});
 
             using (var ms = new MemoryStream())
             {
@@ -1084,11 +1086,11 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992.C25_30, "section"); 
+            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992Data.C25_30, "section"); 
             s.AddRebars(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10))});
 
             using (var ms = new MemoryStream())
             {
@@ -1137,8 +1139,8 @@ namespace GeneralTest
                 new Point2d(0, height)
             }));
 
-            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(18, SteelMaterial.B450A);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            RebarSectionCircular rebar = new RebarSectionCircular(18, SteelMaterialEN1993Data.B450A);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[]
             {
@@ -1187,11 +1189,11 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992.C25_30, "section");
+            ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992Data.C25_30, "section");
             s.AddRebars(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10)),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10))});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10)),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10))});
 
             using (var ms = new MemoryStream())
             {
@@ -1231,11 +1233,11 @@ namespace GeneralTest
 
             RebarCollection s = new RebarCollection();
             s.AddRange(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin, 50, 1, "a"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10), 60, 2, "b"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, 10), 70, 3, "c"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, -10), 80, 4, "d"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10), 90, 5, "e")});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin, 50, 1, "a"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10), 60, 2, "b"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, 10), 70, 3, "c"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, -10), 80, 4, "d"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10), 90, 5, "e")});
 
             using (var ms = new MemoryStream())
             {
@@ -1314,16 +1316,16 @@ namespace GeneralTest
 
             RebarCollection s = new RebarCollection();
             s.AddRange(new ReinforcedConcreteRebar[] {
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin, 50, 1, "a"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), Point2d.Origin, 50, 2, "b"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10), 50, 3, "c"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, 10), 50, 4, "d"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, 10), 50, 5, "e"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, 10), 50, 6, "aa"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, -10), 50, 7, "as"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(10, -10), 50, 8, "ad"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10), 50, 9, "af"),
-                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterial.B450C), new Point2d(-10, -10), 50, 10, "ae")});
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin, 50, 1, "a"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), Point2d.Origin, 50, 2, "b"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10), 50, 3, "c"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, 10), 50, 4, "d"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, 10), 50, 5, "e"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, 10), 50, 6, "aa"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, -10), 50, 7, "as"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(10, -10), 50, 8, "ad"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10), 50, 9, "af"),
+                new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1993Data.B450C), new Point2d(-10, -10), 50, 10, "ae")});
 
             using (var ms = new MemoryStream())
             {
@@ -1365,7 +1367,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionCircular s = new SteelSectionCircular(10, SteelMaterial.S235, "section");
+            SteelSectionCircular s = new SteelSectionCircular(10, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1401,7 +1403,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionCHS s = new SteelSectionCHS(10, 2, SteelMaterial.S235, "section");
+            SteelSectionCHS s = new SteelSectionCHS(10, 2, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1438,7 +1440,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionC s = new SteelSectionC(200, 4, 100, 5, 100, 5, SteelMaterial.S235, "section");
+            SteelSectionC s = new SteelSectionC(200, 4, 100, 5, 100, 5, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1479,7 +1481,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionH s = new SteelSectionH(200, 4, 100, 5, 100, 5, SteelMaterial.S235, "section");
+            SteelSectionH s = new SteelSectionH(200, 4, 100, 5, 100, 5, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1520,7 +1522,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionL s = new SteelSectionL(200, 4, 100, 5, SteelMaterial.S235, "section");
+            SteelSectionL s = new SteelSectionL(200, 4, 100, 5, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1558,7 +1560,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionRectangular s = new SteelSectionRectangular(200, 4, SteelMaterial.S235, "section");
+            SteelSectionRectangular s = new SteelSectionRectangular(200, 4, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1595,7 +1597,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionRHS s = new SteelSectionRHS(300, 200, 5, 5, 5, 5, SteelMaterial.S235, "section");
+            SteelSectionRHS s = new SteelSectionRHS(300, 200, 5, 5, 5, 5, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1635,7 +1637,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionT s = new SteelSectionT(300, 200, 5, 5, SteelMaterial.S235, "section");
+            SteelSectionT s = new SteelSectionT(300, 200, 5, 5, SteelMaterialEN1993Data.S235, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();

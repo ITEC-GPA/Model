@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.Data.Concrete;
+using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
@@ -38,10 +40,10 @@ namespace PerformanceTest
             int numberOfRebars = 16, ConcreteMaterial concreteMaterial = null, SteelMaterial rebarMaterial = null)
         {
             if (concreteMaterial == null)
-                concreteMaterial = ConcreteMaterialEN1992.C25_30;
+                concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
 
             if (rebarMaterial == null)
-                rebarMaterial = SteelMaterial.B450C;
+                rebarMaterial = SteelMaterialEN1993Data.B450C;
 
             Shape2d shape = new Shape2d(new Polygon2d(diameter, subdivision));
             ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
@@ -64,7 +66,7 @@ namespace PerformanceTest
         protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, double subdivision = 32, ConcreteMaterial concreteMaterial = null)
         {
             if (concreteMaterial == null)
-                concreteMaterial = ConcreteMaterialEN1992.C25_30;
+                concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
 
             Shape2d shape = new Shape2d(new Polygon2d(diameter, subdivision));
             ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
@@ -218,7 +220,7 @@ namespace PerformanceTest
         [TestMethod]
         public void IntegrateCircular_1()
         {
-            ReinforcedConcreteSection section = GetCircularSection(300, 32, ConcreteMaterialEN1992.C25_30);
+            ReinforcedConcreteSection section = GetCircularSection(300, 32, ConcreteMaterialEN1992Data.C25_30);
 
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
@@ -257,7 +259,7 @@ namespace PerformanceTest
 
             for (int j = 0; j < subdivision.Length; j++)
             {
-                ReinforcedConcreteSection section = GetCircularSection(diameter, subdivision[j], ConcreteMaterialEN1992.C25_30);
+                ReinforcedConcreteSection section = GetCircularSection(diameter, subdivision[j], ConcreteMaterialEN1992Data.C25_30);
 
                 double area = section.Area;
                 double xg = section.Centroid.X;
@@ -304,7 +306,7 @@ namespace PerformanceTest
         {
             double diameter = 300;
 
-            ReinforcedConcreteSection section = GetCircularSection(diameter, 32, ConcreteMaterialEN1992.C25_30);
+            ReinforcedConcreteSection section = GetCircularSection(diameter, 32, ConcreteMaterialEN1992Data.C25_30);
             double expJ = Math.PI / 64 * Math.Pow(diameter, 4);
 
             var watch = new System.Diagnostics.Stopwatch();
@@ -333,7 +335,7 @@ namespace PerformanceTest
             int numberOfFuncions = 16;
             double b = 300;
             double h = 300;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C25_30);
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30);
 
             section.SetMeshSize(50);
             GPC.Geometry.Meshes.Mesh mesh = section.Mesh;
@@ -385,7 +387,7 @@ namespace PerformanceTest
             int numberOfFunctions = 16 * 49;
             double b = 300;
             double h = 700;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992.C25_30);
+            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30);
 
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]

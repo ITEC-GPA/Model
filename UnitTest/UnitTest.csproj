@@ -158,6 +158,10 @@
       <Project>{7e6fed5f-384c-43eb-b08d-e1069b8462bc}</Project>
       <Name>GPCFemModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GPCModelData\GPCModelData.csproj">
+      <Project>{e25d4218-83e6-49a4-8da6-ac851bb11333}</Project>
+      <Name>GPCModelData</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GPCModel\GPCModel.csproj">
       <Project>{175a9b69-232c-41b7-aba8-2d0bfe9c2062}</Project>
       <Name>GPCModel</Name>
