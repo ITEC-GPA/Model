@@ -2560,6 +2560,8 @@ namespace GeneralTest
                 var obj = formatter.Deserialize(stream);
                 ConcreteMaterial concreteMaterial = (ConcreteMaterial)obj;
 
+                Assert.IsTrue(concreteMaterial.Equals(ConcreteMaterialModelCode2010Data.C25_30));
+
                 Assert.IsNotNull(concreteMaterial);
                 Assert.IsNotNull(standard);
             }
