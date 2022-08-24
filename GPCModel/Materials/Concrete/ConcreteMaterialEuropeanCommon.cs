@@ -151,11 +151,18 @@ namespace GPC.Model.Materials
             int version;
             try
             {
-                version = info.GetInt32("MaterialVersion");
+                version = info.GetInt32("ConcreteMaterialEuropeanCommonVersion");
             }
             catch (Exception)
             {
-                version = 1;
+                try
+                {
+                    version = info.GetInt32("MaterialVersion");
+                }
+                catch (Exception)
+                {
+                    version = 1;
+                }
             }
 
             if (version == 2)
@@ -169,7 +176,14 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
-            _cementType = (CementType)info.GetInt32("CementType");
+            try
+            {
+                _cementType = (CementType)info.GetValue("CementType", typeof(CementType));
+            }
+            catch(Exception)
+			{
+                _cementType = CementType.ClassN;
+			}
         }
 
         #endregion

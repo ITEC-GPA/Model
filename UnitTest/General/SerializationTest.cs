@@ -18,6 +18,7 @@ using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
+using System.Runtime.Serialization;
 
 namespace GeneralTest
 {
@@ -2533,6 +2534,85 @@ namespace GeneralTest
             Assert.IsTrue(check);
         }
 
-        #endregion                
-    }
+		#endregion
+
+        /*
+
+		#region Checkers
+
+        // NOTA: bisogna aggiungere la DLL ModuleConcreteSection alla cartella di compilazione sia della libreria che dei test
+
+		[TestMethod]
+        public void CheckersMaterialSerializeVersion1()
+        {
+            string fileName = @"\\studio\Software_Development\FilesForTesting\CheckerUI\Concrete section Example\CheckersFile\Square_40x40.csc";
+            using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                // The file version
+                int fileVersionNumber = (int)formatter.Deserialize(stream);
+
+                /// STANDARD
+                Standard standard = (Standard)formatter.Deserialize(stream);
+
+                /// CONCRETE MATERIAL
+                var obj = formatter.Deserialize(stream);
+                ConcreteMaterial concreteMaterial = (ConcreteMaterial)obj;
+
+                Assert.IsNotNull(concreteMaterial);
+                Assert.IsNotNull(standard);
+            }
+        }
+
+        [TestMethod]
+        public void CheckersMaterialSerializeVersion2()
+        {
+            string fileName = @"\\studio\Software_Development\FilesForTesting\CheckerUI\Concrete section Example\CheckersFile\Bridge_Deck.csc";
+            using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                // The file version
+                int fileVersionNumber = (int)formatter.Deserialize(stream);
+
+                /// STANDARD
+                Standard standard = (Standard)formatter.Deserialize(stream);
+
+                /// CONCRETE MATERIAL
+                var obj = formatter.Deserialize(stream);
+                ConcreteMaterial concreteMaterial = (ConcreteMaterial)obj;
+
+                Assert.IsNotNull(concreteMaterial);
+                Assert.IsNotNull(standard);
+            }
+        }
+
+        [TestMethod]
+        public void CheckersMaterialSerializeVersion3()
+        {
+            string fileName = @"\\studio\Software_Development\FilesForTesting\CheckerUI\Concrete section Example\CheckersFile\Circular_Hollow_Section_CustomFRC.csc";
+            using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                IFormatter formatter = new BinaryFormatter();
+
+                // The file version
+                int fileVersionNumber = (int)formatter.Deserialize(stream);
+
+                /// STANDARD
+                Standard standard = (Standard)formatter.Deserialize(stream);
+
+                /// CONCRETE MATERIAL
+                var obj = formatter.Deserialize(stream);
+                ConcreteMaterial concreteMaterial = (ConcreteMaterial)obj;
+
+                Assert.IsNotNull(concreteMaterial);
+                Assert.IsNotNull(standard);
+            }
+        }
+
+		#endregion
+
+        */
+	}
 }

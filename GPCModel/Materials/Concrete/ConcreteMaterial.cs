@@ -176,7 +176,7 @@ namespace GPC.Model.Materials
                 _strainYTension = info.GetDouble("StrainYTension");
                 _strainUTension = info.GetDouble("StrainUTension");
 
-                if (_stressStrainTableTension.Strains.Length > 2)
+                if (_strainYTension < _strainUTension)
                     _concreteType = ConcreteTypes.FRC;
                 else
                     _concreteType = ConcreteTypes.Concrete;
