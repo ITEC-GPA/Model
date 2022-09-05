@@ -151,11 +151,18 @@ namespace GPC.Model.Materials
             int version;
             try
             {
-                version = info.GetInt32("MaterialVersion");
+                version = info.GetInt32("ConcreteMaterialEuropeanCommonVersion");
             }
             catch (Exception)
             {
-                version = 1;
+                try
+                {
+                    version = info.GetInt32("MaterialVersion");
+                }
+                catch (Exception)
+                {
+                    version = 1;
+                }
             }
 
             if (version == 2)
@@ -169,7 +176,14 @@ namespace GPC.Model.Materials
             _fck = info.GetDouble("Fck");
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
-            _cementType = (CementType)info.GetInt32("CementType");
+            try
+            {
+                _cementType = (CementType)info.GetValue("CementType", typeof(CementType));
+            }
+            catch(Exception)
+			{
+                _cementType = CementType.ClassN;
+			}
         }
 
         #endregion
@@ -491,13 +505,11 @@ namespace GPC.Model.Materials
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.Bilinear:
-
                     _stressStrainTableCompression = new StressStrainTable(new double[] { 0, fck, fck },
                         new double[] { 0, strainYCompression, strainUCompression });
                     break;
 
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
-
                     double[] stresses = new double[10];
                     double[] strains = new double[10] { 0,
                             strainYCompression / 8.0 * 1, strainYCompression / 8.0 * 2,
@@ -517,13 +529,11 @@ namespace GPC.Model.Materials
                     break;
 
                 case CompressionStressStrainDiagrams.StressBlock:
-
                     _stressStrainTableCompression = new StressStrainTable(new double[] { 0, 0, fck, fck },
                         new double[] { 0, strainYCompression, strainYCompression, strainUCompression });
                     break;
 
                 case CompressionStressStrainDiagrams.NonLinear:
-
                     double fcm = GetFcm();
                     double K = 1.05 * GetEcm(Math.Abs(fcm)) * Math.Abs(strainYCompression) / Math.Abs(fcm);
 
@@ -551,7 +561,6 @@ namespace GPC.Model.Materials
                     break;
 
                 case CompressionStressStrainDiagrams.Generic:
-
                     _stressStrainTableCompression = new StressStrainTable();
                     break;
 
@@ -566,23 +575,19 @@ namespace GPC.Model.Materials
             switch (tensionStressStrainDiagrams)
             {
                 case TensionStressStrainDiagrams.Linear:
-
                     _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk }, new double[] { 0, strainYTension });
                     break;
 
                 case TensionStressStrainDiagrams.Bilinear:
-
                     _stressStrainTableTension = new StressStrainTable(new double[] { 0, fctk, fctu },
                         new double[] { 0, strainYTension, strainUTension });
                     break;
 
                 case TensionStressStrainDiagrams.RigidPlastic:
-
                     _stressStrainTableTension = new StressStrainTable(new double[] { fctu, fctu }, new double[] { 0, strainUTension });
                     break;
 
                 case TensionStressStrainDiagrams.Generic:
-
                     _stressStrainTableTension = new StressStrainTable();
                     break;
 
@@ -849,7 +854,6 @@ namespace GPC.Model.Materials
                     }
 
                 case CompressionStressStrainDiagrams.Generic:
-
                     _stressStrainTableCompression.GetMinimumStress(out double strain);
                     return strain;
 

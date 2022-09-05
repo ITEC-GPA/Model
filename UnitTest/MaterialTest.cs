@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using GPC.Utilities.Serialization;
 using GPC.TestUtilities;
 using GPC.Model.Standards;
+using GPC.Model.Data.Concrete;
+using GPC.Model.Data.Steel;
 
 namespace ModelObjectTest
 {
@@ -264,23 +266,23 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest10()
         {
-            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992.C25_30;
+            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992Data.C25_30;
             List<double> stresses = new List<double>();
 
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
 
-            concrete = ConcreteMaterialEN1992.C30_37;
+            concrete = ConcreteMaterialEN1992Data.C30_37;
 
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
 
-            concrete = ConcreteMaterialEN1992.C45_55;
+            concrete = ConcreteMaterialEN1992Data.C45_55;
 
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
 
-            concrete = ConcreteMaterialEN1992.C60_75;
+            concrete = ConcreteMaterialEN1992Data.C60_75;
 
             for (int i = 10; i >= -35; i--)
                 stresses.Add(concrete.GetStress(i / 10000.0));
@@ -292,7 +294,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteENTest11()
         {
-            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992.C25_30;
+            ConcreteMaterialEN1992 concrete = ConcreteMaterialEN1992Data.C25_30;
             List<double> stresses = new List<double>();
 
             for (int i = 10; i >= -35; i--)
@@ -398,6 +400,9 @@ namespace ModelObjectTest
                 Assert.IsTrue(stresses[i].Item1 <= 0.0);
 
             for (int i = 0; i < stresses.Count; i++)
+                Assert.IsTrue(stresses[i].Item1 >= concrete.CalculateDesignStressConcrete(standardModelCode2010, -0.0035));
+
+            for (int i = 0; i < stresses.Count; i++)
                 Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
         }
 
@@ -480,7 +485,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest5()
         {
-            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010.C25_30_5;
+            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010Data.C25_30_5;
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -507,7 +512,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest6()
         {
-            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010.C30_37_15;
+            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010Data.C30_37_15;
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -550,10 +555,10 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest8()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C45_55_10;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C45_55_10;
             concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
-            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C45_55;
+            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992Data.C45_55;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -575,10 +580,10 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest9()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C30_37_10;
             concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
-            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
+            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992Data.C30_37;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -600,10 +605,10 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest10()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C30_37_25;
             concreteMC.ConcreteType = ConcreteMaterialEuropeanCommon.ConcreteTypes.Concrete;
 
-            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992.C30_37;
+            ConcreteMaterialEN1992 concreteEN = ConcreteMaterialEN1992Data.C30_37;
 
             Assert.IsTrue(Math.Abs(concreteMC.Fck - concreteEN.Fck) < 0.01);
             Assert.IsTrue(Math.Abs(concreteMC.Fctk - concreteEN.Fctk) < 0.01);
@@ -625,7 +630,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest11()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C30_37_25;
             concreteMC.StressStrainTableCompression.GetMinimumStress();
             concreteMC.StressStrainTableCompression.GetLastStrain();
 
@@ -638,7 +643,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest12()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_10;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C30_37_10;
             bool comp = concreteMC.StressStrainTableCompression.IsHardening();
             bool tens = concreteMC.StressStrainTableTension.IsHardening();
 
@@ -649,7 +654,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteFRCTest13()
         {
-            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010.C30_37_25;
+            ConcreteMaterialModelCode2010 concreteMC = ConcreteMaterialModelCode2010Data.C30_37_25;
             bool comp = concreteMC.StressStrainTableCompression.IsHardening();
             bool tens = concreteMC.StressStrainTableTension.IsHardening();
 
@@ -691,6 +696,7 @@ namespace ModelObjectTest
         {
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
                 2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
+
             StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -705,6 +711,28 @@ namespace ModelObjectTest
             }
         }
 
+        [TestMethod]
+        public void ConcreteFRCTest17()
+        {
+            ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
+                2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
+
+            StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
+            standardModelCode2010.SetAlphaCT(0.85);
+            standardModelCode2010.SetAlphaCC(0.85);
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            for (int i = 200; i >= -35; i--)
+                stresses.Add((concrete.CalculateDesignStressConcrete(standardModelCode2010, i / 10000.0), i / 10000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+            {
+                Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
+                Assert.IsTrue(stresses[i].Item1 >= - 0.85 * 40 / 1.5);
+                Assert.IsTrue(stresses[i].Item1 - 0.85 * 2.75 * 0.45 / 1.5 <= 0.0001);
+            }
+        }
+
         #endregion
 
         #region ModelCode 2010 Concrete Material Test
@@ -712,7 +740,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteModelCodeTest1()
         {
-            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010.C25_30;
+            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010Data.C25_30;
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -729,7 +757,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteModelCodeTest2()
         {
-            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010.C25_30;
+            ConcreteMaterialModelCode2010 concrete = ConcreteMaterialModelCode2010Data.C25_30;
             concrete.ConcreteType = ConcreteMaterial.ConcreteTypes.Concrete;
             concrete.ConcreteType = ConcreteMaterial.ConcreteTypes.FRC;
 
@@ -781,7 +809,7 @@ namespace ModelObjectTest
         [Description("Fc 3000")]
         public void ConcreteACITest3()
         {
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc3000;
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc3000;
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 21525.562) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 20.6843) < 0.001);
@@ -793,7 +821,7 @@ namespace ModelObjectTest
         [Description("Fc 4000")]
         public void ConcreteACITest4()
         {
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc4000;
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc4000;
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 24855) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
@@ -805,7 +833,7 @@ namespace ModelObjectTest
         [Description("Fc 5000")]
         public void ConcreteACITest5()
         {
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc5000;
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 27789.382) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 34.4738) < 0.001);
@@ -817,7 +845,7 @@ namespace ModelObjectTest
         [Description("Fc 6000")]
         public void ConcreteACITest6()
         {
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc6000;
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc6000;
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 30441.742) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 41.3685) < 0.001);
@@ -828,7 +856,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void ConcreteACITest8()
         {
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318.Fc5000;
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc5000;
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 100; i >= -350; i--)
@@ -859,7 +887,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SteelTest1()
         {
-            SteelMaterial steel = SteelMaterial.S275;
+            SteelMaterial steel = SteelMaterialEN1993Data.S275;
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -985,7 +1013,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SteelTest6()
         {
-            SteelMaterial steelMaterial = SteelMaterial.B450C;
+            SteelMaterial steelMaterial = SteelMaterialEN1993Data.B450C;
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
@@ -1062,7 +1090,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest1()
         {
-            SteelMaterial steel = SteelMaterial.B450C;
+            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -1088,7 +1116,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest2()
         {
-            SteelMaterial steel = SteelMaterial.B450C;
+            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
 
             double stressYTension = steel.GetStress(0.001955);
             double stressYCompression = steel.GetStress(-0.001955);
@@ -1105,7 +1133,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest4()
         {
-            SteelMaterial steel = SteelMaterial.B450C;
+            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
             StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
             double strain1 = 0.001955 * 0.5;
             double strain2 = 0.001955;
@@ -1177,7 +1205,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void TendonTest2()
         {
-            SteelMaterial tendon = SteelMaterial.Y1770C;
+            SteelMaterial tendon = SteelMaterialEN1993Data.Y1770C;
             StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
             double strain1 = 0.0017128174817783004;
             double strain2 = 0.0057628174817783004;

@@ -43,7 +43,7 @@ namespace GPC.Model.Sections.Concrete
             : base(sectionCHS)
         {
             _rebars = new UniqueIdCollection<ReinforcedConcreteRebar>();
-            _mesh = GenerateMesh();
+            _mesh = GetMesh();
 
             if (sectionCHS.Material.GetType() != typeof(ConcreteMaterial))
                 throw new ArgumentException("Material must be a ConcreteMaterial");

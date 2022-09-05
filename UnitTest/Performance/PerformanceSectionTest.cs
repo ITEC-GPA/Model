@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Model.Data.Concrete;
+using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
@@ -22,10 +24,10 @@ namespace PerformanceTest
         [TestMethod]
         public void ReinforcedConcreteSection1()
         {
-            ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992.C25_30, new[] { new Polygon2d(400) });
+            ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992Data.C25_30, new[] { new Polygon2d(400) });
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape);
-            section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, SteelMaterial.B450C), new Point2d()));
+            section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, SteelMaterialEN1993Data.B450C), new Point2d()));
 
             Mesh mesh = section.Mesh;
             double Sx = 0;

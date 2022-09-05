@@ -8,18 +8,6 @@ namespace GPC.Model.Materials
     [Serializable]
     public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
     {        
-        #region Static Properties
-
-        public static ConcreteMaterialACI318 Fc3000 => new ConcreteMaterialACI318("fc' 3000 psi", 20.6843, CompressionStressStrainDiagrams.Bilinear);
-
-        public static ConcreteMaterialACI318 Fc4000 => new ConcreteMaterialACI318("fc' 4000 psi", 27.579, CompressionStressStrainDiagrams.Bilinear);
-
-        public static ConcreteMaterialACI318 Fc5000 => new ConcreteMaterialACI318("fc' 5000 psi", 34.4738, CompressionStressStrainDiagrams.Bilinear);
-
-        public static ConcreteMaterialACI318 Fc6000 => new ConcreteMaterialACI318("fc' 6000 psi", 41.3685, CompressionStressStrainDiagrams.Bilinear);
-
-        #endregion
-
         #region Variables
 
         private double _fc;
@@ -243,7 +231,6 @@ namespace GPC.Model.Materials
                     break;
 
                 case TensionStressStrainDiagrams.Generic:
-
                     _stressStrainTableTension = new StressStrainTable();
                     break;
 
