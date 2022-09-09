@@ -187,6 +187,32 @@ namespace GPC.Model.Materials
             return 0;
         }
 
+        /// <summary>
+        /// Get strains associated to <paramref name="stress"/>
+        /// </summary>
+        /// <param name="stress"></param>
+        /// <returns></returns>
+        public double[] GetStrain(double stress)
+        {
+            List<double> strains = new List<double>();
+
+            for (int i = 0; i < _stresses.Length; i++)
+            {
+                if (_stresses[i] == stress)
+                    strains.Add(_strains[i]);
+
+                if (i != _strains.Length - 1)
+                {
+
+                    if (Math.Abs(_stresses[i]) < Math.Abs(stress) && Math.Abs(_stresses[i + 1]) > Math.Abs(stress) ||
+                        Math.Abs(_stresses[i + 1]) < Math.Abs(stress) && Math.Abs(_stresses[i]) > Math.Abs(stress))
+                        strains.Add(Utilities.Maths.Interpolation.GetLinearInterpolation(_stresses[i], _stresses[i + 1], _strains[i], _strains[i + 1], stress));
+                }
+            }
+
+            return strains.ToArray();
+        }
+
         /// <returns>maximum stress</returns>
         public double GetMaximumStress()
         {

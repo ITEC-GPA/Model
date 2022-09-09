@@ -1304,6 +1304,28 @@ namespace ModelObjectTest
             Assert.IsTrue(stressStrainTable.Strains.Length == 3);
         }
 
+        [TestMethod]
+        public void StressStrainTableTest7()
+        {
+            var strain5 = ConcreteMaterialEN1992Data.C25_30.StressStrainTableCompression.GetStrain(-5);
+            var strain10 = ConcreteMaterialEN1992Data.C25_30.StressStrainTableCompression.GetStrain(-10);
+            var strain15 = ConcreteMaterialEN1992Data.C25_30.StressStrainTableCompression.GetStrain(-15);
+            var strain20 = ConcreteMaterialEN1992Data.C25_30.StressStrainTableCompression.GetStrain(-20);
+            var strain25 = ConcreteMaterialEN1992Data.C25_30.StressStrainTableCompression.GetStrain(-25);
+
+            Assert.IsTrue(strain5.Length == 1);
+            Assert.IsTrue(strain10.Length == 1);
+            Assert.IsTrue(strain15.Length == 1);
+            Assert.IsTrue(strain20.Length == 1);
+            Assert.IsTrue(strain25.Length == 2);
+
+            Assert.IsTrue(strain5[0] > strain10[0]);
+            Assert.IsTrue(strain10[0] > strain15[0]);
+            Assert.IsTrue(strain15[0] > strain20[0]);
+            Assert.IsTrue(strain20[0] > strain25[0]);
+            Assert.IsTrue(strain20[0] > strain25[1]);
+        }
+
         #endregion
     }
 }
