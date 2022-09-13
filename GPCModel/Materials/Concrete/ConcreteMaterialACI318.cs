@@ -7,14 +7,12 @@ namespace GPC.Model.Materials
 {
     [Serializable]
     public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
-    {        
+    {
         #region Variables
 
-        private double _fc;
+        protected double _fc;
         protected double _fct;
         protected double _fctu;
-
-
 
         #endregion
 

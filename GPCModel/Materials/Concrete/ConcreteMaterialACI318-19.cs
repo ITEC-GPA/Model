@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Materials.Concrete
 {
+    /// <summary>
+    /// This class collects all the coefficient of the ACI 318-19
+    /// </summary>
     [Serializable]
     public class ConcreteMaterialACI31819 : ConcreteMaterialACI318, ISerializable
     {
@@ -57,7 +57,7 @@ namespace GPC.Model.Materials.Concrete
 
         public override int GetHashCode()
         {
-            return 624022166 + base.GetHashCode();
+            return 23 + base.GetHashCode();
         }
 
         public static bool operator ==(ConcreteMaterialACI31819 left, ConcreteMaterialACI31819 right)

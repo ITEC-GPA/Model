@@ -235,6 +235,10 @@
     <Compile Include="Sections\Steel\SteelSectionGeneric.cs" />
     <Compile Include="Sections\Steel\SteelSectionRectangular.cs" />
     <Compile Include="Standards\Standard.cs" />
+    <Compile Include="Standards\StandardACI318p14.cs" />
+    <Compile Include="Standards\StandardAASHTO.cs" />
+    <Compile Include="Standards\StandardACI318p19.cs" />
+    <Compile Include="Standards\StandardACI318p08.cs" />
     <Compile Include="Standards\StandardACI318.cs" />
     <Compile Include="Standards\StandardASCE16.cs" />
     <Compile Include="Standards\StandardCNR204.cs" />
