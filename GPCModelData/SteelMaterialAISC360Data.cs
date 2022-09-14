@@ -1,6 +1,6 @@
 ﻿using GPC.Model.Materials;
 
-namespace GPCModelData
+namespace GPC.Model.Data.Steel
 {
 	public class SteelMaterialAISC360Data
 	{
