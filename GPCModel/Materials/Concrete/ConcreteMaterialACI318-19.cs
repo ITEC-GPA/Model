@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Materials.Concrete
+namespace GPC.Model.Materials
 {
     /// <summary>
     /// This class collects all the coefficient of the ACI 318-19

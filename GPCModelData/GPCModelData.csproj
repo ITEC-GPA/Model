@@ -42,7 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SteelMaterialACI318Data.cs" />
     <Compile Include="SteelMaterialAISC360Data.cs" />
+    <Compile Include="SteelMaterialEN1992Data.cs" />
     <Compile Include="SteelMaterialEN1993Data.cs" />
     <Compile Include="ConcreteMaterialACI318Data.cs" />
     <Compile Include="ConcreteMaterialModelCode2010Data.cs" />

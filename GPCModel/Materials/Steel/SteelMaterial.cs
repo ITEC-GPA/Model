@@ -67,7 +67,6 @@ namespace GPC.Model.Materials
 
 		#region Constructor
 
-
 		/// <param name="name"></param>
 		/// <param name="elasticModulus">Steel elastic modulus</param>
 		/// <param name="fyk">Yielding stress</param>
@@ -419,11 +418,13 @@ namespace GPC.Model.Materials
             }
         }
 
-        #endregion
+		#endregion
 
-        #endregion
+		#endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		#region Public Methods Override
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
 
@@ -457,5 +458,7 @@ namespace GPC.Model.Materials
 				return hashCode; 
 			}
         }
-    }
+
+		#endregion
+	}
 }
