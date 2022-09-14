@@ -190,7 +190,6 @@
     <Compile Include="FEM\OldGaussIntegration.cs" />
     <Compile Include="FEM\Solver.cs" />
     <Compile Include="FEM\Stage.cs" />
-    <Compile Include="Materials\Concrete\ConcreteMaterialACI318-19.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialEN1992.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterialModelCode2010.cs" />
     <Compile Include="Materials\Concrete\ConcreteMaterial.cs" />
