@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Standards
@@ -18,6 +18,7 @@ namespace GPC.Model.Standards
 		protected double _phiTP;
 		protected double _phiDeformationTransitionIncrement;
 		protected double _phiDeformationTransitionIncrementPrestress;
+		protected double _concreteStrengthReductionFactor;
 
 		#endregion
 
@@ -65,6 +66,11 @@ namespace GPC.Model.Standards
 		/// </summary>
 		public double PhiDeformationTransitionIncrementPrestress => _phiDeformationTransitionIncrementPrestress;
 
+		/// <summary>
+		/// Concrete strength reduction factor
+		/// </summary>
+		public double ConcreteStrengthReductionFactor => _concreteStrengthReductionFactor;
+
 		#region Constructors
 
 		public StandardACI318(string name = "ACI 318", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
@@ -78,6 +84,7 @@ namespace GPC.Model.Standards
 			_phiTP = 1.0;
 			_phiDeformationTransitionIncrement = 0.003;
 			_phiDeformationTransitionIncrementPrestress = 0.002;
+			_concreteStrengthReductionFactor = 0.85;
 		}
 
 		public StandardACI318(string name = "ACI 318")
