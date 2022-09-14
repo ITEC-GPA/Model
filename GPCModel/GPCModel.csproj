@@ -246,6 +246,8 @@
     <Compile Include="Standards\StandardASCE16.cs" />
     <Compile Include="Standards\StandardCNR204.cs" />
     <Compile Include="Standards\StandardCopSuos2011.cs" />
+    <Compile Include="Standards\StandardDSEN1992p11.cs" />
+    <Compile Include="Standards\StandardNSEN1992p11.cs" />
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
     <Compile Include="Combinations\Combination.cs" />
@@ -253,6 +255,7 @@
     <Compile Include="Standards\StandardEN1992p11.cs" />
     <Compile Include="Standards\StandardNTC2018Concrete.cs" />
     <Compile Include="Standards\StandardNTC2018Steel.cs" />
+    <Compile Include="Standards\StandardDINEN1992p11.cs" />
     <Compile Include="Standards\StandardUNIEN1992p11.cs" />
     <Compile Include="Standards\StandardUNIEN1993p11.cs" />
     <Compile Include="Standards\StandardEN1993p11.cs" />

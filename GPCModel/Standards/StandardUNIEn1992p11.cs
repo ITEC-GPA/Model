@@ -45,7 +45,10 @@ namespace GPC.Model.Standards
 
 		public override int GetHashCode()
 		{
-			return 624022166 + base.GetHashCode();
+            unchecked
+            {
+                return 23 + base.GetHashCode();
+            }
 		}
 	}
 }
