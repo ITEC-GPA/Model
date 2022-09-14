@@ -27,7 +27,7 @@ namespace PerformanceTest
             ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992Data.C25_30, new[] { new Polygon2d(400) });
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape);
-            section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, SteelMaterialEN1993Data.B450C), new Point2d()));
+            section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, SteelMaterialEN1992Data.B450C), new Point2d()));
 
             Mesh mesh = section.Mesh;
             double Sx = 0;

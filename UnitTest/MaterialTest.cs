@@ -1013,7 +1013,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SteelTest6()
         {
-            SteelMaterial steelMaterial = SteelMaterialEN1993Data.B450C;
+            SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
@@ -1090,7 +1090,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest1()
         {
-            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
+            SteelMaterial steel = SteelMaterialEN1992Data.B450C;
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -1116,7 +1116,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest2()
         {
-            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
+            SteelMaterial steel = SteelMaterialEN1992Data.B450C;
 
             double stressYTension = steel.GetStress(0.001955);
             double stressYCompression = steel.GetStress(-0.001955);
@@ -1133,7 +1133,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest4()
         {
-            SteelMaterial steel = SteelMaterialEN1993Data.B450C;
+            SteelMaterial steel = SteelMaterialEN1992Data.B450C;
             StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
             double strain1 = 0.001955 * 0.5;
             double strain2 = 0.001955;
@@ -1205,7 +1205,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void TendonTest2()
         {
-            SteelMaterial tendon = SteelMaterialEN1993Data.Y1770C;
+            SteelMaterial tendon = SteelMaterialEN1992Data.Y1770C;
             StandardNTC2018Concrete standardModelCode2010 = new StandardNTC2018Concrete();
             double strain1 = 0.0017128174817783004;
             double strain2 = 0.0057628174817783004;

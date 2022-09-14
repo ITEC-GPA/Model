@@ -1487,7 +1487,7 @@ namespace ModelObjectTest
             // sezione rettangolare 300x500
             Shape2d shape = GetRectangularShape2d(width, heigth);
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(rebar, new Point2d(50, 50)),
@@ -1551,7 +1551,7 @@ namespace ModelObjectTest
             Shape2d shape = GetRectangularShape2d(width, heigth);
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
@@ -1600,7 +1600,7 @@ namespace ModelObjectTest
             Shape2d shape = GetRectangularShape2d(width, heigth);
 
             ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(rebar, new Point3d(50,50,0)),
@@ -1747,7 +1747,7 @@ namespace ModelObjectTest
             double diameter = 500;
             double n = 16;
 
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(rebar, new Point2d(450, 250), 0),
@@ -1811,7 +1811,7 @@ namespace ModelObjectTest
             int numberOfRebars = 16;
             double n = 16;
 
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992Data.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
@@ -1840,7 +1840,7 @@ namespace ModelObjectTest
             int numberOfRebars = 32;
             double n = 16;
 
-            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1993Data.B450C);
+            RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, SteelMaterialEN1992Data.B450C);
 
             ConcreteSectionCHS section = new ConcreteSectionCHS(diameterExternal, thickness, ConcreteMaterialEN1992Data.C25_30);
             section.AddRadialRebars(concreteCover, numberOfRebars, rebar);
@@ -1867,7 +1867,7 @@ namespace ModelObjectTest
             int discretization = 128;
 
 			ConcreteMaterialModelCode2010 material = ConcreteMaterialModelCode2010Data.C28_35;
-			SteelMaterial steelMaterial = SteelMaterialEN1993Data.B450C;
+			SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
 
             Polygon2d fill = new Polygon2d(externalDiameter, discretization);
             Polygon2d hole = new Polygon2d(externalDiameter - 2 * thickness, discretization);
@@ -1923,7 +1923,7 @@ namespace ModelObjectTest
         public void HomogenizedProperties()
         {
             var material = ConcreteMaterialModelCode2010Data.C28_35;
-            var steelMaterial = SteelMaterialEN1993Data.B450C;
+            var steelMaterial = SteelMaterialEN1992Data.B450C;
 
             double width = 200;
             double height = 500;

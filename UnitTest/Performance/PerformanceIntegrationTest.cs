@@ -43,7 +43,7 @@ namespace PerformanceTest
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
 
             if (rebarMaterial == null)
-                rebarMaterial = SteelMaterialEN1993Data.B450C;
+                rebarMaterial = SteelMaterialEN1992Data.B450C;
 
             Shape2d shape = new Shape2d(new Polygon2d(diameter, subdivision));
             ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
