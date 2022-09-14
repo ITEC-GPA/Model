@@ -98,7 +98,9 @@ namespace GPC.Model.Standards
 			_phiMaximumCompressiveAxialLoadSpiral = info.GetDouble("PhiSpiral");
 			_phiMaximumCompressiveAxialLoadTied = info.GetDouble("PhiTied");
 			_phiT = info.GetDouble("PhiT");
+			_phiTP = info.GetDouble("PhiTP");
 			_phiDeformationTransitionIncrement = info.GetDouble("PhiDeformationTransitionIncrement");
+			_phiDeformationTransitionIncrementPrestress = info.GetDouble("PhiDeformationTransitionIncrementPrestress");
 		}
 
 		#endregion
@@ -142,7 +144,9 @@ namespace GPC.Model.Standards
 			info.AddValue("PhiSpiral", _phiMaximumCompressiveAxialLoadSpiral);
 			info.AddValue("PhiTied", _phiMaximumCompressiveAxialLoadTied);
 			info.AddValue("PhiT", _phiT);
+			info.AddValue("PhiTP", _phiTP);
 			info.AddValue("PhiDeformationTransitionIncrement", _phiDeformationTransitionIncrement);
+			info.AddValue("PhiDeformationTransitionIncrementPrestress", _phiDeformationTransitionIncrementPrestress);
 		}
 
 		#endregion
@@ -159,12 +163,12 @@ namespace GPC.Model.Standards
 			_phiCTied = phiCTied;
 		}
 
-		public void SetPhiSpiral(double phiSpiral)
+		public void SetPhiMaximumCompressiveAxialLoadSpiral(double phiSpiral)
 		{
 			_phiMaximumCompressiveAxialLoadSpiral = phiSpiral;
 		}
 
-		public void SetPhiTied(double phiTied)
+		public void SetPhiMaximumCompressiveAxialLoadTied(double phiTied)
 		{
 			_phiMaximumCompressiveAxialLoadTied = phiTied;
 		}
@@ -174,9 +178,19 @@ namespace GPC.Model.Standards
 			_phiT = phiT;
 		}
 
+		public void SetPhiTP(double phiT)
+		{
+			_phiTP = phiT;
+		}
+
 		public void SetPhiDeformationTransitionIncrement(double phiDeformationTransitionIncrement)
 		{
 			_phiDeformationTransitionIncrement = phiDeformationTransitionIncrement;
+		}
+
+		public void SetPhiDeformationTransitionIncrementPrestress(double phiDeformationTransitionIncrement)
+		{
+			_phiDeformationTransitionIncrementPrestress = phiDeformationTransitionIncrement;
 		}
 
 		#endregion

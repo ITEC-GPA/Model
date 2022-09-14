@@ -10,19 +10,19 @@ namespace GPC.Model.Standards
 	{
 		#region Constructors
 
-		public StandardACI318p14(string name = "ACI 318-14", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
+		public StandardACI318p14(string name = "ACI 318-14", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318-14")
 			: base(name, remarks)
 		{
 
 		}
 
 		public StandardACI318p14(string name = "ACI 318-14")
-			: this(name, "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
+			: this(name, "Building Code Requirements for Structural Concrete: ACI Standard ACI 318-14")
 		{
 		}
 
 		public StandardACI318p14()
-			: this("ACI 318-14", "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
+			: this("ACI 318-14", "Building Code Requirements for Structural Concrete: ACI Standard ACI 318-14")
 		{
 		}
 
