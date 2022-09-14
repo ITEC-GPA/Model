@@ -2,7 +2,7 @@
 
 namespace GPC.Model.Data.Steel
 {
-	public class SteelMaterialAISC360
+	public class SteelMaterialAISC360Data
 	{
 		#region Rebar
 
