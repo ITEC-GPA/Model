@@ -247,6 +247,7 @@
     <Compile Include="Standards\StandardCNR204.cs" />
     <Compile Include="Standards\StandardCopSuos2011.cs" />
     <Compile Include="Standards\StandardDSEN1992p11.cs" />
+    <Compile Include="Standards\StandardCSTR34.cs" />
     <Compile Include="Standards\StandardNSEN1992p11.cs" />
     <Compile Include="Standards\StandardEN16612.cs" />
     <Compile Include="Standards\StandardEN1990.cs" />
