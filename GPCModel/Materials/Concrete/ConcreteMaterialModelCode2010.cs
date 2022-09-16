@@ -1,9 +1,11 @@
-﻿using System;
+﻿using GPC.Utilities.Attributes;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [UI(Description = "Concrete", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialModelCode2010 : ConcreteMaterialEuropeanCommon, ISerializable
     {
         #region Constructors

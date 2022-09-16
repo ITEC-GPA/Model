@@ -2,19 +2,19 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Standards;
+using GPC.Utilities.Attributes;
 
 namespace GPC.Model.Materials
 {
     [Serializable]
+    [UI(Description = "Concrete", Group = "Materials", Kind = "Material")]
     public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
-    {        
+    {
         #region Variables
 
-        private double _fc;
+        protected double _fc;
         protected double _fct;
         protected double _fctu;
-
-
 
         #endregion
 
@@ -250,7 +250,7 @@ namespace GPC.Model.Materials
             switch (compressionStressStrainDiagrams)
             {
                 case CompressionStressStrainDiagrams.StressBlock:
-                    _fc = 0.85 * fc;
+                    _fc = fc;
                     _elasticModulusCompression = CalculateElasticModulus(fc);
                     _strainUCompression = GetStrainUCompression(compressionStressStrainDiagrams);
                     _strainYCompression = GetStrainYCompression(compressionStressStrainDiagrams, _strainUCompression);
@@ -479,9 +479,9 @@ namespace GPC.Model.Materials
                     return standardModelCode2010.AlphaCC * Fc / standardModelCode2010.GammaC;
                 }
             }
-            else if (standard is StandardACI318)
+            else if (standard is StandardACI318 standardACI318)
             {
-                return Fc;
+                return CalculateDesignCompressiveStrength(standardACI318);
             }
             else
                 throw new ArgumentException();
@@ -489,7 +489,10 @@ namespace GPC.Model.Materials
 
         public virtual double CalculateDesignCompressiveStrength(StandardACI318 standard)
         {
-            return Fc;
+            if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)            
+                return standard.ConcreteStrengthReductionFactor * Fc;            
+            else
+                return Fc;
         }
 
         public override double CalculateDesignTensileStrength(Standards.Standard standard)
@@ -516,15 +519,18 @@ namespace GPC.Model.Materials
                 else
                     return GetStress(strain) * Math.Abs(CalculateDesignTensileStrength(standardModelCode2010) / Fct);
             }
-            else if (standard is StandardACI318)
-                return GetStress(strain);
+            else if (standard is StandardACI318 standardACI318)
+                return CalculateDesignStressConcrete(standardACI318, strain);
             else
                 throw new ArgumentException();
         }
 
         public virtual double CalculateDesignStressConcrete(StandardACI318 standard, double strain)
         {
-            return GetStress(strain);
+            if (CompressionStressStrainDiagram == CompressionStressStrainDiagrams.StressBlock)            
+                return standard.ConcreteStrengthReductionFactor * GetStress(strain);            
+            else
+                return GetStress(strain);
         }
 
 		#endregion

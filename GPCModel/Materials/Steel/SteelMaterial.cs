@@ -67,7 +67,6 @@ namespace GPC.Model.Materials
 
 		#region Constructor
 
-
 		/// <param name="name"></param>
 		/// <param name="elasticModulus">Steel elastic modulus</param>
 		/// <param name="fyk">Yielding stress</param>
@@ -232,6 +231,19 @@ namespace GPC.Model.Materials
 			}
 		}
 
+        public double CalculateDesignStrain(Standards.Standard standard, double strain)
+        {
+            switch (standard)
+            {
+                case Standards.StandardModelCode2010 mc:
+                    return CalculateDesignStrain(mc, strain);
+                case Standards.StandardACI318 aci:
+                    return CalculateDesignStrain(aci, strain);
+                default:
+                    return 0;
+            }
+        }
+
         #region ModelCode2010
 
         /// <returns>The design rebar yielding stress</returns>
@@ -276,6 +288,11 @@ namespace GPC.Model.Materials
                 return StrainUTension * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
+        }
+
+        public double CalculateDesignStrain(Standards.StandardModelCode2010 standardModelCode2010, double strain)
+        {
+            return strain;
         }
 
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
@@ -372,6 +389,11 @@ namespace GPC.Model.Materials
             return StrainUTension;
         }
 
+        public double CalculateDesignStrain(Standards.StandardACI318 standardACI318, double strain)
+		{
+            return strain;
+		}
+
         /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
         public double CalculateDesignStress(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
         {
@@ -383,11 +405,26 @@ namespace GPC.Model.Materials
             return stress;
         }
 
-        #endregion
+        public double CalculateDesignStress(Standards.Standard standard, double stress, double strain, double epsilonP = 0)
+        {
+            switch (standard)
+            {
+                case Standards.StandardModelCode2010 mc:
+                    return CalculateDesignStress(mc, stress, strain, epsilonP);
+                case Standards.StandardACI318 aci:
+                    return CalculateDesignStress(aci, stress, strain, epsilonP);
+                default:
+                    return 0;
+            }
+        }
 
-        #endregion
+		#endregion
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		#endregion
+
+		#region Public Methods Override
+
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
 
@@ -421,5 +458,7 @@ namespace GPC.Model.Materials
 				return hashCode; 
 			}
         }
-    }
+
+		#endregion
+	}
 }
