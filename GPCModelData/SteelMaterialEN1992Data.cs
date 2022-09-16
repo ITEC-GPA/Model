@@ -25,42 +25,42 @@ namespace GPC.Model.Data.Steel
 
         #region Bars
 
-        public static SteelMaterial Y1030C => new SteelMaterial("Y1030", 205000, 1030, 1030, 0.04, SteelMaterial.SteelTypes.Bars);
-        public static SteelMaterial Y1030CHardening => new SteelMaterial("Y1030 Hardening", 205000, 1030, 1180, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1030C => new SteelMaterialEN1992("Y1030", 205000, 1030, 1030, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1030CHardening => new SteelMaterialEN1992("Y1030 Hardening", 205000, 1030, 1180, 0.04, SteelMaterial.SteelTypes.Bars);
 
-        public static SteelMaterial Y1050C => new SteelMaterial("Y1050", 205000, 1050, 1050, 0.04, SteelMaterial.SteelTypes.Bars);
-        public static SteelMaterial Y1050CHardening => new SteelMaterial("Y1050 Hardening", 205000, 1050, 1240, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1050C => new SteelMaterialEN1992("Y1050", 205000, 1050, 1050, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1050CHardening => new SteelMaterialEN1992("Y1050 Hardening", 205000, 1050, 1240, 0.04, SteelMaterial.SteelTypes.Bars);
 
-        public static SteelMaterial Y1100C => new SteelMaterial("Y1100", 205000, 1100, 1100, 0.04, SteelMaterial.SteelTypes.Bars);
-        public static SteelMaterial Y1100CHardening => new SteelMaterial("Y1100 Hardening", 205000, 1100, 1280, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1100C => new SteelMaterialEN1992("Y1100", 205000, 1100, 1100, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1100CHardening => new SteelMaterialEN1992("Y1100 Hardening", 205000, 1100, 1280, 0.04, SteelMaterial.SteelTypes.Bars);
 
-        public static SteelMaterial Y1230C => new SteelMaterial("Y1230", 205000, 1230, 1230, 0.04, SteelMaterial.SteelTypes.Bars);
-        public static SteelMaterial Y1230CHardening => new SteelMaterial("Y1230 Hardening", 205000, 1230, 1420, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1230C => new SteelMaterialEN1992("Y1230", 205000, 1230, 1230, 0.04, SteelMaterial.SteelTypes.Bars);
+        public static SteelMaterialEN1992 Y1230CHardening => new SteelMaterialEN1992("Y1230 Hardening", 205000, 1230, 1420, 0.04, SteelMaterial.SteelTypes.Bars);
 
         #endregion
 
         #region Tendon
 
-        public static SteelMaterial Y1570C => new SteelMaterial("Y1570", 195000, 1420, 1420, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1570CHardening => new SteelMaterial("Y1570 Hardening", 195000, 1420, 1570, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1570C => new SteelMaterialEN1992("Y1570", 195000, 1420, 1420, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1570CHardening => new SteelMaterialEN1992("Y1570 Hardening", 195000, 1420, 1570, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y1620C => new SteelMaterial("Y1620", 195000, 1420, 1420, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1620CHardening => new SteelMaterial("Y1620 Hardening", 195000, 1420, 1620, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1620C => new SteelMaterialEN1992("Y1620", 195000, 1420, 1420, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1620CHardening => new SteelMaterialEN1992("Y1620 Hardening", 195000, 1420, 1620, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y1670C => new SteelMaterial("Y1670", 195000, 1480, 1480, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1670CHardening => new SteelMaterial("Y1670 Hardening", 195000, 1480, 1670, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1670C => new SteelMaterialEN1992("Y1670", 195000, 1480, 1480, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1670CHardening => new SteelMaterialEN1992("Y1670 Hardening", 195000, 1480, 1670, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y1770C => new SteelMaterial("Y1770", 195000, 1560, 1560, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1770CHardening => new SteelMaterial("Y1770 Hardening", 195000, 1560, 1770, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1770C => new SteelMaterialEN1992("Y1770", 195000, 1560, 1560, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterial Y1770CHardening => new SteelMaterialEN1992("Y1770 Hardening", 195000, 1560, 1770, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y1860C => new SteelMaterial("Y1860", 195000, 1640, 1640, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1860CHardening => new SteelMaterial("Y1860 Hardening", 195000, 1640, 1860, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1860C => new SteelMaterialEN1992("Y1860", 195000, 1640, 1640, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1860CHardening => new SteelMaterialEN1992("Y1860 Hardening", 195000, 1640, 1860, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y1960C => new SteelMaterial("Y1960", 195000, 1740, 1740, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1960CHardening => new SteelMaterial("Y1960 Hardening", 195000, 1740, 1960, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1960C => new SteelMaterialEN1992("Y1960", 195000, 1740, 1740, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1960CHardening => new SteelMaterialEN1992("Y1960 Hardening", 195000, 1740, 1960, 0.035, SteelMaterial.SteelTypes.Tendon);
 
-        public static SteelMaterial Y2060C => new SteelMaterial("Y2060C", 195000, 1820, 1820, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y2060CHardening => new SteelMaterial("Y2060C Hardening", 195000, 1820, 2060, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y2060C => new SteelMaterialEN1992("Y2060C", 195000, 1820, 1820, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y2060CHardening => new SteelMaterialEN1992("Y2060C Hardening", 195000, 1820, 2060, 0.035, SteelMaterial.SteelTypes.Tendon);
 
         #endregion
     }
