@@ -6,6 +6,7 @@ namespace GPC.Model.Standards
 	/// <summary>
 	/// This class collects all the coefficient of the AASHTO-LRFD
 	/// </summary>
+	[Serializable]
 	public class StandardAASHTO : StandardACI318, IEquatable<StandardACI318>
 	{
 		#region Constructors

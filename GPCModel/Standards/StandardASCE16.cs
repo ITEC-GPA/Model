@@ -10,11 +10,12 @@ using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
-    /// <summary>
-    /// This class collects all the coefficient of the ASCE7-16 Standard
-    /// </summary>
-    /// <remarks>Reference: ASCE7-16</remarks>
-    public class StandardASCE16 : Standard, Standard.ICombinationsGenerator
+	/// <summary>
+	/// This class collects all the coefficient of the ASCE7-16 Standard
+	/// </summary>
+	/// <remarks>Reference: ASCE7-16</remarks>
+	[Serializable]
+	public class StandardASCE16 : Standard, Standard.ICombinationsGenerator
     {
         #region PUBLIC ENUMS        
 

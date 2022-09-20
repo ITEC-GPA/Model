@@ -6,6 +6,7 @@ namespace GPC.Model.Standards
 	/// <summary>
 	/// This class collects all the coefficient of the ACI 318
 	/// </summary>
+	[Serializable]
 	public abstract class StandardACI318 : Standard, IEquatable<StandardACI318>
 	{
 		#region Variables
