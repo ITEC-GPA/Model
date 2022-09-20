@@ -8,7 +8,10 @@ namespace GPC.Model.Data.Steel
 
 		public static SteelMaterialACI318 Grade40 => new SteelMaterialACI318("Grade 40", 199947.9615, 275.790, 275.790, 0.10, SteelMaterial.SteelTypes.Rebar);
 		public static SteelMaterialACI318 Grade40Hardening => new SteelMaterialACI318("Grade 40 Hardening", 199947.9615, 275.790, 379.901, 0.10, SteelMaterial.SteelTypes.Rebar);
-				
+
+		public static SteelMaterialACI318 Grade50 => new SteelMaterialACI318("Grade 50", 199947.9615, 344.7378, 344.7378, 0.10, SteelMaterial.SteelTypes.Rebar);
+		public static SteelMaterialACI318 Grade50Hardening => new SteelMaterialACI318("Grade 50 Hardening", 199947.9615, 344.7378, 450.2276, 0.10, SteelMaterial.SteelTypes.Rebar);
+
 		public static SteelMaterialACI318 Grade60 => new SteelMaterialACI318("Grade 60", 199947.9615, 413.685, 413.685, 0.10, SteelMaterial.SteelTypes.Rebar);
 		public static SteelMaterialACI318 Grade60Hardening => new SteelMaterialACI318("Grade 60 Hardening", 199947.9615, 413.685, 551.580, 0.10, SteelMaterial.SteelTypes.Rebar);
 
