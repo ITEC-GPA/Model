@@ -51,7 +51,7 @@ namespace GPC.Model.Data.Steel
         public static SteelMaterialEN1992 Y1670CHardening => new SteelMaterialEN1992("Y1670 Hardening", 195000, 1480, 1670, 0.035, SteelMaterial.SteelTypes.Tendon);
 
         public static SteelMaterialEN1992 Y1770C => new SteelMaterialEN1992("Y1770", 195000, 1560, 1560, 0.035, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterial Y1770CHardening => new SteelMaterialEN1992("Y1770 Hardening", 195000, 1560, 1770, 0.035, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1770CHardening => new SteelMaterialEN1992("Y1770 Hardening", 195000, 1560, 1770, 0.035, SteelMaterial.SteelTypes.Tendon);
 
         public static SteelMaterialEN1992 Y1860C => new SteelMaterialEN1992("Y1860", 195000, 1640, 1640, 0.035, SteelMaterial.SteelTypes.Tendon);
         public static SteelMaterialEN1992 Y1860CHardening => new SteelMaterialEN1992("Y1860 Hardening", 195000, 1640, 1860, 0.035, SteelMaterial.SteelTypes.Tendon);

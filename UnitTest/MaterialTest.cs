@@ -1227,11 +1227,25 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
         }
 
-        #endregion
+		[TestMethod]
+		public void TendonTest3()
+		{
+            SteelMaterial tendon = SteelMaterialEN1992Data.Y1570C;
+			List<double> stresses = new List<double>();
+            StandardNTC2018Concrete ntc = new StandardNTC2018Concrete();
 
-        #region StressStrainTable Test
+			for (int i = 30; i >= -30; i--)
+				stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.00007));
 
-        [TestMethod]
+			for (int i = 0; i < stresses.Count; i++)
+				Console.WriteLine(stresses[i]);
+		}
+
+		#endregion
+
+		#region StressStrainTable Test
+
+		[TestMethod]
         public void StressStrainTableTest1()
         {
             StressStrainTable stressStrainTable = new StressStrainTable(new double[] { }, new double[] { });
