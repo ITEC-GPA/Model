@@ -16,7 +16,7 @@ namespace GPC.Model.Sections.Concrete
 		/// </summary>
 		internal static double CalculateN(ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
 		{
-			return rebar.RebarMaterial.E / concreteMaterial.E;
+			return rebar.RebarMaterial.ElasticModulusTension / concreteMaterial.ElasticModulusCompression;
 		}
 				
 		internal static void CalculateHomogeneizedStaticMoments(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog)
@@ -285,7 +285,7 @@ namespace GPC.Model.Sections.Concrete
 		/// </summary>
 		internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
 		{
-			return (rebar.RebarMaterial.E / (concreteMaterial.E / (1 + phi)));
+			return (rebar.RebarMaterial.ElasticModulusTension / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
 		}
 
 		/// <summary>
@@ -293,7 +293,7 @@ namespace GPC.Model.Sections.Concrete
 		/// </summary>
 		internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
 		{
-			return (rebars.Select(i => i.RebarMaterial.E).Average() / (concreteMaterial.E / (1 + phi)));
+			return (rebars.Select(i => i.RebarMaterial.ElasticModulusTension).Average() / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
 		}
 	}
 }
