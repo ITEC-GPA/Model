@@ -1235,7 +1235,7 @@ namespace ModelObjectTest
             StandardNTC2018Concrete ntc = new StandardNTC2018Concrete();
 
 			for (int i = 30; i >= -30; i--)
-				stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.00007));
+				stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.007045));
 
 			for (int i = 0; i < stresses.Count; i++)
 				Console.WriteLine(stresses[i]);

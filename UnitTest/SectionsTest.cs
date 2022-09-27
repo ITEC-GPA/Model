@@ -13,6 +13,7 @@ using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Utilities.Extensions;
 
 namespace ModelObjectTest
 {
@@ -1689,10 +1690,34 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.Jyy - 1127777778) / section.Jyy * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J11 - 1211051091) / section.J11 * 100 < 1);
             Assert.IsTrue(Math.Abs(section.J22 - 246935021) / section.J22 * 100 < 1);
-            Assert.IsTrue(Math.Abs(section.AngleX1 - (-0.29827677)) < 0.001);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - (-72.91.ToRadians())) < 0.001);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void RCGenericSection2()
+		{
+			// sezion generica a 4 punti
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
+				new Point2d(0, 0),
+				new Point2d(200, 0),
+				new Point2d(200, 40),
+				new Point2d(60, 40),
+				new Point2d(60, 150),
+				new Point2d(0, 150),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+
+			//valori calcolati con VCASLU
+			Assert.IsTrue(Math.Abs(section.Jxx - 28064132) / section.Jxx * 100 < 1);
+			Assert.IsTrue(Math.Abs(section.Jyy - 46367215) / section.Jyy * 100 < 1);
+			Assert.IsTrue(Math.Abs(section.J11 - 58292446) / section.J11 * 100 < 1);
+			Assert.IsTrue(Math.Abs(section.J22 - 16138901) / section.J22 * 100 < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - (-122.1.ToRadians() + Math.PI)) < 0.001);
+		}
+
+		[TestMethod]
         public void RCTSection1()
         {
             // sezion a T tovescia 

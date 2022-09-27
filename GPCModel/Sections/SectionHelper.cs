@@ -54,7 +54,7 @@ namespace GPC.Model.Sections
             if (Math.Abs(Jxy) < GeometryBase.GetDefaultTolerance())
                 return 0.0;
 
-            double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy, (Jyy - Jxx));
+            double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy, (Jxx - Jyy));
 
             if (Jyy < Jxx)
                 angle += Math.PI / 2.0;
@@ -127,8 +127,8 @@ namespace GPC.Model.Sections
             Jxy = JxyArray.Sum();
             Jp = Jxx + Jyy;
 
-            if (Jxy < 0)
-                Jxy = 0.0; // non pu� essere negativo. Se la sezione simmetrica vale zero e pu� diventare negativo per errore numerico 
+            if (Math.Abs(Jxy) < 100000)
+                Jxy = 0.0; // Se la sezione simmetrica vale zero e pu� diventare negativo per errore numerico 
         }
 
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
