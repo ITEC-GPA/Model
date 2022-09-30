@@ -151,6 +151,5 @@ namespace GPC.Model.Sections
             Sx = SxArray.Sum();
             Sy = SyArray.Sum();
         }
-
     }
 }

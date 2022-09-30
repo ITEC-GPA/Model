@@ -1069,11 +1069,33 @@ namespace ModelObjectTest
             Assert.AreEqual(JwStraus / sec.Jw - 1.0, 0, 0.05);
         }
 
-        #endregion
+		[TestMethod]
+		public void SectionT_Test3()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] 
+            {
+				new Point2d(-1200, 0),
+				new Point2d(1200, 0),
+				new Point2d(1200, 550),
+				new Point2d(325, 550),
+				new Point2d(325, 3100),
+				new Point2d(-325, 3100),
+				new Point2d(-325, 550),
+				new Point2d(-1200, 550),
+			}));
 
-        #region Section C
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-        [TestMethod]
+            Assert.IsTrue(Math.Abs(section.Centroid.X) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - 1138) < 1);			
+		}
+
+		#endregion
+
+		#region Section C
+
+		[TestMethod]
         public void SectionC_Test1()
         {
             double h = 400;
