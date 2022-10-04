@@ -634,11 +634,11 @@ namespace GPC.Model.Sections
 			return null;
 		}
 
-		public virtual Mesh GetMesh(double meshSize = 0)
+		public virtual Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
 		{
 			if (meshSize == 0)
 				meshSize = _meshSize;
-			return SectionHelper.GenerateGMesh(GetShape(), meshSize);
+			return SectionHelper.GenerateGMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
 		}
 
 		private double GetMax(double[] array)

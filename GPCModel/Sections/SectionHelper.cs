@@ -11,14 +11,16 @@ namespace GPC.Model.Sections
 {
     internal static class SectionHelper
     {
-		/// <summary>
-		/// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
-		/// </summary>
-		/// <param name="shape">The shape</param>
-		/// <param name="size">The mesh size</param>
-		/// <param name="recombine">If true, recombine the mesh into quad mesh</param>
-		/// <returns></returns>
-		internal static Mesh GenerateGMesh(Shape2d shape, double size = 0, bool recombine = true)
+        /// <summary>
+        /// Generate the mesh of the section. If <paramref name="size"/> not set, size is set as the default value of the minimum of the bounding box size divided by 2.
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="size">The mesh size</param>
+        /// <param name="initialMeshOnly">If true, use only shape vertices for meshing</param>
+        /// <param name="recombine">If true, recombine the mesh into quad mesh</param>
+        /// <param name="refine"></param>
+        /// <returns></returns>
+        internal static Mesh GenerateGMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
         {
             if (shape is null)
                 return null;
@@ -33,6 +35,8 @@ namespace GPC.Model.Sections
             {
                 Recombine = recombine,
                 MeshSize = size,
+                InitialMeshOnly = initialMeshOnly,
+                Refine = refine,
             };
 
             if (DelaunayMesh.Generate(shape, generateOptions, out Mesh meshes, out DelaunayMesh.DelaunayGenerateMeshStatus meshStatus))
@@ -114,7 +118,9 @@ namespace GPC.Model.Sections
             {
                 for (int i = range.Item1; i < range.Item2; i++)
                 {
-                    CalculateIntegralInertiaMoment(mesh, mesh.Faces[i + 1], centroid, out double jxx, out double jyy, out double jxy);
+                    MeshFace meshFace = mesh.Faces.ElementAt(i);
+
+					CalculateIntegralInertiaMoment(mesh, meshFace, centroid, out double jxx, out double jyy, out double jxy);
 
                     JxxArray[i] = jxx;
                     JyyArray[i] = jyy;
@@ -140,8 +146,10 @@ namespace GPC.Model.Sections
             {
                 for (int i = range.Item1; i < range.Item2; i++)
                 {
-                    double area = mesh.GetFaceArea(mesh.Faces[i + 1]);
-                    Point2d centroid = mesh.GetFaceCentroid(mesh.Faces[i + 1]);
+                    MeshFace meshFace = mesh.Faces.ElementAt(i);
+
+					double area = mesh.GetFaceArea(meshFace);
+                    Point2d centroid = mesh.GetFaceCentroid(meshFace);
 
                     SxArray[i] = area * centroid.Y;
                     SyArray[i] = area * centroid.X;
