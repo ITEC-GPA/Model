@@ -1787,7 +1787,28 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001, section.AngleX1.ToString());
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void RCTSection3()
+		{
+			// sezion a T tovescia 
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(-800, 0),
+				new Point2d(800, 0),
+				new Point2d(800, 550),
+				new Point2d(200, 550),
+				new Point2d(200, 4500),
+				new Point2d(-200, 4500),
+				new Point2d(-200, 550),
+				new Point2d(-800, 550),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+			Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001, section.AngleX1.ToString());
+		}
+
+		[TestMethod]
         public void RCCircularSection1()
         {
             double rebarDiameter = 16;
