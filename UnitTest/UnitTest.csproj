@@ -59,8 +59,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DelaunayMesh, Version=1.0.0.7, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\DelaunayMesh.1.0.0.7\lib\net472\DelaunayMesh.dll</HintPath>
+    <Reference Include="DelaunayMesh, Version=1.0.1.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\DelaunayMesh.1.0.1\lib\net472\DelaunayMesh.dll</HintPath>
     </Reference>
     <Reference Include="GMesh, Version=1.0.0.6, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\GMesh.1.0.0.6\lib\net472\GMesh.dll</HintPath>
