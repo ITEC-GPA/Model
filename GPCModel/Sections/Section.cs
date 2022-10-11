@@ -638,7 +638,14 @@ namespace GPC.Model.Sections
 		{
 			if (meshSize == 0)
 				meshSize = _meshSize;
-			return SectionHelper.GenerateGMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
+
+			try
+			{
+				return SectionHelper.GenerateGMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
+			}
+			catch (Exception) { }
+
+			return SectionHelper.GenerateGMesh(GetShape(), meshSize, true, recombine, refine);
 		}
 
 		private double GetMax(double[] array)
