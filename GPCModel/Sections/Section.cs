@@ -34,15 +34,7 @@ namespace GPC.Model.Sections
 		protected double _area;
 		protected double _jxx;
 		protected double _jyy;
-
-		/// <summary>
-		/// Product of Inertia: Integral of xy dA
-		/// </summary>
 		protected double _jxy;
-
-		/// <summary>
-		/// Polar Moment of Inertia: Integral of x^2 + y^2 dA = Jxx + Jyy
-		/// </summary>
 		protected double _jp;
 		protected double _jt;
 		protected double _jw;
@@ -109,10 +101,14 @@ namespace GPC.Model.Sections
 		/// </summary>
 		public double Jyy => _jyy;
 
-		/// <inheritdoc cref="_jxy"/>
+		/// <summary>
+		/// Product of Inertia: Integral of xy dA
+		/// </summary>
 		public double Jxy => _jxy;
 
-		/// <inheritdoc cref="_jp"/>
+		/// <summary>
+		/// Polar Moment of Inertia: Integral of x^2 + y^2 dA = Jxx + Jyy
+		/// </summary>
 		public double Jp => _jp;
 
 		/// <summary>

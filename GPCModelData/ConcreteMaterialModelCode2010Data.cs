@@ -6,6 +6,8 @@ namespace GPC.Model.Data.Concrete
 	{
 		#region Static Properties
 
+		#region Concrete
+
 		public static ConcreteMaterialModelCode2010 C20_25 => new ConcreteMaterialModelCode2010("C20/25", 20, 
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteMaterial.ConcreteTypes.Concrete);
 
@@ -48,12 +50,12 @@ namespace GPC.Model.Data.Concrete
 		public static ConcreteMaterialModelCode2010 C90_105 => new ConcreteMaterialModelCode2010("C90/105", 90, 
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteMaterial.ConcreteTypes.Concrete);
 
-		public static ConcreteMaterialModelCode2010 C25_30_1_0_C => new ConcreteMaterialModelCode2010("C25/30 1.0C", 25,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.45, 0.3, 0.45 / C25_30.ElasticModulusCompression * 5, 0.02,
-			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+		#endregion
 
-		public static ConcreteMaterialModelCode2010 C25_30_1_5_C => new ConcreteMaterialModelCode2010("C25/30 1.5C", 25,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.68, 0.45, 0.68 / C25_30.ElasticModulusCompression * 5, 0.02,
+		#region FRC
+
+		public static ConcreteMaterialModelCode2010 C25_30_1_0_C => new ConcreteMaterialModelCode2010("C25/30 1.0C", 25,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.45, 0.30, 0.45 / C25_30.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 		public static ConcreteMaterialModelCode2010 C25_30_2_0_C => new ConcreteMaterialModelCode2010("C25/30 2.0C", 25,
@@ -64,8 +66,12 @@ namespace GPC.Model.Data.Concrete
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.80, 0.90 / C25_30.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C30_37_1_5_C => new ConcreteMaterialModelCode2010("C30/37 1.5C", 30,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.68, 0.45, 0.68 / C30_37.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C25_30_3_0_C => new ConcreteMaterialModelCode2010("C25/30 3.0C", 25,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.35, 0.90, 1.35 / C25_30.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C30_37_1_0_C => new ConcreteMaterialModelCode2010("C30/37 1.0C", 30,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.45, 0.30, 0.45 / C30_37.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 		public static ConcreteMaterialModelCode2010 C30_37_2_0_B => new ConcreteMaterialModelCode2010("C30/37 2.0B", 30,
@@ -76,52 +82,72 @@ namespace GPC.Model.Data.Concrete
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.80, 0.90 / C30_37.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C35_45_1_5_C => new ConcreteMaterialModelCode2010("C35/45 1.5C", 35,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.68, 0.45, 0.68 / C45_55.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C35_45_2_0_C => new ConcreteMaterialModelCode2010("C35/45 2.0C", 35,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.60, 0.90 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 		public static ConcreteMaterialModelCode2010 C35_45_2_0_D => new ConcreteMaterialModelCode2010("C35/45 2.0D", 35,
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.80, 0.90 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C35_45_3_5_D => new ConcreteMaterialModelCode2010("C35/45 3.5D", 35,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.58, 1.40, 1.58 / C45_55.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C35_45_3_0_D => new ConcreteMaterialModelCode2010("C35/45 3.0D", 35,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.35, 0.90, 1.35 / C45_55.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C35_45_4_0_D => new ConcreteMaterialModelCode2010("C35/45 4.0D", 35,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.80, 1.60, 1.80 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 		public static ConcreteMaterialModelCode2010 C45_55_1_0_B => new ConcreteMaterialModelCode2010("C45/55 1.0B", 45,
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.45, 0.2, 0.45 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C45_55_1_5_C => new ConcreteMaterialModelCode2010("C45/55 1.5C", 45,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.68, 0.45, 0.68 / C45_55.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C45_55_2_0_B => new ConcreteMaterialModelCode2010("C45/55 2.0B", 45,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.40, 0.90 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 		public static ConcreteMaterialModelCode2010 C45_55_2_0_D => new ConcreteMaterialModelCode2010("C45/55 2.0D", 45,
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.80, 0.90 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C45_55_3_5_D => new ConcreteMaterialModelCode2010("C45/55 3.5D", 45,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.58, 1.40, 1.58 / C45_55.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C45_55_3_0_D => new ConcreteMaterialModelCode2010("C45/55 3.0D", 45,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.35, 1.20, 1.35 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C55_65_2_5_C => new ConcreteMaterialModelCode2010("C55/65 2.5C", 55,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.13, 0.75, 1.13 / C70_85.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C45_55_4_0_D => new ConcreteMaterialModelCode2010("C45/55 4.0D", 45,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.80, 1.60, 1.80 / C45_55.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C55_65_3_5_C => new ConcreteMaterialModelCode2010("C55/65 3.5C", 55,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.58, 1.05, 1.58 / C70_85.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C55_65_2_0_C => new ConcreteMaterialModelCode2010("C55/65 2.0C", 55,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.60, 0.90 / C70_85.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C70_85_2_5_C => new ConcreteMaterialModelCode2010("C70/85 2.5C", 70,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.13, 0.75, 1.13 / C70_85.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C55_65_3_0_C => new ConcreteMaterialModelCode2010("C55/65 3.0C", 55,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.35, 0.90, 1.35 / C70_85.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C70_85_3_5_C => new ConcreteMaterialModelCode2010("C70/85 3.5C", 70,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.58, 1.05, 1.58 / C70_85.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C55_65_4_0_D => new ConcreteMaterialModelCode2010("C55/65 4.0D", 55,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.80, 1.60, 1.80 / C70_85.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
-		public static ConcreteMaterialModelCode2010 C70_85_4_5_C => new ConcreteMaterialModelCode2010("C70/85 4.5D", 70,
-			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 2.03, 1.80, 2.03 / C70_85.ElasticModulusCompression * 5, 0.02,
+		public static ConcreteMaterialModelCode2010 C70_85_2_0_C => new ConcreteMaterialModelCode2010("C70/85 2.0C", 70,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.90, 0.60, 0.90 / C70_85.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C70_85_4_0_C => new ConcreteMaterialModelCode2010("C70/85 4.0C", 70,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.80, 1.60, 1.80 / C70_85.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C70_85_5_0_D => new ConcreteMaterialModelCode2010("C70/85 5.0D", 70,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 2.25, 2.0, 2.25 / C70_85.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C80_95_3_0_D => new ConcreteMaterialModelCode2010("C80/95 3.0D", 80,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.35, 1.20, 1.35 / C70_85.ElasticModulusCompression * 5, 0.02,
+			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		public static ConcreteMaterialModelCode2010 C80_95_5_0_D => new ConcreteMaterialModelCode2010("C80/95 5.0D", 80,
+			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 2.25, 2.0, 2.25 / C70_85.ElasticModulusCompression * 5, 0.02,
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
 
 
@@ -132,8 +158,6 @@ namespace GPC.Model.Data.Concrete
 
 
 
-
-		
 		public static ConcreteMaterialModelCode2010 C25_30_5 => new ConcreteMaterialModelCode2010("C25/30 5 kg/m³", 25,
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 0.4905, 0.302, 0.4905 / C25_30.ElasticModulusCompression * 5, 0.02, 
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
@@ -181,6 +205,8 @@ namespace GPC.Model.Data.Concrete
 		public static ConcreteMaterialModelCode2010 C70_85_15 => new ConcreteMaterialModelCode2010("C70/85 15 kg/m³", 70, 
 			ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, 1.188, 0.902, 1.188 / C70_85.ElasticModulusCompression * 5, 0.02, 
 			ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC);
+
+		#endregion
 
 		#endregion
 	}
