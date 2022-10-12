@@ -75,7 +75,7 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
-        protected Shape2d GetShape(int numberOfEdges = 16)
+        protected Shape2d GetShape(int numberOfEdges = 32)
         {
             return new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid));
         }
@@ -85,7 +85,7 @@ namespace GPC.Model.Sections
             return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
 
-        protected Mesh GetMesh(int numberOfEdges = 16)
+        protected Mesh GetMesh(int numberOfEdges = 32)
         {
             Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, _centroid) });
 

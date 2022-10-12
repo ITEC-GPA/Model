@@ -372,13 +372,11 @@ namespace GPC.Model.Materials
             {
                 case CompressionStressStrainDiagrams.StressBlock:
                 case CompressionStressStrainDiagrams.Bilinear:
+                case CompressionStressStrainDiagrams.ParabolaRectangle:
                     return -3.0 / 1000.0;
 
                 case CompressionStressStrainDiagrams.Generic:
                     return _stressStrainTableCompression.Strains.Last();
-
-                case CompressionStressStrainDiagrams.ParabolaRectangle:
-                    return -3.0 / 1000.0;
 
                 default:
                     throw new ArgumentException();

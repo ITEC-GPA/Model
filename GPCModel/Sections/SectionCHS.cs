@@ -170,7 +170,7 @@ namespace GPC.Model.Sections
             return new Shape2d(new Polygon2d(_externalDiameter), new[] { new Polygon2d(_externalDiameter - _thickness) });
         }
 
-        protected Mesh GetMesh(int numberOfEdges = 16)
+        protected Mesh GetMesh(int numberOfEdges = 32)
 		{
             Shape2d shape = GetShape(numberOfEdges);
 
@@ -200,7 +200,6 @@ namespace GPC.Model.Sections
             info.AddValue("D", _externalDiameter);
             info.AddValue("T", _thickness);
         }
-
 
         public override string ToString()
         {

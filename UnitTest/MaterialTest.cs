@@ -799,7 +799,7 @@ namespace ModelObjectTest
                 ConcreteMaterialACI318.CompressionStressStrainDiagrams.StressBlock);
 
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 24855) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
-            Assert.IsTrue(Math.Abs(concrete.Fc + 23.442) < 0.001);
+            Assert.IsTrue(Math.Abs(concrete.Fc + 27.579) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.Fct - 3.270) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
@@ -880,11 +880,66 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-        #endregion
+		[TestMethod]
+		public void ConcreteACITest10()
+		{
+			ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+				ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
+			List<(double, double)> designStresses = new List<(double, double)>();
+			List<(double, double)> stresses = new List<(double, double)>();
 
-        #region Steel Test
+			StandardACI318p14 standardACI318P14 = new StandardACI318p14();
+			for (int i = 0; i >= -300; i--)
+				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
+			for (int i = 0; i >= -300; i--)
+				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
 
-        [TestMethod]
+            for(int i = 0; i < stresses.Count; i++)
+            {
+                Assert.IsTrue(Math.Abs(stresses[i].Item1 - designStresses[i].Item1) < 0.01);
+                Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
+            }
+
+			for (int i = 0; i < designStresses.Count; i++)
+				Console.WriteLine(designStresses[i].Item1);
+		}
+
+		[TestMethod]
+		public void ConcreteACITest11()
+		{
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc3500;
+			List<(double, double)> linearStresses = new List<(double, double)>();
+			List<(double, double)> designStresses = new List<(double, double)>();
+			List<(double, double)> stresses = new List<(double, double)>();
+
+			StandardACI318p14 standardACI318P14 = new StandardACI318p14();
+			for (int i = 0; i >= -300; i--)
+				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
+			for (int i = 0; i >= -300; i--)
+				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+			for (int i = 0; i >= -300; i--)
+				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0, i / 100000.0));
+
+			for (int i = 0; i < stresses.Count; i++)
+			{
+				Assert.IsTrue(Math.Abs(stresses[i].Item1 - designStresses[i].Item1) < 0.01);
+				Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
+			}
+
+			for (int i = 0; i < 100; i++)
+			{
+				Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
+			}
+
+			for (int i = 0; i < designStresses.Count; i++)
+				Console.WriteLine(designStresses[i].Item1);
+		}
+
+		#endregion
+
+		#region Steel Test
+
+		[TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterialEN1993Data.S275;
@@ -1227,11 +1282,25 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
         }
 
-        #endregion
+		[TestMethod]
+		public void TendonTest3()
+		{
+            SteelMaterial tendon = SteelMaterialEN1992Data.Y1570C;
+			List<double> stresses = new List<double>();
+            StandardNTC2018Concrete ntc = new StandardNTC2018Concrete();
 
-        #region StressStrainTable Test
+			for (int i = 30; i >= -30; i--)
+				stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.007045));
 
-        [TestMethod]
+			for (int i = 0; i < stresses.Count; i++)
+				Console.WriteLine(stresses[i]);
+		}
+
+		#endregion
+
+		#region StressStrainTable Test
+
+		[TestMethod]
         public void StressStrainTableTest1()
         {
             StressStrainTable stressStrainTable = new StressStrainTable(new double[] { }, new double[] { });
