@@ -1922,7 +1922,7 @@ namespace ModelObjectTest
 
 			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
 			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - Math.PI/ 2.0) < 0.001, section.AngleX1.ToString());
+			Assert.IsTrue(Math.Abs(section.AngleX1 - 0) < 0.001, section.AngleX1.ToString());
 		}
 
 		[TestMethod]
