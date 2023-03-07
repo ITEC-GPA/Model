@@ -1,5 +1,4 @@
 ﻿using GPC.Utilities.Attributes;
-using GPC.Utilities.Converters;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -16,7 +15,6 @@ namespace GPC.Model.Materials
         #region PUBLIC ENUMS
 
         [Serializable]
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum GlassTypes
         {
             [Description("Float")] FloatGlass = 0,
@@ -29,7 +27,6 @@ namespace GPC.Model.Materials
         }
 
         [Serializable]
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum SurfaceTreatments
         {
             [Description("As produced")] AsProduced = 0,
@@ -37,7 +34,6 @@ namespace GPC.Model.Materials
         }
 
         [Serializable]
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum PrestressTypes
         {
             [Description("Annealed glass")] Annealed = 0,
@@ -47,7 +43,6 @@ namespace GPC.Model.Materials
         }
 
         [Serializable]
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum ManufactoringProcesses
         {
             [Description("None")] None = 0,

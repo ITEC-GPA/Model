@@ -5,8 +5,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Model.Fem.FiniteElements;
 using GPC.Model.LoadCases;
 using MathNet.Numerics.LinearAlgebra;
+using static GPC.Model.Fem.Solver;
 
 namespace GPC.Model.Results
 {
@@ -351,8 +353,10 @@ namespace GPC.Model.Results
         /// </summary>
         public static ResultStress GetArithmeticMean(ResultStress[] values)
         {
+			IEnumerable<string> sss = values.Select(i => i.Name);
+			HashSet<string> set = new HashSet<string>(sss);
 
-            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+			if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
             {
                 return new ResultStress(values[0]._coordinateSystem,
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
@@ -361,8 +365,8 @@ namespace GPC.Model.Results
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxy).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Sxz).ToArray()),
                                         Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.Syz).ToArray()),
-                                        string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
-                                        );
+										string.Join(" ", set.ToArray())
+										);
             }
             else
             {
@@ -373,14 +377,14 @@ namespace GPC.Model.Results
 
                 rotated.AddRange(values.Skip(1).Select(i => i.ToCoordinateSystem(values[0]._coordinateSystem)));
 
-                return new ResultStress(values[0]._coordinateSystem,
+				return new ResultStress(values[0]._coordinateSystem,
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxx).ToArray()), // TODO: rimuovere toarray e metter ienumer
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syy).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Szz).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxy).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Sxz).ToArray()),
                                                 Utilities.Maths.Averages.ArithmeticMean(rotated.Select(i => i.Syz).ToArray()),
-                                                string.Join(" ", values.Select(i => i.Name).ToHashSet().ToArray())
+                                                string.Join(" ", set.ToArray())
                                         );
             }
         }
@@ -397,15 +401,18 @@ namespace GPC.Model.Results
             if (obj1 is null || obj2 is null)
                 throw new ArgumentNullException();
 
+            var hashset = new HashSet<string>(new string[] { obj1.Name, obj2.Name });
+
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
+
                 return new ResultStress(obj1._coordinateSystem, obj1._sxx + obj2._sxx,
                                                                 obj1._syy + obj2._syy,
                                                                 obj1._szz + obj2._szz,
                                                                 obj1._sxy + obj2._sxy,
                                                                 obj1._sxz + obj2._sxz,
                                                                 obj1._syz + obj2._syz,
-                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                string.Join(" ", hashset)
                                                                 );
             }
             else
@@ -423,8 +430,8 @@ namespace GPC.Model.Results
                                         sumRotated[0, 1],
                                         sumRotated[0, 2],
                                         sumRotated[1, 2],
-                                        string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
-                                        );
+										string.Join(" ", hashset)
+										);
             }
         }
 
@@ -433,7 +440,9 @@ namespace GPC.Model.Results
             if (obj1 is null || obj2 is null)
                 throw new ArgumentNullException();
 
-            if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
+			var hashset = new HashSet<string>(new string[] { obj1.Name, obj2.Name });
+
+			if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
                 return new ResultStress(obj1._coordinateSystem, obj1._sxx - obj2._sxx,
                                                                 obj1._syy - obj2._syy,
@@ -441,7 +450,7 @@ namespace GPC.Model.Results
                                                                 obj1._sxy - obj2._sxy,
                                                                 obj1._sxz - obj2._sxz,
                                                                 obj1._syz - obj2._syz,
-                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                string.Join(" ", hashset)
                                                                 );
             }
             else
@@ -459,7 +468,7 @@ namespace GPC.Model.Results
                                         sumRotated[0, 1],
                                         sumRotated[0, 2],
                                         sumRotated[1, 2],
-                                        string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                        string.Join(" ", hashset)
                                         );
             }
         }

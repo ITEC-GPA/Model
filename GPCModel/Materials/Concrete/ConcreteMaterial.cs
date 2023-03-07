@@ -1,5 +1,4 @@
-﻿using GPC.Utilities.Converters;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -10,49 +9,27 @@ namespace GPC.Model.Materials
 	{
 		#region Public Enum        
 
-		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
 		public enum ConcreteTypes
 		{
-			[Description("Concrete")]
-			Concrete,
-
-			[Description("Fiber-Reinforced")]
-			FRC,
+			[Description("Concrete")] Concrete,
+			[Description("Fiber-Reinforced")] FRC,
 		}
 
-		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
 		public enum CompressionStressStrainDiagrams
 		{
-			[Description("Parabola-Rectangle")]
-			ParabolaRectangle,
-
-			[Description("Bilinear")]
-			Bilinear,
-
-			[Description("Stress Block")]
-			StressBlock,
-
-			[Description("Non Linear")]
-			NonLinear,
-
-			[Description("Generic")]
-			Generic,
+			[Description("Parabola-Rectangle")] ParabolaRectangle,
+			[Description("Bilinear")] Bilinear,
+			[Description("Stress Block")] StressBlock,
+			[Description("Non Linear")] NonLinear,
+			[Description("Generic")] Generic,
 		}
 
-		[TypeConverter(typeof(EnumDescriptionTypeConverter))]
 		public enum TensionStressStrainDiagrams
 		{
-			[Description("Linear")]
-			Linear,
-
-			[Description("Bilinear")]
-			Bilinear,
-
-			[Description("Rigid-Plastic")]
-			RigidPlastic,
-
-			[Description("Generic")]
-			Generic,
+			[Description("Linear")] Linear,
+			[Description("Bilinear")] Bilinear,
+			[Description("Rigid-Plastic")] RigidPlastic,
+			[Description("Generic")] Generic,
 		}
 
 		public enum CementType

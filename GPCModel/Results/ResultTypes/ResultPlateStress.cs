@@ -158,10 +158,12 @@ namespace GPC.Model.Results
             if (obj1 is null || obj2 is null)
                 throw new ArgumentNullException();
 
-            return new ResultPlateStress(obj1.CoordinateSystem, obj1.LowerFace + obj2.LowerFace,
+			var hashset = new HashSet<string>(new string[] { obj1.Name, obj2.Name });
+
+			return new ResultPlateStress(obj1.CoordinateSystem, obj1.LowerFace + obj2.LowerFace,
                                                                 obj1.MidFace + obj2.MidFace,
                                                                 obj1.UpperFace + obj2.UpperFace,
-                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                string.Join(" ", hashset)
                                                                 );
         }
 
@@ -171,10 +173,12 @@ namespace GPC.Model.Results
             if (obj1 is null || obj2 is null)
                 throw new ArgumentNullException();
 
-            return new ResultPlateStress(obj1.CoordinateSystem, obj1.LowerFace - obj2.LowerFace,
+			var hashset = new HashSet<string>(new string[] { obj1.Name, obj2.Name });
+
+			return new ResultPlateStress(obj1.CoordinateSystem, obj1.LowerFace - obj2.LowerFace,
                                                                 obj1.MidFace - obj2.MidFace,
                                                                 obj1.UpperFace - obj2.UpperFace,
-                                                                string.Join(" ", new string[] { obj1.Name, obj2.Name }.ToHashSet())
+                                                                string.Join(" ", hashset)
                                                                 );
         }
 

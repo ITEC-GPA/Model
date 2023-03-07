@@ -1,4 +1,3 @@
-using GPC.Utilities.Converters;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,7 +11,6 @@ namespace GPC.Model.LoadCases
     {
         #region PUBLIC ENUMS
 
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum LoadCaseTypes
         {
             [Description("Self weight")] SelfWeight,
