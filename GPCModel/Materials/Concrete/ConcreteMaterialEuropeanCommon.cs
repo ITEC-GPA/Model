@@ -647,28 +647,37 @@ namespace GPC.Model.Materials
                     case TensionStressStrainDiagrams.Linear:
                         _fctk = fctk;
                         _fctu = fctk;
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = _strainYTension;
+						if (strainYTension > 0)
+							_strainYTension = strainYTension;
+						else
+							_strainYTension = fctk / _elasticModulusTension;
+						_strainUTension = _strainYTension;
                         break;
 
                     case TensionStressStrainDiagrams.Bilinear:
                         _fctk = fctk;
                         _fctu = fFtu;
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = strainUTension;
+						if (strainYTension > 0)
+							_strainYTension = strainYTension;
+						else
+							_strainYTension = fctk / _elasticModulusTension;
+						_strainUTension = strainUTension;
                         break;
 
                     case TensionStressStrainDiagrams.Generic:
                         _fctk = fctk;
                         _fctu = _stressStrainTableTension.GetLastStress();
-                        _elasticModulusTension = strainYTension == 0 ? GetEcm(GetFcm()) : fctk / strainYTension;
+						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-                        _strainYTension = _fctk / _elasticModulusTension;
-                        _strainUTension = _stressStrainTableTension.GetLastStrain();
+						if (strainYTension > 0)
+							_strainYTension = strainYTension;
+						else
+							_strainYTension = fctk / _elasticModulusTension;
+						_strainUTension = _stressStrainTableTension.GetLastStrain();
                         break;
 
                     case TensionStressStrainDiagrams.RigidPlastic:

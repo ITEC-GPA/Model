@@ -1,5 +1,4 @@
-﻿using GPC.Utilities.Converters;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -16,7 +15,6 @@ namespace GPC.Model.LoadCases
             Winter
         }
 
-        [TypeConverter(typeof(EnumDescriptionTypeConverter))]
         public enum ClimateTypes
         {
             [Description("Climate delta H")] DeltaH,

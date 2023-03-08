@@ -54,6 +54,7 @@ namespace GPC.Model.Sections.Concrete
             {
                 if (_collection.Contains(item))
                 {
+                    /*
                     // stessa posizione. => rimpiazza barra in quella posizione e assegno lo stesso id
 
                     HashSet<ReinforcedConcreteRebar> collection = (HashSet<ReinforcedConcreteRebar>)_collection;
@@ -64,6 +65,7 @@ namespace GPC.Model.Sections.Concrete
                     item.Id = itemFound.Id;
                     collection.Remove(itemFound);
                     collection.Add(item);
+                    */
                 }
                 else
                 {

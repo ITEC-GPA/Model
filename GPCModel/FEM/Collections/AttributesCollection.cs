@@ -53,10 +53,15 @@ namespace GPC.Model.Fem.Collections
                 {
                     // esiste già un elemento con lo stesso caseName
 
-                    // rimuoviamo quello già presente                    
-                    _collection = _collection.Except(_collection.Where(i => i.CaseName == item.CaseName).ToList()).ToHashSet();
+                    // rimuoviamo quello già presente
+                    var list = _collection.Except(_collection.Where(i => i.CaseName == item.CaseName).ToList());
+                    var hashset = new HashSet<T>();
 
-                    replaced = true;
+                    for (int i = 0; i < list.Count(); i++)
+                        hashset.Add(list.ElementAt(i));
+                    _collection = hashset;
+
+					replaced = true;
 
                     return base.Add(item); // dovrebbe sempre tornare vero, se torna falso è successo qualcosa di anomalo
                 }
@@ -82,12 +87,17 @@ namespace GPC.Model.Fem.Collections
                 }
                 else
                 {
-                    // esiste già un elemento con lo stesso caseName
+					// esiste già un elemento con lo stesso caseName
 
-                    // rimuoviamo quello già presente                    
-                    _collection = _collection.Except(_collection.Where(i => i.CaseName == item.CaseName).ToList()).ToHashSet();
+					// rimuoviamo quello già presente                    
+					var list = _collection.Except(_collection.Where(i => i.CaseName == item.CaseName).ToList());
+					var hashset = new HashSet<T>();
 
-                    return base.Add(item); // dovrebbe sempre tornare vero, se torna falso è successo qualcosa di anomalo
+					for (int i = 0; i < list.Count(); i++)
+						hashset.Add(list.ElementAt(i));
+					_collection = hashset;
+
+					return base.Add(item); // dovrebbe sempre tornare vero, se torna falso è successo qualcosa di anomalo
                 }
             }
         }

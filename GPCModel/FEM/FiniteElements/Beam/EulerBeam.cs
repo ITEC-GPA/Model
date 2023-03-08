@@ -1303,13 +1303,17 @@ namespace GPC.Model.Fem.FiniteElements
         #region EndRelease
         public void AddEndRelease(int indexEndBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
         {
-            BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, dof.ToHashSet(), freedomCaseName, name);
+			var hashset = new HashSet<Beam.LocalDOF>(dof);
+
+			BeamReleasesAttribute release = new BeamReleasesAttribute(indexEndBeam, hashset, freedomCaseName, name);
             _attributesFreedomCase.Add(release);
         }
 
         public void AddEndRelease(EndSide endBeam, Beam.LocalDOF[] dof, string freedomCaseName, string name)
         {
-            BeamReleasesAttribute release = new BeamReleasesAttribute(endBeam, dof.ToHashSet(), freedomCaseName, name);
+            var hashset = new HashSet<Beam.LocalDOF>(dof);
+
+            BeamReleasesAttribute release = new BeamReleasesAttribute(endBeam, hashset, freedomCaseName, name);
             _attributesFreedomCase.Add(release);
         }
 

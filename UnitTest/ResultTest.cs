@@ -458,5 +458,124 @@ namespace ModelObjectTest
             Assert.IsTrue(expForces.Equals(convertedForces));
         }
 
-    }
+        [TestMethod]
+        public void ResultBeamForcesToNewCoordinateSystemTest1()
+        {
+            Point3d origin = new Point3d(10, 10, 0);
+            Vector3d asseX = new Vector3d(1, 0, 0);
+            Vector3d asseY = new Vector3d(0, 1, 0);
+
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+            double alpha = 20.68;
+            Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+            Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+            CoordinateSystem coordinateSystemRotated = new CoordinateSystem(origin, asseXRotated, asseYRotated, "CSR");
+
+            ResultBeamForces forces = new ResultBeamForces(0, 0, 0, 0, 44.10, -44.10, coordinateSystemRotated);
+            ResultBeamForces forcesRotated = forces.ToCoordinateSystem(coordinateSystem);
+            ResultBeamForces expForces = new ResultBeamForces(0, 0, 0, 0, 56.90, -25.85, coordinateSystem);
+
+            Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
+            Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
+            Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
+        }
+
+		[TestMethod]
+		public void ResultBeamForcesToNewCoordinateSystemTest2()
+		{
+			Point3d origin = new Point3d(10, 10, 0);
+			Vector3d asseX = new Vector3d(1, 0, 0);
+			Vector3d asseY = new Vector3d(0, 1, 0);
+
+			CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+			double alpha = 90;
+			Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+			Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+			CoordinateSystem coordinateSystemRotated = new CoordinateSystem(origin, asseXRotated, asseYRotated, "CSR");
+
+			ResultBeamForces forces = new ResultBeamForces(0, 0, 0, 0, 1, 0, coordinateSystem);
+			ResultBeamForces forcesRotated = forces.ToCoordinateSystem(coordinateSystemRotated);
+			ResultBeamForces expForces = new ResultBeamForces(0, 0, 0, 0, 0, -1, coordinateSystemRotated);
+
+			Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
+		}
+
+		[TestMethod]
+		public void ResultBeamForcesToNewCoordinateSystemTest3()
+		{
+			Point3d origin = new Point3d(10, 10, 0);
+			Vector3d asseX = new Vector3d(1, 0, 0);
+			Vector3d asseY = new Vector3d(0, 1, 0);
+
+			CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+			double alpha = 20.68;
+			Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+			Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+			CoordinateSystem coordinateSystemRotated = new CoordinateSystem(origin, asseXRotated, asseYRotated, "CSR");
+
+			ResultBeamForces forces = new ResultBeamForces(0, 0, 0, 0, 56.90, -25.85, coordinateSystem);
+			ResultBeamForces forcesRotated = forces.ToCoordinateSystem(coordinateSystemRotated);
+			ResultBeamForces expForces = new ResultBeamForces(0, 0, 0, 0, 44.10, -44.10, coordinateSystemRotated);
+
+			Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
+		}
+
+		[TestMethod]
+		public void ResultBeamForcesToNewCoordinateSystemTest4()
+		{
+			Point3d origin = new Point3d(10, 10, 0);
+			Vector3d asseX = new Vector3d(1, 0, 0);
+			Vector3d asseY = new Vector3d(0, 1, 0);
+
+			CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+			double alpha = 20.68;
+			Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+			Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+			CoordinateSystem coordinateSystemRotated = new CoordinateSystem(origin, asseXRotated, asseYRotated, "CSR");
+
+			ResultBeamForces forces = new ResultBeamForces(0, 0, 0, 0, 0, -1250, coordinateSystem);
+			ResultBeamForces forcesRotated = forces.ToCoordinateSystem(coordinateSystemRotated);
+			ResultBeamForces expForces = new ResultBeamForces(0, 0, 0, 0, -441.43, -1169.45, coordinateSystemRotated);
+
+			Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
+		}
+
+		[TestMethod]
+		public void ResultBeamForcesToNewCoordinateSystemTest5()
+		{
+			Point3d origin = new Point3d(10, 10, 0);
+			Vector3d asseX = new Vector3d(1, 0, 0);
+			Vector3d asseY = new Vector3d(0, 1, 0);
+
+			CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+			double alpha = 7.543;
+			Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+			Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+			CoordinateSystem coordinateSystemRotated = new CoordinateSystem(origin, asseXRotated, asseYRotated, "CSR");
+
+			ResultBeamForces forces = new ResultBeamForces(0, 0, 0, 0, 0, -1250, coordinateSystem);
+			ResultBeamForces forcesRotated = forces.ToCoordinateSystem(coordinateSystemRotated);
+			ResultBeamForces expForces = new ResultBeamForces(0, 0, 0, 0, -164.1, -1239.2, coordinateSystemRotated);
+
+			Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
+			Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
+		}
+	}
 }

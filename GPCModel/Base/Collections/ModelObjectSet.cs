@@ -97,20 +97,17 @@ namespace GPC.Model
         {
             lock (_locker)
             {
-                bool status = ((HashSet<T>)_collection).TryGetValue(item, out T found);
-
-                if (status)
+                if(!_collection.Contains(item))
                 {
-                    itemFound = found;
-                    return true;
-                }
+					itemFound = null;
+					return false;
+				}
                 else
-                {
-                    itemFound = null;
-                    return false;
-                }
+				{
+					itemFound = item;
+					return true;
+				}
             }
-
         }
 
         void ICollection<T>.Add(T item)

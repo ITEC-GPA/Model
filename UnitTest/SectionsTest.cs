@@ -1495,11 +1495,128 @@ namespace ModelObjectTest
             //Assert.IsTrue(Math.Abs(sectionGeneric.AngleX1 - steelSectionRHS.AngleX1) < 1);
         }
 
-        #endregion
+		[TestMethod]
+		public void SectionGenericTest2()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(0, 0),
+				new Point2d(400, 0),
+				new Point2d(400, 400),
+				new Point2d(0, 380),
+			}));
 
-        #region Concrete Section
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-        [TestMethod]
+            double x = 201.7;
+            double y = 195.0;
+			double angleDeg = -66.89;
+
+			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+		}
+
+		[TestMethod]
+		public void SectionGenericTest3()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(0, 0),
+				new Point2d(400, 0),
+				new Point2d(400, 400),
+				new Point2d(0, 100),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+
+			double x = 240;
+			double y = 140;
+			double angleDeg = -54.41;
+
+			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+		}
+
+		[TestMethod]
+		public void SectionGenericTest4()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(0, 0),
+				new Point2d(1000, 0),
+				new Point2d(1000, 400),
+				new Point2d(200, 200),
+				new Point2d(0, 400),
+				new Point2d(-50, 50),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+
+			double x = 515.6;
+			double y = 155.4;
+			double angleDeg = -86.93;
+
+			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+		}
+
+		[TestMethod]
+		public void SectionGenericTest5()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(0, 0),
+				new Point2d(1000, 0),
+				new Point2d(1000, 400),
+				new Point2d(200, 200),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+
+			double x = 605.1;
+			double y = 148.7;
+			double angleDeg = -81.02;
+
+			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+		}
+
+		[TestMethod]
+		public void SectionGenericTest6()
+		{
+			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+			{
+				new Point2d(0, 0),
+				new Point2d(1000, 0),
+				new Point2d(1000, 400),
+				new Point2d(200, 200),
+			}));
+
+			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+
+			double x = 605.1;
+			double y = 148.7;
+			double angleDeg = -81.02;
+
+			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+		}
+
+		#endregion
+
+		#region Concrete Section
+
+		[TestMethod]
         public void RCRectangularSection1()
         {
             double heigth = 500;
@@ -1805,7 +1922,7 @@ namespace ModelObjectTest
 
 			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
 			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
-			Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001, section.AngleX1.ToString());
+			Assert.IsTrue(Math.Abs(section.AngleX1 - 0) < 0.001, section.AngleX1.ToString());
 		}
 
 		[TestMethod]

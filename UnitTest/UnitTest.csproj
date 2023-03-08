@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{250E866D-95BC-48A1-8A03-66ECB9CAE99B}</ProjectGuid>
+    <ProjectGuid>{0B681322-4874-4968-A3D8-BC0641C9C131}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UnitTest</RootNamespace>
@@ -29,7 +29,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,53 +37,28 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DelaunayMesh, Version=1.0.1.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\DelaunayMesh.1.0.1\lib\net472\DelaunayMesh.dll</HintPath>
+    <Reference Include="DelaunayMesh, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DelaunayMesh.2.0.0\lib\netstandard2.0\DelaunayMesh.dll</HintPath>
     </Reference>
-    <Reference Include="GMesh, Version=1.0.0.6, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GMesh.1.0.0.6\lib\net472\GMesh.dll</HintPath>
+    <Reference Include="GMesh">
+      <HintPath>..\..\GPCGeometry\GMesh\bin\Debug\GMesh.dll</HintPath>
     </Reference>
     <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.484.3\lib\netstandard2.0\GMsh.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GPCGeometry, Version=1.1.5.8, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCGeometry.1.1.5.8\lib\net472\GPCGeometry.dll</HintPath>
+    <Reference Include="GPCGeometry, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GPCGeometry.2.0.0\lib\netstandard2.0\GPCGeometry.dll</HintPath>
     </Reference>
     <Reference Include="GPCTestUtilities, Version=1.0.0.8, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GPCTestUtilities.1.0.0.8\lib\net472\GPCTestUtilities.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=1.0.34.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\GPCUtilities.1.0.34.1\lib\net472\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GPCUtilities.2.0.0\lib\netstandard2.0\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net461\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics.Providers.MKL, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.Providers.MKL.5.0.0\lib\net461\MathNet.Numerics.Providers.MKL.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Spatial, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Spatial.0.6.0\lib\net461\MathNet.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.2.2.10\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
@@ -94,8 +68,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -104,66 +76,66 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FemModelAttributesTest.cs" />
-    <Compile Include="Fem\Plates\Tri3TLGV2Test.cs" />
-    <Compile Include="Fem\Plates\Quad4TLGVTest.cs" />
-    <Compile Include="Fem\Plates\Quad4TLGIvanovTest.cs" />
-    <Compile Include="General\DescriptionAttributesTest.cs" />
-    <Compile Include="Fem\CostrainTest.cs" />
-    <Compile Include="Fem\Beam\BeamTest.cs" />
-    <Compile Include="Fem\Brick\BrickTest.cs" />
-    <Compile Include="Fem\Brick\HexaedronTest.cs" />
-    <Compile Include="Fem\Brick\TetrahedronTest.cs" />
-    <Compile Include="Fem\NnLinearSolverTest.cs" />
-    <Compile Include="Maths\GaussIntegrationTest.cs" />
-    <Compile Include="Fem\Plates\Quad4GQ12MembranalTest.cs" />
-    <Compile Include="Fem\Plates\Quad4QFSUQMembranalTest.cs" />
-    <Compile Include="Fem\Plates\Quad4MQ2IbraMembranalTest.cs" />
-    <Compile Include="Fem\Plates\Tri3TR3RDOF.cs" />
-    <Compile Include="Fem\Plates\Tri3SBTE.cs" />
-    <Compile Include="Fem\Plates\Tri3SBTDR.cs" />
-    <Compile Include="Fem\Plates\Tri3OPT.cs" />
-    <Compile Include="Fem\FemSolverTest.cs" />
-    <Compile Include="Fem\Plates\MembraneTest.cs" />
-    <Compile Include="Fem\Plates\ElementTest.cs" />
-    <Compile Include="Fem\Plates\DKTTest.cs" />
-    <Compile Include="Fem\FemUtilitiesTest.cs" />
-    <Compile Include="General\OperatorsTest.cs" />
-    <Compile Include="Performance\PerformanceIntegrationTest.cs" />
-    <Compile Include="InterlayerMaterialTest.cs" />
-    <Compile Include="Performance\PerformanceSectionTest.cs" />
-    <Compile Include="ResultTest.cs" />
-    <Compile Include="MaterialTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CombinationTest.cs" />
-    <Compile Include="SectionsTest.cs" />
-    <Compile Include="General\SerializationTest.cs" />
-    <Compile Include="LoadCaseTest.cs" />
-    <Compile Include="General\EquatableHashCodeTest.cs" />
-    <Compile Include="LoadTest.cs" />
-    <Compile Include="Performance\PerformanceCollectionsTest.cs" />
-    <Compile Include="FemModelTest.cs" />
-    <Compile Include="UnitsTest.cs" />
     <Compile Include="FemCollectionsTest.cs" />
-    <Compile Include="FemModelStagesTest.cs" />
-    <Compile Include="ModelObjectCollectionTest.cs" />
-    <Compile Include="GlassTest.cs" />
+    <Compile Include="FemModelAttributesTest.cs" />
     <Compile Include="FemModelResultTest.cs" />
+    <Compile Include="FemModelStagesTest.cs" />
+    <Compile Include="FemModelTest.cs" />
+    <Compile Include="FEM\Beam\BeamTest.cs" />
+    <Compile Include="FEM\Brick\BrickTest.cs" />
+    <Compile Include="FEM\Brick\HexaedronTest.cs" />
+    <Compile Include="FEM\Brick\TetrahedronTest.cs" />
+    <Compile Include="FEM\CostrainTest.cs" />
+    <Compile Include="FEM\FemSolverTest.cs" />
+    <Compile Include="FEM\FEMUtilitiesTest.cs" />
+    <Compile Include="FEM\NnLinearSolverTest.cs" />
+    <Compile Include="FEM\Plates\DKTTest.cs" />
+    <Compile Include="FEM\Plates\ElementTest.cs" />
+    <Compile Include="FEM\Plates\MembraneTest.cs" />
+    <Compile Include="FEM\Plates\Quad4GQ12MembranalTest.cs" />
+    <Compile Include="FEM\Plates\Quad4MQ2IbraMembranalTest.cs" />
+    <Compile Include="FEM\Plates\Quad4QFSUQMembranalTest.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGIvanovTest.cs" />
+    <Compile Include="FEM\Plates\Quad4TLGVTest.cs" />
+    <Compile Include="FEM\Plates\Tri3OPT.cs" />
+    <Compile Include="FEM\Plates\Tri3SBTDR.cs" />
+    <Compile Include="FEM\Plates\Tri3SBTE.cs" />
+    <Compile Include="FEM\Plates\Tri3TLGV2Test.cs" />
+    <Compile Include="FEM\Plates\Tri3TR3RDOF.cs" />
+    <Compile Include="General\DescriptionAttributesTest.cs" />
+    <Compile Include="General\EquatableHashCodeTest.cs" />
+    <Compile Include="General\OperatorsTest.cs" />
+    <Compile Include="General\SerializationTest.cs" />
+    <Compile Include="GlassTest.cs" />
+    <Compile Include="InterlayerMaterialTest.cs" />
+    <Compile Include="LoadCaseTest.cs" />
+    <Compile Include="LoadTest.cs" />
+    <Compile Include="MaterialTest.cs" />
+    <Compile Include="Maths\GaussIntegrationTest.cs" />
+    <Compile Include="ModelObjectCollectionTest.cs" />
+    <Compile Include="Performance\PerformanceCollectionsTest.cs" />
+    <Compile Include="Performance\PerformanceIntegrationTest.cs" />
+    <Compile Include="Performance\PerformanceSectionTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultTest.cs" />
+    <Compile Include="SectionsTest.cs" />
+    <Compile Include="UnitsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GPCFemModel\GPCFemModel.csproj">
-      <Project>{7e6fed5f-384c-43eb-b08d-e1069b8462bc}</Project>
+      <Project>{ed2ebd02-a0e0-4e54-a5cd-329ea25b8a06}</Project>
       <Name>GPCFemModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\GPCModelData\GPCModelData.csproj">
-      <Project>{e25d4218-83e6-49a4-8da6-ac851bb11333}</Project>
+      <Project>{f351a4ca-2c00-4f16-805e-820dd6fb3093}</Project>
       <Name>GPCModelData</Name>
     </ProjectReference>
     <ProjectReference Include="..\GPCModel\GPCModel.csproj">
-      <Project>{175a9b69-232c-41b7-aba8-2d0bfe9c2062}</Project>
+      <Project>{1b68c46b-de89-4458-ae10-a4a1a9a40ba5}</Project>
       <Name>GPCModel</Name>
     </ProjectReference>
   </ItemGroup>
@@ -175,10 +147,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.props'))" />
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.targets'))" />
-    <Error Condition="!Exists('..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets'))" />
     <Error Condition="!Exists('..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets'))" />
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.2.10\build\net46\MSTest.TestAdapter.targets')" />
-  <Import Project="..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets" Condition="Exists('..\packages\MathNet.Numerics.MKL.Win-x64.3.0.0\build\net461\MathNet.Numerics.MKL.Win-x64.targets')" />
   <Import Project="..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets')" />
 </Project>
