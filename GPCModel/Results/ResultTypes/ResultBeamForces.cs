@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.Elements;
-using GPC.Model.Fem.FiniteElements;
-using GPC.Model.LoadCases;
-using MathNet.Numerics.LinearAlgebra;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
@@ -47,21 +42,21 @@ namespace GPC.Model.Results
         public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem, int id = ModelObjectId.IDUNASSIGNED)
             : base(coordinateSystem, string.Empty, id)
         {
-            _N  = N;
+            _N = N;
             _V1 = V1;
             _V2 = V2;
-            _T  = T;
+            _T = T;
             _M1 = M1;
             _M2 = M2;
         }
 
-        protected ResultBeamForces(SerializationInfo info, StreamingContext context) 
+        protected ResultBeamForces(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _N  = info.GetDouble("N" );
+            _N = info.GetDouble("N");
             _V1 = info.GetDouble("V1");
             _V2 = info.GetDouble("V2");
-            _T  = info.GetDouble("T" );
+            _T = info.GetDouble("T");
             _M1 = info.GetDouble("M1");
             _M2 = info.GetDouble("M2");
         }
@@ -73,10 +68,10 @@ namespace GPC.Model.Results
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("N" , _N );
+            info.AddValue("N", _N);
             info.AddValue("V1", _V1);
             info.AddValue("V2", _V2);
-            info.AddValue("T" , _T );
+            info.AddValue("T", _T);
             info.AddValue("M1", _M1);
             info.AddValue("M2", _M2);
         }
@@ -92,7 +87,30 @@ namespace GPC.Model.Results
             var forceNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dForceGlobal);
             var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
 
-            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y, 
+            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y,
+                momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
+        }
+
+        /// <summary>
+        /// Similar to <see cref="ToCoordinateSystem(CoordinateSystem)"/> but with eccentricity.
+        /// </summary>
+        /// <param name="coordinateSystem"></param>
+        /// <returns></returns>
+        public ResultBeamForces ToCoordinateSystemWithEccentricity(CoordinateSystem coordinateSystem)
+        {
+            Vector3d vector3dForce = new Vector3d(V1, V2, N);
+            Vector3d vector3dMoment = new Vector3d(M1, M2, T);
+            Vector3d eccentricity = this.CoordinateSystem.Origin - coordinateSystem.Origin;
+
+            Vector3d vector3dvector3dForceGlobal = CoordinateSystem.ToGlobal(vector3dForce);
+            Vector3d vector3dvector3dMomentGlobal = CoordinateSystem.ToGlobal(vector3dMoment);
+            Vector3d vector3deccentricityGlobal = CoordinateSystem.ToGlobal(eccentricity);
+            vector3dvector3dMomentGlobal += vector3deccentricityGlobal.CrossProduct(vector3dvector3dForceGlobal);
+
+            var forceNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dForceGlobal);
+            var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
+
+            return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y,
                 momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
         }
 
@@ -101,12 +119,12 @@ namespace GPC.Model.Results
         /// </summary>
         /// <returns>New ResultBeamForces</returns>
         public ResultBeamForces ToGlobalCoordinateSystem()
-		{
+        {
             if (CoordinateSystem == CoordinateSystem.Global)
                 return this;
             else
                 return ToCoordinateSystem(CoordinateSystem.Global);
-		}
+        }
 
         /// <summary>
         /// Return the combined bending moment between M1 and M2
@@ -125,11 +143,25 @@ namespace GPC.Model.Results
         {
             return Math.Sqrt(Math.Pow(V1, 2) + Math.Pow(V2, 2));
         }
-
         public override bool Equals(object obj)
         {
-            return obj is ResultBeamForces other && _N == other._N && _V1 == other._V1 && 
-                _V2 == other._V2 && _T == other._T && _M1 == other._M1 && _M2 == other._M2;
+            return Equals(obj, GeometryBase.Tolerance);
+        }
+
+        public bool Equals(object obj, in double tollerance = GeometryBase.Tolerance)
+        {
+            var other = obj as ResultBeamForces;
+            if (other == null)
+                return false;
+
+            var otherSamePos = other.ToCoordinateSystemWithEccentricity(this.CoordinateSystem);
+            return
+                Math.Abs(_N - otherSamePos._N) < tollerance &&
+                Math.Abs(_V1 - otherSamePos._V1) < tollerance &&
+                Math.Abs(_V2 - otherSamePos._V2) < tollerance &&
+                Math.Abs(_T - otherSamePos._T) < tollerance &&
+                Math.Abs(_M1 - otherSamePos._M1) < tollerance &&
+                Math.Abs(_M2 - otherSamePos._M2) < tollerance;
         }
 
         public override int GetHashCode()
@@ -144,18 +176,38 @@ namespace GPC.Model.Results
                 hashCode = hashCode * -23 + _T.GetHashCode();
                 hashCode = hashCode * -23 + _M1.GetHashCode();
                 hashCode = hashCode * -23 + _M2.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
         public static bool operator ==(ResultBeamForces left, ResultBeamForces right)
         {
+            if (left is null)
+            {
+                if (right is null)
+                    return true;
+                else
+                    return false;
+            }
             return left.Equals(right);
         }
 
         public static bool operator !=(ResultBeamForces left, ResultBeamForces right)
         {
             return !(left == right);
+        }
+
+        public static ResultBeamForces operator +(ResultBeamForces left, ResultBeamForces right)
+        {
+            var rightInRightPos = right.ToCoordinateSystemWithEccentricity(left.CoordinateSystem);
+            return new ResultBeamForces(
+                left.N + rightInRightPos.N,
+                left.V1 + rightInRightPos.V1,
+                left.V2 + rightInRightPos.V2,
+                left.T + rightInRightPos.T,
+                left.M1 + rightInRightPos.M1,
+                left.M2 + rightInRightPos.M2,
+                left.CoordinateSystem);
         }
 
         #endregion

@@ -716,7 +716,7 @@ namespace GPC.Model.Sections
 				return true;
 
 			return obj is Section section &&
-				   _material.Equals(section._material) &&
+				   _material == section._material &&
 				   _area == section._area &&
 				   _jxx == section._jxx &&
 				   _jyy == section._jyy &&

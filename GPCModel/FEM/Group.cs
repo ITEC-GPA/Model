@@ -56,6 +56,14 @@ namespace GPC.Model.Fem
 
         public static bool operator ==(Group obj1, Group obj2)
         {
+            if (obj1 is null)
+            {
+                if (obj2 is null)
+                    return true;
+                else
+                    return false;
+            }
+
             return obj1.Equals(obj2);
         }
 
