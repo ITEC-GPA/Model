@@ -14,28 +14,95 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        protected readonly double _h;
-        protected readonly double _tw;
-        protected readonly double _ttop;
-        protected readonly double _tbottom;
-        protected readonly double _btop;
-        protected readonly double _bbottom;
+        protected double _h;
+        protected double _tw;
+        protected double _ttop;
+        protected double _tbottom;
+        protected double _btop;
+        protected double _bbottom;
 
         #endregion
 
         #region Properties
 
-        public double Height => _h;
+        public double Height
+        {
+            get => _h;
+            set
+            {
+                if(_h != value)
+                {
+                    _h = value;
+					CalculateSection();
+                }
+            }
+        }
 
-        public double LenghtBottomFlange => _bbottom;
+        public double LenghtBottomFlange
+        {
+			get => _bbottom;
+            set
+			{
+				if (_bbottom != value)
+				{
+					_bbottom = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        public double LenghtTopFlange => _btop;
+        public double LenghtTopFlange 
+        {
+			get => _btop;
+            set
+			{
+				if (_btop != value)
+				{
+					_btop = value;
+					CalculateSection();
 
-        public double ThicknessTopFlange => _ttop;
+				}
+			}
+		}
 
-        public double ThicknessBottomFlange => _tbottom;
+        public double ThicknessTopFlange
+        {
+			get => _ttop; 
+            set
+			{
+				if (_ttop != value)
+				{
+					_ttop = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        public double ThicknessWeb => _tw;
+        public double ThicknessBottomFlange
+        {
+			get => _tbottom; 
+            set
+			{
+				if (_tbottom != value)
+				{
+					_tbottom = value;
+					CalculateSection();
+				}
+			}
+		}
+
+        public double ThicknessWeb 
+        {
+			get => _tw; 
+            set
+			{
+				if (_tw != value)
+				{
+					_tw = value;
+					CalculateSection();
+				}
+			}
+		}
 
         public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
 
@@ -58,17 +125,7 @@ namespace GPC.Model.Sections
 
             #endregion
 
-            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
-            ThinWall flangeTop = new ThinWall(topFlangeLength, topFlangeThickness, 0);
-            ThinWall flangeBottom = new ThinWall(bottomFlangeLength, bottomFlangeThickness, 0);
-
-            SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom },
-                new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
-                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness + HeightWeb + topFlangeThickness / 2.0),
-                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, bottomFlangeThickness / 2.0)});
-                        
-            SetMechanicalProperties();
-            _mesh = GetMesh();
+            CalculateSection();
         }
 
         protected SectionH(SerializationInfo info, StreamingContext context)
@@ -236,11 +293,26 @@ namespace GPC.Model.Sections
             return dmed * dmed * JFlBottom * JFlTop / jz;
         }
 
+        private void CalculateSection()
+        {
+			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2);
+			ThinWall flangeTop = new ThinWall(LenghtTopFlange, ThicknessTopFlange, 0);
+			ThinWall flangeBottom = new ThinWall(LenghtBottomFlange, ThicknessBottomFlange, 0);
+
+			SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom },
+				new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
+				new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb + ThicknessTopFlange / 2.0),
+				new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange / 2.0)});
+
+			SetMechanicalProperties();
+			_mesh = GetMesh();
+		}
+
         public override string ToString()
         {
             return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
         }
 
-        #endregion
-    }
+		#endregion
+	}
 }

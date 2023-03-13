@@ -20,7 +20,7 @@ namespace GPC.Model.Sections
         /// <param name="recombine">If true, recombine the mesh into quad mesh</param>
         /// <param name="refine"></param>
         /// <returns></returns>
-        internal static Mesh GenerateGMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
         {
             if (shape is null)
                 return null;
