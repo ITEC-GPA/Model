@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GPC.Utilities.Maths
 {
@@ -22,9 +20,12 @@ namespace GPC.Utilities.Maths
             return CalcAbsoluteError(Measured, Real) / Real;
         }
 
-        public static double TwoValuesRelativeError(in double A, in double B)
+        public static double TwoValuesRelativeError(in double A, in double B, in double zero = DoublePrecision)
         {
-            return Math.Abs(CalcRelativeError(A, 0.5 * (A + B)));
+            if (Math.Abs(A) <= zero || Math.Abs(B) <= zero)
+                return Math.Abs(CalcAbsoluteError(A, B));
+            else
+                return Math.Abs(CalcRelativeError(A, 0.5 * (A + B)));
         }
 
         public static bool AreEqualsDouble(in double A, in double B, in double tollerance = DoublePrecision) => TwoValuesRelativeError(A, B) < tollerance;

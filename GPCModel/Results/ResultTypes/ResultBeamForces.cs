@@ -104,8 +104,7 @@ namespace GPC.Model.Results
 
             Vector3d vector3dvector3dForceGlobal = CoordinateSystem.ToGlobal(vector3dForce);
             Vector3d vector3dvector3dMomentGlobal = CoordinateSystem.ToGlobal(vector3dMoment);
-            Vector3d vector3deccentricityGlobal = CoordinateSystem.ToGlobal(eccentricity);
-            vector3dvector3dMomentGlobal += vector3deccentricityGlobal.CrossProduct(vector3dvector3dForceGlobal);
+            vector3dvector3dMomentGlobal += eccentricity.CrossProduct(vector3dvector3dForceGlobal);
 
             var forceNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dForceGlobal);
             var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);

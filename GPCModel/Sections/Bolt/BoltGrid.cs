@@ -48,10 +48,6 @@ namespace GPC.Model.Sections.Bolt
 
         #region Public Constructors
 
-        public BoltGrid() :
-            this(new double[] { 50, 50, 50 }, new double[] { 50, 50 }, 16)
-        { }
-
         /// <summary>
         /// Creates a rectangular grid of bolts.
         /// </summary>
@@ -62,7 +58,7 @@ namespace GPC.Model.Sections.Bolt
         public BoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial Mat = null)
         {
             if (Mat == null)
-                Mat = new SteelMaterial("10.9", 200000, 940, 1040, 0.3, SteelMaterial.SteelTypes.Structural);
+                Mat = new SteelMaterial("10.9", 200000, 940, 1040, 0.3, SteelMaterial.SteelTypes.Bolt);
 
             // Create list of absolute cooridnates.
             var absX = new List<double>();
@@ -129,8 +125,8 @@ namespace GPC.Model.Sections.Bolt
             foreach (var b in Bolts)
             {
                 var b_area = b.BoltDef.Area;
-                I_X += b.BoltDef.J11 + b_area * Math.Pow(b.Position.Y, 2);
-                I_Y += b.BoltDef.J22 + b_area * Math.Pow(b.Position.X, 2);
+                I_X += /*b.BoltDef.J11 +*/ b_area * Math.Pow(b.Position.Y, 2);
+                I_Y += /*b.BoltDef.J22 +*/ b_area * Math.Pow(b.Position.X, 2);
             }
             var G = CalculateBarycenter();
 
@@ -161,13 +157,13 @@ namespace GPC.Model.Sections.Bolt
             var PlateSystem = new CoordinateSystem(G, Vector3d.XAxis, Vector3d.YAxis);
             // Move sollecitation to barycenter.
             ResultBeamForces SollLoc;
-            SollLoc = Soll.ToCoordinateSystem(PlateSystem);
+            SollLoc = Soll.ToCoordinateSystemWithEccentricity(PlateSystem);
 
             // List of stresses to return.
             var retForces = new Dictionary<int, ResultBeamForces>();
             foreach (var b in Bolts)
             {
-                double soll_X = b.BoltDef.Area * (SollLoc.V1 / Area + (b.Position.Y - G.Y) * SollLoc.T / I_P0);
+                double soll_X = b.BoltDef.Area * (SollLoc.V1 / Area + (G.Y - b.Position.Y) * SollLoc.T / I_P0);
                 double soll_Y = b.BoltDef.Area * (SollLoc.V2 / Area + (b.Position.X - G.X) * SollLoc.T / I_P0);
                 retForces[b.Id] = new ResultBeamForces(0, soll_X, soll_Y, 0, 0, 0,
                     new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis));
@@ -187,11 +183,14 @@ namespace GPC.Model.Sections.Bolt
             if (Soll is null || ForceList is null)
                 return false;
 
-            ResultBeamForces totForce = new ResultBeamForces(0, 0, 0, 0, 0, 0, Soll.CoordinateSystem);
+            var GSys = new CoordinateSystem(CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
+            ResultBeamForces totForce = new ResultBeamForces(0, 0, 0, 0, 0, 0, GSys);
             foreach (var fl in ForceList)
                 totForce += fl.Value;
 
-            return totForce == Soll;
+            var SollG = Soll.ToCoordinateSystemWithEccentricity(GSys);
+
+            return totForce == SollG;
         }
 
         #endregion

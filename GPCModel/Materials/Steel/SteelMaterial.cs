@@ -19,7 +19,8 @@ namespace GPC.Model.Materials
 			[Description("Tendon steel material")] Tendon,
 			[Description("Structural steel material")] Structural,
 			[Description("Bars steel material")] Bars,
-		}
+            [Description("Bolt steel material")] Bolt,
+        }
 
 		#endregion
 

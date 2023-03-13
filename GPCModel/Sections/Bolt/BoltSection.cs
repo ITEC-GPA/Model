@@ -42,10 +42,6 @@ namespace GPC.Model.Sections.Bolt
         public BoltSection(double diameter, SteelMaterial material, string name = "") : base(diameter, material, name)
         { }
 
-        public BoltSection() :
-            this(12, new SteelMaterial("10.9", 200000, 700, 1000, 0.3, SteelMaterial.SteelTypes.Structural), "Ø12 - 10.9")
-        { }
-
         #endregion
 
         #region Public Methods
