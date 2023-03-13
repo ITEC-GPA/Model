@@ -11,7 +11,7 @@ namespace GPC.Model.Materials
 		#region Constructor
 
 		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-			double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+			double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
 			: base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
 		{
 
@@ -20,7 +20,7 @@ namespace GPC.Model.Materials
 		public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression,
 			StressStrainTable stressStrainTableTension,
 			double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
-			CementType cementType = CementType.ClassN)
+			CementTypes cementType = CementTypes.ClassN)
 			: base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
 		{
 

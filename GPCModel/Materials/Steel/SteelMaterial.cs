@@ -36,12 +36,34 @@ namespace GPC.Model.Materials
 		/// <summary>
 		/// Characteristic yield strength
 		/// </summary>
-		public double Fyk => _fyk;
+		public double Fyk
+		{
+			get => _fyk;
+			set
+			{
+				if(_fyk != value)
+				{
+					_fyk = value;
+					RecalculateMechanicalProperties();
+				}
+			}
+		}
 
 		/// <summary>
 		/// Ultimate strength
 		/// </summary>
-		public double Fu => _fu;
+		public double Fu
+		{ 
+			get => _fu;
+			set
+			{
+				if (_fu != value)
+				{
+					_fu = value;
+					RecalculateMechanicalProperties();
+				}
+			}
+		}
 
 		/// <summary>
 		/// Strain hardening modulus
@@ -51,7 +73,11 @@ namespace GPC.Model.Materials
 		/// <summary>
 		/// Type of steel
 		/// </summary>
-		public SteelTypes SteelType => _steelType;
+		public SteelTypes SteelType
+		{
+			get => _steelType;
+			set => _steelType = value;
+		}
 
 		#endregion
 

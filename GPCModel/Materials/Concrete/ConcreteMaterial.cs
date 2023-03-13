@@ -32,7 +32,7 @@ namespace GPC.Model.Materials
 			[Description("Generic")] Generic,
 		}
 
-		public enum CementType
+		public enum CementTypes
 		{
 			ClassR,
 			ClassN,
