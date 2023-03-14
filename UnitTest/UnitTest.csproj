@@ -76,6 +76,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bolt\BoltGrid.Test.cs" />
+    <Compile Include="Bolt\Error.cs" />
     <Compile Include="CombinationTest.cs" />
     <Compile Include="FemCollectionsTest.cs" />
     <Compile Include="FemModelAttributesTest.cs" />
