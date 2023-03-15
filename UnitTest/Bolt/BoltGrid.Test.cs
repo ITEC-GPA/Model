@@ -13,7 +13,7 @@ namespace ModelObjectTest
     public class BoltGridTest
     {
         [TestMethod]
-        public void Test01_DoubleApproximation()
+        public void Test01_DoubleApproximation_01()
         {
             // Return correct value from double representation of diameter.
             var DiaKeys = BoltSection.ThreadedAreas.Keys.ToList();
@@ -29,7 +29,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test02_DoubleApproximation()
+        public void Test01_DoubleApproximation_02()
         {
             // Return correct value from double representation of diameter, with approximate method.
             var DiaKeys = BoltSection.ThreadedAreas.Keys.ToList();
@@ -47,7 +47,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test03_ForceCalculation()
+        public void Test02_ForceCalculation_01()
         {
             var BG = new RectangularBoltGrid(new double[] { }, new double[] { 200 }, 12, BoltMaterialEN1993Data.Class10_9);
             var BarSys = new CoordinateSystem(BG.CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
@@ -65,7 +65,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test04_EqualCoordinateSystem()
+        public void Test03_EqualCoordinateSystem_01()
         {
             var BarSys1 = new CoordinateSystem(new Point3d(2, 3, 4), Vector3d.XAxis, Vector3d.YAxis);
             var BarSys2 = new CoordinateSystem(new Point3d(2, 3, 4), Vector3d.XAxis, Vector3d.YAxis);
@@ -86,7 +86,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test05_ForceTranslationInX()
+        public void Test03_ForceTranslationInX_01()
         {
             var BarSys = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 5000, 4000, 100, 0, 0, BarSys);
@@ -100,7 +100,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test06_ForceTranslationInXAndY()
+        public void Test03_ForceTranslationInXAndY_01()
         {
             var BarSys = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 5000, 4000, 100, 0, 0, BarSys);
@@ -114,7 +114,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test07_ForcesSum()
+        public void Test04_ForcesSum_01()
         {
             // Force A
             var BarSysA = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -133,7 +133,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test08_ForceCalculation()
+        public void Test04_ForceCalculation_01()
         {
             var BG = new RectangularBoltGrid(new double[] { }, new double[] { 200 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(50, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -145,7 +145,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test09_ForceCalculation()
+        public void Test04_ForceCalculation_02()
         {
             var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -157,7 +157,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test10_ForceCalculation()
+        public void Test04_ForceCalculation_03()
         {
             var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { 120, 120 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
