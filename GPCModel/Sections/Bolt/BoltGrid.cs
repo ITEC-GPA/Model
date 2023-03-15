@@ -3,6 +3,7 @@ using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -11,85 +12,73 @@ namespace GPC.Model.Sections.Bolt
     /// <summary>
     /// Support class for the list of bolts with their locations.
     /// </summary>
-    public class BoltGrid
+    public class BoltGrid : ModelObject
     {
-        public class BoltPosition : ModelObjectId
+		public class BoltPosition : ModelObjectId
         {
-            public Point2d Position;
-            public BoltSection BoltDef;
+            public Point2d Position { get; set; }
+            public BoltSection BoltDef { get; set; }
+			public Hole Hole { get; set; }
 
-            public BoltPosition(Point2d _pos, BoltSection _bol)
+			public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole)
             {
                 Position = _pos;
                 BoltDef = _bol;
+                Hole = hole;    
             }
 
             public override bool Equals(object obj)
             {
                 return obj is BoltPosition other &&
                        EqualityComparer<Point2d>.Default.Equals(Position, other.Position) &&
+                       EqualityComparer<Hole>.Default.Equals(Hole, other.Hole) &&
                        EqualityComparer<BoltSection>.Default.Equals(BoltDef, other.BoltDef);
             }
 
             public override int GetHashCode()
             {
-                int hashCode = -1030903623;
-                hashCode = hashCode * -1521134295 + EqualityComparer<Point2d>.Default.GetHashCode(Position);
-                hashCode = hashCode * -1521134295 + EqualityComparer<BoltSection>.Default.GetHashCode(BoltDef);
-                return hashCode;
+                unchecked
+                {
+                    int hashCode = -23;
+                    hashCode = hashCode * -17 + EqualityComparer<Point2d>.Default.GetHashCode(Position);
+                    hashCode = hashCode * -17 + EqualityComparer<Hole>.Default.GetHashCode(Hole);
+					hashCode = hashCode * -17 + EqualityComparer<BoltSection>.Default.GetHashCode(BoltDef);
+                    return hashCode;
+                }
             }
         }
 
+        protected UniqueIdCollection<BoltPosition> _bolts;
+
         #region Properties
 
-        public UniqueIdCollection<BoltPosition> Bolts { get; }
+        public UniqueIdCollection<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
 
         #endregion
 
         #region Public Constructors
 
-        /// <summary>
-        /// Creates a rectangular grid of bolts.
-        /// </summary>
-        /// <param name="stepX">Steps in X.</param>
-        /// <param name="stepY">Steps in Y.</param>
-        /// <param name="diameter"></param>
-        /// <param name="mat"></param>
-        /// <param name="origin">Starting point, bottom right corner.</param>
-        public BoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat = null, Point2d origin = null)
+        public BoltGrid(IEnumerable<BoltPosition> bolts, string name = "")
+            : this(name)
         {
-            if (mat == null)
-                mat = new SteelMaterial("10.9", 200000, 940, 1040, 0.3, SteelMaterial.SteelTypes.Bolt);
-
-            if (origin == null)
-                origin = new Point2d(0, 0);
-
-            // Create list of absolute cooridnates.
-            var absX = new List<double>();
-            var absY = new List<double>();
-            absX.Add(origin.X);
-            absY.Add(origin.Y);
-            foreach (var x in stepX)
-                absX.Add(absX.Last() + x);
-            foreach (var y in stepY)
-                absY.Add(absY.Last() + y);
-
-            // Add bolts respecting a rectangular grid.
-            Bolts = new UniqueIdCollection<BoltPosition>();
-            foreach (var x in absX)
-                foreach (var y in absY)
-                    Bolts.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, mat)));
+			_bolts.AddRange(bolts);
         }
 
-        #endregion
+		public BoltGrid(string name = "")
+            : base(name)
+		{
+			_bolts = new UniqueIdCollection<BoltPosition>();
+		}
 
-        #region Public Methods
+		#endregion
 
-        /// <summary>
-        /// Calculate area of the whole group of bolts.
-        /// </summary>
-        /// <returns>Area.</returns>
-        public double CalculateArea()
+		#region Public Methods
+
+		/// <summary>
+		/// Calculate area of the whole group of bolts.
+		/// </summary>
+		/// <returns>Area.</returns>
+		public double CalculateArea()
         {
             double Area = 0;
             foreach (var b in Bolts)
