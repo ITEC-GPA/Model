@@ -50,11 +50,11 @@ namespace GPC.Model.Sections
             #region Check inputs
 
             _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                               // altezza anima
-            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                            // spessore anima
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web _thickness cannot be lower than zero") : thicknessWeb;                            // spessore anima
             _btop = topFlangeLength < 0 ? throw new ArgumentException($"Top flange lenght cannot be lower than zero") : topFlangeLength;                  // larghezza piattabanda superiore
             _bbottom = bottomFlangeLength < 0 ? throw new ArgumentException($"Bottom flange lenght cannot be lower than zero") : bottomFlangeLength;      // larghezza piattabanda inferiore
-            _ttop = topFlangeThickness < 0 ? throw new ArgumentException($"Top flange thickness cannot be lower than zero") : topFlangeThickness;               // spessore piattabanda superiore
-            _tbottom = bottomFlangeThickness < 0 ? throw new ArgumentException($"Bottom flange thickness cannot be lower than zero") : bottomFlangeThickness;   // spessore piattabanda inferiore
+            _ttop = topFlangeThickness < 0 ? throw new ArgumentException($"Top flange _thickness cannot be lower than zero") : topFlangeThickness;               // spessore piattabanda superiore
+            _tbottom = bottomFlangeThickness < 0 ? throw new ArgumentException($"Bottom flange _thickness cannot be lower than zero") : bottomFlangeThickness;   // spessore piattabanda inferiore
 
             #endregion
 

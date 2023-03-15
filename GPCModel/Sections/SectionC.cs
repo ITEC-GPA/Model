@@ -47,9 +47,9 @@ namespace GPC.Model.Sections
             _h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height;
             _lengthTop = lengthTop < 0 ? throw new ArgumentException($"Top lenght cannot be lower than zero") : lengthTop;
             _lengthBottom = lengthBottom < 0 ? throw new ArgumentException($"Bottom lenght cannot be lower than zero") : lengthBottom;
-            _tBottom = thicknessBottom < 0 ? throw new ArgumentException($"Bottom thickness cannot be lower than zero") : thicknessBottom;
-            _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop;
-            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;
+            _tBottom = thicknessBottom < 0 ? throw new ArgumentException($"Bottom _thickness cannot be lower than zero") : thicknessBottom;
+            _tTop = thicknessTop < 0 ? throw new ArgumentException($"Top _thickness cannot be lower than zero") : thicknessTop;
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web _thickness cannot be lower than zero") : thicknessWeb;
 
             ThinWall web = new ThinWall(height, thicknessWeb, Math.PI / 2.0);
             ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0);
@@ -135,7 +135,7 @@ namespace GPC.Model.Sections
                 }
             }
             else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
+                throw new NotImplementedException("Different lenght or _thickness not yet supported");
         }
 
         protected override double CalculateWpl1()
@@ -153,7 +153,7 @@ namespace GPC.Model.Sections
                     throw new NotImplementedException("neutral axis in flange not yet supported");
             }
             else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
+                throw new NotImplementedException("Different lenght or _thickness not yet supported");
         }
 
         protected override double CalculateWel2Min()

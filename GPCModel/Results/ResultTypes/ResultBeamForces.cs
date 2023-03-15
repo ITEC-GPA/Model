@@ -9,23 +9,23 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        private readonly double _N;
-        private readonly double _V1;
-        private readonly double _V2;
-        private readonly double _T;
-        private readonly double _M1;
-        private readonly double _M2;
+        private double _N;
+        private double _V1;
+        private double _V2;
+        private double _T;
+        private double _M1;
+        private double _M2;
 
-        #endregion 
+        #endregion
 
         #region Properties
 
-        public double N => _N;
-        public double V1 => _V1;
-        public double V2 => _V2;
-        public double T => _T;
-        public double M1 => _M1;
-        public double M2 => _M2;
+        public double N { get => _N; set => _N = value; }
+        public double V1 { get => _V1; set => _V1 = value; }
+        public double V2 { get => _V2; set => _V2 = value; }
+        public double T { get => _T; set => _T = value; }
+        public double M1 { get => _M1; set => _M1 = value; }
+        public double M2 { get => _M2; set => _M2 = value; }
 
         #endregion
 
@@ -206,6 +206,18 @@ namespace GPC.Model.Results
                 left.T + rightInRightPos.T,
                 left.M1 + rightInRightPos.M1,
                 left.M2 + rightInRightPos.M2,
+                left.CoordinateSystem);
+        }
+
+        public static ResultBeamForces operator /(ResultBeamForces left, double denom)
+        {
+            return new ResultBeamForces(
+                left.N / denom,
+                left.V1 / denom,
+                left.V2 / denom,
+                left.T / denom,
+                left.M1 / denom,
+                left.M2 / denom,
                 left.CoordinateSystem);
         }
 

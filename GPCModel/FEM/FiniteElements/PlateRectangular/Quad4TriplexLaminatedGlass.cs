@@ -55,7 +55,7 @@ namespace GPC.Model.Fem.FiniteElements
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="G0">shear module of interlayer</param>
-        /// <param name="h0">thickness interlayer</param>
+        /// <param name="h0">_thickness interlayer</param>
         /// <param name="h1">Thickness of top glass</param>
         /// <param name="h2">Thickness of bottom glass</param>
         /// <param name="EGlass">Glass elastic modulus</param>

@@ -34,8 +34,8 @@ namespace GPC.Model.Fem.Properties
 
         /// <summary>
         /// <param name="material"></param>
-        /// <param name="bendingThickness"> Bending thickness</param>
-        /// <param name="membraneThickness"> Membranal thickness</param>
+        /// <param name="bendingThickness"> Bending _thickness</param>
+        /// <param name="membraneThickness"> Membranal _thickness</param>
         /// <param name="name"></param>
         /// </summary>
         public PlateProperty(FemMaterial material, double bendingThickness, double membraneThickness, string name)

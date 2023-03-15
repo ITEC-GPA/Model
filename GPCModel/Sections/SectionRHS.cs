@@ -132,7 +132,7 @@ namespace GPC.Model.Sections
             if (_tfBottom == _tfTop && _twL == _twR)
                 return _centroid;
             else
-                throw new Exception("Section RHS with different thickness not yet implemented");
+                throw new Exception("Section RHS with different _thickness not yet implemented");
         }
 
         protected override double CalculateJw()
@@ -161,7 +161,7 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
-                    throw new Exception("different thickness not yet supported");
+                    throw new Exception("different _thickness not yet supported");
             }
             else
                 throw new Exception("not yet supported");
@@ -179,7 +179,7 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else
-                    throw new Exception("different thickness not yet supported");
+                    throw new Exception("different _thickness not yet supported");
             }
             else
                 throw new Exception("not yet supported");

@@ -269,7 +269,7 @@ namespace GPC.Model.Sections
             #region Properties
 
             /// <summary>
-            /// The thickness of the wall
+            /// The _thickness of the wall
             /// </summary>
             internal double T => _t;
 
@@ -296,7 +296,7 @@ namespace GPC.Model.Sections
             /// The default constructor of generic ThinWall
             /// </summary>
             /// <param name="length">The length of the ThinWall</param>
-            /// <param name="thickness">The thickness of the ThinWall</param>
+            /// <param name="thickness">The _thickness of the ThinWall</param>
             /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
             internal ThinWall(double length, double thickness, double angle)
                 : base()

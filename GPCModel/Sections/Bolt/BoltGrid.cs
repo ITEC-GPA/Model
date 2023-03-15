@@ -54,17 +54,21 @@ namespace GPC.Model.Sections.Bolt
         /// <param name="stepX">Steps in X.</param>
         /// <param name="stepY">Steps in Y.</param>
         /// <param name="diameter"></param>
-        /// <param name="Mat"></param>
-        public BoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial Mat = null)
+        /// <param name="mat"></param>
+        /// <param name="origin">Starting point, bottom right corner.</param>
+        public BoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat = null, Point2d origin = null)
         {
-            if (Mat == null)
-                Mat = new SteelMaterial("10.9", 200000, 940, 1040, 0.3, SteelMaterial.SteelTypes.Bolt);
+            if (mat == null)
+                mat = new SteelMaterial("10.9", 200000, 940, 1040, 0.3, SteelMaterial.SteelTypes.Bolt);
+
+            if (origin == null)
+                origin = new Point2d(0, 0);
 
             // Create list of absolute cooridnates.
             var absX = new List<double>();
             var absY = new List<double>();
-            absX.Add(0.0);
-            absY.Add(0.0);
+            absX.Add(origin.X);
+            absY.Add(origin.Y);
             foreach (var x in stepX)
                 absX.Add(absX.Last() + x);
             foreach (var y in stepY)
@@ -74,7 +78,7 @@ namespace GPC.Model.Sections.Bolt
             Bolts = new UniqueIdCollection<BoltPosition>();
             foreach (var x in absX)
                 foreach (var y in absY)
-                    Bolts.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, Mat)));
+                    Bolts.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, mat)));
         }
 
         #endregion
@@ -146,8 +150,14 @@ namespace GPC.Model.Sections.Bolt
         /// The position or reference system of the applied force will be chosen from interface by the user,
         /// normally it will be the center of gravity.</param>
         /// <returns></returns>
-        public Dictionary<int, ResultBeamForces> CalculateShearForcesElastic(in ResultBeamForces Soll)
+        public Dictionary<BoltPosition, ResultBeamForces> CalculateShearForcesElastic(in ResultBeamForces Soll)
         {
+            var retForces = new Dictionary<BoltPosition, ResultBeamForces>();
+
+            // Special case
+            if (Bolts.Count == 0)
+                return retForces;
+
             // Calculate parameters of the whole group of bolts.
             double Area = CalculateArea();
             Point2d G = CalculateBarycenter();
@@ -155,17 +165,25 @@ namespace GPC.Model.Sections.Bolt
 
             // BoltSection group coordinate system.
             var PlateSystem = new CoordinateSystem(G, Vector3d.XAxis, Vector3d.YAxis);
+
+            // Special case
+            if (Bolts.Count == 1)
+            {
+                retForces[Bolts.First()] = new ResultBeamForces(0, Soll.V1, Soll.V2, 0, 0, 0,
+                    new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis));
+                return retForces;
+            }
+
             // Move sollecitation to barycenter.
             ResultBeamForces SollLoc;
             SollLoc = Soll.ToCoordinateSystemWithEccentricity(PlateSystem);
 
             // List of stresses to return.
-            var retForces = new Dictionary<int, ResultBeamForces>();
             foreach (var b in Bolts)
             {
                 double soll_X = b.BoltDef.Area * (SollLoc.V1 / Area + (G.Y - b.Position.Y) * SollLoc.T / I_P0);
                 double soll_Y = b.BoltDef.Area * (SollLoc.V2 / Area + (b.Position.X - G.X) * SollLoc.T / I_P0);
-                retForces[b.Id] = new ResultBeamForces(0, soll_X, soll_Y, 0, 0, 0,
+                retForces[b] = new ResultBeamForces(0, soll_X, soll_Y, 0, 0, 0,
                     new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis));
             }
 
@@ -178,7 +196,7 @@ namespace GPC.Model.Sections.Bolt
         /// <param name="ForceList">Output of <see cref="CalculateShearForcesElastic(in ResultBeamForces)"/>.</param>
         /// <param name="Soll">Total stress in input in <see cref="CalculateShearForcesElastic(in ResultBeamForces)"/>.</param>
         /// <returns>True if values are correct.</returns>
-        public bool CheckShearForcesElastic(in Dictionary<int, ResultBeamForces> ForceList, in ResultBeamForces Soll)
+        public bool CheckShearForcesElastic(in Dictionary<BoltPosition, ResultBeamForces> ForceList, in ResultBeamForces Soll)
         {
             if (Soll is null || ForceList is null)
                 return false;

@@ -40,8 +40,8 @@ namespace GPC.Model.Sections
 
             _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                   // spessore anima;
             _b = flangeLength < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : flangeLength;                   // spessore anima;
-            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
-            _tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
+            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web _thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
+            _tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange _thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
 
             #endregion
 

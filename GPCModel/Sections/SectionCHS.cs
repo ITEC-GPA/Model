@@ -42,7 +42,7 @@ namespace GPC.Model.Sections
         {
 
             if (thickness > externalDiameter / 2.0)
-                throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");
+                throw new ArgumentException($"Diameter cannot be lower than 2 * _thickness ");
 
             _externalDiameter = externalDiameter < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : externalDiameter;
             _thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;

@@ -36,9 +36,9 @@ namespace GPC.Model.Sections
         /// Default constructor
         /// </summary>
         /// <param name="horizontalLegLength">The horizontal leg length</param>
-        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="horizontalLegThickness">The horizontal leg _thickness</param>
         /// <param name="verticalLegLength">The vertical leg length</param>
-        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="verticalLegThickness">The vertical leg _thickness</param>
         /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
         public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
@@ -46,9 +46,9 @@ namespace GPC.Model.Sections
             : base(material, name)
         {
             _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
-            _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate _thickness cannot be lower than zero") : horizontalLegThickness;
             _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
-            _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
+            _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate _thickness cannot be lower than zero") : verticalLegThickness;
 
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
             ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);

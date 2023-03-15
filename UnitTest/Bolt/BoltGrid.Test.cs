@@ -56,10 +56,10 @@ namespace UnitTest.Bolt
 
             // Solution
             var SolBeam = new ResultBeamForces(0, 5000.0 / 2.0, 4000.0 / 2.0, 0, 0, 0, BarSys);
-            for (int i = 0; i < 2; i++)
+            foreach (var SolB in res)
             {
-                Assert.IsTrue(Error.AreEqualsDouble(res[i + 1].V1, SolBeam.V1));
-                Assert.IsTrue(Error.AreEqualsDouble(res[i + 1].V2, SolBeam.V2));
+                Assert.IsTrue(Error.AreEqualsDouble(SolB.Value.V1, SolBeam.V1));
+                Assert.IsTrue(Error.AreEqualsDouble(SolB.Value.V2, SolBeam.V2));
             }
             Assert.IsTrue(BG.CheckShearForcesElastic(res, VetSoll));
         }

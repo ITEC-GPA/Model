@@ -35,6 +35,8 @@ namespace GPC.Model.Sections.Bolt
             {64, 2680},
             {68, 3060}
         };
+
+        public SteelMaterial BoltMaterial => (SteelMaterial)Material;
         #endregion
 
         #region Public Constructors
@@ -74,6 +76,16 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
+        /// Calculate gross o net area.
+        /// </summary>
+        /// <param name="ThreadedArea">True to calculate threaded or net area.</param>
+        /// <returns>Resistant area.</returns>
+        public double CalculateResistantArea(in bool ThreadedArea)
+        {
+            return ThreadedArea ? CalculateAreaEff() : Area;
+        }
+
+        /// <summary>
         /// Calculation of the average diameter of the bolt head.
         /// This is an approximation, derived the coefficient 1.61 as the average of various bolt heads obtained from the standards.
         /// Called d_M in Eurocode EN 1993-1-8: the mean of the across points and across flats dimensions of the bolt head or the nut,
@@ -93,21 +105,6 @@ namespace GPC.Model.Sections.Bolt
         /// </summary>
         /// <returns>Fourth of d_w.</returns>
         public double CalculateFourthOfDw() => CalculateMeanDiameterBoltHead() * 0.25;
-
-        /// <summary>
-        /// Calculates shear resistance for one bolt, EC3.
-        /// </summary>
-        /// <param name="Std"></param>
-        /// <param name="ThreadedArea">True to use threaded or net area.</param>
-        /// <returns>F_V_Rd</returns>
-        /// <exception cref="InvalidCastException"></exception>
-        public double CalculateEN1993ResistanceShear(in StandardEN1993p11 Std, in bool ThreadedArea)
-        {
-            var SteMat = Material as SteelMaterial ?? throw new InvalidCastException("Inconsistent type of material.");
-            var ResArea = ThreadedArea ? CalculateAreaEff() : Area;
-            // F_V_Rd = αv * fu * As / γM2;
-            return /* SteMat.Alpha_v * */ 0.5 * SteMat.Fu * ResArea / Std.GammaM2;
-        }
 
         public bool Equals(BoltSection other)
         {
