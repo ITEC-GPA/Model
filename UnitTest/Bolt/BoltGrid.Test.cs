@@ -3,6 +3,7 @@ using GPC.Model.Data.Steel;
 using GPC.Model.Results;
 using GPC.Model.Sections.Bolt;
 using GPC.Utilities.Maths;
+using MathNet.Numerics.Random;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -167,5 +168,73 @@ namespace ModelObjectTest
             // Solution
             Assert.IsTrue(BG.CheckShearForcesElastic(res, VetSoll));
         }
-    }
+
+		[TestMethod]
+		public void Test05_GridGeometry_01()
+		{
+            double diameter = 12;
+
+			var plate = new RectangularPlateWithBolts(300, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200 }, new double[] { 120, 120 },
+				diameter, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+
+            ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
+            var dist1 = plate.CalculateE1(1, resultBeamForces);
+            var dist2 = plate.CalculateE1(2, resultBeamForces);
+            var dist4 = plate.CalculateE1(4, resultBeamForces);
+
+			// Solution
+			double expDist1 = 250;
+			Assert.IsTrue(Math.Abs(dist1 - expDist1) < 1);
+			double expDist2 = 250;
+			Assert.IsTrue(Math.Abs(dist2 - expDist2) < 1);
+			double expDist4 = 50;
+			Assert.IsTrue(Math.Abs(dist4 - expDist4) < 1);
+		}
+
+		[TestMethod]
+		public void Test05_GridGeometry_02()
+		{
+			var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
+				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+
+			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
+			var distE1_1 = plate.CalculateE1(1, resultBeamForces);
+			var distE1_2 = plate.CalculateE1(2, resultBeamForces);
+			var distE1_4 = plate.CalculateE1(4, resultBeamForces);
+			var distE1_7 = plate.CalculateE1(7, resultBeamForces);
+
+			// Solution
+			double expDistE1_1 = 450;
+			Assert.IsTrue(Math.Abs(distE1_1 - expDistE1_1) < 1);
+			double expDistE1_2 = 450;
+			Assert.IsTrue(Math.Abs(distE1_2 - expDistE1_2) < 1);
+			double expDistE1_4 = 250;
+			Assert.IsTrue(Math.Abs(distE1_4 - expDistE1_4) < 1);
+			double expDistE1_7 = 50;
+			Assert.IsTrue(Math.Abs(distE1_7 - expDistE1_7) < 1);
+		}
+
+		[TestMethod]
+		public void Test05_GridGeometry_03()
+		{
+			var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
+				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+
+			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
+			var distE2_1 = plate.CalculateE2(1, resultBeamForces);
+			var distE2_2 = plate.CalculateE2(2, resultBeamForces);
+			var distE2_4 = plate.CalculateE2(4, resultBeamForces);
+			var distE2_7 = plate.CalculateE2(7, resultBeamForces);
+
+			double expDistE2_1 = 50;
+			Assert.IsTrue(Math.Abs(distE2_1 - expDistE2_1) < 1);
+			double expDistE2_2 = 170;
+			Assert.IsTrue(Math.Abs(distE2_2 - expDistE2_2) < 1);
+			double expDistE2_4 = 50;
+			Assert.IsTrue(Math.Abs(distE2_4 - expDistE2_4) < 1);
+			double expDistE2_7 = 50;
+			Assert.IsTrue(Math.Abs(distE2_7 - expDistE2_7) < 1);
+		}
+	}
 }
+ 

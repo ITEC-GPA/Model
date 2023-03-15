@@ -20,7 +20,8 @@ namespace GPC.Model.Sections.Bolt
             public BoltSection BoltDef { get; set; }
 			public Hole Hole { get; set; }
 
-			public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole)
+			public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole, int id = IDUNASSIGNED, string name = "")
+                :base(id, name)
             {
                 Position = _pos;
                 BoltDef = _bol;

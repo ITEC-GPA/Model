@@ -45,10 +45,16 @@ namespace GPC.Model.Sections.Bolt
 			foreach (var y in stepY)
 				absY.Add(absY.Last() + y);
 
-			// Add bolts respecting a rectangular grid.			
+			// Add bolts respecting a rectangular grid.	
+			int count = 1;
 			foreach (var x in absX)
+			{
 				foreach (var y in absY)
-					boltList.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, mat), new Hole()));
+				{
+					boltList.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, mat), new Hole(), count));
+					count++;
+				}
+			}
 
 			return boltList;
 		}

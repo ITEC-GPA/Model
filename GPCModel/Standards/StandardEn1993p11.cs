@@ -11,6 +11,12 @@ namespace GPC.Model.Standards
 		protected double _gammaM0;
 		protected double _gammaM1;
 		protected double _gammaM2;
+		protected double _gammaM3;
+		protected double _gammaM3Ser;
+		protected double _gammaM4;
+		protected double _gammaM5;
+		protected double _gammaM6;
+		protected double _gammaM7;
 
 		protected double _nShearBucklingLowGradeOfSteel;
 		protected double _nShearBucklingHighGradeOfSteel;
@@ -38,6 +44,12 @@ namespace GPC.Model.Standards
 		public double GammaM0 { get => _gammaM0; set => _gammaM0 = value; }
 		public double GammaM1 { get => _gammaM1; set => _gammaM1 = value; }
 		public double GammaM2 { get => _gammaM2; set => _gammaM2 = value; }
+		public double GammaM3 { get => _gammaM3; set => _gammaM3 = value; }
+		public double GammaM3Ser { get => _gammaM3Ser; set => _gammaM3Ser = value; }
+		public double GammaM4 { get => _gammaM4; set => _gammaM4 = value; }
+		public double GammaM5 { get => _gammaM5; set => _gammaM5 = value; }
+		public double GammaM6 { get => _gammaM6; set => _gammaM6 = value; }
+		public double GammaM7 { get => _gammaM7; set => _gammaM7 = value; }
 
 		public double NShearBucklingLowGradeOfSteel { get => _nShearBucklingLowGradeOfSteel; set => _nShearBucklingLowGradeOfSteel = value; }
 		public double NShearBucklingHighGradeOfSteel { get => _nShearBucklingHighGradeOfSteel; set => _nShearBucklingHighGradeOfSteel = value; }
