@@ -36,7 +36,7 @@ namespace PerformanceTest
             }
         }
 
-        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, double subdivision = 32, double rebarDiameter = 18, double concreteCover = 50,
+        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, double rebarDiameter = 18, double concreteCover = 50,
             int numberOfRebars = 16, ConcreteMaterial concreteMaterial = null, SteelMaterial rebarMaterial = null)
         {
             if (concreteMaterial == null)
@@ -63,7 +63,7 @@ namespace PerformanceTest
             return section;
         }
 
-        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, double subdivision = 32, ConcreteMaterial concreteMaterial = null)
+        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, ConcreteMaterial concreteMaterial = null)
         {
             if (concreteMaterial == null)
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
@@ -247,7 +247,7 @@ namespace PerformanceTest
             double initialTolerance = 0.015;
             double expJ = Math.PI / 64 * Math.Pow(diameter, 4);
 
-            double[] subdivision = new double[] { 32, 64 };
+			int[] subdivision = new int[] { 32, 64 };
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]
                 {

@@ -1,235 +1,283 @@
-﻿using System;
-using System.Runtime.Serialization;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
-    [Serializable]
-    public class SectionT : ThinWallSection, ISection, ISerializable
-    {
-        #region Variables
+	[Serializable]
+	public class SectionT : ThinWallSection, ISection, ISerializable
+	{
+		#region Variables
 
-        protected readonly double _h;
-        protected readonly double _tw;
-        protected readonly double _tf;
-        protected readonly double _b;
+		protected double _h;
+		protected double _tw;
+		protected double _tf;
+		protected double _b;
 
-        #endregion
-                
-        #region Properties
+		#endregion
 
-        public double Height => _h;
+		#region Properties
 
-        public double HeightWeb => _h - _tf;
+		public double Height
+		{
+			get => _h;
+			set
+			{
+				if (value != _h)
+				{
+					_h = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        public double ThicknessWeb => _tw;
+		public double HeightWeb => _h - _tf;
 
-        public double ThicknessFlange => _tf;
+		public double ThicknessWeb
+		{
+			get => _tw;
+			set
+			{
+				if (value != _tw)
+				{
+					_tw = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        public double LenghtFlange => _b;
+		public double ThicknessFlange
+		{
+			get => _tf;
+			set
+			{
+				if (value != _tf)
+				{
+					_tf = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        #endregion
+		public double LenghtFlange
+		{
+			get => _b;
+			set
+			{
+				if (value != _b)
+				{
+					_b = value;
+					CalculateSection();
+				}
+			}
+		}
 
-        #region Public Constructors
+		#endregion
 
-        public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name)
-            : base(material, name)
-        {
-            #region Check inputs
+		#region Public Constructors
 
-            _h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                   // spessore anima;
-            _b = flangeLength < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : flangeLength;                   // spessore anima;
-            _tw = thicknessWeb < 0 ? throw new ArgumentException($"Web _thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
-            _tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange _thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
+		public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name)
+					: base(material, name)
+		{
+			#region Check inputs
 
-            #endregion
+			_h = height < 0 ? throw new ArgumentException($"Web lenght cannot be lower than zero") : height;                   // spessore anima;
+			_b = flangeLength < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : flangeLength;                   // spessore anima;
+			_tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
+			_tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
 
-            ThinWall web = new ThinWall(HeightWeb, thicknessWeb, Math.PI / 2);
-            ThinWall flange = new ThinWall(flangeLength, thicknessFlange, 0);
+			#endregion
 
+			CalculateSection();
+		}
 
-            SetThinWalls(new ThinWall[] { web, flange },
-                    new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
-                    new Point2d(LenghtFlange / 2, HeightWeb + thicknessFlange / 2)});
+		public SectionT(SectionT sectionT)
+			: this(sectionT.Height, sectionT.LenghtFlange, sectionT.ThicknessWeb, sectionT.ThicknessFlange, sectionT.Material, sectionT.Name)
+		{
 
-            SetMechanicalProperties();
-            _mesh = GetMesh();
-        }
+		}
 
-        public SectionT(SectionT sectionT)
-            : this(sectionT.Height, sectionT.LenghtFlange, sectionT.ThicknessWeb, sectionT.ThicknessFlange, sectionT.Material, sectionT.Name)
-        {
+		protected SectionT(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+			int version;
+			try
+			{
+				version = info.GetInt32("SectionTVersion");
+			}
+			catch (Exception)
+			{
+				version = 1;
+			}
 
-        }
+			_h = info.GetDouble("Height");
+			_tw = info.GetDouble("ThicknessWeb");
+			_tf = info.GetDouble("ThicknessFlange");
+			_b = info.GetDouble("LenghtFlange");
+		}
 
-        protected SectionT(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionTVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+		#endregion
 
-            _h = info.GetDouble("Height");
-            _tw = info.GetDouble("ThicknessWeb");
-            _tf = info.GetDouble("ThicknessFlange");
-            _b = info.GetDouble("LenghtFlange");
-        }
+		#region Public method
 
-        #endregion
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData(info, context);
 
-        #region Public method
+			double version = 2;
+			info.AddValue("SectionTVersion", version);
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
+			info.AddValue("Height", _h);
+			info.AddValue("ThicknessWeb", _tw);
+			info.AddValue("ThicknessFlange", _tf);
+			info.AddValue("LenghtFlange", _b);
+		}
 
-            double version = 2;
-            info.AddValue("SectionTVersion", version);
+		protected override double CalculateWel2Max()
+		{
+			return CalculateWelYMax();
+		}
 
-            info.AddValue("Height", _h);
-            info.AddValue("ThicknessWeb", _tw);
-            info.AddValue("ThicknessFlange", _tf);
-            info.AddValue("LenghtFlange", _b);
-        }
+		protected override double CalculateWel2Min()
+		{
+			return CalculateWelYMin();
+		}
 
-        protected override double CalculateWel2Max()
-        {
-            return CalculateWelYMax(); 
-        }
+		protected override double CalculateWel1Max()
+		{
+			return CalculateWelXMax();
+		}
 
-        protected override double CalculateWel2Min()
-        {
-            return CalculateWelYMin();
-        }
+		protected override double CalculateWel1Min()
+		{
+			return CalculateWelXMin();
+		}
 
-        protected override double CalculateWel1Max()
-        {
-            return  CalculateWelXMax();
-        }
+		protected override double CalculateWpl1()
+		{
+			if (_area / 2.0 >= _b * _tf)
+			{
+				double yPlastic = _area / 2.0 / _tw;
+				SectionT halfSectionTop = new SectionT(Height - yPlastic, _b, _tw, _tf, _material, string.Empty);
+				return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + yPlastic / 2.0);
+			}
+			else
+			{
+				double hTopPlastic = (_area / 2.0) / _b;
+				//can't use SectionT because infinite loop
+				double Aweb = _tw * (Height - _tf);
+				double Aflange = _b * (_tf - hTopPlastic);
+				double S = Aweb * ((Height - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
+				return (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
+			}
+		}
 
-        protected override double CalculateWel1Min()
-        {
-            return CalculateWelXMin();
-        }
+		protected override double CalculateWpl2()
+		{
+			return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
+		}
 
-        protected override double CalculateWpl1()
-        {
-            if (_area / 2.0 >= _b * _tf)
-            {
-                double yPlastic = _area / 2.0 / _tw;
-                SectionT halfSectionTop = new SectionT(Height - yPlastic, _b, _tw, _tf, _material, string.Empty);
-                return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + yPlastic / 2.0);
-            }
-            else
-            {
-                double hTopPlastic = (_area / 2.0) / _b;
-                //can't use SectionT because infinite loop
-                double Aweb = _tw * (Height - _tf);
-                double Aflange = _b * (_tf - hTopPlastic);
-                double S = Aweb * ((Height - _tf) / 2.0 + hTopPlastic) + Aflange * hTopPlastic / 2.0;
-                return (_area / 2.0) * (hTopPlastic / 2.0 + S / (Aweb + Aflange));
-            }
-        }
+		protected override double CalculateWelYMin()
+		{
+			return J22 / DistanceXCentroidFromRight();
+		}
 
-        protected override double CalculateWpl2()
-        {
-            return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
-        }
+		protected override double CalculateWelYMax()
+		{
+			return J22 / (_b - DistanceXCentroidFromRight());
+		}
 
-        protected override double CalculateWelYMin()
-        {
-            return J22 / DistanceXCentroidFromRight();
-        }
+		protected override double CalculateWelXMin()
+		{
+			return J11 / DistanceYCentroidFromBottom();
+		}
 
-        protected override double CalculateWelYMax()
-        {
-            return J22 / (_b - DistanceXCentroidFromRight());
-        }
+		protected override double CalculateWelXMax()
+		{
+			return J11 / (Height - DistanceYCentroidFromBottom());
+		}
 
-        protected override double CalculateWelXMin()
-        {
-            return J11 / DistanceYCentroidFromBottom();
-        }
+		internal virtual double DistanceYCentroidFromBottom()
+		{
+			return CalculateCentroid().Y;
+		}
 
-        protected override double CalculateWelXMax()
-        {
-            return J11 / (Height - DistanceYCentroidFromBottom());
-        }
+		internal virtual double DistanceYCentroidFromTop()
+		{
+			return Height - CalculateCentroid().Y;
+		}
 
-        internal virtual double DistanceYCentroidFromBottom()
-        {
-            return CalculateCentroid().Y;
-        }
+		internal virtual double DistanceXCentroidFromRight()
+		{
+			return LenghtFlange - CalculateCentroid().X;
+		}
 
-        internal virtual double DistanceYCentroidFromTop()
-        {
-            return Height - CalculateCentroid().Y;
-        }
+		internal virtual double DistanceXCentroidFromLeft()
+		{
+			return CalculateCentroid().X;
+		}
 
-        internal virtual double DistanceXCentroidFromRight()
-        {
-            return LenghtFlange - CalculateCentroid().X;
-        }
+		#endregion
 
-        internal virtual double DistanceXCentroidFromLeft()
-        {
-            return CalculateCentroid().X;
-        }
+		#region Public override method
 
-        #endregion
+		protected override Shape2d GetShape()
+		{
+			return new Shape2d(new Polygon2d(new Point2d[] {
+				new Point2d(0.0, Height),
+				new Point2d(LenghtFlange, Height),
+				new Point2d(LenghtFlange, HeightWeb),
+				new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0, HeightWeb),
+				new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0, 0.0),
+				new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0, 0.0),
+				new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0, HeightWeb),
+				new Point2d(0.0, HeightWeb) }));
+		}
 
-        #region Public override method
+		protected override Point2d CalculateShearCenter()
+		{
+			return new Point2d(_b / 2.0, Height - _tf / 2.0);
+		}
 
-        protected override Shape2d GetShape()
-        {
-            return new Shape2d(new Polygon2d(new Point2d[] { 
-                new Point2d(0.0, Height), 
-                new Point2d(LenghtFlange, Height), 
-                new Point2d(LenghtFlange, HeightWeb), 
-                new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0, HeightWeb), 
-                new Point2d(LenghtFlange / 2.0 + ThicknessWeb / 2.0, 0.0), 
-                new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0, 0.0), 
-                new Point2d(LenghtFlange / 2.0 - ThicknessWeb / 2.0, HeightWeb), 
-                new Point2d(0.0, HeightWeb) }));
-        }
+		protected override double CalculateJw()
+		{
+			return Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(Height - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
+		}
 
-        protected override Point2d CalculateShearCenter()
-        {
-            return new Point2d(_b / 2.0, Height - _tf / 2.0);
-        }
+		protected override double CalculateJt()
+		{
+			return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
+		}
 
-        protected override double CalculateJw()
-        {
-            return Math.Pow(_b, 3.0) * Math.Pow(_tf, 3.0) / 144.0 + Math.Pow(Height - _tf / 2.0, 3.0) * Math.Pow(_tw, 3.0) / 36.0; //Bleich 1952, Picard and Beaulieu 1991
-        }
+		protected override bool CalculateIsSymmetricAlongXLocalAxis()
+		{
+			return false;
+		}
 
-        protected override double CalculateJt()
-        {
-            return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
-        }
+		protected override bool CalculateIsSymmetricAlongYLocalAxis()
+		{
+			return true;
+		}
 
-        protected override bool CalculateIsSymmetricAlongXLocalAxis()
-        {
-            return false;
-        }
+		public override string ToString()
+		{
+			return $"T {_h}x{_tw}x{_b}x{_tf}";
+		}
 
-        protected override bool CalculateIsSymmetricAlongYLocalAxis()
-        {
-            return true;
-        }
+		private void CalculateSection()
+		{
+			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2);
+			ThinWall flange = new ThinWall(LenghtFlange, ThicknessFlange, 0);
 
-        public override string ToString()
-        {
-            return $"T {_h}x{_tw}x{_b}x{_tf}";
-        }
+			SetThinWalls(new ThinWall[] { web, flange },
+					new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
+					new Point2d(LenghtFlange / 2, HeightWeb + ThicknessFlange / 2)});
 
-        #endregion
-    }
+			SetMechanicalProperties();
+			_mesh = GetMesh();
+		}
+
+		#endregion
+	}
 }

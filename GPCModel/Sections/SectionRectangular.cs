@@ -15,10 +15,9 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        private readonly double _angle;
-
-        protected readonly double _height;
-        protected readonly double _width;
+        private double _angle;
+        protected double _height;
+        protected double _width;
 
         #endregion
 
@@ -27,14 +26,53 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The height of the section
         /// </summary>
-        public double Height => _height;
+        public double Height 
+        {
+			get => _height; 
+            set
+			{
+				if (_height != value)
+				{
+					_height = value;
+					SetMechanicalProperties();
+					_mesh = new Mesh();
+					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
+				}
+			}
+		}
 
         /// <summary>
         /// The width of the section
         /// </summary>
-        public double Width => _width;
+        public double Width
+        {
+			get => _width; 
+            set
+			{
+				if (_width != value)
+				{
+					_width = value;
+					SetMechanicalProperties();
+					_mesh = new Mesh();
+					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
+				}
+			}
+		}
 
-        public double Angle => _angle;
+        public double Angle 
+        {
+			get => _angle; 
+            set
+			{
+				if (_angle != value)
+				{
+					_angle = value;
+					SetMechanicalProperties();
+					_mesh = new Mesh();
+					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
+				}
+			}
+		}
 
         #endregion
 

@@ -637,11 +637,11 @@ namespace GPC.Model.Sections
 
 			try
 			{
-				return SectionHelper.GenerateGMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
+				return SectionHelper.GenerateMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
 			}
 			catch (Exception) { }
 
-			return SectionHelper.GenerateGMesh(GetShape(), meshSize, true, recombine, refine);
+			return SectionHelper.GenerateMesh(GetShape(), meshSize, true, recombine, refine);
 		}
 
 		private double GetMax(double[] array)
