@@ -28,9 +28,12 @@ namespace GPC.Model.Sections.Bolt
 
 		#endregion
 
-		private List<BoltPosition> GetBoltPositions(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin)
+		private List<BoltPosition> GetBoltPositions(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = null)
 		{
 			var boltList = new List<BoltPosition>();
+
+			if (origin == null)
+				origin = Point2d.Origin;
 
 			// Create list of absolute cooridnates.
 			var absX = new List<double>();

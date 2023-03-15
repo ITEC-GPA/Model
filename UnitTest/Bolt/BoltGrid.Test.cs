@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace UnitTest.Bolt
+namespace ModelObjectTest
 {
     [TestClass]
     public class BoltGridTest
@@ -49,7 +49,7 @@ namespace UnitTest.Bolt
         [TestMethod]
         public void Test03_ForceCalculation()
         {
-            var BG = new BoltGrid(new double[] { }, new double[] { 200 }, 12);
+            var BG = new RectangularBoltGrid(new double[] { }, new double[] { 200 }, 12, BoltMaterialEN1993Data.Class10_9);
             var BarSys = new CoordinateSystem(BG.CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 5000, 4000, 0, 0, 0, BarSys);
             var res = BG.CalculateShearForcesElastic(VetSoll);
@@ -135,7 +135,7 @@ namespace UnitTest.Bolt
         [TestMethod]
         public void Test08_ForceCalculation()
         {
-            var BG = new BoltGrid(new double[] { }, new double[] { 200 }, 12);
+            var BG = new RectangularBoltGrid(new double[] { }, new double[] { 200 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(50, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 0, -800, 0, 0, 0, AppSys);
             var res = BG.CalculateShearForcesElastic(VetSoll);
@@ -147,7 +147,7 @@ namespace UnitTest.Bolt
         [TestMethod]
         public void Test09_ForceCalculation()
         {
-            var BG = new BoltGrid(new double[] { 200 }, new double[] { }, 12);
+            var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, -800, 0, 0, 0, 0, AppSys);
             var res = BG.CalculateShearForcesElastic(VetSoll);
@@ -159,7 +159,7 @@ namespace UnitTest.Bolt
         [TestMethod]
         public void Test10_ForceCalculation()
         {
-            var BG = new BoltGrid(new double[] { 200 }, new double[] { 120, 120 }, 12);
+            var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { 120, 120 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, -800, 300, 50000, 0, 0, AppSys);
             var res = BG.CalculateShearForcesElastic(VetSoll);

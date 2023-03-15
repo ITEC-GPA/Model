@@ -4,6 +4,7 @@ using GPC.Model.Results;
 using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GPC.Model.Sections.Bolt
 {
@@ -70,84 +71,56 @@ namespace GPC.Model.Sections.Bolt
 			return CalculateP2(boltId, CalculateAngle(resultBeamForces));
 		}
 
-		public virtual double CalculateE1(int boltId, double angle)
+		public virtual double CalculateE1(int boltId, double forceDirectionAngle)
 		{
-			BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.GetById(boltId);
-            Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
-
-			Line2d[] edges = Shape.Fill2d.Explode();
-            List<Point2d> points = new List<Point2d>();
-
-            for (int i = 0; i < edges.Length; i++)
-            {
-                if (line.GetIntersectionWithInfiniteLine(edges[i], out Point2d intersection))
-                {
-                    points.Add(intersection);
-                }
-            }
-            
-            if (Shape.HasHoles)
-            {
-                for(int i = 0; i < Shape.Holes2d.Length; i++)
-                {
-					Line2d[] edgesHole = Shape.Holes2d[i].Explode();
-					for (int j = 0; j < edgesHole.Length; j++)
-					{
-						if (line.GetIntersectionWithInfiniteLine(edgesHole[j], out Point2d intersection))
-						{
-							points.Add(intersection);
-						}
-					}
-				}
-            }
-
-            double distance = double.MaxValue;
-
-            if(points.Count > 0)
-            {
-                Vector2d v1 = line.ToVector();
-
-                for(int i = 0; i < points.Count; i++)
-                {
-                    double distanceBuffer = boltPosition.Position.DistanceTo(points[i]);
-                    if (distanceBuffer < distance)
-                    {
-                        Vector2d v2 = new Line2d(boltPosition.Position, points[i]).ToVector();
-
-                        if (v1.DotProduct(v2) > 0)
-                        {
-                            distance = distanceBuffer;
-                        }
-                    }
-				}
-            }
-
-            return distance;
+            return CalculateClosestEdgePoint(boltId, forceDirectionAngle);
 		}
 
-		public virtual double CalculateE2(int boltId, double angle)
+		public virtual double CalculateE2(int boltId, double forceDirectionAngle)
+		{
+			return Math.Min(CalculateClosestEdgePoint(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(boltId, forceDirectionAngle - Math.PI / 2.0));
+		}
+
+		public virtual double CalculateP1(int boltId, double forceDirectionAngle)
 		{
 			return 0;
 		}
 
-		public virtual double CalculateP1(int boltId, double angle)
-		{
-			return 0;
-		}
-
-		public virtual double CalculateP2(int boltId, double angle)
+		public virtual double CalculateP2(int boltId, double forceDirectionAngle)
 		{
 			return 0;
 		}
 
 		public virtual double CalculateE1Min(ResultBeamForces resultBeamForces)
 		{
-			return 0;
+			double distance = double.MaxValue;
+
+			for(int i = 0; i < _boltGrid.Bolts.Count; i++)
+			{
+				var angle = CalculateAngle(resultBeamForces);
+				double distanceBuffer = CalculateE1(_boltGrid.Bolts.ElementAt(i).Id, angle);
+
+				if(distanceBuffer < distance) 
+					distance = distanceBuffer;
+			}
+
+			return distance;
 		}
 
 		public virtual double CalculateE2Min(ResultBeamForces resultBeamForces)
 		{
-			return 0;
+			double distance = double.MaxValue;
+
+			for (int i = 0; i < _boltGrid.Bolts.Count; i++)
+			{
+				var angle = CalculateAngle(resultBeamForces);
+				double distanceBuffer = CalculateE2(_boltGrid.Bolts.ElementAt(i).Id, angle);
+
+				if (distanceBuffer < distance)
+					distance = distanceBuffer;
+			}
+
+			return distance;
 		}
 
 		public virtual double CalculateP1Min(ResultBeamForces resultBeamForces)
@@ -164,6 +137,61 @@ namespace GPC.Model.Sections.Bolt
         {
             return Math.Atan2(resultBeamForces.V2, resultBeamForces.V1);
         }
+
+        private double CalculateClosestEdgePoint(int boltId, double angle)
+        {
+			BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.GetById(boltId);
+			Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
+
+			Line2d[] edges = Shape.Fill2d.Explode();
+			List<Point2d> points = new List<Point2d>();
+
+			for (int i = 0; i < edges.Length; i++)
+			{
+				if (line.GetIntersectionWithInfiniteLine(edges[i], out Point2d intersection))
+				{
+					points.Add(intersection);
+				}
+			}
+
+			if (Shape.HasHoles)
+			{
+				for (int i = 0; i < Shape.Holes2d.Length; i++)
+				{
+					Line2d[] edgesHole = Shape.Holes2d[i].Explode();
+					for (int j = 0; j < edgesHole.Length; j++)
+					{
+						if (line.GetIntersectionWithInfiniteLine(edgesHole[j], out Point2d intersection))
+						{
+							points.Add(intersection);
+						}
+					}
+				}
+			}
+
+			double distance = double.MaxValue;
+
+			if (points.Count > 0)
+			{
+				Vector2d v1 = line.ToVector();
+
+				for (int i = 0; i < points.Count; i++)
+				{
+					double distanceBuffer = boltPosition.Position.DistanceTo(points[i]);
+					if (distanceBuffer < distance)
+					{
+						Vector2d v2 = new Line2d(boltPosition.Position, points[i]).ToVector();
+
+						if (v1.DotProduct(v2) > 0)
+						{
+							distance = distanceBuffer;
+						}
+					}
+				}
+			}
+
+			return distance;
+		}
 
 		#endregion
 
