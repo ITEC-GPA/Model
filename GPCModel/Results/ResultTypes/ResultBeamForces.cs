@@ -209,6 +209,18 @@ namespace GPC.Model.Results
 				left.CoordinateSystem);
 		}
 
-		#endregion
-	}
+        public static ResultBeamForces operator /(ResultBeamForces left, double denom)
+        {
+            return new ResultBeamForces(
+                left.N / denom,
+                left.V1 / denom,
+                left.V2 / denom,
+                left.T / denom,
+                left.M1 / denom,
+                left.M2 / denom,
+                left.CoordinateSystem);
+        }
+
+        #endregion
+    }
 }
