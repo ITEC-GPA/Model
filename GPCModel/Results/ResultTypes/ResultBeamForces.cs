@@ -221,6 +221,18 @@ namespace GPC.Model.Results
                 left.CoordinateSystem);
         }
 
+        public static ResultBeamForces operator -(ResultBeamForces other)
+        {
+            return new ResultBeamForces(
+                -other.N,
+                -other.V1,
+                -other.V2,
+                -other.T,
+                -other.M1,
+                -other.M2,
+                other.CoordinateSystem);
+        }
+
         #endregion
     }
 }
