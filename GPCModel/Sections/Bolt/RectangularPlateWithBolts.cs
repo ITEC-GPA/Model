@@ -14,29 +14,7 @@ namespace GPC.Model.Sections.Bolt
     /// </summary>
     public class RectangularPlateWithBolts : PlateWithBolts
     {
-        #region Variables
-
-        /// <summary>
-        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-        /// minimum spacing in X direction.
-        /// Use double.PositiveInfinity if there are no steps.
-        /// </summary>
-        private double _p_x;
-
-        /// <summary>
-        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-        /// minimum spacing in Y direction.
-        /// Use double.PositiveInfinity if there are no steps.
-        /// </summary>
-        private double _p_y;
-
-        #endregion
-
         #region Properties
-
-        public double P_x => _p_x;
-
-        public double P_y => _p_y;
 
         public RectangularBoltGrid RectangularBoltGrid => (RectangularBoltGrid)_boltGrid;
 
@@ -73,18 +51,11 @@ namespace GPC.Model.Sections.Bolt
                 plateThickness
                 )
         {
-            // No check is made on whether the bolts are inside or outside the plate.
- 
-
-            if (boltsStepX.Count() > 0)
-                _p_x = boltsStepX.Min();
-            else
-                _p_x = double.PositiveInfinity;
-
-            if (boltsStepY.Count() > 0)
-                _p_y = boltsStepY.Min();
-            else
-                _p_y = double.PositiveInfinity;
+			for(int i = 0; i < RectangularBoltGrid.Bolts.Count; i++)
+			{
+				if (!Shape.IsPointInside(RectangularBoltGrid.Bolts.ElementAt(i).Position))
+					throw new Exception("Bolt must be internal");
+			}           
         }
 
         #endregion
@@ -116,28 +87,71 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
+		public static bool operator ==(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
+        {
+            if (left is null)
+                return right is null;
+
+            return EqualityComparer<RectangularPlateWithBolts>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
+        {
+            return !(left == right);
+        }
+
+		#endregion
+
+		#region Public Methods
+
+		/// <summary>
+		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+		/// minimum distance from the plate edge along 1 direction.
+		/// </summary>
+		/// <returns></returns>
 		public override double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
 		{
 			return base.CalculateE1(boltId, resultBeamForces);
 		}
 
+		/// <summary>
+		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+		/// minimum distance from the plate edge along 2 direction.
+		/// </summary>
+		/// <returns></returns>
 		public override double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
 		{
 			return base.CalculateE2(boltId, resultBeamForces);
 		}
 
+		/// <summary>
+		/// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
+		/// minimum spacing in 1 direction.
+		/// Use double.PositiveInfinity if there are no steps.
+		/// </summary>
+		/// <param name="boltId"></param>
+		/// <param name="resultBeamForces"></param>
+		/// <returns></returns>
 		public override double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
 		{
 			return base.CalculateP1(boltId, resultBeamForces);
 		}
 
+		/// <summary>
+		/// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
+		/// minimum spacing in 2 direction.
+		/// Use double.PositiveInfinity if there are no steps.
+		/// </summary>
+		/// <param name="boltId"></param>
+		/// <param name="resultBeamForces"></param>
+		/// <returns></returns>
 		public override double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
 		{
 			return base.CalculateP2(boltId, resultBeamForces);
 		}
 
 		/// <summary>
-        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
 		/// minimum distance from the right plate edge.
 		/// </summary>
 		/// <returns></returns>
@@ -196,19 +210,6 @@ namespace GPC.Model.Sections.Bolt
 			return base.CalculateP2Min(resultBeamForces);
 		}
 
-		public static bool operator ==(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
-        {
-            if (left is null)
-                return right is null;
-
-            return EqualityComparer<RectangularPlateWithBolts>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
-        {
-            return !(left == right);
-        }
-
-        #endregion
-    }
+		#endregion
+	}
 }

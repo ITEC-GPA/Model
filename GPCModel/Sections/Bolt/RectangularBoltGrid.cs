@@ -4,11 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static GPC.Model.Sections.Bolt.BoltGrid;
 
 namespace GPC.Model.Sections.Bolt
 {
 	public class RectangularBoltGrid : BoltGrid
 	{
+		protected IEnumerable<double> _stepX;
+		protected IEnumerable<double> _stepY;
+
+		public IEnumerable<double> StepX => _stepX;
+		public IEnumerable<double> StepY => _stepY;
+
+		public Point2d[][] BoltPositions { get; }
+
 		#region Public Constructors
 
 		/// <summary>
@@ -22,13 +31,17 @@ namespace GPC.Model.Sections.Bolt
 		public RectangularBoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = default(Point2d), string name = "")
 			: base(name)
 		{
-			List<BoltPosition> bolts = GetBoltPositions(stepX, stepY, diameter, mat, origin);	
+			_stepX = stepX;
+			_stepY = stepY;
+
+			List<BoltPosition> bolts = GetBoltPositions(stepX, stepY, diameter, mat, out Point2d[][] positions, origin);
+			BoltPositions = positions;
 			_bolts.AddRange(bolts);
 		}
 
 		#endregion
 
-		private List<BoltPosition> GetBoltPositions(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = null)
+		private List<BoltPosition> GetBoltPositions(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, out Point2d[][] positions, Point2d origin = null)
 		{
 			var boltList = new List<BoltPosition>();
 
@@ -40,19 +53,26 @@ namespace GPC.Model.Sections.Bolt
 			var absY = new List<double>();
 			absX.Add(origin.X);
 			absY.Add(origin.Y);
-			foreach (var x in stepX)
+			foreach (double x in stepX)
 				absX.Add(absX.Last() + x);
-			foreach (var y in stepY)
+			foreach (double y in stepY)
 				absY.Add(absY.Last() + y);
 
 			// Add bolts respecting a rectangular grid.	
 			int count = 1;
-			foreach (var x in absX)
+			positions = new Point2d[absX.Count][];
+			for (int i = 0; i < absX.Count; i++)
 			{
-				foreach (var y in absY)
+				positions[i] = new Point2d[absY.Count];
+				double x = absX[i];
+				for (int j = 0; j < absY.Count; j++)
 				{
-					boltList.Add(new BoltPosition(new Point2d(x, y), new BoltSection(diameter, mat), new Hole(), count));
+					double y = absY[j];
+					var point = new Point2d(x, y);
+					boltList.Add(new BoltPosition(point, new BoltSection(diameter, mat), new Hole(), count));
 					count++;
+
+					positions[i][j] = point;
 				}
 			}
 
