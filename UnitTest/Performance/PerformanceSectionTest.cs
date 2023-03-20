@@ -38,12 +38,12 @@ namespace PerformanceTest
 
             double area = section.Area;
 
+            var centroid = SectionHelper.CalculateCentroid(Sx, Sy, area);
+            
             Action actionStaticMoments = new Action(() =>
             {
                 SectionHelper.CalculateStaticMoments(mesh, out Sx, out Sy);
             });
-
-            var centroid = SectionHelper.CalculateCentroid(Sx, Sy, area);
 
             Action actionInertia = new Action(() =>
             {
