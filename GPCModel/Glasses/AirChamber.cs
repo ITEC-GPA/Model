@@ -17,7 +17,7 @@ namespace GPC.Model.Glasses
 
         public AirChamber(string name, double thickness, Guid guid) : base(guid, name)
         {
-            _thickness = thickness > 0.001 ? thickness : throw new ArgumentException("Air thickness can't be negative or zero");
+            _thickness = thickness > 0.001 ? thickness : throw new ArgumentException("Air _thickness can't be negative or zero");
         }
 
         public AirChamber(SerializationInfo info, StreamingContext context)

@@ -1,102 +1,102 @@
 ﻿using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Standards
 {
-    [Serializable]
-    public class StandardCopSuos2011 : Standard, Standard.ICombinationsGenerator, ISerializable
-    {
-        #region Public Enum
+	[Serializable]
+	public class StandardCopSuos2011 : Standard, Standard.ICombinationsGenerator, ISerializable
+	{
+		#region Public Enum
 
-        /// <summary>
-        /// The limit states. Reference: CopSuos2011
-        /// </summary>
-        public enum LimitStates
-        {
-            UltimateEquilibrium,
-            UltimateStrength,            
-            UltimateFatigue,            
-            UltimateIntegrityAndRobustness,            
-            UltimateFracture,
-            Serviceability,           
-        }
+		/// <summary>
+		/// The limit states. Reference: CopSuos2011
+		/// </summary>
+		public enum LimitStates
+		{
+			UltimateEquilibrium,
+			UltimateStrength,
+			UltimateFatigue,
+			UltimateIntegrityAndRobustness,
+			UltimateFracture,
+			Serviceability,
+		}
 
-        #endregion
+		#endregion
 
-        #region Variables
+		#region Variables
 
-        private readonly double _gammaM1;
-        private readonly double _gammaM2;
+		private double _gammaM1;
+		private double _gammaM2;
 
-        public double GammaM1 => _gammaM1;
+		#endregion
 
-        public double GammaM2 => _gammaM2;
+		#region Properties
 
-        #endregion
-                
-        #region Public Constructor
+		public double GammaM1 { get => _gammaM1; set => _gammaM1 = value; }
 
-        public StandardCopSuos2011(string name = "Cop2011", string remarks = "")
-            : base (name, remarks)
-        {
-            _gammaM1 = 1.0;
-            _gammaM2 = 1.2;
-        }
+		public double GammaM2 { get => _gammaM2; set => _gammaM2 = value; }
 
-        public StandardCopSuos2011(string name = "Cop2011")
-            :this(name, "")
-        {
-        }
+		#endregion
 
-        public StandardCopSuos2011()
-            : this("Cop2011", "")
-        {
-        }
+		#region Public Constructor
 
-        protected StandardCopSuos2011(SerializationInfo info, StreamingContext context)
-        {
-            _gammaM1 = info.GetDouble("GammaM1");
-            _gammaM2 = info.GetDouble("GammaM2");
-        }
+		public StandardCopSuos2011(string name = "Cop2011", string remarks = "")
+			: base(name, remarks)
+		{
+			_gammaM1 = 1.0;
+			_gammaM2 = 1.2;
+		}
 
-        #endregion
+		public StandardCopSuos2011(string name = "Cop2011")
+			: this(name, "")
+		{
+		}
 
-        public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
-        {
-            throw new NotImplementedException();
-        }
+		public StandardCopSuos2011()
+			: this("Cop2011", "")
+		{
+		}
+
+		protected StandardCopSuos2011(SerializationInfo info, StreamingContext context)
+		{
+			_gammaM1 = info.GetDouble("GammaM1");
+			_gammaM2 = info.GetDouble("GammaM2");
+		}
+
+		#endregion
+
+		public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
+		{
+			throw new NotImplementedException();
+		}
 
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("GammaM1", _gammaM1);
-            info.AddValue("GammaM2", _gammaM2);
-        }
+		{
+			info.AddValue("GammaM1", _gammaM1);
+			info.AddValue("GammaM2", _gammaM2);
+		}
 
 		public override bool Equals(object obj)
 		{
-            if (ReferenceEquals(this, obj))
-                return true;
+			if (ReferenceEquals(this, obj))
+				return true;
 
-            return obj is StandardCopSuos2011 suos &&
+			return obj is StandardCopSuos2011 suos &&
 				   _gammaM1 == suos._gammaM1 &&
 				   _gammaM2 == suos._gammaM2;
 		}
 
 		public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = -17;
-                hashCode = hashCode * -23 + _gammaM1.GetHashCode();
-                hashCode = hashCode * -23 + _gammaM2.GetHashCode();
-                return hashCode;
-            }
-        }
+		{
+			unchecked
+			{
+				int hashCode = -17;
+				hashCode = hashCode * -23 + _gammaM1.GetHashCode();
+				hashCode = hashCode * -23 + _gammaM2.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 }

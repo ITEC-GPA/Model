@@ -32,11 +32,15 @@ namespace GPC.Model.Sections.Concrete
 
         double J22 { get; }
 
-        double Jxx { get; }
+		double AngleX1 { get; }
+
+		double Jxx { get; }
 
         double Jyy { get; }
 
-        double Wpl1 { get; }
+        double Jxy { get; }
+
+		double Wpl1 { get; }
 
         double Wpl2 { get; }
 

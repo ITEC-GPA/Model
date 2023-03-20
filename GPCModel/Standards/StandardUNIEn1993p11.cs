@@ -5,8 +5,7 @@ namespace GPC.Model.Standards
 {
     [Serializable]
     public class StandardUNIEN1993p11 : StandardEN1993p11, ISerializable
-    {
-        
+    {        
         public StandardUNIEN1993p11()
         {
             _gammaM0 = 1.05;

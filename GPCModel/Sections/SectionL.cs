@@ -11,22 +11,66 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
-        private readonly double _horizontalLegLength;
-        private readonly double _horizontalLegThickness;
-        private readonly double _verticalLegLength;
-        private readonly double _verticalLegThickness;
+        private double _horizontalLegLength;
+        private double _horizontalLegThickness;
+        private double _verticalLegLength;
+        private double _verticalLegThickness;
 
         #endregion
 
         #region Properties
 
-        public double HorizontalLegLength => _horizontalLegLength;
+        public double HorizontalLegLength
+        {
+            get => _horizontalLegLength;
+            set
+            {
+                if (_horizontalLegLength != value)
+                {
+                    _horizontalLegLength = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double HorizontalLegThickness => _horizontalLegThickness;
+        public double HorizontalLegThickness
+        {
+            get => _horizontalLegThickness;
+            set
+            {
+                if (_horizontalLegThickness != value)
+                {
+                    _horizontalLegThickness = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double VerticalLegLength => _verticalLegLength;
+        public double VerticalLegLength
+        {
+            get => _verticalLegLength;
+            set
+            { 
+                if (_verticalLegLength != value)
+                {
+                    _verticalLegLength = value;
+					CalculateSection();
+                } 
+            }
+        }
 
-        public double VerticalLegThickness => _verticalLegThickness;
+        public double VerticalLegThickness 
+        {
+			get => _verticalLegThickness; 
+            set
+			{
+				if (_verticalLegThickness != value)
+				{
+					_verticalLegThickness = value;
+					CalculateSection();
+				}
+			}
+		}
 
         #endregion
 
@@ -36,9 +80,9 @@ namespace GPC.Model.Sections
         /// Default constructor
         /// </summary>
         /// <param name="horizontalLegLength">The horizontal leg length</param>
-        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="horizontalLegThickness">The horizontal leg _thickness</param>
         /// <param name="verticalLegLength">The vertical leg length</param>
-        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="verticalLegThickness">The vertical leg _thickness</param>
         /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
         public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
@@ -46,9 +90,9 @@ namespace GPC.Model.Sections
             : base(material, name)
         {
             _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
-            _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate thickness cannot be lower than zero") : horizontalLegThickness;
+            _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate _thickness cannot be lower than zero") : horizontalLegThickness;
             _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
-            _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate thickness cannot be lower than zero") : verticalLegThickness;
+            _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate _thickness cannot be lower than zero") : verticalLegThickness;
 
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
             ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
@@ -270,6 +314,19 @@ namespace GPC.Model.Sections
             double yc = ((_points[0].Y * _thinWalls[0].Area) + (_points[1].Y * _thinWalls[1].Area)) / Area;
             return new Point2d(xc, yc);
         }
+
+        private void CalculateSection()
+        {
+			ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
+			ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
+
+			SetThinWalls(new ThinWall[] { thinWall1, thinWall2 },
+					new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
+					new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)});
+
+			SetMechanicalProperties();
+			_mesh = GetMesh();
+		}
 
 		#endregion
 

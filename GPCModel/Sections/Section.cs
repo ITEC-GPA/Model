@@ -637,11 +637,11 @@ namespace GPC.Model.Sections
 
 			try
 			{
-				return SectionHelper.GenerateGMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
+				return SectionHelper.GenerateMesh(GetShape(), meshSize, initialMeshOnly, recombine, refine);
 			}
 			catch (Exception) { }
 
-			return SectionHelper.GenerateGMesh(GetShape(), meshSize, true, recombine, refine);
+			return SectionHelper.GenerateMesh(GetShape(), meshSize, true, recombine, refine);
 		}
 
 		private double GetMax(double[] array)
@@ -716,7 +716,7 @@ namespace GPC.Model.Sections
 				return true;
 
 			return obj is Section section &&
-				   _material.Equals(section._material) &&
+				   _material == section._material &&
 				   _area == section._area &&
 				   _jxx == section._jxx &&
 				   _jyy == section._jyy &&

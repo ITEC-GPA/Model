@@ -414,7 +414,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest1()
         {
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialEuropeanCommon.CementType.ClassN);
+                1.55, 1.80, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
@@ -432,7 +432,7 @@ namespace ModelObjectTest
         public void ConcreteFRCTest2()
         {
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("", 30, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle,
-                1.50, 1.00, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0, ConcreteMaterialEuropeanCommon.CementType.ClassN);
+                1.50, 1.00, 0.00195, 0.01, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0, 0, 0);
 
             List<(double, double)> stresses = new List<(double, double)>();
 
