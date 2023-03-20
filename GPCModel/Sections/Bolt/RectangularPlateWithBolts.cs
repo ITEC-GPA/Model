@@ -1,10 +1,8 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace GPC.Model.Sections.Bolt
@@ -18,23 +16,23 @@ namespace GPC.Model.Sections.Bolt
 
         public RectangularBoltGrid RectangularBoltGrid => (RectangularBoltGrid)_boltGrid;
 
-		#endregion
+        #endregion
 
-		#region Constructor
+        #region Constructor
 
-		/// <summary>
-		/// Define a rectangular plate with a rectangular bolt grid inside.
-		/// </summary>
-		/// <param name="plateB">Base of rectangular plate, start from (0, 0) up to (plateB, 0).</param>
-		/// <param name="plateH">Height of rectangular plate, start from (0, 0) up to (0, plateH).</param>
-		/// <param name="plateMaterial"></param>
-		/// <param name="plateThickness">Plate plate thickness.</param>
-		/// <param name="boltsStepX">Steps in X.</param>
-		/// <param name="boltsStepY">Steps in Y.</param>
-		/// <param name="boltsDiameter"></param>
-		/// <param name="boltsMaterial"></param>
-		/// <param name="boltsOrigin">Starting point, bottom right corner.</param>
-		public RectangularPlateWithBolts(in double plateB, in double plateH, in SteelMaterial plateMaterial, in double plateThickness,
+        /// <summary>
+        /// Define a rectangular plate with a rectangular bolt grid inside.
+        /// </summary>
+        /// <param name="plateB">Base of rectangular plate, start from (0, 0) up to (plateB, 0).</param>
+        /// <param name="plateH">Height of rectangular plate, start from (0, 0) up to (0, plateH).</param>
+        /// <param name="plateMaterial"></param>
+        /// <param name="plateThickness">Plate plate thickness.</param>
+        /// <param name="boltsStepX">Steps in X.</param>
+        /// <param name="boltsStepY">Steps in Y.</param>
+        /// <param name="boltsDiameter"></param>
+        /// <param name="boltsMaterial"></param>
+        /// <param name="boltsOrigin">Starting point, bottom right corner.</param>
+        public RectangularPlateWithBolts(in double plateB, in double plateH, in SteelMaterial plateMaterial, in double plateThickness,
             in IEnumerable<double> boltsStepX, in IEnumerable<double> boltsStepY, in double boltsDiameter, in SteelMaterial boltsMaterial,
             in Point2d boltsOrigin)
             : base(
@@ -51,12 +49,20 @@ namespace GPC.Model.Sections.Bolt
                 plateThickness
                 )
         {
-			for(int i = 0; i < RectangularBoltGrid.Bolts.Count; i++)
-			{
-				if (!Shape.IsPointInside(RectangularBoltGrid.Bolts.ElementAt(i).Position))
-					throw new Exception("Bolt must be internal");
-			}           
+            for (int i = 0; i < RectangularBoltGrid.Bolts.Count; i++)
+            {
+                if (!Shape.IsPointInside(RectangularBoltGrid.Bolts.ElementAt(i).Position))
+                    throw new Exception("Bolt must be internal");
+            }
         }
+
+        public RectangularPlateWithBolts(in double paddingLeft, in double paddingBottom, in double paddingRight, in double paddingTop,
+            in SteelMaterial plateMaterial, in double plateThickness,
+            in IEnumerable<double> boltsStepX, in IEnumerable<double> boltsStepY, in double boltsDiameter, in SteelMaterial boltsMaterial,
+            in Point2d boltsOrigin)
+            : this(paddingLeft + boltsStepX.Sum() + paddingRight, paddingBottom + boltsStepY.Sum() + paddingTop,
+                plateMaterial, plateThickness, boltsStepX, boltsStepY, boltsDiameter, boltsMaterial, boltsOrigin)
+        { }
 
         #endregion
 
@@ -87,7 +93,7 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
-		public static bool operator ==(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
+        public static bool operator ==(RectangularPlateWithBolts left, RectangularPlateWithBolts right)
         {
             if (left is null)
                 return right is null;
@@ -100,116 +106,116 @@ namespace GPC.Model.Sections.Bolt
             return !(left == right);
         }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the plate edge along 1 direction.
-		/// </summary>
-		/// <returns></returns>
-		public override double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateE1(boltId, resultBeamForces);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the plate edge along 1 direction.
+        /// </summary>
+        /// <returns></returns>
+        public override double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateE1(boltId, resultBeamForces);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the plate edge along 2 direction.
-		/// </summary>
-		/// <returns></returns>
-		public override double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateE2(boltId, resultBeamForces);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the plate edge along 2 direction.
+        /// </summary>
+        /// <returns></returns>
+        public override double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateE2(boltId, resultBeamForces);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
-		/// minimum spacing in 1 direction.
-		/// Use double.PositiveInfinity if there are no steps.
-		/// </summary>
-		/// <param name="boltId"></param>
-		/// <param name="resultBeamForces"></param>
-		/// <returns></returns>
-		public override double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateP1(boltId, resultBeamForces);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
+        /// minimum spacing in 1 direction.
+        /// Use double.PositiveInfinity if there are no steps.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <param name="resultBeamForces"></param>
+        /// <returns></returns>
+        public override double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateP1(boltId, resultBeamForces);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
-		/// minimum spacing in 2 direction.
-		/// Use double.PositiveInfinity if there are no steps.
-		/// </summary>
-		/// <param name="boltId"></param>
-		/// <param name="resultBeamForces"></param>
-		/// <returns></returns>
-		public override double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateP2(boltId, resultBeamForces);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
+        /// minimum spacing in 2 direction.
+        /// Use double.PositiveInfinity if there are no steps.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <param name="resultBeamForces"></param>
+        /// <returns></returns>
+        public override double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateP2(boltId, resultBeamForces);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the right plate edge.
-		/// </summary>
-		/// <returns></returns>
-		public double CalculateExRight()
-		{
-			return Get2dBoundingBox().Max.X - _boltGrid.Bolts.Max(bd => bd.Position.X);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the right plate edge.
+        /// </summary>
+        /// <returns></returns>
+        public double CalculateExRight()
+        {
+            return Get2dBoundingBox().Max.X - _boltGrid.Bolts.Max(bd => bd.Position.X);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the right plate edge.
-		/// </summary>
-		/// <returns></returns>
-		public double CalculateExLeft()
-		{
-			return _boltGrid.Bolts.Min(bd => bd.Position.X);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the right plate edge.
+        /// </summary>
+        /// <returns></returns>
+        public double CalculateExLeft()
+        {
+            return _boltGrid.Bolts.Min(bd => bd.Position.X);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the top plate edge.
-		/// </summary>
-		/// <returns></returns>
-		public double CalculateEyTop()
-		{
-			return Get2dBoundingBox().Max.Y - _boltGrid.Bolts.Max(bd => bd.Position.Y);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the top plate edge.
+        /// </summary>
+        /// <returns></returns>
+        public double CalculateEyTop()
+        {
+            return Get2dBoundingBox().Max.Y - _boltGrid.Bolts.Max(bd => bd.Position.Y);
+        }
 
-		/// <summary>
-		/// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-		/// minimum distance from the bottom plate edge.
-		/// </summary>
-		/// <returns></returns>
-		public double CalculateEyBottom()
-		{
-			return _boltGrid.Bolts.Min(bd => bd.Position.Y);
-		}
+        /// <summary>
+        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
+        /// minimum distance from the bottom plate edge.
+        /// </summary>
+        /// <returns></returns>
+        public double CalculateEyBottom()
+        {
+            return _boltGrid.Bolts.Min(bd => bd.Position.Y);
+        }
 
-		public override double CalculateE1Min(ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateE1Min(resultBeamForces);
-		}
+        public override double CalculateE1Min(ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateE1Min(resultBeamForces);
+        }
 
-		public override double CalculateE2Min(ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateE2Min(resultBeamForces);
-		}
+        public override double CalculateE2Min(ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateE2Min(resultBeamForces);
+        }
 
-		public override double CalculateP1Min(ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateP1Min(resultBeamForces);
-		}
+        public override double CalculateP1Min(ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateP1Min(resultBeamForces);
+        }
 
-		public override double CalculateP2Min(ResultBeamForces resultBeamForces)
-		{
-			return base.CalculateP2Min(resultBeamForces);
-		}
+        public override double CalculateP2Min(ResultBeamForces resultBeamForces)
+        {
+            return base.CalculateP2Min(resultBeamForces);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
