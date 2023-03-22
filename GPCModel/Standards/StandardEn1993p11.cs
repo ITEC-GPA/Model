@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Standards
 {
+    /// <summary>
+    /// EN 1993: Eurocode 3
+    /// </summary>
     [Serializable]
     public class StandardEN1993p11 : Standard, ISerializable
     {
