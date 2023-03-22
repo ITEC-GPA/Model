@@ -271,7 +271,7 @@ namespace GPC.Model.Materials
 
 		public double CalculateDesignYieldingStressTension(Standards.StandardModelCode2010 standard)
 		{
-			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
+			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Structural)
 				return StressYTension / standard.GammaS;
 			else if (SteelType == SteelTypes.Tendon)
 				return StressYTension / standard.GammaSPrestress;
@@ -281,7 +281,7 @@ namespace GPC.Model.Materials
 
 		public double CalculateDesignYieldingStressCompression(Standards.StandardModelCode2010 standard)
 		{
-			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars)
+			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Structural)
 				return StressYCompression / standard.GammaS;
 			else if (SteelType == SteelTypes.Tendon)
 				return StressYCompression / standard.GammaSPrestress;
@@ -301,7 +301,7 @@ namespace GPC.Model.Materials
 
 		public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
 		{
-			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon)
+			if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon || SteelType == SteelTypes.Structural)
 				return StrainUTension * standard.SteelCoefficientStrainTension;
 			else
 				throw new Exception();
