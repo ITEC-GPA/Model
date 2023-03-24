@@ -36,7 +36,18 @@ namespace GPC.Model.Sections.Bolt
             {68, 3060}
         };
 
-        public SteelMaterial BoltMaterial => (SteelMaterial)Material;
+        public SteelMaterial BoltMaterial
+        {
+            get => (SteelMaterial)_material;
+            set
+            {
+                if (value != null && value is SteelMaterial)
+                {
+                    _material = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Public Constructors

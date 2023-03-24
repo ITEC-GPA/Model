@@ -46,6 +46,11 @@ namespace GPC.Model.Sections.Bolt
             _thickness = plateThickness;
         }
 
+        public PlateWithBolts(in Polygon2d plateShape, in SteelMaterial plateMaterial)
+            : this(plateShape, plateMaterial, new BoltGrid(), 10.0)
+        {
+        }
+
         #endregion
 
         #region Virtual Methods
