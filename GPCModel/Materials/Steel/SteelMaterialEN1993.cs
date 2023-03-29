@@ -11,14 +11,19 @@ namespace GPC.Model.Materials
 		#region Constructor
 
 		public SteelMaterialEN1993(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, 
-			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05) 
+			SteelTypes steelType = SteelTypes.Structural, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05) 
 			: base(name, elasticModulus, fyk, fu, strainU, steelType, poisson, density, alfaThermalExpansion)
 		{
 		}
 
-		public SteelMaterialEN1993(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression, 
+		public SteelMaterialEN1993(string name)
+			: base(name, SteelTypes.Structural)
+		{
+		}
+
+        public SteelMaterialEN1993(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression, 
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
-			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Undefined, 
+			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Structural, 
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression, 
 				  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension, 

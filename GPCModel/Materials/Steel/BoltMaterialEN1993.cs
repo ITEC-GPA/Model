@@ -16,7 +16,12 @@ namespace GPC.Model.Materials
 		{
 		}
 
-		public BoltMaterialEN1993(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression, 
+		public BoltMaterialEN1993(string name)
+			: base(name, SteelTypes.Bolt)
+		{
+		}
+
+        public BoltMaterialEN1993(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression, 
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
 			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Bolt, 
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
