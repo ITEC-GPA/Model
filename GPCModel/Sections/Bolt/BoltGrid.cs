@@ -49,11 +49,11 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
-        protected UniqueIdCollection<BoltPosition> _bolts;
+        protected List<BoltPosition> _bolts;
 
         #region Properties
 
-        public UniqueIdCollection<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
+        public List<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace GPC.Model.Sections.Bolt
 		public BoltGrid(string name = "")
             : base(name)
 		{
-			_bolts = new UniqueIdCollection<BoltPosition>();
+			_bolts = new List<BoltPosition>();
 		}
 
 		#endregion
@@ -94,6 +94,9 @@ namespace GPC.Model.Sections.Bolt
         public Point2d CalculateBarycenter()
         {
             double Area = CalculateArea();
+            if (Area <= GeometryBase.Tolerance)
+                return new Point2d(0.0, 0.0);
+
             double S_X = 0; // Static moments.
             double S_Y = 0;
 
@@ -199,6 +202,11 @@ namespace GPC.Model.Sections.Bolt
             var SollG = Soll.ToCoordinateSystemWithEccentricity(GSys);
 
             return totForce == SollG;
+        }
+
+        public void RemoveBoltById(int id)
+        {
+            _bolts.RemoveAll(bp => bp.Id == id);
         }
 
         #endregion

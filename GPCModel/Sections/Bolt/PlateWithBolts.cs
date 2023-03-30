@@ -53,49 +53,49 @@ namespace GPC.Model.Sections.Bolt
 
         #endregion
 
-        #region Virtual Methods
+        #region Methods
 
-        public virtual double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
         {
             return CalculateE1(boltId, CalculateAngle(resultBeamForces));
         }
 
-        public virtual double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
         {
             return CalculateE2(boltId, CalculateAngle(resultBeamForces));
         }
 
-        public virtual double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
         {
             return CalculateP1(boltId, CalculateAngle(resultBeamForces));
         }
 
-        public virtual double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
         {
             return CalculateP2(boltId, CalculateAngle(resultBeamForces));
         }
 
-        public virtual double CalculateE1(int boltId, double forceDirectionAngle)
+        public double CalculateE1(int boltId, double forceDirectionAngle)
         {
             return CalculateClosestEdgePoint(boltId, forceDirectionAngle);
         }
 
-        public virtual double CalculateE2(int boltId, double forceDirectionAngle)
+        public double CalculateE2(int boltId, double forceDirectionAngle)
         {
             return Math.Min(CalculateClosestEdgePoint(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(boltId, forceDirectionAngle - Math.PI / 2.0));
         }
 
-        public virtual double CalculateP1(int boltId, double forceDirectionAngle)
+        public double CalculateP1(int boltId, double forceDirectionAngle)
         {
             return CalculateClosestBolt(boltId, forceDirectionAngle);
         }
 
-        public virtual double CalculateP2(int boltId, double forceDirectionAngle)
+        public double CalculateP2(int boltId, double forceDirectionAngle)
         {
             return Math.Min(CalculateClosestBolt(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestBolt(boltId, forceDirectionAngle - Math.PI / 2.0)); ;
         }
 
-        public virtual double CalculateE1Min(ResultBeamForces resultBeamForces)
+        public double CalculateE1Min(ResultBeamForces resultBeamForces)
         {
             double distance = double.MaxValue;
 
@@ -111,7 +111,7 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
-        public virtual double CalculateE2Min(ResultBeamForces resultBeamForces)
+        public double CalculateE2Min(ResultBeamForces resultBeamForces)
         {
             double distance = double.MaxValue;
 
@@ -127,7 +127,7 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
-        public virtual double CalculateP1Min(ResultBeamForces resultBeamForces)
+        public double CalculateP1Min(ResultBeamForces resultBeamForces)
         {
             double distance = double.MaxValue;
 
@@ -143,7 +143,7 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
-        public virtual double CalculateP2Min(ResultBeamForces resultBeamForces)
+        public double CalculateP2Min(ResultBeamForces resultBeamForces)
         {
             double distance = double.MaxValue;
 
@@ -166,7 +166,7 @@ namespace GPC.Model.Sections.Bolt
 
         private double CalculateClosestEdgePoint(int boltId, double angle)
         {
-            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.GetById(boltId);
+            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
             Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
 
             Line2d[] edges = Shape.Fill2d.Explode();
@@ -223,7 +223,7 @@ namespace GPC.Model.Sections.Bolt
 
         private double CalculateClosestBolt(int boltId, double angle)
         {
-            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.GetById(boltId);
+            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
             Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
             var otherBolts = new List<BoltGrid.BoltPosition>();
