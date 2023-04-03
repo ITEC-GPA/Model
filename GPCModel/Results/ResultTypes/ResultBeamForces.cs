@@ -206,7 +206,8 @@ namespace GPC.Model.Results
 				left.T + rightInRightPos.T,
 				left.M1 + rightInRightPos.M1,
 				left.M2 + rightInRightPos.M2,
-				left.CoordinateSystem);
+				left.CoordinateSystem,
+				left.Id);
 		}
 
         public static ResultBeamForces operator /(ResultBeamForces left, double denom)
@@ -218,7 +219,8 @@ namespace GPC.Model.Results
                 left.T / denom,
                 left.M1 / denom,
                 left.M2 / denom,
-                left.CoordinateSystem);
+                left.CoordinateSystem,
+				left.Id);
         }
 
         public static ResultBeamForces operator -(ResultBeamForces other)
@@ -230,7 +232,8 @@ namespace GPC.Model.Results
                 -other.T,
                 -other.M1,
                 -other.M2,
-                other.CoordinateSystem);
+                other.CoordinateSystem,
+				other.Id);
         }
 
         #endregion

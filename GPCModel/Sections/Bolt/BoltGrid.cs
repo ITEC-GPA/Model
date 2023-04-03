@@ -1,11 +1,8 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
 namespace GPC.Model.Sections.Bolt
 {
@@ -14,18 +11,18 @@ namespace GPC.Model.Sections.Bolt
     /// </summary>
     public class BoltGrid : ModelObject
     {
-		public class BoltPosition : ModelObjectId
+        public class BoltPosition : ModelObjectId
         {
             public Point2d Position { get; set; }
             public BoltSection BoltDef { get; set; }
-			public Hole Hole { get; set; }
+            public Hole Hole { get; set; }
 
-			public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole, int id = IDUNASSIGNED, string name = "")
-                :base(id, name)
+            public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole, int id = IDUNASSIGNED, string name = "")
+                : base(id, name)
             {
                 Position = _pos;
                 BoltDef = _bol;
-                Hole = hole;    
+                Hole = hole;
             }
 
             public override bool Equals(object obj)
@@ -43,7 +40,7 @@ namespace GPC.Model.Sections.Bolt
                     int hashCode = -23;
                     hashCode = hashCode * -17 + EqualityComparer<Point2d>.Default.GetHashCode(Position);
                     hashCode = hashCode * -17 + EqualityComparer<Hole>.Default.GetHashCode(Hole);
-					hashCode = hashCode * -17 + EqualityComparer<BoltSection>.Default.GetHashCode(BoltDef);
+                    hashCode = hashCode * -17 + EqualityComparer<BoltSection>.Default.GetHashCode(BoltDef);
                     return hashCode;
                 }
             }
@@ -62,24 +59,24 @@ namespace GPC.Model.Sections.Bolt
         public BoltGrid(IEnumerable<BoltPosition> bolts, string name = "")
             : this(name)
         {
-			_bolts.AddRange(bolts);
+            _bolts.AddRange(bolts);
         }
 
-		public BoltGrid(string name = "")
+        public BoltGrid(string name = "")
             : base(name)
-		{
-			_bolts = new List<BoltPosition>();
-		}
+        {
+            _bolts = new List<BoltPosition>();
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		/// <summary>
-		/// Calculate area of the whole group of bolts.
-		/// </summary>
-		/// <returns>Area.</returns>
-		public double CalculateArea()
+        /// <summary>
+        /// Calculate area of the whole group of bolts.
+        /// </summary>
+        /// <returns>Area.</returns>
+        public double CalculateArea()
         {
             double Area = 0;
             foreach (var b in Bolts)
@@ -163,7 +160,7 @@ namespace GPC.Model.Sections.Bolt
             if (Bolts.Count == 1)
             {
                 retForces[Bolts.First()] = new ResultBeamForces(0, Soll.V1, Soll.V2, 0, 0, 0,
-                    new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis));
+                    new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
                 return retForces;
             }
 
@@ -177,7 +174,7 @@ namespace GPC.Model.Sections.Bolt
                 double soll_X = b.BoltDef.Area * (SollLoc.V1 / Area + (G.Y - b.Position.Y) * SollLoc.T / I_P0);
                 double soll_Y = b.BoltDef.Area * (SollLoc.V2 / Area + (b.Position.X - G.X) * SollLoc.T / I_P0);
                 retForces[b] = new ResultBeamForces(0, soll_X, soll_Y, 0, 0, 0,
-                    new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis));
+                    new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
             }
 
             return retForces;
