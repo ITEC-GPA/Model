@@ -258,6 +258,15 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
+        public BoltGrid.BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
+        {
+            // Check it is inside.
+            if (!IsPointInside(new Point2d(posX, posY)))
+                return null;
+
+            return _boltGrid.AddBolt(posX, posY, diameter, mat, hole);
+        }
+
         #endregion
 
         #region Comparers

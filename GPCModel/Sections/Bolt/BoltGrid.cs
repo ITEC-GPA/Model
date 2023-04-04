@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
@@ -204,6 +205,28 @@ namespace GPC.Model.Sections.Bolt
         public void RemoveBoltById(int id)
         {
             _bolts.RemoveAll(bp => bp.Id == id);
+        }
+
+        public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
+        {
+            // Check that it does not intersect another bolt.
+            // The distance must be greater than the sum of the radii.
+            var pos = new Point2d(posX, posY);
+            foreach (var bp in _bolts)
+                if (bp.Position.DistanceTo(pos) <= 0.5 * (diameter + bp.BoltDef.Diameter) + GeometryBase.Tolerance)
+                    return null;
+
+            if (hole is null)
+                hole = new Hole(diameter + 1.0);
+
+            // Find the next index.
+            int nextIndex = 1;
+            if (_bolts.Count > 0)
+                nextIndex = _bolts.Max(bp => bp.Id) + 1;
+
+            var newBoltPos = new BoltPosition(pos, new BoltSection(diameter, mat), hole, nextIndex);
+            _bolts.Add(newBoltPos);
+            return newBoltPos;
         }
 
         #endregion
