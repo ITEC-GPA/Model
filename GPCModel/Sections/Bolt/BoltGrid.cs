@@ -229,6 +229,45 @@ namespace GPC.Model.Sections.Bolt
             return newBoltPos;
         }
 
+        /// <summary>
+        /// Add a rectangular grid of bolts.
+        /// </summary>
+        /// <param name="stepX">Steps in X.</param>
+        /// <param name="stepY">Steps in Y.</param>
+        /// <param name="diameter"></param>
+        /// <param name="mat"></param>
+        /// <param name="origin">Starting point, bottom right corner.</param>
+        public List<BoltPosition> AddBoltsRectangularGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = null)
+        {
+            var boltList = new List<BoltPosition>();
+
+            if (origin == null)
+                origin = Point2d.Origin;
+
+            // Create list of absolute cooridnates.
+            var absX = new List<double>();
+            var absY = new List<double>();
+            absX.Add(origin.X);
+            absY.Add(origin.Y);
+            foreach (double x in stepX)
+                absX.Add(absX.Last() + x);
+            foreach (double y in stepY)
+                absY.Add(absY.Last() + y);
+
+            // Add bolts respecting a rectangular grid.
+            foreach (double posX in absX)
+            {
+                foreach (double posY in absY)
+                {
+                    var addedBolt = AddBolt(posX, posY, diameter, mat);
+                    if (addedBolt is null)
+                        continue;
+                    boltList.Add(addedBolt);
+                }
+            }
+            return boltList;
+        }
+
         #endregion
     }
 }

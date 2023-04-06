@@ -8,6 +8,8 @@ using System.Linq;
 namespace GPC.Model.Sections.Bolt
 {
     /// <summary>
+	/// Obsolete: it is no longer used, instead the generic PlateWithBolts is used.
+    /// Maintained only for testing.
     /// Generic plate with holes and bolts.
     /// </summary>
     public class RectangularPlateWithBolts : PlateWithBolts
