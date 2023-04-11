@@ -248,6 +248,8 @@ namespace GPC.Model.Materials
                     return CalculateDesignStress(mc, strain, epsilonP);
                 case Standards.StandardACI318 aci:
                     return CalculateDesignStress(aci, strain, epsilonP);
+                case Standards.StandardEN1993p11 ec3:
+                    return CalculateDesignStress(ec3, strain, epsilonP);
                 default:
                     return 0;
             }
@@ -261,6 +263,8 @@ namespace GPC.Model.Materials
                     return CalculateDesignStrain(mc, strain);
                 case Standards.StandardACI318 aci:
                     return CalculateDesignStrain(aci, strain);
+                case Standards.StandardEN1993p11 ec3:
+                    return CalculateDesignStrain(ec3, strain);
                 default:
                     return 0;
             }
@@ -435,8 +439,136 @@ namespace GPC.Model.Materials
                     return CalculateDesignStress(mc, stress, strain, epsilonP);
                 case Standards.StandardACI318 aci:
                     return CalculateDesignStress(aci, stress, strain, epsilonP);
+                case Standards.StandardEN1993p11 ec3:
+                    return CalculateDesignStress(ec3, stress, strain, epsilonP);
                 default:
                     return 0;
+            }
+        }
+
+        #endregion
+
+        #region Eurocode 3
+
+        /// <returns>The design steel yielding stress</returns>
+        public double CalculateFyd(Standards.StandardEN1993p11 standard)
+        {
+            return Fyk / standard.GammaM0;
+        }
+
+        public double CalculateDesignYieldingStressTension(Standards.StandardEN1993p11 standard)
+        {
+            if (SteelType == SteelTypes.Structural)
+                return StressYTension / standard.GammaM0;
+            else if (SteelType == SteelTypes.Bolt)
+                return StressYTension / standard.GammaM2;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStressCompression(Standards.StandardEN1993p11 standard)
+        {
+            if (SteelType == SteelTypes.Structural)
+                return StressYCompression / standard.GammaM0;
+            else if (SteelType == SteelTypes.Bolt)
+                return StressYCompression / standard.GammaM2;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignYieldingStrainTension(Standards.StandardEN1993p11 standard)
+        {
+            return CalculateDesignYieldingStressTension(standard) / ElasticModulusTension;
+        }
+
+        public double CalculateDesignYieldingStrainCompression(Standards.StandardEN1993p11 standard)
+        {
+            return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
+        }
+
+        public double CalculateDesignUltimateStrain(Standards.StandardEN1993p11 standard)
+        {
+            if (SteelType == SteelTypes.Structural)
+                return StrainUTension;
+            else if (SteelType == SteelTypes.Bolt)
+                return StrainUTension;
+            else
+                throw new Exception();
+        }
+
+        public double CalculateDesignStrain(Standards.StandardEN1993p11 standard, double strain)
+        {
+            return strain;
+        }
+
+        /// <returns>The design steel stress related to <paramref name="strain"/></returns>
+        /// Copied from same method for StandardModelCode2010.
+        public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double strain, double epsilonP = 0)
+        {
+            double fyd = CalculateDesignYieldingStressTension(standard);
+            double strainYd = CalculateDesignYieldingStrainTension(standard);
+
+            if (Math.Abs(strain + epsilonP) <= strainYd)
+                return GetStress(strain + epsilonP);
+
+            else
+            {
+                double deltaStress = Fyk - fyd;
+                double deltaStrain = deltaStress / ElasticModulusTension;
+
+                double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
+                double designUltimateStrain = StrainUTension;
+
+                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(strain) <= designUltimateStrain)
+                    stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
+                else if (Math.Abs(strain) > designUltimateStrain)
+                    return 0;
+
+                if (GetStress(stressCalc) != 0)
+                    return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
+                else
+                    return GetStress(stressCalc);
+            }
+        }
+
+        /// Copied from same method for StandardModelCode2010.
+        public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double stress, double strain, double epsilonP = 0)
+        {
+            if (strain >= 0)
+            {
+                double strainYd = CalculateDesignYieldingStrainTension(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressTension(standard);
+                    double deltaStress = StressYTension - fyd;
+
+                    if (strain > StrainUTension)
+                        return 0;
+
+                    return stress - deltaStress;
+                }
+            }
+            else
+            {
+                double strainYd = CalculateDesignYieldingStrainCompression(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressCompression(standard);
+                    double deltaStress = StressYCompression - fyd;
+
+                    if (strain < StrainUCompression)
+                        return 0;
+
+                    return stress - deltaStress;
+                }
             }
         }
 

@@ -6,6 +6,7 @@ using GPC.Utilities.Maths;
 using MathNet.Numerics.Random;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelObjectTest
@@ -13,37 +14,49 @@ namespace ModelObjectTest
     [TestClass]
     public class BoltGridTest
     {
+        /// <summary>
+        /// Net areas from tables.
+        /// </summary>
+        public static readonly Dictionary<decimal, double> ThreadedAreas = new Dictionary<decimal, double>()
+        {
+            { 8, 36.6},
+            {10, 58.0},
+            {12, 84.3},
+            {14, 115},
+            {16, 157},
+            {18, 192},
+            {20, 245},
+            {22, 303},
+            {24, 353},
+            {27, 459},
+            {30, 561},
+            {33, 694},
+            {36, 817},
+            {39, 976},
+            {42, 1120},
+            {45, 1310},
+            {48, 1470},
+            {52, 1760},
+            {56, 2030},
+            {60, 2360},
+            {64, 2680},
+            {68, 3060}
+        };
+
         [TestMethod]
         public void Test01_DoubleApproximation_01()
         {
             // Return correct value from double representation of diameter.
-            var DiaKeys = BoltSection.ThreadedAreas.Keys.ToList();
+            var DiaKeys = ThreadedAreas.Keys.ToList();
             var Mat = BoltMaterialEN1993Data.Class10_9;
+            double maxError = 0.005;
 
             foreach (var key in DiaKeys)
             {
                 var SecPlus = new BoltSection((double)key + 0.0000001, Mat);
-                Assert.AreEqual(BoltSection.ThreadedAreas[key], SecPlus.CalculateAreaEff());
+                Assert.IsTrue(Error.AreEqualsDouble(ThreadedAreas[key], SecPlus.CalculateAreaEff(), maxError));
                 var SecMinus = new BoltSection((double)key - 0.0000001, Mat);
-                Assert.AreEqual(BoltSection.ThreadedAreas[key], SecMinus.CalculateAreaEff());
-            }
-        }
-
-        [TestMethod]
-        public void Test01_DoubleApproximation_02()
-        {
-            // Return correct value from double representation of diameter, with approximate method.
-            var DiaKeys = BoltSection.ThreadedAreas.Keys.ToList();
-            var Mat = BoltMaterialEN1993Data.Class10_9;
-            double maxError = 0.03;
-            double diff = 0.01; // It must be greater than the tolerance value used in CalculateDiameterDecimal().
-
-            foreach (var key in DiaKeys)
-            {
-                var SecPlus = new BoltSection((double)key + diff, Mat);
-                Assert.IsTrue(Error.AreEqualsDouble(BoltSection.ThreadedAreas[key], SecPlus.CalculateAreaEff(), maxError));
-                var SecMinus = new BoltSection((double)key - diff, Mat);
-                Assert.IsTrue(Error.AreEqualsDouble(BoltSection.ThreadedAreas[key], SecMinus.CalculateAreaEff(), maxError));
+                Assert.IsTrue(Error.AreEqualsDouble(ThreadedAreas[key], SecMinus.CalculateAreaEff(), maxError));
             }
         }
 

@@ -23,10 +23,14 @@ namespace GPC.Model.Sections.Bolt
         public double Thickness
         {
             get => _thickness;
-            set => _thickness = value > 0.01 ? _thickness : 0.01;
+            set => _thickness = value > 0.01 ? value : 0.01;
         }
 
-        public SteelMaterial PlateMaterial => (SteelMaterial)Material;
+        public SteelMaterial PlateMaterial
+        {
+            get => (SteelMaterial)_material;
+            set => _material = value;
+        }
 
         #endregion
 
