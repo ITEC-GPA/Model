@@ -105,7 +105,7 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculate pitch using PitchPerNominalDiameter.
+        /// Calculate dw using PitchPerNominalDiameter.
         /// ISO 261 & 262:1998(E) & ISO 724:2009(E).
         /// Used to calculate the net resistant area.
         /// </summary>
@@ -113,6 +113,12 @@ namespace GPC.Model.Sections.Bolt
         public double CalculatePitchFromNominalDiameter()
         {
             var DiaDec = CalculateDiameterDecimal();
+
+            // Try first with exact value.
+            if (PitchPerNominalDiameter.TryGetValue(DiaDec, out double pitch))
+                return pitch;
+
+            // Value is intermediate, take the row preceding the first key with greater value.
             decimal precision = 0.000001m;
 
             for (int i = 1; i < PitchPerNominalDiameter.Count; i++)
@@ -129,6 +135,7 @@ namespace GPC.Model.Sections.Bolt
         /// <returns>Net area.</returns>
         public double CalculateAreaEff()
         {
+            // 0.86602540378443865d --> cos(30°)
             double H = 0.86602540378443865d * CalculatePitchFromNominalDiameter();
             double d1 = Diameter - 1.25 * H;
             double d2 = Diameter - 0.75 * H;
@@ -142,9 +149,15 @@ namespace GPC.Model.Sections.Bolt
         /// <returns></returns>
         public double CalculateDwFromNominalDiameter()
         {
+            // Try first with exact value.
+            if (DwPerNominalDiameter.TryGetValue(Diameter, out double dw))
+                return dw;
+
+            // Interpolates by value smaller than the first one available.
             if (Diameter < DwPerNominalDiameter.First().Key)
                 return DwPerNominalDiameter.First().Value * Diameter / DwPerNominalDiameter.First().Key;
 
+            // Interpolates for intermediate values.
             for (int i = 1; i < DwPerNominalDiameter.Count; i++)
             {
                 var DwNext = DwPerNominalDiameter.ElementAt(i);

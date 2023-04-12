@@ -327,27 +327,7 @@ namespace GPC.Model.Materials
             double fyd = CalculateDesignYieldingStressTension(standard);
             double strainYd = CalculateDesignYieldingStrainTension(standard);
 
-            if (Math.Abs(strain + epsilonP) <= strainYd)
-                return GetStress(strain + epsilonP);
-
-            else
-            {
-                double deltaStress = Fyk - fyd;
-                double deltaStrain = deltaStress / ElasticModulusTension;
-
-                double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
-                double designUltimateStrain = StrainUTension;
-
-                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(strain) <= designUltimateStrain)
-                    stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
-                else if (Math.Abs(strain) > designUltimateStrain)
-                    return 0;
-
-                if (GetStress(stressCalc) != 0)
-                    return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
-                else
-                    return GetStress(stressCalc);
-            }
+            return CalculateDesignStressCommon(strain, epsilonP, fyd, strainYd);
         }
 
         public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double stress, double strain, double epsilonP = 0)
@@ -508,6 +488,11 @@ namespace GPC.Model.Materials
             double fyd = CalculateDesignYieldingStressTension(standard);
             double strainYd = CalculateDesignYieldingStrainTension(standard);
 
+            return CalculateDesignStressCommon(strain, epsilonP, fyd, strainYd);
+        }
+
+        private double CalculateDesignStressCommon(double strain, double epsilonP, double fyd, double strainYd)
+        {
             if (Math.Abs(strain + epsilonP) <= strainYd)
                 return GetStress(strain + epsilonP);
 
