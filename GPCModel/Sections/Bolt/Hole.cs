@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
-    public class Hole : IEquatable<Hole>
+    [Serializable]
+    public class Hole : IEquatable<Hole>, ISerializable
     {
         #region Properties
 
@@ -42,6 +43,30 @@ namespace GPC.Model.Sections.Bolt
             Rotation = 0;
             SlotLength = 0;
             PosBolt = 0;
+        }
+
+        public Hole(SerializationInfo info, StreamingContext context)
+        {
+            double version;
+            version = info.GetInt32("Version");
+            Diameter = info.GetDouble("Diameter");
+            Rotation = info.GetDouble("Rotation");
+            SlotLength = info.GetDouble("SlotLength");
+            PosBolt = info.GetDouble("PosBolt");
+        }
+
+        #endregion
+
+        #region Method
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            int version = 1;
+            info.AddValue("Version", version);
+            info.AddValue("Diameter", Diameter);
+            info.AddValue("Rotation", Rotation);
+            info.AddValue("SlotLength", SlotLength);
+            info.AddValue("PosBolt", PosBolt);
         }
 
         #endregion

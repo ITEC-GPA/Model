@@ -41,8 +41,8 @@ namespace GPC.Model.Data.Steel
 
         #region Tendon
 
-        public static SteelMaterialEN1992 Y1570C => new SteelMaterialEN1992("Y1570", 195000, 1420, 1420, 0.075, SteelMaterial.SteelTypes.Tendon);
-        public static SteelMaterialEN1992 Y1570CHardening => new SteelMaterialEN1992("Y1570 Hardening", 195000, 1420, 1570, 0.075, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1570C => new SteelMaterialEN1992("Y1570", 195000, 1360, 1360, 0.075, SteelMaterial.SteelTypes.Tendon);
+        public static SteelMaterialEN1992 Y1570CHardening => new SteelMaterialEN1992("Y1570 Hardening", 195000, 1360, 1570, 0.075, SteelMaterial.SteelTypes.Tendon);
 
         public static SteelMaterialEN1992 Y1620C => new SteelMaterialEN1992("Y1620", 195000, 1420, 1420, 0.075, SteelMaterial.SteelTypes.Tendon);
         public static SteelMaterialEN1992 Y1620CHardening => new SteelMaterialEN1992("Y1620 Hardening", 195000, 1420, 1620, 0.075, SteelMaterial.SteelTypes.Tendon);

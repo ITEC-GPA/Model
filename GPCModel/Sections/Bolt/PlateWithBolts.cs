@@ -170,7 +170,7 @@ namespace GPC.Model.Sections.Bolt
 
         private double CalculateClosestEdgePoint(int boltId, double angle)
         {
-            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
             Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
 
             Line2d[] edges = Shape.Fill2d.Explode();
@@ -227,10 +227,10 @@ namespace GPC.Model.Sections.Bolt
 
         private double CalculateClosestBolt(int boltId, double angle)
         {
-            BoltGrid.BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
             Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
-            var otherBolts = new List<BoltGrid.BoltPosition>();
+            var otherBolts = new List<BoltPosition>();
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 if (_boltGrid.Bolts.ElementAt(i).Id != boltId)
@@ -262,7 +262,7 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
-        public BoltGrid.BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
+        public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
         {
             // Check it is inside.
             if (!IsPointInside(new Point2d(posX, posY)))
