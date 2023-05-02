@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
-    public class BoltSection : SectionCircular
+    [Serializable]
+    public class BoltSection : SectionCircular, ISerializable
     {
         /// <summary>
         /// Coarse pitch.
@@ -92,6 +94,9 @@ namespace GPC.Model.Sections.Bolt
         #region Public Constructors
 
         public BoltSection(double diameter, SteelMaterial material, string name = "") : base(diameter, material, name)
+        { }
+
+        public BoltSection(SerializationInfo info, StreamingContext context) : base(info, context)
         { }
 
         #endregion

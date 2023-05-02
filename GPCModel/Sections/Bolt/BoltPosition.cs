@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using static GPC.Model.Sections.Section;
 
 namespace GPC.Model.Sections.Bolt
 {
@@ -42,18 +43,24 @@ namespace GPC.Model.Sections.Bolt
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            base.GetObjectData(info, context);
+
             int version = 1;
             info.AddValue("Version", version);
 
-            base.GetObjectData(info, context);
-
-            info.AddValue("Id", _id);
+            info.AddValue("Position", Position, typeof(Point2d));
+            info.AddValue("BoltDef", BoltDef, typeof(BoltSection));
+            info.AddValue("Hole", Hole, typeof(Hole));
         }
 
         protected BoltPosition(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            double version = info.GetInt32("Version");
 
+            Position = (Point2d)info.GetValue("Position", typeof(Point2d));
+            BoltDef = (BoltSection)info.GetValue("BoltDef", typeof(BoltSection));
+            Hole = (Hole)info.GetValue("Hole", typeof(Hole));
         }
     }
 }

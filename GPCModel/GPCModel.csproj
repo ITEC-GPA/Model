@@ -8,9 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="DelaunayMesh" Version="2.0.0" />
-    <PackageReference Include="GPCGeometry" Version="2.0.0.1" />
     <PackageReference Include="GPCUtilities" Version="2.0.0" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="GPCGeometry">
+      <HintPath>..\..\gpc-geometry\GPCGeometry\bin\Debug\netstandard2.0\GPCGeometry.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Standards
 {
-	/// <summary>
-	/// This class collects all the coefficient of the NTC2018 for steel design.
-	/// </summary>
-	/// <remarks>Reference: NTC2018. 17 January 2018</remarks>
-	[Serializable]
-	public class StandardNTC2018Steel : StandardEN1993p11, ISerializable
-	{
-		/// <summary>
-		/// Default Constructor
-		/// </summary>
-		public StandardNTC2018Steel(string name = "NTC 2018", string remarks = "Norme tecniche per le costruzioni")
+    /// <summary>
+    /// This class collects all the coefficient of the NTC2018 for steel design.
+    /// </summary>
+    /// <remarks>Reference: NTC2018. 17 January 2018</remarks>
+    [Serializable]
+    public class StandardNTC2018Steel : StandardEN1993p11, ISerializable
+    {
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        public StandardNTC2018Steel(string name = "NTC 2018", string remarks = "Norme tecniche per le costruzioni")
             : base(name, remarks)
         {
             _gammaM0 = 1.05;
@@ -44,5 +40,10 @@ namespace GPC.Model.Standards
             _betaForLateralTorsionalBucklingMod = 0.75;
             _lambdaLT0ForLateralTorsionalBucklingMod = 0.40;
         }
-	}
+
+        protected StandardNTC2018Steel(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
 }

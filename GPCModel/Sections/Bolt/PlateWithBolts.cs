@@ -4,10 +4,12 @@ using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
-    public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>
+    [Serializable]
+    public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>, ISerializable
     {
         #region Variables
 
@@ -55,9 +57,29 @@ namespace GPC.Model.Sections.Bolt
         {
         }
 
+        public PlateWithBolts(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            double version = info.GetInt32("Version");
+
+            _boltGrid = (BoltGrid)info.GetValue("BoltGrid", typeof(BoltGrid));
+            _thickness = info.GetDouble("Thickness");
+        }
+
         #endregion
 
         #region Methods
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            int version = 1;
+            info.AddValue("Version", version);
+
+            info.AddValue("BoltGrid", _boltGrid, typeof(BoltGrid));
+            info.AddValue("Thickness", _thickness);
+        }
 
         public double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
         {

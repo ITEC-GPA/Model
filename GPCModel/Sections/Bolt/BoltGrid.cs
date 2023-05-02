@@ -4,13 +4,15 @@ using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
     /// <summary>
     /// Support class for the list of bolts with their locations.
     /// </summary>
-    public partial class BoltGrid : ModelObject
+    [Serializable]
+    public partial class BoltGrid : ModelObject, ISerializable
     {
         protected List<BoltPosition> _bolts;
 
@@ -34,9 +36,31 @@ namespace GPC.Model.Sections.Bolt
             _bolts = new List<BoltPosition>();
         }
 
+        public BoltGrid(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            int boltsCount = info.GetInt32("BoltsCount");
+            if (boltsCount > 0)
+            {
+                _bolts = new List<BoltPosition>();
+                for (int i = 0; i < boltsCount; i++)
+                    _bolts.Add((BoltPosition)info.GetValue($"BoltPosition{i}", typeof(BoltPosition)));
+            }
+        }
+
         #endregion
 
         #region Public Methods
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue("BoltsCount", _bolts != null ? _bolts.Count : 0);
+            if (_bolts != null)
+                for (int i = 0; i < _bolts.Count; i++)
+                    info.AddValue($"BoltPosition{i}", _bolts[i], typeof(BoltPosition));
+        }
 
         /// <summary>
         /// Calculate area of the whole group of bolts.
