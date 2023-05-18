@@ -39,8 +39,8 @@ namespace GPC.Model.Results
 		/// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
 		/// <param name="coordinateSystem">The beam coordinateSystem</param>
 		/// <param name="id"></param>
-		public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem, int id = ModelObjectId.IDUNASSIGNED)
-			: base(coordinateSystem, string.Empty, id)
+		public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem, int id = ModelObjectId.IDUNASSIGNED, string name = "")
+			: base(coordinateSystem, name, id)
 		{
 			_N = N;
 			_V1 = V1;
@@ -88,7 +88,7 @@ namespace GPC.Model.Results
 			var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
 
 			return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y,
-				momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
+				momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem, _id, _name);
 		}
 
 		/// <summary>
@@ -110,7 +110,7 @@ namespace GPC.Model.Results
 			var momentNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dMomentGlobal);
 
 			return new ResultBeamForces(forceNewCoordinate.Z, forceNewCoordinate.X, forceNewCoordinate.Y,
-				momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem);
+				momentNewCoordinate.Z, momentNewCoordinate.X, momentNewCoordinate.Y, coordinateSystem, _id, _name);
 		}
 
 		/// <summary>
@@ -207,7 +207,8 @@ namespace GPC.Model.Results
 				left.M1 + rightInRightPos.M1,
 				left.M2 + rightInRightPos.M2,
 				left.CoordinateSystem,
-				left.Id);
+				left.Id,
+				left._name);
 		}
 
         public static ResultBeamForces operator /(ResultBeamForces left, double denom)
@@ -220,7 +221,8 @@ namespace GPC.Model.Results
                 left.M1 / denom,
                 left.M2 / denom,
                 left.CoordinateSystem,
-				left.Id);
+				left.Id,
+				left._name);
         }
 
         public static ResultBeamForces operator -(ResultBeamForces other)
@@ -233,7 +235,8 @@ namespace GPC.Model.Results
                 -other.M1,
                 -other.M2,
                 other.CoordinateSystem,
-				other.Id);
+				other.Id,
+                other._name);
         }
 
         #endregion
