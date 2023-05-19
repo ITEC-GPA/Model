@@ -7,7 +7,6 @@ using MathNet.Numerics.LinearAlgebra;
 using System;
 using GPC.Utilities.Extensions;
 using GPC.Utilities.Maths;
-using GPC.Model.Sections.Bolt;
 
 namespace ModelObjectTest
 {
