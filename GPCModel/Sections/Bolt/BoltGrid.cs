@@ -3,57 +3,22 @@ using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
     /// <summary>
     /// Support class for the list of bolts with their locations.
     /// </summary>
-    public class BoltGrid : ModelObject
+    [Serializable]
+    public partial class BoltGrid : ModelObject, ISerializable
     {
-		public class BoltPosition : ModelObjectId
-        {
-            public Point2d Position { get; set; }
-            public BoltSection BoltDef { get; set; }
-			public Hole Hole { get; set; }
-
-			public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole, int id = IDUNASSIGNED, string name = "")
-                :base(id, name)
-            {
-                Position = _pos;
-                BoltDef = _bol;
-                Hole = hole;    
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is BoltPosition other &&
-                       EqualityComparer<Point2d>.Default.Equals(Position, other.Position) &&
-                       EqualityComparer<Hole>.Default.Equals(Hole, other.Hole) &&
-                       EqualityComparer<BoltSection>.Default.Equals(BoltDef, other.BoltDef);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    int hashCode = -23;
-                    hashCode = hashCode * -17 + EqualityComparer<Point2d>.Default.GetHashCode(Position);
-                    hashCode = hashCode * -17 + EqualityComparer<Hole>.Default.GetHashCode(Hole);
-					hashCode = hashCode * -17 + EqualityComparer<BoltSection>.Default.GetHashCode(BoltDef);
-                    return hashCode;
-                }
-            }
-        }
-
-        protected UniqueIdCollection<BoltPosition> _bolts;
+        protected List<BoltPosition> _bolts;
 
         #region Properties
 
-        public UniqueIdCollection<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
+        public List<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
 
         #endregion
 
@@ -62,24 +27,46 @@ namespace GPC.Model.Sections.Bolt
         public BoltGrid(IEnumerable<BoltPosition> bolts, string name = "")
             : this(name)
         {
-			_bolts.AddRange(bolts);
+            _bolts.AddRange(bolts);
         }
 
-		public BoltGrid(string name = "")
+        public BoltGrid(string name = "")
             : base(name)
-		{
-			_bolts = new UniqueIdCollection<BoltPosition>();
-		}
+        {
+            _bolts = new List<BoltPosition>();
+        }
 
-		#endregion
+        public BoltGrid(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            int boltsCount = info.GetInt32("BoltsCount");
+            if (boltsCount > 0)
+            {
+                _bolts = new List<BoltPosition>();
+                for (int i = 0; i < boltsCount; i++)
+                    _bolts.Add((BoltPosition)info.GetValue($"BoltPosition{i}", typeof(BoltPosition)));
+            }
+        }
 
-		#region Public Methods
+        #endregion
 
-		/// <summary>
-		/// Calculate area of the whole group of bolts.
-		/// </summary>
-		/// <returns>Area.</returns>
-		public double CalculateArea()
+        #region Public Methods
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue("BoltsCount", _bolts != null ? _bolts.Count : 0);
+            if (_bolts != null)
+                for (int i = 0; i < _bolts.Count; i++)
+                    info.AddValue($"BoltPosition{i}", _bolts[i], typeof(BoltPosition));
+        }
+
+        /// <summary>
+        /// Calculate area of the whole group of bolts.
+        /// </summary>
+        /// <returns>Area.</returns>
+        public double CalculateArea()
         {
             double Area = 0;
             foreach (var b in Bolts)
@@ -94,6 +81,9 @@ namespace GPC.Model.Sections.Bolt
         public Point2d CalculateBarycenter()
         {
             double Area = CalculateArea();
+            if (Area <= GeometryBase.Tolerance)
+                return new Point2d(0.0, 0.0);
+
             double S_X = 0; // Static moments.
             double S_Y = 0;
 
@@ -160,7 +150,7 @@ namespace GPC.Model.Sections.Bolt
             if (Bolts.Count == 1)
             {
                 retForces[Bolts.First()] = new ResultBeamForces(0, Soll.V1, Soll.V2, 0, 0, 0,
-                    new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis));
+                    new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
                 return retForces;
             }
 
@@ -174,7 +164,7 @@ namespace GPC.Model.Sections.Bolt
                 double soll_X = b.BoltDef.Area * (SollLoc.V1 / Area + (G.Y - b.Position.Y) * SollLoc.T / I_P0);
                 double soll_Y = b.BoltDef.Area * (SollLoc.V2 / Area + (b.Position.X - G.X) * SollLoc.T / I_P0);
                 retForces[b] = new ResultBeamForces(0, soll_X, soll_Y, 0, 0, 0,
-                    new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis));
+                    new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
             }
 
             return retForces;
@@ -199,6 +189,72 @@ namespace GPC.Model.Sections.Bolt
             var SollG = Soll.ToCoordinateSystemWithEccentricity(GSys);
 
             return totForce == SollG;
+        }
+
+        public void RemoveBoltById(int id)
+        {
+            _bolts.RemoveAll(bp => bp.Id == id);
+        }
+
+        public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
+        {
+            // Check that it does not intersect another bolt.
+            // The distance must be greater than the sum of the radii.
+            var pos = new Point2d(posX, posY);
+            foreach (var bp in _bolts)
+                if (bp.Position.DistanceTo(pos) <= 0.5 * (diameter + bp.BoltDef.Diameter) + GeometryBase.Tolerance)
+                    return null;
+
+            if (hole is null)
+                hole = new Hole(diameter + 1.0);
+
+            // Find the next index.
+            int nextIndex = 1;
+            if (_bolts.Count > 0)
+                nextIndex = _bolts.Max(bp => bp.Id) + 1;
+
+            var newBoltPos = new BoltPosition(pos, new BoltSection(diameter, mat), hole, nextIndex);
+            _bolts.Add(newBoltPos);
+            return newBoltPos;
+        }
+
+        /// <summary>
+        /// Add a rectangular grid of bolts.
+        /// </summary>
+        /// <param name="stepX">Steps in X.</param>
+        /// <param name="stepY">Steps in Y.</param>
+        /// <param name="diameter"></param>
+        /// <param name="mat"></param>
+        /// <param name="origin">Starting point, bottom right corner.</param>
+        public List<BoltPosition> AddBoltsRectangularGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = null)
+        {
+            var boltList = new List<BoltPosition>();
+
+            if (origin == null)
+                origin = Point2d.Origin;
+
+            // Create list of absolute cooridnates.
+            var absX = new List<double>();
+            var absY = new List<double>();
+            absX.Add(origin.X);
+            absY.Add(origin.Y);
+            foreach (double x in stepX)
+                absX.Add(absX.Last() + x);
+            foreach (double y in stepY)
+                absY.Add(absY.Last() + y);
+
+            // Add bolts respecting a rectangular grid.
+            foreach (double posX in absX)
+            {
+                foreach (double posY in absY)
+                {
+                    var addedBolt = AddBolt(posX, posY, diameter, mat);
+                    if (addedBolt is null)
+                        continue;
+                    boltList.Add(addedBolt);
+                }
+            }
+            return boltList;
         }
 
         #endregion

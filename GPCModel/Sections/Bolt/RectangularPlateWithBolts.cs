@@ -8,6 +8,8 @@ using System.Linq;
 namespace GPC.Model.Sections.Bolt
 {
     /// <summary>
+	/// Obsolete: it is no longer used, instead the generic PlateWithBolts is used.
+    /// Maintained only for testing.
     /// Generic plate with holes and bolts.
     /// </summary>
     public class RectangularPlateWithBolts : PlateWithBolts
@@ -112,52 +114,6 @@ namespace GPC.Model.Sections.Bolt
 
         /// <summary>
         /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-        /// minimum distance from the plate edge along 1 direction.
-        /// </summary>
-        /// <returns></returns>
-        public override double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateE1(boltId, resultBeamForces);
-        }
-
-        /// <summary>
-        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
-        /// minimum distance from the plate edge along 2 direction.
-        /// </summary>
-        /// <returns></returns>
-        public override double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateE2(boltId, resultBeamForces);
-        }
-
-        /// <summary>
-        /// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
-        /// minimum spacing in 1 direction.
-        /// Use double.PositiveInfinity if there are no steps.
-        /// </summary>
-        /// <param name="boltId"></param>
-        /// <param name="resultBeamForces"></param>
-        /// <returns></returns>
-        public override double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateP1(boltId, resultBeamForces);
-        }
-
-        /// <summary>
-        /// Overall parameter of bolt grid(useful for simple configuration such as rectangular grid),
-        /// minimum spacing in 2 direction.
-        /// Use double.PositiveInfinity if there are no steps.
-        /// </summary>
-        /// <param name="boltId"></param>
-        /// <param name="resultBeamForces"></param>
-        /// <returns></returns>
-        public override double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateP2(boltId, resultBeamForces);
-        }
-
-        /// <summary>
-        /// Overall parameter of bolt grid (useful for simple configuration such as rectangular grid),
         /// minimum distance from the right plate edge.
         /// </summary>
         /// <returns></returns>
@@ -194,26 +150,6 @@ namespace GPC.Model.Sections.Bolt
         public double CalculateEyBottom()
         {
             return _boltGrid.Bolts.Min(bd => bd.Position.Y);
-        }
-
-        public override double CalculateE1Min(ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateE1Min(resultBeamForces);
-        }
-
-        public override double CalculateE2Min(ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateE2Min(resultBeamForces);
-        }
-
-        public override double CalculateP1Min(ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateP1Min(resultBeamForces);
-        }
-
-        public override double CalculateP2Min(ResultBeamForces resultBeamForces)
-        {
-            return base.CalculateP2Min(resultBeamForces);
         }
 
         #endregion

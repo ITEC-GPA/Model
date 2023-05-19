@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Standards
 {
+    /// <summary>
+    /// EN 1993: Eurocode 3
+    /// </summary>
     [Serializable]
     public class StandardEN1993p11 : Standard, ISerializable
     {
@@ -73,7 +76,8 @@ namespace GPC.Model.Standards
 
         #region Constructor
 
-        public StandardEN1993p11()
+        public StandardEN1993p11(string name = "EN 1993", string remarks = "Eurocode 3")
+            : base(name, remarks)
         {
             _gammaM0 = 1.00;
             _gammaM1 = 1.00;
@@ -106,6 +110,7 @@ namespace GPC.Model.Standards
         }
 
         protected StandardEN1993p11(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
             _gammaM0 = info.GetDouble("GammaM0");
             _gammaM1 = info.GetDouble("GammaM1");
