@@ -190,55 +190,62 @@ namespace GPC.Model.Sections.Bolt
             return Math.Atan2(resultBeamForces.V2, resultBeamForces.V1);
         }
 
+        /// <summary>
+        /// Given a bolt find the minimum distance from the edge in a specific direction.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
         private double CalculateClosestEdgePoint(int boltId, double angle)
         {
+            double distance = double.MaxValue;
             BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
+            if (boltPosition is null)
+                return distance;
 
-            Line2d[] edges = Shape.Fill2d.Explode();
-            List<Point2d> points = new List<Point2d>();
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
 
-            for (int i = 0; i < edges.Length; i++)
-            {
-                if (line.GetIntersectionWithInfiniteLine(edges[i], out Point2d intersection))
-                {
-                    if (edges[i].IsPointOnLine(intersection))
-                        points.Add(intersection);
-                }
-            }
-
+            // Edge list.
+            var edges = Shape.Fill2d.Explode().ToList();
             if (Shape.HasHoles)
-            {
                 for (int i = 0; i < Shape.Holes2d.Length; i++)
+                    edges.AddRange(Shape.Holes2d[i].Explode());
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                Point2d center = centers[i];
+                Line2d line = new Line2d(center, new Point2d(center.X + Math.Cos(angle), center.Y + Math.Sin(angle)));
+
+                // Get intersections with all edges.
+                List<Point2d> points = new List<Point2d>();
+                for (int j = 0; j < edges.Count; j++)
                 {
-                    Line2d[] edgesHole = Shape.Holes2d[i].Explode();
-                    for (int j = 0; j < edgesHole.Length; j++)
+                    if (line.GetIntersectionWithInfiniteLine(edges[j], out Point2d intersection))
                     {
-                        if (line.GetIntersectionWithInfiniteLine(edgesHole[j], out Point2d intersection))
-                        {
-                            if (edges[i].IsPointOnLine(intersection))
-                                points.Add(intersection);
-                        }
+                        if (edges[j].IsPointOnLine(intersection))
+                            points.Add(intersection);
                     }
                 }
-            }
 
-            double distance = double.MaxValue;
-
-            if (points.Count > 0)
-            {
-                Vector2d v1 = line.ToVector();
-
-                for (int i = 0; i < points.Count; i++)
+                // Selects points by direction.
+                if (points.Count > 0)
                 {
-                    double distanceBuffer = boltPosition.Position.DistanceTo(points[i]);
-                    if (distanceBuffer < distance)
-                    {
-                        Vector2d v2 = new Line2d(boltPosition.Position, points[i]).ToVector();
+                    Vector2d v1 = line.ToVector();
 
-                        if (v1.DotProduct(v2) > 0)
+                    for (int j = 0; j < points.Count; j++)
+                    {
+                        double distanceBuffer = center.DistanceTo(points[j]);
+                        if (distanceBuffer < distance)
                         {
-                            distance = distanceBuffer;
+                            Vector2d v2 = new Line2d(center, points[j]).ToVector();
+
+                            if (v1.DotProduct(v2) > 0)
+                            {
+                                distance = distanceBuffer;
+                            }
                         }
                     }
                 }
@@ -247,11 +254,13 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
-        private double CalculateClosestBolt(int boltId, double angle)
+        /// <summary>
+        /// Returns the list of all bolts other than a specific id.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <returns></returns>
+        private List<BoltPosition> GetOtherBolts(int boltId)
         {
-            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
-
             var otherBolts = new List<BoltPosition>();
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
@@ -260,28 +269,102 @@ namespace GPC.Model.Sections.Bolt
                     otherBolts.Add(_boltGrid.Bolts.ElementAt(i));
                 }
             }
+            return otherBolts;
+        }
 
+        /// <summary>
+        /// Calculates the minimum distance of holes around in a specific direction.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        private double CalculateClosestBolt(int boltId, double angle)
+        {
             double distance = double.MaxValue;
+            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            if (boltPosition is null)
+                return distance;
+            Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
-            if (otherBolts.Count > 0)
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Other bolts.
+            var otherBolts = GetOtherBolts(boltId);
+            var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
             {
-                for (int i = 0; i < otherBolts.Count; i++)
-                {
-                    double distanceBuffer = boltPosition.Position.DistanceTo(otherBolts[i].Position);
-                    if (distanceBuffer < distance)
-                    {
-                        Vector2d v2 = new Line2d(boltPosition.Position, otherBolts[i].Position).ToVector();
-                        v2.Unitize();
+                var center = centers[i];
 
-                        if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25))
+                for (int j = 0; j < otherBoltsCenters.Length; j++)
+                {
+                    var otherBoltCenters = otherBoltsCenters[j];
+
+                    for (int k = 0; k < otherBoltCenters.Length; k++)
+                    {
+                        var centerOther = otherBoltCenters[k];
+                        double distanceBuffer = center.DistanceTo(centerOther);
+
+                        if (distanceBuffer < distance)
                         {
-                            distance = distanceBuffer;
+                            Vector2d v2 = new Line2d(center, centerOther).ToVector();
+                            v2.Unitize();
+
+                            if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25))
+                            {
+                                distance = distanceBuffer;
+                            }
                         }
                     }
                 }
             }
 
             return distance;
+        }
+
+        /// <summary>
+        /// Given a bolt find the minimum distance from another bolt in all directions.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <returns></returns>
+        public double CalculateClosestBolt(int boltId)
+        {
+            double minDist = double.MaxValue;
+            double iDist = double.MaxValue;
+            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            if (boltPosition is null)
+                return minDist;
+
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Other bolts.
+            var otherBolts = GetOtherBolts(boltId);
+            var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                var center = centers[i];
+
+                for (int j = 0; j < otherBoltsCenters.Length; j++)
+                {
+                    var otherBoltCenters = otherBoltsCenters[j];
+
+                    for (int k = 0; k < otherBoltCenters.Length; k++)
+                    {
+                        iDist = center.DistanceTo(otherBoltCenters[k]);
+                        if (iDist < minDist)
+                            minDist = iDist;
+                    }
+                }
+            }
+
+            return minDist;
         }
 
         public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
@@ -291,6 +374,45 @@ namespace GPC.Model.Sections.Bolt
                 return null;
 
             return _boltGrid.AddBolt(posX, posY, diameter, mat, hole);
+        }
+
+        /// <summary>
+        /// Given a bolt find the minimum distance from the edge in all directions.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <returns>Distance</returns>
+        public double CalculateClosestEdgePoint(int boltId)
+        {
+            double minDist = double.MaxValue;
+            double iDist = double.MaxValue;
+            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            if (boltPosition is null)
+                return minDist;
+
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Edge list.
+            var edges = Shape.Fill2d.Explode().ToList();
+            if (Shape.HasHoles)
+                for (int i = 0; i < Shape.Holes2d.Length; i++)
+                    edges.AddRange(Shape.Holes2d[i].Explode());
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                Point2d center = centers[i];
+                for (int j = 0; j < edges.Count; j++)
+                {
+                    Line2d edge = edges[j];
+                    iDist = edge.DistanceTo(center);
+                    if (iDist < minDist)
+                        minDist = iDist;
+                }
+            }
+
+            return minDist;
         }
 
         #endregion
