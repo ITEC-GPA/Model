@@ -191,6 +191,20 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
+        /// Utility.
+        /// </summary>
+        /// <returns></returns>
+        private List<Line2d> GetEdges()
+        {
+            var edges = Shape.Fill2d.Explode().ToList();
+            if (Shape.HasHoles)
+                for (int i = 0; i < Shape.Holes2d.Length; i++)
+                    edges.AddRange(Shape.Holes2d[i].Explode());
+
+            return edges;
+        }
+
+        /// <summary>
         /// Given a bolt find the minimum distance from the edge in a specific direction.
         /// Works for normal and slotted holes.
         /// </summary>
@@ -208,10 +222,7 @@ namespace GPC.Model.Sections.Bolt
             Point2d[] centers = boltPosition.CalculateCenters();
 
             // Edge list.
-            var edges = Shape.Fill2d.Explode().ToList();
-            if (Shape.HasHoles)
-                for (int i = 0; i < Shape.Holes2d.Length; i++)
-                    edges.AddRange(Shape.Holes2d[i].Explode());
+            var edges = GetEdges();
 
             // Find minimum distance.
             for (int i = 0; i < centers.Length; i++)
@@ -275,11 +286,12 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// Calculates the minimum distance of holes around in a specific direction.
         /// Works for normal and slotted holes.
+        /// If it finds no bolts it returns double.MaxValue.
         /// </summary>
         /// <param name="boltId"></param>
         /// <param name="angle"></param>
         /// <returns></returns>
-        private double CalculateClosestBolt(int boltId, double angle)
+        private double CalculateClosestBolt(int boltId, double angle, double tolerance = GeometryBase.AngularTolerance)
         {
             double distance = double.MaxValue;
             BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
@@ -313,7 +325,7 @@ namespace GPC.Model.Sections.Bolt
                             Vector2d v2 = new Line2d(center, centerOther).ToVector();
                             v2.Unitize();
 
-                            if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25))
+                            if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25 + tolerance))
                             {
                                 distance = distanceBuffer;
                             }
@@ -381,23 +393,22 @@ namespace GPC.Model.Sections.Bolt
         /// Works for normal and slotted holes.
         /// </summary>
         /// <param name="boltId"></param>
-        /// <returns>Distance</returns>
-        public double CalculateClosestEdgePoint(int boltId)
+        /// <returns>Point from center to point of minimum distance.</returns>
+        public Line2d CalculateClosestEdgePoint(int boltId)
         {
             double minDist = double.MaxValue;
             double iDist = double.MaxValue;
+            Point2d iDistPoint = null;
+            Line2d minLine = null;
             var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
             if (boltPosition is null)
-                return minDist;
+                return null;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
 
             // Edge list.
-            var edges = Shape.Fill2d.Explode().ToList();
-            if (Shape.HasHoles)
-                for (int i = 0; i < Shape.Holes2d.Length; i++)
-                    edges.AddRange(Shape.Holes2d[i].Explode());
+            var edges = GetEdges();
 
             // Find minimum distance.
             for (int i = 0; i < centers.Length; i++)
@@ -406,13 +417,62 @@ namespace GPC.Model.Sections.Bolt
                 for (int j = 0; j < edges.Count; j++)
                 {
                     Line2d edge = edges[j];
-                    iDist = edge.DistanceTo(center);
+                    iDistPoint = edge.PointDistanceTo(center);
+                    iDist = iDistPoint.DistanceTo(center);
                     if (iDist < minDist)
+                    {
                         minDist = iDist;
+                        minLine = new Line2d(center, iDistPoint);
+                    }
                 }
             }
 
-            return minDist;
+            return minLine;
+        }
+
+        /// <summary>
+        /// Calculate if bolt is of type outer or inner.
+        /// To say whether it is outer is enough if it is on one side, but if it is not for any side then it is inner.
+        /// </summary>
+        /// <param name="boltId"></param>
+        /// <returns></returns>
+        public bool isOuuter(int boltId)
+        {
+            // Find point on edges with minimum distance.
+            var minDistLine = CalculateClosestEdgePoint(boltId);
+            var minDist = minDistLine.Length;
+
+            // *** First attempt with minimum point.
+            var minDistVector = minDistLine.ToVector();
+            double minDistDirection = Math.Atan2(minDistVector.Y, minDistVector.X);
+            var nearestBoltDistance = CalculateClosestBolt(boltId, minDistDirection);
+            if (nearestBoltDistance > minDist)
+                return true;
+
+            // *** Second attempt with all edge orthogonal directions.
+            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+            // Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
+            HashSet<int> angles = new HashSet<int>();
+            var edges = GetEdges();
+            foreach (var edge in edges)
+            {
+                var edgeVector = edge.ToVector();
+                double edgeVectorAngle = Math.Atan2(edgeVector.Y, edgeVector.X) * 180.0 / Math.PI;
+                angles.Add((int)(edgeVectorAngle + 90.0));
+                angles.Add((int)(edgeVectorAngle - 90.0));
+            }
+            // For each angle, calculate the edge distance and check if there are no closer bolts.
+            foreach (var angle in angles)
+            {
+                double e1 = CalculateE1(boltId, angle);
+                double p1 = CalculateP1(boltId, angle);
+                if (p1 > e1)
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion
