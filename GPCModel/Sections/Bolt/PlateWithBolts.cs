@@ -81,44 +81,44 @@ namespace GPC.Model.Sections.Bolt
             info.AddValue("Thickness", _thickness);
         }
 
-        public double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE1(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateE1(boltId, CalculateAngle(resultBeamForces));
+            return CalculateE1(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE2(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateE2(boltId, CalculateAngle(resultBeamForces));
+            return CalculateE2(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateP1(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP1(boltId, CalculateAngle(resultBeamForces));
+            return CalculateP1(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateP2(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP2(boltId, CalculateAngle(resultBeamForces));
+            return CalculateP2(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateE1(int boltId, double forceDirectionAngle)
+        public double CalculateE1(BoltPosition bolt, double forceDirectionAngle)
         {
-            return CalculateClosestEdgePoint(boltId, forceDirectionAngle);
+            return CalculateClosestEdgePoint(bolt, forceDirectionAngle);
         }
 
-        public double CalculateE2(int boltId, double forceDirectionAngle)
+        public double CalculateE2(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestEdgePoint(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(boltId, forceDirectionAngle - Math.PI / 2.0));
+            return Math.Min(CalculateClosestEdgePoint(bolt, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0));
         }
 
-        public double CalculateP1(int boltId, double forceDirectionAngle)
+        public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
         {
-            return CalculateClosestBolt(boltId, forceDirectionAngle);
+            return CalculateClosestBolt(bolt, forceDirectionAngle);
         }
 
-        public double CalculateP2(int boltId, double forceDirectionAngle)
+        public double CalculateP2(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestBolt(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestBolt(boltId, forceDirectionAngle - Math.PI / 2.0)); ;
+            return Math.Min(CalculateClosestBolt(bolt, forceDirectionAngle + Math.PI / 2.0), CalculateClosestBolt(bolt, forceDirectionAngle - Math.PI / 2.0)); ;
         }
 
         public double CalculateE1Min(ResultBeamForces resultBeamForces)
@@ -128,7 +128,7 @@ namespace GPC.Model.Sections.Bolt
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateE1(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateE1(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -144,7 +144,7 @@ namespace GPC.Model.Sections.Bolt
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateE2(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateE2(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -160,7 +160,7 @@ namespace GPC.Model.Sections.Bolt
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateP1(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateP1(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -176,7 +176,7 @@ namespace GPC.Model.Sections.Bolt
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateP2(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateP2(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -208,15 +208,12 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from the edge in a specific direction.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="bolt"></param>
         /// <param name="angle"></param>
         /// <returns></returns>
-        private double CalculateClosestEdgePoint(int boltId, double angle)
+        private double CalculateClosestEdgePoint(BoltPosition boltPosition, double angle)
         {
             double distance = double.MaxValue;
-            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            if (boltPosition is null)
-                return distance;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
@@ -268,14 +265,14 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// Returns the list of all bolts other than a specific id.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="boltPosition"></param>
         /// <returns></returns>
-        private List<BoltPosition> GetOtherBolts(int boltId)
+        private List<BoltPosition> GetOtherBolts(BoltPosition boltPosition)
         {
             var otherBolts = new List<BoltPosition>();
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
-                if (_boltGrid.Bolts.ElementAt(i).Id != boltId)
+                if (_boltGrid.Bolts.ElementAt(i) != boltPosition)
                 {
                     otherBolts.Add(_boltGrid.Bolts.ElementAt(i));
                 }
@@ -288,22 +285,19 @@ namespace GPC.Model.Sections.Bolt
         /// Works for normal and slotted holes.
         /// If it finds no bolts it returns double.MaxValue.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="boltPosition"></param>
         /// <param name="angle"></param>
         /// <returns></returns>
-        private double CalculateClosestBolt(int boltId, double angle, double tolerance = GeometryBase.AngularTolerance)
+        private double CalculateClosestBolt(BoltPosition boltPosition, double angle, double tolerance = GeometryBase.AngularTolerance)
         {
             double distance = double.MaxValue;
-            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            if (boltPosition is null)
-                return distance;
             Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
 
             // Other bolts.
-            var otherBolts = GetOtherBolts(boltId);
+            var otherBolts = GetOtherBolts(boltPosition);
             var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
 
             // Find minimum distance.
@@ -341,21 +335,18 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from another bolt in all directions.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="boltPosition"></param>
         /// <returns></returns>
-        public double CalculateClosestBolt(int boltId)
+        public double CalculateClosestBolt(BoltPosition boltPosition)
         {
             double minDist = double.MaxValue;
             double iDist = double.MaxValue;
-            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            if (boltPosition is null)
-                return minDist;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
 
             // Other bolts.
-            var otherBolts = GetOtherBolts(boltId);
+            var otherBolts = GetOtherBolts(boltPosition);
             var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
 
             // Find minimum distance.
@@ -392,17 +383,12 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from the edge in all directions.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="boltPosition"></param>
         /// <returns>Point from center to point of minimum distance.</returns>
-        public Line2d CalculateClosestEdgePoint(int boltId)
+        public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition)
         {
             double minDist = double.MaxValue;
-            double iDist = double.MaxValue;
-            Point2d iDistPoint = null;
             Line2d minLine = null;
-            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            if (boltPosition is null)
-                return null;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
@@ -417,8 +403,8 @@ namespace GPC.Model.Sections.Bolt
                 for (int j = 0; j < edges.Count; j++)
                 {
                     Line2d edge = edges[j];
-                    iDistPoint = edge.PointDistanceTo(center);
-                    iDist = iDistPoint.DistanceTo(center);
+                    Point2d iDistPoint = edge.PointDistanceTo(center);
+                    double iDist = iDistPoint.DistanceTo(center);
                     if (iDist < minDist)
                     {
                         minDist = iDist;
@@ -434,40 +420,52 @@ namespace GPC.Model.Sections.Bolt
         /// Calculate if bolt is of type outer or inner.
         /// To say whether it is outer is enough if it is on one side, but if it is not for any side then it is inner.
         /// </summary>
-        /// <param name="boltId"></param>
+        /// <param name="bolt"></param>
         /// <returns></returns>
-        public bool isOuuter(int boltId)
+        public bool IsOuuter(BoltPosition boltPosition)
         {
             // Find point on edges with minimum distance.
-            var minDistLine = CalculateClosestEdgePoint(boltId);
+            var minDistLine = CalculateClosestEdgePoint(boltPosition);
             var minDist = minDistLine.Length;
 
             // *** First attempt with minimum point.
             var minDistVector = minDistLine.ToVector();
             double minDistDirection = Math.Atan2(minDistVector.Y, minDistVector.X);
-            var nearestBoltDistance = CalculateClosestBolt(boltId, minDistDirection);
+            var nearestBoltDistance = CalculateClosestBolt(boltPosition, minDistDirection);
             if (nearestBoltDistance > minDist)
                 return true;
 
             // *** Second attempt with all edge orthogonal directions.
-            var boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            // Center list.
-            Point2d[] centers = boltPosition.CalculateCenters();
             // Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
             HashSet<int> angles = new HashSet<int>();
             var edges = GetEdges();
             foreach (var edge in edges)
             {
                 var edgeVector = edge.ToVector();
-                double edgeVectorAngle = Math.Atan2(edgeVector.Y, edgeVector.X) * 180.0 / Math.PI;
-                angles.Add((int)(edgeVectorAngle + 90.0));
-                angles.Add((int)(edgeVectorAngle - 90.0));
+                int edgeVectorAngle = (int)(Math.Atan2(edgeVector.Y, edgeVector.X) * 180.0 / Math.PI);
+                if (edgeVectorAngle < 0)
+                    edgeVectorAngle += 360; // --> Angle from 0 to 360.
+                if (edgeVectorAngle == 360)
+                    edgeVectorAngle = 0; // --> Angle from 0 to 359, because 360 == 0.
+
+                int angle1 = edgeVectorAngle + 90;
+                if (angle1 >= 360)
+                    angle1 -= 360; // --> Angle from 0 to 359.
+
+                angles.Add(angle1);
+
+                int angle2 = edgeVectorAngle - 90;
+                if (angle2 < 0)
+                    angle2 += 360; // --> Angle from 0 to 359.
+
+                angles.Add(angle2);
             }
             // For each angle, calculate the edge distance and check if there are no closer bolts.
             foreach (var angle in angles)
             {
-                double e1 = CalculateE1(boltId, angle);
-                double p1 = CalculateP1(boltId, angle);
+                double angleRad = ((double)angle) * Math.PI / 180.0;
+                double e1 = CalculateE1(boltPosition, angleRad);
+                double p1 = CalculateP1(boltPosition, angleRad);
                 if (p1 > e1)
                     return true;
             }

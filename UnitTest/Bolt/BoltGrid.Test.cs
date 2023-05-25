@@ -191,9 +191,9 @@ namespace ModelObjectTest
 				diameter, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
             ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
-            var dist1 = plate.CalculateE1(1, resultBeamForces);
-            var dist2 = plate.CalculateE1(2, resultBeamForces);
-            var dist4 = plate.CalculateE1(4, resultBeamForces);
+            var dist1 = plate.CalculateE1(plate.BoltGrid.Bolts[0], resultBeamForces);
+            var dist2 = plate.CalculateE1(plate.BoltGrid.Bolts[1], resultBeamForces);
+            var dist4 = plate.CalculateE1(plate.BoltGrid.Bolts[3], resultBeamForces);
 
 			// Solution
 			double expDist1 = 250;
@@ -211,10 +211,10 @@ namespace ModelObjectTest
 				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
 			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
-			var distE1_1 = plate.CalculateE1(1, resultBeamForces);
-			var distE1_2 = plate.CalculateE1(2, resultBeamForces);
-			var distE1_4 = plate.CalculateE1(4, resultBeamForces);
-			var distE1_7 = plate.CalculateE1(7, resultBeamForces);
+			var distE1_1 = plate.CalculateE1(plate.BoltGrid.Bolts[0], resultBeamForces);
+			var distE1_2 = plate.CalculateE1(plate.BoltGrid.Bolts[1], resultBeamForces);
+			var distE1_4 = plate.CalculateE1(plate.BoltGrid.Bolts[3], resultBeamForces);
+			var distE1_7 = plate.CalculateE1(plate.BoltGrid.Bolts[6], resultBeamForces);
 
 			// Solution
 			double expDistE1_1 = 450;
@@ -234,10 +234,10 @@ namespace ModelObjectTest
 				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
 			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
-			var distE2_1 = plate.CalculateE2(1, resultBeamForces);
-			var distE2_2 = plate.CalculateE2(2, resultBeamForces);
-			var distE2_4 = plate.CalculateE2(4, resultBeamForces);
-			var distE2_7 = plate.CalculateE2(7, resultBeamForces);
+			var distE2_1 = plate.CalculateE2(plate.BoltGrid.Bolts[0], resultBeamForces);
+			var distE2_2 = plate.CalculateE2(plate.BoltGrid.Bolts[1], resultBeamForces);
+			var distE2_4 = plate.CalculateE2(plate.BoltGrid.Bolts[3], resultBeamForces);
+			var distE2_7 = plate.CalculateE2(plate.BoltGrid.Bolts[6], resultBeamForces);
 
 			double expDistE2_1 = 50;
 			Assert.IsTrue(Math.Abs(distE2_1 - expDistE2_1) < 1);
