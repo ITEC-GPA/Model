@@ -103,12 +103,13 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateE1(BoltPosition bolt, double forceDirectionAngle)
         {
-            return CalculateClosestEdgePoint(bolt, forceDirectionAngle);
+            return CalculateClosestEdgePoint(bolt, forceDirectionAngle, out Line2d _).Length;
         }
 
         public double CalculateE2(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestEdgePoint(bolt, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0));
+            return Math.Min(CalculateClosestEdgePoint(bolt, forceDirectionAngle + Math.PI / 2.0, out Line2d _).Length,
+                CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0, out Line2d _).Length);
         }
 
         public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
@@ -210,10 +211,12 @@ namespace GPC.Model.Sections.Bolt
         /// </summary>
         /// <param name="bolt"></param>
         /// <param name="angle"></param>
-        /// <returns></returns>
-        private double CalculateClosestEdgePoint(BoltPosition boltPosition, double angle)
+        /// <returns>Point from center to point of minimum distance.</returns>
+        private Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, double angle, out Line2d minEdge)
         {
             double distance = double.MaxValue;
+            Line2d minLine = null;
+            minEdge = null;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
@@ -228,13 +231,13 @@ namespace GPC.Model.Sections.Bolt
                 Line2d line = new Line2d(center, new Point2d(center.X + Math.Cos(angle), center.Y + Math.Sin(angle)));
 
                 // Get intersections with all edges.
-                List<Point2d> points = new List<Point2d>();
+                List<(Point2d, Line2d)> points = new List<(Point2d, Line2d)>();
                 for (int j = 0; j < edges.Count; j++)
                 {
                     if (line.GetIntersectionWithInfiniteLine(edges[j], out Point2d intersection))
                     {
                         if (edges[j].IsPointOnLine(intersection))
-                            points.Add(intersection);
+                            points.Add((intersection, edges[j]));
                     }
                 }
 
@@ -245,21 +248,23 @@ namespace GPC.Model.Sections.Bolt
 
                     for (int j = 0; j < points.Count; j++)
                     {
-                        double distanceBuffer = center.DistanceTo(points[j]);
+                        double distanceBuffer = center.DistanceTo(points[j].Item1);
                         if (distanceBuffer < distance)
                         {
-                            Vector2d v2 = new Line2d(center, points[j]).ToVector();
+                            Vector2d v2 = new Line2d(center, points[j].Item1).ToVector();
 
                             if (v1.DotProduct(v2) > 0)
                             {
                                 distance = distanceBuffer;
+                                minLine = new Line2d(center, points[j].Item1);
+                                minEdge = points[j].Item2;
                             }
                         }
                     }
                 }
             }
 
-            return distance;
+            return minLine;
         }
 
         /// <summary>
@@ -385,10 +390,11 @@ namespace GPC.Model.Sections.Bolt
         /// </summary>
         /// <param name="boltPosition"></param>
         /// <returns>Point from center to point of minimum distance.</returns>
-        public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition)
+        public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
         {
             double minDist = double.MaxValue;
             Line2d minLine = null;
+            minEdge = null;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
@@ -409,11 +415,61 @@ namespace GPC.Model.Sections.Bolt
                     {
                         minDist = iDist;
                         minLine = new Line2d(center, iDistPoint);
+                        minEdge = edge;
                     }
                 }
             }
 
             return minLine;
+        }
+
+        /// <summary>
+        /// This method comes from the need to check even the farthest edge with the maximum value.
+        /// Chosen to check the minimum point between all sides, and of these take the maximum value that
+        /// has no bolts in the middle.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <returns></returns>
+        public Line2d CalculateFurtherMinimumEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
+        {
+            double maxDist = double.MinValue;
+            Line2d maxLine = null;
+            minEdge = null;
+            // Orthogonality error, given by the use of angles with integers in sexagesimal degrees.
+            // Error given of orthogonality between 0° and 89° --> Scalar product of versors equal to dotproduct(versor(0°), versor(89°))=0.017452406.
+            double orthogonalityError = 0.017452406;
+
+            // Directions.
+            var angles = CalculateSignificantAngles();
+
+            // For each angle, calculate the edge distance and check if there are no closer bolts and if it is ortogonal.
+            foreach (var angle in angles)
+            {
+                double angleRad = angle * Math.PI / 180.0;
+                var e1Line = CalculateClosestEdgePoint(boltPosition, angleRad, out Line2d edge);
+
+                if (e1Line != null && edge != null)
+                {
+                    // Check orthogonality first.
+                    double e1 = e1Line.Length;
+                    var edgeVector = edge.ToVector();
+                    edgeVector.Unitize();
+                    var angleVector = new Vector2d(Math.Cos(angleRad), Math.Sin(angleRad));
+
+                    if (Math.Abs(angleVector * edgeVector) < orthogonalityError)
+                    {
+                        // Check for bolts.
+                        double p1 = CalculateP1(boltPosition, angleRad);
+                        if (p1 > e1 && e1 > maxDist)
+                        {
+                            maxDist = e1;
+                            maxLine = e1Line;
+                            minEdge = edge;
+                        }
+                    }
+                }
+            }
+            return maxLine;
         }
 
         /// <summary>
@@ -425,7 +481,7 @@ namespace GPC.Model.Sections.Bolt
         public bool IsOuuter(BoltPosition boltPosition)
         {
             // Find point on edges with minimum distance.
-            var minDistLine = CalculateClosestEdgePoint(boltPosition);
+            var minDistLine = CalculateClosestEdgePoint(boltPosition, out Line2d _);
             var minDist = minDistLine.Length;
 
             // *** First attempt with minimum point.
@@ -436,8 +492,27 @@ namespace GPC.Model.Sections.Bolt
                 return true;
 
             // *** Second attempt with all edge orthogonal directions.
-            // Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
-            HashSet<int> angles = new HashSet<int>();
+            var angles = CalculateSignificantAngles();
+            // For each angle, calculate the edge distance and check if there are no closer bolts.
+            foreach (var angle in angles)
+            {
+                double angleRad = ((double)angle) * Math.PI / 180.0;
+                double e1 = CalculateE1(boltPosition, angleRad);
+                double p1 = CalculateP1(boltPosition, angleRad);
+                if (p1 > e1)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
+        /// </summary>
+        /// <returns></returns>
+        private HashSet<int> CalculateSignificantAngles()
+        {
+            var angles = new HashSet<int>();
             var edges = GetEdges();
             foreach (var edge in edges)
             {
@@ -460,17 +535,8 @@ namespace GPC.Model.Sections.Bolt
 
                 angles.Add(angle2);
             }
-            // For each angle, calculate the edge distance and check if there are no closer bolts.
-            foreach (var angle in angles)
-            {
-                double angleRad = ((double)angle) * Math.PI / 180.0;
-                double e1 = CalculateE1(boltPosition, angleRad);
-                double p1 = CalculateP1(boltPosition, angleRad);
-                if (p1 > e1)
-                    return true;
-            }
 
-            return false;
+            return angles;
         }
 
         #endregion
