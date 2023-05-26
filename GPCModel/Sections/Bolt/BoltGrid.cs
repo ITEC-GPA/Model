@@ -154,7 +154,7 @@ namespace GPC.Model.Sections.Bolt
                 return retForces;
             }
 
-            // Move sollecitation to barycenter.
+            // Move forces to barycenter.
             ResultBeamForces SollLoc;
             SollLoc = Soll.ToCoordinateSystemWithEccentricity(PlateSystem);
 

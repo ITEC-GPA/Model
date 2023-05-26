@@ -11,6 +11,12 @@ namespace GPC.Model.Sections.Bolt
     [Serializable]
     public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>, ISerializable
     {
+        #region Constant
+
+        public const double SPACINGMAXVALUE = double.MaxValue;
+
+        #endregion
+
         #region Variables
 
         protected BoltGrid _boltGrid;
@@ -91,14 +97,14 @@ namespace GPC.Model.Sections.Bolt
             return CalculateE2(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP1(BoltPosition bolt, ResultBeamForces resultBeamForces)
+        public Line2d CalculateP1Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP1(bolt, CalculateAngle(resultBeamForces));
+            return CalculateP1Line(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP2(BoltPosition bolt, ResultBeamForces resultBeamForces)
+        public Line2d CalculateP2Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP2(bolt, CalculateAngle(resultBeamForces));
+            return CalculateP2Line(bolt, CalculateAngle(resultBeamForces));
         }
 
         public double CalculateE1(BoltPosition bolt, double forceDirectionAngle)
@@ -112,19 +118,37 @@ namespace GPC.Model.Sections.Bolt
                 CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0, out Line2d _).Length);
         }
 
-        public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
+        public Line2d CalculateP1Line(BoltPosition bolt, double forceDirectionAngle)
         {
             return CalculateClosestBolt(bolt, forceDirectionAngle);
         }
 
+        public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
+        {
+            return CalculateP1Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
+        }
+
+        public Line2d CalculateP2Line(BoltPosition bolt, double forceDirectionAngle)
+        {
+            var d1Line = CalculateClosestBolt(bolt, forceDirectionAngle + Math.PI / 2.0);
+            var d2Line = CalculateClosestBolt(bolt, forceDirectionAngle - Math.PI / 2.0);
+            double d1 = d1Line?.Length ?? SPACINGMAXVALUE;
+            double d2 = d2Line?.Length ?? SPACINGMAXVALUE;
+
+            if (d1 < d2)
+                return d1Line;
+            else
+                return d2Line;
+        }
+
         public double CalculateP2(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestBolt(bolt, forceDirectionAngle + Math.PI / 2.0), CalculateClosestBolt(bolt, forceDirectionAngle - Math.PI / 2.0)); ;
+            return CalculateP2Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
         }
 
         public double CalculateE1Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
@@ -140,7 +164,7 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateE2Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
@@ -156,7 +180,7 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateP1Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
@@ -172,7 +196,7 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateP2Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
@@ -214,7 +238,7 @@ namespace GPC.Model.Sections.Bolt
         /// <returns>Point from center to point of minimum distance.</returns>
         private Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, double angle, out Line2d minEdge)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
             Line2d minLine = null;
             minEdge = null;
 
@@ -288,14 +312,15 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// Calculates the minimum distance of holes around in a specific direction.
         /// Works for normal and slotted holes.
-        /// If it finds no bolts it returns double.MaxValue.
+        /// If it finds no bolts it returns SPACINGMAXVALUE.
         /// </summary>
         /// <param name="boltPosition"></param>
         /// <param name="angle"></param>
         /// <returns></returns>
-        private double CalculateClosestBolt(BoltPosition boltPosition, double angle, double tolerance = GeometryBase.AngularTolerance)
+        private Line2d CalculateClosestBolt(BoltPosition boltPosition, double angle, double tolerance = AngularTolerance)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
+            Line2d minDistanceLine = null;
             Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
             // Center list.
@@ -327,13 +352,14 @@ namespace GPC.Model.Sections.Bolt
                             if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25 + tolerance))
                             {
                                 distance = distanceBuffer;
+                                minDistanceLine = new Line2d(center, centerOther);
                             }
                         }
                     }
                 }
             }
 
-            return distance;
+            return minDistanceLine;
         }
 
         /// <summary>
@@ -344,8 +370,8 @@ namespace GPC.Model.Sections.Bolt
         /// <returns></returns>
         public double CalculateClosestBolt(BoltPosition boltPosition)
         {
-            double minDist = double.MaxValue;
-            double iDist = double.MaxValue;
+            double minDist = SPACINGMAXVALUE;
+            double iDist = SPACINGMAXVALUE;
 
             // Center list.
             Point2d[] centers = boltPosition.CalculateCenters();
@@ -392,7 +418,7 @@ namespace GPC.Model.Sections.Bolt
         /// <returns>Point from center to point of minimum distance.</returns>
         public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
         {
-            double minDist = double.MaxValue;
+            double minDist = SPACINGMAXVALUE;
             Line2d minLine = null;
             minEdge = null;
 
@@ -487,7 +513,7 @@ namespace GPC.Model.Sections.Bolt
             // *** First attempt with minimum point.
             var minDistVector = minDistLine.ToVector();
             double minDistDirection = Math.Atan2(minDistVector.Y, minDistVector.X);
-            var nearestBoltDistance = CalculateClosestBolt(boltPosition, minDistDirection);
+            var nearestBoltDistance = CalculateClosestBolt(boltPosition, minDistDirection)?.Length ?? SPACINGMAXVALUE;
             if (nearestBoltDistance > minDist)
                 return true;
 
