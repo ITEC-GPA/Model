@@ -59,11 +59,19 @@ namespace GPC.Model.Materials
 			SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
 			SetStressProperties();
-		}
+        }
 
-		#region Equals, hashcode, operators
+        public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            if (compressionStressStrainDiagrams != CompressionStressStrainDiagrams.Generic)
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            else
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.ParabolaRectangle;
+        }
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
 		}

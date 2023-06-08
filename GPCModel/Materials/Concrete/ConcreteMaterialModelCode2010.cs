@@ -197,7 +197,23 @@ namespace GPC.Model.Materials
 				default:
 					break;
 			}
-		}
+        }
+
+        public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            if (compressionStressStrainDiagrams != CompressionStressStrainDiagrams.Generic)
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            else
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.ParabolaRectangle;
+        }
+
+        public void SetTensionStressStrainDiagram(TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+            if (tensionStressStrainDiagrams != TensionStressStrainDiagrams.Generic)
+                _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+            else
+                _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Bilinear;
+        }
 
         #endregion
 
