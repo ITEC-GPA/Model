@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using static GPC.Model.Sections.Section;
 
 namespace GPC.Model.Sections.Bolt
 {
@@ -61,6 +60,37 @@ namespace GPC.Model.Sections.Bolt
             Position = (Point2d)info.GetValue("Position", typeof(Point2d));
             BoltDef = (BoltSection)info.GetValue("BoltDef", typeof(BoltSection));
             Hole = (Hole)info.GetValue("Hole", typeof(Hole));
+        }
+
+        /// <summary>
+        /// Calculate the centers in the case of slotted hole.
+        /// </summary>
+        /// <returns></returns>
+        public Point2d[] CalculateSlottedCenters()
+        {
+            double d1 = Hole.SlotLength * (1.0 + Hole.PosBolt); // Distance of the first center from the insertion point.
+            double d2 = Hole.SlotLength * (1.0 - Hole.PosBolt); // Distance of the second center from the insertion point.
+            var retPoints = new Point2d[2];
+            var cosRot = Math.Cos(Hole.Rotation);
+            var sinRot = Math.Sin(Hole.Rotation);
+            retPoints[0] = new Point2d(Position.X - d1 * cosRot, Position.Y - d1 * sinRot); // First center.
+            retPoints[1] = new Point2d(Position.X + d2 * cosRot, Position.Y + d2 * sinRot); // Second center.
+            return retPoints;
+        }
+
+        /// <summary>
+        /// Calculate the centers, two in the case of slotted hole, one for normal holes.
+        /// </summary>
+        /// <returns></returns>
+        public Point2d[] CalculateCenters()
+        {
+            Point2d[] centers;
+            if (Hole.IsSlotted)
+                centers = CalculateSlottedCenters();
+            else
+                centers = new Point2d[] { Position };
+
+            return centers;
         }
     }
 }

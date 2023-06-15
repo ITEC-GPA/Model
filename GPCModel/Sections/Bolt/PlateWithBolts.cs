@@ -11,6 +11,12 @@ namespace GPC.Model.Sections.Bolt
     [Serializable]
     public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>, ISerializable
     {
+        #region Constant
+
+        public const double SPACINGMAXVALUE = double.MaxValue;
+
+        #endregion
+
         #region Variables
 
         protected BoltGrid _boltGrid;
@@ -81,54 +87,73 @@ namespace GPC.Model.Sections.Bolt
             info.AddValue("Thickness", _thickness);
         }
 
-        public double CalculateE1(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE1(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateE1(boltId, CalculateAngle(resultBeamForces));
+            return CalculateE1(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateE2(int boltId, ResultBeamForces resultBeamForces)
+        public double CalculateE2(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateE2(boltId, CalculateAngle(resultBeamForces));
+            return CalculateE2(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP1(int boltId, ResultBeamForces resultBeamForces)
+        public Line2d CalculateP1Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP1(boltId, CalculateAngle(resultBeamForces));
+            return CalculateP1Line(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateP2(int boltId, ResultBeamForces resultBeamForces)
+        public Line2d CalculateP2Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
-            return CalculateP2(boltId, CalculateAngle(resultBeamForces));
+            return CalculateP2Line(bolt, CalculateAngle(resultBeamForces));
         }
 
-        public double CalculateE1(int boltId, double forceDirectionAngle)
+        public double CalculateE1(BoltPosition bolt, double forceDirectionAngle)
         {
-            return CalculateClosestEdgePoint(boltId, forceDirectionAngle);
+            return CalculateClosestEdgePoint(bolt, forceDirectionAngle, out Line2d _).Length;
         }
 
-        public double CalculateE2(int boltId, double forceDirectionAngle)
+        public double CalculateE2(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestEdgePoint(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestEdgePoint(boltId, forceDirectionAngle - Math.PI / 2.0));
+            return Math.Min(CalculateClosestEdgePoint(bolt, forceDirectionAngle + Math.PI / 2.0, out Line2d _).Length,
+                CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0, out Line2d _).Length);
         }
 
-        public double CalculateP1(int boltId, double forceDirectionAngle)
+        public Line2d CalculateP1Line(BoltPosition bolt, double forceDirectionAngle)
         {
-            return CalculateClosestBolt(boltId, forceDirectionAngle);
+            return CalculateClosestBolt(bolt, forceDirectionAngle);
         }
 
-        public double CalculateP2(int boltId, double forceDirectionAngle)
+        public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
         {
-            return Math.Min(CalculateClosestBolt(boltId, forceDirectionAngle + Math.PI / 2.0), CalculateClosestBolt(boltId, forceDirectionAngle - Math.PI / 2.0)); ;
+            return CalculateP1Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
+        }
+
+        public Line2d CalculateP2Line(BoltPosition bolt, double forceDirectionAngle)
+        {
+            var d1Line = CalculateClosestBolt(bolt, forceDirectionAngle + Math.PI / 2.0);
+            var d2Line = CalculateClosestBolt(bolt, forceDirectionAngle - Math.PI / 2.0);
+            double d1 = d1Line?.Length ?? SPACINGMAXVALUE;
+            double d2 = d2Line?.Length ?? SPACINGMAXVALUE;
+
+            if (d1 < d2)
+                return d1Line;
+            else
+                return d2Line;
+        }
+
+        public double CalculateP2(BoltPosition bolt, double forceDirectionAngle)
+        {
+            return CalculateP2Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
         }
 
         public double CalculateE1Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateE1(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateE1(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -139,12 +164,12 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateE2Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateE2(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateE2(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -155,12 +180,12 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateP1Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateP1(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateP1(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -171,12 +196,12 @@ namespace GPC.Model.Sections.Bolt
 
         public double CalculateP2Min(ResultBeamForces resultBeamForces)
         {
-            double distance = double.MaxValue;
+            double distance = SPACINGMAXVALUE;
 
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
                 var angle = CalculateAngle(resultBeamForces);
-                double distanceBuffer = CalculateP2(_boltGrid.Bolts.ElementAt(i).Id, angle);
+                double distanceBuffer = CalculateP2(_boltGrid.Bolts.ElementAt(i), angle);
 
                 if (distanceBuffer < distance)
                     distance = distanceBuffer;
@@ -190,98 +215,190 @@ namespace GPC.Model.Sections.Bolt
             return Math.Atan2(resultBeamForces.V2, resultBeamForces.V1);
         }
 
-        private double CalculateClosestEdgePoint(int boltId, double angle)
+        /// <summary>
+        /// Utility.
+        /// </summary>
+        /// <returns></returns>
+        private List<Line2d> GetEdges()
         {
-            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            Line2d line = new Line2d(boltPosition.Position, new Point2d(boltPosition.Position.X + Math.Cos(angle), boltPosition.Position.Y + Math.Sin(angle)));
-
-            Line2d[] edges = Shape.Fill2d.Explode();
-            List<Point2d> points = new List<Point2d>();
-
-            for (int i = 0; i < edges.Length; i++)
-            {
-                if (line.GetIntersectionWithInfiniteLine(edges[i], out Point2d intersection))
-                {
-                    if (edges[i].IsPointOnLine(intersection))
-                        points.Add(intersection);
-                }
-            }
-
+            var edges = Shape.Fill2d.Explode().ToList();
             if (Shape.HasHoles)
-            {
                 for (int i = 0; i < Shape.Holes2d.Length; i++)
-                {
-                    Line2d[] edgesHole = Shape.Holes2d[i].Explode();
-                    for (int j = 0; j < edgesHole.Length; j++)
-                    {
-                        if (line.GetIntersectionWithInfiniteLine(edgesHole[j], out Point2d intersection))
-                        {
-                            if (edges[i].IsPointOnLine(intersection))
-                                points.Add(intersection);
-                        }
-                    }
-                }
-            }
+                    edges.AddRange(Shape.Holes2d[i].Explode());
 
-            double distance = double.MaxValue;
-
-            if (points.Count > 0)
-            {
-                Vector2d v1 = line.ToVector();
-
-                for (int i = 0; i < points.Count; i++)
-                {
-                    double distanceBuffer = boltPosition.Position.DistanceTo(points[i]);
-                    if (distanceBuffer < distance)
-                    {
-                        Vector2d v2 = new Line2d(boltPosition.Position, points[i]).ToVector();
-
-                        if (v1.DotProduct(v2) > 0)
-                        {
-                            distance = distanceBuffer;
-                        }
-                    }
-                }
-            }
-
-            return distance;
+            return edges;
         }
 
-        private double CalculateClosestBolt(int boltId, double angle)
+        /// <summary>
+        /// Given a bolt find the minimum distance from the edge in a specific direction.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="bolt"></param>
+        /// <param name="angle"></param>
+        /// <returns>Point from center to point of minimum distance.</returns>
+        private Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, double angle, out Line2d minEdge)
         {
-            BoltPosition boltPosition = _boltGrid.Bolts.Where(bp => bp.Id == boltId).FirstOrDefault();
-            Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
+            double distance = SPACINGMAXVALUE;
+            Line2d minLine = null;
+            minEdge = null;
 
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Edge list.
+            var edges = GetEdges();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                Point2d center = centers[i];
+                Line2d line = new Line2d(center, new Point2d(center.X + Math.Cos(angle), center.Y + Math.Sin(angle)));
+
+                // Get intersections with all edges.
+                List<(Point2d, Line2d)> points = new List<(Point2d, Line2d)>();
+                for (int j = 0; j < edges.Count; j++)
+                {
+                    if (line.GetIntersectionWithInfiniteLine(edges[j], out Point2d intersection))
+                    {
+                        if (edges[j].IsPointOnLine(intersection))
+                            points.Add((intersection, edges[j]));
+                    }
+                }
+
+                // Selects points by direction.
+                if (points.Count > 0)
+                {
+                    Vector2d v1 = line.ToVector();
+
+                    for (int j = 0; j < points.Count; j++)
+                    {
+                        double distanceBuffer = center.DistanceTo(points[j].Item1);
+                        if (distanceBuffer < distance)
+                        {
+                            Vector2d v2 = new Line2d(center, points[j].Item1).ToVector();
+
+                            if (v1.DotProduct(v2) > 0)
+                            {
+                                distance = distanceBuffer;
+                                minLine = new Line2d(center, points[j].Item1);
+                                minEdge = points[j].Item2;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return minLine;
+        }
+
+        /// <summary>
+        /// Returns the list of all bolts other than a specific id.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <returns></returns>
+        private List<BoltPosition> GetOtherBolts(BoltPosition boltPosition)
+        {
             var otherBolts = new List<BoltPosition>();
             for (int i = 0; i < _boltGrid.Bolts.Count; i++)
             {
-                if (_boltGrid.Bolts.ElementAt(i).Id != boltId)
+                if (_boltGrid.Bolts.ElementAt(i) != boltPosition)
                 {
                     otherBolts.Add(_boltGrid.Bolts.ElementAt(i));
                 }
             }
+            return otherBolts;
+        }
 
-            double distance = double.MaxValue;
+        /// <summary>
+        /// Calculates the minimum distance of holes around in a specific direction.
+        /// Works for normal and slotted holes.
+        /// If it finds no bolts it returns SPACINGMAXVALUE.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        private Line2d CalculateClosestBolt(BoltPosition boltPosition, double angle, double tolerance = AngularTolerance)
+        {
+            double distance = SPACINGMAXVALUE;
+            Line2d minDistanceLine = null;
+            Vector2d v1 = new Vector2d(Math.Cos(angle), Math.Sin(angle));
 
-            if (otherBolts.Count > 0)
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Other bolts.
+            var otherBolts = GetOtherBolts(boltPosition);
+            var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
             {
-                for (int i = 0; i < otherBolts.Count; i++)
-                {
-                    double distanceBuffer = boltPosition.Position.DistanceTo(otherBolts[i].Position);
-                    if (distanceBuffer < distance)
-                    {
-                        Vector2d v2 = new Line2d(boltPosition.Position, otherBolts[i].Position).ToVector();
-                        v2.Unitize();
+                var center = centers[i];
 
-                        if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25))
+                for (int j = 0; j < otherBoltsCenters.Length; j++)
+                {
+                    var otherBoltCenters = otherBoltsCenters[j];
+
+                    for (int k = 0; k < otherBoltCenters.Length; k++)
+                    {
+                        var centerOther = otherBoltCenters[k];
+                        double distanceBuffer = center.DistanceTo(centerOther);
+
+                        if (distanceBuffer < distance)
                         {
-                            distance = distanceBuffer;
+                            Vector2d v2 = new Line2d(center, centerOther).ToVector();
+                            v2.Unitize();
+
+                            if (v1.DotProduct(v2) > Math.Cos(Math.PI * 0.25 + tolerance))
+                            {
+                                distance = distanceBuffer;
+                                minDistanceLine = new Line2d(center, centerOther);
+                            }
                         }
                     }
                 }
             }
 
-            return distance;
+            return minDistanceLine;
+        }
+
+        /// <summary>
+        /// Given a bolt find the minimum distance from another bolt in all directions.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <returns></returns>
+        public double CalculateClosestBolt(BoltPosition boltPosition)
+        {
+            double minDist = SPACINGMAXVALUE;
+            double iDist = SPACINGMAXVALUE;
+
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Other bolts.
+            var otherBolts = GetOtherBolts(boltPosition);
+            var otherBoltsCenters = otherBolts.Select(ob => ob.CalculateCenters()).ToArray();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                var center = centers[i];
+
+                for (int j = 0; j < otherBoltsCenters.Length; j++)
+                {
+                    var otherBoltCenters = otherBoltsCenters[j];
+
+                    for (int k = 0; k < otherBoltCenters.Length; k++)
+                    {
+                        iDist = center.DistanceTo(otherBoltCenters[k]);
+                        if (iDist < minDist)
+                            minDist = iDist;
+                    }
+                }
+            }
+
+            return minDist;
         }
 
         public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
@@ -291,6 +408,161 @@ namespace GPC.Model.Sections.Bolt
                 return null;
 
             return _boltGrid.AddBolt(posX, posY, diameter, mat, hole);
+        }
+
+        /// <summary>
+        /// Given a bolt find the minimum distance from the edge in all directions.
+        /// Works for normal and slotted holes.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <returns>Point from center to point of minimum distance.</returns>
+        public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
+        {
+            double minDist = SPACINGMAXVALUE;
+            Line2d minLine = null;
+            minEdge = null;
+
+            // Center list.
+            Point2d[] centers = boltPosition.CalculateCenters();
+
+            // Edge list.
+            var edges = GetEdges();
+
+            // Find minimum distance.
+            for (int i = 0; i < centers.Length; i++)
+            {
+                Point2d center = centers[i];
+                for (int j = 0; j < edges.Count; j++)
+                {
+                    Line2d edge = edges[j];
+                    Point2d iDistPoint = edge.PointDistanceTo(center);
+                    double iDist = iDistPoint.DistanceTo(center);
+                    if (iDist < minDist)
+                    {
+                        minDist = iDist;
+                        minLine = new Line2d(center, iDistPoint);
+                        minEdge = edge;
+                    }
+                }
+            }
+
+            return minLine;
+        }
+
+        /// <summary>
+        /// This method comes from the need to check even the farthest edge with the maximum value.
+        /// Chosen to check the minimum point between all sides, and of these take the maximum value that
+        /// has no bolts in the middle.
+        /// </summary>
+        /// <param name="boltPosition"></param>
+        /// <returns></returns>
+        public Line2d CalculateFurtherMinimumEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
+        {
+            double maxDist = double.MinValue;
+            Line2d maxLine = null;
+            minEdge = null;
+            // Orthogonality error, given by the use of angles with integers in sexagesimal degrees.
+            // Error given of orthogonality between 0° and 89° --> Scalar product of versors equal to dotproduct(versor(0°), versor(89°))=0.017452406.
+            double orthogonalityError = 0.017452406;
+
+            // Directions.
+            var angles = CalculateSignificantAngles();
+
+            // For each angle, calculate the edge distance and check if there are no closer bolts and if it is ortogonal.
+            foreach (var angle in angles)
+            {
+                double angleRad = angle * Math.PI / 180.0;
+                var e1Line = CalculateClosestEdgePoint(boltPosition, angleRad, out Line2d edge);
+
+                if (e1Line != null && edge != null)
+                {
+                    // Check orthogonality first.
+                    double e1 = e1Line.Length;
+                    var edgeVector = edge.ToVector();
+                    edgeVector.Unitize();
+                    var angleVector = new Vector2d(Math.Cos(angleRad), Math.Sin(angleRad));
+
+                    if (Math.Abs(angleVector * edgeVector) < orthogonalityError)
+                    {
+                        // Check for bolts.
+                        double p1 = CalculateP1(boltPosition, angleRad);
+                        if (p1 > e1 && e1 > maxDist)
+                        {
+                            maxDist = e1;
+                            maxLine = e1Line;
+                            minEdge = edge;
+                        }
+                    }
+                }
+            }
+            return maxLine;
+        }
+
+        /// <summary>
+        /// Calculate if bolt is of type outer or inner.
+        /// To say whether it is outer is enough if it is on one side, but if it is not for any side then it is inner.
+        /// </summary>
+        /// <param name="bolt"></param>
+        /// <returns></returns>
+        public bool IsOuuter(BoltPosition boltPosition)
+        {
+            // Find point on edges with minimum distance.
+            var minDistLine = CalculateClosestEdgePoint(boltPosition, out Line2d _);
+            var minDist = minDistLine.Length;
+
+            // *** First attempt with minimum point.
+            var minDistVector = minDistLine.ToVector();
+            double minDistDirection = Math.Atan2(minDistVector.Y, minDistVector.X);
+            var nearestBoltDistance = CalculateClosestBolt(boltPosition, minDistDirection)?.Length ?? SPACINGMAXVALUE;
+            if (nearestBoltDistance > minDist)
+                return true;
+
+            // *** Second attempt with all edge orthogonal directions.
+            var angles = CalculateSignificantAngles();
+            // For each angle, calculate the edge distance and check if there are no closer bolts.
+            foreach (var angle in angles)
+            {
+                double angleRad = ((double)angle) * Math.PI / 180.0;
+                double e1 = CalculateE1(boltPosition, angleRad);
+                double p1 = CalculateP1(boltPosition, angleRad);
+                if (p1 > e1)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
+        /// </summary>
+        /// <returns></returns>
+        private HashSet<int> CalculateSignificantAngles()
+        {
+            var angles = new HashSet<int>();
+            var edges = GetEdges();
+            foreach (var edge in edges)
+            {
+                var edgeVector = edge.ToVector();
+                int edgeVectorAngle = (int)(Math.Atan2(edgeVector.Y, edgeVector.X) * 180.0 / Math.PI);
+                if (edgeVectorAngle < 0)
+                    edgeVectorAngle += 360; // --> Angle from 0 to 360.
+                if (edgeVectorAngle == 360)
+                    edgeVectorAngle = 0; // --> Angle from 0 to 359, because 360 == 0.
+
+                int angle1 = edgeVectorAngle + 90;
+                if (angle1 >= 360)
+                    angle1 -= 360; // --> Angle from 0 to 359.
+
+                angles.Add(angle1);
+
+                int angle2 = edgeVectorAngle - 90;
+                if (angle2 < 0)
+                    angle2 += 360; // --> Angle from 0 to 359.
+
+                angles.Add(angle2);
+            }
+
+            return angles;
         }
 
         #endregion

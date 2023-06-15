@@ -542,11 +542,19 @@ namespace GPC.Model.Materials
                 return GetStress(strain);
         }
 
-		#endregion
+        public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            if (compressionStressStrainDiagrams != CompressionStressStrainDiagrams.Generic)
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            else
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.ParabolaRectangle;
+        }
 
-		#region Equals, hashcode, operators
+        #endregion
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
 

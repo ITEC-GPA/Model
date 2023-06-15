@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="GPC.Model.Materials.Material" Collapsed="true">
+    <Position X="7" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAIAEAAEBRGjBiAQBAhAAAAAKAQAQECQwDGgi4=</HashCode>
+      <FileName>Materials\Material.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.ModelObject" Collapsed="true">
+    <Position X="7" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAgIAAACQgBAAABIBAAAAAAAAAAiA=</HashCode>
+      <FileName>Base\ModelObject.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.ConcreteMaterial" Collapsed="true">
+    <Position X="1.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQJAAAACAAAAAgBAgAQAAAAgAAAACIABCQAAIAAAAiA=</HashCode>
+      <FileName>Materials\Concrete\ConcreteMaterial.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.GlassMaterial" Collapsed="true">
+    <Position X="7" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAEgACAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Materials\Glass\GlassMaterial.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.InterlayerMaterial" Collapsed="true">
+    <Position X="9.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQACAAAAAAAAAQEiAKQAAAhAAAAAIAAAQAAAAAAAiQ=</HashCode>
+      <FileName>Materials\Glass\InterlayerMaterial.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.SiliconMaterial" Collapsed="true">
+    <Position X="12" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAEAACAAAAgAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Materials\Glass\SiliconMaterial.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.SteelMaterial" Collapsed="true">
+    <Position X="17.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiCEAAAAACABAIIEwASAAAggIAAACIgQAQQAAACAAIA=</HashCode>
+      <FileName>Materials\Steel\SteelMaterial.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.ConcreteMaterialACI318" Collapsed="true">
+    <Position X="0.5" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AADAAKAAAEACJAQAgAQAAAAgAAAAGJABHEAAAgAAAqA=</HashCode>
+      <FileName>Materials\Concrete\ConcreteMaterialACI318.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.ConcreteMaterialEuropeanCommon" Collapsed="true">
+    <Position X="2.75" Y="5.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>BARBAaABAEACJAIBgCABEAigAIACWJANHUAQAhAAAqg=</HashCode>
+      <FileName>Materials\Concrete\ConcreteMaterialEuropeanCommon.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.GlassMaterialAstm" Collapsed="true">
+    <Position X="6.25" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>YAAiACKAAAAAAAFAgABQAAAgAAAAAIAAAAAAACAAAyA=</HashCode>
+      <FileName>Materials\Glass\GlassMaterialAstm.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.GlassMaterialEn16612" Collapsed="true">
+    <Position X="8.25" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AEBhBAAAAAAAAACAgCAAAQAgAAAAQIAAAUAAAAAAAiA=</HashCode>
+      <FileName>Materials\Glass\GlassMaterialEn16612.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.BoltMaterialEN1993" Collapsed="true">
+    <Position X="12" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Materials\Steel\BoltMaterialEN1993.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.BoltMaterialEN1993Inox" Collapsed="true">
+    <Position X="14.25" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAEEgAAAAAEgACAAAIAAAAAAQAAAAAA=</HashCode>
+      <FileName>Materials\Steel\BoltMaterialEN1993Inox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.SteelMaterialACI318" Collapsed="true">
+    <Position X="16.5" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Materials\Steel\SteelMaterialACI318.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.SteelMaterialAISC360" Collapsed="true">
+    <Position X="18.75" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Materials\Steel\SteelMaterialAISC360.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.SteelMaterialEN1992" Collapsed="true">
+    <Position X="21" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Materials\Steel\SteelMaterialEN1992.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.SteelMaterialEN1993" Collapsed="true">
+    <Position X="23.25" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Materials\Steel\SteelMaterialEN1993.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Materials.ConcreteMaterialEN1992" Collapsed="true">
+    <Position X="1.75" Y="7.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAQAAAAgAAAAAIAAAAAAIAAAAiA=</HashCode>
+      <FileName>Materials\Concrete\ConcreteMaterialEN1992.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Materials.ConcreteMaterialModelCode2010" Collapsed="true">
+    <Position X="4.5" Y="7.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAABAAAAACAAgAQAAACgAAAASIAAAAAABAEAAiA=</HashCode>
+      <FileName>Materials\Concrete\ConcreteMaterialModelCode2010.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
