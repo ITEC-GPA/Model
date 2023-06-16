@@ -18,7 +18,8 @@ namespace GPC.Model.Maths.GaussIntegrations
         #region Line element
 
         /// <summary>
-        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
+        /// TODO: It does not work with numberOFShapeFunction=3, with quadratic form functions.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
@@ -117,7 +118,8 @@ namespace GPC.Model.Maths.GaussIntegrations
         }
 
         /// <summary>
-        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
+        /// TODO: It does not work with quadratic form functions.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
@@ -801,28 +803,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <returns>Matrix</returns>
         private static Matrix<double> Jacob1D(double csi, Func<int, double, double> dNdCsi, Point3d[] points)
         {
-            // Matrice jacobiana per cambiamento di variabile
-            // dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
-            // dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
-            // => dN/dNatural = J * dN/dLocal;
-            // => dN/dLocal = J^-1 * dN/dNatural;
-            // => dF/dNatural = J^-1 dF/dLocal;
+            double L = 0.5 * (points[1] - points[0]).DistanceTo(Point3d.Origin);
 
-            // dx/dCsi, dy/dCsi
-            // dy/dEta, dy/dEta
-            //
-            // La matrice monodimensionale potrebbe essere considerata anche solo come il valore di j11
-            // J11      0
-            //  0       1
-
-            double j11 = 0;
-
-            for (int i = 0; i < points.Length; i++)
-            {
-                j11 += dNdCsi(i + 1, csi) * points[i].X;
-            }
-
-            return Matrix<double>.Build.Dense(2, 2, new[] { j11, 0, 0, 1 });
+            return Matrix<double>.Build.Dense(2, 2, new[] { L, 0, 0, 1 });
         }
 
         private static Func<double, Matrix<double>> JacobianMatrix1D(Func<int, double, double> dNdCsi, Point3d[] points)

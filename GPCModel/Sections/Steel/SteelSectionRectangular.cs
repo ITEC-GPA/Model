@@ -40,7 +40,7 @@ namespace GPC.Model.Sections.Steel
 
 		public override bool Equals(object obj)
 		{
-			return obj is SteelSectionRectangular rectangular &&
+            return obj is SteelSectionRectangular &&
 				   base.Equals(obj);
 		}
 

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using GPC.Utilities.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
@@ -16,6 +16,14 @@ namespace GPC.Model.Sections
 
         protected ThinWall[] _thinWalls;
         protected Point2d[] _points;
+
+        #endregion
+
+        #region Properties
+
+        internal ThinWall[] ThinWalls => _thinWalls;
+
+        internal Point2d[] Points => _points;
 
         #endregion
 
@@ -202,7 +210,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < _thinWalls.Length; i++)
             {
                 List<Point2d> _pointBuffer = _thinWalls[i].GetPerimeter().Select(j => j).ToList();
-                
+
                 points.AddRange(_pointBuffer.Select(k => k.CloneAndMove(new Vector2d(_points[i].X, _points[i].Y))));
             }
 
@@ -256,7 +264,7 @@ namespace GPC.Model.Sections
         #region Nested classes ThinWall
 
         [Serializable]
-        protected class ThinWall
+        public class ThinWall
         {
             #region Variables
 
@@ -307,7 +315,7 @@ namespace GPC.Model.Sections
             }
 
             protected ThinWall(SerializationInfo info, StreamingContext context)
-			{
+            {
                 _t = info.GetDouble("T");
                 _l = info.GetDouble("L");
                 _angle = info.GetDouble("Angle");
@@ -317,13 +325,35 @@ namespace GPC.Model.Sections
 
             #region Internal method
 
+            /// <summary>
+            /// With _angle = 0:
+            ///    ┌-----------------┐
+            /// _t |                 |
+            ///    └-----------------┘
+            ///            _l
+            /// </summary>
+            /// <returns></returns>
             internal Polygon2d GetPerimeter()
             {
-                return new Polygon2d(new Point2d[] {new Point2d(_l / 2.0 * Math.Cos(_angle) + _t / 2.0 * Math.Sin(_angle), _l / 2.0 * Math.Sin(_angle) + _t / 2.0 * Math.Cos(_angle)),
-                    new Point2d(_l / 2.0 * Math.Cos(_angle) - _t / 2.0 * Math.Sin(_angle), _l / 2.0 * Math.Sin(_angle) - _t / 2.0 * Math.Cos(_angle)),
-                    new Point2d(- _l / 2.0 * Math.Cos(_angle) + _t / 2.0 * Math.Sin(_angle), - _l / 2.0 * Math.Sin(_angle) + _t / 2.0 * Math.Cos(_angle)),
-                    new Point2d(- _l / 2.0 * Math.Cos(_angle) - _t / 2.0 * Math.Sin(_angle), - _l / 2.0 * Math.Sin(_angle) - _t / 2.0 * Math.Cos(_angle))
+                var sinAngle = Math.Sin(_angle);
+                var cosAngle = Math.Cos(_angle);
+                var lHalf = _l / 2.0;
+                var tHalf = _t / 2.0;
+
+                return new Polygon2d(new Point2d[] {
+                    new Point2d(lHalf * cosAngle + tHalf * sinAngle, lHalf * sinAngle + tHalf * cosAngle),
+                    new Point2d(lHalf * cosAngle - tHalf * sinAngle, lHalf * sinAngle - tHalf * cosAngle),
+                    new Point2d(- lHalf * cosAngle + tHalf * sinAngle, - lHalf * sinAngle + tHalf * cosAngle),
+                    new Point2d(- lHalf * cosAngle - tHalf * sinAngle, - lHalf * sinAngle - tHalf * cosAngle)
                     });
+            }
+
+            internal Point3d[] GetMiddleLine()
+            {
+                var sinAngle = Math.Sin(_angle);
+                var cosAngle = Math.Cos(_angle);
+                var lHalf = _l / 2.0;
+                return new Point3d[] { new Point3d(-lHalf * cosAngle, -lHalf * sinAngle, 0.0), new Point3d(lHalf * cosAngle, lHalf * sinAngle, 0.0) };
             }
 
             /// <summary>
@@ -445,13 +475,13 @@ namespace GPC.Model.Sections
                 return 3 + 1.8 * T / L;
             }
 
-			public override bool Equals(object obj)
-			{
-				return obj is ThinWall wall &&
-					   _t == wall._t &&
-					   _l == wall._l &&
-					   _angle == wall._angle;
-			}
+            public override bool Equals(object obj)
+            {
+                return obj is ThinWall wall &&
+                       _t == wall._t &&
+                       _l == wall._l &&
+                       _angle == wall._angle;
+            }
 
             public override int GetHashCode()
             {

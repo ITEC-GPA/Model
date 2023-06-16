@@ -18,7 +18,7 @@ namespace GPC.Model.Sections.Steel
         #region Variables
 
         private readonly double _r;                // raggio di curvatura o altezza di gola
-
+        
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
 

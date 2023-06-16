@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
-using GPC.Model.Elements;
 using GPC.Model.Materials;
+using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GPC.Utilities.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelObjectTest
 {
@@ -139,7 +139,7 @@ namespace ModelObjectTest
         }
 
         protected Shape2d GetRectangularShape2d(double width, double heigth)
-		{
+        {
             return new Shape2d(new Polygon2d(new Point2d[] {
                 new Point2d(0, 0),
                 new Point2d(width, 0),
@@ -931,6 +931,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void SectionHSymmetric_Test8()
         {
+            // IPE300
             double h = 300.0;
             double width = 150.0;
             double flangeThickness = 10.7;
@@ -955,6 +956,105 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Jw / sec.Jw) - 1, 0, 0.005);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.005);
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.0075);
+        }
+
+        private static void SectionPropertiesIntegrals(SteelSectionH sec, double flexModule, Point2d centerID, out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral)
+        {
+            double JxxFunction(double x, double y) => Math.Pow(y - centerID.Y, 2);
+            double JyyFunction(double x, double y) => Math.Pow(x - centerID.X, 2);
+            double JxyFunction(double x, double y) => (x - centerID.X) * (y - centerID.Y);
+            double Wel1Function(double x, double y) => flexModule * Math.Pow(y - centerID.Y, 2);
+            double Wpl1Function(double x, double y) => Math.Abs(y - centerID.Y);
+
+            JxxIntegral = 0.0;
+            JyyIntegral = 0.0;
+            JxyIntegral = 0.0;
+            Wel1Integral = 0.0;
+            Wpl1Integral = 0.0;
+            for (int i = 0; i < sec.ThinWalls.Length; i++)
+            {
+                var thinWall = sec.ThinWalls[i];
+                var point = sec.Points[i];
+                var middleLine = thinWall.GetMiddleLine();
+
+                middleLine[0] += new Point3d(point);
+                middleLine[1] += new Point3d(point);
+
+                var thickness = thinWall.T;
+
+                JxxIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxxFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                JyyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JyyFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                JxyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxyFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                Wel1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wel1Function, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                Wpl1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wpl1Function, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+            }
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Test9()
+        {
+            // IPE300
+            // Linear integration over thin walls.
+
+            double h = 300.0;
+            double width = 150.0;
+            double flangeThickness = 10.7;
+            double webThickness = 7.1;
+            double r = 0.0; // 15.0;
+
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+            // Section properties obtainedwithout the fillet radius r.
+            //double Jxx = 79989869.0; // 83560000; // Ignoring the fillet radius between web and flange -->  -4.3% error.
+            //double Jyy = 6027059.0; // 6038000; // Ignoring the fillet radius between web and flange -->  -0.3% error.
+            //double Jxy = 0.0;
+            //double Jt = 201000;
+            //double Jw = 125934100000;
+            double flexModule = 2.0 / h;
+            //double Wel1 = Jxx * flexModule;
+            //double Wpl1 = 602098.3789966654;
+
+            var centerID = new Point2d(75.0, 150.0);
+
+            double JxxIntegral, JyyIntegral, JxyIntegral, Wel1Integral, Wpl1Integral;
+            SectionPropertiesIntegrals(sec, flexModule, centerID, out JxxIntegral, out JyyIntegral, out JxyIntegral, out Wel1Integral, out Wpl1Integral);
+
+            Assert.AreEqual(sec.J11, JxxIntegral, sec.J11 * 0.0004); // Error on the day 2023-06-16: -0.000382873;
+            Assert.AreEqual(sec.J22, JyyIntegral, sec.J22 * 0.002); // Error on the day 2023-06-16: -0.001378616;
+            Assert.AreEqual(sec.Jxy, JxyIntegral, 1);
+            Assert.AreEqual(sec.Wel1, Wel1Integral, sec.Wel1 * 0.0004); // Error on the day 2023-06-16: -0.000382869;
+            Assert.AreEqual(sec.Wpl1, Wpl1Integral, sec.Wpl1 * 0.0005); // Error on the day 2023-06-16: 0.000448784;
+        }
+
+        [TestMethod]
+        public void SectionHSymmetric_Test10()
+        {
+            // HEM100
+            // Linear integration over thin walls.
+
+            double h = 120.0;
+            double width = 106.0;
+            double flangeThickness = 20.0;
+            double webThickness = 12.0;
+            double r = 0.0; // 12.0;
+
+            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+
+            // Rigidity factor.
+            double flexModule = 2.0 / h;
+
+            var centerID = new Point2d(0.5 * width, 0.5 * h);
+
+            double JxxIntegral, JyyIntegral, JxyIntegral, Wel1Integral, Wpl1Integral;
+            SectionPropertiesIntegrals(sec, flexModule, centerID, out JxxIntegral, out JyyIntegral, out JxyIntegral, out Wel1Integral, out Wpl1Integral);
+
+            Assert.AreEqual(sec.J11, JxxIntegral, sec.J11 * 0.013); // Error on the day 2023-06-16: -0.012559242;
+            Assert.AreEqual(sec.J22, JyyIntegral, sec.J22 * 0.003); // Error on the day 2023-06-16: -0.002893329;
+            Assert.AreEqual(sec.Jxy, JxyIntegral, 1);
+            Assert.AreEqual(sec.Wel1, Wel1Integral, sec.Wel1 * 0.013); // Error on the day 2023-06-16: -0.012559242;
+            Assert.AreEqual(sec.Wpl1, Wpl1Integral, sec.Wpl1 * 0.0002); // Error on the day 2023-06-16: 0.000162876;
         }
 
         [TestMethod]
@@ -1069,33 +1169,33 @@ namespace ModelObjectTest
             Assert.AreEqual(JwStraus / sec.Jw - 1.0, 0, 0.05);
         }
 
-		[TestMethod]
-		public void SectionT_Test3()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] 
+        [TestMethod]
+        public void SectionT_Test3()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
             {
-				new Point2d(-1200, 0),
-				new Point2d(1200, 0),
-				new Point2d(1200, 550),
-				new Point2d(325, 550),
-				new Point2d(325, 3100),
-				new Point2d(-325, 3100),
-				new Point2d(-325, 550),
-				new Point2d(-1200, 550),
-			}));
+                new Point2d(-1200, 0),
+                new Point2d(1200, 0),
+                new Point2d(1200, 550),
+                new Point2d(325, 550),
+                new Point2d(325, 3100),
+                new Point2d(-325, 3100),
+                new Point2d(-325, 550),
+                new Point2d(-1200, 550),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
             Assert.IsTrue(Math.Abs(section.Centroid.X) < 1);
-            Assert.IsTrue(Math.Abs(section.Centroid.Y - 1138) < 1);			
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - 1138) < 1);
+        }
 
-		#endregion
+        #endregion
 
-		#region Section C
+        #region Section C
 
-		[TestMethod]
+        [TestMethod]
         public void SectionC_Test1()
         {
             double h = 400;
@@ -1495,128 +1595,128 @@ namespace ModelObjectTest
             //Assert.IsTrue(Math.Abs(sectionGeneric.AngleX1 - steelSectionRHS.AngleX1) < 1);
         }
 
-		[TestMethod]
-		public void SectionGenericTest2()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(0, 0),
-				new Point2d(400, 0),
-				new Point2d(400, 400),
-				new Point2d(0, 380),
-			}));
+        [TestMethod]
+        public void SectionGenericTest2()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(400, 0),
+                new Point2d(400, 400),
+                new Point2d(0, 380),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
             double x = 201.7;
             double y = 195.0;
-			double angleDeg = -66.89;
+            double angleDeg = -66.89;
 
-			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
-			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+        }
 
-		[TestMethod]
-		public void SectionGenericTest3()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(0, 0),
-				new Point2d(400, 0),
-				new Point2d(400, 400),
-				new Point2d(0, 100),
-			}));
+        [TestMethod]
+        public void SectionGenericTest3()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(400, 0),
+                new Point2d(400, 400),
+                new Point2d(0, 100),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-			double x = 240;
-			double y = 140;
-			double angleDeg = -54.41;
+            double x = 240;
+            double y = 140;
+            double angleDeg = -54.41;
 
-			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
-			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+        }
 
-		[TestMethod]
-		public void SectionGenericTest4()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(0, 0),
-				new Point2d(1000, 0),
-				new Point2d(1000, 400),
-				new Point2d(200, 200),
-				new Point2d(0, 400),
-				new Point2d(-50, 50),
-			}));
+        [TestMethod]
+        public void SectionGenericTest4()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(1000, 0),
+                new Point2d(1000, 400),
+                new Point2d(200, 200),
+                new Point2d(0, 400),
+                new Point2d(-50, 50),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-			double x = 515.6;
-			double y = 155.4;
-			double angleDeg = -86.93;
+            double x = 515.6;
+            double y = 155.4;
+            double angleDeg = -86.93;
 
-			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
-			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+        }
 
-		[TestMethod]
-		public void SectionGenericTest5()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(0, 0),
-				new Point2d(1000, 0),
-				new Point2d(1000, 400),
-				new Point2d(200, 200),
-			}));
+        [TestMethod]
+        public void SectionGenericTest5()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(1000, 0),
+                new Point2d(1000, 400),
+                new Point2d(200, 200),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-			double x = 605.1;
-			double y = 148.7;
-			double angleDeg = -81.02;
+            double x = 605.1;
+            double y = 148.7;
+            double angleDeg = -81.02;
 
-			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
-			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+        }
 
-		[TestMethod]
-		public void SectionGenericTest6()
-		{
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(0, 0),
-				new Point2d(1000, 0),
-				new Point2d(1000, 400),
-				new Point2d(200, 200),
-			}));
+        [TestMethod]
+        public void SectionGenericTest6()
+        {
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(0, 0),
+                new Point2d(1000, 0),
+                new Point2d(1000, 400),
+                new Point2d(200, 200),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-			double x = 605.1;
-			double y = 148.7;
-			double angleDeg = -81.02;
+            double x = 605.1;
+            double y = 148.7;
+            double angleDeg = -81.02;
 
-			Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
-			Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
-		}
+            Assert.IsTrue(Math.Abs(section.Centroid.X - x) < 1);
+            Assert.IsTrue(Math.Abs(section.Centroid.Y - y) < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - angleDeg.ToRadians()) < 0.1);
+        }
 
-		#endregion
+        #endregion
 
-		#region Concrete Section
+        #region Concrete Section
 
-		[TestMethod]
+        [TestMethod]
         public void RCRectangularSection1()
         {
             double heigth = 500;
@@ -1812,7 +1912,7 @@ namespace ModelObjectTest
         public void RCGenericSection1()
         {
             // sezion generica a 4 punti
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
                 new Point2d(0, 0),
                 new Point2d(500, 100),
                 new Point2d(400, 300),
@@ -1832,35 +1932,35 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.AngleX1 - (-72.91.ToRadians())) < 0.001);
         }
 
-		[TestMethod]
-		public void RCGenericSection2()
-		{
-			// sezion generica a 4 punti
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
-				new Point2d(0, 0),
-				new Point2d(200, 0),
-				new Point2d(200, 40),
-				new Point2d(60, 40),
-				new Point2d(60, 150),
-				new Point2d(0, 150),
-			}));
+        [TestMethod]
+        public void RCGenericSection2()
+        {
+            // sezion generica a 4 punti
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
+                new Point2d(0, 0),
+                new Point2d(200, 0),
+                new Point2d(200, 40),
+                new Point2d(60, 40),
+                new Point2d(60, 150),
+                new Point2d(0, 150),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
 
-			//valori calcolati con VCASLU
-			Assert.IsTrue(Math.Abs(section.Jxx - 28064132) / section.Jxx * 100 < 1);
-			Assert.IsTrue(Math.Abs(section.Jyy - 46367215) / section.Jyy * 100 < 1);
-			Assert.IsTrue(Math.Abs(section.J11 - 58292446) / section.J11 * 100 < 1);
-			Assert.IsTrue(Math.Abs(section.J22 - 16138901) / section.J22 * 100 < 1);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - (-122.1.ToRadians() + Math.PI)) < 0.001);
-		}
+            //valori calcolati con VCASLU
+            Assert.IsTrue(Math.Abs(section.Jxx - 28064132) / section.Jxx * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.Jyy - 46367215) / section.Jyy * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J11 - 58292446) / section.J11 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.J22 - 16138901) / section.J22 * 100 < 1);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - (-122.1.ToRadians() + Math.PI)) < 0.001);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void RCTSection1()
         {
             // sezion a T tovescia 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
                 new Point2d(0, 0),
                 new Point2d(500, 0),
                 new Point2d(500, 500),
@@ -1888,7 +1988,7 @@ namespace ModelObjectTest
         public void RCTSection2()
         {
             // sezion a T tovescia 
-            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {   
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[] {
                 new Point2d(0, 0),
                 new Point2d(500, 0),
                 new Point2d(500, 400),
@@ -1904,28 +2004,28 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(section.AngleX1) < 0.001, section.AngleX1.ToString());
         }
 
-		[TestMethod]
-		public void RCTSection3()
-		{
-			// sezion a T tovescia 
-			Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
-			{
-				new Point2d(-800, 0),
-				new Point2d(800, 0),
-				new Point2d(800, 550),
-				new Point2d(200, 550),
-				new Point2d(200, 4500),
-				new Point2d(-200, 4500),
-				new Point2d(-200, 550),
-				new Point2d(-800, 550),
-			}));
+        [TestMethod]
+        public void RCTSection3()
+        {
+            // sezion a T tovescia 
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(-800, 0),
+                new Point2d(800, 0),
+                new Point2d(800, 550),
+                new Point2d(200, 550),
+                new Point2d(200, 4500),
+                new Point2d(-200, 4500),
+                new Point2d(-200, 550),
+                new Point2d(-800, 550),
+            }));
 
-			ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
-			ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
-			Assert.IsTrue(Math.Abs(section.AngleX1 - 0) < 0.001, section.AngleX1.ToString());
-		}
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            Assert.IsTrue(Math.Abs(section.AngleX1 - 0) < 0.001, section.AngleX1.ToString());
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void RCCircularSection1()
         {
             double rebarDiameter = 16;
@@ -2051,8 +2151,8 @@ namespace ModelObjectTest
             int numberOfRebars = 12;
             int discretization = 128;
 
-			ConcreteMaterialModelCode2010 material = ConcreteMaterialModelCode2010Data.C28_35;
-			SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
+            ConcreteMaterialModelCode2010 material = ConcreteMaterialModelCode2010Data.C28_35;
+            SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
 
             Polygon2d fill = new Polygon2d(externalDiameter, discretization);
             Polygon2d hole = new Polygon2d(externalDiameter - 2 * thickness, discretization);
