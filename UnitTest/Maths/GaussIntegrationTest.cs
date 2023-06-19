@@ -257,6 +257,7 @@ namespace MathTest
             CommonAssertLineLinear(func, poly, expValue);
         }
 
+			Func<double, double, double> func = (x, y) => constant * y * y;
         [TestMethod]
         public void Line2Test3LSF()
         {
