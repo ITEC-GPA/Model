@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -79,18 +79,18 @@ namespace GPC.Model.Maths.GaussIntegrations
             else
             {
                 int degree = numberOFShapeFunction / vertices.Length;
-                Parallel.For(0, vertices.Length, (i) =>
+                for(int i = 0; i < vertices.Length; i++)
                 {
                     shapeFunctionNode[i] = vertices[i];
-                });
+                };
 
-                Parallel.For(0, numberOFShapeFunction - vertices.Length, (i) =>
+                for(int i = 0; i < numberOFShapeFunction - vertices.Length; i++)
                 {
-                    shapeFunctionNode[vertices.Length + i] = i * (vertices[i] + vertices[i + 1]) / degree;
-                });
+                    shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / (degree + 1);
+                };
             }
 
-            var jacobian = JacobianMatrix1D(dNdCsi, vertices);
+            var jacobian = JacobianMatrix1D(dNdCsi, shapeFunctionNode);
 
             double[] ris = new double[gaussPoints.Length];
 
@@ -805,7 +805,21 @@ namespace GPC.Model.Maths.GaussIntegrations
         {
             double L = 0.5 * (points[1] - points[0]).DistanceTo(Point3d.Origin);
 
-            return Matrix<double>.Build.Dense(2, 2, new[] { L, 0, 0, 1 });
+            // dx/dCsi, dy/dCsi
+            // dy/dEta, dy/dEta
+            //
+            // La matrice monodimensionale potrebbe essere considerata anche solo come il valore di j11
+            // J11      0
+            //  0       1
+
+            double j11 = 0;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                j11 += dNdCsi(i + 1, csi) * points[i].DistanceTo(points[0]);
+            }
+
+            return Matrix<double>.Build.Dense(2, 2, new[] { j11, 0, 0, 1 });
         }
 
         private static Func<double, Matrix<double>> JacobianMatrix1D(Func<int, double, double> dNdCsi, Point3d[] points)
@@ -1029,11 +1043,16 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <returns>Point3d</returns>
         private static (double, double, double) TransformNaturalCoordToGlobalCoord(double csi, Func<int, double, double> shapeFunction, Point3d[] vertices)
         {
-            double valueX = shapeFunction(1, csi) * vertices[0].X + shapeFunction(2, csi) * vertices[1].X;
-            double valueY = shapeFunction(1, csi) * vertices[0].Y + shapeFunction(2, csi) * vertices[1].Y;
+			double valueX = 0;
+			double valueY = 0;
+			for (int i = 0; i < vertices.Length; i++)
+			{
+				valueX += shapeFunction(i + 1, csi) * vertices[i].X;
+				valueY += shapeFunction(i + 1, csi) * vertices[i].Y;
+			}
 
-            return (valueX, valueY, 0);
-        }
+			return (valueX, valueY, 0);
+		}
 
         #endregion
 
