@@ -94,16 +94,6 @@ namespace GPC.Model.Sections.Steel
                 throw new NotImplementedException("Not Implemented type");
         }
 
-        protected override double CalculateJ11()
-        {
-            return base.CalculateJ11() + CalculateAdditionaJxx();
-        }
-
-        protected override double CalculateJ22()
-        {
-            return base.CalculateJ22() + CalculateAdditionaJyy();
-        }
-
         protected override double CalculateJxx()
         {
             return base.CalculateJxx() + CalculateAdditionaJxx();
@@ -112,6 +102,11 @@ namespace GPC.Model.Sections.Steel
         protected override double CalculateJyy()
         {
             return base.CalculateJyy() + CalculateAdditionaJyy();
+        }
+
+        protected override double CalculateJxy()
+        {
+            return 0;
         }
 
         private double CalculateAdditionaJxx()
@@ -156,8 +151,8 @@ namespace GPC.Model.Sections.Steel
 
             for (int i = 0; i < _thinWalls.Length; i++)
             {
-                xSum += _thinWalls[i].Area * _points[i].X;
-                ySum += _thinWalls[i].Area * _points[i].Y;
+                xSum += _thinWalls[i].CalculateSy();
+                ySum += _thinWalls[i].CalculateSx();
                 area += _thinWalls[i].Area;
             }
 

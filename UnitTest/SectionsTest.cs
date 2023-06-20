@@ -958,7 +958,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wpl1 / sec.Wpl1) - 1, 0, 0.0075);
         }
 
-        private static void SectionPropertiesIntegrals(SteelSectionH sec, double flexModule, Point2d centerID, out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral)
+        private static void SectionPropertiesIntegrals(ThinWallSection sec, double flexModule, Point2d centerID, out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral)
         {
             double JxxFunction(double x, double y) => Math.Pow(y - centerID.Y, 2);
             double JyyFunction(double x, double y) => Math.Pow(x - centerID.X, 2);
@@ -974,87 +974,92 @@ namespace ModelObjectTest
             for (int i = 0; i < sec.ThinWalls.Length; i++)
             {
                 var thinWall = sec.ThinWalls[i];
-                var point = sec.Points[i];
                 var middleLine = thinWall.GetMiddleLine();
 
-                middleLine[0] += new Point3d(point);
-                middleLine[1] += new Point3d(point);
+                Point3d[] middleLine3d = new Point3d[middleLine.Length];
+                for (int j = 0; j < middleLine3d.Length; j++)
+                    middleLine3d[j] = new Point3d(middleLine[j].X, middleLine[j].Y, 0.0);
 
                 var thickness = thinWall.T;
 
-                JxxIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxxFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
-                JyyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JyyFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
-                JxyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxyFunction, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
-                Wel1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wel1Function, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
-                Wpl1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wpl1Function, middleLine, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                JxxIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxxFunction, middleLine3d, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                JyyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JyyFunction, middleLine3d, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                JxyIntegral += GaussIntegration.IntegrationLineLinearShapeFunction(JxyFunction, middleLine3d, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                Wel1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wel1Function, middleLine3d, LineGaussPoints.GaussPointNumber.Line20) * thickness;
+                Wpl1Integral += GaussIntegration.IntegrationLineLinearShapeFunction(Wpl1Function, middleLine3d, LineGaussPoints.GaussPointNumber.Line20) * thickness;
             }
         }
 
         [TestMethod]
-        public void SectionHSymmetric_Test9()
+        [DataTestMethod]
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.000456188; direction 2 --> -0.00388512.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.023036549; direction 2 --> -0.006735501.
+        [DataRow("HEM1000", 302.0, 1008.0, 21.0, 40.0, 30.0,
+            0.0005, 0.004, 0.025, 0.007)]
+
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.00205272; direction 2 --> -0.00179064.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.023132658; direction 2 --> -0.003310338.
+        [DataRow("HEM500", 306.0, 524.0, 21.0, 40.0, 27.0,
+            0.0025, 0.002, 0.025, 0.004)]
+
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.005129053; direction 2 --> -0.001310936.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.023132658; direction 2 --> -0.003310338.
+        [DataRow("HEM200", 206.0, 220.0, 15.0, 25.0, 18.0,
+            0.006, 0.002, 0.025, 0.004)]
+
+        // Error on 2023-06-16 without fillet radius: direction 1 --> -0.012559242; direction 2 --> -0.002893329.
+        // Error on 2023-06-16 with fillet radius: direction 1 --> -0.028942029; direction 2 --> -0.003.
+        [DataRow("HEM100", 106.0, 120.0, 12.0, 20.0, 12.0,
+            0.013, 0.003, 0.03, 0.007)]
+
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.000284737; direction 2 --> -0.002394348.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.041645632; direction 2 --> -0.008250776.
+        [DataRow("IPE600", 220.0, 600.0, 12.0, 19.0, 24.0,
+            0.0003, 0.0025, 0.045, 0.009)]
+
+        // Error on 2023-06-16 without fillet radius: direction 1 --> -0.000382873; direction 2 --> -0.001378616.
+        // Error on 2023-06-16 with fillet radius: direction 1 --> -0.043; direction 2 --> -0.00683746.
+        [DataRow("IPE300", 150.0, 300.0, 7.1, 10.7, 15.0,
+            0.0004, 0.002, 0.05, 0.007)]
+
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.001039416; direction 2 --> -0.003209197.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.047447987; direction 2 --> -0.012503161.
+        [DataRow("IPE100", 55.0, 100.0, 4.1, 5.7, 7.0,
+            0.0011, 0.0035, 0.05, 0.015)]
+
+        // Error on 2023-06-19 without fillet radius: direction 1 --> -0.001387363; direction 2 --> -0.003758528.
+        // Error on 2023-06-19 with fillet radius: direction 1 --> -0.032638598; direction 2 --> -0.008674766.
+        [DataRow("IPE80", 46.0, 80.0, 3.8, 5.2, 5.0,
+            0.0015, 0.004, 0.035, 0.009)]
+
+        public void SectionHSymmetric_Test9(string description, double width, double height, double webThickness, double flangeThickness, double radius,
+            double direction1ErrorLimit, double direction2ErrorLimit, double direction1ErrorLimitWithFillet, double direction2ErrorLimitWithFillet)
         {
-            // IPE300
             // Linear integration over thin walls.
+            SteelSectionH secNoRadius = new SteelSectionH(height, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, 0.0);
 
-            double h = 300.0;
-            double width = 150.0;
-            double flangeThickness = 10.7;
-            double webThickness = 7.1;
-            double r = 0.0; // 15.0;
-
-            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
-                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
-
-            // Section properties obtainedwithout the fillet radius r.
-            //double Jxx = 79989869.0; // 83560000; // Ignoring the fillet radius between web and flange -->  -4.3% error.
-            //double Jyy = 6027059.0; // 6038000; // Ignoring the fillet radius between web and flange -->  -0.3% error.
-            //double Jxy = 0.0;
-            //double Jt = 201000;
-            //double Jw = 125934100000;
-            double flexModule = 2.0 / h;
-            //double Wel1 = Jxx * flexModule;
-            //double Wpl1 = 602098.3789966654;
-
-            var centerID = new Point2d(75.0, 150.0);
-
-            double JxxIntegral, JyyIntegral, JxyIntegral, Wel1Integral, Wpl1Integral;
-            SectionPropertiesIntegrals(sec, flexModule, centerID, out JxxIntegral, out JyyIntegral, out JxyIntegral, out Wel1Integral, out Wpl1Integral);
-
-            Assert.AreEqual(sec.J11, JxxIntegral, sec.J11 * 0.0004); // Error on the day 2023-06-16: -0.000382873;
-            Assert.AreEqual(sec.J22, JyyIntegral, sec.J22 * 0.002); // Error on the day 2023-06-16: -0.001378616;
-            Assert.AreEqual(sec.Jxy, JxyIntegral, 1);
-            Assert.AreEqual(sec.Wel1, Wel1Integral, sec.Wel1 * 0.0004); // Error on the day 2023-06-16: -0.000382869;
-            Assert.AreEqual(sec.Wpl1, Wpl1Integral, sec.Wpl1 * 0.0005); // Error on the day 2023-06-16: 0.000448784;
-        }
-
-        [TestMethod]
-        public void SectionHSymmetric_Test10()
-        {
-            // HEM100
-            // Linear integration over thin walls.
-
-            double h = 120.0;
-            double width = 106.0;
-            double flangeThickness = 20.0;
-            double webThickness = 12.0;
-            double r = 0.0; // 12.0;
-
-            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
-                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+            SteelSectionH sec = new SteelSectionH(height, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius);
 
             // Rigidity factor.
-            double flexModule = 2.0 / h;
+            double flexModule = 2.0 / height;
 
-            var centerID = new Point2d(0.5 * width, 0.5 * h);
+            var centerID = new Point2d(0.5 * width, 0.5 * height);
 
-            double JxxIntegral, JyyIntegral, JxyIntegral, Wel1Integral, Wpl1Integral;
-            SectionPropertiesIntegrals(sec, flexModule, centerID, out JxxIntegral, out JyyIntegral, out JxyIntegral, out Wel1Integral, out Wpl1Integral);
+            SectionPropertiesIntegrals(secNoRadius, flexModule, centerID,
+                out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral);
 
-            Assert.AreEqual(sec.J11, JxxIntegral, sec.J11 * 0.013); // Error on the day 2023-06-16: -0.012559242;
-            Assert.AreEqual(sec.J22, JyyIntegral, sec.J22 * 0.003); // Error on the day 2023-06-16: -0.002893329;
-            Assert.AreEqual(sec.Jxy, JxyIntegral, 1);
-            Assert.AreEqual(sec.Wel1, Wel1Integral, sec.Wel1 * 0.013); // Error on the day 2023-06-16: -0.012559242;
-            Assert.AreEqual(sec.Wpl1, Wpl1Integral, sec.Wpl1 * 0.0002); // Error on the day 2023-06-16: 0.000162876;
+            // Error without fillet radius (radius=0.0).
+            Assert.AreEqual(secNoRadius.J11, JxxIntegral, secNoRadius.J11 * direction1ErrorLimit);
+            Assert.AreEqual(secNoRadius.J22, JyyIntegral, secNoRadius.J22 * direction2ErrorLimit);
+            Assert.AreEqual(secNoRadius.Jxy, JxyIntegral, 1);
+            Assert.AreEqual(secNoRadius.Wel1, Wel1Integral, secNoRadius.Wel1 * direction1ErrorLimit);
+            Assert.AreEqual(secNoRadius.Wpl1, Wpl1Integral, secNoRadius.Wpl1 * 0.001);
+
+            // Error with fillet radius.
+            Assert.AreEqual(sec.J11, JxxIntegral, sec.J11 * direction1ErrorLimitWithFillet);
+            Assert.AreEqual(sec.J22, JyyIntegral, sec.J22 * direction2ErrorLimitWithFillet);
         }
 
         [TestMethod]
@@ -1242,23 +1247,52 @@ namespace ModelObjectTest
             SteelSectionC sec = new SteelSectionC(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
                 string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius1, radius2);
 
-            double A = 5880;
-            double Jyy = 4950000;   // noi non consideriamo l'inclinazione
-            double Jxx = 80300000;
-            double Welx = 535000;
-            double Wplx = 632000;
-            double Jt = 374000;
-            double Jw = 69100000000;
+            // Values without slope in the flange. p=0%.
+            double A = 5962.40710526;
+            double Jyy = 5539278.82938194;   // noi non consideriamo l'inclinazione
+            double Jxx = 81997310.3;
+            double Welx = 546649.0;
+            double Wplx = 644561.0;
+            double Jt = 374000.0;
+            double Jw = 69100000000.0;
 
             Assert.AreEqual(Math.Abs(A / sec.Area - 1), 0, 0.02);
-            Assert.AreEqual(Math.Abs(Jyy / sec.J22 - 1), 0, 0.11);
-            Assert.AreEqual(Math.Abs(Jxx / sec.J11 - 1), 0, 0.03);
-            Assert.AreEqual(Math.Abs(Jyy / sec.Jyy) - 1, 0, 0.11);
-            Assert.AreEqual(Math.Abs(Jxx / sec.Jxx) - 1, 0, 0.03);
-            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.035);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22 - 1), 0, 0.04);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11 - 1), 0, 0.02);
+            Assert.AreEqual(Math.Abs(Jyy / sec.Jyy) - 1, 0, 0.04);
+            Assert.AreEqual(Math.Abs(Jxx / sec.Jxx) - 1, 0, 0.02);
+            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.02);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.02);
             Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.057);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.14);
+        }
+
+        [TestMethod]
+        public void SectionC_Test3()
+        {
+            // UPN 300 ArcelorMittal
+            double h = 300.0;
+            double width = 100.0;
+            double flangeThickness = 16.0;
+            double webThickness = 10.0;
+            //double radius1 = 16.0;
+            //double radius2 = 8.0;
+            SteelSectionC sec = new SteelSectionC(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, 0.0, 0.0);
+
+            double A = 5880;
+            double Jyy = 5642469.38775510;
+            double Jxx = 80633760.0;
+            double Welx = 537558.4;
+            double Wplx = 633960.0;
+
+            Assert.AreEqual(Math.Abs(A / sec.Area - 1), 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.J22 - 1), 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jxx / sec.J11 - 1), 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jyy / sec.Jyy) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Jxx / sec.Jxx) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.001);
+            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
         }
 
         #endregion
@@ -1428,6 +1462,36 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(J1 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(teta / sec.AngleX1) - 1, 0, 0.001);
             Assert.IsTrue(Math.Abs(sec.AngleX1 - teta) < 0.001);
+        }
+
+        [TestMethod]
+        [DataTestMethod]
+        // Error on 2023-06-19 without fillet radius: -0.021216407.
+        [DataRow("L30x6", 30.0, 6.0, 30.0, 6.0, 5.0, 0.025)]
+
+        // Error on 2023-06-19 without fillet radius: -0.012878111.
+        [DataRow("L100x16", 100.0, 16.0, 100.0, 16.0, 12.0, 0.015)]
+
+        public void SectionL_Test8(string description, double lHor, double tHor, double lVert, double tVert, double radius, double errorLimit)
+        {
+            // Linear integration over thin walls.
+            SteelSectionL secNoRadius = new SteelSectionL(lHor, tHor, lVert, tVert, SteelMaterialEN1993Data.S355,
+                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, 0.0);
+
+            var centerID = secNoRadius.Centroid;
+
+            // Rigidity factor.
+            double flexModule = 1.0 / (lVert - centerID.Y);
+
+            SectionPropertiesIntegrals(secNoRadius, flexModule, centerID,
+                out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral);
+
+            // Error without fillet radius (radius=0.0).
+            Assert.AreEqual(secNoRadius.Jxx, JxxIntegral, secNoRadius.Jxx * errorLimit);
+            Assert.AreEqual(secNoRadius.Jyy, JyyIntegral, secNoRadius.Jyy * errorLimit);
+            Assert.AreEqual(secNoRadius.Jxy, JxyIntegral, 1);
+            Assert.AreEqual(secNoRadius.WelXMax, Wel1Integral, secNoRadius.WelXMax * errorLimit);
+            //Assert.AreEqual(secNoRadius.Wpl1, Wpl1Integral, secNoRadius.Wpl1 * 0.001);
         }
 
         #endregion

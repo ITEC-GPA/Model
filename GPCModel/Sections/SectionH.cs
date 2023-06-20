@@ -295,14 +295,14 @@ namespace GPC.Model.Sections
 
         private void CalculateSection()
         {
-			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2);
-			ThinWall flangeTop = new ThinWall(LenghtTopFlange, ThicknessTopFlange, 0);
-			ThinWall flangeBottom = new ThinWall(LenghtBottomFlange, ThicknessBottomFlange, 0);
+			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0));
+			ThinWall flangeTop = new ThinWall(LenghtTopFlange, ThicknessTopFlange, 0,
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb + ThicknessTopFlange / 2.0));
+			ThinWall flangeBottom = new ThinWall(LenghtBottomFlange, ThicknessBottomFlange, 0,
+                new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange / 2.0));
 
-			SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom },
-				new Point2d[3] { new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0),
-				new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb + ThicknessTopFlange / 2.0),
-				new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange / 2.0)});
+			SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom });
 
 			SetMechanicalProperties();
 			_mesh = GetMesh();

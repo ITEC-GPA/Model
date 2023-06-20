@@ -80,14 +80,9 @@ namespace GPC.Model.Sections.Steel
             return base.CalculateJyy() + CalculateAdditionaJyy();
         }
 
-        protected override double CalculateJ11()
+        protected override double CalculateJxy()
         {
-            return base.CalculateJ11() + CalculateAdditionaJxx();
-        }
-
-        protected override double CalculateJ22()
-        {
-            return base.CalculateJ22() + CalculateAdditionaJyy();
+            return 0;
         }
 
         private double CalculateAdditionaJxx()

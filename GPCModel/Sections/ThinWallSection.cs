@@ -9,21 +9,23 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// List of rectangular thin wall.
+    /// Useful for approximating thin steel profiles. They do not use fillets between wall elements.
+    /// 2023-06-20: Refactoring, moved points from ThinWallSection to ThinWall. Added version=2 in serialization.
+    /// </summary>
     [Serializable]
     public abstract class ThinWallSection : Section, ISerializable
     {
         #region Variables
 
         protected ThinWall[] _thinWalls;
-        protected Point2d[] _points;
 
         #endregion
 
         #region Properties
 
         internal ThinWall[] ThinWalls => _thinWalls;
-
-        internal Point2d[] Points => _points;
 
         #endregion
 
@@ -42,21 +44,41 @@ namespace GPC.Model.Sections
         protected ThinWallSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _thinWalls = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
-            _points = (Point2d[])info.GetValue("Points", typeof(Point2d[]));
+            int version;
+            try
+            {
+                version = info.GetInt32("ThinWallSectionVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
+            if (version == 1)
+            {
+                var thinWallsWithoutPoint = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
+                var points = (Point2d[])info.GetValue("Points", typeof(Point2d[]));
+
+                if (thinWallsWithoutPoint.Length != points.Length)
+                    throw new ArgumentException("Different lenght between thin walls and points.");
+
+                _thinWalls = new ThinWall[thinWallsWithoutPoint.Length];
+                for (int i = 0; i < thinWallsWithoutPoint.Length; i++)
+                    _thinWalls[i] = new ThinWall(thinWallsWithoutPoint[i].L, thinWallsWithoutPoint[i].T, thinWallsWithoutPoint[i].Angle, points[i]);
+            }
+            else if (version == 2)
+            {
+                _thinWalls = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
+            }
         }
 
         #endregion
 
         #region Protected methods
 
-        protected void SetThinWalls(ThinWall[] thinWalls, Point2d[] points)
+        protected void SetThinWalls(ThinWall[] thinWalls)
         {
             _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
-            _points = points ?? throw new ArgumentNullException(nameof(points));
-
-            if (thinWalls.Length != points.Length)
-                throw new ArgumentException();
         }
 
         #endregion
@@ -69,8 +91,7 @@ namespace GPC.Model.Sections
 
             for (int i = 0; i < _thinWalls.Count(); i++)
             {
-                Polygon2d a = ((Polygon2d)_thinWalls[0].GetPerimeter().Clone());
-                a.Move(_points[0].X, _points[0].Y);
+                Polygon2d a = ((Polygon2d)_thinWalls[i].GetPerimeter().Clone());
                 Point3d[] ps = new Point3d[a.Count];
                 for (int j = 0; j < ps.Length; j++)
                     ps[j] = new Point2d(a[j].X, a[j].Y);
@@ -103,12 +124,12 @@ namespace GPC.Model.Sections
 
             for (int i = 0; i < _thinWalls.Length; i++)
             {
-                xSum += _thinWalls[i].Area * _points[i].X;
-                ySum += _thinWalls[i].Area * _points[i].Y;
+                xSum += _thinWalls[i].CalculateSy();
+                ySum += _thinWalls[i].CalculateSx();
                 area += _thinWalls[i].Area;
             }
 
-            return new Point2d((xSum / area), (ySum / area));
+            return new Point2d(xSum / area, ySum / area);
         }
 
         protected override double CalculateJt()
@@ -127,31 +148,15 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected override double CalculateJ11()
-        {
-            double j = 0;
-
-            for (int i = 0; i < _thinWalls.Length; i++)
-                j += _thinWalls[i].CalculateJx(Centroid.Y - _points[i].Y);
-
-            return j;
-        }
+        protected override double CalculateJ11() => SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
 
         /// <summary>
         /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected override double CalculateJ22()
-        {
-            double j = 0;
+        protected override double CalculateJ22() => SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
 
-            for (int i = 0; i < _thinWalls.Length; i++)
-                j += _thinWalls[i].CalculateJy(Centroid.X - _points[i].X);
-
-            return j;
-        }
-
-        protected override double CalculateArea()
+        private double CalculateAreaThinWallSection()
         {
             double area = 0;
 
@@ -161,32 +166,47 @@ namespace GPC.Model.Sections
             return area;
         }
 
-        protected override double CalculateJxx()
+        protected override double CalculateArea()
+        {
+            return CalculateAreaThinWallSection();
+        }
+
+        private double CalculateJxxThinWall()
         {
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)
-                j += _thinWalls[i].CalculateJx(Centroid.Y - _points[i].Y);
+                j += _thinWalls[i].CalculateJx();
+
+            j -= CalculateAreaThinWallSection() * _centroid.Y * _centroid.Y;
 
             return j;
         }
 
-        protected override double CalculateJyy()
+        protected override double CalculateJxx() => CalculateJxxThinWall();
+
+        private double CalculateJyyThinWall()
         {
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)
-                j += _thinWalls[i].CalculateJy(Centroid.X - _points[i].X);
+                j += _thinWalls[i].CalculateJy();
+
+            j -= CalculateAreaThinWallSection() * _centroid.X * _centroid.X;
 
             return j;
         }
+
+        protected override double CalculateJyy() => CalculateJyyThinWall();
 
         protected override double CalculateJxy()
         {
             double j = 0;
 
             for (int i = 0; i < _thinWalls.Length; i++)
-                j += _thinWalls[i].CalculateJxy(Centroid.X - _points[i].X, Centroid.Y - _points[i].Y);
+                j += _thinWalls[i].CalculateJxy();
+
+            j -= CalculateAreaThinWallSection() * _centroid.X * _centroid.Y;
 
             return j;
         }
@@ -211,7 +231,7 @@ namespace GPC.Model.Sections
             {
                 List<Point2d> _pointBuffer = _thinWalls[i].GetPerimeter().Select(j => j).ToList();
 
-                points.AddRange(_pointBuffer.Select(k => k.CloneAndMove(new Vector2d(_points[i].X, _points[i].Y))));
+                points.AddRange(_pointBuffer.Select(k => (Point2d)k.Clone()));
             }
 
             return points.ToArray();
@@ -226,8 +246,7 @@ namespace GPC.Model.Sections
 
             return obj is ThinWallSection section &&
                    base.Equals(obj) &&
-                   _thinWalls.SequenceEqual(section._thinWalls) &&
-                   _points.SequenceEqual(section._points);
+                   _thinWalls.SequenceEqual(section._thinWalls);
         }
 
         public override int GetHashCode()
@@ -237,7 +256,6 @@ namespace GPC.Model.Sections
                 int hashCode = 17;
                 hashCode = hashCode * -23 + base.GetHashCode();
                 hashCode = hashCode * -23 + _thinWalls.GetHashCodeSequence();
-                hashCode = hashCode * -23 + _points.GetHashCodeSequence();
                 return hashCode;
             }
         }
@@ -255,8 +273,9 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("ThinWalls", _thinWalls);
-            info.AddValue("Points", _points);
+            int version = 2;
+            info.AddValue("ThinWallSectionVersion", version);
+            info.AddValue("ThinWalls", _thinWalls, typeof(ThinWall[]));
         }
 
         #endregion
@@ -271,6 +290,7 @@ namespace GPC.Model.Sections
             private readonly double _t;
             private readonly double _l;
             private readonly double _angle;
+            private readonly Point2d _point;
 
             #endregion
 
@@ -292,6 +312,11 @@ namespace GPC.Model.Sections
             internal double Angle => _angle;
 
             /// <summary>
+            /// The position of the thin wall, the center of gravity point.
+            /// </summary>
+            internal Point2d Point => _point;
+
+            /// <summary>
             /// The area og the thin wal
             /// </summary>
             public double Area => CalculateArea();
@@ -301,17 +326,30 @@ namespace GPC.Model.Sections
             #region Protected constructor
 
             /// <summary>
+            /// Older version of the constructor, kept for compatibility.
+            /// </summary>
+            /// <param name="length"></param>
+            /// <param name="thickness"></param>
+            /// <param name="angle"></param>
+            internal ThinWall(double length, double thickness, double angle)
+                : this(length, thickness, angle, Point2d.Origin)
+            {
+            }
+
+            /// <summary>
             /// The default constructor of generic ThinWall
             /// </summary>
             /// <param name="length">The length of the ThinWall</param>
             /// <param name="thickness">The _thickness of the ThinWall</param>
             /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
-            internal ThinWall(double length, double thickness, double angle)
+            /// <param name="point">Position, barycenter/centroid of rectangular.</param>
+            internal ThinWall(double length, double thickness, double angle, Point2d point)
                 : base()
             {
                 _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
                 _l = length < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : length;
                 _angle = angle;
+                _point = point ?? throw new ArgumentException($"Position cannot be null.");
             }
 
             protected ThinWall(SerializationInfo info, StreamingContext context)
@@ -319,6 +357,14 @@ namespace GPC.Model.Sections
                 _t = info.GetDouble("T");
                 _l = info.GetDouble("L");
                 _angle = info.GetDouble("Angle");
+                try
+                {
+                    _point = (Point2d)info.GetValue("Point", typeof(Point2d));
+                }
+                catch (Exception)
+                {
+                    _point = Point2d.Origin;
+                }
             }
 
             #endregion
@@ -340,20 +386,23 @@ namespace GPC.Model.Sections
                 var lHalf = _l / 2.0;
                 var tHalf = _t / 2.0;
 
-                return new Polygon2d(new Point2d[] {
+                var poly = new Polygon2d(new Point2d[] {
                     new Point2d(lHalf * cosAngle + tHalf * sinAngle, lHalf * sinAngle + tHalf * cosAngle),
                     new Point2d(lHalf * cosAngle - tHalf * sinAngle, lHalf * sinAngle - tHalf * cosAngle),
                     new Point2d(- lHalf * cosAngle + tHalf * sinAngle, - lHalf * sinAngle + tHalf * cosAngle),
                     new Point2d(- lHalf * cosAngle - tHalf * sinAngle, - lHalf * sinAngle - tHalf * cosAngle)
                     });
+                poly.Move(_point.X, _point.Y);
+                return poly;
             }
 
-            internal Point3d[] GetMiddleLine()
+            internal Point2d[] GetMiddleLine()
             {
                 var sinAngle = Math.Sin(_angle);
                 var cosAngle = Math.Cos(_angle);
                 var lHalf = _l / 2.0;
-                return new Point3d[] { new Point3d(-lHalf * cosAngle, -lHalf * sinAngle, 0.0), new Point3d(lHalf * cosAngle, lHalf * sinAngle, 0.0) };
+                return new Point2d[] {  _point + new Point2d(-lHalf * cosAngle, -lHalf * sinAngle),
+                                        _point + new Point2d(lHalf * cosAngle, lHalf * sinAngle) };
             }
 
             /// <summary>
@@ -366,90 +415,73 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the <paramref name="point"/>
+            /// Moment of inertia with respect to the X and Y axes.
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJx(Point2d point)
+            internal double CalculateJxy()
             {
-                return CalculateJx() + CalculateArea() * Math.Pow((point.Y), 2);
+                double Jxx = _t * Math.Pow(_l, 3) / 12.0;
+                double Jyy = _l * Math.Pow(_t, 3) / 12.0;
+                double Jxy = 0.0;
+
+                return SectionHelper.CalculateJxyAlpha(Jxx, Jyy, Jxy, _angle) + _point.X * _point.Y * Area;
             }
 
             /// <summary>
-            /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the <paramref name="point"/>
+            /// Moment of inertia with respect to the Y-axis.
             /// </summary>
             /// <returns></returns>
-            internal double CalculateJy(Point2d point)
-            {
-                return CalculateJy() + CalculateArea() * Math.Pow((point.X), 2);
-            }
-
-            internal double CalculateJx(double distance)
-            {
-                return CalculateJx() + CalculateArea() * Math.Pow(distance, 2);
-            }
-
-            internal double CalculateJy(double distance)
-            {
-                return CalculateJy() + CalculateArea() * Math.Pow(distance, 2);
-            }
-
-            internal double CalculateJxy()
-            {
-                double Jx = _t * Math.Pow(_l, 3) / 12.0;
-                double Jy = _l * Math.Pow(_t, 3) / 12.0;
-
-                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle);
-            }
-
-            internal double CalculateJxy(Point2d point)
-            {
-                double Jx = _t * Math.Pow(_l, 3) / 12.0;
-                double Jy = _l * Math.Pow(_t, 3) / 12.0;
-
-                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle) + point.X * point.Y * Area;
-            }
-
-            internal double CalculateJxy(double distanceX, double distanceY)
-            {
-                double Jx = _t * Math.Pow(_l, 3) / 12.0;
-                double Jy = _l * Math.Pow(_t, 3) / 12.0;
-
-                return (Jx - Jy) / 2.0 * Math.Sin(2.0 * _angle) + distanceX * distanceY * Area;
-            }
-
             internal double CalculateJy()
             {
+                double momentTranslation = Area * _point.X * _point.X;
                 if (Math.Abs(_angle) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(_angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
-                    return _t * Math.Pow(_l, 3) / 12.0;
+                    return momentTranslation + _t * Math.Pow(_l, 3) / 12.0;
 
                 else if (Math.Abs(_angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
-                    return _l * Math.Pow(_t, 3) / 12.0;
+                    return momentTranslation + _l * Math.Pow(_t, 3) / 12.0;
 
                 else
                 {
                     double Jx = _t * Math.Pow(_l, 3) / 12.0;
                     double Jy = _l * Math.Pow(_t, 3) / 12.0;
 
-                    return (Jx + Jy) / 2.0 - (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                    return momentTranslation + (Jx + Jy) / 2.0 - (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
                 }
             }
 
+            /// <summary>
+            /// Moment of inertia with respect to the X-axis.
+            /// </summary>
+            /// <returns></returns>
             internal double CalculateJx()
             {
+                double momentTranslation = Area * _point.Y * _point.Y;
                 if (Math.Abs(_angle) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(_angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance())
-                    return _l * Math.Pow(_t, 3) / 12.0;
+                    return momentTranslation + _l * Math.Pow(_t, 3) / 12.0;
 
                 else if (Math.Abs(_angle - Math.PI / 2) < GeometryBase.GetDefaultAngularTolerance())
-                    return _t * Math.Pow(_l, 3) / 12.0;
+                    return momentTranslation + _t * Math.Pow(_l, 3) / 12.0;
 
                 else
                 {
                     double Jx = _t * Math.Pow(_l, 3) / 12.0;
                     double Jy = _l * Math.Pow(_t, 3) / 12.0;
 
-                    return (Jx + Jy) / 2.0 + (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                    return momentTranslation + (Jx + Jy) / 2.0 + (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
                 }
             }
+
+            /// <summary>
+            /// Static moment with respect to X-axis.
+            /// </summary>
+            /// <returns></returns>
+            internal double CalculateSx() => Area * _point.Y;
+
+            /// <summary>
+            /// Static moment with respect to Y-axis.
+            /// </summary>
+            /// <returns></returns>
+            internal double CalculateSy() => Area * _point.X;
 
             internal virtual double CalculateJt()
             {
@@ -480,7 +512,8 @@ namespace GPC.Model.Sections
                 return obj is ThinWall wall &&
                        _t == wall._t &&
                        _l == wall._l &&
-                       _angle == wall._angle;
+                       _angle == wall._angle &&
+                       _point == wall._point;
             }
 
             public override int GetHashCode()
@@ -491,6 +524,7 @@ namespace GPC.Model.Sections
                     hashCode = hashCode * -17 + _t.GetHashCode();
                     hashCode = hashCode * -17 + _l.GetHashCode();
                     hashCode = hashCode * -17 + _angle.GetHashCode();
+                    hashCode = hashCode * -17 + _point.GetHashCode();
                     return hashCode;
                 }
             }
@@ -500,6 +534,7 @@ namespace GPC.Model.Sections
                 info.AddValue("T", _t);
                 info.AddValue("L", _l);
                 info.AddValue("Angle", _angle);
+                info.AddValue("Point", _point);
             }
 
             #endregion

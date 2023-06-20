@@ -82,6 +82,36 @@ namespace GPC.Model.Sections
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
 
+        /// <summary>
+        /// Calculate moment of inertia in alpha direction, counterclockwise rotation, zero for positive X axis.
+        /// </summary>
+        /// <param name="Jxx"></param>
+        /// <param name="Jyy"></param>
+        /// <param name="Jxy"></param>
+        /// <param name="alpha"></param>
+        /// <returns></returns>
+        internal static double CalculateJAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
+        {
+            double cosAlpha = Math.Cos(alpha);
+            double sinAlpha = Math.Sin(alpha);
+            return Jxx * cosAlpha * cosAlpha + Jyy * sinAlpha * sinAlpha - 2.0 * Jxy * sinAlpha * cosAlpha;
+        }
+
+        /// <summary>
+        /// Calculate product of inertia in alpha direction, counterclockwise rotation, zero for positive X axis.
+        /// </summary>
+        /// <param name="Jxx"></param>
+        /// <param name="Jyy"></param>
+        /// <param name="Jxy"></param>
+        /// <param name="alpha"></param>
+        /// <returns></returns>
+        internal static double CalculateJxyAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
+        {
+            double cosAlpha = Math.Cos(alpha);
+            double sinAlpha = Math.Sin(alpha);
+            return (Jxx - Jyy) * sinAlpha * cosAlpha + Jxy * (cosAlpha * cosAlpha - sinAlpha * sinAlpha);
+        }
+
         internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point2d centroid, out double jxx, out double jyy, out double jxy)
         {
             Point3d[] points = mesh.GetFacePoints(face);

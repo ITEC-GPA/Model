@@ -267,12 +267,12 @@ namespace GPC.Model.Sections
 
 		private void CalculateSection()
 		{
-			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2);
-			ThinWall flange = new ThinWall(LenghtFlange, ThicknessFlange, 0);
+			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
+				new Point2d(LenghtFlange / 2, HeightWeb / 2));
+			ThinWall flange = new ThinWall(LenghtFlange, ThicknessFlange, 0,
+				new Point2d(LenghtFlange / 2, HeightWeb + ThicknessFlange / 2));
 
-			SetThinWalls(new ThinWall[] { web, flange },
-					new Point2d[] { new Point2d(LenghtFlange / 2, HeightWeb / 2) ,
-					new Point2d(LenghtFlange / 2, HeightWeb + ThicknessFlange / 2)});
+			SetThinWalls(new ThinWall[] { web, flange });
 
 			SetMechanicalProperties();
 			_mesh = GetMesh();

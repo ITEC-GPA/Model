@@ -94,12 +94,12 @@ namespace GPC.Model.Sections
             _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
             _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate _thickness cannot be lower than zero") : verticalLegThickness;
 
-            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
-            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
+            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
+                new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2));
+            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2,
+                new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2));
 
-            SetThinWalls(new ThinWall[] { thinWall1, thinWall2 },
-                    new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
-                    new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)});
+            SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
             SetMechanicalProperties();
             _mesh = GetMesh();
@@ -310,19 +310,19 @@ namespace GPC.Model.Sections
 
         protected override Point2d CalculateCentroid()
         {
-            double xc = ((_points[0].X * _thinWalls[0].Area) + (_points[1].X * _thinWalls[1].Area)) / Area;
-            double yc = ((_points[0].Y * _thinWalls[0].Area) + (_points[1].Y * _thinWalls[1].Area)) / Area;
+            double xc = (_thinWalls[0].CalculateSy() + _thinWalls[1].CalculateSy()) / Area;
+            double yc = (_thinWalls[0].CalculateSx() + _thinWalls[1].CalculateSx()) / Area;
             return new Point2d(xc, yc);
         }
 
         private void CalculateSection()
         {
-			ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0);
-			ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2);
+			ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
+                new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2));
+			ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2,
+                new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2));
 
-			SetThinWalls(new ThinWall[] { thinWall1, thinWall2 },
-					new Point2d[] { new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2),
-					new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2)});
+			SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
 			SetMechanicalProperties();
 			_mesh = GetMesh();
