@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
 	[Serializable]
-	public class SectionCHS : Section, ISection, ISerializable
+	public class SectionCHS : ThinWallSection, ISection, ISerializable
 	{
 		#region Variables
 
@@ -29,8 +29,7 @@ namespace GPC.Model.Sections
 				if (_externalDiameter != value)
 				{
 					_externalDiameter = value;
-					SetMechanicalProperties();
-					_mesh = GetMesh();
+                    CalculateSection();
 				}
 			}
 		}
@@ -46,8 +45,7 @@ namespace GPC.Model.Sections
 				if (_thickness != value)
 				{
 					_thickness = value;
-					SetMechanicalProperties();
-					_mesh = GetMesh();
+                    CalculateSection();
 				}
 			}
 		}
@@ -70,8 +68,7 @@ namespace GPC.Model.Sections
 			_externalDiameter = externalDiameter < 0 ? throw new ArgumentException($"Diameter cannot be lower than zero") : externalDiameter;
 			_thickness = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
 
-			SetMechanicalProperties();
-			_mesh = GetMesh();
+            CalculateSection();
 		}
 
 		public SectionCHS(SectionCHS section)
@@ -222,13 +219,45 @@ namespace GPC.Model.Sections
 
 			info.AddValue("D", _externalDiameter);
 			info.AddValue("T", _thickness);
-		}
+        }
 
-		public override string ToString()
-		{
-			return $"CHS {_externalDiameter}x{_thickness}";
-		}
+        public override string ToString()
+        {
+            return $"CHS {_externalDiameter}x{_thickness}";
+        }
 
-		#endregion
-	}
+        protected override Point2d CalculateShearCenter() => _shearCenter;
+
+		protected override double CalculateWpl1() => _wpl1;
+
+		protected override double CalculateWpl2() => _wpl1;
+
+        protected override double CalculateWel1Max() => _wel1Max;
+
+        protected override double CalculateWel1Min() => _wel1Max;
+
+        protected override double CalculateWel2Max() => _wel1Max;
+
+        protected override double CalculateWel2Min() => _wel1Max;
+
+        private void CalculateSection(int numberOfEdges = 32)
+        {
+			var poly = new Polygon2d(_externalDiameter - 0.5 * _thickness, numberOfEdges);
+			var lines = poly.Explode();
+
+			var thinWalls = new ThinWall[lines.Length];
+			for (int i = 0; i < lines.Length; i++)
+			{
+				var line = lines[i];
+				thinWalls[i] = new ThinWall(line.Length, _thickness, Math.Atan2(line.End.Y - line.Start.Y, line.End.X - line.Start.X), line.Mid);
+            }
+
+            SetThinWalls(thinWalls);
+
+            SetMechanicalProperties();
+            _mesh = GetMesh();
+        }
+
+        #endregion
+    }
 }

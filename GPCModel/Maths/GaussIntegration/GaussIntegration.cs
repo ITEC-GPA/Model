@@ -19,7 +19,6 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
-        /// TODO: It does not work with numberOFShapeFunction=3, with quadratic form functions.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
@@ -119,7 +118,6 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
-        /// TODO: It does not work with quadratic form functions.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
