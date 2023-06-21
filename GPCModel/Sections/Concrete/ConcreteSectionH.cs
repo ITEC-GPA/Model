@@ -12,7 +12,7 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Concrete
 {
-	public class ConcreteSectionH : SectionH, IConcreteSection
+	public class ConcreteSectionH : SectionH, IConcreteSection, ISerializable
     {
         #region Variables
 

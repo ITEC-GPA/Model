@@ -7,6 +7,8 @@ using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Elements;
 using GPC.Model.Materials;
+using GPC.Model.Sections.Bolt;
+using GPC.Model.Sections.Steel;
 using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections.Concrete
@@ -18,6 +20,7 @@ namespace GPC.Model.Sections.Concrete
 
 		protected readonly ShapeEx _shapeEx;
         protected readonly RebarCollection _rebars;
+        protected readonly List<SteelSectionPosition> _steelSections;
 
 		#endregion
 
@@ -47,6 +50,7 @@ namespace GPC.Model.Sections.Concrete
 
             _shapeEx = reinforcedConcreteSection.ShapeEx;
             _rebars = new RebarCollection();
+            _steelSections = new List<SteelSectionPosition>();
 
             SetMechanicalProperties();
         }
@@ -56,6 +60,7 @@ namespace GPC.Model.Sections.Concrete
         {
             _shapeEx = shapeEx ?? throw new ArgumentNullException(nameof(shapeEx));
             _rebars = new RebarCollection();
+            _steelSections = new List<SteelSectionPosition>();
 
             SetMechanicalProperties();
         }
@@ -75,6 +80,20 @@ namespace GPC.Model.Sections.Concrete
 
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
+            if (version > 2)
+            {
+                int steelSectionsCount = info.GetInt32("SteelSectionsCount");
+                if (steelSectionsCount > 0)
+                {
+                    _steelSections = new List<SteelSectionPosition>();
+                    for (int i = 0; i < steelSectionsCount; i++)
+                        _steelSections.Add((SteelSectionPosition)info.GetValue($"SteelSectionPosition{i}", typeof(SteelSectionPosition)));
+                }
+            }
+            else
+            {
+                _steelSections = new List<SteelSectionPosition>();
+            }
         }
 
         #endregion
@@ -255,7 +274,7 @@ namespace GPC.Model.Sections.Concrete
         public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
             return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial, 
-                Area, out SxHomog, out SyHomog);
+                Area, out SxHomog, out SyHomog, _steelSections);
         }
 
         /// <summary>
@@ -264,7 +283,7 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The homogenized area</returns>
         public double GetHomogenizedArea()
         {
-            return ConcreteSectionHelper.GetHomogenizedArea(_rebars.ToArray(), ConcreteMaterial, Area);
+            return ConcreteSectionHelper.GetHomogenizedArea(_rebars.ToArray(), ConcreteMaterial, Area, _steelSections);
         }
 
         public double GetHomogeneizedJ11()
@@ -330,7 +349,7 @@ namespace GPC.Model.Sections.Concrete
         public Point2d GetHomogenizedCentroid(double phi, out double SxHomog, out double SyHomog)
         {
             return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Mesh, _rebars.ToArray(), ConcreteMaterial,
-                Area, out SxHomog, out SyHomog);
+                Area, out SxHomog, out SyHomog, _steelSections);
         }
 
         /// <summary>
@@ -421,6 +440,11 @@ namespace GPC.Model.Sections.Concrete
         public virtual double CalculateN(ReinforcedConcreteRebar rebar)
         {
             return ConcreteSectionHelper.CalculateN(rebar, ConcreteMaterial);
+        }
+
+        public virtual double CalculateN(SteelSectionPosition steelSection)
+        {
+            return ConcreteSectionHelper.CalculateN(steelSection, ConcreteMaterial);
         }
 
         /// <returns>0 if <paramref name="rebarId"/> not found</returns>
@@ -615,11 +639,16 @@ namespace GPC.Model.Sections.Concrete
         {
             base.GetObjectData(info, context);
 
-            double version = 2;
+            double version = 3;
             info.AddValue("ReinforcedConcreteSectionVersion", version);
 
             info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
             info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
+
+            info.AddValue("SteelSectionsCount", _steelSections != null ? _steelSections.Count : 0);
+            if (_steelSections != null)
+                for (int i = 0; i < _steelSections.Count; i++)
+                    info.AddValue($"SteelSectionPosition{i}", _steelSections[i], typeof(SteelSectionPosition));
         }
 
         public override bool Equals(object obj)
@@ -627,7 +656,8 @@ namespace GPC.Model.Sections.Concrete
             return obj is ReinforcedConcreteSection section &&
                    base.Equals(obj) &&
                    _shapeEx.Equals(section._shapeEx) &&
-                   _rebars.ScrambledEquals(section._rebars);
+                   _rebars.ScrambledEquals(section._rebars) &&
+                   _steelSections.SequenceEqual(section._steelSections);
         }
 
         public override int GetHashCode()
@@ -638,6 +668,7 @@ namespace GPC.Model.Sections.Concrete
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _shapeEx.GetHashCode();
                 hashCode = hashCode * -17 + _rebars.GetHashCodeScrambled();
+                hashCode = hashCode * -17 + _steelSections.GetHashCode();
                 return hashCode;
             }
         }

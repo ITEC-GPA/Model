@@ -11,7 +11,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRectangular : Section, ISection, ISerializable
+    public class SectionRectangular : ThinWallSection, ISection, ISerializable
     {
         #region Variables
 
@@ -34,10 +34,8 @@ namespace GPC.Model.Sections
 				if (_height != value)
 				{
 					_height = value;
-					SetMechanicalProperties();
-					_mesh = new Mesh();
-					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
-				}
+                    CalculateSection();
+                }
 			}
 		}
 
@@ -52,10 +50,8 @@ namespace GPC.Model.Sections
 				if (_width != value)
 				{
 					_width = value;
-					SetMechanicalProperties();
-					_mesh = new Mesh();
-					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
-				}
+                    CalculateSection();
+                }
 			}
 		}
 
@@ -67,10 +63,8 @@ namespace GPC.Model.Sections
 				if (_angle != value)
 				{
 					_angle = value;
-					SetMechanicalProperties();
-					_mesh = new Mesh();
-					_mesh.AddFaceMesh(GetShape().Fill.ToArray());
-				}
+                    CalculateSection();
+                }
 			}
 		}
 
@@ -90,14 +84,11 @@ namespace GPC.Model.Sections
         public SectionRectangular(double height, double width, double angle, Material material, string name = "")
             : base(material, name)
         {
-            _height = height;
-            _width = width;
+            _height = height <= 0 ? throw new ArgumentException($"Height cannot be lower than zero") : height;
+            _width = width <= 0 ? throw new ArgumentException($"Width cannot be lower than zero") : width;
             _angle = angle;
 
-            SetMechanicalProperties();
-
-            _mesh = new Mesh();
-            _mesh.AddFaceMesh(GetShape().Fill.ToArray());
+            CalculateSection();
         }
 
         /// <summary>
@@ -147,34 +138,6 @@ namespace GPC.Model.Sections
             return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
         }
 
-        protected override void SetMechanicalProperties()
-        {
-            _area = CalculateArea();
-            _j11 = CalculateJxx();
-            _j22 = CalculateJyy();
-            _jxx = _j11;
-            _jyy = _j22;
-            _jxy = CalculateJxy();
-
-            _jp = _jxx + _jyy;
-
-            _jt = CalculateJt();
-            _jw = CalculateJw();
-
-            _centroid = CalculateCentroid();
-            _shearCenter = CalculateShearCenter();
-            _angleX1 = CalculateAngle();
-            _wel1Max = CalculateWel1Min();
-            _wel1Min = CalculateWel1Max();
-            _wel2Max = CalculateWel2Max();
-            _wel2Min = CalculateWel2Min();
-            _wpl1 = CalculateWpl1();
-            _wpl2 = CalculateWpl2();
-
-            _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
-            _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
-        }
-
         protected override double CalculateArea()
         {
             return Width * Height;
@@ -188,48 +151,6 @@ namespace GPC.Model.Sections
         protected override Point2d CalculateShearCenter()
         {
             return CalculateCentroid();
-        }
-
-        /// <summary>
-        /// Calculate the first moment of inertia of the wall respect the X-axis passing throw the centroid
-        /// </summary>
-        protected override double CalculateJxx()
-        {
-            if (_angleX1 == 0)
-                return _width * Math.Pow(_height, 3) / 12.0;
-
-            else
-            {
-                double J1 = _width * Math.Pow(_height, 3) / 12.0;
-                double J2 = _height * Math.Pow(_width, 3) / 12.0;
-
-                return (J1 + J2) / 2.0 + (J1 - J2) / 2.0 * Math.Cos(2.0 * _angleX1);
-            }
-        }
-
-        /// <summary>
-        /// Calculate the first moment of inertia of the wall respect the Y-axis passing throw the centroid
-        /// </summary>
-        protected override double CalculateJyy()
-        {
-            if (_angleX1 == 0)
-                return _height * Math.Pow(_width, 3) / 12.0;
-
-            else
-            {
-                double J1 = _width * Math.Pow(_height, 3) / 12.0;
-                double J2 = _height * Math.Pow(_width, 3) / 12.0;
-
-                return (J1 + J2) / 2.0 - (J1 - J2) / 2.0 * Math.Cos(2.0 * _angleX1);
-            }
-        }
-
-        protected override double CalculateJxy()
-        {
-            double J1 = _width * Math.Pow(_height, 3) / 12.0;
-            double J2 = _height * Math.Pow(_width, 3) / 12.0;
-
-            return (J1 - J2) / 2.0 * Math.Sin(2.0 * _angleX1);
         }
 
         protected override double CalculateJt()
@@ -303,6 +224,16 @@ namespace GPC.Model.Sections
                 return true;
             }
             return false;
+        }
+
+        private void CalculateSection()
+        {
+            ThinWall thin = new ThinWall(_width, _height, _angle, new Point2d(_width / 2.0, _height / 2.0));
+
+            SetThinWalls(new ThinWall[] { thin });
+
+            SetMechanicalProperties();
+            _mesh = GetMesh();
         }
 
         #endregion

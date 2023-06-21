@@ -12,8 +12,8 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Sections.Concrete
 {
-	public class ConcreteSectionRHS : SectionRHS, IConcreteSection
-	{
+	public class ConcreteSectionRHS : SectionRHS, IConcreteSection, ISerializable
+    {
         #region Variables
 
         protected readonly UniqueIdCollection<ReinforcedConcreteRebar> _rebars;

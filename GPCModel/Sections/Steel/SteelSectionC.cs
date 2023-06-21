@@ -7,7 +7,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections.Steel
 {
     [Serializable]
-    public class SteelSectionC : SectionC, ISteelSection
+    public class SteelSectionC : SectionC, ISteelSection, ISerializable
     {
         #region Variables
 

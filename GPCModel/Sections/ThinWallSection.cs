@@ -307,7 +307,8 @@ namespace GPC.Model.Sections
             internal double L => _l;
 
             /// <summary>
-            /// The angle of rotation of the principal axis. Angle = 0 is the Y-axis, 90° is the Z-axis
+            /// The angle of rotation of the principal axis. Angle = 0 is the X-axis, PI.GRECO/2 is the y-axis
+            /// Angle in radians, counterclockwise, is zero for the x-positive direction.
             /// </summary>
             internal double Angle => _angle;
 
@@ -387,10 +388,10 @@ namespace GPC.Model.Sections
                 var tHalf = _t / 2.0;
 
                 var poly = new Polygon2d(new Point2d[] {
-                    new Point2d(lHalf * cosAngle + tHalf * sinAngle, lHalf * sinAngle + tHalf * cosAngle),
+                    new Point2d(- lHalf * cosAngle - tHalf * sinAngle, - lHalf * sinAngle - tHalf * cosAngle),
                     new Point2d(lHalf * cosAngle - tHalf * sinAngle, lHalf * sinAngle - tHalf * cosAngle),
-                    new Point2d(- lHalf * cosAngle + tHalf * sinAngle, - lHalf * sinAngle + tHalf * cosAngle),
-                    new Point2d(- lHalf * cosAngle - tHalf * sinAngle, - lHalf * sinAngle - tHalf * cosAngle)
+                    new Point2d(lHalf * cosAngle + tHalf * sinAngle, lHalf * sinAngle + tHalf * cosAngle),
+                    new Point2d(- lHalf * cosAngle + tHalf * sinAngle, - lHalf * sinAngle + tHalf * cosAngle)
                     });
                 poly.Move(_point.X, _point.Y);
                 return poly;
@@ -420,11 +421,11 @@ namespace GPC.Model.Sections
             /// <returns></returns>
             internal double CalculateJxy()
             {
-                double Jxx = _t * Math.Pow(_l, 3) / 12.0;
-                double Jyy = _l * Math.Pow(_t, 3) / 12.0;
+                double Jxx = _l * Math.Pow(_t, 3) / 12.0;
+                double Jyy = _t * Math.Pow(_l, 3) / 12.0;
                 double Jxy = 0.0;
 
-                return SectionHelper.CalculateJxyAlpha(Jxx, Jyy, Jxy, _angle) + _point.X * _point.Y * Area;
+                return SectionHelper.CalculateJxyAlpha(Jxx, Jyy, Jxy, -_angle) + _point.X * _point.Y * Area;
             }
 
             /// <summary>
@@ -442,10 +443,10 @@ namespace GPC.Model.Sections
 
                 else
                 {
-                    double Jx = _t * Math.Pow(_l, 3) / 12.0;
-                    double Jy = _l * Math.Pow(_t, 3) / 12.0;
-
-                    return momentTranslation + (Jx + Jy) / 2.0 - (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                    double Jxx = _l * Math.Pow(_t, 3) / 12.0;
+                    double Jyy = _t * Math.Pow(_l, 3) / 12.0;
+                    double Jxy = 0.0;
+                    return momentTranslation + SectionHelper.CalculateJAlpha(Jxx, Jyy, Jxy, -_angle + 0.5 * Math.PI);
                 }
             }
 
@@ -464,10 +465,10 @@ namespace GPC.Model.Sections
 
                 else
                 {
-                    double Jx = _t * Math.Pow(_l, 3) / 12.0;
-                    double Jy = _l * Math.Pow(_t, 3) / 12.0;
-
-                    return momentTranslation + (Jx + Jy) / 2.0 + (Jx - Jy) / 2.0 * Math.Cos(2.0 * _angle);
+                    double Jxx = _l * Math.Pow(_t, 3) / 12.0;
+                    double Jyy = _t * Math.Pow(_l, 3) / 12.0;
+                    double Jxy = 0.0;
+                    return momentTranslation + SectionHelper.CalculateJAlpha(Jxx, Jyy, Jxy, -_angle);
                 }
             }
 

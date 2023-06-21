@@ -293,6 +293,35 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void SectionCHS_Test5()
+        {
+            double d = 400;
+            double t = 10;
+            double di = d - 2.0 * t;
+            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+
+            Point2d centroid = new Point2d(d / 2, d / 2);
+            Point2d shearCenter = centroid;
+            double A = Math.PI * (d * d - di * di) / 4.0;
+            double J = Math.PI * (Math.Pow(d, 4) - Math.Pow(di, 4)) / 64.0;
+            double Wel2 = J / (d / 2.0);
+            double Wpl2 = (Math.Pow(d, 3.0) - Math.Pow(di, 3.0)) / 6.0;
+
+            // Rigidity factor.
+            double flexModule = 2.0 / d;
+
+            SectionPropertiesIntegrals(sec, flexModule, centroid,
+                out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral);
+
+            // Error without fillet radius (radius=0.0).
+            Assert.AreEqual(0.0, JxxIntegral / sec.J11 - 1.0, 0.01);
+            Assert.AreEqual(0.0, JyyIntegral / sec.J22 - 1.0, 0.01);
+            Assert.AreEqual(sec.Jxy, JxyIntegral, 1);
+            Assert.AreEqual(0.0, Wel1Integral / sec.Wel1 - 1.0, 0.01);
+            Assert.AreEqual(0.0, Wpl1Integral / sec.Wpl1 - 1.0, 0.01);
+        }
+
+        [TestMethod]
         public void SectionCHS_Sigma1()
         {
             double d = 300;
@@ -314,15 +343,18 @@ namespace ModelObjectTest
         #region Section Rectangular
 
         [TestMethod]
-        public void SectionRectangularTest()
+        public void SectionRectangularTest01()
         {
             double h = 100;
             double b = 10;
             SectionRectangular sec = new SectionRectangular(b, h, SteelMaterialEN1993Data.S355);
 
             double A = h * b;
-            double J2 = 1.0 / 12.0 * b * Math.Pow(h, 3.0);
-            double J1 = 1.0 / 12.0 * h * Math.Pow(b, 3.0);
+            double J1 = 1.0 / 12.0 * b * Math.Pow(h, 3.0);
+            double J2 = 1.0 / 12.0 * h * Math.Pow(b, 3.0);
+            double Jxx = J2;
+            double Jyy = J1;
+            double Jxy = 0.0;
             double Wel2 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
             double Wel1 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
             double Wpl2 = A / 2.0 * h / 2.0;
@@ -331,10 +363,75 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
             Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
             Assert.AreEqual(Math.Abs(J1 - sec.J11), 0, 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jxx - sec.Jxx), 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jyy - sec.Jyy), 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jxy - sec.Jxy), 0.0015);
             Assert.AreEqual(Math.Abs(Wel2 - sec.Wel2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+        }
+
+        [TestMethod]
+        public void SectionRectangularTest02()
+        {
+            double h = 2.0;
+            double b = 10.0;
+            SectionRectangular sec = new SectionRectangular(h, b, SteelMaterialEN1993Data.S355);
+
+            double A = h * b;
+            double J2 = 1.0 / 12.0 * b * Math.Pow(h, 3.0);
+            double J1 = 1.0 / 12.0 * h * Math.Pow(b, 3.0);
+            double Jxx = J2;
+            double Jyy = J1;
+            double Jxy = 0.0;
+            double Wel1 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
+            double Wel2 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
+            double Wpl1 = A / 2.0 * h / 2.0;
+            double Wpl2 = A / 2.0 * b / 2.0;
+
+            Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J1 - sec.J11), 0, 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jxx - sec.Jxx), 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jyy - sec.Jyy), 0.0015);
+            Assert.AreEqual(0, Math.Abs(Jxy - sec.Jxy), 0.0015);
+            Assert.AreEqual(Math.Abs(Wel2 - sec.Wel2), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+        }
+
+        [TestMethod]
+        public void SectionRectangularTest03()
+        {
+            double h = 2.0;
+            double b = 10.0;
+            SectionRectangular sec = new SectionRectangular(h, b, 1.0, SteelMaterialEN1993Data.S355);
+
+            double A = h * b;
+            double J2 = 1.0 / 12.0 * b * Math.Pow(h, 3.0);
+            double J1 = 1.0 / 12.0 * h * Math.Pow(b, 3.0);
+            double Jxx = 119.9584136;
+            double Jyy = 53.37491974;
+            double Jxy = 72.74379415;
+            double Wel1 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
+            double Wel2 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
+            double Wpl1 = A / 2.0 * h / 2.0;
+            double Wpl2 = A / 2.0 * b / 2.0;
+
+            double precision = 0.0000001;
+
+            Assert.AreEqual(0, A / sec.Area - 1.0, precision);
+            Assert.AreEqual(0, J2 / sec.J22 - 1.0, precision);
+            Assert.AreEqual(0, J1 / sec.J11 - 1.0, precision);
+            Assert.AreEqual(0, Jxx / sec.Jxx - 1.0, precision);
+            Assert.AreEqual(0, Jyy / sec.Jyy - 1.0, precision);
+            Assert.AreEqual(0, Jxy / sec.Jxy - 1.0, precision);
+            Assert.AreEqual(0, Wel2 / sec.Wel2 - 1.0, precision);
+            Assert.AreEqual(0, Wel1 / sec.Wel1 - 1.0, precision);
+            Assert.AreEqual(0, Wpl2 / sec.Wpl2 - 1.0, precision);
+            Assert.AreEqual(0, Wpl1 / sec.Wpl1 - 1.0, precision);
         }
 
         #endregion
@@ -2365,6 +2462,28 @@ namespace ModelObjectTest
             Assert.AreEqual(expectedJyyH1, JyyH1, 0.0001);
             Assert.AreEqual(expectedJxyH1, JxyH1, 0.0001);
             Assert.AreEqual(expectedJpH1, JpH1, 0.0001);
+        }
+
+        [TestMethod]
+        public void ThinWallTest01()
+        {
+            var thinWall = new ThinWallSection.ThinWall(10.0, 2.0, 0.0);
+
+            Assert.AreEqual(0, thinWall.CalculateArea() / 20.0 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJx() / 6.666666667 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJy() / 166.6666667 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJxy(), 0.0001);
+        }
+
+        [TestMethod]
+        public void ThinWallTest02()
+        {
+            var thinWall = new ThinWallSection.ThinWall(10.0, 2.0, 1.0);
+
+            Assert.AreEqual(0, thinWall.CalculateArea() / 20.0 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJx() / 119.9584136 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJy() / 53.37491974 - 1.0, 0.0001);
+            Assert.AreEqual(0, thinWall.CalculateJxy() / 72.74379415 - 1.0, 0.0001);
         }
 
         #endregion

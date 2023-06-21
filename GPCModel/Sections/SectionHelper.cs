@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Geometry.Meshes.DelaunayMesh;
 using GPC.Model.Maths.GaussIntegrations;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
@@ -57,7 +56,7 @@ namespace GPC.Model.Sections
         {
             double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy, (Jxx - Jyy));
 
-			if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
+            if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())
                 return 0.0;
 
             return angle;
@@ -84,11 +83,15 @@ namespace GPC.Model.Sections
 
         /// <summary>
         /// Calculate moment of inertia in alpha direction, counterclockwise rotation, zero for positive X axis.
+        /// Given the moments of inertia with respect to the x and y axes determine the moment of inertia with respect
+        /// to an axis rotated by alpha passing through the origin.
+        /// It corresponds to rotating the section by an angle equal to -alpha and determining the moment of inertia
+        /// with respect to the x-axis.
         /// </summary>
-        /// <param name="Jxx"></param>
-        /// <param name="Jyy"></param>
-        /// <param name="Jxy"></param>
-        /// <param name="alpha"></param>
+        /// <param name="Jxx">Moment of inertia with respect to the X axis.</param>
+        /// <param name="Jyy">Moment of inertia with respect to the Y axis.</param>
+        /// <param name="Jxy">Product of inertia with respect to the X and Y axes.</param>
+        /// <param name="alpha">Angle of the axis with respect to which to calculate the moment of inertia.</param>
         /// <returns></returns>
         internal static double CalculateJAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
         {
@@ -99,11 +102,15 @@ namespace GPC.Model.Sections
 
         /// <summary>
         /// Calculate product of inertia in alpha direction, counterclockwise rotation, zero for positive X axis.
+        /// Given the moments of inertia with respect to the x and y axes determine the moment of inertia with respect
+        /// to an axis rotated by alpha passing through the origin.
+        /// It corresponds to rotating the section by an angle equal to -alpha and determining the product of inertia
+        /// with respect to the x and y axes.
         /// </summary>
-        /// <param name="Jxx"></param>
-        /// <param name="Jyy"></param>
-        /// <param name="Jxy"></param>
-        /// <param name="alpha"></param>
+        /// <param name="Jxx">Moment of inertia with respect to the X axis.</param>
+        /// <param name="Jyy">Moment of inertia with respect to the Y axis.</param>
+        /// <param name="Jxy">Product of inertia with respect to the X and Y axes.</param>
+        /// <param name="alpha">Angle of the axis with respect to which to calculate the moment of inertia.</param>
         /// <returns></returns>
         internal static double CalculateJxyAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
         {
@@ -144,7 +151,7 @@ namespace GPC.Model.Sections
                 {
                     MeshFace meshFace = mesh.Faces.ElementAt(i);
 
-					CalculateIntegralInertiaMoment(mesh, meshFace, centroid, out double jxx, out double jyy, out double jxy);
+                    CalculateIntegralInertiaMoment(mesh, meshFace, centroid, out double jxx, out double jyy, out double jxy);
 
                     JxxArray[i] = jxx;
                     JyyArray[i] = jyy;
@@ -172,7 +179,7 @@ namespace GPC.Model.Sections
                 {
                     MeshFace meshFace = mesh.Faces.ElementAt(i);
 
-					double area = mesh.GetFaceArea(meshFace);
+                    double area = mesh.GetFaceArea(meshFace);
                     Point2d centroid = mesh.GetFaceCentroid(meshFace);
 
                     SxArray[i] = area * centroid.Y;
