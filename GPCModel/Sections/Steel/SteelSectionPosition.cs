@@ -1,14 +1,12 @@
 ﻿using GPC.Geometry;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GPC.Model.Sections.Steel
 {
     /// <summary>
     /// Generic steel section and its displacement including:
-    /// 1) rotation around a point;
-    /// 2) translation.
+    /// 1) Rotation around a point RotationCenter;
+    /// 2) Traslation.
     /// Operations done in this order.
     /// </summary>
     public class SteelSectionPosition
@@ -19,6 +17,10 @@ namespace GPC.Model.Sections.Steel
 
         /// <summary>
         /// Center of rotation.
+        /// Position in the local system (intial without displacement) of the point around which to perform the rotation.
+        /// Currently the points of sections with predefined shapes such as H, L, C etc are all in
+        /// the first quadrant (coordinates with positive X and Y). If you want to rotate around the
+        /// center of gravity just assign the center of gravity to this property.
         /// </summary>
         public Point2d RotationCenter { get; set; }
 
@@ -36,6 +38,15 @@ namespace GPC.Model.Sections.Steel
         /// Defines whether the section is entirely outside or inside the concrete area.
         /// </summary>
         public bool IsInsideConcrete { get; set; }
+
+        /// <summary>
+        /// The ID is that of the section.
+        /// </summary>
+        internal int Id
+        {
+            get => Section.Id;
+            set => Section.Id = value;
+        }
 
         #endregion
 
@@ -83,6 +94,42 @@ namespace GPC.Model.Sections.Steel
         internal double CalculateArea() => Section.Area;
 
         internal Point2d CalculateCentroid() => PositionToGlobal(Section.Centroid);
+
+        /// <summary>
+        /// Calculate the moment of inertia Jxx of the section considering rotation and displacement of the steel section.
+        /// Rotate-translate the inertia in the global XY reference system.
+        /// </summary>
+        /// <returns>Jxx</returns>
+        internal double CalculateJxx(in Point2d inertiaPole)
+        {
+            double JxxG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation);
+            var centroid = CalculateCentroid();
+            return JxxG + Section.Area * (centroid.Y - inertiaPole.Y) * (centroid.Y - inertiaPole.Y);
+        }
+
+        /// <summary>
+        /// Calculate the moment of inertia Jyy of the section considering rotation and displacement of the steel section.
+        /// Rotate-translate the inertia in the global XY reference system.
+        /// </summary>
+        /// <returns>Jyy</returns>
+        internal double CalculateJyy(in Point2d inertiaPole)
+        {
+            double JyyG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation + 0.5 * Math.PI);
+            var centroid = CalculateCentroid();
+            return JyyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.X - inertiaPole.X);
+        }
+
+        /// <summary>
+        /// Calculate the product of inertia Jxy of the section considering rotation and displacement of the steel section.
+        /// Rotate-translate the inertia in the global XY reference system.
+        /// </summary>
+        /// <returns>Jxy</returns>
+        internal double CalculateJxy(in Point2d inertiaPole)
+        {
+            double JxyG = SectionHelper.CalculateJxyAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation);
+            var centroid = CalculateCentroid();
+            return JxyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.Y - inertiaPole.Y);
+        }
 
         #endregion
     }

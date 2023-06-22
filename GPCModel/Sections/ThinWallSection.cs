@@ -171,6 +171,11 @@ namespace GPC.Model.Sections
             return CalculateAreaThinWallSection();
         }
 
+        /// <summary>
+        /// Moment of inertia with respect to the X axis passing through the center of gravity
+        /// of the section. Contributions to the moment of inertia only thin walls.
+        /// </summary>
+        /// <returns></returns>
         private double CalculateJxxThinWall()
         {
             double j = 0;
@@ -185,6 +190,11 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJxx() => CalculateJxxThinWall();
 
+        /// <summary>
+        /// Moment of inertia with respect to the Y axis passing through the center of gravity
+        /// of the section. Contributions to the moment of inertia only thin walls.
+        /// </summary>
+        /// <returns></returns>
         private double CalculateJyyThinWall()
         {
             double j = 0;
@@ -199,6 +209,11 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJyy() => CalculateJyyThinWall();
 
+        /// <summary>
+        /// Product of inertia with respect to the X and Y axes passing through the center of
+        /// gravity of the section. Contributions to the moment of inertia only thin walls.
+        /// </summary>
+        /// <returns></returns>
         protected override double CalculateJxy()
         {
             double j = 0;
@@ -282,6 +297,12 @@ namespace GPC.Model.Sections
 
         #region Nested classes ThinWall
 
+        /// With _angle = 0:
+        ///    ┌-----------------┐
+        /// _t |                 |
+        ///    └-----------------┘
+        ///            _l
+        /// </summary>
         [Serializable]
         public class ThinWall
         {
@@ -353,7 +374,7 @@ namespace GPC.Model.Sections
                 _point = point ?? throw new ArgumentException($"Position cannot be null.");
             }
 
-            protected ThinWall(SerializationInfo info, StreamingContext context)
+            protected ThinWall(SerializationInfo info, StreamingContext _)
             {
                 _t = info.GetDouble("T");
                 _l = info.GetDouble("L");
@@ -372,14 +393,6 @@ namespace GPC.Model.Sections
 
             #region Internal method
 
-            /// <summary>
-            /// With _angle = 0:
-            ///    ┌-----------------┐
-            /// _t |                 |
-            ///    └-----------------┘
-            ///            _l
-            /// </summary>
-            /// <returns></returns>
             internal Polygon2d GetPerimeter()
             {
                 var sinAngle = Math.Sin(_angle);

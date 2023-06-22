@@ -1,32 +1,28 @@
+using GPC.Geometry;
+using GPC.Model.Materials;
+using GPC.Model.Sections.Steel;
+using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Geometry.Meshes;
-using GPC.Model.Elements;
-using GPC.Model.Materials;
-using GPC.Model.Sections.Bolt;
-using GPC.Model.Sections.Steel;
-using GPC.Utilities.Extensions;
 
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
     public class ReinforcedConcreteSection : Section, IConcreteSection
     {
-		#region Variables
+        #region Variables
 
-		protected readonly ShapeEx _shapeEx;
+        protected readonly ShapeEx _shapeEx;
         protected readonly RebarCollection _rebars;
         protected readonly List<SteelSectionPosition> _steelSections;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public ShapeEx ShapeEx => _shapeEx;
+        public ShapeEx ShapeEx => _shapeEx;
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
@@ -38,15 +34,17 @@ namespace GPC.Model.Sections.Concrete
 
         public int RebarsCount => _rebars.Count;
 
-		#endregion
+        public IList<SteelSectionPosition> SteelSections => _steelSections;
 
-		#region Public Constructors
+        #endregion
 
-		protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
+        #region Public Constructors
+
+        protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
             : base(reinforcedConcreteSection.Material, reinforcedConcreteSection.Name)
         {
-            if (reinforcedConcreteSection is null)            
-                throw new ArgumentNullException(nameof(reinforcedConcreteSection));            
+            if (reinforcedConcreteSection is null)
+                throw new ArgumentNullException(nameof(reinforcedConcreteSection));
 
             _shapeEx = reinforcedConcreteSection.ShapeEx;
             _rebars = new RebarCollection();
@@ -80,19 +78,13 @@ namespace GPC.Model.Sections.Concrete
 
             _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
+            _steelSections = new List<SteelSectionPosition>();
             if (version > 2)
             {
                 int steelSectionsCount = info.GetInt32("SteelSectionsCount");
                 if (steelSectionsCount > 0)
-                {
-                    _steelSections = new List<SteelSectionPosition>();
                     for (int i = 0; i < steelSectionsCount; i++)
                         _steelSections.Add((SteelSectionPosition)info.GetValue($"SteelSectionPosition{i}", typeof(SteelSectionPosition)));
-                }
-            }
-            else
-            {
-                _steelSections = new List<SteelSectionPosition>();
             }
         }
 
@@ -177,7 +169,7 @@ namespace GPC.Model.Sections.Concrete
         {
             return _rebars.RemoveRange(rebars);
         }
-                
+
         public bool ClearRebars()
         {
             try
@@ -209,7 +201,7 @@ namespace GPC.Model.Sections.Concrete
         {
             return _rebars.ToArray();
         }
-                
+
         /// <inheritdoc cref="GetRebarById(int)"/>
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
@@ -230,33 +222,99 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-		#endregion
+        #endregion
 
-		#region Concrete Mechanical properties
+        #region Steel sections
 
-		/// <summary>
-		/// Return all homogenized mechanical properties with default value of homogenized factor n
-		/// </summary>
-		/// <returns>
-		/// <para>areaH: The homogeneized area.</para>
-		/// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
-		/// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
-		/// <para>centroidH: The centroid of homogeneized section.</para>
-		/// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
-		/// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
-		/// <para>J11H: The first moment of area calculated respect the first principal axis 
-		/// passing throw the centroid of only concrete section of the homogeneized section</para>
-		/// <para>J22H: The first moment of area calculated respect the second principal axis 
-		/// passing throw the centroid of only concrete section of the homogeneized section</para>
-		/// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
-		/// </returns>
-		public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+        public bool AddSteelSection(SteelSectionPosition steelSection)
+        {
+            return AddSteelSection(steelSection, out _);
+        }
+
+        /// <summary>
+        /// Add a steel section into the section.
+        /// </summary>
+        /// <remarks>
+        /// <para>If a steel section with the same id already exist in the collection, steelSection will replace that steel section.</para>
+        /// <para>If steel section ID is lower than 1, this will be replaced with the maximum id + 1.</para>
+        /// </remarks>
+        /// <returns>The Id of the steel section.</returns>
+        public bool AddSteelSection(SteelSectionPosition steelSection, out int id)
+        {
+            if (_steelSections.Contains(steelSection))
+            {
+                // Has already been assigned, returns false.
+                id = IDUNASSIGNED;
+                return false;
+            }
+            else
+            {
+                if (steelSection.Id < 1)
+                {
+                    // If steel section ID is lower than 1, this will be replaced with the maximum id + 1.
+                    if (_steelSections.Count > 0)
+                        steelSection.Id = _steelSections.Max(s => s.Id) + 1;
+                    else
+                        steelSection.Id = 1;
+
+                    _steelSections.Add(steelSection);
+                    id = steelSection.Id;
+                    return true;
+                }
+                else
+                {
+                    // If a steel section with the same id already exist in the collection, steelSection will replace that steel section.
+                    var sameIDs = _steelSections.Where(s => s.Id == steelSection.Id).ToList();
+                    if (sameIDs.Count > 1)
+                    {
+                        foreach (var sameID in sameIDs)
+                            _steelSections.Remove(sameID);
+                    }
+                    _steelSections.Add(steelSection);
+                    id = steelSection.Id;
+                    return true;
+                }
+            }
+        }
+
+        public bool RemoveSteelSection(SteelSectionPosition steelSection)
+        {
+            return _steelSections.Remove(steelSection);
+        }
+
+        public bool RemoveSteelSection(int steelSectionId)
+        {
+            return _steelSections.RemoveAll(s => s.Id == steelSectionId) > 0;
+        }
+
+        #endregion
+
+        #region Concrete Mechanical properties
+
+        /// <summary>
+        /// Return all homogenized mechanical properties with default value of homogenized factor n
+        /// </summary>
+        /// <returns>
+        /// <para>areaH: The homogeneized area.</para>
+        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+        /// <para>centroidH: The centroid of homogeneized section.</para>
+        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>J11H: The first moment of area calculated respect the first principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>J22H: The first moment of area calculated respect the second principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+        /// </returns>
+        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties()
         {
             var centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(_rebars.ToArray(), Centroid, centroidH, ConcreteMaterial, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(_rebars.ToArray(), Centroid, centroidH, ConcreteMaterial,
+                Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH, _steelSections);
 
             var J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
             var J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
@@ -273,7 +331,7 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The centroid</returns>
         public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
-            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial, 
+            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog, _steelSections);
         }
 
@@ -288,44 +346,44 @@ namespace GPC.Model.Sections.Concrete
 
         public double GetHomogeneizedJ11()
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
+            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy);
         }
 
         public double GetHomogeneizedJ22()
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial, 
+            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy);
         }
 
-		#region Phi factor
+        #region Phi factor
 
-		/// <summary>
-		/// Return all homogenized mechanical properties with homogeneized factor <paramref name="phi"/>
-		/// </summary>
-		/// <returns>
-		/// <para>areaH: The homogeneized area.</para>
-		/// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
-		/// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
-		/// <para>centroidH: The centroid of homogeneized section.</para>
-		/// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
-		/// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
-		/// <para>J11H: The first moment of area calculated respect the first principal axis 
-		/// passing throw the centroid of only concrete section of the homogeneized section</para>
-		/// <para>J22H: The first moment of area calculated respect the second principal axis 
-		/// passing throw the centroid of only concrete section of the homogeneized section</para>
-		/// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
-		/// </returns>
-		public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
+        /// <summary>
+        /// Return all homogenized mechanical properties with homogeneized factor <paramref name="phi"/>
+        /// </summary>
+        /// <returns>
+        /// <para>areaH: The homogeneized area.</para>
+        /// <para>SxHThe: first moment of area calculated respect input X-axis of the homogeneized section.</para>
+        /// <para>SyHThe: first moment of area calculated respect input Y-axis of the homogeneized section.</para>
+        /// <para>centroidH: The centroid of homogeneized section.</para>
+        /// <para>JxxH: The first moment of area calculated respect X-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>JyyH: The first moment of area calculated respect Y-axis passing throw the centroid of the homogeneized section.</para>
+        /// <para>J11H: The first moment of area calculated respect the first principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>J22H: The first moment of area calculated respect the second principal axis 
+        /// passing throw the centroid of only concrete section of the homogeneized section</para>
+        /// <para>AngleX: The angle of rotation of the principal axis respect the X-Axis</para>
+        /// </returns>
+        public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi)
         {
-            if(_rebars.Count > 0)
-			{
+            if (_rebars.Count > 0)
+            {
                 Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
 
                 // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
                 ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, ConcreteMaterial, _rebars.ToArray(), Centroid,
-                    centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH);
+                    centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH, _steelSections);
 
                 double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
                 double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
@@ -334,9 +392,9 @@ namespace GPC.Model.Sections.Concrete
                 return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
             }
             else
-			{
+            {
                 return (0, 0, 0, new Point2d(), 0, 0, 0, 0, 0, 0, 0);
-			}
+            }
         }
 
         /// <summary>
@@ -359,18 +417,18 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The homogenized area</returns>
         public double GetHomogenizedArea(double phi)
         {
-            return ConcreteSectionHelper.GetHomogenizedArea(phi, _rebars.ToArray(), ConcreteMaterial, Area);
+            return ConcreteSectionHelper.GetHomogenizedArea(phi, _rebars.ToArray(), ConcreteMaterial, Area, _steelSections);
         }
 
         public double GetHomogeneizedJ11(double phi)
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, 
+            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy);
         }
 
         public double GetHomogeneizedJ22(double phi)
         {
-            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial, 
+            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy);
         }
 

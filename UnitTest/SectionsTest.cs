@@ -301,7 +301,6 @@ namespace ModelObjectTest
             SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
-            Point2d shearCenter = centroid;
             double A = Math.PI * (d * d - di * di) / 4.0;
             double J = Math.PI * (Math.Pow(d, 4) - Math.Pow(di, 4)) / 64.0;
             double Wel2 = J / (d / 2.0);
@@ -2484,6 +2483,244 @@ namespace ModelObjectTest
             Assert.AreEqual(0, thinWall.CalculateJx() / 119.9584136 - 1.0, 0.0001);
             Assert.AreEqual(0, thinWall.CalculateJy() / 53.37491974 - 1.0, 0.0001);
             Assert.AreEqual(0, thinWall.CalculateJxy() / 72.74379415 - 1.0, 0.0001);
+        }
+
+        [TestMethod]
+        public void RCAndSteelSection01()
+        {
+            // Square cross-section with an H-profile inside without fillet radii.
+            // Symmetrical shape.
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(-400.0, -400.0),
+                new Point2d(400.0, -400.0),
+                new Point2d(400.0, 400.0),
+                new Point2d(-400.0, 400.0)
+            }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection sectionRC = new ReinforcedConcreteSection(shapeEx);
+
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    new SteelSectionH(300.0, 8.5, 290.0, 14.0, 290.0, 14.0, SteelMaterialEN1993Data.S235),
+                    Point2d.Origin,
+                    0.0,
+                    new Vector2d(-290.0 / 2.0, -300.0 / 2.0)
+                    )
+                );
+
+            // Calculations
+
+            double nHomoTarget = 6.6717909812633494; // 210000 / 31476
+            double nHomoCalc = ConcreteSectionHelper.CalculateN(sectionRC.SteelSections[0], sectionRC.ConcreteMaterial);
+
+            double homoAreaTarget = 640000.0 + (nHomoTarget - 1.0) * 10432.0;
+            double homoGxTarget = 0.0;
+            double homoGyTarget = 0.0;
+            double homoJxxTarget = 34133333333.3 + (nHomoTarget - 1.0) * 180430000.0;
+            double homoJyyTarget = 34133333333.3 + (nHomoTarget - 1.0) * 56920000.0;
+            double homoJxyTarget = 0.0;
+
+            var homo = sectionRC.GetHomogeneizedMechanicalProperties();
+
+            // Test
+
+            Assert.AreEqual(nHomoTarget, nHomoCalc, 0.00001);
+            Assert.AreEqual(0.0, homo.areaH / homoAreaTarget - 1.0, 0.000001);
+            Assert.AreEqual(homoGxTarget, homo.centroidH.X, 0.000001);
+            Assert.AreEqual(homoGyTarget, homo.centroidH.Y, 0.000001);
+            Assert.AreEqual(0.0, homo.JxxH / homoJxxTarget - 1.0, 0.000001);
+            Assert.AreEqual(0.0, homo.JyyH / homoJyyTarget - 1.0, 0.000001);
+            Assert.AreEqual(homoJxyTarget, homo.JxyH, 0.000001);
+        }
+
+        [TestMethod]
+        public void RCAndSteelSection02()
+        {
+            // Square cross-section with an H-profile inside without fillet radii.
+            // Asymmetrical shape.
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(-400.0, -400.0),
+                new Point2d(400.0, -400.0),
+                new Point2d(400.0, 400.0),
+                new Point2d(-400.0, 400.0)
+            }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection sectionRC = new ReinforcedConcreteSection(shapeEx);
+
+            double deltaX = 100.0;
+            double deltaY = 120.0;
+
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    new SteelSectionH(300.0, 8.5, 290.0, 14.0, 290.0, 14.0, SteelMaterialEN1993Data.S235),
+                    new Point2d(290.0 / 2.0, 300.0 / 2.0),
+                    30.0 * Math.PI / 180.0, // 30° --> 0.5235987755983 rad
+                    new Vector2d(deltaX - 290.0 / 2.0, deltaY - 300.0 / 2.0)
+                    )
+                );
+
+            // Calculations
+
+            double nHomoTarget = 6.6717909812633494; // 210000 / 31476
+            double nHomoCalc = ConcreteSectionHelper.CalculateN(sectionRC.SteelSections[0], sectionRC.ConcreteMaterial);
+
+            double nHomoNoCls = nHomoTarget - 1.0; // 5.6717909812633494
+            double clsArea = 640000.0;
+            double clsInertia = 34133333333.3;
+            double steelSectionArea = 10432.0;
+            double steelJxx = 149554833.741568;
+            double steelJyy = 87799510.4250985;
+            double steelJxy = -53481981.2655589;
+
+            double homoAreaTarget = clsArea + nHomoNoCls * steelSectionArea;
+            double homoGxTarget = nHomoNoCls * steelSectionArea * deltaX / homoAreaTarget;
+            double homoGyTarget = nHomoNoCls * steelSectionArea * deltaY / homoAreaTarget;
+            double homoJxxTarget = clsInertia + Math.Pow(homoGyTarget, 2.0) * clsArea // cls
+                + nHomoNoCls * steelJxx + nHomoNoCls * Math.Pow(deltaY - homoGyTarget, 2.0) * steelSectionArea; // steel
+            double homoJyyTarget = clsInertia + Math.Pow(homoGxTarget, 2.0) * clsArea // cls
+                + nHomoNoCls * steelJyy + nHomoNoCls * Math.Pow(deltaX - homoGxTarget, 2.0) * steelSectionArea; // steel
+            double homoJxyTarget = homoGxTarget * homoGyTarget * clsArea // cls
+                + nHomoNoCls * steelJxy + nHomoNoCls * (deltaX - homoGxTarget) * (deltaY - homoGyTarget) * steelSectionArea; // steel
+
+            var homo = sectionRC.GetHomogeneizedMechanicalProperties();
+
+            double homoJ11Target = SectionHelper.CalculateJ11(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+            double homoJ22Target = SectionHelper.CalculateJ22(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+            double homoAlphaTarget = SectionHelper.CalculateAngle(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+
+            // Test
+
+            Assert.AreEqual(nHomoTarget, nHomoCalc, 0.000001);
+            Assert.AreEqual(0.0, homo.areaH / homoAreaTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.centroidH.X / homoGxTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.centroidH.Y / homoGyTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.JxxH / homoJxxTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.JyyH / homoJyyTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.JxyH / homoJxyTarget - 1.0, 0.000002);
+
+            Assert.AreEqual(0.0, homo.J11H / homoJ11Target - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.J22H / homoJ22Target - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.angleX / homoAlphaTarget - 1.0, 0.000001);
+        }
+
+        [TestMethod]
+        public void RCAndSteelSection03()
+        {
+            /// Square cross-section with four L-profiles inside without fillet radii.
+            /// Symmetrical shape.
+            ///                 ▲ Y
+            ///                 │
+            ///                 │
+            ///  ┌────────────┬───┬────────────┐
+            ///  │ ┌──────────┘   └──────────┐ │
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  ├─┘                         └─┤
+            ///  │                             │ ────► X
+            ///  ├─┐                         ┌─┤
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  │ │                         │ │
+            ///  │ └──────────┐   ┌──────────┘ │
+            ///  └────────────┴───┴────────────┘
+            double delta = 400.0;
+            Shape2d shape = new Shape2d(new Polygon2d(new Point2d[]
+            {
+                new Point2d(-delta, -delta),
+                new Point2d(delta, -delta),
+                new Point2d(delta, delta),
+                new Point2d(-delta, delta)
+            }));
+
+            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
+            ReinforcedConcreteSection sectionRC = new ReinforcedConcreteSection(shapeEx);
+
+            var steelSectionL_A = new SteelSectionL(250.0, 40.0, 350.0, 40.0, SteelMaterialEN1993Data.S235, "L300x350x40");
+            var steelSectionL_B = new SteelSectionL(350.0, 40.0, 250.0, 40.0, SteelMaterialEN1993Data.S235, "L300x350x40");
+
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    steelSectionL_A,
+                    Point2d.Origin,
+                    0,
+                    new Vector2d(-delta, -delta)
+                    )
+                );
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    steelSectionL_A,
+                    Point2d.Origin,
+                    Math.PI,
+                    new Vector2d(delta, delta)
+                    )
+                );
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    steelSectionL_B,
+                    Point2d.Origin,
+                    0.5 * Math.PI,
+                    new Vector2d(delta, -delta)
+                    )
+                );
+            sectionRC.AddSteelSection(
+                new SteelSectionPosition(
+                    steelSectionL_B,
+                    Point2d.Origin,
+                    1.5 * Math.PI,
+                    new Vector2d(-delta, delta)
+                    )
+                );
+
+            // Calculations
+
+            double nHomoTarget = 6.6717909812633494; // 210000 / 31476
+            double nHomoCalc = ConcreteSectionHelper.CalculateN(sectionRC.SteelSections[0], sectionRC.ConcreteMaterial);
+
+            double nHomoNoCls = nHomoTarget - 1.0; // 5.6717909812633494
+            double clsArea = 640000.0;
+            double clsInertia = 34133333333.3;
+            double steelSectionArea = 22400.0;
+            double steelGx = 125.0 - 58.125;
+            double steelGy = 175.0 - 58.125;
+            double steelJxx = 270167916.666667;
+            double steelJyy = 114767916.666667;
+            //double steelJxy = -101718750.0;
+
+            double homoAreaTarget = clsArea + 4.0 * nHomoNoCls * steelSectionArea;
+            double homoGxTarget = 0.0;
+            double homoGyTarget = 0.0;
+            double homoJxxTarget = clsInertia // cls
+                + 4.0 * nHomoNoCls * steelJxx + 4.0 * nHomoNoCls * Math.Pow(delta - steelGy, 2.0) * steelSectionArea; // steel
+            double homoJyyTarget = clsInertia // cls
+                + 4.0 * nHomoNoCls * steelJyy + 4.0 * nHomoNoCls * Math.Pow(delta - steelGx, 2.0) * steelSectionArea; // steel
+            double homoJxyTarget = 0.0;
+
+            var homo = sectionRC.GetHomogeneizedMechanicalProperties();
+
+            double homoJ11Target = SectionHelper.CalculateJ11(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+            double homoJ22Target = SectionHelper.CalculateJ22(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+            double homoAlphaTarget = SectionHelper.CalculateAngle(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+
+            // Test
+
+            Assert.AreEqual(nHomoTarget, nHomoCalc, 0.000001);
+            Assert.AreEqual(0.0, homo.areaH / homoAreaTarget - 1.0, 0.0000001);
+            Assert.AreEqual(homoGxTarget, homo.centroidH.X, 0.0000001);
+            Assert.AreEqual(homoGyTarget, homo.centroidH.Y, 0.0000001);
+            Assert.AreEqual(0.0, homo.JxxH / homoJxxTarget - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.JyyH / homoJyyTarget - 1.0, 0.0000001);
+            Assert.AreEqual(homoJxyTarget, homo.JxyH, 0.0000001);
+
+            Assert.AreEqual(0.0, homo.J11H / homoJ11Target - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.J22H / homoJ22Target - 1.0, 0.0000001);
+            Assert.AreEqual(0.0, homo.angleX / homoAlphaTarget - 1.0, 0.000001);
         }
 
         #endregion

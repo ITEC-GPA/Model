@@ -77,7 +77,21 @@ namespace GPC.Model.Sections
         #region Constructor
 
         /// <summary>
-        /// Default constructor
+        /// Default constructor.
+        /// 
+        /// Thin walls with _angle = 0:
+        ///  ▲ Y
+        ///  │
+        ///  │
+        ///  ┌───┐
+        ///  │   │
+        ///  │   │
+        ///  │   │
+        ///  │   │
+        ///  │   │
+        ///  ├───┴─────────────────┐
+        ///  │                     │
+        ///  └─────────────────────┘ ────► X
         /// </summary>
         /// <param name="horizontalLegLength">The horizontal leg length</param>
         /// <param name="horizontalLegThickness">The horizontal leg _thickness</param>
