@@ -10,10 +10,9 @@ namespace GPC.Model.Sections.Steel
     {
         #region Variables
 
-        private readonly double _r;                // raggio di curvatura o altezza di gola
-
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
+
         #endregion
 
         #region Properties
@@ -21,13 +20,9 @@ namespace GPC.Model.Sections.Steel
         public SectionTypes SectionType => _sectionType;
         public FormedTypes FormedType => _formedType;
 
-        public double R => _r;
-
         public bool IsRolled => _sectionType == SectionTypes.Rolled;
 
         public bool IsWelded => _sectionType == SectionTypes.Welded;
-
-        public double Height => VerticalLegLength;
 
         public SteelMaterial SteelMaterial => (SteelMaterial)_material;
 
@@ -38,17 +33,16 @@ namespace GPC.Model.Sections.Steel
         public SteelSectionL(double lHor, double tHor, double lVert, double tVert, SteelMaterial material,
             string name, SectionTypes sectionTypes = SectionTypes.Rolled,
             FormedTypes formedType = FormedTypes.ColdFormed, double radius = 0)
-            : base(lHor, tHor, lVert, tVert, material, name)
+            : base(lHor, tHor, lVert, tVert, material, name, radius)
         {
             _sectionType = sectionTypes;
             _formedType = formedType;
-            _r = radius < 0 ? 0 : radius;        // raggio di curvatura o altezza di gola
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
         protected SteelSectionL(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _r = info.GetDouble("R");
             _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
             _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
         }
@@ -58,7 +52,6 @@ namespace GPC.Model.Sections.Steel
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("R", _r);
             info.AddValue("SectionType", _sectionType);
             info.AddValue("FormedType", _formedType);
         }

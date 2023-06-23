@@ -43,6 +43,7 @@ namespace GPC.Model.Sections.Steel
         {
             _formedType = type;
             _sectionType = sectionType;
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
         public SteelSectionCHS(SectionCHS section, FormedTypes type = FormedTypes.ColdFormed, 

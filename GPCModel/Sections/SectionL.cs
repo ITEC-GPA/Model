@@ -15,6 +15,8 @@ namespace GPC.Model.Sections
         private double _horizontalLegThickness;
         private double _verticalLegLength;
         private double _verticalLegThickness;
+        
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -72,6 +74,10 @@ namespace GPC.Model.Sections
 			}
 		}
 
+        public double R => _r;
+
+        public double Height => VerticalLegLength;
+
         #endregion
 
         #region Constructor
@@ -100,13 +106,14 @@ namespace GPC.Model.Sections
         /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
         public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
-            Material material, string name)
+            Material material, string name, double radius = 0)
             : base(material, name)
         {
             _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
             _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate _thickness cannot be lower than zero") : horizontalLegThickness;
             _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
             _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate _thickness cannot be lower than zero") : verticalLegThickness;
+            _r = radius < 0 ? 0 : radius;        // raggio di curvatura o altezza di gola
 
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
                 new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2));
@@ -136,6 +143,7 @@ namespace GPC.Model.Sections
             _horizontalLegThickness = info.GetDouble("HorizontalLegThickness");
             _verticalLegLength = info.GetDouble("VerticalLegLength");
             _verticalLegThickness = info.GetDouble("VerticalLegThickness");
+            _r = info.GetDouble("R");
         }
 
         #endregion
@@ -362,6 +370,7 @@ namespace GPC.Model.Sections
             info.AddValue("HorizontalLegThickness", _horizontalLegThickness);
             info.AddValue("VerticalLegLength", _verticalLegLength);
             info.AddValue("VerticalLegThickness", _verticalLegThickness);
+            info.AddValue("R", _r);
         }
 
 		#endregion

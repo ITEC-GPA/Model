@@ -20,6 +20,7 @@ namespace GPC.Model.Sections
         protected double _tbottom;
         protected double _btop;
         protected double _bbottom;
+        private readonly double _r;
 
         #endregion
 
@@ -106,12 +107,19 @@ namespace GPC.Model.Sections
 
         public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
 
+        /// <summary>
+        /// Fillet radius.
+        /// </summary>
+        public double R => _r;
+
+        public double D => Height - ThicknessBottomFlange - ThicknessTopFlange - 2.0 * R;
+
         #endregion
 
         #region Public Constructors
 
         public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
-            double bottomFlangeThickness, Material material, string name)
+            double bottomFlangeThickness, Material material, string name, double radius = 0)
             : base(material, name)
         {
             #region Check inputs
@@ -122,6 +130,7 @@ namespace GPC.Model.Sections
             _bbottom = bottomFlangeLength < 0 ? throw new ArgumentException($"Bottom flange lenght cannot be lower than zero") : bottomFlangeLength;      // larghezza piattabanda inferiore
             _ttop = topFlangeThickness < 0 ? throw new ArgumentException($"Top flange _thickness cannot be lower than zero") : topFlangeThickness;               // spessore piattabanda superiore
             _tbottom = bottomFlangeThickness < 0 ? throw new ArgumentException($"Bottom flange _thickness cannot be lower than zero") : bottomFlangeThickness;   // spessore piattabanda inferiore
+            _r = radius < 0.0 ? 0 : radius;        // altezza di gola o raggio di curvatura
 
             #endregion
 
@@ -147,6 +156,7 @@ namespace GPC.Model.Sections
             _ttop = info.GetDouble("ThicknessTopFlange");
             _tbottom = info.GetDouble("ThicknessBottomFlange");
             _tw = info.GetDouble("ThicknessWeb");
+            _r = info.GetDouble("R");
         }
 
         #endregion
@@ -166,6 +176,7 @@ namespace GPC.Model.Sections
             info.AddValue("ThicknessTopFlange", _ttop);
             info.AddValue("ThicknessBottomFlange", _tbottom);
             info.AddValue("ThicknessWeb", _tw);
+            info.AddValue("R", _r);
         }
 
         protected override Shape2d GetShape()
@@ -186,6 +197,70 @@ namespace GPC.Model.Sections
         public virtual double DistanceXCentroidFromRight()
         {
             return CalculateCentroid().X;
+        }
+
+        protected override double CalculateJxx()
+        {
+            return base.CalculateJxx() + CalculateAdditionaJxx();
+        }
+
+        protected override double CalculateJyy()
+        {
+            return base.CalculateJyy() + CalculateAdditionaJyy();
+        }
+
+        protected override double CalculateJxy()
+        {
+            return 0;
+        }
+
+        private double CalculateAdditionaJxx()
+        {
+            if (_edgeWorking == EdgeType.Chamfer)
+            {
+                return 4 * (Math.Pow((1.41 * _r), 4) / 24.0) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
+            }
+            else if (_edgeWorking == EdgeType.Fillet)
+            {
+                return 4.0 * ((1.0 / 3.0) * Math.Pow(_r, 4.0) - (Math.PI / 16.0) * Math.Pow(_r, 4.0)) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
+                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
+            }
+            else
+                return 0.0;
+        }
+
+        private double CalculateAdditionaJyy()
+        {
+            if (_edgeWorking == EdgeType.Chamfer)
+            {
+                return 4 * (Math.Pow((1.41 * R), 4) / 24.0) + CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2, 2);
+            }
+            else if (_edgeWorking == EdgeType.Fillet)
+            {
+                return 4.0 * ((1.0 / 3.0) * Math.Pow(R, 4.0) - (Math.PI / 16.0) * Math.Pow(R, 4.0)) + CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2.0, 2);
+            }
+            else
+                return 0.0;
+        }
+
+        private double CalculateAdditionalArea()
+        {
+            if (_edgeWorking == EdgeType.Chamfer)
+                return 4 * Math.Pow((1.41 * R), 2) / 2.0;
+
+            else if (_edgeWorking == EdgeType.Fillet)
+                return 4 * (Math.Pow(R, 2) - Math.Pow(R, 2) * Math.PI / 4.0);
+
+            else
+                return 0.0;
+        }
+
+        protected override double CalculateArea()
+        {
+            return base.CalculateArea() + CalculateAdditionalArea();
         }
 
         protected override double CalculateWpl2()
@@ -280,6 +355,24 @@ namespace GPC.Model.Sections
             double zTop = Height - ThicknessTopFlange / 2.0 - CalculateCentroid().Y;
 
             return new Point2d(CalculateCentroid().X, CalculateCentroid().Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
+        }
+
+        protected override double CalculateJt()
+        {
+            if (_edgeWorking == EdgeType.Fillet)
+            {
+                double b = (LenghtBottomFlange + LenghtTopFlange) / 2;
+                double tf = (ThicknessBottomFlange + ThicknessTopFlange) / 2;
+
+                double alpha1 = -0.042 + 0.2204 * ThicknessWeb / tf + 0.1355 * R / tf -
+                    0.0865 * R * ThicknessWeb / Math.Pow(tf, 2) - 0.0725 * Math.Pow(ThicknessWeb, 2) / Math.Pow(tf, 2);
+                double D1 = (Math.Pow(tf + R, 2.0) + (R + 0.25 * ThicknessWeb) * ThicknessWeb) / (2.0 * R + tf);
+
+                return (2.0 / 3.0) * b * Math.Pow(tf, 3) + (1.0 / 3.0) * (Height - 2 * tf) * Math.Pow(ThicknessWeb, 3) +
+                    2.0 * alpha1 * Math.Pow(D1, 4) - 0.420 * Math.Pow(tf, 4);
+            }
+            else
+                return base.CalculateJt();
         }
 
         protected override double CalculateJw()

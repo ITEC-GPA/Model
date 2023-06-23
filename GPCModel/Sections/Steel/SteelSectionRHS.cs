@@ -10,18 +10,15 @@ namespace GPC.Model.Sections.Steel
     {
         #region Varibles
 
-        private readonly double _r;                // raggio di curvatura o altezza di gola
-
         protected readonly SectionTypes _sectionType;
         protected readonly FormedTypes _formedType;
+
         #endregion
 
         #region Properties
 
         public SectionTypes SectionType => _sectionType;
         public FormedTypes FormedType => _formedType;
-
-        public double R => _r;
 
         public bool IsRolled => _sectionType == SectionTypes.Rolled;
 
@@ -44,13 +41,12 @@ namespace GPC.Model.Sections.Steel
         {
             _formedType = formed;
             _sectionType = sectionType;
-            _r = radius < 0 ? 0 : radius;
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
         protected SteelSectionRHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _r = info.GetDouble("R");
             _sectionType = (SectionTypes)info.GetValue("SectionType", typeof(SectionTypes));
             _formedType = (FormedTypes)info.GetValue("FormedType", typeof(FormedTypes));
         }
@@ -60,7 +56,6 @@ namespace GPC.Model.Sections.Steel
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("R", _r);
             info.AddValue("SectionType", _sectionType);
             info.AddValue("FormedType", _formedType);
         }

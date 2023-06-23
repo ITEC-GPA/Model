@@ -42,6 +42,7 @@ namespace GPC.Model.Sections.Steel
         {
             _formedType = type;
             _sectionType = sectionType;
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
 		public SteelSectionRectangular(SteelSectionRectangular section) 
@@ -51,6 +52,7 @@ namespace GPC.Model.Sections.Steel
 				throw new ArgumentException("Material must be SteelMaterial");
             _formedType = FormedType;
             _sectionType = SectionType;
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
 		protected SteelSectionRectangular(SerializationInfo info, StreamingContext context) : base(info, context)

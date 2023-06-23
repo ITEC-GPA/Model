@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
-	[Serializable]
+    [Serializable]
 	public class SectionT : ThinWallSection, ISection, ISerializable
 	{
 		#region Variables
@@ -14,6 +14,7 @@ namespace GPC.Model.Sections
 		protected double _tw;
 		protected double _tf;
 		protected double _b;
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
 		#endregion
 
@@ -73,11 +74,14 @@ namespace GPC.Model.Sections
 			}
 		}
 
+        public double R => _r;
+
 		#endregion
 
 		#region Public Constructors
 
-		public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name)
+		public SectionT(double height, double flangeLength, double thicknessWeb, double thicknessFlange, Material material, string name,
+            double radius = 0)
 					: base(material, name)
 		{
 			#region Check inputs
@@ -86,10 +90,11 @@ namespace GPC.Model.Sections
 			_b = flangeLength < 0 ? throw new ArgumentException($"Flange lenght cannot be lower than zero") : flangeLength;                   // spessore anima;
 			_tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;                // spessore anima;
 			_tf = thicknessFlange < 0 ? throw new ArgumentException($"Flange thickness cannot be lower than zero") : thicknessFlange;             // spessore flangia;
+            _r = radius;        // raggio di curvatura o altezza di gola
 
-			#endregion
+            #endregion
 
-			CalculateSection();
+            CalculateSection();
 		}
 
 		public SectionT(SectionT sectionT)
@@ -115,7 +120,8 @@ namespace GPC.Model.Sections
 			_tw = info.GetDouble("ThicknessWeb");
 			_tf = info.GetDouble("ThicknessFlange");
 			_b = info.GetDouble("LenghtFlange");
-		}
+            _r = info.GetDouble("R");
+        }
 
 		#endregion
 
@@ -132,7 +138,8 @@ namespace GPC.Model.Sections
 			info.AddValue("ThicknessWeb", _tw);
 			info.AddValue("ThicknessFlange", _tf);
 			info.AddValue("LenghtFlange", _b);
-		}
+            info.AddValue("R", _r);
+        }
 
 		protected override double CalculateWel2Max()
 		{
@@ -258,14 +265,19 @@ namespace GPC.Model.Sections
 		protected override bool CalculateIsSymmetricAlongYLocalAxis()
 		{
 			return true;
-		}
+        }
 
-		public override string ToString()
-		{
-			return $"T {_h}x{_tw}x{_b}x{_tf}";
-		}
+        public override string ToString()
+        {
+            string s = "T section: \n";
+            s = s + "Height = " + Height + " mm \n";
+            s = s + "Thickness Web = " + _tw + " mm \n";
+            s = s + "Length Top = " + _b + " mm \n";
+            s = s + "Thickness Top = " + _tf + " mm \n";
+            return s;
+        }
 
-		private void CalculateSection()
+        private void CalculateSection()
 		{
 			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
 				new Point2d(LenghtFlange / 2, HeightWeb / 2));

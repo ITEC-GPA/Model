@@ -31,37 +31,32 @@ namespace GPC.Model.Sections.Concrete
             ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog,
             IList<SteelSectionPosition> steelSections = null)
         {
-            SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
-
-            SxHomog = Sx;
-            SyHomog = Sy;
-
-            AddRebarAndSteelHomogeneizedStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, steelSections);
+            SectionHelper.CalculateStaticMoments(mesh, out SxHomog, out SyHomog);
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog);
         }
 
         private static void AddRebarsStaticMoments(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
-            ref double SxHomog, ref double SyHomog, double? nCommon = null)
+            ref double SxHomog, ref double SyHomog, double? nRebarsCommon = null)
         {
             for (int i = 0; i < rebars.Count(); i++)
             {
-                double n = nCommon ?? CalculateN(rebars[i], concreteMaterial);
+                double n = nRebarsCommon ?? CalculateN(rebars[i], concreteMaterial);
                 // n-1 Is used to disregard the area of concrete that is replaced by the bar.
                 SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
                 SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
             }
         }
 
-        private static void AddRebarAndSteelHomogeneizedStaticMoments(ReinforcedConcreteRebar[] rebars,
-            ConcreteMaterial concreteMaterial, ref double SxHomog, ref double SyHomog,
-            IList<SteelSectionPosition> steelSections)
+        private static void AddSteelSectionStaticMoments(IList<SteelSectionPosition> steelSections, ConcreteMaterial concreteMaterial,
+            ref double SxHomog, ref double SyHomog, double? nSteelSectionCommon = null)
         {
-            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
-            if (steelSections != null)
+            if (steelSections != null && steelSections.Count > 0)
             {
                 for (int i = 0; i < steelSections.Count(); i++)
                 {
                     var steelSection = steelSections[i];
-                    double nSteelSection = CalculateN(steelSection, concreteMaterial);
+                    double nSteelSection = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
                     // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
                     if (steelSection.IsInsideConcrete)
                         nSteelSection -= 1.0;
@@ -74,11 +69,11 @@ namespace GPC.Model.Sections.Concrete
         }
 
         private static void AddRebarsInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d centroid, ConcreteMaterial concreteMaterial,
-            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nCommon = null)
+            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nRebarsCommon = null)
         {
             for (int i = 0; i < rebars.Count(); i++)
             {
-                double n = nCommon ?? CalculateN(rebars[i], concreteMaterial);
+                double n = nRebarsCommon ?? CalculateN(rebars[i], concreteMaterial);
                 // n-1 Is used to disregard the area of concrete that is replaced by the rebar.
                 JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * Math.Pow(rebars[i].Position.Y - centroid.Y, 2));
                 JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * Math.Pow(rebars[i].Position.X - centroid.X, 2));
@@ -88,14 +83,14 @@ namespace GPC.Model.Sections.Concrete
 
         private static void AddSteelSectionInertiaMoments(IList<SteelSectionPosition> steelSections,
             Point2d centroid, ConcreteMaterial concreteMaterial,
-            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nCommon = null)
+            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nSteelSectionCommon = null)
         {
             if (steelSections != null && steelSections.Count > 0)
             {
                 for (int i = 0; i < steelSections.Count(); i++)
                 {
                     var steelSection = steelSections[i];
-                    double n = nCommon ?? CalculateN(steelSection, concreteMaterial);
+                    double n = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
                     // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
                     if (steelSection.IsInsideConcrete)
                         n -= 1.0;
@@ -111,14 +106,14 @@ namespace GPC.Model.Sections.Concrete
             Point2d sectionCentroid, Point2d centroid, ConcreteMaterial concreteMaterial,
             double Jxx, double Jyy, double Jxy, double area,
             out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized,
-            IList<SteelSectionPosition> steelSections = null)
+            IList<SteelSectionPosition> steelSections = null, double? nRebars = null, double? nSteelSections = null)
         {
             JxxHomogenized = Jxx;
             JyyHomogenized = Jyy;
             JxyHomogenized = Jxy;
 
-            AddRebarsInertiaMoments(rebars, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized);
-            AddSteelSectionInertiaMoments(steelSections, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized);
+            AddRebarsInertiaMoments(rebars, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nRebars);
+            AddSteelSectionInertiaMoments(steelSections, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nSteelSections);
 
             JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
             JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
@@ -140,18 +135,8 @@ namespace GPC.Model.Sections.Concrete
             if (steelSections != null && steelSections.Count > 0)
                 nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
-            JxxHomogenized = Jxx;
-            JyyHomogenized = Jyy;
-            JxyHomogenized = Jxy;
-
-            AddRebarsInertiaMoments(rebars, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nRebars);
-            AddSteelSectionInertiaMoments(steelSections, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nSteelSections);
-
-            JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
-            JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
-            JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
-
-            JpHomogenized = JxxHomogenized + JyyHomogenized;
+            CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroid, concreteMaterial, Jxx, Jyy, Jxy, area,
+                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized, steelSections, nRebars, nSteelSections);
         }
 
         /// <summary>
@@ -187,7 +172,12 @@ namespace GPC.Model.Sections.Concrete
         internal static Point2d GetHomogenizedCentroid(double phi, Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, out double SxHomog, out double SyHomog, IList<SteelSectionPosition> steelSections = null)
         {
+            // Rebars
             double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            // Steel sections
+            double? nSteelSections = null;
+            if (steelSections != null && steelSections.Count > 0)
+                nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
             SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
 
@@ -195,19 +185,7 @@ namespace GPC.Model.Sections.Concrete
             SyHomog = Sy;
 
             AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, nRebars);
-
-            if (steelSections != null && steelSections.Count > 0)
-            {
-                double nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
-
-                for (int i = 0; i < steelSections.Count(); i++)
-                {
-                    var steelSection = steelSections[i];
-                    var centroid = steelSection.CalculateCentroid();
-                    SxHomog += (nSteelSections - 1.0) * steelSection.CalculateArea() * centroid.Y;
-                    SyHomog += (nSteelSections - 1.0) * steelSection.CalculateArea() * centroid.X;
-                }
-            }
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog, nSteelSections);
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area, steelSections));
         }
@@ -230,7 +208,8 @@ namespace GPC.Model.Sections.Concrete
             SxHomog = Sx;
             SyHomog = Sy;
 
-            AddRebarAndSteelHomogeneizedStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, steelSections);
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog);
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area, steelSections));
         }
@@ -251,25 +230,18 @@ namespace GPC.Model.Sections.Concrete
             double Sx, double Sy, double area, out double SxHomog, out double SyHomog,
             IList<SteelSectionPosition> steelSections = null)
         {
+            // Rebars
             double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            // Steel sections
+            double? nSteelSections = null;
+            if (steelSections != null && steelSections.Count > 0)
+                nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
             SxHomog = Sx;
             SyHomog = Sy;
 
             AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, nRebars);
-
-            if (steelSections != null && steelSections.Count > 0)
-            {
-                double nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
-
-                for (int i = 0; i < steelSections.Count(); i++)
-                {
-                    var steelSection = steelSections[i];
-                    var centroid = steelSection.CalculateCentroid();
-                    SxHomog += (nSteelSections - 1.0) * steelSection.CalculateArea() * centroid.Y;
-                    SyHomog += (nSteelSections - 1.0) * steelSection.CalculateArea() * centroid.X;
-                }
-            }
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog, nSteelSections);
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area, steelSections));
         }

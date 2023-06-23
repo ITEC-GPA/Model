@@ -17,11 +17,14 @@ namespace GPC.Model.Sections
 		protected double _lengthTop;
 		protected double _tTop;
 
-		#endregion
+        private readonly double _r1;
+        private readonly double _r2;
 
-		#region Properties
+        #endregion
 
-		public double Height
+        #region Properties
+
+        public double Height
 		{
 			get => _h;
 			set
@@ -99,14 +102,25 @@ namespace GPC.Model.Sections
 					CalculateSection();
 				}
 			}
-		}
+        }
 
-		#endregion
+        /// <summary>
+		/// Inner radius of curvature or throat height.
+		/// </summary>
+        public double R1 => _r1;
 
-		#region Public Constructors
+        /// <summary>
+		/// Outer radius of curvature.
+		/// </summary>
+        public double R2 => _r2;
 
-		public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop,
-					double lengthBottom, double thicknessBottom, Material material, string name = "")
+        #endregion
+
+        #region Public Constructors
+
+        public SectionC(double height, double thicknessWeb, double lengthTop, double thicknessTop,
+			double lengthBottom, double thicknessBottom, Material material, string name = "",
+            double radiusInternal = 0, double radiusExternal = 0)
 					: base(material, name)
 		{
 			_h = height < 0 ? throw new ArgumentException($"height cannot be lower than zero") : height;
@@ -116,7 +130,10 @@ namespace GPC.Model.Sections
 			_tTop = thicknessTop < 0 ? throw new ArgumentException($"Top thickness cannot be lower than zero") : thicknessTop;
 			_tw = thicknessWeb < 0 ? throw new ArgumentException($"Web thickness cannot be lower than zero") : thicknessWeb;
 
-			CalculateSection();
+            _r1 = radiusInternal < 0 ? 0 : radiusInternal;
+            _r2 = radiusExternal < 0 ? 0 : radiusExternal;
+
+            CalculateSection();
 		}
 
 		protected SectionC(SerializationInfo info, StreamingContext context)
@@ -138,7 +155,9 @@ namespace GPC.Model.Sections
 			_tBottom = info.GetDouble("ThicknessBottom");
 			_lengthTop = info.GetDouble("LengthTop");
 			_tTop = info.GetDouble("ThicknessTop");
-		}
+            _r1 = info.GetDouble("R1");
+            _r2 = info.GetDouble("R2");
+        }
 
 		#endregion
 
@@ -276,13 +295,142 @@ namespace GPC.Model.Sections
 
 			SetMechanicalProperties();
 			_mesh = GetMesh();
-		}
+        }
 
-		#endregion
+        protected override double CalculateArea()
+        {
+            return base.CalculateArea() + CalculateAdditionalArea();
+        }
 
-		#region Equals, hashcode, operators
+        protected double CalculateAdditionalArea()
+        {
+			if (_edgeWorking == EdgeType.Chamfer)
+				return 2 * Math.Pow((1.41 * R1), 2) / 2.0 -
+					2 * (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0);
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+			else if (_edgeWorking == EdgeType.Fillet)
+				return 2 * (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) -
+					2 * (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0);
+
+			else
+				return 0.0;
+        }
+
+        protected override double CalculateJxx()
+        {
+            return base.CalculateJxx() + CalculateAdditionaJxx();
+        }
+
+        protected override double CalculateJyy()
+        {
+            return base.CalculateJyy() + CalculateAdditionaJyy();
+        }
+
+        protected override double CalculateJxy()
+        {
+            return 0;
+        }
+
+        private double CalculateAdditionaJxx()
+        {
+            if (_edgeWorking == EdgeType.Chamfer)
+            {
+                return 2.0 * (Math.Pow((1.41 * _r1), 4) / 24.0) +
+                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Height - Centroid.Y - ThicknessTop - R1 / 3.5, 2) +
+                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.Y - ThicknessBottom - R1 / 3.5, 2);
+            }
+            else if (_edgeWorking == EdgeType.Fillet)
+            {
+                return 2.0 * ((1.0 / 3.0) * Math.Pow(_r1, 4.0) - (Math.PI / 16.0) * Math.Pow(_r1, 4.0)) +
+                    (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) * Math.Pow(Height - Centroid.Y - ThicknessTop - R1 / 3.5, 2) +
+                    (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) * Math.Pow(Centroid.Y - ThicknessBottom - R1 / 3.5, 2);
+            }
+            else
+                return 0.0;
+        }
+
+        private double CalculateAdditionaJyy()
+        {
+            if (_edgeWorking == EdgeType.Chamfer)
+            {
+                return 2.0 * (Math.Pow((1.41 * R1), 4) / 24.0 +
+                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2));
+            }
+            else if (_edgeWorking == EdgeType.Fillet)
+            {
+                return 2.0 * ((1.0 / 3.0) * Math.Pow(R1, 4.0) - (Math.PI / 16.0) * Math.Pow(R1, 4.0) +
+                    Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2));
+            }
+            else
+                return 0.0;
+        }
+
+        protected override Point2d CalculateCentroid()
+        {
+            double xSum = 0;
+            double ySum = 0;
+            double area = 0;
+
+            for (int i = 0; i < _thinWalls.Length; i++)
+            {
+                xSum += _thinWalls[i].CalculateSy();
+                ySum += _thinWalls[i].CalculateSx();
+                area += _thinWalls[i].Area;
+            }
+
+            if (R1 != 0)
+            {
+                if (_edgeWorking == EdgeType.Chamfer)
+                {
+                    xSum += 2 * Math.Pow((1.41 * R1), 2) / 2.0 *
+                        Math.Abs(ThicknessWeb + R1 / 3.5);
+
+                    ySum += Math.Pow((1.41 * R1), 2) / 2.0 *
+                        Math.Abs(ThicknessBottom + R1 / 3.5);
+                    ySum += Math.Pow((1.41 * R1), 2) / 2.0 *
+                        Math.Abs(Height - ThicknessTop - R1 / 3.5);
+
+                    area += 2 * Math.Pow((1.41 * R1), 2) / 2.0;
+                }
+
+                else if (_edgeWorking == EdgeType.Fillet)
+                {
+                    xSum += 2 * (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
+                        Math.Abs(ThicknessWeb + R1 / 3.5);
+
+                    ySum += (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
+                        Math.Abs(ThicknessBottom + R1 / 3.5);
+                    ySum += (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
+                        Math.Abs(Height - ThicknessTop - R1 / 3.5);
+
+                    area += 2 * (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0);
+
+                }
+            }
+
+            if (R2 != 0)
+            {
+                xSum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
+                    Math.Abs(LengthBottom - R2 / 3.5);
+                xSum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
+                    Math.Abs(LengthTop - R2 / 3.5);
+
+                ySum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
+                    Math.Abs(ThicknessBottom + R2 / 3.5);
+                ySum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
+                    Math.Abs(Height - ThicknessTop - R2 / 3.5);
+
+                area -= 2 * (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0);
+            }
+
+            return new Point2d((xSum / area), (ySum / area));
+        }
+
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
 
@@ -295,7 +443,9 @@ namespace GPC.Model.Sections
 			info.AddValue("ThicknessBottom", _tBottom);
 			info.AddValue("LengthTop", _lengthTop);
 			info.AddValue("ThicknessTop", _tTop);
-		}
+            info.AddValue("R1", _r1);
+            info.AddValue("R2", _r2);
+        }
 
 		public override string ToString()
 		{
@@ -311,7 +461,9 @@ namespace GPC.Model.Sections
 				   _lengthBottom == c._lengthBottom &&
 				   _tBottom == c._tBottom &&
 				   _lengthTop == c._lengthTop &&
-				   _tTop == c._tTop;
+				   _tTop == c._tTop &&
+                   _r1 == c._r1 &&
+                   _r2 == c._r2;
 		}
 
 		public override int GetHashCode()
@@ -326,7 +478,9 @@ namespace GPC.Model.Sections
 				hashCode = hashCode * -23 + _tBottom.GetHashCode();
 				hashCode = hashCode * -23 + _lengthTop.GetHashCode();
 				hashCode = hashCode * -23 + _tTop.GetHashCode();
-				return hashCode;
+                hashCode = hashCode * -23 + _r1.GetHashCode();
+                hashCode = hashCode * -23 + _r2.GetHashCode();
+                return hashCode;
 			}
 		}
 

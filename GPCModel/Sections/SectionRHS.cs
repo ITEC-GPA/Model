@@ -16,6 +16,8 @@ namespace GPC.Model.Sections
         private double _tfBottom;
         private double _twL;
         private double _twR;
+        
+        private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
 
@@ -103,12 +105,14 @@ namespace GPC.Model.Sections
             }
         }
 
+        public double R => _r;
+
         #endregion
 
         #region Public Constructors
 
         public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange,
-            double thicknessWebLeft, double thickenssWebRight, Material material, string name)
+            double thicknessWebLeft, double thickenssWebRight, Material material, string name, double radius = 0)
             : base(material, name)
         {
             _h = height;
@@ -117,6 +121,7 @@ namespace GPC.Model.Sections
             _tfBottom = thicknessBottomFlange;
             _twL = thicknessWebLeft;
             _twR = thickenssWebRight;
+            _r = radius < 0 ? 0 : radius;
 
             ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2,
                 new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom));
@@ -152,6 +157,7 @@ namespace GPC.Model.Sections
             _tfBottom = info.GetDouble("ThicknessBottom");
             _twL = info.GetDouble("ThicknessWebLeft");
             _twR = info.GetDouble("ThicknessWebRight");
+            _r = info.GetDouble("R");
         }
 
         #endregion
@@ -321,6 +327,7 @@ namespace GPC.Model.Sections
             info.AddValue("ThicknessBottom", _tfBottom);
             info.AddValue("ThicknessWebLeft", _twL);
             info.AddValue("ThicknessWebRight", _twR);
+            info.AddValue("R", _r);
         }
 
         private void CalculateSection()

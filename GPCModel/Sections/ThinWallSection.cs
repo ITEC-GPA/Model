@@ -9,6 +9,13 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    public enum EdgeType
+    {
+        Sharp = 0, // Without working, simple corner. Default.
+        Fillet = 1, // Rounded corners with circumference arc.
+        Chamfer = 2 // Straight line.
+    }
+
     /// <summary>
     /// List of rectangular thin wall.
     /// Useful for approximating thin steel profiles. They do not use fillets between wall elements.
@@ -20,12 +27,20 @@ namespace GPC.Model.Sections
         #region Variables
 
         protected ThinWall[] _thinWalls;
+        protected EdgeType _edgeWorking;
 
         #endregion
 
         #region Properties
 
         internal ThinWall[] ThinWalls => _thinWalls;
+
+        /// <summary>
+        /// Edge workings, used to define the type of workings for inside corners.
+        /// For steel, EdgeType.Chamfer can be used to represent welds
+        /// or EdgeType.Fillet for simple arc fillets.
+        /// </summary>
+        internal EdgeType EdgeWorking => _edgeWorking;
 
         #endregion
 
@@ -79,6 +94,14 @@ namespace GPC.Model.Sections
         protected void SetThinWalls(ThinWall[] thinWalls)
         {
             _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
+        }
+
+        protected void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        {
+            if (sectionType == SectionTypes.Rolled)
+                _edgeWorking = EdgeType.Fillet;
+            else if (sectionType == SectionTypes.Welded)
+                _edgeWorking = EdgeType.Chamfer;
         }
 
         #endregion
