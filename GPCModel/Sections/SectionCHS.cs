@@ -55,6 +55,8 @@ namespace GPC.Model.Sections
         /// </summary>
         public double DiameterInternal => _externalDiameter - (2 * _thickness);
 
+        public double Height => Diameter;
+
         #endregion
 
         #region Public Constructors

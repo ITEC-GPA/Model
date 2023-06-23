@@ -28,6 +28,8 @@ namespace GPC.Model.Sections
             }
         }
 
+        public double Height => _diameter;
+
         #region Public Constructors
 
         /// <summary>

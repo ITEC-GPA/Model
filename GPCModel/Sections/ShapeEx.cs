@@ -10,7 +10,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
 	[Serializable]
-	public class ShapeEx : Shape2d, ISection, ISerializable
+	public class ShapeEx : Shape2d, ISerializable
 	{
 		#region Variables
 

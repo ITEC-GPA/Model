@@ -13,7 +13,7 @@ namespace GPC.Model.Sections.Steel
     {
         #region Properties
 
-        public ThinWallSection Section { get; set; }
+        public SteelSection Section { get; set; }
 
         /// <summary>
         /// Center of rotation.
@@ -52,9 +52,9 @@ namespace GPC.Model.Sections.Steel
 
         #region Constructor
 
-        public SteelSectionPosition(ThinWallSection thinWallSect, Point2d rotationCenter, double rotation, Vector2d traslation)
+        public SteelSectionPosition(SteelSection steelSection, Point2d rotationCenter, double rotation, Vector2d traslation)
         {
-            Section = thinWallSect ?? throw new ArgumentNullException(nameof(thinWallSect));
+            Section = steelSection ?? throw new ArgumentNullException(nameof(steelSection));
             RotationCenter = rotationCenter ?? Point2d.Origin;
             Rotation = rotation;
             Traslation = traslation ?? new Vector2d(0.0, 0.0);

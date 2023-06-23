@@ -40,7 +40,19 @@
     </TypeIdentifier>
   </Class>
   <Class Name="GPC.Model.Sections.Section" Collapsed="true">
-    <Position X="21.75" Y="6" Width="1.5" />
+    <Position X="23" Y="6" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="GPC.Model.Sections.Section.FormedTypes" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Sections\Section.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="GPC.Model.Sections.Section.SectionTypes" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Sections\Section.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
       <HashCode>RdcMG0G9ECAzJIzkgABZQQQh4xwgMMgMLUNhD5BlAqU=</HashCode>
       <FileName>Sections\Section.cs</FileName>
@@ -48,7 +60,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Fem.Properties.ElementProperty" Collapsed="true">
-    <Position X="21.75" Y="4.75" Width="1.5" />
+    <Position X="23" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
       <FileName>FEM\ElementProperty\ElementProperty.cs</FileName>
@@ -66,7 +78,7 @@
   <Class Name="GPC.Model.Sections.SectionCHS" Collapsed="true">
     <Position X="44.5" Y="9" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ACEAAQAIABABAASkAAAAAAAgYUYAIACIJEIBBAAAAAA=</HashCode>
+      <HashCode>ACEAAQAIBBABAASkAAAAAAAgYUYAIACIJEIBBAAAAAA=</HashCode>
       <FileName>Sections\SectionCHS.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -106,7 +118,7 @@
   <Class Name="GPC.Model.Sections.Steel.SteelSectionCHS">
     <Position X="45.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAACAABAAAAAAAAACAAQAwAAAAEAAAAAAAAAAgAgA=</HashCode>
+      <HashCode>AAAAACAAAAAAAAAAAACAAQAwAAAAEAAAAAAAAAAgAgA=</HashCode>
       <FileName>Sections\Steel\SteelSectionCHS.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -136,7 +148,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Sections.Steel.SteelSectionCircular" Collapsed="true">
-    <Position X="21.25" Y="9" Width="1.75" />
+    <Position X="21.5" Y="9" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAiA=</HashCode>
       <FileName>Sections\Steel\SteelSectionCircular.cs</FileName>
@@ -150,7 +162,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionRectangular" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionRectangular">
     <Position X="50.25" Y="10.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAgACAAAAQAAAAEIAAAAAAAAAgAiA=</HashCode>
@@ -206,7 +218,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionC" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionC">
     <Position X="25.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAgACAAAAwAEAAEIAAAAAAABAgAiA=</HashCode>
@@ -222,7 +234,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionH" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionH">
     <Position X="29.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAAACAAAAwAEAAEAAAAAAAABAgAAA=</HashCode>
@@ -238,7 +250,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionL" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionL">
     <Position X="33.5" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAAACAAAAwAEAAEAAAAAAAABAgAAA=</HashCode>
@@ -254,7 +266,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionRHS" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionRHS">
     <Position X="37.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAAACAAQAwAEAAEAAAAAAAABAgAgA=</HashCode>
@@ -270,7 +282,7 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Sections.Steel.SteelSectionT" Collapsed="true">
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionT">
     <Position X="41.75" Y="10.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAACAAAAAAAAAAAACAAAAwAEAAEAAAAAAAABAgAAA=</HashCode>
