@@ -1,4 +1,5 @@
 ﻿using GPC.Model.Materials;
+using static GPC.Model.Sections.Section;
 
 
 namespace GPC.Model.Sections.Steel
@@ -10,6 +11,10 @@ namespace GPC.Model.Sections.Steel
         Section.SectionTypes SectionType { get; }
 
         Section.FormedTypes FormedType { get; }
+
+        bool IsRolled { get; }
+
+        bool IsWelded { get; }
 
         ISection SectionShape { get; }
 
