@@ -76,7 +76,11 @@ namespace GPC.Model.Sections
 
         public double R => _r;
 
-        public double Height => VerticalLegLength;
+        public override double Height
+        {
+            get => VerticalLegLength;
+            set => VerticalLegLength = value;
+        }
 
         #endregion
 
@@ -150,7 +154,7 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
-        protected override void SetMechanicalProperties()
+        public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
 

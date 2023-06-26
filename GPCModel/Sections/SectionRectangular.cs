@@ -26,7 +26,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The height of the section
         /// </summary>
-        public double Height 
+        public override double Height 
         {
 			get => _height; 
             set

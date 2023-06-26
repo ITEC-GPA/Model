@@ -1,8 +1,9 @@
-using System;
-using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
+using static GPC.Model.Sections.ThinWallSection;
 
 namespace GPC.Model.Sections
 {
@@ -16,19 +17,21 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Diameter
         {
-            get => _diameter; 
+            get => _diameter;
             set
             {
-                if(_diameter != value && _diameter > 0)
+                if (_diameter != value && _diameter > 0)
                 {
                     _diameter = value;
                     SetMechanicalProperties();
-					_mesh = GetMesh();
-				}
+                    _mesh = GetMesh();
+                }
             }
         }
 
         public double Height => _diameter;
+
+        public ThinWall[] ThinWalls => null;
 
         #region Public Constructors
 
@@ -124,7 +127,7 @@ namespace GPC.Model.Sections
             return mesh;
         }
 
-        protected override void SetMechanicalProperties()
+        public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
@@ -219,6 +222,13 @@ namespace GPC.Model.Sections
                 return hashCode;
             }
         }
+
+        public Point2d[] GetSectionPoints()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetEdgeTypeFromSteelType(SectionTypes sectionType) { }
 
         public static bool operator ==(SectionCircular left, SectionCircular right)
         {

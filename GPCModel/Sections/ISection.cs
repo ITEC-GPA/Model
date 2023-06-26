@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using static GPC.Model.Sections.Section;
+using static GPC.Model.Sections.ThinWallSection;
 
 namespace GPC.Model.Sections
 {
@@ -28,6 +30,11 @@ namespace GPC.Model.Sections
         Geometry.Point2d Centroid { get; }
 
         Geometry.Point2d ShearCenter { get; }
+
+        /// <summary>
+        /// The angle of rotation of the principal axis.
+        /// </summary>
+        double AngleX1 { get; }
 
         double J11 { get; }
 
@@ -53,6 +60,56 @@ namespace GPC.Model.Sections
 
         double Wel2 { get; }
 
+        /// <summary>
+        /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid.
+        /// </summary>
+        double Wel1Min { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the 1-principal axes and the maximum (with sign) distance respect the centroid.
+        /// </summary>
+        double Wel1Max { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the 2-principal axes and the minimum (with sign) distance respect the centroid.
+        /// </summary>
+        double Wel2Min { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the 2-principal axes and the maximum (with sign) distance respect the centroid.
+        /// </summary>
+        double Wel2Max { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the X axes and the minimum (with sign) distance respect the centroid.
+        /// </summary>
+        double WelXMin { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the X axes and the maximum distance (with sign) respect the centroid.
+        /// </summary>
+        double WelXMax { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the Y axes and the minimum (with sign) distance respect the centroid.
+        /// </summary>
+        double WelYMin { get; }
+
+        /// <summary>
+        /// The elastic modulus calculated respect the Y axes and the maximum (with sign) distance respect the centroid.
+        /// </summary>
+        double WelYMax { get; }
+
+        /// <summary>
+        /// The minimum elastic modulus calculated respect the X-principal axes.
+        /// </summary>
+        double WelX { get; }
+
+        /// <summary>
+        /// The minimum elastic modulus calculated respect the X-principal axes.
+        /// </summary>
+        double WelY { get; }
+
         bool IsSymmetricAlongXLocalAxis { get; }
 
         bool IsSymmetricAlongYLocalAxis { get; }
@@ -60,5 +117,13 @@ namespace GPC.Model.Sections
         bool IsDoubleSymmetric { get; }
 
         Material Material { get; }
+
+        ThinWall[] ThinWalls { get; }
+
+        Point2d[] GetSectionPoints();
+
+        void SetEdgeTypeFromSteelType(SectionTypes sectionType);
+
+        void SetMechanicalProperties();
     }
 }

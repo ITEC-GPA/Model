@@ -20,7 +20,7 @@ namespace GPC.Model.Sections
 
 		#region Properties
 
-		public double Height
+		public override double Height
 		{
 			get => _h;
 			set

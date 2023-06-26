@@ -155,7 +155,7 @@ namespace ModelObjectTest
             double d = 400;
             double t = 10;
             double di = d - 2.0 * t;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, ""), Section.SectionTypes.Rolled, Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -189,7 +189,7 @@ namespace ModelObjectTest
         {
             double d = 250;
             double t = 5;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, ""), Section.SectionTypes.Rolled, Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -225,7 +225,7 @@ namespace ModelObjectTest
         {
             double d = 350;
             double t = 6;
-            var sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, ""), Section.SectionTypes.Rolled, Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -261,7 +261,7 @@ namespace ModelObjectTest
         {
             double d = 500;
             double t = 8;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, ""), Section.SectionTypes.Rolled, Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             Point2d shearCenter = centroid;
@@ -298,7 +298,7 @@ namespace ModelObjectTest
             double d = 400;
             double t = 10;
             double di = d - 2.0 * t;
-            SteelSectionCHS sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, "", Section.FormedTypes.ColdFormed);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, ""), Section.SectionTypes.Rolled, Section.FormedTypes.ColdFormed);
 
             Point2d centroid = new Point2d(d / 2, d / 2);
             double A = Math.PI * (d * d - di * di) / 4.0;
@@ -326,7 +326,7 @@ namespace ModelObjectTest
             double d = 300;
             double t = 8;
 
-            var sec = new SteelSectionCHS(d, t, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionCHS(d, t, SteelMaterialEN1993Data.S355, string.Empty));
 
             double sigmaMax = sec.GetMaxSigma(0, 11129770.82, 0);
             double sigmaMin = sec.GetMinSigma(0, 11129770.82, 0);
@@ -444,7 +444,7 @@ namespace ModelObjectTest
             double b = 100;
             double tf = 20;
             double tw = 10;
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 7200;
             double Jx = 39360000;
@@ -456,8 +456,8 @@ namespace ModelObjectTest
             double Jt = 23328000;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
-            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
+            Assert.AreEqual(b - 2 * tw, ((SectionRHS)sec.SectionShape).BaseInternal);
+            Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.Jyy) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jx / sec.Jxx) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
@@ -476,7 +476,7 @@ namespace ModelObjectTest
             double b = 200;
             double tf = 10;
             double tw = 10;
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 11600;
             double Jx = 243586666.67;
@@ -488,8 +488,8 @@ namespace ModelObjectTest
             double Jt = 189338275.9;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
-            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
+            Assert.AreEqual(b - 2 * tw, ((SectionRHS)sec.SectionShape).BaseInternal);
+            Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.Jyy) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jx / sec.Jxx) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
@@ -508,7 +508,7 @@ namespace ModelObjectTest
             double b = 300;
             double tf = 15;
             double tw = 15;
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 17100;
             double Jx = 232132500;
@@ -520,8 +520,8 @@ namespace ModelObjectTest
             double Jt = 347236875;
 
             Assert.AreEqual(A, sec.Area);
-            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
-            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
+            Assert.AreEqual(b - 2 * tw, ((SectionRHS)sec.SectionShape).BaseInternal);
+            Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.Jyy) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jx / sec.Jxx) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
@@ -540,15 +540,15 @@ namespace ModelObjectTest
             double b = 125;
             double tf = 12.5;
             double tw = 12.5;
-            SteelSectionRHS sec = new SteelSectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionRHS(h, b, tf, tf, tw, tw, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 6250;
             double Jx = 18880208.33;
             double Jy = 13997395.83;
 
             Assert.AreEqual(A, sec.Area, 0.001);
-            Assert.AreEqual(b - 2 * tw, sec.BaseInternal);
-            Assert.AreEqual(h - 2 * tf, sec.Heightinternal);
+            Assert.AreEqual(b - 2 * tw, ((SectionRHS)sec.SectionShape).BaseInternal);
+            Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
         }
@@ -592,7 +592,7 @@ namespace ModelObjectTest
             double tt = 10;
             double tb = 25;
             double radius = 5;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius), Section.SectionTypes.Welded, Section.FormedTypes.HotFinished);
 
             double A = 13880 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 3.193 * 1e8;
@@ -632,7 +632,7 @@ namespace ModelObjectTest
             double tt = 15;
             double tb = 25;
             double radius = 5;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius), Section.SectionTypes.Welded, Section.FormedTypes.HotFinished);
 
             double A = 20940 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 868212376.6714;
@@ -667,7 +667,7 @@ namespace ModelObjectTest
             double tt = 10;
             double tb = 40;
             double radius = 5;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius), Section.SectionTypes.Welded, Section.FormedTypes.HotFinished);
 
             double A = 28400 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 828928638;
@@ -708,7 +708,7 @@ namespace ModelObjectTest
             double tt = 40;
             double tb = 10;
             double radius = 5;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius), Section.SectionTypes.Welded, Section.FormedTypes.HotFinished);
 
             double A = 28400 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 828928638;
@@ -749,7 +749,7 @@ namespace ModelObjectTest
             double tt = 15;
             double tb = 40;
             double radius = 5;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, Section.SectionTypes.Welded, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius), Section.SectionTypes.Welded, Section.FormedTypes.HotFinished);
 
             double A = 28640 + 4 * Math.Pow((1.41 * radius), 2) / 2.0;
             double Jxx = 608058102;
@@ -787,7 +787,7 @@ namespace ModelObjectTest
             double bb = 400;
             double tt = 25;
             double tb = 25;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 25600;
             double Jxx = 761333333.3333;
@@ -821,7 +821,7 @@ namespace ModelObjectTest
             double bb = 350;
             double tt = 25;
             double tb = 25;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 23800;
             double Jxx = 1094333333.3333;
@@ -856,8 +856,8 @@ namespace ModelObjectTest
             double tt = 140;
             double tb = 140;
             double r = 15;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty,
-                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, r),
+                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
 
             double A = 165470;
             double Jxx = 7549500000;
@@ -893,7 +893,7 @@ namespace ModelObjectTest
             double bb = 473;
             double tt = 115.1;
             double tb = 115.1;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 175370;          // da catalogo (tiene in conto anche i raggi)
             double Jxx = 30354000000;
@@ -928,8 +928,8 @@ namespace ModelObjectTest
             double tt = 12.7;
             double tb = 12.7;
             double radius = 18;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355,
-                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, radius);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, radius),
+                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
 
             double A = 7270;          // da catalogo (tiene in conto anche i raggi)
             double Jxx = 162600000;
@@ -978,7 +978,7 @@ namespace ModelObjectTest
             double bb = 214;
             double tt = 23.6;
             double tb = 23.6;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty));
 
             double A = 17477;          // calcolato con foglio excel marco
             double Jxx = 8.52 * 1e8;
@@ -1006,8 +1006,8 @@ namespace ModelObjectTest
             double tb = 14.0;
             double r = 27.0;
 
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355,
-                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty, r),
+                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
 
             double A = 11253;
             double Jxx = 182630000;
@@ -1034,8 +1034,8 @@ namespace ModelObjectTest
             double webThickness = 7.1;
             double r = 15.0;
 
-            SteelSectionH sec = new SteelSectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
-                string.Empty, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished, r);
+            var sec = new SteelSection(new SectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355, string.Empty, r),
+                Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
 
             double Jxx = 83560000;
             double Jyy = 6038000;
@@ -1067,7 +1067,7 @@ namespace ModelObjectTest
             JxyIntegral = 0.0;
             Wel1Integral = 0.0;
             Wpl1Integral = 0.0;
-            for (int i = 0; i < sec.ThinWalls.Length; i++)
+            for (int i = 0; i < sec.SectionShape.ThinWalls.Length; i++)
             {
                 var thinWall = sec.ThinWalls[i];
                 var middleLine = thinWall.GetMiddleLine();
@@ -1128,7 +1128,7 @@ namespace ModelObjectTest
         [DataRow("IPE80", 46.0, 80.0, 3.8, 5.2, 5.0,
             0.0015, 0.004, 0.035, 0.009)]
 
-        public void SectionHSymmetric_Test9(string description, double width, double height, double webThickness, double flangeThickness, double radius,
+        public void SectionHSymmetric_Test9(string _, double width, double height, double webThickness, double flangeThickness, double radius,
             double direction1ErrorLimit, double direction2ErrorLimit, double direction1ErrorLimitWithFillet, double direction2ErrorLimitWithFillet)
         {
             // Linear integration over thin walls.
@@ -1170,7 +1170,7 @@ namespace ModelObjectTest
             var sec = new SteelSection(new SectionH(h, webThickness, width, flangeThickness, width, flangeThickness, SteelMaterialEN1993Data.S355,
                 string.Empty, r), Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
 
-            Point2d[] points = sec.GetSectionPoints();
+            var points = sec.SectionShape.GetSectionPoints();
             List<Point2d> list = new List<Point2d>();
             double item = 1;
 
@@ -1210,7 +1210,7 @@ namespace ModelObjectTest
             double bb = 127;
             double tt = 9.652;
             double tb = 9.652;
-            SteelSectionH sec = new SteelSectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty);
+            var sec = new SteelSection(new SectionH(h, tw, bt, tt, bb, tb, SteelMaterialEN1993Data.S355, string.Empty));
 
             double sigmaMax = sec.GetMaxSigma(0, 10656502.7, 0);
             double sigmaMin = sec.GetMinSigma(0, 10656502.7, 0);
@@ -1581,7 +1581,7 @@ namespace ModelObjectTest
             double flexModule = 1.0 / (lVert - centerID.Y);
 
             SectionPropertiesIntegrals(secNoRadius, flexModule, centerID,
-                out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double Wpl1Integral);
+                out double JxxIntegral, out double JyyIntegral, out double JxyIntegral, out double Wel1Integral, out double _);
 
             // Error without fillet radius (radius=0.0).
             Assert.AreEqual(secNoRadius.Jxx, JxxIntegral, secNoRadius.Jxx * errorLimit);

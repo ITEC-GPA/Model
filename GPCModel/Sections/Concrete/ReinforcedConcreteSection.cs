@@ -453,7 +453,7 @@ namespace GPC.Model.Sections.Concrete
         /// <summary>
         /// Internal method to set the mechanical properties to the section
         /// </summary>
-        protected override void SetMechanicalProperties()
+        public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
 

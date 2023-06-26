@@ -2,9 +2,9 @@
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
-using static GPC.Model.Sections.ThinWallSection;
-using static System.Net.WebRequestMethods;
+using static GPC.Model.Sections.Section;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -35,6 +35,8 @@ namespace GPC.Model.Sections.Steel
 
         public Point2d ShearCenter => _sectionShape.ShearCenter;
 
+        public double AngleX1 => _sectionShape.AngleX1;
+
         public double J11 => _sectionShape.J11;
 
         public double J22 => _sectionShape.J22;
@@ -59,6 +61,26 @@ namespace GPC.Model.Sections.Steel
 
         public double Wel2 => _sectionShape.Wel2;
 
+        public double Wel1Min => _sectionShape.Wel1Min;
+
+        public double Wel1Max => _sectionShape.Wel1Max;
+
+        public double Wel2Min => _sectionShape.Wel2Min;
+
+        public double Wel2Max => _sectionShape.Wel2Max;
+
+        public double WelXMin => _sectionShape.WelXMin;
+
+        public double WelXMax => _sectionShape.WelXMax;
+
+        public double WelYMin => _sectionShape.WelYMin;
+
+        public double WelYMax => _sectionShape.WelYMax;
+
+        public double WelX => _sectionShape.WelX;
+
+        public double WelY => _sectionShape.WelY;
+
         public bool IsSymmetricAlongXLocalAxis => _sectionShape.IsSymmetricAlongXLocalAxis;
 
         public bool IsSymmetricAlongYLocalAxis => _sectionShape.IsSymmetricAlongYLocalAxis;
@@ -66,6 +88,8 @@ namespace GPC.Model.Sections.Steel
         public bool IsDoubleSymmetric => _sectionShape.IsDoubleSymmetric;
 
         public Material Material => _sectionShape.Material;
+
+        public ThinWallSection.ThinWall[] ThinWalls => _sectionShape.ThinWalls;
 
         #endregion
 
@@ -78,6 +102,8 @@ namespace GPC.Model.Sections.Steel
             _sectionShape = sectionShape ?? throw new ArgumentNullException(nameof(_sectionShape));
             _sectionType = sectionType;
             _formedType = formedType;
+            SetEdgeTypeFromSteelType(sectionType);
+            SetMechanicalProperties();
         }
 
         protected SteelSection(SerializationInfo info, StreamingContext context)
@@ -119,6 +145,51 @@ namespace GPC.Model.Sections.Steel
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("SectionType", _sectionType);
             info.AddValue("FormedType", _formedType);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public virtual double GetMinSigma(double N, double M1, double M2)
+        {
+            double wel1 = Math.Min(Wel1Max, Wel1Min);
+            double wel2 = Math.Min(Wel2Max, Wel2Min);
+
+            double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
+            double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
+            double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
+            double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
+
+            return (new double[] { sigmap1, sigmap2, sigmap3, sigmap4 }).Min();
+        }
+
+        public virtual double GetMaxSigma(double N, double M1, double M2)
+        {
+            double wel1 = Math.Min(Wel1Max, Wel1Min);
+            double wel2 = Math.Min(Wel2Max, Wel2Min);
+
+            double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
+            double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
+            double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
+            double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
+
+            return (new double[] { sigmap1, sigmap2, sigmap3, sigmap4 }).Max();
+        }
+
+        public Point2d[] GetSectionPoints()
+        {
+            return _sectionShape.GetSectionPoints();
+        }
+
+        public void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        {
+            _sectionShape.SetEdgeTypeFromSteelType(sectionType);
+        }
+
+        public void SetMechanicalProperties()
+        {
+            _sectionShape.SetMechanicalProperties();
         }
 
         #endregion

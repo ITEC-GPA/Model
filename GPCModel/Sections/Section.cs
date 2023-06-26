@@ -413,32 +413,6 @@ namespace GPC.Model.Sections
 			return _material.GetIsotropicFemMaterial();
 		}
 
-		public virtual double GetMinSigma(double N, double M1, double M2)
-		{
-			double wel1 = Math.Min(Wel1Max, Wel1Min);
-			double wel2 = Math.Min(Wel2Max, Wel2Min);
-
-			double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
-			double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
-			double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
-			double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
-
-			return GetMin(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
-		}
-
-		public virtual double GetMaxSigma(double N, double M1, double M2)
-		{
-			double wel1 = Math.Min(Wel1Max, Wel1Min);
-			double wel2 = Math.Min(Wel2Max, Wel2Min);
-
-			double sigmap1 = N / Area - M1 / wel1 + M2 / wel2;
-			double sigmap2 = N / Area - M1 / wel1 - M2 / wel2;
-			double sigmap3 = N / Area + M1 / wel1 + M2 / wel2;
-			double sigmap4 = N / Area + M1 / wel1 - M2 / wel2;
-
-			return GetMax(new double[] { sigmap1, sigmap2, sigmap3, sigmap4 });
-		}
-
 		/// <summary>
 		/// Update the mesh size and regenerate the mesh with the new size
 		/// </summary>
@@ -449,14 +423,14 @@ namespace GPC.Model.Sections
 			_mesh = GetMesh();
 		}
 
-		#endregion
+        #endregion
 
-		#region Protected virtual methods
+        #region Protected virtual methods
 
-		/// <summary>
-		/// Internal method to set the mechanical properties to the section
-		/// </summary>
-		protected virtual void SetMechanicalProperties()
+        /// <summary>
+        /// Internal method to set the mechanical properties to the section
+        /// </summary>
+        public virtual void SetMechanicalProperties()
 		{
 			_area = CalculateArea();
 
@@ -642,32 +616,6 @@ namespace GPC.Model.Sections
 			catch (Exception) { }
 
 			return SectionHelper.GenerateMesh(GetShape(), meshSize, true, recombine, refine);
-		}
-
-		private double GetMax(double[] array)
-		{
-			double startValue = array.First();
-
-			for (int i = 0; i < array.Count(); i++)
-			{
-				if (array[i] > startValue)
-					startValue = array[i];
-			}
-
-			return startValue;
-		}
-
-		private double GetMin(double[] array)
-		{
-			double startValue = array.First();
-
-			for (int i = 0; i < array.Count(); i++)
-			{
-				if (array[i] < startValue)
-					startValue = array[i];
-			}
-
-			return startValue;
 		}
 
 		#endregion

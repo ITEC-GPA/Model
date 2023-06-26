@@ -12,5 +12,9 @@ namespace GPC.Model.Sections.Steel
         Section.FormedTypes FormedType { get; }
 
         ISection SectionShape { get; }
+
+        double GetMinSigma(double N, double M1, double M2);
+
+        double GetMaxSigma(double N, double M1, double M2);
     }
 }

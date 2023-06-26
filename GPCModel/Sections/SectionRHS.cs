@@ -38,7 +38,7 @@ namespace GPC.Model.Sections
 
         public double BaseInternal => _b - _twL - _twR;
 
-        public double Height
+        public override double Height
         {
             get => _h;
             set

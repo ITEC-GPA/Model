@@ -55,7 +55,11 @@ namespace GPC.Model.Sections
         /// </summary>
         public double DiameterInternal => _externalDiameter - (2 * _thickness);
 
-        public double Height => Diameter;
+        public override double Height
+        {
+            get => Diameter;
+            set => Diameter = value;
+        }
 
         #endregion
 
@@ -100,7 +104,7 @@ namespace GPC.Model.Sections
 
         #region Public method
 
-        protected override void SetMechanicalProperties()
+        public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
