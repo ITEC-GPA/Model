@@ -58,8 +58,8 @@ namespace GPC.Model.Glasses
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="glassPanelCentral">Central glass panel</param>
-        /// <param name="airChamberOuter">Outer air thickness</param>
-        /// <param name="airChamberInner">Inner air thickness</param>
+        /// <param name="airChamberOuter">Outer air _thickness</param>
+        /// <param name="airChamberInner">Inner air _thickness</param>
         public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, 
                                                   IGlassPanel glassPanelInner, AirChamber airChamberOuter, AirChamber airChamberInner)
             : this(name, glassPanelOuter, glassPanelCentral, glassPanelInner, airChamberOuter, airChamberInner, Guid.NewGuid())
@@ -71,8 +71,8 @@ namespace GPC.Model.Glasses
         /// <param name="glassPanelOuter">Outer glass panel</param>
         /// <param name="glassPanelInner">Inner glass panel</param>
         /// <param name="glassPanelCentral">Central glass panel</param>
-        /// <param name="airChamberOuter">Outer air thickness</param>
-        /// <param name="airChamberInner">Inner air thickness</param>
+        /// <param name="airChamberOuter">Outer air _thickness</param>
+        /// <param name="airChamberInner">Inner air _thickness</param>
         /// <param name="guid"></param>
         public TripleInsulatingGlass(string name, IGlassPanel glassPanelOuter, IGlassPanel glassPanelCentral, IGlassPanel glassPanelInner, 
                                                   AirChamber airChamberOuter, AirChamber airChamberInner, Guid guid)

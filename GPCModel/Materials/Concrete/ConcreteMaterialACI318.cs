@@ -23,18 +23,29 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Characteristic compressive cylinder strength of concrete at 28 days
         /// </summary>
-        public double Fc => _fc;
+        public double Fc 
+        { 
+            get => _fc; 
+            set 
+            {  
+                if(_fc != value)
+                {
+                    _fc = value;
+                    RecalculateMechanicalProperties();
+                }
+            } 
+        }
 
         /// <summary>
         /// Characteristic tensile strength of concrete
         /// </summary>
         /// <remarks>Mean tensile strength at 28 days</remarks>
-        public double Fct => _fct;
+        public double Fct { get => _fct; set => _fct = value; }
 
         /// <summary>
         /// Ultimate strain in tension
         /// </summary>
-        public double Fctu => _fctu;
+        public double Fctu { get => _fctu; set => _fctu = value; }
 
         #endregion
 
@@ -531,11 +542,19 @@ namespace GPC.Model.Materials
                 return GetStress(strain);
         }
 
-		#endregion
+        public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            if (compressionStressStrainDiagrams != CompressionStressStrainDiagrams.Generic)
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            else
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.ParabolaRectangle;
+        }
 
-		#region Equals, hashcode, operators
+        #endregion
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        #region Equals, hashcode, operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
 

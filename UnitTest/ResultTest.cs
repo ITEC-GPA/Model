@@ -5,7 +5,8 @@ using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MathNet.Numerics.LinearAlgebra;
 using System;
-using GPC.Utilities.Extensions ;
+using GPC.Utilities.Extensions;
+using GPC.Utilities.Maths;
 
 namespace ModelObjectTest
 {
@@ -576,6 +577,33 @@ namespace ModelObjectTest
 			Assert.IsTrue(Math.Abs(forcesRotated.M1 - expForces.M1) < 1);
 			Assert.IsTrue(Math.Abs(forcesRotated.M2 - expForces.M2) < 1);
 			Assert.IsTrue(Math.Abs(forcesRotated.N - expForces.N) < 1);
-		}
-	}
+        }
+
+        [TestMethod]
+        public void ResultBeamForcesToNewCoordinateSystemTest6()
+        {
+            Point3d origin = new Point3d(10, 10, 0);
+            Vector3d asseX = new Vector3d(1, 0, 0);
+            Vector3d asseY = new Vector3d(0, 1, 0);
+
+            CoordinateSystem coordinateSystem = new CoordinateSystem(origin, asseX, asseY, "CS");
+
+            //double alpha = 7.543;
+            //Vector3d asseXRotated = new Vector3d(Math.Cos(alpha.ToRadians()), Math.Sin(alpha.ToRadians()), 0);
+            //Vector3d asseYRotated = new Vector3d(-Math.Sin(alpha.ToRadians()), Math.Cos(alpha.ToRadians()), 0);
+
+            CoordinateSystem coordinateSystemRotated = new CoordinateSystem(Point3d.Origin, asseX, asseY, "CSR");
+
+            ResultBeamForces forces = new ResultBeamForces(1000, 0, 100, 50, 0, 0, coordinateSystem);
+            ResultBeamForces forcesNewPos = forces.ToCoordinateSystemWithEccentricity(coordinateSystemRotated);
+            ResultBeamForces expForces = new ResultBeamForces(1000, 0, 100, 1050, 10000, -10000, coordinateSystemRotated);
+
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.N, expForces.N));
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.V1, expForces.V1));
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.V2, expForces.V2));
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.T, expForces.T));
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.M1, expForces.M1));
+            Assert.IsTrue(Error.AreEqualsDouble(forcesNewPos.M2, expForces.M2));
+        }
+    }
 }

@@ -365,6 +365,6 @@ FodyWeavers.xsd
 [Ss]amples/
 femm.png
 *.rui
-*.cd
+# *.cd
 
 PushNugetPackage.bat

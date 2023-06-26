@@ -33,7 +33,7 @@ namespace GPC.Model.Fem.FiniteElements
         protected AttributesCollection<LoadCaseAttribute> _attributesLoadCase;
         protected AttributesCollection<FreedomCaseAttribute> _attributesFreedomCase;
 
-        //contains informations about section, thickness, material etc of the element
+        //contains informations about section, _thickness, material etc of the element
         protected ElementProperty _property;
 
         //contains the nodes in global coordinates
@@ -59,7 +59,7 @@ namespace GPC.Model.Fem.FiniteElements
         public SortedSet<Solver.DOF> DOF => _DOF;
 
         /// <summary>
-        /// Contains Material for brick, thickness and material for plate, material + section for beam
+        /// Contains Material for brick, _thickness and material for plate, material + section for beam
         /// </summary>
         public ElementProperty Property => _property;
 

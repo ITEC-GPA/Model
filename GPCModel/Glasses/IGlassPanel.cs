@@ -3,7 +3,7 @@ namespace GPC.Model.Glasses
 {
     public interface IGlassPanel
     {
-        /// <returns>Total thickness of the glass package included interlayer</returns>
+        /// <returns>Total _thickness of the glass package included interlayer</returns>
         double TotalThickness { get; }
 
         /// <returns>The mininum Elastic modulus of the glass panels</returns>

@@ -20,7 +20,7 @@ namespace GPC.Model.Fem
 
         public FemObject()
         {
-
+            _groups = new UniqueNameCollection<Group>();
         }
 
         public FemObject(string name)
@@ -103,6 +103,14 @@ namespace GPC.Model.Fem
 
         public static bool operator ==(FemObject obj1, FemObject obj2)
         {
+            if (obj1 is null)
+            {
+                if (obj2 is null)
+                    return true;
+                else
+                    return false;
+            }
+
             return obj1.Equals(obj2);
         }
 

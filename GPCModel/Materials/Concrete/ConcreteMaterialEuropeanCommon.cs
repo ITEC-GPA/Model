@@ -15,7 +15,7 @@ namespace GPC.Model.Materials
         protected double _fctk;
         protected double _fctu;
 
-        protected CementType _cementType;
+        protected CementTypes _cementType;
 
         #endregion
 
@@ -24,18 +24,34 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Characteristic compressive cylinder strength of concrete at 28 days
         /// </summary>
-        public double Fck => _fck;
+        public double Fck 
+        {
+			get => _fck;
+            set
+            {
+                if(_fck != value)
+                {
+                    _fck = value;
+                    RecalculateMechanicalProperties();
+                }
+            }
+		}
 
         /// <summary>
         /// Characteristic tensile strength of concrete
         /// </summary>
         /// <remarks>Mean tensile strength at 28 days</remarks>
-        public double Fctk => _fctk;
+        public double Fctk { get => _fctk; set => _fctk = value; }
 
         /// <summary>
         /// Ultimate strain in tension
         /// </summary>
-        public double Fctu => _fctu;
+        public double Fctu { get => _fctu; set => _fctu = value; }
+
+        /// <summary>
+        /// Type of cement
+        /// </summary>
+        public CementTypes CementType { get => _cementType; set => _cementType = value; }
 
         /// <summary>
         /// Mean compressive strength at 28 days
@@ -73,7 +89,7 @@ namespace GPC.Model.Materials
 
         // Costruttore per cls normale
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -93,7 +109,7 @@ namespace GPC.Model.Materials
         // Costruttore per cls frc
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -115,7 +131,7 @@ namespace GPC.Model.Materials
         public ConcreteMaterialEuropeanCommon(string name, double strainYTension, double strainYCompression,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
-            CementType cementType = CementType.ClassN)
+            CementTypes cementType = CementTypes.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension, stressStrainTableCompression.GetElasticModulus(),
                   stressStrainTableTension.GetElasticModulus(), poisson, density, alfaThermalExpansion)
         {
@@ -178,11 +194,11 @@ namespace GPC.Model.Materials
             _fctu = info.GetDouble("Fctu");
             try
             {
-                _cementType = (CementType)info.GetValue("CementType", typeof(CementType));
+                _cementType = (CementTypes)info.GetValue("CementType", typeof(CementTypes));
             }
             catch(Exception)
 			{
-                _cementType = CementType.ClassN;
+                _cementType = CementTypes.ClassN;
 			}
         }
 
@@ -241,9 +257,9 @@ namespace GPC.Model.Materials
             if (deltaTemperature != 0)
             {
                 double alpha;
-                if (_cementType == CementType.ClassS)
+                if (_cementType == CementTypes.ClassS)
                     alpha = -1.0;
-                else if (_cementType == CementType.ClassN)
+                else if (_cementType == CementTypes.ClassN)
                     alpha = 0.0;
                 else
                     alpha = 1.0;
@@ -290,17 +306,17 @@ namespace GPC.Model.Materials
             double alphads1;
             double alphads2;
 
-            if (_cementType == CementType.ClassS)
+            if (_cementType == CementTypes.ClassS)
             {
                 alphads1 = 3.0;
                 alphads2 = 0.13;
             }
-            else if (_cementType == CementType.ClassN)
+            else if (_cementType == CementTypes.ClassN)
             {
                 alphads1 = 4;
                 alphads2 = 0.12;
             }
-            else if (_cementType == CementType.ClassR)
+            else if (_cementType == CementTypes.ClassR)
             {
                 alphads1 = 6.0;
                 alphads2 = 0.11;
@@ -701,7 +717,7 @@ namespace GPC.Model.Materials
 
         protected virtual void SetProperties(double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension,
-            TensionStressStrainDiagrams tensionStressStrainDiagrams, CementType cementType)
+            TensionStressStrainDiagrams tensionStressStrainDiagrams, CementTypes cementType)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
@@ -797,13 +813,13 @@ namespace GPC.Model.Materials
         {
             switch (_cementType)
             {
-                case CementType.ClassN:
+                case CementTypes.ClassN:
                     return 0.25;
 
-                case CementType.ClassR:
+                case CementTypes.ClassR:
                     return 0.20;
 
-                case CementType.ClassS:
+                case CementTypes.ClassS:
                     return 0.38;
 
                 default:

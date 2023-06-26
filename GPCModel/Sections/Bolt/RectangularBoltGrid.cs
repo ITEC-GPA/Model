@@ -1,0 +1,44 @@
+using GPC.Geometry;
+using GPC.Model.Materials;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using static GPC.Model.Sections.Bolt.BoltGrid;
+
+namespace GPC.Model.Sections.Bolt
+{
+    /// <summary>
+	/// Obsolete: it is no longer used, instead the generic BoltGrid is used.
+    /// Maintained only for testing.
+	/// </summary>
+    public class RectangularBoltGrid : BoltGrid
+	{
+		protected IEnumerable<double> _stepX;
+		protected IEnumerable<double> _stepY;
+
+		public IEnumerable<double> StepX => _stepX;
+		public IEnumerable<double> StepY => _stepY;
+
+		#region Public Constructors
+
+		/// <summary>
+		/// Creates a rectangular grid of bolts.
+		/// </summary>
+		/// <param name="stepX">Steps in X.</param>
+		/// <param name="stepY">Steps in Y.</param>
+		/// <param name="diameter"></param>
+		/// <param name="mat"></param>
+		/// <param name="origin">Starting point, bottom right corner.</param>
+		public RectangularBoltGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = default(Point2d), string name = "")
+			: base(name)
+		{
+			_stepX = stepX;
+			_stepY = stepY;
+
+			List<BoltPosition> bolts = AddBoltsRectangularGrid(stepX, stepY, diameter, mat, origin);
+		}
+
+		#endregion
+	}
+}

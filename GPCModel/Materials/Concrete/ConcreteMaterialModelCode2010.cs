@@ -13,13 +13,13 @@ namespace GPC.Model.Materials
         public ConcreteMaterialModelCode2010(string name, double strainYCompression, double strainYTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
-            CementType cementType = CementType.ClassN)
+            CementTypes cementType = CementTypes.ClassN)
             : base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, concreteType, poisson, density, alfaThermalExpansion, cementType)
         {
         }
 
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType = ConcreteTypes.Concrete,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, fck, compressionStressStrainDiagrams, concreteType, poisson, density, alfaThermalExpansion, cementType)
         {
 
@@ -27,7 +27,7 @@ namespace GPC.Model.Materials
 
         public ConcreteMaterialModelCode2010(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, ConcreteTypes concreteType = ConcreteTypes.FRC,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementType cementType = CementType.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, fck, compressionStressStrainDiagrams, ffts, fFtu, strainYTension, strainUTension,
                   tensionStressStrainDiagrams, concreteType, poisson, density, alfaThermalExpansion, cementType)
         {
@@ -197,7 +197,23 @@ namespace GPC.Model.Materials
 				default:
 					break;
 			}
-		}
+        }
+
+        public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            if (compressionStressStrainDiagrams != CompressionStressStrainDiagrams.Generic)
+                _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            else
+                _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.ParabolaRectangle;
+        }
+
+        public void SetTensionStressStrainDiagram(TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+            if (tensionStressStrainDiagrams != TensionStressStrainDiagrams.Generic)
+                _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+            else
+                _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Bilinear;
+        }
 
         #endregion
 

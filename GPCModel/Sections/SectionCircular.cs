@@ -9,14 +9,24 @@ namespace GPC.Model.Sections
     [Serializable]
     public class SectionCircular : Section, ISection, ISerializable
     {
-
         protected double _diameter;
 
         /// <summary>
         /// The diameter
         /// </summary>
-        public double Diameter => _diameter;
-
+        public double Diameter
+        {
+            get => _diameter; 
+            set
+            {
+                if(_diameter != value && _diameter > 0)
+                {
+                    _diameter = value;
+                    SetMechanicalProperties();
+					_mesh = GetMesh();
+				}
+            }
+        }
 
         #region Public Constructors
 
