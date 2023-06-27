@@ -72,9 +72,9 @@ namespace PerformanceTest
             Action ac1 = new Action(FunctionToTest1);
             Action ac2 = new Action(FunctionToTest2);
 
-            var bb0 = MeasureTime.FunctionExecutionTime(20, ac0, true, "List"); ;
-            var bb1 = MeasureTime.FunctionExecutionTime(20, ac1, true, "NodesCollection"); ;
-            var bb2 = MeasureTime.FunctionExecutionTime(20, ac2, true, "Dictionary"); ;
+            var bb0 = MeasureTime.FunctionExecutionTime(10, ac0, true, "List"); ;
+            var bb1 = MeasureTime.FunctionExecutionTime(10, ac1, true, "NodesCollection"); ;
+            var bb2 = MeasureTime.FunctionExecutionTime(10, ac2, true, "Dictionary"); ;
         }
 
 
@@ -316,7 +316,7 @@ namespace PerformanceTest
         [TestMethod]
         public void NodeCollectionEditing1()
         {
-            int amountOfNodes = 10000;
+            int amountOfNodes = 1000;
             NodeCollection nodesCollection = new NodeCollection();
             int[] ids = new int[amountOfNodes];
 

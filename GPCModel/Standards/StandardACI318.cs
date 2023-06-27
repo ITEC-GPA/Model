@@ -108,6 +108,16 @@ namespace GPC.Model.Standards
 		protected StandardACI318(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
+			int version;
+			try
+			{
+				version = info.GetInt32("StandardACI318Version");
+			}
+			catch (Exception)
+			{
+				version = 1;
+			}
+
 			_phiCSpiral = info.GetDouble("PhiCSpiral");
 			_phiCTied = info.GetDouble("PhiCTied");
 			_phiMaximumCompressiveAxialLoadSpiral = info.GetDouble("PhiSpiral");
@@ -117,7 +127,11 @@ namespace GPC.Model.Standards
 			_phiDeformationTransitionIncrement = info.GetDouble("PhiDeformationTransitionIncrement");
 			_phiDeformationTransitionIncrementPrestress = info.GetDouble("PhiDeformationTransitionIncrementPrestress");
 			_concreteStrengthReductionFactor = info.GetDouble("ConcreteStrengthReductionFactor");
-			_phiDeformationTransitionMaxLimit = info.GetDouble("PhiDeformationTransitionMaxLimit");
+
+			if (version >= 2)
+				_phiDeformationTransitionMaxLimit = info.GetDouble("PhiDeformationTransitionMaxLimit");
+			else
+				_phiDeformationTransitionMaxLimit = 0.005;
 		}
 
 		#endregion
@@ -161,6 +175,10 @@ namespace GPC.Model.Standards
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
+
+			double version = 2;
+			info.AddValue("StandardACI318Version", version);
+
 			info.AddValue("PhiCSpiral", _phiCSpiral);
 			info.AddValue("PhiCTied", _phiCTied);
 			info.AddValue("PhiSpiral", _phiMaximumCompressiveAxialLoadSpiral);
@@ -171,50 +189,6 @@ namespace GPC.Model.Standards
 			info.AddValue("PhiDeformationTransitionIncrementPrestress", _phiDeformationTransitionIncrementPrestress);
 			info.AddValue("ConcreteStrengthReductionFactor", _concreteStrengthReductionFactor);
 			info.AddValue("PhiDeformationTransitionMaxLimit", _phiDeformationTransitionMaxLimit);
-		}
-
-		#endregion
-
-		#region Public Setter
-
-		public void SetPhiCSpiral(double phiCSpiral)
-		{
-			_phiCSpiral = phiCSpiral;
-		}
-
-		public void SetPhiCTied(double phiCTied)
-		{
-			_phiCTied = phiCTied;
-		}
-
-		public void SetPhiMaximumCompressiveAxialLoadSpiral(double phiSpiral)
-		{
-			_phiMaximumCompressiveAxialLoadSpiral = phiSpiral;
-		}
-
-		public void SetPhiMaximumCompressiveAxialLoadTied(double phiTied)
-		{
-			_phiMaximumCompressiveAxialLoadTied = phiTied;
-		}
-
-		public void SetPhiT(double phiT)
-		{
-			_phiT = phiT;
-		}
-
-		public void SetPhiTP(double phiT)
-		{
-			_phiTP = phiT;
-		}
-
-		public void SetPhiDeformationTransitionIncrement(double phiDeformationTransitionIncrement)
-		{
-			_phiDeformationTransitionIncrement = phiDeformationTransitionIncrement;
-		}
-
-		public void SetPhiDeformationTransitionIncrementPrestress(double phiDeformationTransitionIncrement)
-		{
-			_phiDeformationTransitionIncrementPrestress = phiDeformationTransitionIncrement;
 		}
 
 		#endregion
