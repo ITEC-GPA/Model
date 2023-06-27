@@ -1,28 +1,23 @@
+using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Geometry.Meshes.GMesh;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
+using GPC.Model.FreedomCases;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
+using GPC.Model.Materials;
+using GPC.Model.Restrains;
+using GPC.Model.Sections;
+using GPC.Model.Sections.Concrete;
+using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
 using System.Collections.Generic;
-using GPC.Geometry.Meshes;
-using GPC.Geometry;
-using GPC.Model.Materials;
-using GPC.Model.Loads;
-using GPC.Model.LoadCases;
-using GPC.Model.Combinations;
-using GPC.Model.FreedomCases;
-using GPC.Model.Fem;
-using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.Attributes;
-using GPC.Model.Fem.Materials;
-using GPC.Model.Fem.FiniteElements;
-using GPC.Model.Restrains;
-using GPC.Model.Results;
 using System.Diagnostics;
 using System.Linq;
-using GPC.TestUtilities;
-using GPC.Model.Sections;
-using GPC.Model.Fem.Collections;
-using GPC.Model.Sections.Concrete;
-using GPC.Geometry.Meshes.GMesh;
 
 namespace FemTest
 {
@@ -34,7 +29,7 @@ namespace FemTest
         #region Private Methods
 
         private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
-        {            
+        {
             Mesh mesh = new Mesh();
 
             double[] xIncrement = new double[numberOfFaceX + 1];
@@ -131,10 +126,10 @@ namespace FemTest
 
 
         #region Test
-          
+
         [TestMethod]
         [TestCategory("Missing Assert")]
-        [TestCategory("Performance")]        
+        [TestCategory("Performance")]
         public void FemModelTest1()
         {
             // Arrange   
@@ -198,7 +193,7 @@ namespace FemTest
             stopWatch.Stop();
             Debug.WriteLine(stopWatch.ElapsedMilliseconds, "Mesh added");
 
-            
+
             // Starting optimization from about 1600 ms
             Debug.WriteLine("Finish");
             Assert.IsTrue(stopWatch.ElapsedMilliseconds < 800, "Too slow");
@@ -258,7 +253,7 @@ namespace FemTest
             var mesh = femModel.GetMesh();
 
             // Assert
-            
+
             foreach (var edge in mesh.Edges)
             {
                 var vertex1 = mesh.Vertices.Where(i => i.Id == edge.A).DefaultIfEmpty(null).FirstOrDefault();
@@ -271,7 +266,7 @@ namespace FemTest
                 }
             }
 
-            foreach(var element in femModel.GetElements())
+            foreach (var element in femModel.GetElements())
             {
                 if (element is Plate plate)
                 {
@@ -303,7 +298,7 @@ namespace FemTest
             LineLoad l1 = new LineLoad(1, 2, 3, 4, 5, 6, new Line3d(new Point3d(35, 150, 0), new Point3d(75, 100, 0)), new LoadCaseBase("LC2"));
 
             femModel.AddProperty(pp);
-            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { p1, l1}, null);
+            femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { p1, l1 }, null);
 
 
             var mesh = femModel.GetMesh();
@@ -329,7 +324,7 @@ namespace FemTest
         public void AddShape3()
         {
             double meshSize = 100;
-            double maximumEdgeLenght = meshSize*1.2;
+            double maximumEdgeLenght = meshSize * 1.2;
 
             //Arrange
             FemModelBuilder femModel = new FemModelBuilder();
@@ -337,7 +332,7 @@ namespace FemTest
             Shape s1 = CreateSimpleShape(100, 200);
             Shape s2 = new Shape(s1);
             s2.Move(100, 0, 0);
-            
+
             GlassMaterial gm = new GlassMaterialAstm("gp1", 1, 0.2, 3, 4, 5, 6, 0.008, 0.008, 9);
             MonolithicGlassProperty pp = new MonolithicGlassProperty(1, 2, gm.GetIsotropicFemMaterial(), "gp1");
 
@@ -357,7 +352,7 @@ namespace FemTest
             var mesh = femModel.GetMesh();
 
             //Arrange
-            foreach(var edge in mesh.Edges)
+            foreach (var edge in mesh.Edges)
             {
                 var vertex1 = mesh.Vertices.Where(i => i.Id == edge.A).DefaultIfEmpty(null).FirstOrDefault();
                 var vertex2 = mesh.Vertices.Where(i => i.Id == edge.B).DefaultIfEmpty(null).FirstOrDefault();
@@ -454,8 +449,8 @@ namespace FemTest
 
             // Assert
             var plates = femModel.GetElements();
-            
-            Console.WriteLine($"Elements with attribute {plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count()}" );
+
+            Console.WriteLine($"Elements with attribute {plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count()}");
 
             Assert.IsTrue(plates.Where(i => i.AttributesLoadCase.Count() > 0).ToList().Count() > 0);
 
@@ -468,7 +463,7 @@ namespace FemTest
                 {
                     loadMesh.AddFaceMesh(plate.Nodes.Select(i => i.Position).ToArray());
 
-                    foreach(var node in plate.Nodes)
+                    foreach (var node in plate.Nodes)
                     {
                         if (!areaLoad.Shape.IsPointInside(node.Position))
                         {
@@ -644,9 +639,9 @@ namespace FemTest
             //Act
             femModel.AddShape(s1, pp.Name, meshOptions, new List<Load>() { l1 }, null);
 
-            foreach(var element in femModel.GetElements())
+            foreach (var element in femModel.GetElements())
             {
-                Assert.IsTrue(element.AttributesLoadCase.Count == 1, element.AttributesLoadCase.Count.ToString()) ;
+                Assert.IsTrue(element.AttributesLoadCase.Count == 1, element.AttributesLoadCase.Count.ToString());
                 Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
                 Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
@@ -680,15 +675,15 @@ namespace FemTest
             MeshExport.ExportToMshFormatv2(base.GetFilePathInOutputFolder("exp", "msh"), new List<Mesh>() { femModel.GetMesh() });
 
 
-            Assert.IsTrue(femModel.GetElements().Length == (800*320)/(16*16), $"Count:{femModel.GetElements().Length} Expected:{(800 * 320) / (16 * 16)} ");
+            Assert.IsTrue(femModel.GetElements().Length == (800 * 320) / (16 * 16), $"Count:{femModel.GetElements().Length} Expected:{(800 * 320) / (16 * 16)} ");
 
             foreach (var element in femModel.GetElements())
             {
-                Assert.IsTrue(element.AttributesLoadCase.Count == 1, $"Id:{element.Id} {element.AttributesLoadCase.Count}" );
+                Assert.IsTrue(element.AttributesLoadCase.Count == 1, $"Id:{element.Id} {element.AttributesLoadCase.Count}");
                 Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().LoadCaseName == "LC2");
                 Assert.IsTrue(element.AttributesLoadCase.FirstOrDefault().GetType() == typeof(PlateNormalPressureAttribute));
             }
-            
+
         }
 
         [TestMethod]
@@ -703,17 +698,17 @@ namespace FemTest
             ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
             ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
 
-            ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, concreteMaterial1, "1");
-            ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, concreteMaterial2, "2");
-            ConcreteSectionCHS sectionCHS3 = new ConcreteSectionCHS(500, 10, concreteMaterial3, "3");
-            ConcreteSectionCHS sectionCHS4 = new ConcreteSectionCHS(500, 10, concreteMaterial4, "4");
+            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial1, "1"));
+            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial2, "2"));
+            var sectionCHS3 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial3, "3"));
+            var sectionCHS4 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial4, "4"));
 
             femModel.AddProperty(sectionCHS1);
             femModel.AddProperty(sectionCHS2);
             femModel.AddProperty(sectionCHS3);
             femModel.AddProperty(sectionCHS4);
-                        
-            Assert.IsTrue(femModel.GetBeamPropertyNames().Count == 4);           
+
+            Assert.IsTrue(femModel.GetBeamPropertyNames().Count == 4);
         }
 
         [TestMethod]
@@ -723,18 +718,18 @@ namespace FemTest
             //Arrange
             FemModel femModel = new FemModel();
 
-            ConcreteSectionCHS sectionCHS1 = new ConcreteSectionCHS(500, 10, null, "1");
-            ConcreteSectionCHS sectionCHS2 = new ConcreteSectionCHS(500, 10, null, "2");
+            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, null, "1"));
+            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, null, "2"));
 
-			try
-			{
+            try
+            {
                 femModel.AddProperty(sectionCHS1);
                 femModel.AddProperty(sectionCHS2);
             }
-			catch
-			{
+            catch
+            {
 
-			}
+            }
         }
 
         #endregion

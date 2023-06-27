@@ -1006,7 +1006,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionCircular(10, ConcreteMaterialEN1992Data.C25_30, "section"));
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1019,7 +1019,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionCircular oggettoDeserializzato = (ConcreteSectionCircular)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1048,7 +1048,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionCHS(10, 2, ConcreteMaterialEN1992Data.C25_30, "section"));
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1061,7 +1061,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionCHS oggettoDeserializzato = (ConcreteSectionCHS)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1090,7 +1090,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionT(500, 600, 50, 40, ConcreteMaterialEN1992Data.C25_30, "section"));
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1103,7 +1103,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionT oggettoDeserializzato = (ConcreteSectionT)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1143,7 +1143,6 @@ namespace GeneralTest
                 new Point2d(0, height)
             }));
 
-            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
             RebarSectionCircular rebar = new RebarSectionCircular(18, SteelMaterialEN1992Data.B450A);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[]
@@ -1154,7 +1153,7 @@ namespace GeneralTest
                 new ReinforcedConcreteRebar(rebar, new Point2d(concreteCover, height - concreteCover))
             };
 
-            ReinforcedConcreteSection s = new ReinforcedConcreteSection(shapeEx);
+            var s = new ReinforcedConcreteSection(shape, ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(rebars);
 
             using (var ms = new MemoryStream())
@@ -1193,7 +1192,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionRectangular(500, 600, ConcreteMaterialEN1992Data.C25_30, "section"));
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1206,7 +1205,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionRectangular oggettoDeserializzato = (ConcreteSectionRectangular)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using static GPC.Model.Sections.Section;
 using static GPC.Model.Sections.ThinWallSection;
@@ -26,6 +27,8 @@ namespace GPC.Model.Sections
         double R11 { get; }
 
         double R22 { get; }
+
+        double Rxy { get; }
 
         Geometry.Point2d Centroid { get; }
 
@@ -125,5 +128,9 @@ namespace GPC.Model.Sections
         void SetEdgeTypeFromSteelType(SectionTypes sectionType);
 
         void SetMechanicalProperties();
+
+        Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false);
+
+        void SetMeshSize(double size);
     }
 }

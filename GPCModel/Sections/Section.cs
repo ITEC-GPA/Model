@@ -3,6 +3,7 @@ using GPC.Geometry.Meshes;
 using GPC.Model.Fem.Materials;
 using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
+using MathNet.Numerics.Financial;
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,7 +11,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
 	[Serializable]
-	public class Section : ElementProperty, ISerializable
+	public class Section : ElementProperty, ISection, ISerializable
 	{
 		#region Enumerator
 
@@ -290,11 +291,19 @@ namespace GPC.Model.Sections
 			}
 		}
 
-		#endregion
+        public virtual double Height
+        {
+			get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
 
-		#region Public Constructors
+        public virtual ThinWallSection.ThinWall[] ThinWalls => throw new NotImplementedException();
 
-		protected Section(string name)
+        #endregion
+
+        #region Public Constructors
+
+        protected Section(string name)
 			: base(name)
 		{
 		}
@@ -304,6 +313,13 @@ namespace GPC.Model.Sections
 		{
 			_material = material;
 		}
+
+		public Section(Shape2d shape, Material material, string name = "")
+            : base(name)
+        {
+			_shape = shape;
+            _material = material;
+        }
 
 		/// <summary>
 		/// The default constructor of generic section
@@ -472,9 +488,9 @@ namespace GPC.Model.Sections
 		/// </summary>
 		/// <returns>The value of the area</returns>
 		protected virtual double CalculateArea()
-		{
-			return 0;
-		}
+        {
+            return _shape?.GetArea() ?? 0.0;
+        }
 
 		protected virtual double CalculateJ11()
 		{
@@ -487,19 +503,22 @@ namespace GPC.Model.Sections
 		}
 
 		protected virtual double CalculateJxx()
-		{
-			return 0;
-		}
+        {
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+			return Jxx;
+        }
 
 		protected virtual double CalculateJyy()
-		{
-			return 0;
-		}
+        {
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            return Jyy;
+        }
 
 		protected virtual double CalculateJxy()
-		{
-			return 0;
-		}
+        {
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            return Jxy;
+        }
 
 		protected virtual double CalculateJt()
 		{
@@ -513,20 +532,21 @@ namespace GPC.Model.Sections
 
 		protected virtual double CalculateAngle()
 		{
-			return 0.0;
-		}
+            return SectionHelper.CalculateAngle(_j11, _j22, _jxx, _jyy, _jxy);
+        }
 
 		/// <summary>
 		/// Calculate the centroid point of the section in X-Y plane 
 		/// </summary>
 		protected virtual Point2d CalculateCentroid()
 		{
-			return new Point2d();
-		}
+            SectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
+            return SectionHelper.CalculateCentroid(Sx, Sy, _area);
+        }
 
-		protected virtual Point2d CalculateShearCenter()
+        protected virtual Point2d CalculateShearCenter()
 		{
-			return CalculateCentroid();
+			return _centroid;
 		}
 
 		protected virtual double CalculateWpl1()
@@ -540,24 +560,84 @@ namespace GPC.Model.Sections
 		}
 
 		protected virtual double CalculateWel1Min()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(_angleX1);
+            double sinTeta = Math.Sin(_angleX1);
+
+            double dminConcrete = double.MaxValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dminConcrete)
+                {
+                    dminConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dminConcrete);
+        }
 
 		protected virtual double CalculateWel1Max()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(_angleX1);
+            double sinTeta = Math.Sin(_angleX1);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual double CalculateWel2Min()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
+            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
+
+            double dmaxConcrete = double.MaxValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual double CalculateWel2Max()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
+            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual double CalculateWplY()
 		{
@@ -570,24 +650,84 @@ namespace GPC.Model.Sections
 		}
 
 		protected virtual double CalculateWelXMax()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(0.0);
+            double sinTeta = Math.Sin(0.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual double CalculateWelXMin()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(0.0);
+            double sinTeta = Math.Sin(0.0);
+
+            double dminConcrete = double.MaxValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dminConcrete)
+                {
+                    dminConcrete = w1;
+                }
+            }
+
+            return _j11 / Math.Abs(dminConcrete);
+        }
 
 		protected virtual double CalculateWelYMax()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(Math.PI / 2.0);
+            double sinTeta = Math.Sin(Math.PI / 2.0);
+
+            double dmaxConcrete = double.MinValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 >= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual double CalculateWelYMin()
-		{
-			return 0;
-		}
+        {
+            double cosTeta = Math.Cos(Math.PI / 2.0);
+            double sinTeta = Math.Sin(Math.PI / 2.0);
+
+            double dmaxConcrete = double.MaxValue;
+
+            for (int c = 0; c < _shape.Fill.Count; c++)
+            {
+                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
+
+                if (w1 <= dmaxConcrete)
+                {
+                    dmaxConcrete = w1;
+                }
+            }
+
+            return _j22 / Math.Abs(dmaxConcrete);
+        }
 
 		protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
 		{
@@ -601,7 +741,7 @@ namespace GPC.Model.Sections
 
 		protected virtual Shape2d GetShape()
 		{
-			return null;
+			return _shape;
 		}
 
 		public virtual Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
@@ -725,7 +865,17 @@ namespace GPC.Model.Sections
 			}
 		}
 
-		public static bool operator ==(Section left, Section right)
+        public virtual Point2d[] GetSectionPoints()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool operator ==(Section left, Section right)
 		{
 			return left.Equals(right);
 		}

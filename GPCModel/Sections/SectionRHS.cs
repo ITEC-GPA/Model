@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRHS : ThinWallSection, ISection, ISerializable
+    public class SectionRHS : ThinWallSection, ISerializable
     {
         #region Varibles
 

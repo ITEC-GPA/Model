@@ -1,5 +1,8 @@
 using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
+using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.Utilities.Extensions;
 using System;
@@ -10,25 +13,88 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
-    public class ReinforcedConcreteSection : Section, IConcreteSection
+    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection
     {
         #region Variables
 
-        protected readonly ShapeEx _shapeEx;
+        protected readonly ISection _sectionShape;
+        protected Mesh _mesh;
         protected readonly RebarCollection _rebars;
         protected readonly List<SteelSectionPosition> _steelSections;
 
         #endregion
 
+        #region Properties from shape
+
+        public double Area => _sectionShape.Area;
+
+        public double R11 => _sectionShape.R11;
+
+        public double R22 => _sectionShape.R22;
+
+        public double Rxy => _sectionShape.Rxy;
+
+        public Point2d Centroid => _sectionShape.Centroid;
+
+        public Point2d ShearCenter => _sectionShape.ShearCenter;
+
+        public double J11 => _sectionShape.J11;
+
+        public double J22 => _sectionShape.J22;
+
+        public double AngleX1 => _sectionShape.AngleX1;
+
+        public double Jxx => _sectionShape.Jxx;
+
+        public double Jyy => _sectionShape.Jyy;
+
+        public double Jxy => _sectionShape.Jxy;
+
+        public double Jp => _sectionShape.Jp;
+
+        public double Jt => _sectionShape.Jt;
+
+        public double Jw => _sectionShape.Jw;
+
+        public double Wpl1 => _sectionShape.Wpl1;
+
+        public double Wpl2 => _sectionShape.Wpl2;
+
+        public double Wel1 => _sectionShape.Wel1;
+
+        public double Wel2 => _sectionShape.Wel2;
+
+        public bool IsSymmetricAlongXLocalAxis => _sectionShape.IsSymmetricAlongXLocalAxis;
+
+        public bool IsSymmetricAlongYLocalAxis => _sectionShape.IsSymmetricAlongYLocalAxis;
+
+        public bool IsDoubleSymmetric => _sectionShape.IsDoubleSymmetric;
+
+        #endregion
+
         #region Properties
 
-        public ShapeEx ShapeEx => _shapeEx;
+        public Mesh Mesh
+        {
+            get
+            {
+                if (_mesh is null)
+                {
+                    Point2d bBox = Shape.Get2dBoundingBox().Size;
+                    double size = Math.Min(Math.Max(bBox.X, bBox.Y) / 5.0, Math.Min(bBox.X, bBox.Y));
+                    _mesh = _sectionShape.GetMesh(size);
+                }
+                return _mesh;
+            }
+        }
+
+        public ISection SectionShape => _sectionShape;
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
-        public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_material;
+        public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_sectionShape.Material;
 
-        public override Shape2d Shape => _shapeEx;
+        public Shape2d Shape => _sectionShape.Shape;
 
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
@@ -40,27 +106,38 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
-            : base(reinforcedConcreteSection.Material, reinforcedConcreteSection.Name)
+        //protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
+        //{
+        //    if (reinforcedConcreteSection is null)
+        //        throw new ArgumentNullException(nameof(reinforcedConcreteSection));
+
+        //    _shapeEx = reinforcedConcreteSection.ShapeEx;
+        //    _rebars = new RebarCollection();
+        //    _steelSections = new List<SteelSectionPosition>();
+
+        //    SetMechanicalProperties();
+        //}
+
+        public ReinforcedConcreteSection(ISection sectionShape, RebarCollection rebars = null,
+            List<SteelSectionPosition> steelSectionPositions = null)
+            : base(sectionShape.Name)
         {
-            if (reinforcedConcreteSection is null)
-                throw new ArgumentNullException(nameof(reinforcedConcreteSection));
+            _sectionShape = sectionShape ?? throw new ArgumentNullException(nameof(_sectionShape));
+            _rebars = rebars ?? new RebarCollection();
+            _steelSections = steelSectionPositions ?? new List<SteelSectionPosition>();
 
-            _shapeEx = reinforcedConcreteSection.ShapeEx;
-            _rebars = new RebarCollection();
-            _steelSections = new List<SteelSectionPosition>();
-
-            SetMechanicalProperties();
+            _sectionShape.SetMechanicalProperties();
         }
 
-        public ReinforcedConcreteSection(ShapeEx shapeEx, string name = "")
-            : base(shapeEx.Material, name)
+        public ReinforcedConcreteSection(Shape2d shape, Material material, string name = "")
+            : base(name)
         {
-            _shapeEx = shapeEx ?? throw new ArgumentNullException(nameof(shapeEx));
+            _name = name;
+            _sectionShape = new Section(shape, material);
             _rebars = new RebarCollection();
             _steelSections = new List<SteelSectionPosition>();
 
-            SetMechanicalProperties();
+            _sectionShape.SetMechanicalProperties();
         }
 
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
@@ -76,7 +153,7 @@ namespace GPC.Model.Sections.Concrete
                 version = 1;
             }
 
-            _shapeEx = (ShapeEx)info.GetValue("ShapeEx", typeof(ShapeEx));
+            _sectionShape = (ISection)info.GetValue("SectionShape", typeof(ISection));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
             _steelSections = new List<SteelSectionPosition>();
             if (version > 2)
@@ -94,7 +171,6 @@ namespace GPC.Model.Sections.Concrete
 
         #region Rebars
 
-        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool AddRebar(ReinforcedConcreteRebar rebar)
         {
             return AddRebar(rebar, out _);
@@ -130,7 +206,6 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars, out int[] ids)
         {
             List<int> id = new List<int>();
@@ -146,25 +221,21 @@ namespace GPC.Model.Sections.Concrete
             return bools.ToArray();
         }
 
-        /// <inheritdoc cref="AddRebar(ReinforcedConcreteRebar, out int)"/>
         public bool[] AddRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
             return AddRebars(rebars, out _);
         }
 
-        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(T)"/>
         public bool RemoveRebar(ReinforcedConcreteRebar rebar)
         {
             return _rebars.Remove(rebar);
         }
 
-        /// <inheritdoc cref="UniqueIdCollection{T}.Remove(int)"/>
         public bool RemoveRebar(int rebarId)
         {
             return _rebars.Remove(rebarId);
         }
 
-        /// <inheritdoc cref="UniqueIdCollection{T}.RemoveRange(IEnumerable{T})"/>
         public bool RemoveRebars(IEnumerable<ReinforcedConcreteRebar> rebars)
         {
             return _rebars.RemoveRange(rebars);
@@ -183,8 +254,6 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        /// <returns><see langword="null"/> if item not found</returns>
-        /// <inheritdoc cref="UniqueIdCollection{T}.GetById(int)"/>
         public ReinforcedConcreteRebar GetRebarById(int rebarId)
         {
             try
@@ -202,7 +271,6 @@ namespace GPC.Model.Sections.Concrete
             return _rebars.ToArray();
         }
 
-        /// <inheritdoc cref="GetRebarById(int)"/>
         public ReinforcedConcreteRebar[] GetRebarById(IEnumerable<int> rebarIds)
         {
             try
@@ -220,6 +288,11 @@ namespace GPC.Model.Sections.Concrete
             {
                 return null;
             }
+        }
+
+        public bool AddRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
+        {
+            return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
         }
 
         #endregion
@@ -436,64 +509,9 @@ namespace GPC.Model.Sections.Concrete
 
         #endregion
 
-        public ReinforcedConcreteSection ToReinforcedConcreteSection()
-        {
-            return new ReinforcedConcreteSection(this);
-        }
-
         #endregion
 
         #region Protected Methods
-
-        protected override Shape2d GetShape()
-        {
-            return _shapeEx;
-        }
-
-        /// <summary>
-        /// Internal method to set the mechanical properties to the section
-        /// </summary>
-        public override void SetMechanicalProperties()
-        {
-            _area = CalculateArea();
-
-            SectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
-
-            _centroid = SectionHelper.CalculateCentroid(Sx, Sy, _area);
-
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
-
-            _j11 = SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
-            _j22 = SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
-            _jxx = Jxx;
-            _jyy = Jyy;
-            _jxy = Jxy;
-            _jp = Jp;
-            _angleX1 = SectionHelper.CalculateAngle(_j11, _j22, Jxx, Jyy, Jxy);
-
-            _jw = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
-            _jt = 0; //TODO: implementare metodi di calcolo della sezione calcolo JW/JT
-            _shearCenter = _centroid; //TODO: Implementare calcolo shear center
-
-            _wel1Max = CalculateWel1Max();
-            _wel1Min = CalculateWel1Min();
-            _wel2Max = CalculateWel2Max();
-            _wel2Min = CalculateWel2Min();
-            _welXMax = CalculateWelXMax();
-            _welXMin = CalculateWelXMin();
-            _welYMax = CalculateWelYMax();
-            _welYMin = CalculateWelYMin();
-            _wpl1 = CalculateWpl1();
-            _wpl2 = CalculateWpl2();
-
-            _isSymmetricAlongXLocalAxis = false; //TODO calcolare se � simmetrica
-            _isSymmetricAlongYLocalAxis = false;
-        }
-
-        protected override double CalculateArea()
-        {
-            return ShapeEx.GetArea();
-        }
 
         public virtual double CalculateN(ReinforcedConcreteRebar rebar)
         {
@@ -519,176 +537,6 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        protected override double CalculateWpl2()
-        {
-            return 0;
-        }
-
-        protected override double CalculateWpl1()
-        {
-            return 0;
-        }
-
-        protected override double CalculateWel2Max()
-        {
-            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
-            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWel2Min()
-        {
-            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
-            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
-
-            double dmaxConcrete = double.MaxValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWel1Max()
-        {
-            double cosTeta = Math.Cos(_angleX1);
-            double sinTeta = Math.Sin(_angleX1);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWel1Min()
-        {
-            double cosTeta = Math.Cos(_angleX1);
-            double sinTeta = Math.Sin(_angleX1);
-
-            double dminConcrete = double.MaxValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dminConcrete)
-                {
-                    dminConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dminConcrete);
-        }
-
-        protected override double CalculateWelYMax()
-        {
-            double cosTeta = Math.Cos(Math.PI / 2.0);
-            double sinTeta = Math.Sin(Math.PI / 2.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWelYMin()
-        {
-            double cosTeta = Math.Cos(Math.PI / 2.0);
-            double sinTeta = Math.Sin(Math.PI / 2.0);
-
-            double dmaxConcrete = double.MaxValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWelXMax()
-        {
-            double cosTeta = Math.Cos(0.0);
-            double sinTeta = Math.Sin(0.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dmaxConcrete);
-        }
-
-        protected override double CalculateWelXMin()
-        {
-            double cosTeta = Math.Cos(0.0);
-            double sinTeta = Math.Sin(0.0);
-
-            double dminConcrete = double.MaxValue;
-
-            for (int c = 0; c < ShapeEx.Fill.Count; c++)
-            {
-                double w1 = (ShapeEx.Fill[c].Y - Centroid.Y) * cosTeta - (ShapeEx.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dminConcrete)
-                {
-                    dminConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dminConcrete);
-        }
-
         #endregion
 
         #region Equals, hascode, operators
@@ -700,7 +548,7 @@ namespace GPC.Model.Sections.Concrete
             double version = 3;
             info.AddValue("ReinforcedConcreteSectionVersion", version);
 
-            info.AddValue("ShapeEx", _shapeEx, typeof(ShapeEx));
+            info.AddValue("SectionShape", _sectionShape);
             info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
 
             info.AddValue("SteelSectionsCount", _steelSections != null ? _steelSections.Count : 0);
@@ -713,7 +561,6 @@ namespace GPC.Model.Sections.Concrete
         {
             return obj is ReinforcedConcreteSection section &&
                    base.Equals(obj) &&
-                   _shapeEx.Equals(section._shapeEx) &&
                    _rebars.ScrambledEquals(section._rebars) &&
                    _steelSections.SequenceEqual(section._steelSections);
         }
@@ -724,7 +571,6 @@ namespace GPC.Model.Sections.Concrete
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _shapeEx.GetHashCode();
                 hashCode = hashCode * -17 + _rebars.GetHashCodeScrambled();
                 hashCode = hashCode * -17 + _steelSections.GetHashCode();
                 return hashCode;

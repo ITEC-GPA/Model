@@ -11,7 +11,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRectangular : ThinWallSection, ISection, ISerializable
+    public class SectionRectangular : ThinWallSection, ISerializable
     {
         #region Variables
 
@@ -201,6 +201,14 @@ namespace GPC.Model.Sections
         {
             return _height * Math.Pow(_width, 2.0) / 6.0;
         }
+
+        protected override double CalculateWelXMax() => CalculateWel1Max();
+
+        protected override double CalculateWelXMin() => CalculateWel1Min();
+
+        protected override double CalculateWelYMax() => CalculateWel2Max();
+
+        protected override double CalculateWelYMin() => CalculateWel2Min();
 
         protected override double CalculateAngle()
         {

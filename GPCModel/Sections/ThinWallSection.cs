@@ -33,9 +33,9 @@ namespace GPC.Model.Sections
 
         #region Properties
 
-        public abstract double Height { get; set; }
+        public override double Height { get; set; }
 
-        public ThinWall[] ThinWalls => _thinWalls;
+        public override ThinWall[] ThinWalls => _thinWalls;
 
         /// <summary>
         /// Edge workings, used to define the type of workings for inside corners.
@@ -98,7 +98,7 @@ namespace GPC.Model.Sections
             _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
         }
 
-        public void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        public override void SetEdgeTypeFromSteelType(SectionTypes sectionType)
         {
             if (sectionType == SectionTypes.Rolled)
                 _edgeWorking = EdgeType.Fillet;
@@ -110,7 +110,7 @@ namespace GPC.Model.Sections
 
         #region Mesh
 
-        protected Mesh GetMesh()
+        public Mesh GetMesh()
         {
             Mesh mesh = new Mesh();
 
@@ -263,7 +263,7 @@ namespace GPC.Model.Sections
 
         protected abstract override double CalculateWel2Min();
 
-        public Point2d[] GetSectionPoints()
+        public override Point2d[] GetSectionPoints()
         {
             List<Point2d> points = new List<Point2d>();
 

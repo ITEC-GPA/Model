@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionCHS : ThinWallSection, ISection, ISerializable
+    public class SectionCHS : ThinWallSection, ISerializable
     {
         #region Variables
 
@@ -65,7 +65,7 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionCHS(double externalDiameter, double thickness, Material material, string name)
+        public SectionCHS(double externalDiameter, double thickness, Material material, string name = "")
             : base(material, name)
         {
             if (thickness > externalDiameter / 2.0)

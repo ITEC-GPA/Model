@@ -46,7 +46,6 @@ namespace PerformanceTest
                 rebarMaterial = SteelMaterialEN1992Data.B450C;
 
             Shape2d shape = new Shape2d(new Polygon2d(diameter, subdivision));
-            ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
 
             RebarSectionCircular rebar = new RebarSectionCircular(rebarDiameter, rebarMaterial);
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[numberOfRebars];
@@ -57,7 +56,7 @@ namespace PerformanceTest
                 rebars[j] = new ReinforcedConcreteRebar(rebar, rebarPerimeter[j]);
             }
 
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape, concreteMaterial);
             section.AddRebars(rebars);
 
             return section;
@@ -69,8 +68,7 @@ namespace PerformanceTest
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
 
             Shape2d shape = new Shape2d(new Polygon2d(diameter, subdivision));
-            ShapeEx shapeEx = new ShapeEx(shape, concreteMaterial);
-            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shapeEx);
+            ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape, concreteMaterial);
 
             return section;
         }
@@ -335,9 +333,9 @@ namespace PerformanceTest
             int numberOfFuncions = 16;
             double b = 300;
             double h = 300;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30);
+            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30));
 
-            section.SetMeshSize(50);
+            section.SectionShape.SetMeshSize(50);
             GPC.Geometry.Meshes.Mesh mesh = section.Mesh;
 
             double area = section.Area;
@@ -387,7 +385,7 @@ namespace PerformanceTest
             int numberOfFunctions = 16 * 49;
             double b = 300;
             double h = 700;
-            ConcreteSectionRectangular section = new ConcreteSectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30);
+            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30));
 
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]
@@ -400,7 +398,7 @@ namespace PerformanceTest
 
             for (int j = 0; j < meshSize.Length; j++)
             {
-                section.SetMeshSize(meshSize[j]);
+                section.SectionShape.SetMeshSize(meshSize[j]);
                 GPC.Geometry.Meshes.Mesh mesh = section.Mesh;
 
                 double area = section.Area;

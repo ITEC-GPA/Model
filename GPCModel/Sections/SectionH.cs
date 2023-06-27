@@ -10,7 +10,7 @@ using GPC.Model.Materials;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionH : ThinWallSection, ISection, ISerializable
+    public class SectionH : ThinWallSection, ISerializable
     {
         #region Variables
 
@@ -331,6 +331,14 @@ namespace GPC.Model.Sections
         {
             return J11 / DistanceYCentroidFromTop();
         }
+
+        protected override double CalculateWelXMax() => CalculateWel1Max();
+
+        protected override double CalculateWelXMin() => CalculateWel1Min();
+
+        protected override double CalculateWelYMax() => CalculateWel2Max();
+
+        protected override double CalculateWelYMin() => CalculateWel2Min();
 
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {

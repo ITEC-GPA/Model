@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
 	[Serializable]
-	public class SectionC : ThinWallSection, ISection, ISerializable
+	public class SectionC : ThinWallSection, ISerializable
 	{
 		#region Variables
 
@@ -248,9 +248,17 @@ namespace GPC.Model.Sections
 		protected override double CalculateWel1Min()
 		{
 			return J11 / DistanceYCentroidFromBottom();
-		}
+        }
 
-		protected override bool CalculateIsSymmetricAlongXLocalAxis()
+        protected override double CalculateWelXMax() => CalculateWel1Max();
+
+        protected override double CalculateWelXMin() => CalculateWel1Min();
+
+        protected override double CalculateWelYMax() => CalculateWel2Max();
+
+        protected override double CalculateWelYMin() => CalculateWel2Min();
+
+        protected override bool CalculateIsSymmetricAlongXLocalAxis()
 		{
 			if (_lengthTop == _lengthBottom && _tTop == _tBottom)
 				return true;

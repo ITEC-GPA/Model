@@ -1,10 +1,10 @@
 ﻿using GPC.Geometry;
+using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using static GPC.Model.Sections.Section;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -30,6 +30,8 @@ namespace GPC.Model.Sections.Steel
         public double R11 => _sectionShape.R11;
 
         public double R22 => _sectionShape.R22;
+
+        public double Rxy => _sectionShape.Rxy;
 
         public Point2d Centroid => _sectionShape.Centroid;
 
@@ -151,7 +153,7 @@ namespace GPC.Model.Sections.Steel
 
         #region Methods
 
-        public virtual double GetMinSigma(double N, double M1, double M2)
+        public double GetMinSigma(double N, double M1, double M2)
         {
             double wel1 = Math.Min(Wel1Max, Wel1Min);
             double wel2 = Math.Min(Wel2Max, Wel2Min);
@@ -164,7 +166,7 @@ namespace GPC.Model.Sections.Steel
             return (new double[] { sigmap1, sigmap2, sigmap3, sigmap4 }).Min();
         }
 
-        public virtual double GetMaxSigma(double N, double M1, double M2)
+        public double GetMaxSigma(double N, double M1, double M2)
         {
             double wel1 = Math.Min(Wel1Max, Wel1Min);
             double wel2 = Math.Min(Wel2Max, Wel2Min);
@@ -182,7 +184,7 @@ namespace GPC.Model.Sections.Steel
             return _sectionShape.GetSectionPoints();
         }
 
-        public void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        public void SetEdgeTypeFromSteelType(Section.SectionTypes sectionType)
         {
             _sectionShape.SetEdgeTypeFromSteelType(sectionType);
         }
@@ -216,6 +218,16 @@ namespace GPC.Model.Sections.Steel
             hashCode = hashCode * -1521134295 + _sectionType.GetHashCode();
             hashCode = hashCode * -1521134295 + _formedType.GetHashCode();
             return hashCode;
+        }
+
+        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMeshSize(double size)
+        {
+            throw new NotImplementedException();
         }
 
         public static bool operator ==(SteelSection left, SteelSection right)

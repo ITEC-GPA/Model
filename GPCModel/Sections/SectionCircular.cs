@@ -29,9 +29,9 @@ namespace GPC.Model.Sections
             }
         }
 
-        public double Height => _diameter;
+        public override double Height => _diameter;
 
-        public ThinWall[] ThinWalls => null;
+        public override ThinWall[] ThinWalls => null;
 
         #region Public Constructors
 
@@ -164,6 +164,11 @@ namespace GPC.Model.Sections
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
+        protected override double CalculateJxy()
+        {
+            return 0.0;
+        }
+
         protected override double CalculateJt()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
@@ -171,7 +176,7 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJw()
         {
-            return 0;
+            return 0.0;
         }
 
         protected override Point2d CalculateCentroid()
@@ -223,12 +228,12 @@ namespace GPC.Model.Sections
             }
         }
 
-        public Point2d[] GetSectionPoints()
+        public override Point2d[] GetSectionPoints()
         {
             throw new NotImplementedException();
         }
 
-        public void SetEdgeTypeFromSteelType(SectionTypes sectionType) { }
+        public override void SetEdgeTypeFromSteelType(SectionTypes sectionType) { }
 
         public static bool operator ==(SectionCircular left, SectionCircular right)
         {

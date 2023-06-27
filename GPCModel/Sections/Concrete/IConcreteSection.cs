@@ -40,7 +40,13 @@ namespace GPC.Model.Sections.Concrete
 
         double Jxy { get; }
 
-		double Wpl1 { get; }
+        double Jp { get; }
+
+        double Jt { get; }
+
+        double Jw { get; }
+
+        double Wpl1 { get; }
 
         double Wpl2 { get; }
 
@@ -114,8 +120,6 @@ namespace GPC.Model.Sections.Concrete
         (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi);
 
-		#endregion
-
-		ReinforcedConcreteSection ToReinforcedConcreteSection();
+        #endregion
     }
 }
