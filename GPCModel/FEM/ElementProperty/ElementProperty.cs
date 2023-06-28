@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Fem.Properties
 {
+    /// <summary>
+    /// All beam, plate and brick properties for FEM.
+    /// </summary>
     [Serializable]
     public abstract class ElementProperty : ModelObjectId, ISerializable
     {

@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Steel
 {
     [Serializable]
-    public class SteelSection : ModelObjectId, ISteelSection, ISerializable, IEquatable<SteelSection>
+    public class SteelSection : ElementProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
     {
         #region Varibles
 
@@ -89,7 +90,11 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsDoubleSymmetric => _sectionShape.IsDoubleSymmetric;
 
-        public Material Material => _sectionShape.Material;
+        public Material Material
+        {
+            get { return _sectionShape.Material; }
+            set { _sectionShape.Material = value; }
+        }
 
         public ThinWallSection.ThinWall[] ThinWalls => _sectionShape.ThinWalls;
 
@@ -100,6 +105,7 @@ namespace GPC.Model.Sections.Steel
         public SteelSection(ISection sectionShape,
             Section.SectionTypes sectionType = Section.SectionTypes.Rolled,
             Section.FormedTypes formedType = Section.FormedTypes.HotFinished)
+            : base(sectionShape.Name)
         {
             _sectionShape = sectionShape ?? throw new ArgumentNullException(nameof(_sectionShape));
             _sectionType = sectionType;

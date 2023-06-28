@@ -121,5 +121,7 @@ namespace GPC.Model.Sections.Concrete
             GetHomogeneizedMechanicalProperties(double phi);
 
         #endregion
+
+        ISection SectionShape { get; }
     }
 }

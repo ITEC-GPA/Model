@@ -75,7 +75,11 @@ namespace GPC.Model.Sections
 		/// <summary>
 		/// The <see cref="Materials"/> of the section 
 		/// </summary>
-		public Material Material => _material;
+		public Material Material
+		{
+			get { return _material; }
+			set { _material = value; }
+		}
 
 		/// <summary>
 		/// The area of the section
@@ -392,7 +396,10 @@ namespace GPC.Model.Sections
 			_isSymmetricAlongXLocalAxis = (bool)info.GetValue("IsSymmetricAlongXLocalAxis", typeof(bool));
 			_isSymmetricAlongYLocalAxis = (bool)info.GetValue("IsSymmetricAlongYLocalAxis", typeof(bool));
 			_angleX1 = info.GetDouble("AngleX1");
-		}
+
+			if (version == 3)
+				_shape = (Shape2d)info.GetValue("Shape2d", typeof(Shape2d));
+        }
 
 		#endregion
 
@@ -492,17 +499,19 @@ namespace GPC.Model.Sections
             return _shape?.GetArea() ?? 0.0;
         }
 
-		protected virtual double CalculateJ11()
-		{
-			return 0;
-		}
+        /// <summary>
+        /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
+        protected virtual double CalculateJ11() => SectionHelper.CalculateJ11(_jxx, _jyy, _jxy);
 
-		protected virtual double CalculateJ22()
-		{
-			return 0;
-		}
+        /// <summary>
+        /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
+        /// </summary>
+        /// <returns></returns>
+        protected virtual double CalculateJ22() => SectionHelper.CalculateJ22(_jxx, _jyy, _jxy);
 
-		protected virtual double CalculateJxx()
+        protected virtual double CalculateJxx()
         {
             SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
 			return Jxx;
@@ -766,7 +775,7 @@ namespace GPC.Model.Sections
 		{
 			base.GetObjectData(info, context);
 
-			double version = 2;
+			double version = 3;
 			info.AddValue("SectionVersion", version);
 
 			info.AddValue("Material", _material);
@@ -796,7 +805,8 @@ namespace GPC.Model.Sections
 			info.AddValue("IsSymmetricAlongXLocalAxis", _isSymmetricAlongXLocalAxis, typeof(bool));
 			info.AddValue("IsSymmetricAlongYLocalAxis", _isSymmetricAlongYLocalAxis, typeof(bool));
 			info.AddValue("AngleX1", _angleX1);
-		}
+            info.AddValue("Shape2d", _shape);
+        }
 
 		public override bool Equals(object obj)
 		{

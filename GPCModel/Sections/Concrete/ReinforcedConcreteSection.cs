@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
-    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection
+    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>
     {
         #region Variables
 
@@ -92,7 +92,11 @@ namespace GPC.Model.Sections.Concrete
 
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
-        public ConcreteMaterial ConcreteMaterial => (ConcreteMaterial)_sectionShape.Material;
+        public ConcreteMaterial ConcreteMaterial
+        {
+            get { return (ConcreteMaterial)_sectionShape.Material; }
+            set { _sectionShape.Material = value; }
+        }
 
         public Shape2d Shape => _sectionShape.Shape;
 
@@ -557,13 +561,7 @@ namespace GPC.Model.Sections.Concrete
                     info.AddValue($"SteelSectionPosition{i}", _steelSections[i], typeof(SteelSectionPosition));
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is ReinforcedConcreteSection section &&
-                   base.Equals(obj) &&
-                   _rebars.ScrambledEquals(section._rebars) &&
-                   _steelSections.SequenceEqual(section._steelSections);
-        }
+        public override bool Equals(object obj) => Equals(obj as ReinforcedConcreteSection);
 
         public override int GetHashCode()
         {
@@ -571,10 +569,20 @@ namespace GPC.Model.Sections.Concrete
             {
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _sectionShape.GetHashCode();
                 hashCode = hashCode * -17 + _rebars.GetHashCodeScrambled();
                 hashCode = hashCode * -17 + _steelSections.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public bool Equals(ReinforcedConcreteSection other)
+        {
+            if (other == null) return false;
+
+            return _sectionShape.Equals(other._sectionShape) &&
+                _rebars.ScrambledEquals(other._rebars) &&
+                _steelSections.SequenceEqual(other._steelSections);
         }
 
         public static bool operator ==(ReinforcedConcreteSection left, ReinforcedConcreteSection right)

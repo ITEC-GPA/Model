@@ -173,13 +173,13 @@ namespace GPC.Model.Sections
         /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected override double CalculateJ11() => SectionHelper.CalculateJ11(Jxx, Jyy, Jxy);
+        protected override double CalculateJ11() => SectionHelper.CalculateJ11(_jxx, _jyy, _jxy);
 
         /// <summary>
         /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
         /// </summary>
         /// <returns></returns>
-        protected override double CalculateJ22() => SectionHelper.CalculateJ22(Jxx, Jyy, Jxy);
+        protected override double CalculateJ22() => SectionHelper.CalculateJ22(_jxx, _jyy, _jxy);
 
         private double CalculateAreaThinWallSection()
         {

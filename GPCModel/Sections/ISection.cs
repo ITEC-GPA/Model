@@ -119,7 +119,7 @@ namespace GPC.Model.Sections
 
         bool IsDoubleSymmetric { get; }
 
-        Material Material { get; }
+        Material Material { get; set; }
 
         ThinWall[] ThinWalls { get; }
 

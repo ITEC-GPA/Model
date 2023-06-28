@@ -188,12 +188,14 @@ namespace GPC.Model.Sections
 
         protected Shape2d GetShape(int numberOfEdges)
         {
-            return new Shape2d(new Polygon2d(_externalDiameter, numberOfEdges), new[] { new Polygon2d(_externalDiameter - _thickness, numberOfEdges) });
+            var center = new Point2d(0.5 * _externalDiameter, 0.5 * _externalDiameter);
+            return new Shape2d(new Polygon2d(_externalDiameter, numberOfEdges, center), new[] { new Polygon2d(_externalDiameter - 2.0 * _thickness, numberOfEdges, center) });
         }
 
         protected override Shape2d GetShape()
         {
-            return new Shape2d(new Polygon2d(_externalDiameter), new[] { new Polygon2d(_externalDiameter - _thickness) });
+            var center = new Point2d(0.5 * _externalDiameter, 0.5 * _externalDiameter);
+            return new Shape2d(new Polygon2d(_externalDiameter, origin: center), new[] { new Polygon2d(_externalDiameter - 2.0 * _thickness, origin: center) });
         }
 
         protected Mesh GetMesh(int numberOfEdges = 32)
