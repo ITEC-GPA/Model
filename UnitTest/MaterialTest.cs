@@ -717,10 +717,12 @@ namespace ModelObjectTest
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
                 2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
 
-            StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
-            standardModelCode2010.SetAlphaCT(0.85);
-            standardModelCode2010.SetAlphaCC(0.85);
-            List<(double, double)> stresses = new List<(double, double)>();
+			StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010
+			{
+				AlphaCT = 0.85,
+				AlphaCC = 0.85
+			};
+			List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 200; i >= -35; i--)
                 stresses.Add((concrete.CalculateDesignStressConcrete(standardModelCode2010, i / 10000.0), i / 10000.0));
@@ -977,7 +979,7 @@ namespace ModelObjectTest
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            standard.GammaS = 1.0;
 
             for (int i = 100; i >= -100; i--)
                 stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
@@ -1004,7 +1006,7 @@ namespace ModelObjectTest
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            standard.GammaS = 1.0;
 
             for (int i = 0; i < steelMaterial.StressStrainTableCompression.Stresses.Length; i++)
             {
@@ -1108,10 +1110,9 @@ namespace ModelObjectTest
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
-            StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            StandardModelCode2010 standard = new StandardModelCode2010 { GammaS = 1.0 };
 
-            for (int i = 100; i >= -100; i--)
+			for (int i = 100; i >= -100; i--)
                 stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
 
             for (int i = 0; i < stresses.Count; i++)

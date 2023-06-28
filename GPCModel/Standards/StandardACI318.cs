@@ -20,6 +20,7 @@ namespace GPC.Model.Standards
 		protected double _phiDeformationTransitionIncrement;
 		protected double _phiDeformationTransitionIncrementPrestress;
 		protected double _concreteStrengthReductionFactor;
+		protected double _phiDeformationTransitionMaxLimit;
 
 		#endregion
 
@@ -56,19 +57,24 @@ namespace GPC.Model.Standards
 		public double PhiTP { get => _phiTP; set => _phiTP = value; }
 
 		/// <summary>
-		/// Compression-controlled strain limit for section
+		/// Compression-controlled strain increment for transition limit for section
 		/// </summary>
 		public double PhiDeformationTransitionIncrement { get => _phiDeformationTransitionIncrement; set => _phiDeformationTransitionIncrement = value; }
 
 		/// <summary>
-		/// Compression-controlled strain limit for prestressed section
+		/// Compression-controlled strain increment for transition limit for prestressed section
 		/// </summary>
 		public double PhiDeformationTransitionIncrementPrestress { get => _phiDeformationTransitionIncrementPrestress; set => _phiDeformationTransitionIncrementPrestress = value; }
 
 		/// <summary>
-		/// Concrete strength reduction factor
+		/// Concrete strength reduction factor for stress block compression stress-strain diagram
 		/// </summary>
 		public double ConcreteStrengthReductionFactor { get => _concreteStrengthReductionFactor; set => _concreteStrengthReductionFactor = value; }
+
+		/// <summary>
+		/// Compression-controlled strain limit for section
+		/// </summary>
+		public double PhiDeformationTransitionMaxLimit { get => _phiDeformationTransitionMaxLimit; set => _phiDeformationTransitionMaxLimit = value; }
 
 		#endregion
 
@@ -86,6 +92,7 @@ namespace GPC.Model.Standards
 			_phiDeformationTransitionIncrement = 0.003;
 			_phiDeformationTransitionIncrementPrestress = 0.002;
 			_concreteStrengthReductionFactor = 0.85;
+			_phiDeformationTransitionMaxLimit = 0.005;
 		}
 
 		public StandardACI318(string name = "ACI 318")
@@ -101,6 +108,16 @@ namespace GPC.Model.Standards
 		protected StandardACI318(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
+			int version;
+			try
+			{
+				version = info.GetInt32("StandardACI318Version");
+			}
+			catch (Exception)
+			{
+				version = 1;
+			}
+
 			_phiCSpiral = info.GetDouble("PhiCSpiral");
 			_phiCTied = info.GetDouble("PhiCTied");
 			_phiMaximumCompressiveAxialLoadSpiral = info.GetDouble("PhiSpiral");
@@ -109,6 +126,12 @@ namespace GPC.Model.Standards
 			_phiTP = info.GetDouble("PhiTP");
 			_phiDeformationTransitionIncrement = info.GetDouble("PhiDeformationTransitionIncrement");
 			_phiDeformationTransitionIncrementPrestress = info.GetDouble("PhiDeformationTransitionIncrementPrestress");
+			_concreteStrengthReductionFactor = info.GetDouble("ConcreteStrengthReductionFactor");
+
+			if (version >= 2)
+				_phiDeformationTransitionMaxLimit = info.GetDouble("PhiDeformationTransitionMaxLimit");
+			else
+				_phiDeformationTransitionMaxLimit = 0.005;
 		}
 
 		#endregion
@@ -140,6 +163,11 @@ namespace GPC.Model.Standards
 				hashCode = hashCode * -17 + _phiCTied.GetHashCode();
 				hashCode = hashCode * -17 + _phiT.GetHashCode();
 				hashCode = hashCode * -17 + _phiDeformationTransitionIncrement.GetHashCode();
+				hashCode = hashCode * -17 + _phiDeformationTransitionIncrementPrestress.GetHashCode();
+				hashCode = hashCode * -17 + _phiMaximumCompressiveAxialLoadSpiral.GetHashCode();
+				hashCode = hashCode * -17 + _phiMaximumCompressiveAxialLoadTied.GetHashCode();
+				hashCode = hashCode * -17 + _concreteStrengthReductionFactor.GetHashCode();
+				hashCode = hashCode * -17 + _phiDeformationTransitionMaxLimit.GetHashCode();
 				return hashCode;
 			}
 		}
@@ -147,6 +175,10 @@ namespace GPC.Model.Standards
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
+
+			double version = 2;
+			info.AddValue("StandardACI318Version", version);
+
 			info.AddValue("PhiCSpiral", _phiCSpiral);
 			info.AddValue("PhiCTied", _phiCTied);
 			info.AddValue("PhiSpiral", _phiMaximumCompressiveAxialLoadSpiral);
@@ -155,50 +187,8 @@ namespace GPC.Model.Standards
 			info.AddValue("PhiTP", _phiTP);
 			info.AddValue("PhiDeformationTransitionIncrement", _phiDeformationTransitionIncrement);
 			info.AddValue("PhiDeformationTransitionIncrementPrestress", _phiDeformationTransitionIncrementPrestress);
-		}
-
-		#endregion
-
-		#region Public Setter
-
-		public void SetPhiCSpiral(double phiCSpiral)
-		{
-			_phiCSpiral = phiCSpiral;
-		}
-
-		public void SetPhiCTied(double phiCTied)
-		{
-			_phiCTied = phiCTied;
-		}
-
-		public void SetPhiMaximumCompressiveAxialLoadSpiral(double phiSpiral)
-		{
-			_phiMaximumCompressiveAxialLoadSpiral = phiSpiral;
-		}
-
-		public void SetPhiMaximumCompressiveAxialLoadTied(double phiTied)
-		{
-			_phiMaximumCompressiveAxialLoadTied = phiTied;
-		}
-
-		public void SetPhiT(double phiT)
-		{
-			_phiT = phiT;
-		}
-
-		public void SetPhiTP(double phiT)
-		{
-			_phiTP = phiT;
-		}
-
-		public void SetPhiDeformationTransitionIncrement(double phiDeformationTransitionIncrement)
-		{
-			_phiDeformationTransitionIncrement = phiDeformationTransitionIncrement;
-		}
-
-		public void SetPhiDeformationTransitionIncrementPrestress(double phiDeformationTransitionIncrement)
-		{
-			_phiDeformationTransitionIncrementPrestress = phiDeformationTransitionIncrement;
+			info.AddValue("ConcreteStrengthReductionFactor", _concreteStrengthReductionFactor);
+			info.AddValue("PhiDeformationTransitionMaxLimit", _phiDeformationTransitionMaxLimit);
 		}
 
 		#endregion
