@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
-using static GPC.Model.Sections.Section;
-using static GPC.Model.Sections.ThinWallSection;
+using System;
 
 namespace GPC.Model.Sections
 {
     /// <summary>
-    /// Only cross-section shape.
+    /// Only cross-section shape, without material.
     /// </summary>
-    public interface ISection
+    public interface ISectionShape
     {
         string Name { get; }
 
@@ -124,11 +118,11 @@ namespace GPC.Model.Sections
         /// </summary>
         Material Material { get; }
 
-        ThinWall[] ThinWalls { get; }
+        ThinWallSection.ThinWall[] ThinWalls { get; }
 
         Point2d[] GetSectionPoints();
 
-        void SetEdgeTypeFromSteelType(SectionTypes sectionType);
+        void SetEdgeTypeFromSteelType(Section.SectionTypes sectionType);
 
         void SetMechanicalProperties();
 

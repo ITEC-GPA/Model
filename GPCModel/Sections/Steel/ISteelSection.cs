@@ -1,10 +1,8 @@
 ﻿using GPC.Model.Materials;
-using static GPC.Model.Sections.Section;
-
 
 namespace GPC.Model.Sections.Steel
 {
-    public interface ISteelSection : ISection
+    public interface ISteelSection : ISectionShape
     {
         SteelMaterial SteelMaterial { get; }
 
@@ -16,7 +14,7 @@ namespace GPC.Model.Sections.Steel
 
         bool IsWelded { get; }
 
-        ISection SectionShape { get; }
+        ISectionShape SectionShape { get; }
 
         double GetMinSigma(double N, double M1, double M2);
 

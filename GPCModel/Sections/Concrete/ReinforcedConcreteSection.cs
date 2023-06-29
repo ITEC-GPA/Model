@@ -17,15 +17,31 @@ namespace GPC.Model.Sections.Concrete
     {
         #region Variables
 
-        protected readonly ISection _sectionShape;
-        protected Mesh _mesh;
-        protected readonly RebarCollection _rebars;
-        protected readonly List<SteelSectionPosition> _steelSections;
+        /// <summary>
+        /// Concrete cross-section shape.
+        /// </summary>
+        protected readonly ISectionShape _sectionShape;
+
+        /// <summary>
+        /// Concrete material.
+        /// </summary>
         protected ConcreteMaterial _concreteMaterial;
+
+        protected Mesh _mesh;
+
+        /// <summary>
+        /// Rebars list.
+        /// </summary>
+        protected readonly RebarCollection _rebars;
+
+        /// <summary>
+        /// Optional, steel cross-section within concrete section.
+        /// </summary>
+        protected readonly List<SteelSectionPosition> _steelSections;
 
         #endregion
 
-        #region Properties from shape
+        #region Properties from shape - Only the part made of concrete
 
         public double Area => _sectionShape.Area;
 
@@ -71,6 +87,35 @@ namespace GPC.Model.Sections.Concrete
 
         public bool IsDoubleSymmetric => _sectionShape.IsDoubleSymmetric;
 
+        public double Height => _sectionShape.Height;
+
+        public double Wel1Min => _sectionShape.Wel1Min;
+
+        public double Wel1Max => _sectionShape.Wel1Max;
+
+        public double Wel2Min => _sectionShape.Wel2Min;
+
+        public double Wel2Max => _sectionShape.Wel2Max;
+
+        public double WelXMin => _sectionShape.WelXMin;
+
+        public double WelXMax => _sectionShape.WelXMax;
+
+        public double WelYMin => _sectionShape.WelYMin;
+
+        public double WelYMax => _sectionShape.WelYMax;
+
+        public double WelX => _sectionShape.WelX;
+
+        public double WelY => _sectionShape.WelY;
+
+        /// <summary>
+        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
+        /// </summary>
+        public Material Material => throw new NotImplementedException();
+
+        public ThinWallSection.ThinWall[] ThinWalls => _sectionShape.ThinWalls;
+
         #endregion
 
         #region Properties
@@ -89,10 +134,19 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        public ISection SectionShape => _sectionShape;
+        /// <summary>
+        /// Cross section-shape of concrete, without material.
+        /// </summary>
+        public ISectionShape SectionShape => _sectionShape;
 
+        /// <summary>
+        /// Rebar list.
+        /// </summary>
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
+        /// <summary>
+        /// Concrete material.
+        /// </summary>
         public ConcreteMaterial ConcreteMaterial
         {
             get => _concreteMaterial;
@@ -101,8 +155,14 @@ namespace GPC.Model.Sections.Concrete
 
         public Shape2d Shape => _sectionShape.Shape;
 
+        /// <summary>
+        /// Total rebars area.
+        /// </summary>
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
+        /// <summary>
+        /// Number of rebars.
+        /// </summary>
         public int RebarsCount => _rebars.Count;
 
         public IList<SteelSectionPosition> SteelSections => _steelSections;
@@ -111,19 +171,7 @@ namespace GPC.Model.Sections.Concrete
 
         #region Public Constructors
 
-        //protected ReinforcedConcreteSection(ReinforcedConcreteSection reinforcedConcreteSection)
-        //{
-        //    if (reinforcedConcreteSection is null)
-        //        throw new ArgumentNullException(nameof(reinforcedConcreteSection));
-
-        //    _shapeEx = reinforcedConcreteSection.ShapeEx;
-        //    _rebars = new RebarCollection();
-        //    _steelSections = new List<SteelSectionPosition>();
-
-        //    SetMechanicalProperties();
-        //}
-
-        public ReinforcedConcreteSection(ISection sectionShape, ConcreteMaterial concreteMaterial, RebarCollection rebars = null,
+        public ReinforcedConcreteSection(ISectionShape sectionShape, ConcreteMaterial concreteMaterial, RebarCollection rebars = null,
             List<SteelSectionPosition> steelSectionPositions = null)
             : base(sectionShape.Name)
         {
@@ -132,7 +180,7 @@ namespace GPC.Model.Sections.Concrete
             _rebars = rebars ?? new RebarCollection();
             _steelSections = steelSectionPositions ?? new List<SteelSectionPosition>();
 
-            _sectionShape.SetMechanicalProperties();
+            SetMechanicalProperties();
         }
 
         public ReinforcedConcreteSection(Shape2d shape, Material material, string name = "")
@@ -144,7 +192,7 @@ namespace GPC.Model.Sections.Concrete
             _rebars = new RebarCollection();
             _steelSections = new List<SteelSectionPosition>();
 
-            _sectionShape.SetMechanicalProperties();
+            SetMechanicalProperties();
         }
 
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
@@ -160,7 +208,7 @@ namespace GPC.Model.Sections.Concrete
                 version = 1;
             }
 
-            _sectionShape = (ISection)info.GetValue("SectionShape", typeof(ISection));
+            _sectionShape = (ISectionShape)info.GetValue("SectionShape", typeof(ISectionShape));
             _rebars = (RebarCollection)info.GetValue("RebarCollection", typeof(RebarCollection));
             _steelSections = new List<SteelSectionPosition>();
             if (version > 2)
@@ -593,6 +641,31 @@ namespace GPC.Model.Sections.Concrete
             return _sectionShape.Equals(other._sectionShape) &&
                 _rebars.ScrambledEquals(other._rebars) &&
                 _steelSections.SequenceEqual(other._steelSections);
+        }
+
+        public Point2d[] GetSectionPoints()
+        {
+            return _sectionShape.GetSectionPoints();
+        }
+
+        public void SetEdgeTypeFromSteelType(Section.SectionTypes sectionType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetMechanicalProperties()
+        {
+            _sectionShape.SetMechanicalProperties();
+        }
+
+        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        {
+            return _sectionShape.GetMesh(meshSize, initialMeshOnly, recombine, refine);
+        }
+
+        public void SetMeshSize(double size)
+        {
+            _sectionShape.SetMeshSize(size);
         }
 
         public static bool operator ==(ReinforcedConcreteSection left, ReinforcedConcreteSection right)

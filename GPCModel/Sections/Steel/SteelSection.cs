@@ -14,7 +14,7 @@ namespace GPC.Model.Sections.Steel
     {
         #region Varibles
 
-        protected readonly ISection _sectionShape;
+        protected readonly ISectionShape _sectionShape;
         protected readonly Section.SectionTypes _sectionType;
         protected readonly Section.FormedTypes _formedType;
         protected readonly SteelMaterial _steelMaterial;
@@ -97,7 +97,7 @@ namespace GPC.Model.Sections.Steel
 
         #region Constructor
 
-        public SteelSection(ISection sectionShape, SteelMaterial steelMaterial,
+        public SteelSection(ISectionShape sectionShape, SteelMaterial steelMaterial,
             Section.SectionTypes sectionType = Section.SectionTypes.Rolled,
             Section.FormedTypes formedType = Section.FormedTypes.HotFinished)
             : base(sectionShape.Name)
@@ -115,7 +115,7 @@ namespace GPC.Model.Sections.Steel
         {
             int version = info.GetInt32("SteelSectionVersion");
 
-            _sectionShape = (ISection)info.GetValue("SectionShape", typeof(ISection));
+            _sectionShape = (ISectionShape)info.GetValue("SectionShape", typeof(ISectionShape));
             _steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));
             _sectionType = (Section.SectionTypes)info.GetValue("SectionType", typeof(Section.SectionTypes));
             _formedType = (Section.FormedTypes)info.GetValue("FormedType", typeof(Section.FormedTypes));
@@ -139,7 +139,7 @@ namespace GPC.Model.Sections.Steel
 
         public SteelMaterial SteelMaterial => _steelMaterial;
 
-        public ISection SectionShape => _sectionShape;
+        public ISectionShape SectionShape => _sectionShape;
 
         /// <summary>
         /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
@@ -215,7 +215,7 @@ namespace GPC.Model.Sections.Steel
         public bool Equals(SteelSection other)
         {
             return !(other is null) &&
-                   EqualityComparer<ISection>.Default.Equals(_sectionShape, other._sectionShape) &&
+                   EqualityComparer<ISectionShape>.Default.Equals(_sectionShape, other._sectionShape) &&
                    _sectionType == other._sectionType &&
                    _formedType == other._formedType;
         }
@@ -223,7 +223,7 @@ namespace GPC.Model.Sections.Steel
         public override int GetHashCode()
         {
             int hashCode = -1194127724;
-            hashCode = hashCode * -1521134295 + EqualityComparer<ISection>.Default.GetHashCode(_sectionShape);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ISectionShape>.Default.GetHashCode(_sectionShape);
             hashCode = hashCode * -1521134295 + _sectionType.GetHashCode();
             hashCode = hashCode * -1521134295 + _formedType.GetHashCode();
             return hashCode;
@@ -231,12 +231,12 @@ namespace GPC.Model.Sections.Steel
 
         public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
         {
-            throw new NotImplementedException();
+            return _sectionShape.GetMesh(meshSize, initialMeshOnly, recombine, refine);
         }
 
         public void SetMeshSize(double size)
         {
-            throw new NotImplementedException();
+            _sectionShape.SetMeshSize(size);
         }
 
         public static bool operator ==(SteelSection left, SteelSection right)

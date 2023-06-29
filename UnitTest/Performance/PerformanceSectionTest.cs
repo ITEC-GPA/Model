@@ -24,7 +24,7 @@ namespace PerformanceTest
         [TestMethod]
         public void ReinforcedConcreteSection1()
         {
-            ShapeEx shape = new ShapeEx(new Polygon2d(500), ConcreteMaterialEN1992Data.C25_30, new[] { new Polygon2d(400) });
+            var shape = new Shape2d(new Polygon2d(500), new[] { new Polygon2d(400) });
 
             ReinforcedConcreteSection section = new ReinforcedConcreteSection(shape, ConcreteMaterialEN1992Data.C25_30);
             section.AddRebar(new ReinforcedConcreteRebar(new RebarSectionCircular(10, SteelMaterialEN1992Data.B450C), new Point2d()));

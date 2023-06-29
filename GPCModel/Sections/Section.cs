@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class Section : ElementProperty, ISection, ISerializable
+    public class Section : ElementProperty, ISectionShape, ISerializable
     {
         #region Enumerator
 
@@ -77,6 +77,7 @@ namespace GPC.Model.Sections
         /// The mateerial of the section.
         /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
         /// </summary>
+        [System.ComponentModel.Browsable(false)]
         public Material Material => _material;
 
         /// <summary>
