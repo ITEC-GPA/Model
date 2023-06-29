@@ -126,12 +126,17 @@ namespace GPC.Model.Standards
 			_phiTP = info.GetDouble("PhiTP");
 			_phiDeformationTransitionIncrement = info.GetDouble("PhiDeformationTransitionIncrement");
 			_phiDeformationTransitionIncrementPrestress = info.GetDouble("PhiDeformationTransitionIncrementPrestress");
-			_concreteStrengthReductionFactor = info.GetDouble("ConcreteStrengthReductionFactor");
 
 			if (version >= 2)
-				_phiDeformationTransitionMaxLimit = info.GetDouble("PhiDeformationTransitionMaxLimit");
+            {
+                _concreteStrengthReductionFactor = info.GetDouble("ConcreteStrengthReductionFactor");
+                _phiDeformationTransitionMaxLimit = info.GetDouble("PhiDeformationTransitionMaxLimit");
+            }
 			else
-				_phiDeformationTransitionMaxLimit = 0.005;
+            {
+                _concreteStrengthReductionFactor = 0.85;
+                _phiDeformationTransitionMaxLimit = 0.005;
+            }
 		}
 
 		#endregion
