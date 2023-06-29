@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using GPC.Geometry;
-using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
@@ -31,79 +26,79 @@ namespace GPC.Model.Sections
             get => _h;
             set
             {
-                if(_h != value)
+                if (_h != value)
                 {
                     _h = value;
-					CalculateSection();
+                    CalculateSection();
                 }
             }
         }
 
         public double LenghtBottomFlange
         {
-			get => _bbottom;
+            get => _bbottom;
             set
-			{
-				if (_bbottom != value)
-				{
-					_bbottom = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_bbottom != value)
+                {
+                    _bbottom = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double LenghtTopFlange 
+        public double LenghtTopFlange
         {
-			get => _btop;
+            get => _btop;
             set
-			{
-				if (_btop != value)
-				{
-					_btop = value;
-					CalculateSection();
+            {
+                if (_btop != value)
+                {
+                    _btop = value;
+                    CalculateSection();
 
-				}
-			}
-		}
+                }
+            }
+        }
 
         public double ThicknessTopFlange
         {
-			get => _ttop; 
+            get => _ttop;
             set
-			{
-				if (_ttop != value)
-				{
-					_ttop = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_ttop != value)
+                {
+                    _ttop = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double ThicknessBottomFlange
         {
-			get => _tbottom; 
+            get => _tbottom;
             set
-			{
-				if (_tbottom != value)
-				{
-					_tbottom = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_tbottom != value)
+                {
+                    _tbottom = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double ThicknessWeb 
+        public double ThicknessWeb
         {
-			get => _tw; 
+            get => _tw;
             set
-			{
-				if (_tw != value)
-				{
-					_tw = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_tw != value)
+                {
+                    _tw = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
 
@@ -119,8 +114,8 @@ namespace GPC.Model.Sections
         #region Public Constructors
 
         public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
-            double bottomFlangeThickness, Material material, string name, double radius = 0)
-            : base(material, name)
+            double bottomFlangeThickness, string name, double radius = 0)
+            : base(name)
         {
             #region Check inputs
 
@@ -266,9 +261,9 @@ namespace GPC.Model.Sections
         protected override double CalculateWpl2()
         {
             SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange,
-                ThicknessWeb / 2.0, Material, string.Empty);
+                ThicknessWeb / 2.0, string.Empty);
             SectionT halfSectionBottom = new SectionT(LenghtBottomFlange / 2.0, Height / 2.0, ThicknessBottomFlange,
-                ThicknessWeb / 2.0, Material, string.Empty);
+                ThicknessWeb / 2.0, string.Empty);
 
             double d = (halfSectionTop.Area * (LenghtTopFlange / 2.0 - halfSectionTop.DistanceYCentroidFromBottom()) +
                 halfSectionBottom.Area * (LenghtBottomFlange / 2.0 - halfSectionBottom.DistanceYCentroidFromBottom())) /
@@ -284,9 +279,9 @@ namespace GPC.Model.Sections
                 double hw = (_area / 2.0 - LenghtTopFlange * ThicknessTopFlange) / ThicknessWeb;
 
                 SectionT halfSectionTop = new SectionT(hw + ThicknessTopFlange, LenghtTopFlange, ThicknessWeb,
-                    ThicknessTopFlange, Material, string.Empty);
+                    ThicknessTopFlange, string.Empty);
                 SectionT halfSectionBottom = new SectionT(Height - ThicknessTopFlange - hw, LenghtBottomFlange,
-                    ThicknessWeb, ThicknessBottomFlange, Material, string.Empty);
+                    ThicknessWeb, ThicknessBottomFlange, string.Empty);
 
                 return _area / 2.0 * (halfSectionTop.DistanceYCentroidFromBottom() + halfSectionBottom.DistanceYCentroidFromBottom());
             }
@@ -295,7 +290,7 @@ namespace GPC.Model.Sections
                 double hHalf = _area / 2.0 / LenghtTopFlange;
 
                 SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange,
-                    ThicknessTopFlange - hHalf, LenghtBottomFlange, ThicknessBottomFlange, Material, string.Empty);
+                    ThicknessTopFlange - hHalf, LenghtBottomFlange, ThicknessBottomFlange, string.Empty);
 
                 return _area / 2.0 * (hHalf / 2.0 + (Height - hHalf - halfSectionBottom.DistanceYCentroidFromBottom()));
             }
@@ -304,7 +299,7 @@ namespace GPC.Model.Sections
                 double hHalf = _area / 2.0 / LenghtBottomFlange;
 
                 SectionH halfSectionBottom = new SectionH(Height - hHalf, ThicknessWeb, LenghtTopFlange, ThicknessTopFlange,
-                    LenghtBottomFlange, ThicknessBottomFlange - hHalf, Material, string.Empty);
+                    LenghtBottomFlange, ThicknessBottomFlange - hHalf, string.Empty);
 
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
@@ -396,24 +391,24 @@ namespace GPC.Model.Sections
 
         private void CalculateSection()
         {
-			ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
+            ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
                 new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb / 2.0));
-			ThinWall flangeTop = new ThinWall(LenghtTopFlange, ThicknessTopFlange, 0,
+            ThinWall flangeTop = new ThinWall(LenghtTopFlange, ThicknessTopFlange, 0,
                 new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange + HeightWeb + ThicknessTopFlange / 2.0));
-			ThinWall flangeBottom = new ThinWall(LenghtBottomFlange, ThicknessBottomFlange, 0,
+            ThinWall flangeBottom = new ThinWall(LenghtBottomFlange, ThicknessBottomFlange, 0,
                 new Point2d(Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0, ThicknessBottomFlange / 2.0));
 
-			SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom });
+            SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom });
 
-			SetMechanicalProperties();
-			_mesh = GetMesh();
-		}
+            SetMechanicalProperties();
+            _mesh = GetMesh();
+        }
 
         public override string ToString()
         {
             return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

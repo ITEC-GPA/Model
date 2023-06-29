@@ -333,7 +333,7 @@ namespace PerformanceTest
             int numberOfFuncions = 16;
             double b = 300;
             double h = 300;
-            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30));
+            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b), ConcreteMaterialEN1992Data.C25_30);
 
             section.SectionShape.SetMeshSize(50);
             GPC.Geometry.Meshes.Mesh mesh = section.Mesh;
@@ -385,7 +385,7 @@ namespace PerformanceTest
             int numberOfFunctions = 16 * 49;
             double b = 300;
             double h = 700;
-            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b, ConcreteMaterialEN1992Data.C25_30));
+            var section = new ReinforcedConcreteSection(new SectionRectangular(h, b), ConcreteMaterialEN1992Data.C25_30);
 
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]

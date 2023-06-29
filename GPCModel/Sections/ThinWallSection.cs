@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
@@ -51,10 +50,9 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The default constructor of generic ThinWallSection
         /// </summary>
-        /// <param name="material">The <see cref="Materials"/> of the section </param>
         /// <param name="name">The name of the section</param>
-        internal ThinWallSection(Material material, string name)
-            : base(material, name)
+        internal ThinWallSection(string name)
+            : base(name)
         {
         }
 

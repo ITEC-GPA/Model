@@ -119,7 +119,10 @@ namespace GPC.Model.Sections
 
         bool IsDoubleSymmetric { get; }
 
-        Material Material { get; set; }
+        /// <summary>
+        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
+        /// </summary>
+        Material Material { get; }
 
         ThinWall[] ThinWalls { get; }
 

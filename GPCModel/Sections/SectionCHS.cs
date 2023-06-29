@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
 
@@ -65,8 +64,8 @@ namespace GPC.Model.Sections
 
         #region Public Constructors
 
-        public SectionCHS(double externalDiameter, double thickness, Material material, string name = "")
-            : base(material, name)
+        public SectionCHS(double externalDiameter, double thickness, string name = "")
+            : base(name)
         {
             if (thickness > externalDiameter / 2.0)
                 throw new ArgumentException($"Diameter cannot be lower than 2 * thickness ");
@@ -78,7 +77,7 @@ namespace GPC.Model.Sections
         }
 
         public SectionCHS(SectionCHS section)
-            : this(section.Diameter, (section.Diameter - section.DiameterInternal) / 2.0, section.Material, section.Name)
+            : this(section.Diameter, (section.Diameter - section.DiameterInternal) / 2.0, section.Name)
         {
 
         }

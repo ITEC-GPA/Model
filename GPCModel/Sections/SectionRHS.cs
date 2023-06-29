@@ -1,5 +1,4 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
 
@@ -16,7 +15,7 @@ namespace GPC.Model.Sections
         private double _tfBottom;
         private double _twL;
         private double _twR;
-        
+
         private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
@@ -112,8 +111,8 @@ namespace GPC.Model.Sections
         #region Public Constructors
 
         public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange,
-            double thicknessWebLeft, double thickenssWebRight, Material material, string name, double radius = 0)
-            : base(material, name)
+            double thicknessWebLeft, double thickenssWebRight, string name, double radius = 0)
+            : base(name)
         {
             _h = height;
             _b = width;
@@ -222,8 +221,8 @@ namespace GPC.Model.Sections
             {
                 if (IsSymmetricAlongYLocalAxis)
                 {
-                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
-                    SectionC halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
+                    var halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, string.Empty);
+                    var halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, string.Empty);
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
@@ -240,8 +239,8 @@ namespace GPC.Model.Sections
             {
                 if (IsSymmetricAlongXLocalAxis)
                 {
-                    SectionC halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, _material, string.Empty);
-                    SectionC halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, Material, string.Empty);
+                    var halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, string.Empty);
+                    var halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, string.Empty);
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else

@@ -17,6 +17,7 @@ namespace GPC.Model.Sections.Steel
         protected readonly ISection _sectionShape;
         protected readonly Section.SectionTypes _sectionType;
         protected readonly Section.FormedTypes _formedType;
+        protected readonly SteelMaterial _steelMaterial;
 
         #endregion
 
@@ -90,24 +91,19 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsDoubleSymmetric => _sectionShape.IsDoubleSymmetric;
 
-        public Material Material
-        {
-            get { return _sectionShape.Material; }
-            set { _sectionShape.Material = value; }
-        }
-
         public ThinWallSection.ThinWall[] ThinWalls => _sectionShape.ThinWalls;
 
         #endregion
 
         #region Constructor
 
-        public SteelSection(ISection sectionShape,
+        public SteelSection(ISection sectionShape, SteelMaterial steelMaterial,
             Section.SectionTypes sectionType = Section.SectionTypes.Rolled,
             Section.FormedTypes formedType = Section.FormedTypes.HotFinished)
             : base(sectionShape.Name)
         {
             _sectionShape = sectionShape ?? throw new ArgumentNullException(nameof(_sectionShape));
+            _steelMaterial = steelMaterial ?? throw new ArgumentNullException(nameof(_steelMaterial));
             _sectionType = sectionType;
             _formedType = formedType;
             SetEdgeTypeFromSteelType(sectionType);
@@ -120,6 +116,7 @@ namespace GPC.Model.Sections.Steel
             int version = info.GetInt32("SteelSectionVersion");
 
             _sectionShape = (ISection)info.GetValue("SectionShape", typeof(ISection));
+            _steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));
             _sectionType = (Section.SectionTypes)info.GetValue("SectionType", typeof(Section.SectionTypes));
             _formedType = (Section.FormedTypes)info.GetValue("FormedType", typeof(Section.FormedTypes));
         }
@@ -140,9 +137,14 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsColdFormed => _formedType == Section.FormedTypes.ColdFormed;
 
-        public SteelMaterial SteelMaterial => (SteelMaterial)_sectionShape.Material;
+        public SteelMaterial SteelMaterial => _steelMaterial;
 
         public ISection SectionShape => _sectionShape;
+
+        /// <summary>
+        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
+        /// </summary>
+        public Material Material => throw new NotImplementedException();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -151,6 +153,7 @@ namespace GPC.Model.Sections.Steel
             info.AddValue("SteelSectionVersion", version);
 
             info.AddValue("SectionShape", _sectionShape);
+            info.AddValue("SteelMaterial", _steelMaterial);
             info.AddValue("SectionType", _sectionType);
             info.AddValue("FormedType", _formedType);
         }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using GPC.Geometry;
+using System;
 using System.Runtime.Serialization;
-using GPC.Geometry;
-using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -15,7 +13,7 @@ namespace GPC.Model.Sections
         private double _horizontalLegThickness;
         private double _verticalLegLength;
         private double _verticalLegThickness;
-        
+
         private readonly double _r;                // raggio di curvatura o altezza di gola
 
         #endregion
@@ -52,27 +50,27 @@ namespace GPC.Model.Sections
         {
             get => _verticalLegLength;
             set
-            { 
+            {
                 if (_verticalLegLength != value)
                 {
                     _verticalLegLength = value;
-					CalculateSection();
-                } 
+                    CalculateSection();
+                }
             }
         }
 
-        public double VerticalLegThickness 
+        public double VerticalLegThickness
         {
-			get => _verticalLegThickness; 
+            get => _verticalLegThickness;
             set
-			{
-				if (_verticalLegThickness != value)
-				{
-					_verticalLegThickness = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_verticalLegThickness != value)
+                {
+                    _verticalLegThickness = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double R => _r;
 
@@ -107,11 +105,10 @@ namespace GPC.Model.Sections
         /// <param name="horizontalLegThickness">The horizontal leg _thickness</param>
         /// <param name="verticalLegLength">The vertical leg length</param>
         /// <param name="verticalLegThickness">The vertical leg _thickness</param>
-        /// <param name="material">Material of the section</param>
         /// <param name="name">Name of the section</param>
-        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness, 
-            Material material, string name, double radius = 0)
-            : base(material, name)
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness,
+            string name, double radius = 0)
+            : base(name)
         {
             _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
             _horizontalLegThickness = horizontalLegThickness < 0 ? throw new ArgumentException($"Horizzontal plate _thickness cannot be lower than zero") : horizontalLegThickness;
@@ -256,7 +253,7 @@ namespace GPC.Model.Sections
             double WelLeft = Jyy / Math.Abs(minX);
             double WelRight = Jyy / Math.Abs(maxX);
 
-            return(WelTop, WelBottom, WelLeft, WelRight);
+            return (WelTop, WelBottom, WelLeft, WelRight);
         }
 
         private (double minX, double maxX, double minY, double maxY) FivePointsCheck(double angle)
@@ -289,7 +286,7 @@ namespace GPC.Model.Sections
                 maxY = Math.Max(maxY, pts[i].Y);
             }
 
-            return(minX, maxX, minY, maxY);
+            return (minX, maxX, minY, maxY);
         }
 
         protected override double CalculateJxx()
@@ -331,7 +328,7 @@ namespace GPC.Model.Sections
 
         protected override double CalculateWpl2()
         {
-            return Math.Min(_wel2Max, _wel2Min); 
+            return Math.Min(_wel2Max, _wel2Min);
         }
 
         protected override Point2d CalculateCentroid()
@@ -343,22 +340,22 @@ namespace GPC.Model.Sections
 
         private void CalculateSection()
         {
-			ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
+            ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
                 new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2));
-			ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2,
+            ThinWall thinWall2 = new ThinWall(VerticalLegLength - HorizontalLegThickness, VerticalLegThickness, Math.PI / 2,
                 new Point2d(VerticalLegThickness / 2, HorizontalLegThickness + (VerticalLegLength - HorizontalLegThickness) / 2));
 
-			SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
+            SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
-			SetMechanicalProperties();
-			_mesh = GetMesh();
-		}
+            SetMechanicalProperties();
+            _mesh = GetMesh();
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public override string ToString()
+        public override string ToString()
         {
             return $"L {_verticalLegLength}x{_verticalLegThickness}x{_horizontalLegLength}x{_thinWalls}";
         }
@@ -377,6 +374,6 @@ namespace GPC.Model.Sections
             info.AddValue("R", _r);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

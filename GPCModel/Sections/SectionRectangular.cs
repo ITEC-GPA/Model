@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GPC.Geometry;
+using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
@@ -26,47 +20,47 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The height of the section
         /// </summary>
-        public override double Height 
+        public override double Height
         {
-			get => _height; 
+            get => _height;
             set
-			{
-				if (_height != value)
-				{
-					_height = value;
+            {
+                if (_height != value)
+                {
+                    _height = value;
                     CalculateSection();
                 }
-			}
-		}
+            }
+        }
 
         /// <summary>
         /// The width of the section
         /// </summary>
         public double Width
         {
-			get => _width; 
+            get => _width;
             set
-			{
-				if (_width != value)
-				{
-					_width = value;
+            {
+                if (_width != value)
+                {
+                    _width = value;
                     CalculateSection();
                 }
-			}
-		}
+            }
+        }
 
-        public double Angle 
+        public double Angle
         {
-			get => _angle; 
+            get => _angle;
             set
-			{
-				if (_angle != value)
-				{
-					_angle = value;
+            {
+                if (_angle != value)
+                {
+                    _angle = value;
                     CalculateSection();
                 }
-			}
-		}
+            }
+        }
 
         #endregion
 
@@ -78,11 +72,9 @@ namespace GPC.Model.Sections
         /// <param name="height">The height of the section</param>
         /// <param name="width">The width of the section</param>
         /// <param name="angle">Angle of rotation of the section</param>
-        /// <param name="material">The material of the section</param>
         /// <param name="name">The name of the section</param>
-
-        public SectionRectangular(double height, double width, double angle, Material material, string name = "")
-            : base(material, name)
+        public SectionRectangular(double height, double width, double angle, string name = "")
+            : base(name)
         {
             _height = height <= 0 ? throw new ArgumentException($"Height cannot be lower than zero") : height;
             _width = width <= 0 ? throw new ArgumentException($"Width cannot be lower than zero") : width;
@@ -96,17 +88,16 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <param name="height">The height of the section</param>
         /// <param name="width">The width of the section</param>
-        /// <param name="material">The material of the section</param>
         /// <param name="name">The name of the section</param>
         /// <remarks>Angle of rotation is set to 0</remarks>
-        public SectionRectangular(double height, double width, Material material, string name = "")
-            : this(height, width, 0.0, material, name)
+        public SectionRectangular(double height, double width, string name = "")
+            : this(height, width, 0.0, name)
         {
 
         }
 
         public SectionRectangular(SectionRectangular section)
-            : this(section.Height, section.Width, section.Material, section.Name)
+            : this(section.Height, section.Width, section.Name)
         {
 
         }
@@ -129,11 +120,11 @@ namespace GPC.Model.Sections
             _angle = info.GetDouble("Angle");
         }
 
-		#endregion
+        #endregion
 
-		#region Public methods
+        #region Public methods
 
-		protected override Shape2d GetShape()
+        protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] { new Point2d(0, 0), new Point2d(Width, 0), new Point2d(Width, Height), new Point2d(0, Height) }));
         }
@@ -295,6 +286,6 @@ namespace GPC.Model.Sections
             return !(left == right);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

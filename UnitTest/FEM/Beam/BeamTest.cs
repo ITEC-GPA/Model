@@ -6,19 +6,17 @@ using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Model.Sections;
-using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using static GPC.Model.Fem.Solver;
-using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace FemTest.SolverTest
 {
     [TestClass]
     public class BeamTest
     {
-        
+
 
         /// <summary>
         /// Sforzo Assiale su trave incastro - libero - direzione +X
@@ -28,14 +26,16 @@ namespace FemTest.SolverTest
         {
             double E = 100000.0;
             double H = 1;
-            double t = (H / 2.0)*0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            double t = (H / 2.0) * 0.999;
+            var sec = new SectionRHS(H, H, t, t, t, t, "sec");
             double A = sec.Area;
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -61,10 +61,10 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
             Assert.AreEqual(FX / (E * A) * L, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX), 1e-6);
-            Assert.AreEqual(FX / (E * A) * L / 2.0, fem.GetBeamDisplacementInLocalCoordinates(b, b.L/2.0, Beam.LocalDOF.AxialU1), 1e-6);
+            Assert.AreEqual(FX / (E * A) * L / 2.0, fem.GetBeamDisplacementInLocalCoordinates(b, b.L / 2.0, Beam.LocalDOF.AxialU1), 1e-6);
 
             Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.N]);
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.N]);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.N]);
             Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.N]);
 
             Assert.AreEqual(-FX, fem.GetReaction(nds[0], DOF.DX));
@@ -77,13 +77,15 @@ namespace FemTest.SolverTest
         public void CantileverAxialUniformLoadTest1()
         {
             double E = 1000.0;
-            Section sec = new SectionCHS(10.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(10.0, 5.0, "sec");
             double A = sec.Area;
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -107,13 +109,13 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
             Assert.AreEqual(qx * L / 2.0 / (E * A) * L, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX), 1e-6);
-            Assert.AreEqual(4.7746, fem.GetBeamDisplacementInLocalCoordinates(b,b.L/2.0, Beam.LocalDOF.AxialU1), 1e-4);
+            Assert.AreEqual(4.7746, fem.GetBeamDisplacementInLocalCoordinates(b, b.L / 2.0, Beam.LocalDOF.AxialU1), 1e-4);
 
             Assert.AreEqual(-qx * L, fem.GetReaction(nds[0], DOF.DX));
             Assert.AreEqual(0.0, fem.GetReaction(nds[1], DOF.DX));
 
             Assert.AreEqual(qx * L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.N]);
-            Assert.AreEqual(qx * L / 2.0, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.N]);
+            Assert.AreEqual(qx * L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.N]);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.N]);
         }
 
@@ -126,12 +128,14 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, H, t, t, t, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -161,17 +165,17 @@ namespace FemTest.SolverTest
             Assert.AreEqual(MZ * L * L / (2.0 * E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.DY), 1e-4);
 
             Assert.AreEqual(MZ * L / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.RZ), 1e-4);
-            Assert.AreEqual(MZ * L/2.0 / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L/2.0, DOF.RZ), 1e-4);
+            Assert.AreEqual(MZ * L / 2.0 / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RZ), 1e-4);
 
             Assert.AreEqual(MY * L / (E * sec.Jyy), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.RY), 1e-4);
             Assert.AreEqual(MY * L / 2.0 / (E * sec.Jyy), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RY), 1e-4);
 
-            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3],1e-6);
-            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-6);
             Assert.AreEqual(MZ, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M3], 1e-6);
 
             Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-6);
-            Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.M2], 1e-6);
+            Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-6);
             Assert.AreEqual(-MY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M2], 1e-6);
         }
 
@@ -184,18 +188,20 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, H, t, t, t, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, -L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, -L, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-    
+
             double MX = -1000;
             NodeForceAttribute m = new NodeForceAttribute("lc", sys, 0.0, 0.0, 0.0, MX, 0.0, 0.0);
 
@@ -213,11 +219,11 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
-            Assert.AreEqual(1.0 / 2.0 * -MX * L*L / (E * sec.Jxx), fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
+            Assert.AreEqual(1.0 / 2.0 * -MX * L * L / (E * sec.Jxx), fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
             Assert.AreEqual(1.0 / 2.0 * -MX * L * L / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.DZ), 1e-4);
 
             Assert.AreEqual(MX * L / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.RX), 1e-4);
-            Assert.AreEqual(MX * L/2.0 / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L/2.0, DOF.RX), 1e-4);
+            Assert.AreEqual(MX * L / 2.0 / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RX), 1e-4);
 
             Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-6);
             Assert.AreEqual(-MX, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-6);
@@ -233,12 +239,14 @@ namespace FemTest.SolverTest
             double E = 100000.0;
             double H = 1;
             double t = (H / 2.0) * 0.999;
-            Section sec = new SectionRHS(H, H, t, t, t, t, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, H, t, t, t, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -261,15 +269,15 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(new FiniteElement[] { b });
 
-            Assert.AreEqual(1.0 / 3.0 * FY * L*L*L/(E*sec.Jxx), fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
+            Assert.AreEqual(1.0 / 3.0 * FY * L * L * L / (E * sec.Jxx), fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
             Assert.AreEqual(1.0 / 3.0 * FY * L * L * L / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.DY), 1e-4);
 
-            Assert.AreEqual(-FY * L / (E * sec.Jxx) * (L/2.0 - L), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.RZ), 1e-4);
-            Assert.AreEqual(-FY * L/2.0 / (E * sec.Jxx) * (L/2.0 / 2.0 - L), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L/2.0, DOF.RZ), 1e-4);
+            Assert.AreEqual(-FY * L / (E * sec.Jxx) * (L / 2.0 - L), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.RZ), 1e-4);
+            Assert.AreEqual(-FY * L / 2.0 / (E * sec.Jxx) * (L / 2.0 / 2.0 - L), fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RZ), 1e-4);
 
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2],1e-3);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2], 1e-3);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2],1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2], 1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.V2], 1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2], 1e-3);
 
             Assert.AreEqual(FY * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 1e-3);
             Assert.AreEqual(FY * b.L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-3);
@@ -279,18 +287,20 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void CantileverShearForceTest2()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            Section sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, 0, 1000.0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, 0, 1000.0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            double FX = 10/2.0;
+            double FX = 10 / 2.0;
             double FY = 10;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, FX, FY, 0.0, 0.0, 0.0, 0.0);
 
@@ -318,32 +328,34 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(2.188538 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2, DOF.RY), 1e-4);
 
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2],1e-3);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V2],1e-3);
-            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2],1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V2], 1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.V2], 1e-3);
+            Assert.AreEqual(-FY, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V2], 1e-3);
 
             Assert.AreEqual(FY * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M3], 1e-3);
-            Assert.AreEqual(FY * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-3);
+            Assert.AreEqual(FY * b.L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M3], 1e-3);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M3], 1e-3);
 
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V3],1e-3);
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.V3],1e-3);
-            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V3],1e-3);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.V3], 1e-3);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.V3], 1e-3);
+            Assert.AreEqual(FX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.V3], 1e-3);
 
             Assert.AreEqual(-FX * b.L, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.M2], 1e-3);
-            Assert.AreEqual(-FX * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-3);
+            Assert.AreEqual(-FX * b.L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.M2], 1e-3);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.M2], 1e-3);
         }
 
         [TestMethod]
         public void CantileverShearForceTest3()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, 1000.0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, 1000.0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -370,19 +382,19 @@ namespace FemTest.SolverTest
             Assert.AreEqual(67.9061, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DX), 1e-4);
             Assert.AreEqual(67.9061, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.DX), 1e-4);
 
-            Assert.AreEqual(8.754150 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L/2.0, DOF.RX), 1e-4);
+            Assert.AreEqual(8.754150 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RX), 1e-4);
 
             Assert.AreEqual(2.0 * 67.9061, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
             Assert.AreEqual(2.0 * 67.9061, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L, DOF.DZ), 1e-4);
 
             Assert.AreEqual(-4.377075 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(b, b.L / 2.0, DOF.RZ), 1e-4);
 
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.V2),1e-3);
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L/2.0, Beam.InternalAction.V2),1e-3);
-            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L, Beam.InternalAction.V2),1e-3);
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.V2), 1e-3);
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L / 2.0, Beam.InternalAction.V2), 1e-3);
+            Assert.AreEqual(fx, fem.GetBeamInternalForces(b, b.L, Beam.InternalAction.V2), 1e-3);
 
             Assert.AreEqual(-fx * b.L, fem.GetBeamInternalForces(b, 0.0, Beam.InternalAction.M3), 1e-3);
-            Assert.AreEqual(-fx * b.L/2.0, fem.GetBeamInternalForces(b, b.L / 2.0, Beam.InternalAction.M3), 1e-3);
+            Assert.AreEqual(-fx * b.L / 2.0, fem.GetBeamInternalForces(b, b.L / 2.0, Beam.InternalAction.M3), 1e-3);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(b, b.L, Beam.InternalAction.M3), 1e-3);
         }
 
@@ -392,11 +404,13 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void CantileverTorsionTest1()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 10.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 0, 0)
+            };
 
             EulerBeam b = new EulerBeam(nds.ToArray());
             b.SetProperty(sec);
@@ -424,11 +438,11 @@ namespace FemTest.SolverTest
             Assert.AreEqual(1.1672, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.RX) * 180.0 / Math.PI, 1e-4);
 
             Assert.AreEqual(1.1672, fem.GetBeamDisplacementInLocalCoordinates(b, b.L, Beam.LocalDOF.TorsionR1) * 180.0 / Math.PI, 1e-4);
-            Assert.AreEqual(1.1672 / 2.0, fem.GetBeamDisplacementInLocalCoordinates(b, b.L/2.0, Beam.LocalDOF.TorsionR1) * 180.0 / Math.PI, 1e-4);
+            Assert.AreEqual(1.1672 / 2.0, fem.GetBeamDisplacementInLocalCoordinates(b, b.L / 2.0, Beam.LocalDOF.TorsionR1) * 180.0 / Math.PI, 1e-4);
             Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(b, 0.0, Beam.LocalDOF.TorsionR1) * 180.0 / Math.PI, 1e-4);
 
             Assert.AreEqual(MX, fem.GetBeamInternalForces(b, 0)[Beam.InternalAction.T]);
-            Assert.AreEqual(MX, fem.GetBeamInternalForces(b, b.L/2.0)[Beam.InternalAction.T]);
+            Assert.AreEqual(MX, fem.GetBeamInternalForces(b, b.L / 2.0)[Beam.InternalAction.T]);
             Assert.AreEqual(MX, fem.GetBeamInternalForces(b, b.L)[Beam.InternalAction.T]);
         }
 
@@ -438,15 +452,17 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void SimplySupportedTest1()
         {
-            double E = 1;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 1;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             double L = 2000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L/2.0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 2.0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -458,7 +474,7 @@ namespace FemTest.SolverTest
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double F = 1.0;
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, -F, F/2.0, 0, 0.0, 0.0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0.0, -F, F / 2.0, 0, 0.0, 0.0);
 
             nds[1].AddAttribute(f);
 
@@ -475,25 +491,25 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(-33.9531, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
 
-            Assert.AreEqual(-23.3427, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L/2.0, Beam.LocalDOF.U2), 1e-4);
+            Assert.AreEqual(-23.3427, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L / 2.0, Beam.LocalDOF.U2), 1e-4);
             Assert.AreEqual(-2.1885 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.RZ), 1e-4);
             Assert.AreEqual(2.1885 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RZ), 1e-4);
 
             Assert.AreEqual(-1.094269 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.RY), 1e-4);
             Assert.AreEqual(1.094269 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RY), 1e-4);
 
-            Assert.AreEqual(0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3],1e-4);
-            Assert.AreEqual(F * L / 4.0 / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L/2.0)[Beam.InternalAction.M3], 1e-4);
-            Assert.AreEqual(F*L/4.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3], 1e-4);
+            Assert.AreEqual(F * L / 4.0 / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0)[Beam.InternalAction.M3], 1e-4);
+            Assert.AreEqual(F * L / 4.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6);
 
             Assert.AreEqual(F / 2.0, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V2], 1e-6);
             Assert.AreEqual(F / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0)[Beam.InternalAction.V2], 1e-4);
             Assert.AreEqual(F / 2.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.V2], 1e-6);
 
-            Assert.AreEqual(F * L /4.0, fem.GetBeamInternalForces(beams[1], 0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(F * L / 4.0, fem.GetBeamInternalForces(beams[1], 0)[Beam.InternalAction.M3], 1e-6);
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[1], beams[1].L)[Beam.InternalAction.M3], 1e-6);
 
-            Assert.AreEqual(-F/2.0, fem.GetBeamInternalForces(beams[1],0)[Beam.InternalAction.V2], 1e-6);
+            Assert.AreEqual(-F / 2.0, fem.GetBeamInternalForces(beams[1], 0)[Beam.InternalAction.V2], 1e-6);
             Assert.AreEqual(-F / 2.0, fem.GetBeamInternalForces(beams[1], beams[1].L)[Beam.InternalAction.V2], 1e-6);
         }
 
@@ -503,13 +519,15 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest1()
         {
-            double E = 1;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 1;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 0, 0));
-            nds.Add(new Node(1000, 1000, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 0, 0),
+                new Node(1000, 1000, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -546,14 +564,14 @@ namespace FemTest.SolverTest
                 Beam.LocalDOF.R3
                 },
                 "fc", "rel1");
-            
+
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
             Assert.AreEqual(679.06109, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DX), 1e-4);
             Assert.AreEqual(2.5464, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-4);
             Assert.AreEqual(2037.1832, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-4);
 
-            Assert.AreEqual(0.0, fem.GetReaction(nds[0],DOF.DX), 1e-4);
+            Assert.AreEqual(0.0, fem.GetReaction(nds[0], DOF.DX), 1e-4);
             Assert.AreEqual(0.0, fem.GetReaction(nds[0], DOF.DY), 1e-4);
             Assert.AreEqual(0.0, fem.GetReaction(nds[0], DOF.DZ), 1e-4);
             Assert.AreEqual(0.0, fem.GetReaction(nds[0], DOF.RX), 1e-4);
@@ -561,8 +579,8 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.0, fem.GetReaction(nds[0], DOF.RZ), 1e-4);
 
             Assert.AreEqual(-F, fem.GetReaction(nds[2], DOF.DX), 1e-4);
-            Assert.AreEqual(- 2.0 * F, fem.GetReaction(nds[2], DOF.DY), 1e-4);
-            Assert.AreEqual(- 3.0 * F, fem.GetReaction(nds[2], DOF.DZ), 1e-4);
+            Assert.AreEqual(-2.0 * F, fem.GetReaction(nds[2], DOF.DY), 1e-4);
+            Assert.AreEqual(-3.0 * F, fem.GetReaction(nds[2], DOF.DZ), 1e-4);
             Assert.AreEqual(30000, fem.GetReaction(nds[2], DOF.RX), 1e-4);
             Assert.AreEqual(0.0, fem.GetReaction(nds[2], DOF.RY), 1e-4);
             Assert.AreEqual(-10000, fem.GetReaction(nds[2], DOF.RZ), 1e-4);
@@ -609,12 +627,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest2()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 0, 0));
-            nds.Add(new Node(1000, 1000, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 0, 0),
+                new Node(1000, 1000, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -681,7 +701,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0, displ[Beam.LocalDOF.R2]);
             Assert.AreEqual(0, displ[Beam.LocalDOF.R3]);
 
-            displ = fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L/2.0);
+            displ = fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0);
             Assert.AreEqual(0, displ[Beam.LocalDOF.AxialU1]);
             Assert.AreEqual(0, displ[Beam.LocalDOF.U2]);
             Assert.AreEqual(0, displ[Beam.LocalDOF.U3]);
@@ -707,7 +727,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-175.083 * Math.PI / 180.0, displ[Beam.LocalDOF.R2], 1e-3);
             Assert.AreEqual(116.72 * Math.PI / 180.0, displ[Beam.LocalDOF.R3], 1e-3);
 
-            Assert.AreEqual(424.4132, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L/2.0, DOF.DY), 1e-4);
+            Assert.AreEqual(424.4132, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.DY), 1e-4);
             Assert.AreEqual(636.6198, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.DZ), 1e-4);
             Assert.AreEqual(-131.3123 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.RY), 1e-4);
             Assert.AreEqual(87.5415 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.RZ), 1e-4);
@@ -720,12 +740,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest3()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 0, 0));
-            nds.Add(new Node(1000, 1000, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 0, 0),
+                new Node(1000, 1000, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             double angle = 90.0 * Math.PI / 180.0;
@@ -807,12 +829,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AllEndReleaseTest4()
         {
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 0, 0));
-            nds.Add(new Node(1000, 1000, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 0, 0),
+                new Node(1000, 1000, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             double angle = 90.0 * Math.PI / 180.0;
@@ -902,12 +926,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void ArcTest1()
         {
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 5.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 300, 0));
-            nds.Add(new Node(2000, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 300, 0),
+                new Node(2000, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -949,7 +975,7 @@ namespace FemTest.SolverTest
 
             beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             //beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
-            
+
             beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
 
@@ -970,7 +996,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.0223 * Math.PI / 180.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.R3), 1e-6);
 
             Assert.AreEqual(-174.0051, fem.GetBeamInternalForces(beams[0], 0.0, Beam.InternalAction.N), 1e-4);
-            Assert.AreEqual(-174.0051, fem.GetBeamInternalForces(beams[0], beams[0].L/2.0, Beam.InternalAction.N), 1e-4);
+            Assert.AreEqual(-174.0051, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0, Beam.InternalAction.N), 1e-4);
             Assert.AreEqual(-174.0051, fem.GetBeamInternalForces(beams[0], beams[0].L, Beam.InternalAction.N), 1e-4);
 
             Assert.AreEqual(-174.0051, fem.GetBeamInternalForces(beams[1], 0.0, Beam.InternalAction.N), 1e-4);
@@ -984,12 +1010,14 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void ArcTest2()
         {
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1000.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 5.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(1000, 300, 0));
-            nds.Add(new Node(2000, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(1000, 300, 0),
+                new Node(2000, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1066,16 +1094,18 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void DoubleEndReleaseTest1()
         {
-            double E = 1000;
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 1000;
+            var sec = new SectionCHS(100.0, 5.0, "sec");
 
             double L = 2000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, 0, 0));
-            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
-            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, 0, 0),
+                new Node(2.0 * L / 3.0, 0, 0),
+                new Node(3.0 * L / 3.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1122,7 +1152,7 @@ namespace FemTest.SolverTest
 
             //beams[0].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             //beams[0].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
-            
+
             beams[1].AddEndRelease(Beam.EndSide.End1, hinge, "fc", "rel");
             beams[1].AddEndRelease(Beam.EndSide.End2, hinge, "fc", "rel");
 
@@ -1160,16 +1190,18 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void DoubleEndReleaseTest1a()
         {
-            double E = 1000;
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 1000;
+            var sec = new SectionCHS(100.0, 5.0, "sec");
 
             double L = 2000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, 0, 0));
-            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
-            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, 0, 0),
+                new Node(2.0 * L / 3.0, 0, 0),
+                new Node(3.0 * L / 3.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1186,7 +1218,7 @@ namespace FemTest.SolverTest
 
             NodeForceAttribute f1 = new NodeForceAttribute("lc", sys, 500, 200, 0, 0, 0, 0);
             NodeForceAttribute f2 = new NodeForceAttribute("lc", sys, 0, -100, 0, 0, 0, 0);
-            
+
             nds[1].AddAttribute(f1);
             nds[2].AddAttribute(f2);
 
@@ -1245,13 +1277,15 @@ namespace FemTest.SolverTest
         public void DoubleEndReleaseTest2()
         {
             //TODO: da qui
-            Section sec = new SectionCHS(100.0, 5.0, new SteelMaterial("m", 1.0, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 5.0, "sec");
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(20.0, 0, 0));
-            nds.Add(new Node(10.0, 17.32, 0));
-            nds.Add(new Node(10.0, 5.7736, 10.0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(20.0, 0, 0),
+                new Node(10.0, 17.32, 0),
+                new Node(10.0, 5.7736, 10.0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1317,13 +1351,15 @@ namespace FemTest.SolverTest
         public void AppliedDistributedLoadTest1()
         {
             double E = 100000.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1333,7 +1369,7 @@ namespace FemTest.SolverTest
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             Random random = new Random();
-            double qx = random.Next(-1000,1000);
+            double qx = random.Next(-1000, 1000);
             double qy = random.Next(-1000, 1000);
             double qz = random.Next(-1000, 1000);
             BeamDistribuitedLoadAttribute q = new BeamDistribuitedLoadAttribute("lc", qx, qy, qz);
@@ -1352,7 +1388,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            Assert.AreEqual( (qx * L/2) / E / sec.Area * L, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX),1e-6); //displacement
+            Assert.AreEqual((qx * L / 2) / E / sec.Area * L, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DX), 1e-6); //displacement
             Assert.AreEqual(-qx * L, fem.GetReaction(nds[0], Solver.DOF.DX), 1e-2); //reaction
 
             Assert.AreEqual(-qy * L, fem.GetReaction(nds[0], Solver.DOF.DY), 0.001); //Shear reaction
@@ -1377,13 +1413,13 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-qy * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V2], 0.0001); //Shear(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V2], 0.0001); //Shear(x=0)
 
-            Assert.AreEqual(1.0 / 2.0 * qz * L * L, fem.GetBeamInternalForces(beams[0],0.0)[Beam.InternalAction.M2], 0.0001); //M(x=0)
+            Assert.AreEqual(1.0 / 2.0 * qz * L * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.M2], 0.0001); //M(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.M2], 0.0001); //M(x=0)
 
             Assert.AreEqual(-qz * L, fem.GetBeamInternalForces(beams[0], 0.0)[Beam.InternalAction.V3], 0.0001); //Shear(x=0)
             Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], L)[Beam.InternalAction.V3], 0.0001); //Shear(x=L)
         }
-        
+
         /// <summary>
         /// Simply supported beam descretized with 2 elements and uniform load
         /// </summary>
@@ -1391,15 +1427,17 @@ namespace FemTest.SolverTest
         public void SimplySupportedTest2()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, "sec");
             Console.WriteLine("A = " + sec.Area);
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L/2.0, 0, 0));
-            nds.Add(new Node(2.0 * L/2.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 2.0, 0, 0),
+                new Node(2.0 * L / 2.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1432,8 +1470,8 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-qx * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.DX), 1e-2); //reaction
 
             Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.DY), 0.001); //Shear
-            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6); //Bending Moment
-            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[1],0)[Beam.InternalAction.M3], 1e-6); //Bending Moment
+            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6); //Bending Moment
+            Assert.AreEqual(-qy * L * L / 8.0, fem.GetBeamInternalForces(beams[1], 0)[Beam.InternalAction.M3], 1e-6); //Bending Moment
 
             Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.Jxx), fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 0.001); //displacement
             Assert.AreEqual(5.0 / 384.0 * qy * Math.Pow(L, 4.0) / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L, DOF.DY), 0.001); //displacement
@@ -1462,15 +1500,17 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void FixFixTest2()
         {
-            double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 100.0;
+            var sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 2.0, L / 2.0, 0));
-            nds.Add(new Node(L, L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 2.0, L / 2.0, 0),
+                new Node(L, L, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1504,9 +1544,9 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(2.573313 * Math.PI / 180.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L / 2.0)[Beam.LocalDOF.R3], 1e-4); //rotation
             Assert.AreEqual(-2.573313 * Math.PI / 180.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0)[Beam.LocalDOF.R3], 1e-4); //rotation
-            
+
             Assert.AreEqual(21.1721, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0)[Beam.LocalDOF.U2], 1e-4); //displacement
-            Assert.AreEqual(11.909, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L/2.0)[Beam.LocalDOF.U2], 1e-3); //displacement
+            Assert.AreEqual(11.909, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0)[Beam.LocalDOF.U2], 1e-3); //displacement
         }
 
         /// <summary>
@@ -1515,15 +1555,17 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void FixFixTest2a()
         {
-            double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 100.0;
+            var sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, "sec");
 
             double L = 2000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 2.0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 2.0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1568,13 +1610,13 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void FixFixTest3()
         {
-            double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 100.0;
+            var sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));;
+            List<Node> nds = new List<Node> { new Node(0, 0, 0) };
+            ;
             nds.Add(new Node(L, L, 0));
 
             List<EulerBeam> beams = new List<EulerBeam>();
@@ -1614,16 +1656,18 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void FixFixTest4()
         {
-            double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 100.0;
+            var sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, L / 3.0, 0));
-            nds.Add(new Node(L * 2.0 / 3.0, L * 2.0 / 3.0, 0));
-            nds.Add(new Node(L, L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, L / 3.0, 0),
+                new Node(L * 2.0 / 3.0, L * 2.0 / 3.0, 0),
+                new Node(L, L, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1669,16 +1713,18 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void FixHingeTest4()
         {
-            double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 100.0;
+            var sec = new SectionRHS(100.0, 100.0, 10, 10, 10, 10, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, .0, 0));
-            nds.Add(new Node(L * 2.0 / 3.0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, .0, 0),
+                new Node(L * 2.0 / 3.0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1730,13 +1776,15 @@ namespace FemTest.SolverTest
         public void FixFixTest1()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1765,9 +1813,9 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
             Assert.AreEqual(0.0, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-6); //displacement
-            Assert.AreEqual(-qy * L /2.0, fem.GetReaction(nds[0], Solver.DOF.DY), 1e-2); //reaction
+            Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.DY), 1e-2); //reaction
 
-            Assert.AreEqual(qy * L*L*L*L / (384.0 * E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L/2.0, DOF.DY), 1e-6); //displacement
+            Assert.AreEqual(qy * L * L * L * L / (384.0 * E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.DY), 1e-6); //displacement
 
             Assert.AreEqual(-1.0 / 24.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0, Beam.InternalAction.M3));
         }
@@ -1779,13 +1827,15 @@ namespace FemTest.SolverTest
         public void SimplySupportedTest3()
         {
             double E = 100.0;
-            Section sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(100.0, 100.0, 49.99, 49.99, 49.99, 49.99, "sec");
 
             double L = 1000.0;
 
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -1816,11 +1866,11 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.0, fem.GetNodeDisplacementGlobalCoordinates(nds[1], Solver.DOF.DY), 1e-6); //displacement
             Assert.AreEqual(-qy * L / 2.0, fem.GetReaction(nds[0], Solver.DOF.DY), 1e-2); //reaction
 
-            Assert.AreEqual(-1.0 / 8.0 * qy * L * L, fem.GetBeamInternalForces(beams[0],beams[0].L/2.0)[Beam.InternalAction.M3],1e-6);
+            Assert.AreEqual(-1.0 / 8.0 * qy * L * L, fem.GetBeamInternalForces(beams[0], beams[0].L / 2.0)[Beam.InternalAction.M3], 1e-6);
             Assert.AreEqual(5.0 / 384.0 * qy * L * L * L * L / (E * sec.Jxx), fem.GetBeamDisplacementInGlobalCoordinates(beams[0], beams[0].L / 2.0, DOF.DY)); //displacement
 
-            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],0)[Beam.InternalAction.M3], 1e-6);
-            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0],beams[0].L)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], 0)[Beam.InternalAction.M3], 1e-6);
+            Assert.AreEqual(0.0, fem.GetBeamInternalForces(beams[0], beams[0].L)[Beam.InternalAction.M3], 1e-6);
         }
 
         /// <summary>
@@ -1829,17 +1879,19 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void RotatedBeamTest1()
         {
-            double E = 100000.0;
+            //double E = 100000.0;
             double H = 100;
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, B, tf, tf, tw, tw, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0)
+            };
 
             double rotationRad = 25.0 * Math.PI / 180.0;
             EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
@@ -1883,17 +1935,19 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void RotatedBeamTest2()
         {
-            double E = 100000.0;
+            //double E = 100000.0;
             double H = 100;
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, B, tf, tf, tw, tw, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, L, 0)
+            };
 
             double rotationRad = 35.0 * Math.PI / 180.0;
             EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
@@ -1938,17 +1992,19 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void RotatedBeamTest3()
         {
-            double E = 100000.0;
+            //double E = 100000.0;
             double H = 100;
             double B = 50;
             double tw = 5.0;
             double tf = 5.0;
-            Section sec = new SectionRHS(H, B, tf, tf, tw, tw, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionRHS(H, B, tf, tf, tw, tw, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, 0, L));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, 0, L)
+            };
 
             double rotationRad = 25.0 * Math.PI / 180.0;
             EulerBeam b = new EulerBeam(nds.ToArray(), rotationRad);
@@ -2000,13 +2056,15 @@ namespace FemTest.SolverTest
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
+            var sec = new SectionRHS(h, b, t, t, t, t, "rhsSec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2038,7 +2096,7 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
             Assert.AreEqual(9.6154, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DX), 1e-4);
-            Assert.AreEqual(-fx, fem.GetReaction(nds[0],DOF.DX));
+            Assert.AreEqual(-fx, fem.GetReaction(nds[0], DOF.DX));
             Assert.AreEqual(0.0, fem.GetReaction(nds[2], DOF.DX));
 
             Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[0], 0.0, Beam.LocalDOF.AxialU1));
@@ -2057,20 +2115,22 @@ namespace FemTest.SolverTest
         public void EndReleaseAxialEnd2Test1()
         {
             double E = 1000.0;
-            double ni = 0;           
+            double ni = 0;
 
             Material mat = new SteelMaterial("m", E, ni, 355, 510);
 
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
+            var sec = new SectionRHS(h, b, t, t, t, t, "rhsSec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2125,14 +2185,16 @@ namespace FemTest.SolverTest
             double h = 2.0;
             double b = 1.0;
             double t = 0.2;
-            Section sec = new SectionRHS(h, b, t, t, t, t, mat, "rhsSec");
+            var sec = new SectionRHS(h, b, t, t, t, t, "rhsSec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2184,7 +2246,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.961538, fem.GetBeamDisplacementInLocalCoordinates(beams[0], beams[0].L, Beam.LocalDOF.AxialU1), 1e-4);
 
             Assert.AreEqual(0.96154, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.AxialU1), 1e-4);
-            Assert.AreEqual(0.96154 , fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.AxialU1), 1e-4);
+            Assert.AreEqual(0.96154, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.AxialU1), 1e-4);
             Assert.AreEqual(0.961538, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.AxialU1), 1e-4);
 
             Assert.AreEqual(0.961538, fem.GetBeamDisplacementInLocalCoordinates(beams[2], 0.0, Beam.LocalDOF.AxialU1), 1e-4);
@@ -2202,14 +2264,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2274,14 +2338,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2346,14 +2412,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2418,14 +2486,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2461,7 +2531,7 @@ namespace FemTest.SolverTest
             NodeRestrainAttribute fix2 = new NodeRestrainAttribute("fc", sys);
             fix2.AddExternalRestrain(Solver.DOF.DX);
             fix2.AddExternalRestrain(Solver.DOF.DY);
-            fix2.AddExternalRestrain(Solver.DOF.DZ);            
+            fix2.AddExternalRestrain(Solver.DOF.DZ);
             fix2.AddExternalRestrain(Solver.DOF.RY);
             fix2.AddExternalRestrain(Solver.DOF.RZ);
             nds.ForEach(x => x.AddAttribute(fix2));
@@ -2491,14 +2561,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2564,13 +2636,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2580,7 +2654,7 @@ namespace FemTest.SolverTest
             beams.Add(b1);
             beams.Add(b2);
 
-            beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3}, "fc", "releaseName");
+            beams[1].AddEndRelease(Beam.EndSide.End1, new Beam.LocalDOF[] { Beam.LocalDOF.U2, Beam.LocalDOF.U3 }, "fc", "releaseName");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
@@ -2604,11 +2678,11 @@ namespace FemTest.SolverTest
             Assert.AreEqual(42.441, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DY), 1e-3);
             Assert.AreEqual(42.441 / 2.0, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-3);
 
-            Assert.AreEqual(-F, fem.GetReaction(nds[0], DOF.DY),1e-3);
-            Assert.AreEqual(-F / 2.0, fem.GetReaction(nds[0], DOF.DZ),1e-3);
+            Assert.AreEqual(-F, fem.GetReaction(nds[0], DOF.DY), 1e-3);
+            Assert.AreEqual(-F / 2.0, fem.GetReaction(nds[0], DOF.DZ), 1e-3);
 
-            Assert.AreEqual(75 / 2.0, fem.GetReaction(nds[0], DOF.RY),1e-3);
-            Assert.AreEqual(-75, fem.GetReaction(nds[0], DOF.RZ),1e-3);
+            Assert.AreEqual(75 / 2.0, fem.GetReaction(nds[0], DOF.RY), 1e-3);
+            Assert.AreEqual(-75, fem.GetReaction(nds[0], DOF.RZ), 1e-3);
 
             Assert.AreEqual(0.0, fem.GetReaction(nds[2], DOF.DY));
             Assert.AreEqual(0.0, fem.GetReaction(nds[2], DOF.DZ));
@@ -2617,7 +2691,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-25.0, fem.GetReaction(nds[2], DOF.RZ));
 
             Assert.AreEqual(-12.7324, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U3), 1e-4);
-            Assert.AreEqual(-3.1831, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L/2.0, Beam.LocalDOF.U3), 1e-4);
+            Assert.AreEqual(-3.1831, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U3), 1e-4);
             Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U3), 1e-4);
 
             Assert.AreEqual(-25.4648, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-4);
@@ -2635,14 +2709,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2678,7 +2754,7 @@ namespace FemTest.SolverTest
             Assert.AreEqual(-1.980595, fem.GetNodeDisplacementGlobalCoordinates(nds[1], DOF.DZ), 1e-3);
 
             Assert.AreEqual(18.957122, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-3);
-            Assert.AreEqual(14.058687, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L/2.0, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(14.058687, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U2), 1e-3);
             Assert.AreEqual(7.922379, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U2), 1e-3);
 
             Assert.AreEqual(9.478561, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U3), 1e-3);
@@ -2696,14 +2772,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2757,14 +2835,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2801,15 +2881,15 @@ namespace FemTest.SolverTest
             nds[3].AddAttribute(fix);
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
-                        
+
             Assert.AreEqual(8.2760, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U2), 1e-3);
             Assert.AreEqual(8.2760 / 2.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U3), 1e-3);
 
             Assert.AreEqual(4.244132, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U3), 1e-3);
-            Assert.AreEqual(4.244132*2.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(4.244132 * 2.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0.0, Beam.LocalDOF.U2), 1e-3);
 
             Assert.AreEqual(2.970892, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U3), 1e-3);
-            Assert.AreEqual(2.970892*2.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U2), 1e-3);
+            Assert.AreEqual(2.970892 * 2.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U2), 1e-3);
         }
 
         [TestMethod]
@@ -2822,13 +2902,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2843,7 +2925,7 @@ namespace FemTest.SolverTest
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             double F = 10;
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F/2.0, 0, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F / 2.0, 0, 0, 0);
             nds[1].AddAttribute(f);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
@@ -2893,14 +2975,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -2958,13 +3042,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3037,13 +3123,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, L, 0));
-            nds.Add(new Node(0.0, 2.0 * L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, L, 0),
+                new Node(0.0, 2.0 * L, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3062,7 +3150,7 @@ namespace FemTest.SolverTest
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
             double F = 10.0;
-            NodeForceAttribute f = new NodeForceAttribute("lc", sys, F, 0, F/2.0, 0, 0, 0);
+            NodeForceAttribute f = new NodeForceAttribute("lc", sys, F, 0, F / 2.0, 0, 0, 0);
             nds[1].AddAttribute(f);
 
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
@@ -3121,13 +3209,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3200,13 +3290,15 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(0, L, 0));
-            nds.Add(new Node(0.0, 2.0 * L, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(0, L, 0),
+                new Node(0.0, 2.0 * L, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3271,7 +3363,7 @@ namespace FemTest.SolverTest
 
             Assert.AreEqual(742.723, fem.GetBeamDisplacementInLocalCoordinates(beams[1], 0, Beam.LocalDOF.U3), 1e-3);
             Assert.AreEqual(570.3052, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L / 2.0, Beam.LocalDOF.U3), 1e-3);
-            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U3), 1e-3);            
+            Assert.AreEqual(0.0, fem.GetBeamDisplacementInLocalCoordinates(beams[1], beams[1].L, Beam.LocalDOF.U3), 1e-3);
         }
 
         [TestMethod]
@@ -3284,14 +3376,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3363,14 +3457,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3442,14 +3538,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3519,14 +3617,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3599,14 +3699,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3628,7 +3730,7 @@ namespace FemTest.SolverTest
                 Beam.LocalDOF.R3 }, "fc", "releaseName");
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
-            
+
             double F = 10.0;
             NodeForceAttribute f = new NodeForceAttribute("lc", sys, 0, F, F, 0, 0, 0);
             nds[1].AddAttribute(f);
@@ -3650,7 +3752,7 @@ namespace FemTest.SolverTest
 
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
-            Assert.AreEqual(3660.567, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L/2.0, DOF.DY), 0.01);
+            Assert.AreEqual(3660.567, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 0.01);
         }
 
         /// <summary>
@@ -3666,14 +3768,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3734,14 +3838,16 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3802,15 +3908,17 @@ namespace FemTest.SolverTest
 
             double D = 1;
             double t = D / 2;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 10;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L, 0, 0));
-            nds.Add(new Node(2.0 * L, 0, 0));
-            nds.Add(new Node(3.0 * L, 0, 0));
-            nds.Add(new Node(4.0 * L, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L, 0, 0),
+                new Node(2.0 * L, 0, 0),
+                new Node(3.0 * L, 0, 0),
+                new Node(4.0 * L, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3894,14 +4002,16 @@ namespace FemTest.SolverTest
 
             double D = 100;
             double t = 10.0;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, 0, 0));
-            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
-            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, 0, 0),
+                new Node(2.0 * L / 3.0, 0, 0),
+                new Node(3.0 * L / 3.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -3919,7 +4029,7 @@ namespace FemTest.SolverTest
             double M = 1000.0;
             NodeForceAttribute m = new NodeForceAttribute("lc", sys, 0, 0, 0, 0, 0, M);
             nds[1].AddAttribute(m);
-            
+
             NodeRestrainAttribute fix = new NodeRestrainAttribute("fc", sys);
             fix.AddExternalRestrain(Solver.DOF.DX);
             fix.AddExternalRestrain(Solver.DOF.DY);
@@ -3934,12 +4044,12 @@ namespace FemTest.SolverTest
             LinearSolver fem = new LinearSolver(beams.ToArray());
 
             Assert.AreEqual(0.0284, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.DY), 1e-4);
-            Assert.AreEqual(0.0479, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L/2.0, DOF.DY), 1e-4);
+            Assert.AreEqual(0.0479, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.DY), 1e-4);
             Assert.AreEqual(0.0355, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.DY), 1e-4);
 
             Assert.AreEqual(0.0146 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], 0.0, DOF.RZ), 1e-4);
-            Assert.AreEqual(0.0041 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L * 1/3.0, DOF.RZ), 1e-4);
-            Assert.AreEqual(0.0000 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L/2.0, DOF.RZ), 1e-4);
+            Assert.AreEqual(0.0041 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L * 1 / 3.0, DOF.RZ), 1e-4);
+            Assert.AreEqual(0.0000 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RZ), 1e-4);
             Assert.AreEqual(-0.0073 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.RZ), 1e-4);
         }
 
@@ -3956,14 +4066,16 @@ namespace FemTest.SolverTest
 
             double D = 100;
             double t = 10.0;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, 0, 0));
-            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
-            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, 0, 0),
+                new Node(2.0 * L / 3.0, 0, 0),
+                new Node(3.0 * L / 3.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -4024,14 +4136,16 @@ namespace FemTest.SolverTest
 
             double D = 100;
             double t = 10.0;
-            Section sec = new SectionCHS(D, t, mat, "sec");
+            var sec = new SectionCHS(D, t, "sec");
 
             double L = 1000;
-            List<Node> nds = new List<Node>();
-            nds.Add(new Node(0, 0, 0));
-            nds.Add(new Node(L / 3.0, 0, 0));
-            nds.Add(new Node(2.0 * L / 3.0, 0, 0));
-            nds.Add(new Node(3.0 * L / 3.0, 0, 0));
+            List<Node> nds = new List<Node>
+            {
+                new Node(0, 0, 0),
+                new Node(L / 3.0, 0, 0),
+                new Node(2.0 * L / 3.0, 0, 0),
+                new Node(3.0 * L / 3.0, 0, 0)
+            };
 
             List<EulerBeam> beams = new List<EulerBeam>();
             EulerBeam b1 = new EulerBeam(new Node[] { nds[0], nds[1] });
@@ -4076,6 +4190,6 @@ namespace FemTest.SolverTest
             Assert.AreEqual(0.0 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L / 2.0, DOF.RY), 1e-4);
             Assert.AreEqual(2.4407 * Math.PI / 180.0, fem.GetBeamDisplacementInGlobalCoordinates(beams[1], beams[1].L, DOF.RY), 1e-4);
         }
-            
+
     }
 }

@@ -21,6 +21,7 @@ namespace GPC.Model.Sections.Concrete
         protected Mesh _mesh;
         protected readonly RebarCollection _rebars;
         protected readonly List<SteelSectionPosition> _steelSections;
+        protected ConcreteMaterial _concreteMaterial;
 
         #endregion
 
@@ -94,8 +95,8 @@ namespace GPC.Model.Sections.Concrete
 
         public ConcreteMaterial ConcreteMaterial
         {
-            get { return (ConcreteMaterial)_sectionShape.Material; }
-            set { _sectionShape.Material = value; }
+            get => _concreteMaterial;
+            set => _concreteMaterial = value;
         }
 
         public Shape2d Shape => _sectionShape.Shape;
@@ -122,11 +123,12 @@ namespace GPC.Model.Sections.Concrete
         //    SetMechanicalProperties();
         //}
 
-        public ReinforcedConcreteSection(ISection sectionShape, RebarCollection rebars = null,
+        public ReinforcedConcreteSection(ISection sectionShape, ConcreteMaterial concreteMaterial, RebarCollection rebars = null,
             List<SteelSectionPosition> steelSectionPositions = null)
             : base(sectionShape.Name)
         {
             _sectionShape = sectionShape ?? throw new ArgumentNullException(nameof(_sectionShape));
+            _concreteMaterial = concreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
             _rebars = rebars ?? new RebarCollection();
             _steelSections = steelSectionPositions ?? new List<SteelSectionPosition>();
 
@@ -137,7 +139,8 @@ namespace GPC.Model.Sections.Concrete
             : base(name)
         {
             _name = name;
-            _sectionShape = new Section(shape, material);
+            _sectionShape = new Section(shape);
+            _concreteMaterial = material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(material));
             _rebars = new RebarCollection();
             _steelSections = new List<SteelSectionPosition>();
 
@@ -162,10 +165,16 @@ namespace GPC.Model.Sections.Concrete
             _steelSections = new List<SteelSectionPosition>();
             if (version > 2)
             {
+                _concreteMaterial = (ConcreteMaterial)info.GetValue("ConcreteMaterial", typeof(ConcreteMaterial));
+
                 int steelSectionsCount = info.GetInt32("SteelSectionsCount");
                 if (steelSectionsCount > 0)
                     for (int i = 0; i < steelSectionsCount; i++)
                         _steelSections.Add((SteelSectionPosition)info.GetValue($"SteelSectionPosition{i}", typeof(SteelSectionPosition)));
+            }
+            else
+            {
+                _concreteMaterial = _sectionShape.Material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
             }
         }
 
@@ -553,6 +562,7 @@ namespace GPC.Model.Sections.Concrete
             info.AddValue("ReinforcedConcreteSectionVersion", version);
 
             info.AddValue("SectionShape", _sectionShape);
+            info.AddValue("ConcreteMaterial", _concreteMaterial);
             info.AddValue("RebarCollection", _rebars, typeof(RebarCollection));
 
             info.AddValue("SteelSectionsCount", _steelSections != null ? _steelSections.Count : 0);

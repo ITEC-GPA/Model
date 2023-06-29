@@ -1,14 +1,12 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
-using static GPC.Model.Sections.ThinWallSection;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionCircular : Section, ISection, ISerializable
+    public class SectionCircular : Section, ISerializable
     {
         protected double _diameter;
 
@@ -31,7 +29,7 @@ namespace GPC.Model.Sections
 
         public override double Height => _diameter;
 
-        public override ThinWall[] ThinWalls => null;
+        public override ThinWallSection.ThinWall[] ThinWalls => null;
 
         #region Public Constructors
 
@@ -39,10 +37,9 @@ namespace GPC.Model.Sections
         /// The default constructor
         /// </summary>
         /// <param name="diameter">The diameter</param>
-        /// <param name="material">The material</param>
         /// <param name="name">The section name</param>
-        public SectionCircular(double diameter, Material material, string name = "")
-            : base(material, name)
+        public SectionCircular(double diameter, string name = "")
+            : base(name)
         {
             _diameter = diameter;
             SetMechanicalProperties();
@@ -50,7 +47,7 @@ namespace GPC.Model.Sections
         }
 
         public SectionCircular(SectionCircular sectionCircular)
-            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name)
+            : this(sectionCircular.Diameter, sectionCircular.Name)
         {
 
         }

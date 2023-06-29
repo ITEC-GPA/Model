@@ -693,15 +693,15 @@ namespace FemTest
             //Arrange
             FemModel femModel = new FemModel();
 
-            ConcreteMaterialEN1992 concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
-            ConcreteMaterialEN1992 concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            var concreteMaterial1 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            var concreteMaterial2 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            var concreteMaterial3 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
+            var concreteMaterial4 = new ConcreteMaterialEN1992("", 25, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.Bilinear);
 
-            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial1, "1"));
-            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial2, "2"));
-            var sectionCHS3 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial3, "3"));
-            var sectionCHS4 = new ReinforcedConcreteSection(new SectionCHS(500, 10, concreteMaterial4, "4"));
+            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "1"), concreteMaterial1);
+            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "2"), concreteMaterial2);
+            var sectionCHS3 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "3"), concreteMaterial3);
+            var sectionCHS4 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "4"), concreteMaterial4);
 
             femModel.AddProperty(sectionCHS1);
             femModel.AddProperty(sectionCHS2);
@@ -718,8 +718,8 @@ namespace FemTest
             //Arrange
             FemModel femModel = new FemModel();
 
-            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, null, "1"));
-            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, null, "2"));
+            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "1"), null);
+            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "2"), null);
 
             try
             {
