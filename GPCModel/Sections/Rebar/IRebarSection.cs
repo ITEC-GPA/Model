@@ -9,6 +9,8 @@ namespace GPC.Model.Sections.Rebar
 
         SteelMaterial RebarMaterial { get; }
 
+        double Diameter { get; }
+
         double Area { get; }
 
         int Id { get; }

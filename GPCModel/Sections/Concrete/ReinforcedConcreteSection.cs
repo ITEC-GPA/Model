@@ -195,6 +195,68 @@ namespace GPC.Model.Sections.Concrete
             SetMechanicalProperties();
         }
 
+        /// <summary>
+        /// Add a typical mixed section for bridges, with a rectangular concrete section above an H-shaped steel profile.
+        /// One or two rows of reinforcing bars placed according to the concrete cover can be added.
+        /// </summary>
+        /// <param name="concreteWidth">Concrete base width.</param>
+        /// <param name="concreteHeight">Height of concrete rectangle.</param>
+        /// <param name="concreteMaterial">Concrete material.</param>
+        /// <param name="rebarsSectionTop">Cross section of the upper reinforcing bars. Null value for not inserting bars.</param>
+        /// <param name="rebarsPitchTop">Cross section of the lower reinforcing bars.</param>
+        /// <param name="rebarsCoverTop">Upper reinforcement bar covers.</param>
+        /// <param name="rebarsSectionBottom">Cross section of the lower reinforcing bars. Null value for not inserting bars.</param>
+        /// <param name="rebarsPitchBottom"></param>
+        /// <param name="steelShapeH">Steel H-shape profile. Null value for not inserting steel profile.</param>
+        /// <param name="steelMaterial">Steel material of steel H-shape profile.</param>
+        /// <param name="rebarsCoverBottom">Lower reinforcement bar covers.</param>
+        /// <param name="steelEccentricity">Horizontal eccentricity (in the X direction) of the steel
+        /// section (its barycenter) with respect to the barycenter of the concrete part.</param>
+        /// <param name="name"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ReinforcedConcreteSection(double concreteWidth, double concreteHeight, ConcreteMaterial concreteMaterial,
+            IRebarSection rebarsSectionTop, double rebarsPitchTop, double rebarsCoverTop,
+            IRebarSection rebarsSectionBottom, double rebarsPitchBottom,
+            SectionH steelShapeH, SteelMaterial steelMaterial, double rebarsCoverBottom = 0.0, double steelEccentricity = 0.0, string name = "")
+            : base(name)
+        {
+            if (rebarsCoverBottom == 0)
+                rebarsCoverBottom = rebarsCoverTop;
+
+            // Assignments.
+            _sectionShape = new SectionRectangular(concreteHeight, concreteWidth);
+            _concreteMaterial = concreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
+
+            // Top rebars.
+            _rebars = new RebarCollection();
+            AddRebars(rebarsSectionTop, rebarsPitchTop, concreteHeight - rebarsCoverTop);
+
+            // Bottom rebars.
+            AddRebars(rebarsSectionBottom, rebarsPitchBottom, rebarsCoverBottom);
+
+            void AddRebars(IRebarSection rebarsSection, double rebarsPitch, double rebarsPosY0)
+            {
+                if (!(rebarsSection is null) && rebarsPitch > 0.0)
+                {
+                    // Evaluates the number of bars that can be inserted.
+                    int rebarsIntervals = (int)Math.Truncate(concreteWidth / rebarsPitch);
+                    if (rebarsPitch * rebarsIntervals + rebarsSection.Diameter >= concreteWidth)
+                        rebarsIntervals -= 1;
+
+                    double rebarsWidth = rebarsPitch * rebarsIntervals;
+                    double rebarsPosX0 = 0.5 * (concreteWidth - rebarsWidth);
+                    for (int i = 0; i <= rebarsIntervals; i++)
+                        AddRebar(new ReinforcedConcreteRebar(rebarsSection, new Point2d(rebarsPosX0 + i * rebarsPitch, rebarsPosY0)));
+                }
+            }
+
+            // Add steel section.
+            _steelSections = new List<SteelSectionPosition>();
+            if (steelShapeH != null && steelMaterial != null)
+                _steelSections.Add(new SteelSectionPosition(new SteelSection(steelShapeH, steelMaterial),
+                    Point2d.Origin, 0.0, new Point2d(0.5 * concreteWidth + steelEccentricity, -steelShapeH.Height)));
+        }
+
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {

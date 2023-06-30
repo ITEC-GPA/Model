@@ -11,14 +11,14 @@ namespace GPC.Model.Sections.Rebar
 
 		public SteelMaterial RebarMaterial => _steelMaterial;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="name">The name of section</param>
-		/// <param name="diameter">Th diameter</param>
-		/// <param name="rebarMaterial">The material</param>
-		/// <param name="id">The unique id</param>
-		public RebarSectionCircular(string name, double diameter, SteelMaterial rebarMaterial, int id = IDUNASSIGNED)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">The name of section</param>
+        /// <param name="diameter">Th diameter</param>
+        /// <param name="rebarMaterial">The material</param>
+        /// <param name="id">The unique id</param>
+        public RebarSectionCircular(string name, double diameter, SteelMaterial rebarMaterial, int id = IDUNASSIGNED)
 			: base(diameter, name)
 		{
             _steelMaterial = rebarMaterial;
