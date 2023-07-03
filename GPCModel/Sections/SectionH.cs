@@ -176,7 +176,38 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            throw new NotImplementedException();
+            if (_bbottom > _btop)
+            {
+                return new Shape2d(new Polygon2d(new Point2d[] {
+                    new Point2d(0.0, 0.0),
+                    new Point2d(0.0, _tbottom),
+                    new Point2d(0.5 * (_bbottom - _tw), _tbottom),
+                    new Point2d(0.5 * (_bbottom - _tw), _h - _ttop),
+                    new Point2d(0.5 * (_bbottom - _btop), _h - _ttop),
+                    new Point2d(0.5 * (_bbottom - _btop), _h),
+                    new Point2d(0.5 * (_bbottom + _btop), _h),
+                    new Point2d(0.5 * (_bbottom + _btop), _h - _ttop),
+                    new Point2d(0.5 * (_bbottom + _tw), _h - _ttop),
+                    new Point2d(0.5 * (_bbottom + _tw), _tbottom),
+                    new Point2d(_bbottom, _tbottom),
+                    new Point2d(_bbottom, 0.0) }));
+            }
+            else
+            {
+                return new Shape2d(new Polygon2d(new Point2d[] {
+                    new Point2d(0.5 * (_btop - _bbottom), 0.0),
+                    new Point2d(0.5 * (_btop - _bbottom), _tbottom),
+                    new Point2d(0.5 * (_btop - _tw), _tbottom),
+                    new Point2d(0.5 * (_btop - _tw), _h - _ttop),
+                    new Point2d(0.0, _h - _ttop),
+                    new Point2d(0.0, _h),
+                    new Point2d(_btop, _h),
+                    new Point2d(_btop, _h - _ttop),
+                    new Point2d(0.5 * (_btop + _tw), _h - _ttop),
+                    new Point2d(0.5 * (_btop + _tw), _tbottom),
+                    new Point2d(0.5 * (_btop + _bbottom), _tbottom),
+                    new Point2d(0.5 * (_btop + _bbottom), 0.0) }));
+            }
         }
 
         public virtual double DistanceYCentroidFromBottom()

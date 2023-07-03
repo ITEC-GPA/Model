@@ -303,7 +303,13 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            throw new NotImplementedException();
+            return new Shape2d(new Polygon2d(new Point2d[] {
+                new Point2d(0.0, 0.0),
+                new Point2d(0.0, _verticalLegLength),
+                new Point2d(_verticalLegThickness, _verticalLegLength),
+                new Point2d(_verticalLegThickness, _horizontalLegThickness),
+                new Point2d(_horizontalLegLength, _horizontalLegThickness),
+                new Point2d(_horizontalLegLength, 0.0) }));
         }
 
         protected override double CalculateJw()

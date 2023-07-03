@@ -70,7 +70,7 @@ namespace GPC.Model.Sections.Steel
         /// </summary>
         /// <param name="point2D"></param>
         /// <returns></returns>
-        Point2d PositionToGlobal(in Point2d point2D)
+        public Point2d PositionToGlobal(in Point2d point2D)
         {
             var globPoint2d = (Point2d)point2D.Clone();
             globPoint2d.Rotate(RotationCenter, Rotation);
@@ -83,7 +83,7 @@ namespace GPC.Model.Sections.Steel
         /// </summary>
         /// <param name="point2D"></param>
         /// <returns></returns>
-        Point2d PositionToLocal(in Point2d point2D)
+        public Point2d PositionToLocal(in Point2d point2D)
         {
             var localPoint2d = (Point2d)point2D.Clone();
             localPoint2d.Move(new Vector3d(-Traslation.X, -Traslation.Y, 0.0));

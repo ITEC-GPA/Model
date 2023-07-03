@@ -164,7 +164,15 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            throw new NotImplementedException();
+            return new Shape2d(new Polygon2d(new Point2d[] {
+                    new Point2d(0.0, 0.0),
+                    new Point2d(0.0, _h),
+                    new Point2d(_lengthTop, _h),
+                    new Point2d(_lengthTop, _h - _tTop),
+                    new Point2d(_tw, _h - _tTop),
+                    new Point2d(_tw, _tBottom),
+                    new Point2d(_lengthBottom, _tBottom),
+                    new Point2d(_lengthBottom, 0.0) }));
         }
 
         protected override double CalculateJw()

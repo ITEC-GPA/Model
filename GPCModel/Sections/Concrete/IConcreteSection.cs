@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Model.Sections.Steel;
 
 namespace GPC.Model.Sections.Concrete
 {
@@ -19,6 +20,8 @@ namespace GPC.Model.Sections.Concrete
         ISectionShape SectionShape { get; }
 
         IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
+
+        IList<SteelSectionPosition> SteelSections { get; }
 
         #endregion
 
@@ -46,11 +49,13 @@ namespace GPC.Model.Sections.Concrete
 
         ReinforcedConcreteRebar[] GetRebars();
 
-		#endregion
+        Dictionary<int, bool> GetRebarIsInsideAssociation();
 
-		#region Homogenized Properties
+        #endregion
 
-		double GetHomogenizedArea(double phi);
+        #region Homogenized Properties
+
+        double GetHomogenizedArea(double phi);
 
         double GetHomogenizedArea();
 

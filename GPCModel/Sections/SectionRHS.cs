@@ -189,7 +189,30 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            throw new NotImplementedException();
+            return new Shape2d(
+                new Polygon2d
+                (
+                    new Point2d[]
+                    {
+                        new Point2d(0.0, 0.0),
+                        new Point2d(0.0, _h),
+                        new Point2d(_b, _h),
+                        new Point2d(_b, 0.0)
+                    }
+                ),
+                new[]
+                {
+                    new Polygon2d
+                    (
+                        new Point2d[]
+                        {
+                            new Point2d(_twL, _tfBottom),
+                            new Point2d(_twL, _h - _tfTop),
+                            new Point2d(_b - _twR, _h - _tfTop),
+                            new Point2d(_b - _twR, _tfBottom)
+                        }
+                    )
+                });
         }
 
         protected override Point2d CalculateShearCenter()

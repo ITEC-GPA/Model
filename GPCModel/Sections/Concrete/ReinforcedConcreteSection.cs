@@ -254,7 +254,8 @@ namespace GPC.Model.Sections.Concrete
             _steelSections = new List<SteelSectionPosition>();
             if (steelShapeH != null && steelMaterial != null)
                 _steelSections.Add(new SteelSectionPosition(new SteelSection(steelShapeH, steelMaterial),
-                    Point2d.Origin, 0.0, new Point2d(0.5 * concreteWidth + steelEccentricity, -steelShapeH.Height)));
+                    Point2d.Origin, 0.0,
+                    new Point2d(0.5 * concreteWidth - 0.5 * Math.Max(steelShapeH.LenghtBottomFlange, steelShapeH.LenghtTopFlange) + steelEccentricity, -steelShapeH.Height)));
         }
 
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
@@ -416,6 +417,23 @@ namespace GPC.Model.Sections.Concrete
         public bool AddRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection, double epsilonP = 0.0)
         {
             return _rebars.AddRange(ConcreteSectionHelper.SetRadialRebars(diameter, concreteCover, numberOfRebars, rebarSection, Centroid, epsilonP));
+        }
+
+        public Dictionary<int, bool> GetRebarIsInsideAssociation()
+        {
+            Dictionary<int, bool> kvp = new Dictionary<int, bool>();
+
+            var rebarsArray = _rebars.ToArray();
+
+            for (int i = 0; i < rebarsArray.Length; i++)
+            {
+                if (Shape.IsPointInside(rebarsArray[i].Position))
+                    kvp.Add(i, true);
+                else
+                    kvp.Add(i, false);
+            }
+
+            return kvp;
         }
 
         #endregion
