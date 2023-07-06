@@ -1,5 +1,9 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Elements;
+using GPC.Model.Materials;
+using GPC.Model.Sections.Concrete;
 using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Steel
 {
@@ -9,7 +13,8 @@ namespace GPC.Model.Sections.Steel
     /// 2) Traslation.
     /// Operations done in this order.
     /// </summary>
-    public class SteelSectionPosition
+    [Serializable]
+    public class SteelSectionPosition : ISerializable
     {
         #region Properties
 
@@ -59,6 +64,17 @@ namespace GPC.Model.Sections.Steel
             Rotation = rotation;
             Traslation = traslation ?? new Vector2d(0.0, 0.0);
             IsInsideConcrete = true;
+        }
+
+        protected SteelSectionPosition(SerializationInfo info, StreamingContext context)
+        {
+            int version = info.GetInt32("SteelSectionPositionVersion");
+
+            IsInsideConcrete = info.GetBoolean("IsInsideConcrete");
+            Rotation = info.GetDouble("Rotation");
+            RotationCenter = (Point2d)info.GetValue("RotationCenter", typeof(Point2d));
+            Section = (SteelSection)info.GetValue("Section", typeof(SteelSection));
+            Traslation = (Vector2d)info.GetValue("Traslation", typeof(Vector2d));
         }
 
         #endregion
@@ -129,6 +145,18 @@ namespace GPC.Model.Sections.Steel
             double JxyG = SectionHelper.CalculateJxyAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation);
             var centroid = CalculateCentroid();
             return JxyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.Y - inertiaPole.Y);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            int version = 1;
+            info.AddValue("SteelSectionPositionVersion", version);
+
+            info.AddValue("IsInsideConcrete", IsInsideConcrete);
+            info.AddValue("Rotation", Rotation);
+            info.AddValue("RotationCenter", RotationCenter, typeof(Point2d));
+            info.AddValue("Section", Section, typeof(SteelSection));
+            info.AddValue("Traslation", Traslation, typeof(Vector2d));
         }
 
         #endregion

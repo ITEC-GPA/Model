@@ -7,21 +7,41 @@ namespace GPC.Model.Sections.Concrete
 {
     public interface IConcreteSection : ISectionShape
     {
-		#region Section Properties
+        #region Section Properties
 
+        /// <summary>
+        /// Concrete material.
+        /// </summary>
         ConcreteMaterial ConcreteMaterial { get; }
 
+        /// <summary>
+        /// Total rebars area.
+        /// </summary>
         double AreaRebars { get; }
 
+        /// <summary>
+        /// Number of rebars.
+        /// </summary>
         int RebarsCount { get; }
 
         Geometry.Meshes.Mesh Mesh { get; }
 
+        /// <summary>
+        /// Cross section-shape of concrete, without material.
+        /// </summary>
         ISectionShape SectionShape { get; }
 
+        /// <summary>
+        /// Rebar list.
+        /// </summary>
         IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
 
         IList<SteelSectionPosition> SteelSections { get; }
+
+        /// <summary>
+        /// Returns if the section is composite (mixed) concrete with steel sections.
+        /// </summary>
+        bool IsCompositeSteelConcrete { get; }
 
         #endregion
 

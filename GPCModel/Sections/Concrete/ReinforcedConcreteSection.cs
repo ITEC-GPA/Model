@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
-    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>
+    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
     {
         #region Variables
 
@@ -134,19 +134,10 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        /// <summary>
-        /// Cross section-shape of concrete, without material.
-        /// </summary>
         public ISectionShape SectionShape => _sectionShape;
 
-        /// <summary>
-        /// Rebar list.
-        /// </summary>
         public IEnumerable<ReinforcedConcreteRebar> Rebars => _rebars;
 
-        /// <summary>
-        /// Concrete material.
-        /// </summary>
         public ConcreteMaterial ConcreteMaterial
         {
             get => _concreteMaterial;
@@ -155,17 +146,13 @@ namespace GPC.Model.Sections.Concrete
 
         public Shape2d Shape => _sectionShape.Shape;
 
-        /// <summary>
-        /// Total rebars area.
-        /// </summary>
         public double AreaRebars => _rebars.Select(i => i.Area).Sum();
 
-        /// <summary>
-        /// Number of rebars.
-        /// </summary>
         public int RebarsCount => _rebars.Count;
 
         public IList<SteelSectionPosition> SteelSections => _steelSections;
+
+        public bool IsCompositeSteelConcrete => _steelSections.Count > 0;
 
         #endregion
 
@@ -179,6 +166,7 @@ namespace GPC.Model.Sections.Concrete
             _concreteMaterial = concreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
             _rebars = rebars ?? new RebarCollection();
             _steelSections = steelSectionPositions ?? new List<SteelSectionPosition>();
+            SetSteelSectionIsInside();
 
             SetMechanicalProperties();
         }
@@ -191,6 +179,7 @@ namespace GPC.Model.Sections.Concrete
             _concreteMaterial = material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(material));
             _rebars = new RebarCollection();
             _steelSections = new List<SteelSectionPosition>();
+            SetSteelSectionIsInside();
 
             SetMechanicalProperties();
         }
@@ -256,6 +245,8 @@ namespace GPC.Model.Sections.Concrete
                 _steelSections.Add(new SteelSectionPosition(new SteelSection(steelShapeH, steelMaterial),
                     Point2d.Origin, 0.0,
                     new Point2d(0.5 * concreteWidth - 0.5 * Math.Max(steelShapeH.LenghtBottomFlange, steelShapeH.LenghtTopFlange) + steelEccentricity, -steelShapeH.Height)));
+
+            _steelSections[0].IsInsideConcrete = false;
         }
 
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
@@ -499,6 +490,28 @@ namespace GPC.Model.Sections.Concrete
         public bool RemoveSteelSection(int steelSectionId)
         {
             return _steelSections.RemoveAll(s => s.Id == steelSectionId) > 0;
+        }
+
+        /// <summary>
+        /// For all steel sections, save whether it is inside or outside the concrete section.
+        /// Even if only one thinwall is internal to the concrete section, it means that the whole
+        /// steel section is internal.
+        /// </summary>
+        public void SetSteelSectionIsInside()
+        {
+            foreach (var steelSection in _steelSections)
+            {
+                if (steelSection.Section.ThinWalls.Length > 0)
+                {
+                    var thinwall = steelSection.Section.ThinWalls[0];
+                    var midLine = thinwall.GetMiddleLine();
+                    var globStartPoint = steelSection.PositionToGlobal(midLine[0]);
+                    var globEndPoint = steelSection.PositionToGlobal(midLine[1]);
+                    steelSection.IsInsideConcrete = Shape.IsLineInside(new Line2d(globStartPoint, globEndPoint));
+                }
+                else
+                    throw new ArgumentNullException("Thinwalls array cannot be empty.");
+            }
         }
 
         #endregion
