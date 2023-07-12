@@ -7,7 +7,7 @@ del *.nupkg
 
 
 echo PACKING
-nuget pack GPCModelData.csproj -Version 0.0.1.4 -properties Configuration=Release
+nuget pack GPCModelData.csproj -Version 0.0.1.5 -properties Configuration=Release
 
 
 echo PUSHING
