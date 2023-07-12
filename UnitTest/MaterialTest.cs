@@ -894,7 +894,7 @@ namespace ModelObjectTest
 			for (int i = 0; i >= -300; i--)
 				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
 			for (int i = 0; i >= -300; i--)
-				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+				stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
 
             for(int i = 0; i < stresses.Count; i++)
             {
@@ -918,9 +918,9 @@ namespace ModelObjectTest
 			for (int i = 0; i >= -300; i--)
 				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
 			for (int i = 0; i >= -300; i--)
-				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+				stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
 			for (int i = 0; i >= -300; i--)
-				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0, i / 100000.0));
+				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0 * 0.85, i / 100000.0));
 
 			for (int i = 0; i < stresses.Count; i++)
 			{
