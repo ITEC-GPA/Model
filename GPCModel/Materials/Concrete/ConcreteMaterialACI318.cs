@@ -468,7 +468,7 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
 
             if (Math.Abs(strain) > Math.Abs(strainY))
-                return _fc;
+                return ConcreteStrengthReduction * _fc;
             else if (strain == 0)
                 return 0;            
             else
