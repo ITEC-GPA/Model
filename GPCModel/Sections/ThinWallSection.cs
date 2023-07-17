@@ -343,23 +343,23 @@ namespace GPC.Model.Sections
             /// <summary>
             /// The _thickness of the wall
             /// </summary>
-            internal double T => _t;
+            public double T => _t;
 
             /// <summary>
             /// The lenght of the wall
             /// </summary>
-            internal double L => _l;
+            public double L => _l;
 
             /// <summary>
             /// The angle of rotation of the principal axis. Angle = 0 is the X-axis, PI.GRECO/2 is the y-axis
             /// Angle in radians, counterclockwise, is zero for the x-positive direction.
             /// </summary>
-            internal double Angle => _angle;
+            public double Angle => _angle;
 
             /// <summary>
             /// The position of the thin wall, the center of gravity point.
             /// </summary>
-            internal Point2d Point => _point;
+            public Point2d Point => _point;
 
             /// <summary>
             /// The area og the thin wal
@@ -433,7 +433,7 @@ namespace GPC.Model.Sections
                 return poly;
             }
 
-            internal Point2d[] GetMiddleLine()
+            public Point2d[] GetMiddleLine()
             {
                 var sinAngle = Math.Sin(_angle);
                 var cosAngle = Math.Cos(_angle);
