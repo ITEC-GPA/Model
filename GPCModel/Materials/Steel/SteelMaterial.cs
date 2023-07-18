@@ -22,6 +22,25 @@ namespace GPC.Model.Materials
             [Description("Bolt steel material")] Bolt,
         }
 
+        public enum StressStrainCurveType
+        {
+            Undefined = 0,
+            /// <summary>
+            /// Elastic and perfect plastic without hardening/softening.
+            /// Elastic up to Fyk and then constant with Fyk value until rupture.
+            /// </summary>
+            ElasticPerfectPlastic = 1,
+            /// <summary>
+            /// Elastic and then hardening.
+            /// Elastic up to Fyk and then rupture at Fu.
+            /// </summary>
+            ElasticHardening = 2,
+            /// <summary>
+            /// Elastic and then softening.
+            /// </summary>
+            ElasticSoftening = 3
+        }
+
         #endregion
 
         #region Variables
@@ -208,12 +227,7 @@ namespace GPC.Model.Materials
 
         public virtual void SetDefaultMechanicalProperties()
         {
-            _stressStrainTableCompression = new StressStrainTable(
-                new double[] { 0, -_fyk, -_fu },
-                new double[] { 0, -_fyk / _elasticModulusCompression, _strainUCompression });
-            _stressStrainTableTension = new StressStrainTable(
-                new double[] { 0, _fyk, _fu },
-                new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
+            SetStressStrain(StressStrainCurveType.ElasticHardening);
 
             _strainYTension = _fyk / _elasticModulusTension;
             _strainYCompression = -_fyk / _elasticModulusCompression;
@@ -222,6 +236,32 @@ namespace GPC.Model.Materials
             _stressUTension = _fu;
             _stressYCompression = -_fyk;
             _stressYTension = _fyk;
+        }
+
+        public virtual void SetStressStrain(StressStrainCurveType stressStrainCurveType)
+        {
+            switch (stressStrainCurveType)
+            {
+                case StressStrainCurveType.ElasticPerfectPlastic:
+                case StressStrainCurveType.ElasticHardening:
+                    {
+                        double fRupture;
+                        if (stressStrainCurveType == StressStrainCurveType.ElasticPerfectPlastic)
+                            fRupture = _fyk;
+                        else
+                            fRupture = _fu;
+
+                        _stressStrainTableCompression = new StressStrainTable(
+                            new double[] { 0, -_fyk, -fRupture },
+                            new double[] { 0, -_fyk / _elasticModulusCompression, _strainUCompression });
+                        _stressStrainTableTension = new StressStrainTable(
+                            new double[] { 0, _fyk, fRupture },
+                            new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
+                        return;
+                    }
+                default:
+                    return;
+            }
         }
 
         #endregion
