@@ -1,4 +1,4 @@
-﻿using GPC.Model.Data.Concrete;
+using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Standards;
@@ -929,15 +929,45 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
             }
 
-            // Using parabola-rectangle the following assertions are invalid.
-            //for (int i = 0; i < 100; i++)
-            //{
-            //	Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
-            //}
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
+			//}
 
-            for (int i = 0; i < designStresses.Count; i++)
-                Console.WriteLine(designStresses[i].Item1);
-        }
+			for (int i = 0; i < designStresses.Count; i++)
+				Console.WriteLine(designStresses[i].Item1);
+		}
+
+		[TestMethod]
+		public void ConcreteACITest12()
+		{
+			ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("", 40, ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
+			List<(double, double)> linearStresses = new List<(double, double)>();
+			List<(double, double)> designStresses = new List<(double, double)>();
+			List<(double, double)> stresses = new List<(double, double)>();
+
+			StandardACI318p14 standardACI318P14 = new StandardACI318p14();
+			for (int i = 0; i >= -300; i--)
+				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
+			for (int i = 0; i >= -300; i--)
+				stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
+			for (int i = 0; i >= -300; i--)
+				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0 * 0.85, i / 100000.0));
+
+			for (int i = 0; i < stresses.Count; i++)
+			{
+				Assert.IsTrue(Math.Abs(stresses[i].Item1 - designStresses[i].Item1) < 0.01);
+				Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
+			}
+
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
+			//}
+
+			for (int i = 0; i < designStresses.Count; i++)
+				Console.WriteLine(designStresses[i].Item1);
+		}
 
         #endregion
 

@@ -468,11 +468,11 @@ namespace GPC.Model.Materials
                 throw new ArgumentException();
 
             if (Math.Abs(strain) > Math.Abs(strainY))
-                return ConcreteStrengthReduction * _fc;
+                return _fc;
             else if (strain == 0)
                 return 0;            
             else
-                return ConcreteStrengthReduction * _fc * (2 * (strain / strain0) - Math.Pow(strain / strain0, 2));
+                return _fc * (2 * (strain / strain0) - Math.Pow(strain / strain0, 2));
         }
 
         protected virtual double GetFcm()
