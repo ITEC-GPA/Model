@@ -4,258 +4,266 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
-	[Serializable]
-	public abstract class ConcreteMaterial : Material, ISerializable
-	{
-		#region Public Enum        
+    [Serializable]
+    public abstract class ConcreteMaterial : Material, ISerializable
+    {
+        #region Public Enum        
 
-		public enum ConcreteTypes
-		{
-			[Description("Concrete")] Concrete,
-			[Description("Fiber-Reinforced")] FRC,
-		}
+        public enum ConcreteTypes
+        {
+            [Description("Concrete")] Concrete,
+            [Description("Fiber-Reinforced")] FRC,
+        }
 
-		public enum CompressionStressStrainDiagrams
-		{
-			[Description("Parabola-Rectangle")] ParabolaRectangle,
-			[Description("Bilinear")] Bilinear,
-			[Description("Stress Block")] StressBlock,
-			[Description("Non Linear")] NonLinear,
-			[Description("Generic")] Generic,
-		}
+        public enum CompressionStressStrainDiagrams
+        {
+            [Description("Parabola-Rectangle")] ParabolaRectangle,
+            [Description("Bilinear")] Bilinear,
+            [Description("Stress Block")] StressBlock,
+            [Description("Non Linear")] NonLinear,
+            [Description("Generic")] Generic,
+        }
 
-		public enum TensionStressStrainDiagrams
-		{
-			[Description("Linear")] Linear,
-			[Description("Bilinear")] Bilinear,
-			[Description("Rigid-Plastic")] RigidPlastic,
-			[Description("Generic")] Generic,
-		}
+        public enum TensionStressStrainDiagrams
+        {
+            [Description("Linear")] Linear,
+            [Description("Bilinear")] Bilinear,
+            [Description("Rigid-Plastic")] RigidPlastic,
+            [Description("Generic")] Generic,
+        }
 
-		public enum CementTypes
-		{
-			ClassR,
-			ClassN,
-			ClassS,
-		}
+        public enum CementTypes
+        {
+            ClassR,
+            ClassN,
+            ClassS,
+        }
 
-		#endregion
+        #endregion
 
-		#region Variables
+        #region Variables
 
-		protected ConcreteTypes _concreteType;
-		protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
-		protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
+        protected ConcreteTypes _concreteType;
+        protected CompressionStressStrainDiagrams _compressionStressStrainDiagrams;
+        protected TensionStressStrainDiagrams _tensionStressStrainDiagrams;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		/// <summary>
-		/// Type of concrete
-		/// </summary>
-		public ConcreteTypes ConcreteType
-		{
-			get => _concreteType;
-			set
-			{
-				SetConcreteType(value);
-				RecalculateMechanicalProperties();
-			}
-		}
+        /// <summary>
+        /// Type of concrete
+        /// </summary>
+        public ConcreteTypes ConcreteType
+        {
+            get => _concreteType;
+            set
+            {
+                SetConcreteType(value);
+                RecalculateMechanicalProperties();
+            }
+        }
 
-		/// <summary>
-		/// The compression stress-strain relationship 
-		/// </summary>
-		public CompressionStressStrainDiagrams CompressionStressStrainDiagram
-		{
-			get => _compressionStressStrainDiagrams;
-			set
-			{
-				SetCompressionStressStrainDiagram(value);
-				RecalculateMechanicalProperties();
-			}
-		}
+        /// <summary>
+        /// The compression stress-strain relationship 
+        /// </summary>
+        public CompressionStressStrainDiagrams CompressionStressStrainDiagram
+        {
+            get => _compressionStressStrainDiagrams;
+            set
+            {
+                SetCompressionStressStrainDiagram(value);
+                RecalculateMechanicalProperties();
+            }
+        }
 
-		/// <summary>
-		/// The tension stress-strain relationship 
-		/// </summary>
-		public TensionStressStrainDiagrams TensionStressStrainDiagram
-		{
-			get => _tensionStressStrainDiagrams;
-			set
-			{
-				SetTensionStressStrainDiagrams(value);
-				RecalculateMechanicalProperties();
-			}
-		}
+        /// <summary>
+        /// The tension stress-strain relationship 
+        /// </summary>
+        public TensionStressStrainDiagrams TensionStressStrainDiagram
+        {
+            get => _tensionStressStrainDiagrams;
+            set
+            {
+                SetTensionStressStrainDiagrams(value);
+                RecalculateMechanicalProperties();
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Constructor
+        #region Public Constructor
 
-		public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
-			StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
-			double poisson, double density, double alfaThermalExpansion)
-			: base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension,
-				  poisson, density, alfaThermalExpansion)
-		{
-		}
+        public ConcreteMaterial(string name, StressStrainTable stressStrainTableCompression,
+            StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
+            double poisson, double density, double alfaThermalExpansion)
+            : base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension,
+                  poisson, density, alfaThermalExpansion)
+        {
+        }
 
-		protected ConcreteMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
-			: base(name, elasticModulus, poisson, density, alfaThermalExpansion)
-		{
-		}
+        protected ConcreteMaterial(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
+            : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
+        {
+        }
 
-		protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
-			: base(name, 0, poisson, density, alfaThermalExpansion)
-		{
-		}
+        protected ConcreteMaterial(string name, double poisson, double density, double alfaThermalExpansion)
+            : base(name, 0, poisson, density, alfaThermalExpansion)
+        {
+        }
 
-		protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
-			double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
-			double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
-			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
-			double poisson, double alfaThermalExpansion, double density)
-			: base(name, elasticModulusCompression, elasticModulusTension, strainYCompression,
-				  strainUCompression, strainYTension, strainUTension, stressYCompression,
-				  stressUCompression, stressYTension, stressUTension, stressStrainTableCompression,
-				  stressStrainTableTension, poisson, alfaThermalExpansion, density)
-		{
-			_concreteType = concreteType;
-		}
+        protected ConcreteMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
+            double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
+            double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
+            double poisson, double alfaThermalExpansion, double density)
+            : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression,
+                  strainUCompression, strainYTension, strainUTension, stressYCompression,
+                  stressUCompression, stressYTension, stressUTension, stressStrainTableCompression,
+                  stressStrainTableTension, poisson, alfaThermalExpansion, density)
+        {
+            _concreteType = concreteType;
+        }
 
-		protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-			int version;
-			try
-			{
-				version = info.GetInt32("ConcreteMaterialVersion");
-			}
-			catch (Exception)
-			{
-				version = 1;
-			}
+        protected ConcreteMaterial(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("ConcreteMaterialVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
 
-			if (version == 1)
-			{
-				_stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
-				_stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
-				_elasticModulusTension = info.GetDouble("ElasticModulusTension");
+            if (version == 1)
+            {
+                _stressStrainTableCompression = (StressStrainTable)info.GetValue("TableCompression", typeof(StressStrainTable));
+                _stressStrainTableTension = (StressStrainTable)info.GetValue("TableTension", typeof(StressStrainTable));
+                _elasticModulusTension = info.GetDouble("ElasticModulusTension");
 
-				_strainYCompression = info.GetDouble("StrainYCompression");
-				_strainUCompression = info.GetDouble("StrainUCompression");
-				_strainYTension = info.GetDouble("StrainYTension");
-				_strainUTension = info.GetDouble("StrainUTension");
+                _strainYCompression = info.GetDouble("StrainYCompression");
+                _strainUCompression = info.GetDouble("StrainUCompression");
+                _strainYTension = info.GetDouble("StrainYTension");
+                _strainUTension = info.GetDouble("StrainUTension");
 
-				if (_strainYTension < _strainUTension)
-					_concreteType = ConcreteTypes.FRC;
-				else
-					_concreteType = ConcreteTypes.Concrete;
+                if (_strainYTension < _strainUTension)
+                    _concreteType = ConcreteTypes.FRC;
+                else
+                    _concreteType = ConcreteTypes.Concrete;
 
-				SetStressProperties();
-			}
-			if (version >= 2)
-			{
-				_concreteType = (ConcreteTypes)info.GetValue("ConcreteType", typeof(ConcreteTypes));
-			}
-			if (version >= 3)
-			{
-				_compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
-				_tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
-			}
-		}
+                SetStressProperties();
+            }
+            if (version >= 2)
+            {
+                _concreteType = (ConcreteTypes)info.GetValue("ConcreteType", typeof(ConcreteTypes));
+            }
+            if (version >= 3)
+            {
+                _compressionStressStrainDiagrams = (CompressionStressStrainDiagrams)info.GetInt32("CompressionStressStrainDiagrams");
+                _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Public abstract Methods
+        #region Public abstract Methods
 
-		public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
+        public abstract double CalculateDesignStressConcrete(Standards.Standard standard, double strain);
 
-		public abstract double CalculateDesignCompressiveStrength(Standards.Standard standard);
+        /// <summary>
+        /// Calculate the design value from the characteristic stress.
+        /// </summary>
+        /// <param name="standard"></param>
+        /// <param name="stress">Characteristic stress.</param>
+        /// <returns></returns>
+        public abstract double CalculateDesignStressFromCharacteristic(Standards.Standard standard, double stress);
 
-		public abstract double CalculateDesignTensileStrength(Standards.Standard standard);
+        public abstract double CalculateDesignCompressiveStrength(Standards.Standard standard);
 
-		#endregion
+        public abstract double CalculateDesignTensileStrength(Standards.Standard standard);
 
-		#region Public Methods
+        #endregion
 
-		/// <summary>
-		/// Override if you want to validate the value before assign it
-		/// </summary>
-		/// <param name="concreteType">The value to assign</param>
-		public virtual void SetConcreteType(ConcreteTypes concreteType)
-		{
-			_concreteType = concreteType;
-		}
+        #region Public Methods
 
-		public abstract void RecalculateMechanicalProperties();
+        /// <summary>
+        /// Override if you want to validate the value before assign it
+        /// </summary>
+        /// <param name="concreteType">The value to assign</param>
+        public virtual void SetConcreteType(ConcreteTypes concreteType)
+        {
+            _concreteType = concreteType;
+        }
 
-		public virtual void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
-		{
-			_compressionStressStrainDiagrams = compressionStressStrainDiagrams;
-		}
+        public abstract void RecalculateMechanicalProperties();
 
-		public virtual void SetTensionStressStrainDiagrams(TensionStressStrainDiagrams tensionStressStrainDiagrams)
-		{
-			_tensionStressStrainDiagrams = tensionStressStrainDiagrams;
-		}
+        public virtual void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
+        {
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+        }
 
-		#endregion
+        public virtual void SetTensionStressStrainDiagrams(TensionStressStrainDiagrams tensionStressStrainDiagrams)
+        {
+            _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+        }
 
-		#region Equals - hashcode - operators
+        #endregion
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData(info, context);
+        #region Equals - hashcode - operators
 
-			double version = 3;
-			info.AddValue("ConcreteMaterialVersion", version);
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
 
-			info.AddValue("ConcreteType", _concreteType);
-			info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
-			info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
-		}
+            double version = 3;
+            info.AddValue("ConcreteMaterialVersion", version);
 
-		public override bool Equals(object obj)
-		{
-			if (ReferenceEquals(this, obj))
-				return true;
+            info.AddValue("ConcreteType", _concreteType);
+            info.AddValue("CompressionStressStrainDiagrams", _compressionStressStrainDiagrams);
+            info.AddValue("TensionStressStrainDiagrams", _tensionStressStrainDiagrams);
+        }
 
-			return (obj is ConcreteMaterial objCasted) &&
-				objCasted._concreteType.Equals(_concreteType) &&
-				objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
-				objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
-				base.Equals(objCasted);
-		}
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				int hashCode = 23;
-				hashCode = hashCode * -17 + base.GetHashCode();
-				hashCode = hashCode * -17 + _concreteType.GetHashCode();
-				hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
-				hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
-				return hashCode;
-			}
-		}
+            return (obj is ConcreteMaterial objCasted) &&
+                objCasted._concreteType.Equals(_concreteType) &&
+                objCasted._compressionStressStrainDiagrams.Equals(_compressionStressStrainDiagrams) &&
+                objCasted._tensionStressStrainDiagrams.Equals(_tensionStressStrainDiagrams) &&
+                base.Equals(objCasted);
+        }
 
-		public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
-		{
-			if (ReferenceEquals(obj1, obj2))
-				return true;
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _concreteType.GetHashCode();
+                hashCode = hashCode * -17 + _compressionStressStrainDiagrams.GetHashCode();
+                hashCode = hashCode * -17 + _tensionStressStrainDiagrams.GetHashCode();
+                return hashCode;
+            }
+        }
 
-			return obj1.Equals(obj2);
-		}
+        public static bool operator ==(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
-		public static bool operator !=(ConcreteMaterial obj1, ConcreteMaterial obj2)
-		{
-			return !(obj1 == obj2);
-		}
+            return obj1.Equals(obj2);
+        }
 
-		#endregion
-	}
+        public static bool operator !=(ConcreteMaterial obj1, ConcreteMaterial obj2)
+        {
+            return !(obj1 == obj2);
+        }
+
+        #endregion
+    }
 }
