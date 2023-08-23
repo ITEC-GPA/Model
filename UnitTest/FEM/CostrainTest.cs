@@ -5,7 +5,6 @@ using GPC.Model.Fem.Costrains;
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
-using GPC.Model.Materials;
 using GPC.Model.Sections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -13,9 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 using static GPC.Model.Fem.Solver;
 
-namespace FemTest.SolverTest { 
+namespace FemTest.SolverTest
+{
     [TestClass]
-    public class CostrainTest {
+    public class CostrainTest
+    {
         [TestMethod]
         public void CreateRigidLink()
         {
@@ -34,7 +35,7 @@ namespace FemTest.SolverTest {
         public void Axial1()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            Section sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -44,7 +45,7 @@ namespace FemTest.SolverTest {
             List<EulerBeam> els = new List<EulerBeam>();
             EulerBeam eulerBeam = new EulerBeam(new Node[] { nds[0], nds[1] });
             eulerBeam.SetProperty(sec);
-            els.Add(eulerBeam);;
+            els.Add(eulerBeam);
 
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             double FX = 1000;
@@ -76,7 +77,7 @@ namespace FemTest.SolverTest {
         public void Axial2()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -86,7 +87,7 @@ namespace FemTest.SolverTest {
             List<EulerBeam> els = new List<EulerBeam>();
             EulerBeam eulerBeam = new EulerBeam(new Node[] { nds[0], nds[1] });
             eulerBeam.SetProperty(sec);
-            els.Add(eulerBeam); 
+            els.Add(eulerBeam);
 
             LoadCaseBase lc = new LoadCaseBase("lc1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
@@ -120,7 +121,7 @@ namespace FemTest.SolverTest {
         public void AxialXPositive()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -156,7 +157,7 @@ namespace FemTest.SolverTest {
 
             MultiPointsCostrain[] rigids1 = RigidLink.GetRigidLink(nds[2], nds[1]);
             MultiPointsCostrain[] rigids2 = RigidLink.GetRigidLink(nds[1], nds[2]);
-            
+
             LinearSolver fem1 = new LinearSolver(els.ToArray(), rigids1);
             LinearSolver fem2 = new LinearSolver(els.ToArray(), rigids2);
 
@@ -168,7 +169,7 @@ namespace FemTest.SolverTest {
         public void AxialXNegative()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -216,7 +217,7 @@ namespace FemTest.SolverTest {
         public void AxialYNegative()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -264,7 +265,7 @@ namespace FemTest.SolverTest {
         public void AxialYPositive()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -312,7 +313,7 @@ namespace FemTest.SolverTest {
         public void AxialZPositive()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -360,7 +361,7 @@ namespace FemTest.SolverTest {
         public void AxialZNegative()
         {
             double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -407,8 +408,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest1XPositive()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -458,8 +459,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest2XNegative()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0));
@@ -509,8 +510,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest3ZPositive()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0.0, 0.0, 0));
@@ -560,8 +561,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest4ZNegative()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0.0, 0.0, 0));
@@ -611,8 +612,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest5YPositive()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0.0, 0.0, 0));
@@ -662,8 +663,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void BendingTest6YNegative()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0.0, 0.0, 0));
@@ -713,8 +714,8 @@ namespace FemTest.SolverTest {
         [TestMethod]
         public void RotatedSupport()
         {
-            double E = 10.0;
-            Section sec = new SectionCHS(100.0, 50.0, new SteelMaterial("m", E, 0.0, 355, 510), "sec");
+            //double E = 10.0;
+            var sec = new SectionCHS(100.0, 50.0, "sec");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0.0, 0.0, 0));

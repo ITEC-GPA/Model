@@ -1,8 +1,8 @@
-﻿using System;
+﻿using GPC.Model.Standards;
+using GPC.Utilities.Attributes;
+using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Standards;
-using GPC.Utilities.Attributes;
 
 namespace GPC.Model.Materials
 {
@@ -24,17 +24,17 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Characteristic compressive cylinder strength of concrete at 28 days
         /// </summary>
-        public double Fc 
-        { 
-            get => _fc; 
-            set 
-            {  
-                if(_fc != value)
+        public double Fc
+        {
+            get => _fc;
+            set
+            {
+                if (_fc != value)
                 {
                     _fc = value;
                     RecalculateMechanicalProperties();
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -53,21 +53,21 @@ namespace GPC.Model.Materials
             get => _concreteStrengthReduction;
             set
             {
-				_concreteStrengthReduction = value; 
+                _concreteStrengthReduction = value;
                 RecalculateMechanicalProperties();
-			}
-		}
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Constructor
+        #region Constructor
 
-		public ConcreteMaterialACI318(string name, double fc, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
+        public ConcreteMaterialACI318(string name, double fc, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _concreteStrengthReduction = 0.85;
-			_compressionStressStrainDiagrams = compressionStressStrainDiagrams;
+            _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
 
             SetMechanicalProperties(-Math.Abs(fc), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
@@ -82,7 +82,7 @@ namespace GPC.Model.Materials
             double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
-			_concreteStrengthReduction = 0.85; 
+            _concreteStrengthReduction = 0.85;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
 
@@ -98,8 +98,8 @@ namespace GPC.Model.Materials
             double poisson, double density, double alfaThermalExpansion)
             : base(name, stressStrainTableCompression, stressStrainTableTension, elasticModulusCompression, elasticModulusTension, poisson, density, alfaThermalExpansion)
         {
-			_concreteStrengthReduction = 0.85;
-		}
+            _concreteStrengthReduction = 0.85;
+        }
 
         protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -121,13 +121,13 @@ namespace GPC.Model.Materials
             }
             else if (version == 1) { }
             else if (version == 3) { }
-			
-            if (version > 3)             
-				_concreteStrengthReduction= info.GetDouble("ConcreteStrengthReduction");			
-            else
-				_concreteStrengthReduction = 0.85;
 
-			_fc = info.GetDouble("Fc");
+            if (version > 3)
+                _concreteStrengthReduction = info.GetDouble("ConcreteStrengthReduction");
+            else
+                _concreteStrengthReduction = 0.85;
+
+            _fc = info.GetDouble("Fc");
             _fct = info.GetDouble("Fct");
             _fctu = info.GetDouble("Fctu");
         }
@@ -201,7 +201,7 @@ namespace GPC.Model.Materials
                     stresses[0] = 0;
 
                     double eps0 = GetEpsilon0();
-					for (int i = 0; i < strains.Length; i++)
+                    for (int i = 0; i < strains.Length; i++)
                     {
                         stresses[i] = GetParabolaStress(strains[i], eps0, strainYCompression);
                     }
@@ -390,7 +390,7 @@ namespace GPC.Model.Materials
                 case CompressionStressStrainDiagrams.ParabolaRectangle:
                     return GetEpsilon0();
 
-				default:
+                default:
                     throw new ArgumentException();
             }
         }
@@ -415,7 +415,7 @@ namespace GPC.Model.Materials
         protected virtual double GetEpsilon0()
         {
             return 2 * ConcreteStrengthReduction * _fc / CalculateElasticModulus(Math.Abs(_fc));
-		}
+        }
 
         /// <remarks>Sign convention: Stress and strain positive if tension</remarks>
         protected virtual double GetStrainYTension(double fctk, double elasticModulusTension,
@@ -470,7 +470,7 @@ namespace GPC.Model.Materials
             if (Math.Abs(strain) > Math.Abs(strainY))
                 return _fc;
             else if (strain == 0)
-                return 0;            
+                return 0;
             else
                 return _fc * (2 * (strain / strain0) - Math.Pow(strain / strain0, 2));
         }
@@ -520,7 +520,7 @@ namespace GPC.Model.Materials
         }
 
         public virtual double CalculateDesignCompressiveStrength(StandardACI318 standard)
-        {       
+        {
             return standard.ConcreteStrengthReductionFactor * Fc;
         }
 
@@ -541,22 +541,32 @@ namespace GPC.Model.Materials
 
         public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
         {
+            return CalculateDesignStressFromCharacteristic(standard, GetStress(strain));
+        }
+
+        public double CalculateDesignStressConcrete(StandardACI318 standard, double strain)
+        {
+            return CalculateDesignStressFromCharacteristic(standard, GetStress(strain));
+        }
+
+        public override double CalculateDesignStressFromCharacteristic(Standard standard, double stress)
+        {
             if (standard is StandardModelCode2010 standardModelCode2010)
             {
-                if (strain < 0)
-                    return GetStress(strain) * Math.Abs(CalculateDesignCompressiveStrength(standardModelCode2010) / Fc);
+                if (stress < 0)
+                    return stress * Math.Abs(CalculateDesignCompressiveStrength(standardModelCode2010) / Fc);
                 else
-                    return GetStress(strain) * Math.Abs(CalculateDesignTensileStrength(standardModelCode2010) / Fct);
+                    return stress * Math.Abs(CalculateDesignTensileStrength(standardModelCode2010) / Fct);
             }
             else if (standard is StandardACI318 standardACI318)
-                return CalculateDesignStressConcrete(standardACI318, strain);
+                return CalculateDesignStressFromCharacteristic(standardACI318, stress);
             else
                 throw new ArgumentException();
         }
 
-        public virtual double CalculateDesignStressConcrete(StandardACI318 standard, double strain)
-        {   
-            return standard.ConcreteStrengthReductionFactor * GetStress(strain);    
+        public double CalculateDesignStressFromCharacteristic(StandardACI318 standard, double stress)
+        {
+            return standard.ConcreteStrengthReductionFactor * stress;
         }
 
         #endregion
@@ -575,7 +585,7 @@ namespace GPC.Model.Materials
             info.AddValue("Fct", _fct);
             info.AddValue("Fctu", _fctu);
             info.AddValue("ConcreteStrengthReduction", _concreteStrengthReduction);
-		}
+        }
 
         public override bool Equals(object obj)
         {

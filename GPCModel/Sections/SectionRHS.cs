@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GPC.Geometry;
+using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Model.Materials;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRHS : ThinWallSection, ISection, ISerializable
+    public class SectionRHS : ThinWallSection, ISerializable
     {
         #region Varibles
 
@@ -21,99 +16,103 @@ namespace GPC.Model.Sections
         private double _twL;
         private double _twR;
 
+        private readonly double _r;                // raggio di curvatura o altezza di gola
+
         #endregion
 
         #region Properties
 
-        public double Base 
+        public double Base
         {
-			get => _b;
+            get => _b;
             set
-			{
-				if (_b != value)
-				{
-					_b = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_b != value)
+                {
+                    _b = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double BaseInternal => _b - _twL - _twR;
 
-        public double Height 
+        public override double Height
         {
-			get => _h;
+            get => _h;
             set
-			{
-				if (_h != value)
-				{
-					_h = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_h != value)
+                {
+                    _h = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double Heightinternal => _h - _tfBottom - _tfTop;
 
         public double ThicknessTop
         {
-			get => _tfTop; 
+            get => _tfTop;
             set
-			{
-				if (_tfTop != value)
-				{
-					_tfTop = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_tfTop != value)
+                {
+                    _tfTop = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double ThicknessBottom 
+        public double ThicknessBottom
         {
-			get => _tfBottom;
+            get => _tfBottom;
             set
-			{
-				if (_tfBottom != value)
-				{
-					_tfBottom = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_tfBottom != value)
+                {
+                    _tfBottom = value;
+                    CalculateSection();
+                }
+            }
+        }
 
         public double ThicknessWebLeft
         {
-			get => _twL; 
+            get => _twL;
             set
-			{
-				if (_twL != value)
-				{
-					_twL = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_twL != value)
+                {
+                    _twL = value;
+                    CalculateSection();
+                }
+            }
+        }
 
-        public double ThicknessWebRight 
+        public double ThicknessWebRight
         {
-			get => _twR; 
+            get => _twR;
             set
-			{
-				if (_twR != value)
-				{
-					_twR = value;
-					CalculateSection();
-				}
-			}
-		}
+            {
+                if (_twR != value)
+                {
+                    _twR = value;
+                    CalculateSection();
+                }
+            }
+        }
+
+        public double R => _r;
 
         #endregion
 
         #region Public Constructors
 
         public SectionRHS(double height, double width, double thicknessTopFlange, double thicknessBottomFlange,
-            double thicknessWebLeft, double thickenssWebRight, Material material, string name)
-            : base(material, name)
+            double thicknessWebLeft, double thickenssWebRight, string name, double radius = 0)
+            : base(name)
         {
             _h = height;
             _b = width;
@@ -121,19 +120,18 @@ namespace GPC.Model.Sections
             _tfBottom = thicknessBottomFlange;
             _twL = thicknessWebLeft;
             _twR = thickenssWebRight;
+            _r = radius < 0 ? 0 : radius;
 
+            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2,
+                new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom));
+            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2,
+                new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom));
+            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0,
+                new Point2d(Base / 2, _tfBottom / 2));
+            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0,
+                new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2));
 
-            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2);
-            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2);
-            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0);
-            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0);
-
-
-            SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop },
-                    new Point2d[] { new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom),
-                new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom),
-                new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2),
-                new Point2d(Base / 2, _tfBottom / 2) });
+            SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
             SetMechanicalProperties();
             _mesh = GetMesh();
@@ -158,6 +156,7 @@ namespace GPC.Model.Sections
             _tfBottom = info.GetDouble("ThicknessBottom");
             _twL = info.GetDouble("ThicknessWebLeft");
             _twR = info.GetDouble("ThicknessWebRight");
+            _r = info.GetDouble("R");
         }
 
         #endregion
@@ -190,7 +189,30 @@ namespace GPC.Model.Sections
 
         protected override Shape2d GetShape()
         {
-            throw new NotImplementedException();
+            return new Shape2d(
+                new Polygon2d
+                (
+                    new Point2d[]
+                    {
+                        new Point2d(0.0, 0.0),
+                        new Point2d(0.0, _h),
+                        new Point2d(_b, _h),
+                        new Point2d(_b, 0.0)
+                    }
+                ),
+                new[]
+                {
+                    new Polygon2d
+                    (
+                        new Point2d[]
+                        {
+                            new Point2d(_twL, _tfBottom),
+                            new Point2d(_twL, _h - _tfTop),
+                            new Point2d(_b - _twR, _h - _tfTop),
+                            new Point2d(_b - _twR, _tfBottom)
+                        }
+                    )
+                });
         }
 
         protected override Point2d CalculateShearCenter()
@@ -222,8 +244,8 @@ namespace GPC.Model.Sections
             {
                 if (IsSymmetricAlongYLocalAxis)
                 {
-                    SectionC halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
-                    SectionC halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, _material, string.Empty);
+                    var halfSectionLeft = new SectionC(Height, ThicknessWebLeft, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, string.Empty);
+                    var halfSectionRigth = new SectionC(Height, ThicknessWebRight, Base / 2, ThicknessTop, Base / 2, ThicknessBottom, string.Empty);
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
@@ -240,8 +262,8 @@ namespace GPC.Model.Sections
             {
                 if (IsSymmetricAlongXLocalAxis)
                 {
-                    SectionC halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, _material, string.Empty);
-                    SectionC halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, Material, string.Empty);
+                    var halfSectionTop = new SectionC(Base, ThicknessTop, Height / 2, _twR, Height / 2, _twL, string.Empty);
+                    var halfSectionBottom = new SectionC(Base, ThicknessBottom, Height / 2, _twL, Height / 2, _twR, string.Empty);
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else
@@ -327,24 +349,24 @@ namespace GPC.Model.Sections
             info.AddValue("ThicknessBottom", _tfBottom);
             info.AddValue("ThicknessWebLeft", _twL);
             info.AddValue("ThicknessWebRight", _twR);
+            info.AddValue("R", _r);
         }
 
         private void CalculateSection()
         {
-			ThinWall webSx = new ThinWall(Heightinternal, ThicknessWebLeft, Math.PI / 2);
-			ThinWall webDx = new ThinWall(Heightinternal, ThicknessWebRight, Math.PI / 2);
-			ThinWall flangeTop = new ThinWall(Base, ThicknessTop, 0);
-			ThinWall flangeBottom = new ThinWall(Base, ThicknessBottom, 0);
+            ThinWall webSx = new ThinWall(Heightinternal, ThicknessWebLeft, Math.PI / 2,
+                new Point2d(ThicknessWebLeft / 2, Heightinternal / 2 + ThicknessBottom));
+            ThinWall webDx = new ThinWall(Heightinternal, ThicknessWebRight, Math.PI / 2,
+                new Point2d(Base - ThicknessWebRight / 2, Heightinternal / 2 + ThicknessBottom));
+            ThinWall flangeTop = new ThinWall(Base, ThicknessTop, 0,
+                new Point2d(Base / 2, ThicknessBottom / 2));
+            ThinWall flangeBottom = new ThinWall(Base, ThicknessBottom, 0,
+                new Point2d(Base / 2, ThicknessBottom + Heightinternal + ThicknessTop / 2));
 
+            SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
-			SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop },
-					new Point2d[] { new Point2d(ThicknessWebLeft / 2, Heightinternal / 2 + ThicknessBottom),
-				new Point2d(Base - ThicknessWebRight / 2, Heightinternal / 2 + ThicknessBottom),
-				new Point2d(Base / 2, ThicknessBottom + Heightinternal + ThicknessTop / 2),
-				new Point2d(Base / 2, ThicknessBottom / 2) });
-
-			SetMechanicalProperties();
-			_mesh = GetMesh();
-		}
+            SetMechanicalProperties();
+            _mesh = GetMesh();
+        }
     }
 }

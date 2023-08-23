@@ -1,13 +1,12 @@
-using System;
-using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionCircular : Section, ISection, ISerializable
+    public class SectionCircular : Section, ISerializable
     {
         protected double _diameter;
 
@@ -16,17 +15,21 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Diameter
         {
-            get => _diameter; 
+            get => _diameter;
             set
             {
-                if(_diameter != value && _diameter > 0)
+                if (_diameter != value && _diameter > 0)
                 {
                     _diameter = value;
                     SetMechanicalProperties();
-					_mesh = GetMesh();
-				}
+                    _mesh = GetMesh();
+                }
             }
         }
+
+        public override double Height => _diameter;
+
+        public override ThinWallSection.ThinWall[] ThinWalls => null;
 
         #region Public Constructors
 
@@ -34,10 +37,9 @@ namespace GPC.Model.Sections
         /// The default constructor
         /// </summary>
         /// <param name="diameter">The diameter</param>
-        /// <param name="material">The material</param>
         /// <param name="name">The section name</param>
-        public SectionCircular(double diameter, Material material, string name = "")
-            : base(material, name)
+        public SectionCircular(double diameter, string name = "")
+            : base(name)
         {
             _diameter = diameter;
             SetMechanicalProperties();
@@ -45,7 +47,7 @@ namespace GPC.Model.Sections
         }
 
         public SectionCircular(SectionCircular sectionCircular)
-            : this(sectionCircular.Diameter, sectionCircular.Material, sectionCircular.Name)
+            : this(sectionCircular.Diameter, sectionCircular.Name)
         {
 
         }
@@ -122,7 +124,7 @@ namespace GPC.Model.Sections
             return mesh;
         }
 
-        protected override void SetMechanicalProperties()
+        public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
             _j11 = CalculateJ();
@@ -159,6 +161,11 @@ namespace GPC.Model.Sections
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
+        protected override double CalculateJxy()
+        {
+            return 0.0;
+        }
+
         protected override double CalculateJt()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
@@ -166,7 +173,7 @@ namespace GPC.Model.Sections
 
         protected override double CalculateJw()
         {
-            return 0;
+            return 0.0;
         }
 
         protected override Point2d CalculateCentroid()
@@ -217,6 +224,13 @@ namespace GPC.Model.Sections
                 return hashCode;
             }
         }
+
+        public override Point2d[] GetSectionPoints()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetEdgeTypeFromSteelType(SectionTypes sectionType) { }
 
         public static bool operator ==(SectionCircular left, SectionCircular right)
         {

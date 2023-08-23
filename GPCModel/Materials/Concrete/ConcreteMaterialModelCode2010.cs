@@ -175,28 +175,28 @@ namespace GPC.Model.Materials
 
         public override void RecalculateMechanicalProperties()
         {
-			switch (_concreteType)
-			{
-				case ConcreteTypes.FRC:
-					SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
+            switch (_concreteType)
+            {
+                case ConcreteTypes.FRC:
+                    SetMechanicalProperties(_fck, _fctk, _fctu, _strainYTension, _strainUTension,
                         _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-					SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-					SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+                    SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+                    SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
                     SetStressProperties();
                     break;
-				case ConcreteTypes.Concrete:
-					SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
+                case ConcreteTypes.Concrete:
+                    SetMechanicalProperties(_fck, 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
-					SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
-					SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
+                    SetStressStrainTableCompression(_fck, _strainYCompression, _strainUCompression, _compressionStressStrainDiagrams);
+                    SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
                     SetStressProperties();
                     break;
-				default:
-					break;
-			}
+                default:
+                    break;
+            }
         }
 
         public override void SetCompressionStressStrainDiagram(CompressionStressStrainDiagrams compressionStressStrainDiagrams)

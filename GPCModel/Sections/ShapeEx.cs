@@ -1,118 +1,114 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Materials;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
-	[Serializable]
-	public class ShapeEx : Shape2d, ISection, ISerializable
-	{
-		#region Variables
+    [Serializable]
+    public class ShapeEx : Shape2d, ISerializable
+    {
+        #region Variables
 
-		protected Material _material;
+        protected Material _material;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public Material Material => _material;
+        public Material Material => _material;
 
-		public virtual Shape2d Shape => this;
+        public virtual Shape2d Shape => this;
 
-		#endregion
+        #endregion
 
-		#region Constructor
+        #region Constructor
 
-		public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
-			: base(fill, holes, childs, tolerance)
-		{
-			_material = material;
-		}
+        public ShapeEx(Polygon2d fill, Material material, Polygon2d[] holes = null, ShapeEx[] childs = null, double tolerance = GeometryBase.Tolerance)
+            : base(fill, holes, childs, tolerance)
+        {
+            _material = material;
+        }
 
-		public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
-			: base(shape, tolerance)
-		{
-			_material = material;
-		}
+        public ShapeEx(Shape2d shape, Material material, double tolerance = GeometryBase.Tolerance)
+            : base(shape, tolerance)
+        {
+            _material = material;
+        }
 
-		public ShapeEx(Shape2d shape, Material material)
-			: this(shape, material, GeometryBase.Tolerance)
-		{
-		}
+        public ShapeEx(Shape2d shape, Material material)
+            : this(shape, material, GeometryBase.Tolerance)
+        {
+        }
 
-		protected ShapeEx(SerializationInfo info, StreamingContext context) :
-			base(info, context)
-		{
-			int version;
-			try
-			{
-				version = info.GetInt32("ShapeExVersion");
-			}
-			catch (Exception)
-			{
-				version = 1;
-			}
+        protected ShapeEx(SerializationInfo info, StreamingContext context) :
+            base(info, context)
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("ShapeExVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
 
-			_material = (Material)info.GetValue("Material", typeof(Material));
-		}
+            _material = (Material)info.GetValue("Material", typeof(Material));
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public Shape2d GetShape()
-		{
-			return this;
-		}
+        public Shape2d GetShape()
+        {
+            return this;
+        }
 
-		#endregion
+        #endregion
 
-		#region Equals - hashcode - Operators
+        #region Equals - hashcode - Operators
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData(info, context);
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
 
-			double version = 2;
-			info.AddValue("ShapeExVersion", version);
+            double version = 2;
+            info.AddValue("ShapeExVersion", version);
 
-			info.AddValue("Material", _material);
-		}
+            info.AddValue("Material", _material);
+        }
 
-		public override bool Equals(object obj)
-		{
-			return obj is ShapeEx ex &&
-				   base.Equals(obj) &&
-				   _material.Equals(ex._material);
-		}
+        public override bool Equals(object obj)
+        {
+            return obj is ShapeEx ex &&
+                   base.Equals(obj) &&
+                   _material.Equals(ex._material);
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				int hashCode = -23;
-				hashCode = hashCode * -17 + base.GetHashCode();
-				hashCode = hashCode * -17 + _material.GetHashCode();
-				return hashCode;
-			}
-		}
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _material.GetHashCode();
+                return hashCode;
+            }
+        }
 
-		public static bool operator ==(ShapeEx left, ShapeEx right)
-		{
-			return left.Equals(right);
-		}
+        public static bool operator ==(ShapeEx left, ShapeEx right)
+        {
+            return left.Equals(right);
+        }
 
-		public static bool operator !=(ShapeEx left, ShapeEx right)
-		{
-			return !(left == right);
-		}
+        public static bool operator !=(ShapeEx left, ShapeEx right)
+        {
+            return !(left == right);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }
 

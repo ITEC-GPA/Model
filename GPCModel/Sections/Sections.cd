@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="GPC.Model.Sections.ShapeEx" Collapsed="true">
+    <Position X="6.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAEAAAAAAAAAAAAgAAAAAAgAAAAAIAADAAAAAAAAiA=</HashCode>
+      <FileName>Sections\ShapeEx.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Geometry.Shape2d" Collapsed="true">
+    <Position X="6.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="GPC.Geometry.Shape" Collapsed="true">
+    <Position X="6.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="GPC.Geometry.GeometryBase" Collapsed="true">
+    <Position X="6.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="GPC.Geometry.BaseObject" Collapsed="true">
+    <Position X="6.5" Y="1" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="GPC.Model.Sections.Bolt.PlateWithBolts" Collapsed="true">
+    <Position X="6.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ICAABQEAMASBgAAAgAEggKAgAgQAAICEAEQIAAAAAiA=</HashCode>
+      <FileName>Sections\Bolt\PlateWithBolts.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Bolt.RectangularPlateWithBolts" Collapsed="true">
+    <Position X="6.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAgAAAAAAEAAAAAIAEAAgAQAAAAiA=</HashCode>
+      <FileName>Sections\Bolt\RectangularPlateWithBolts.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Sections.Section" Collapsed="true">
+    <Position X="23.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>Rdcsm0G9FCAzBIzggABZQQQh4xwgMMgMLUNhDYBgAqU=</HashCode>
+      <FileName>Sections\Section.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Fem.Properties.ElementProperty" Collapsed="true">
+    <Position X="15.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>FEM\ElementProperty\ElementProperty.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Concrete.ReinforcedConcreteSection" Collapsed="true">
+    <Position X="15.75" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AFIkwCEFBDAxAIRAgABCQQBwgr4wMIUUg0NgRYAAA6U=</HashCode>
+      <FileName>Sections\Concrete\ReinforcedConcreteSection.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionCHS" Collapsed="true">
+    <Position X="28.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACEAAQAIBBABAASkAAAAAAAgYUYAIACIJEIBBAAAAAA=</HashCode>
+      <FileName>Sections\SectionCHS.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionCircular" Collapsed="true">
+    <Position X="16.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACEggQAIBBABAACkgAAAAAAgAQIAAIAAFEIhAAAAAiA=</HashCode>
+      <FileName>Sections\SectionCircular.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionRectangular" Collapsed="true">
+    <Position X="30.25" Y="8" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABEAAWAIFACgAAgkgAAAAEAgYxQAIIAIJEIBBAAAAiA=</HashCode>
+      <FileName>Sections\SectionRectangular.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.ThinWallSection" Collapsed="true">
+    <Position X="25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SAEkgQEABAADAACgwAAAAQAgYAAgIIAIJgIhBAAAAiA=</HashCode>
+      <FileName>Sections\ThinWallSection.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Bolt.BoltSection" Collapsed="true">
+    <Position X="15.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAgAAAABEgAgAAAIAwCAAFAAgCAiA=</HashCode>
+      <FileName>Sections\Bolt\BoltSection.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Rebar.RebarSectionCircular" Collapsed="true">
+    <Position X="17.5" Y="8" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Sections\Rebar\RebarSectionCircular.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionC" Collapsed="true">
+    <Position X="19.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RIEhAUAMHQAgIgjkgAFEAAAgY4QgIIAIdCIBDAAAAiA=</HashCode>
+      <FileName>Sections\SectionC.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionH" Collapsed="true">
+    <Position X="21.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RIEhAEAIHQAgIAjkAQEAAAAgY4QCIAEIZCIBDQAABQA=</HashCode>
+      <FileName>Sections\SectionH.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionL" Collapsed="true">
+    <Position X="23.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QCMEAUAQFABiAAikAAAIAAAgYgQCIAAIJGBhBFAAAQA=</HashCode>
+      <FileName>Sections\SectionL.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionRHS" Collapsed="true">
+    <Position X="25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEhgEgMFAAgIggkAgAAIAAgYQQCIAAINCABDCAAQQA=</HashCode>
+      <FileName>Sections\SectionRHS.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.SectionT" Collapsed="true">
+    <Position X="26.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAkhAEAIFQAgIghkAAAAIAAgYwQAIAAIJCABDAAAAQA=</HashCode>
+      <FileName>Sections\SectionT.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Steel.SteelSection" Collapsed="true">
+    <Position X="13.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AFIkgCEFBCAxAIQAgADAQQBwAtwwMIAEBEJgAZAkAqU=</HashCode>
+      <FileName>Sections\Steel\SteelSection.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.ModelObjectId" Collapsed="true">
+    <Position X="15.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAgABAAAAgAAAAAIAIAAAAAAAAAiA=</HashCode>
+      <FileName>Base\ModelObjectId.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Sections.Steel.SteelSectionPosition">
+    <Position X="10" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAgCAQAAAAAAAKCAAAAAAAAAAAAAQAAAAAIBAIAAAAE=</HashCode>
+      <FileName>Sections\Steel\SteelSectionPosition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Sections.Concrete.ReinforcedConcreteRebar" Collapsed="true">
+    <Position X="12.5" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAQABAAAAAggAAIAAAgAAAAAIEAABAAgQAAAiA=</HashCode>
+      <FileName>Sections\Concrete\ReinforcedConcreteRebar.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Fem.Properties.BrickProperty" Collapsed="true">
+    <Position X="18.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAACAAAAAAgAAAAAAAACAAAAAAAAAA=</HashCode>
+      <FileName>FEM\ElementProperty\BrickProperty.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Fem.Properties.LaminatedGlassProperty" Collapsed="true">
+    <Position X="20.75" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAIAASAAgAAAAAAAABACAIAQAAAAAAAAAiE=</HashCode>
+      <FileName>FEM\ElementProperty\LaminatedGlassProperty.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Fem.Properties.PlateProperty" Collapsed="true">
+    <Position X="25.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAiAAAAAAgAABAAoABCAAAAAgAAiA=</HashCode>
+      <FileName>FEM\ElementProperty\PlateProperty.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,299 +1,394 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
-using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections.Rebar;
+using GPC.Model.Sections.Steel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Sections.Concrete
 {
-	internal static class ConcreteSectionHelper
-	{		
-		/// <summary>
-		/// Return ES / EC
-		/// </summary>
-		internal static double CalculateN(ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
-		{
-			return rebar.RebarMaterial.ElasticModulusTension / concreteMaterial.ElasticModulusCompression;
-		}
-				
-		internal static void CalculateHomogeneizedStaticMoments(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog)
-		{
-			SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
+    internal static class ConcreteSectionHelper
+    {
+        /// <summary>
+        /// Return ES / EC
+        /// </summary>
+        internal static double CalculateN(ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
+        {
+            return rebar.RebarMaterial.ElasticModulusTension / concreteMaterial.ElasticModulusCompression;
+        }
 
-			SxHomog = Sx;
-			SyHomog = Sy;
+        /// <summary>
+        /// Return ES / EC
+        /// </summary>
+        internal static double CalculateN(SteelSectionPosition steelSection, ConcreteMaterial concreteMaterial)
+        {
+            return steelSection.Section.SteelMaterial.ElasticModulusTension / concreteMaterial.ElasticModulusCompression;
+        }
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				double n = CalculateN(rebars[i], concreteMaterial);
+        internal static void CalculateHomogeneizedStaticMoments(Mesh mesh, ReinforcedConcreteRebar[] rebars,
+            ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            SectionHelper.CalculateStaticMoments(mesh, out SxHomog, out SyHomog);
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog);
+        }
 
-				// n-1 serve per non considerare l'area di calcestruzzo che viene sostiuita dalla barra
-				SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-				SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
-			}
-		}
-				
-		internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d sectionCentroid, Point2d centroid,
-			ConcreteMaterial concreteMaterial, double Jxx, double Jyy, double Jxy, double area,
-			out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-		{
+        private static void AddRebarsStaticMoments(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            ref double SxHomog, ref double SyHomog, double? nRebarsCommon = null)
+        {
+            for (int i = 0; i < rebars.Count(); i++)
+            {
+                double n = nRebarsCommon ?? CalculateN(rebars[i], concreteMaterial);
+                // n-1 Is used to disregard the area of concrete that is replaced by the bar.
+                SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
+                SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
+            }
+        }
 
-			JxxHomogenized = Jxx;
-			JyyHomogenized = Jyy;
-			JxyHomogenized = Jxy;
+        private static void AddSteelSectionStaticMoments(IList<SteelSectionPosition> steelSections, ConcreteMaterial concreteMaterial,
+            ref double SxHomog, ref double SyHomog, double? nSteelSectionCommon = null)
+        {
+            if (steelSections != null && steelSections.Count > 0)
+            {
+                for (int i = 0; i < steelSections.Count(); i++)
+                {
+                    var steelSection = steelSections[i];
+                    double nSteelSection = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
+                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
+                    if (steelSection.IsInsideConcrete)
+                        nSteelSection -= 1.0;
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				double n = CalculateN(rebars[i], concreteMaterial);
+                    var centroid = steelSection.CalculateCentroid();
+                    SxHomog += nSteelSection * steelSection.CalculateArea() * centroid.Y;
+                    SyHomog += nSteelSection * steelSection.CalculateArea() * centroid.X;
+                }
+            }
+        }
 
-				// n-1 serve per non considerare l'area di calcestruzzo che viene sostiuita dalla barra
-				JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * Math.Pow(rebars[i].Position.Y - centroid.Y, 2));
-				JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * Math.Pow(rebars[i].Position.X - centroid.X, 2));
-				JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
-			}
+        private static void AddRebarsInertiaMoments(ReinforcedConcreteRebar[] rebars, Point2d centroid, ConcreteMaterial concreteMaterial,
+            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nRebarsCommon = null)
+        {
+            for (int i = 0; i < rebars.Count(); i++)
+            {
+                double n = nRebarsCommon ?? CalculateN(rebars[i], concreteMaterial);
+                // n-1 Is used to disregard the area of concrete that is replaced by the rebar.
+                JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * Math.Pow(rebars[i].Position.Y - centroid.Y, 2));
+                JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * Math.Pow(rebars[i].Position.X - centroid.X, 2));
+                JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
+            }
+        }
 
-			JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
-			JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
-			JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
+        private static void AddSteelSectionInertiaMoments(IList<SteelSectionPosition> steelSections,
+            Point2d centroid, ConcreteMaterial concreteMaterial,
+            ref double JxxHomogenized, ref double JyyHomogenized, ref double JxyHomogenized, double? nSteelSectionCommon = null)
+        {
+            if (steelSections != null && steelSections.Count > 0)
+            {
+                for (int i = 0; i < steelSections.Count(); i++)
+                {
+                    var steelSection = steelSections[i];
+                    double n = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
+                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
+                    if (steelSection.IsInsideConcrete)
+                        n -= 1.0;
 
-			JpHomogenized = JxxHomogenized + JyyHomogenized;
-		}
+                    JxxHomogenized += n * steelSection.CalculateJxx(centroid);
+                    JyyHomogenized += n * steelSection.CalculateJyy(centroid);
+                    JxyHomogenized += n * steelSection.CalculateJxy(centroid);
+                }
+            }
+        }
 
-		internal static void CalculateHomogeneizedInertiaMoments(double phi, ConcreteMaterial concreteMaterial, ReinforcedConcreteRebar[] rebars,
-			Point2d sectionCentroid, Point2d centroid,
-			double Jxx, double Jyy, double Jxy, double area,
-			out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized)
-		{
-			double n = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+        internal static void CalculateHomogeneizedInertiaMoments(ReinforcedConcreteRebar[] rebars,
+            Point2d sectionCentroid, Point2d centroid, ConcreteMaterial concreteMaterial,
+            double Jxx, double Jyy, double Jxy, double area,
+            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized,
+            IList<SteelSectionPosition> steelSections = null, double? nRebars = null, double? nSteelSections = null)
+        {
+            JxxHomogenized = Jxx;
+            JyyHomogenized = Jyy;
+            JxyHomogenized = Jxy;
 
-			// NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            AddRebarsInertiaMoments(rebars, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nRebars);
+            AddSteelSectionInertiaMoments(steelSections, centroid, concreteMaterial, ref JxxHomogenized, ref JyyHomogenized, ref JxyHomogenized, nSteelSections);
 
-			JxxHomogenized = Jxx;
-			JyyHomogenized = Jyy;
-			JxyHomogenized = Jxy;
+            JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
+            JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
+            JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				JxxHomogenized += (n - 1) * (rebars[i].RebarSection.Jxx + rebars[i].Area * (Math.Pow((rebars[i].Position.Y - centroid.Y), 2)));
-				JyyHomogenized += (n - 1) * (rebars[i].RebarSection.Jyy + rebars[i].Area * (Math.Pow((rebars[i].Position.X - centroid.X), 2)));
-				JxyHomogenized += (n - 1) * (rebars[i].RebarSection.Jxy + rebars[i].Area * (rebars[i].Position.X - centroid.X) * (rebars[i].Position.Y - centroid.Y));
-			}
+            JpHomogenized = JxxHomogenized + JyyHomogenized;
+        }
 
-			JpHomogenized = JxxHomogenized + JyyHomogenized;
+        internal static void CalculateHomogeneizedInertiaMoments(double phi, ConcreteMaterial concreteMaterial, ReinforcedConcreteRebar[] rebars,
+            Point2d sectionCentroid, Point2d centroid,
+            double Jxx, double Jyy, double Jxy, double area,
+            out double JxxHomogenized, out double JyyHomogenized, out double JxyHomogenized, out double JpHomogenized,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            // Rebars
+            double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            // Steel sections
+            double? nSteelSections = null;
+            if (steelSections != null && steelSections.Count > 0)
+                nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
-			JxxHomogenized += Math.Pow(sectionCentroid.Y - centroid.Y, 2) * area;
-			JyyHomogenized += Math.Pow(sectionCentroid.X - centroid.X, 2) * area;
-			JxyHomogenized += (sectionCentroid.X - centroid.X) * (sectionCentroid.Y - centroid.Y) * area;
-		}
+            CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroid, concreteMaterial, Jxx, Jyy, Jxy, area,
+                out JxxHomogenized, out JyyHomogenized, out JxyHomogenized, out JpHomogenized, steelSections, nRebars, nSteelSections);
+        }
 
-		/// <summary>
-		/// The centroid of the homogenized section with default value of homogenized factor n
-		/// </summary>
-		/// <param name="mesh"></param>
-		/// <param name="rebars"></param>
-		/// <param name="concreteMaterial"></param>
-		/// <param name="area"></param>
-		/// <param name="SxHomog">The first moment of area respect X-Axis</param>
-		/// <param name="SyHomog">The first moment of area respect Y-Axis</param>
-		/// <returns>The centroid</returns>
-		internal static Point2d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
-		{
-			CalculateHomogeneizedStaticMoments(mesh, rebars, concreteMaterial, out SxHomog, out SyHomog);
+        /// <summary>
+        /// The centroid of the homogenized section with default value of homogenized factor n
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="rebars"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <param name="area"></param>
+        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
+        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
+        /// <returns>The centroid</returns>
+        internal static Point2d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars,
+            ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            CalculateHomogeneizedStaticMoments(mesh, rebars, concreteMaterial, out SxHomog, out SyHomog, steelSections);
 
-			return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area));
-		}
+            return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area, steelSections));
+        }
 
-		/// <summary>
-		/// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
-		/// </summary>
-		/// <param name="phi">The homogenized factor</param>
-		/// <param name="mesh"></param>
-		/// <param name="rebars"></param>
-		/// <param name="concreteMaterial"></param>
-		/// <param name="area"></param>
-		/// <param name="SxHomog">The first moment of area respect X-Axis</param>
-		/// <param name="SyHomog">The first moment of area respect Y-Axis</param>
-		/// <returns></returns>
-		internal static Point2d GetHomogenizedCentroid(double phi, Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog)
-		{
-			double n = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+        /// <summary>
+        /// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
+        /// </summary>
+        /// <param name="phi">The homogenized factor</param>
+        /// <param name="mesh"></param>
+        /// <param name="rebars"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <param name="area"></param>
+        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
+        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
+        /// <returns></returns>
+        internal static Point2d GetHomogenizedCentroid(double phi, Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            double area, out double SxHomog, out double SyHomog, IList<SteelSectionPosition> steelSections = null)
+        {
+            // Rebars
+            double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            // Steel sections
+            double? nSteelSections = null;
+            if (steelSections != null && steelSections.Count > 0)
+                nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
-			SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
+            SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
 
-			SxHomog = Sx;
-			SyHomog = Sy;
+            SxHomog = Sx;
+            SyHomog = Sy;
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-				SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
-			}
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, nRebars);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog, nSteelSections);
 
-			return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area));
-		}
+            return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area, steelSections));
+        }
 
-		/// <summary>
-		/// The centroid of the homogenized section with default value of homogenized factor n
-		/// </summary>
-		/// <param name="Sx"></param>
-		/// <param name="Sy"></param>
-		/// <param name="rebars"></param>
-		/// <param name="concreteMaterial"></param>
-		/// <param name="area"></param>
-		/// <param name="SxHomog">The first moment of area respect X-Axis</param>
-		/// <param name="SyHomog">The first moment of area respect Y-Axis</param>
-		/// <returns>The centroid</returns>
-		internal static Point2d GetHomogenizedCentroid(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double Sx, double Sy, double area, out double SxHomog, out double SyHomog)
-		{
+        /// <summary>
+        /// The centroid of the homogenized section with default value of homogenized factor n
+        /// </summary>
+        /// <param name="Sx"></param>
+        /// <param name="Sy"></param>
+        /// <param name="rebars"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <param name="area"></param>
+        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
+        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
+        /// <returns>The centroid</returns>
+        internal static Point2d GetHomogenizedCentroid(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            double Sx, double Sy, double area, out double SxHomog, out double SyHomog,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            SxHomog = Sx;
+            SyHomog = Sy;
 
-			SxHomog = Sx;
-			SyHomog = Sy;
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog);
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				double n = CalculateN(rebars[i], concreteMaterial);
-				SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-				SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
-			}
+            return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area, steelSections));
+        }
 
-			return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area));
-		}
+        /// <summary>
+        /// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
+        /// </summary>
+        /// <param name="phi">The homogenized factor</param>
+        /// <param name="rebars"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <param name="Sx"></param>
+        /// <param name="Sy"></param>
+        /// <param name="area"></param>
+        /// <param name="SxHomog">The first moment of area respect X-Axis</param>
+        /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
+        /// <returns></returns>
+        internal static Point2d GetHomogenizedCentroid(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            double Sx, double Sy, double area, out double SxHomog, out double SyHomog,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            // Rebars
+            double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            // Steel sections
+            double? nSteelSections = null;
+            if (steelSections != null && steelSections.Count > 0)
+                nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
-		/// <summary>
-		/// The centroid of the homogenized section with homogenized factor <paramref name="phi"/>
-		/// </summary>
-		/// <param name="phi">The homogenized factor</param>
-		/// <param name="rebars"></param>
-		/// <param name="concreteMaterial"></param>
-		/// <param name="Sx"></param>
-		/// <param name="Sy"></param>
-		/// <param name="area"></param>
-		/// <param name="SxHomog">The first moment of area respect X-Axis</param>
-		/// <param name="SyHomog">The first moment of area respect Y-Axis</param>
-		/// <returns></returns>
-		internal static Point2d GetHomogenizedCentroid(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double Sx, double Sy, double area, out double SxHomog, out double SyHomog)
-		{
-			double n = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            SxHomog = Sx;
+            SyHomog = Sy;
 
-			SxHomog = Sx;
-			SyHomog = Sy;
+            AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, nRebars);
+            AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog, nSteelSections);
 
-			for (int i = 0; i < rebars.Count(); i++)
-			{
-				SxHomog += (n - 1) * rebars[i].Area * rebars[i].Position.Y;
-				SyHomog += (n - 1) * rebars[i].Area * rebars[i].Position.X;
-			}
+            return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area, steelSections));
+        }
 
-			return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(phi, rebars, concreteMaterial, area));
-		}
+        /// <summary>
+        /// The homogenized area with default value of homogenized factor n
+        /// </summary>
+        /// <returns>The homogenized area</returns>
+        internal static double GetHomogenizedArea(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            double areaH = 0;
+            for (int i = 0; i < rebars.Length; i++)
+            {
+                areaH += (CalculateN(rebars[i], concreteMaterial) - 1) * rebars[i].Area;
+            }
+            if (steelSections != null)
+            {
+                for (int i = 0; i < steelSections.Count(); i++)
+                {
+                    var steelSection = steelSections[i];
+                    double nSteelSection = CalculateN(steelSection, concreteMaterial);
+                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
+                    if (steelSection.IsInsideConcrete)
+                        nSteelSection -= 1.0;
 
-		/// <summary>
-		/// The homogenized area with default value of homogenized factor n
-		/// </summary>
-		/// <returns>The homogenized area</returns>
-		internal static double GetHomogenizedArea(ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area)
-		{
+                    areaH += nSteelSection * steelSection.CalculateArea();
+                }
+            }
 
-			double areaH = 0;
-			for (int i = 0; i < rebars.Length; i++)
-			{
-				areaH += (CalculateN(rebars[i], concreteMaterial) - 1) * rebars[i].Area;
-			}
+            return area + areaH;
+        }
 
-			return area + areaH;
-		}
+        /// <summary>
+        /// The homogenized area with homogenized factor <paramref name="phi"/>
+        /// </summary>
+        /// <param name="phi"></param>
+        /// <param name="rebars"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <param name="area"></param>
+        /// <returns>The homogenized area</returns>
+        internal static double GetHomogenizedArea(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area,
+            IList<SteelSectionPosition> steelSections = null)
+        {
+            double areaH = 0;
+            for (int i = 0; i < rebars.Length; i++)
+            {
+                areaH += (CalculateHomogenizedFactorN(phi, rebars[i], concreteMaterial) - 1) * rebars[i].Area;
+            }
+            if (steelSections != null)
+            {
+                for (int i = 0; i < steelSections.Count(); i++)
+                {
+                    var steelSection = steelSections[i];
+                    double nSteelSection = CalculateHomogenizedFactorN(phi, steelSection, concreteMaterial);
+                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
+                    if (steelSection.IsInsideConcrete)
+                        nSteelSection -= 1.0;
 
-		/// <summary>
-		/// The homogenized area with homogenized factor <paramref name="phi"/>
-		/// </summary>
-		/// <param name="phi"></param>
-		/// <param name="rebars"></param>
-		/// <param name="concreteMaterial"></param>
-		/// <param name="area"></param>
-		/// <returns>The homogenized area</returns>
-		internal static double GetHomogenizedArea(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial, double area)
-		{
-			double[] AreaHomogArray = new double[rebars.Count()];
+                    areaH += nSteelSection * steelSection.CalculateArea();
+                }
+            }
 
-			Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, rebars.Count()), (range) =>
-			{
-				for (int i = range.Item1; i < range.Item2; i++)
-				{
-					AreaHomogArray[i] = (CalculateHomogenizedFactorN(phi, rebars[i], concreteMaterial) - 1) * rebars[i].Area;
-				}
-			});
+            return area + areaH;
+        }
 
+        internal static double GetHomogeneizedJ11(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
+            ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
+        {
+            Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _, steelSections);
+            CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area,
+                out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
+            return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+        }
 
-			return area + AreaHomogArray.Sum();
-		}
+        internal static double GetHomogeneizedJ11(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
+        {
+            Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _, steelSections);
+            CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
+                out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
+            return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+        }
 
-		internal static double GetHomogeneizedJ11(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
-			ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy)
-		{
-			Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _);
-			CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area, out double JxxH, out double JyyH, out double JxyH, out double _);
-			return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-		}
+        internal static double GetHomogeneizedJ22(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
+            ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
+        {
+            Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _, steelSections);
+            CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area,
+                out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
+            return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+        }
 
-		internal static double GetHomogeneizedJ11(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
-			double area, double Jxx, double Jyy, double Jxy)
-		{
-			Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _);
-			CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
-			out double JxxH, out double JyyH, out double JxyH, out double _);
-			return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-		}
+        internal static double GetHomogeneizedJ22(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+            double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
+        {
+            Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _, steelSections);
+            CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
+                out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
+            return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+        }
 
-		internal static double GetHomogeneizedJ22(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
-			ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy)
-		{
-			Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _);
-			CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area,
-				out double JxxH, out double JyyH, out double JxyH, out double _);
-			return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-		}
+        internal static ReinforcedConcreteRebar[] SetRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection,
+            Point2d centroid = default, double epsilonP = 0.0)
+        {
+            Polygon2d polygon = new Polygon2d(diameter - concreteCover * 2.0, numberOfRebars, centroid);
 
-		internal static double GetHomogeneizedJ22(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
-			double area, double Jxx, double Jyy, double Jxy)
-		{
-			Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _);
-			CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
-			out double JxxH, out double JyyH, out double JxyH, out double _);
-			return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-		}
+            ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[polygon.Count];
 
-		internal static ReinforcedConcreteRebar[] SetRadialRebars(double diameter, double concreteCover, int numberOfRebars, IRebarSection rebarSection,
-			Point2d centroid = default, double epsilonP = 0.0)
-		{
-			Polygon2d polygon = new Polygon2d(diameter - concreteCover * 2.0, numberOfRebars, centroid);
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                rebars[i] = new ReinforcedConcreteRebar(rebarSection, polygon[i], epsilonP);
+            }
 
-			ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[polygon.Count];
+            return rebars;
+        }
 
-			for (int i = 0; i < polygon.Count; i++)
-			{
-				rebars[i] = new ReinforcedConcreteRebar(rebarSection, polygon[i], epsilonP);
-			}
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
+        internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
+        {
+            return (rebar.RebarMaterial.ElasticModulusTension / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
+        }
 
-			return rebars;
-		}
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
+        internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
+        {
+            return (rebars.Select(i => i.RebarMaterial.ElasticModulusTension).Average() / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
+        }
 
-		/// <summary>
-		/// Get n factor = ES / ( EC (1 + phi)) 
-		/// </summary>
-		internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
-		{
-			return (rebar.RebarMaterial.ElasticModulusTension / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
-		}
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
+        internal static double CalculateHomogenizedFactorN(double phi, SteelSectionPosition steelSection, ConcreteMaterial concreteMaterial)
+        {
+            return (steelSection.Section.SteelMaterial.ElasticModulusTension / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
+        }
 
-		/// <summary>
-		/// Get n factor = ES / ( EC (1 + phi)) 
-		/// </summary>
-		internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
-		{
-			return (rebars.Select(i => i.RebarMaterial.ElasticModulusTension).Average() / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
-		}
-	}
+        /// <summary>
+        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// </summary>
+        internal static double CalculateHomogenizedFactorN(double phi, IList<SteelSectionPosition> steelSections, ConcreteMaterial concreteMaterial)
+        {
+            return (steelSections.Select(i => i.Section.SteelMaterial.ElasticModulusTension).Average() / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
+        }
+    }
 }

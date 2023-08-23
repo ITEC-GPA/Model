@@ -27,9 +27,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         public static readonly GaussPoint[] Line2 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), 1.0, 1),
                                                                        new GaussPoint(+1.0 / Math.Sqrt(3.0), 1.0, 2)};
 
-        public static readonly GaussPoint[] Line3 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 1),
-                                                                       new GaussPoint(0.0, 8.0 / 9.0, 2),
-                                                                       new GaussPoint(+Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 3)};
+        public static readonly GaussPoint[] Line3 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 1),                                                                       
+                                                                       new GaussPoint(+Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 2), 
+                                                                       new GaussPoint(0.0, 8.0 / 9.0, 3)};
 
         public static readonly GaussPoint[] Line4 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30.0)) / 36.0, 1),
                                                                        new GaussPoint(+Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30.0)) / 36.0, 2),
@@ -43,15 +43,15 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(-0.9324695142031520278123016, 0.1713244923791703450402961, 5),
                                                                        new GaussPoint(+0.9324695142031520278123016, 0.1713244923791703450402961, 6)};
 
-        public static readonly GaussPoint[] Line9 = new GaussPoint[] { new GaussPoint(-0.0000000000000000000000000, 0.3302393550012597631645251, 1),
-                                                                       new GaussPoint(+0.3242534234038089290385380, 0.3123470770400028400686304, 2),
-                                                                       new GaussPoint(-0.3242534234038089290385380, 0.3123470770400028400686304, 3),
-                                                                       new GaussPoint(+0.6133714327005903973087020, 0.2606106964029354623187429, 4),
-                                                                       new GaussPoint(-0.6133714327005903973087020, 0.2606106964029354623187429, 5),
-                                                                       new GaussPoint(+0.8360311073266357942994298, 0.1806481606948574040584720, 6),
-                                                                       new GaussPoint(-0.8360311073266357942994298, 0.1806481606948574040584720, 7),
-                                                                       new GaussPoint(+0.9681602395076260898355762, 0.0812743883615744119718922, 8),
-                                                                       new GaussPoint(-0.9681602395076260898355762, 0.0812743883615744119718922, 9)};
+        public static readonly GaussPoint[] Line9 = new GaussPoint[] { new GaussPoint(+0.3242534234038089290385380, 0.3123470770400028400686304, 1),
+                                                                       new GaussPoint(-0.3242534234038089290385380, 0.3123470770400028400686304, 2),
+                                                                       new GaussPoint(+0.6133714327005903973087020, 0.2606106964029354623187429, 3),
+                                                                       new GaussPoint(-0.6133714327005903973087020, 0.2606106964029354623187429, 4),
+                                                                       new GaussPoint(+0.8360311073266357942994298, 0.1806481606948574040584720, 5),
+                                                                       new GaussPoint(-0.8360311073266357942994298, 0.1806481606948574040584720, 6),
+                                                                       new GaussPoint(+0.9681602395076260898355762, 0.0812743883615744119718922, 7),
+                                                                       new GaussPoint(-0.9681602395076260898355762, 0.0812743883615744119718922, 8),
+		                                                               new GaussPoint(-0.0000000000000000000000000, 0.3302393550012597631645251, 9)};
 
         public static readonly GaussPoint[] Line16 = new GaussPoint[] { new GaussPoint(-0.0950125098376374401853193, 0.1894506104550684962853967, 1),
                                                                         new GaussPoint(+0.0950125098376374401853193, 0.1894506104550684962853967, 2),
