@@ -7,7 +7,7 @@ namespace GPC.Model.Sections.Rebar
     {
         string Name { get; }
 
-        SteelMaterial RebarMaterial { get; }
+        SteelMaterial RebarMaterial { get; set; }
 
         double Diameter { get; }
 

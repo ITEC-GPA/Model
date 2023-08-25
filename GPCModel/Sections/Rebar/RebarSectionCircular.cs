@@ -7,9 +7,13 @@ namespace GPC.Model.Sections.Rebar
 	[Serializable]
 	public class RebarSectionCircular : SectionCircular, IRebarSection, ISerializable
 	{
-		protected readonly SteelMaterial _steelMaterial;
+		protected SteelMaterial _steelMaterial;
 
-		public SteelMaterial RebarMaterial => _steelMaterial;
+        public SteelMaterial RebarMaterial
+        {
+            get => _steelMaterial;
+            set => _steelMaterial = value;
+        }
 
         /// <summary>
         /// 

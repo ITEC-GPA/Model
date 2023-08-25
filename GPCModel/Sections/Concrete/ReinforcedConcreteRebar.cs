@@ -22,7 +22,11 @@ namespace GPC.Model.Sections.Concrete
 
 		public double Area => _rebarSection.Area;
 
-		public SteelMaterial RebarMaterial => _rebarSection.RebarMaterial;
+		public SteelMaterial RebarMaterial
+        {
+            get => _rebarSection.RebarMaterial;
+            set => _rebarSection.RebarMaterial = value;
+        }
 
 		public IRebarSection RebarSection => _rebarSection;
 
