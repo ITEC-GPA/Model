@@ -22,6 +22,10 @@ namespace GPC.Model.Sections
 
         double R22 { get; }
 
+        double Rxx { get; }
+
+        double Ryy { get; }
+
         double Rxy { get; }
 
         Geometry.Point2d Centroid { get; }

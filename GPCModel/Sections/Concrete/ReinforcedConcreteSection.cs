@@ -49,6 +49,10 @@ namespace GPC.Model.Sections.Concrete
 
         public double R22 => _sectionShape.R22;
 
+        public double Rxx => _sectionShape.Rxx;
+
+        public double Ryy => _sectionShape.Ryy;
+
         public double Rxy => _sectionShape.Rxy;
 
         public Point2d Centroid => _sectionShape.Centroid;
