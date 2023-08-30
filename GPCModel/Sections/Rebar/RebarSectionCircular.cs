@@ -1,4 +1,5 @@
-﻿using GPC.Model.Materials;
+﻿using GPC.Model.Fem.Properties;
+using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
 

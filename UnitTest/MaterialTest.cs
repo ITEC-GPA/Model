@@ -1175,7 +1175,23 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(stresses[i]) < 0.1);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void SteelTest9()
+		{
+			SteelMaterial steelMaterial = new SteelMaterial("Pippo", 210000, 500, 200, 0.1, SteelMaterial.SteelTypes.Rebar);
+
+			List<double> stresses = new List<double>();
+			StandardModelCode2010 standard = new StandardModelCode2010()
+            {
+                GammaS = 2,
+            };
+
+			stresses.Add((steelMaterial.CalculateDesignStress(standard, 0.1)));
+			stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.1)));
+
+		}
+
+		[TestMethod]
         public void RebarTest1()
         {
             SteelMaterial steel = SteelMaterialEN1992Data.B450C;

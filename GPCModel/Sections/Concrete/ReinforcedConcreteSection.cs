@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
-    public class ReinforcedConcreteSection : ElementProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
+    public class ReinforcedConcreteSection : BeamProperty, IBeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
     {
         #region Variables
 

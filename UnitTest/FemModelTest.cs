@@ -688,7 +688,7 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Material")]
-        [Ignore("2023-06-30 This test is not working after changing the section classes, we have to define a beamproperty.")]
+        //[Ignore("2023-06-30 This test is not working after changing the section classes, we have to define a beamproperty.")]
         public void Material1()
         {
             //Arrange
@@ -714,16 +714,16 @@ namespace FemTest
 
         [TestMethod]
         [TestCategory("Material")]
-        [Ignore("2023-06-30 This test is not working after changing the section classes, we have to define a beamproperty.")]
+        //[Ignore("2023-06-30 This test is not working after changing the section classes, we have to define a beamproperty.")]
         public void Material2()
         {
             //Arrange
             FemModel femModel = new FemModel();
 
-            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "1"), null);
-            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "2"), null);
+            var sectionCHS1 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "1"), new ConcreteMaterialEN1992("", 25, ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle));
+            var sectionCHS2 = new ReinforcedConcreteSection(new SectionCHS(500, 10, "2"), new ConcreteMaterialEN1992("", 25, ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle));
 
-            try
+			try
             {
                 femModel.AddProperty(sectionCHS1);
                 femModel.AddProperty(sectionCHS2);

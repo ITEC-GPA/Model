@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Steel
 {
     [Serializable]
-    public class SteelSection : ElementProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
+    public class SteelSection : BeamProperty, IBeamProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
     {
         #region Varibles
 
