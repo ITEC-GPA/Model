@@ -51,7 +51,7 @@ namespace GPC.Model.Sections.Rebar
 			if (version > 1)
 				_steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));
 			else
-                _steelMaterial = Material as SteelMaterial ?? throw new ArgumentNullException(nameof(_steelMaterial));
+                _steelMaterial = _material as SteelMaterial ?? throw new ArgumentNullException(nameof(_steelMaterial));
         }
 
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)

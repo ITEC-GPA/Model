@@ -117,7 +117,7 @@ namespace GPC.Model.Sections.Bolt
             if (version > 1)
                 _boltMaterial = (SteelMaterial)info.GetValue("BoltMaterial", typeof(SteelMaterial));
             else
-                _boltMaterial = Material as SteelMaterial ?? throw new ArgumentNullException(nameof(_boltMaterial));
+                _boltMaterial = _material as SteelMaterial ?? throw new ArgumentNullException(nameof(_boltMaterial));
         }
 
         #endregion

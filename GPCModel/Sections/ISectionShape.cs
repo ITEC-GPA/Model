@@ -1,7 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Materials;
-using System;
 
 namespace GPC.Model.Sections
 {
@@ -116,11 +114,6 @@ namespace GPC.Model.Sections
         bool IsSymmetricAlongYLocalAxis { get; }
 
         bool IsDoubleSymmetric { get; }
-
-        /// <summary>
-        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
-        /// </summary>
-        Material Material { get; }
 
         ThinWallSection.ThinWall[] ThinWalls { get; }
 

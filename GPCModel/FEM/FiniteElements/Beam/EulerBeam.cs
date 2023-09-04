@@ -43,8 +43,8 @@ namespace GPC.Model.Fem.FiniteElements
         {
             #region localStiffnessMatrix
             Section section = (Section)_property;
-            double E = section.Material?.E ?? 0.0;
-            double G = E / (2.0 * (1.0 + (section.Material?.Ni ?? 0.0)));
+            double E = section._material?.E ?? 0.0;
+            double G = E / (2.0 * (1.0 + (section._material?.Ni ?? 0.0)));
             double A = section.Area;
             double Jzz = section.J22;
             double Jyy = section.J11;
@@ -949,7 +949,7 @@ namespace GPC.Model.Fem.FiniteElements
             Dictionary<LocalDOF, double> displLocalNode1 = GetLocalDisplacementsAtNode(Beam.EndSide.End1, globalDisplacementsNodes);
             Dictionary<LocalDOF, double> displLocalNode2 = GetLocalDisplacementsAtNode(Beam.EndSide.End2, globalDisplacementsNodes);
 
-            double E = ((Section)_property).Material?.E ?? 0.0;
+            double E = ((Section)_property)._material?.E ?? 0.0;
             double J11 = ((Section)_property).Jxx;
             double J22 = ((Section)_property).Jyy;
             double A = ((Section)_property).Area;

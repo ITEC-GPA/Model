@@ -29,9 +29,11 @@ namespace GPC.Model.Sections
         #region Variables
 
         /// <summary>
+        /// The mateerial of the section.
         /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
         /// </summary>
-        protected Material _material;
+        [System.ComponentModel.Browsable(false)]
+        internal Material _material;
 
         protected double _area;
         protected double _jxx;
@@ -72,13 +74,6 @@ namespace GPC.Model.Sections
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// The mateerial of the section.
-        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
-        /// </summary>
-        [System.ComponentModel.Browsable(false)]
-        public Material Material => _material;
 
         /// <summary>
         /// The area of the section

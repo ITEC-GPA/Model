@@ -280,7 +280,11 @@ namespace GPC.Model.Sections.Concrete
             }
             else
             {
-                _concreteMaterial = _sectionShape.Material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
+                // Retrieve material from old sections that contain material.
+                // 2023-09-04: It never passes here, consider removing this "else" possibility.
+                var shapeAsSection = _sectionShape as Section;
+                if (shapeAsSection != null)
+                    _concreteMaterial = shapeAsSection._material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
             }
         }
 
