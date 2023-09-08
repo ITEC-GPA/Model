@@ -44,7 +44,7 @@ namespace GPC.Model.Materials
         #region Properties
 
         /// <summary>
-        /// Characteristic value of 0.2% prrof strength.
+        /// Characteristic value of 0.2% proof strength.
         /// </summary>
         public double Fo
         {
@@ -91,7 +91,7 @@ namespace GPC.Model.Materials
 
         /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus.</param>
-        /// <param name="fo">Characteristic value of 0.2% prrof strength.</param>
+        /// <param name="fo">Characteristic value of 0.2% proof strength.</param>
         /// <param name="fu">Characteristic value of ultimate tensile strength.</param>
         /// <param name="strainU">Ultimate strain, ε_uni in annex F of 1999-1-1:2023.</param>
         /// <param name="aluminiumType"></param>
@@ -133,7 +133,7 @@ namespace GPC.Model.Materials
         /// <param name="name"></param>
         /// <param name="elasticModulus">Steel elastic modulus.</param>
         /// <param name="poisson">Poissoins's Ratio.</param>
-        /// <param name="fo">Characteristic value of 0.2% prrof strength.</param>
+        /// <param name="fo">Characteristic value of 0.2% proof strength.</param>
         /// <param name="fu">Characteristic value of ultimate tensile strength.</param>
         /// <param name="strainU">Ultimate strain, ε_uni in annex F of 1999-1-1:2023.</param>
         /// <param name="aluminiumType">Type of steel.</param>
