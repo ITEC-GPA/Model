@@ -38,7 +38,7 @@ namespace GPC.Model.Materials
             /// <summary>
             /// Elastic and then softening.
             /// </summary>
-            //ElasticSoftening = 3
+            Generic = 3
         }
 
         #endregion
@@ -108,7 +108,7 @@ namespace GPC.Model.Materials
                 if (value != _stressStrainCurveType)
                 {
                     _stressStrainCurveType = value;
-					SetDefaultMechanicalProperties();
+					RecalculateMechanicalProperties();
                 }
             }
         }
@@ -228,7 +228,7 @@ namespace GPC.Model.Materials
 
         public virtual void RecalculateMechanicalProperties()
         {
-			SetStressStrain();
+            SetStressStrain();
 
 			_strainYTension = _stressYTension / _elasticModulusTension;
             _strainYCompression = _stressYCompression / _elasticModulusCompression;
@@ -271,7 +271,15 @@ namespace GPC.Model.Materials
                             new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
                         return;
                     }
-                default:
+				case StressStrainCurveType.Generic:
+                    _stressStrainTableCompression = new StressStrainTable(
+                        new double[] { 0, _stressYCompression, _stressUCompression },
+                        new double[] { 0, _stressYCompression / _elasticModulusCompression, _strainUCompression });
+					_stressStrainTableTension = new StressStrainTable(
+						new double[] { 0, _stressYTension, _stressUTension },
+						new double[] { 0, _stressYTension / _elasticModulusTension, _strainUTension });
+					return;
+				default:
                     return;
             }
         }
