@@ -37,9 +37,9 @@ namespace GPC.Model.Materials
 
         #region Constructor
 
-        public BoltMaterialEN1993Inox(string steelGrade, string propertyClass, double elasticModulus, double fyb, double fub, double strainU = 0.1, 
+        public BoltMaterialEN1993Inox(string steelGrade, string propertyClass, double elasticModulus, double fyb, double fub, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic,
 			SteelTypes steelType = SteelTypes.Bolt, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05) 
-			: base("", elasticModulus, fyb, fub, strainU, steelType, poisson, density, alfaThermalExpansion)
+			: base("", elasticModulus, fyb, fub, strainU, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
 			_steelGrade = steelGrade;
 			_propertyClass = propertyClass;
@@ -48,11 +48,11 @@ namespace GPC.Model.Materials
 
 		public BoltMaterialEN1993Inox(string steelGrade, string propertyClass, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression, 
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
-			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Bolt, 
+			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic, SteelTypes steelType = SteelTypes.Bolt, 
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
 			: base("", elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression, 
 				  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension, 
-				  stressStrainTableCompression, stressStrainTableTensio, steelType, poisson, density, alfaThermalExpansion)
+				  stressStrainTableCompression, stressStrainTableTensio, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
         {
             _steelGrade = steelGrade;
             _propertyClass = propertyClass;
@@ -64,9 +64,9 @@ namespace GPC.Model.Materials
 		{
 		}
 
-		protected BoltMaterialEN1993Inox(string steelGrade, string propertyClass, double elasticModulus, double poisson, double fyb, double fub, double strainU,
+		protected BoltMaterialEN1993Inox(string steelGrade, string propertyClass, double elasticModulus, double poisson, double fyb, double fub, double strainU, StressStrainCurveType stressStrainCurveType,
 			SteelTypes steelType, double density, double alfaThermalExpansion) 
-			: base("", elasticModulus, poisson, fyb, fub, strainU, steelType, density, alfaThermalExpansion)
+			: base("", elasticModulus, poisson, fyb, fub, strainU, stressStrainCurveType, steelType, density, alfaThermalExpansion)
         {
             _steelGrade = steelGrade;
             _propertyClass = propertyClass;
