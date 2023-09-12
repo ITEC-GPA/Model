@@ -1888,7 +1888,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1930,7 +1930,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.SteelTypes.Rebar, 0.2, 20, 5);
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();

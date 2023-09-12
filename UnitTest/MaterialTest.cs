@@ -23,7 +23,7 @@ namespace ModelObjectTest
             double fu = 510;
             double strainU = 0.05;
 
-            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, SteelMaterial.SteelTypes.Structural, ni, density);
+            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, ni, density);
 
             byte[] bytes = Serialization.SerializeToBytes<SteelMaterial>(steel);
             SteelMaterial steelDeserialized = (SteelMaterial)Serialization.DeserializeFromBytes(bytes);
@@ -1006,7 +1006,7 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
@@ -1033,7 +1033,7 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
@@ -1070,8 +1070,8 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
@@ -1138,8 +1138,8 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010 { GammaS = 1.0 };
@@ -1158,8 +1158,8 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<double> stresses = new List<double>();
             StandardModelCode2010 standard = new StandardModelCode2010();
@@ -1178,7 +1178,7 @@ namespace ModelObjectTest
 		[TestMethod]
 		public void SteelTest9()
 		{
-			SteelMaterial steelMaterial = new SteelMaterial("Pippo", 210000, 500, 200, 0.1, SteelMaterial.SteelTypes.Rebar);
+			SteelMaterial steelMaterial = new SteelMaterial("Pippo", 210000, 500, 200, 0.1, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar);
 
 			List<double> stresses = new List<double>();
 			StandardModelCode2010 standard = new StandardModelCode2010()
@@ -1189,6 +1189,28 @@ namespace ModelObjectTest
 			stresses.Add((steelMaterial.CalculateDesignStress(standard, 0.1)));
 			stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.1)));
 
+		}
+
+		[TestMethod]
+		public void SteelTest10()
+		{
+            SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
+
+            Assert.IsTrue(steelMaterial.Fyk == 450);
+            Assert.IsTrue(steelMaterial.Fu == 540);
+            Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 450);
+
+			steelMaterial.StressStrainCurve = SteelMaterial.StressStrainCurveType.ElasticHardening;
+
+			Assert.IsTrue(steelMaterial.Fyk == 450);
+			Assert.IsTrue(steelMaterial.Fu == 540);
+			Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 540);
+
+			steelMaterial.StressStrainCurve = SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic;
+
+			Assert.IsTrue(steelMaterial.Fyk == 450);
+			Assert.IsTrue(steelMaterial.Fu == 540);
+			Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 450);
 		}
 
 		[TestMethod]
@@ -1276,7 +1298,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest5()
         {
-            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.SteelTypes.Rebar);
+            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
 
@@ -1296,7 +1318,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void TendonTest1()
         {
-            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.SteelTypes.Tendon);
+            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
