@@ -284,12 +284,6 @@ namespace GPC.Model.Materials
             }
         }
 
-        public void SetStressStrain(StressStrainCurveType stressStrainCurveType)
-        {
-            _stressStrainCurveType = stressStrainCurveType;
-            SetStressStrain();
-        }
-
         #endregion
 
         #region Protected Methods
