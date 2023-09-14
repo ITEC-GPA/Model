@@ -204,12 +204,16 @@ namespace GPC.Model.Materials
 
 				SetDefaultMechanicalProperties();
             }
-            else if (version >= 2)
+            if (version <= 2)
+            {
+                _stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic;
+            }
+            else
             {
 				_stressStrainCurveType = (StressStrainCurveType)info.GetInt32("StressStrainCurveType");
-                RecalculateMechanicalProperties();
-			}
-		}
+            }
+            RecalculateMechanicalProperties();
+        }
 
         #endregion
 

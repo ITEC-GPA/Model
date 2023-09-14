@@ -31,14 +31,14 @@ namespace GPC.Model.Materials
 		protected StressStrainTable _stressStrainTableCompression;
 		protected StressStrainTable _stressStrainTableTension;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		/// <summary>
-		/// Elastic modulus of material in compression
-		/// </summary>
-		public virtual double ElasticModulusCompression { get => _elasticModulusCompression; set => _elasticModulusCompression = value; }
+        /// <summary>
+        /// Elastic modulus of material in compression
+        /// </summary>
+        public virtual double ElasticModulusCompression { get => _elasticModulusCompression; set => _elasticModulusCompression = value; }
 
 		/// <summary>
 		/// Elastic modulus of material in tension
@@ -121,11 +121,18 @@ namespace GPC.Model.Materials
 		/// </summary>
 		public StressStrainTable StressStrainTableTension { get => _stressStrainTableTension; set => _stressStrainTableTension = value; }
 
-		#endregion
+        /// <summary>
+        /// It is used to say whether this material is taken from the standard and created by us, so it is not editable.
+        /// If true --> not user-modifiable, created by us and defined by standard.
+        /// If false --> materials added and editable by user.
+        /// </summary>
+        public bool IsReadOnly { get; set; }
 
-		#region Public Constructor
+        #endregion
 
-		public Material(string name, StressStrainTable stressStrainTableCompression,
+        #region Public Constructor
+
+        public Material(string name, StressStrainTable stressStrainTableCompression,
 			StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
 			double poisson, double density, double alfaThermalExpansion)
 			: base(name)
@@ -142,7 +149,9 @@ namespace GPC.Model.Materials
 
 			_elasticModulusTension = elasticModulusTension < 0 ? throw new ArgumentException($"{nameof(elasticModulusTension)} cannot be lower than zero") : elasticModulusTension;
 			_elasticModulusCompression = elasticModulusCompression < 0 ? throw new ArgumentException($"{nameof(elasticModulusCompression)} cannot be lower than zero") : elasticModulusCompression;
-		}
+
+            IsReadOnly = true;
+        }
 
 		/// <summary>
 		/// 
@@ -160,9 +169,9 @@ namespace GPC.Model.Materials
 
 		protected Material(string name)
 			: base(Guid.NewGuid(), name)
-		{
-
-		}
+        {
+            IsReadOnly = true;
+        }
 
 		protected Material(string name, double elasticModulusCompression, double elasticModulusTension,
 			double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
@@ -192,7 +201,9 @@ namespace GPC.Model.Materials
 
 			_stressStrainTableCompression = stressStrainTableCompression;
 			_stressStrainTableTension = stressStrainTableTension;
-		}
+
+            IsReadOnly = true;
+        }
 
 		protected Material(SerializationInfo info, StreamingContext context)
 			: base(info, context)
@@ -233,6 +244,15 @@ namespace GPC.Model.Materials
 			_alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
 			_density = info.GetDouble("Density");
 			_ni = info.GetDouble("Ni");
+
+			if (version >= 3)
+			{
+				IsReadOnly = info.GetBoolean("IsReadOnly");
+            }
+			else
+			{
+				IsReadOnly = true;
+			}	
 		}
 
 		#endregion
@@ -289,7 +309,7 @@ namespace GPC.Model.Materials
 		{
 			base.GetObjectData(info, context);
 
-			double version = 2;
+			double version = 3;
 
 			info.AddValue("MaterialVersion", version);
 
@@ -312,6 +332,8 @@ namespace GPC.Model.Materials
 			info.AddValue("Ni", _ni);
 			info.AddValue("TableCompression", _stressStrainTableCompression);
 			info.AddValue("TableTension", _stressStrainTableTension);
+
+			info.AddValue("IsReadOnly", IsReadOnly);
 		}
 
 		public override int GetHashCode()
@@ -327,7 +349,8 @@ namespace GPC.Model.Materials
 				hashCode = hashCode * -17 + _density.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
-				return hashCode;
+                hashCode = hashCode * -17 + IsReadOnly.GetHashCode();
+                return hashCode;
 			}
 		}
 
@@ -352,7 +375,8 @@ namespace GPC.Model.Materials
 				   _alfaThermalExpansion == material._alfaThermalExpansion &&
 				   _density == material._density &&
 				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
-				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
+				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension) &&
+                   IsReadOnly == material.IsReadOnly;
 		}
 
 		public static bool operator ==(Material obj1, Material obj2)

@@ -102,7 +102,6 @@ namespace GPC.Model.Materials
         public AluminiumMaterial(string name, double elasticModulus, double fo, double fu, double strainU = 0.1, AluminiumTypes aluminiumType = AluminiumTypes.Undefined, double thicknessMax = 5, double poisson = 0.3, double density = 0.0027, double alfaThermalExpansion = 23e-6)
             : this(name, elasticModulus, poisson, fo, fu, strainU, aluminiumType, thicknessMax, density, alfaThermalExpansion)
         {
-
         }
 
         public AluminiumMaterial(string name, AluminiumTypes aluminiumType)
@@ -149,7 +148,6 @@ namespace GPC.Model.Materials
             _strainUCompression = -Math.Abs(strainU);
             AluminiumType = aluminiumType;
             ThicknessMax = thicknessMax;
-
             SetDefaultMechanicalProperties();
         }
 
@@ -255,7 +253,8 @@ namespace GPC.Model.Materials
                    base.Equals(obj) &&
                    _fo == material._fo &&
                    _fu == material._fu &&
-                   AluminiumType == material.AluminiumType;
+                   AluminiumType == material.AluminiumType &&
+                   ThicknessMax == material.ThicknessMax;
         }
 
         public override int GetHashCode()
@@ -267,6 +266,7 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _fo.GetHashCode();
                 hashCode = hashCode * -17 + _fu.GetHashCode();
                 hashCode = hashCode * -17 + AluminiumType.GetHashCode();
+                hashCode = hashCode * -17 + ThicknessMax.GetHashCode();
                 return hashCode;
             }
         }

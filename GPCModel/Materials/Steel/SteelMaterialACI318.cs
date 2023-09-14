@@ -1,6 +1,7 @@
 ﻿using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
+using static GPC.Model.Materials.AluminiumMaterial;
 
 namespace GPC.Model.Materials
 {
@@ -14,9 +15,14 @@ namespace GPC.Model.Materials
 			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulus, fyk, fu, strainU, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
-		}
+        }
 
-		public SteelMaterialACI318(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
+        public SteelMaterialACI318(string name, SteelTypes steelType)
+            : base(name, steelType)
+        {
+        }
+
+        public SteelMaterialACI318(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
 			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticHardening, SteelTypes steelType = SteelTypes.Undefined,
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
