@@ -24,21 +24,20 @@ namespace GPC.Model.Materials
 
         public enum StressStrainCurveType
         {
-            Undefined = 0,
             /// <summary>
             /// Elastic and perfect plastic without hardening/softening.
             /// Elastic up to Fyk and then constant with Fyk value until rupture.
             /// </summary>
-            ElasticPerfectPlastic = 1,
+            ElasticPerfectPlastic = 0,
             /// <summary>
             /// Elastic and then hardening.
             /// Elastic up to Fyk and then rupture at Fu.
             /// </summary>
-            ElasticHardening = 2,
+            ElasticHardening = 1,
             /// <summary>
             /// Elastic and then softening.
             /// </summary>
-            Generic = 3
+            Generic = 2
         }
 
         #endregion
