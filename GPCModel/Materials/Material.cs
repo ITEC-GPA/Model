@@ -349,7 +349,6 @@ namespace GPC.Model.Materials
 				hashCode = hashCode * -17 + _density.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
-                hashCode = hashCode * -17 + IsReadOnly.GetHashCode();
                 return hashCode;
 			}
 		}
@@ -375,8 +374,7 @@ namespace GPC.Model.Materials
 				   _alfaThermalExpansion == material._alfaThermalExpansion &&
 				   _density == material._density &&
 				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
-				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension) &&
-                   IsReadOnly == material.IsReadOnly;
+				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
 		}
 
 		public static bool operator ==(Material obj1, Material obj2)

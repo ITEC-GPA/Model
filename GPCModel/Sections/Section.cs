@@ -354,8 +354,6 @@ namespace GPC.Model.Sections
                 version = 1;
             }
 
-            if (version < 3)
-                _material = (Material)info.GetValue("Material", typeof(Material));
             _area = info.GetDouble("Area");
             _jxx = info.GetDouble("Jxx");
             _jyy = info.GetDouble("Jyy");
