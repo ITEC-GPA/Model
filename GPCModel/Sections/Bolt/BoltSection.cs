@@ -117,7 +117,9 @@ namespace GPC.Model.Sections.Bolt
             if (version > 1)
                 _boltMaterial = (SteelMaterial)info.GetValue("BoltMaterial", typeof(SteelMaterial));
             else
-                _boltMaterial = _material as SteelMaterial ?? throw new ArgumentNullException(nameof(_boltMaterial));
+                // Before version 2 this was a GPCCheckers.Core.Mvvm.Models.SteelMaterialModel class.
+                // Change of name in TypenameConverterBinder.
+                _boltMaterial = (SteelMaterial)info.GetValue("Material", typeof(SteelMaterial));
         }
 
         #endregion
