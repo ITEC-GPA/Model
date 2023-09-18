@@ -101,6 +101,11 @@ namespace GPC.Model.Materials
             _concreteStrengthReduction = 0.85;
         }
 
+        public ConcreteMaterialACI318(string name)
+            : this(name, 25, CompressionStressStrainDiagrams.ParabolaRectangle)
+        {
+        }
+
         protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

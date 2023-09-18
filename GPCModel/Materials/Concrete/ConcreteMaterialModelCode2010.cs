@@ -33,6 +33,11 @@ namespace GPC.Model.Materials
         {
         }
 
+        public ConcreteMaterialModelCode2010(string name)
+            : this(name, 25.0, CompressionStressStrainDiagrams.ParabolaRectangle, 1.0, 1.25, 0.0001, 0.02, TensionStressStrainDiagrams.Bilinear, ConcreteTypes.Concrete)
+        {
+        }
+
         protected ConcreteMaterialModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

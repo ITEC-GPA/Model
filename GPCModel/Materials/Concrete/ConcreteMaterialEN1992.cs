@@ -24,9 +24,14 @@ namespace GPC.Model.Materials
 			: base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
 		{
 
-		}
+        }
 
-		protected ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
+        public ConcreteMaterialEN1992(string name)
+            : this(name, 25, CompressionStressStrainDiagrams.ParabolaRectangle)
+        {
+        }
+
+        protected ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
 			int version;
