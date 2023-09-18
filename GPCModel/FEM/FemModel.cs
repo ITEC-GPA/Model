@@ -61,7 +61,7 @@ namespace GPC.Model.Fem
         /// <summary>
         /// Collection of <see cref="Section"/> with unique name 
         /// </summary>
-        protected UniqueNameCollection<Section> _beamProperties;
+        protected UniqueNameCollection<BeamProperty> _beamProperties;
 
         /// <summary>
         /// Collection of <see cref="PlateProperty"/> with unique name 
@@ -145,7 +145,7 @@ namespace GPC.Model.Fem
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
-            _beamProperties = new UniqueNameCollection<Section>();
+            _beamProperties = new UniqueNameCollection<BeamProperty>();
             _plateProperties = new UniqueNameCollection<PlateProperty>();
             _brickProperties = new UniqueNameCollection<BrickProperty>();
 
@@ -199,12 +199,12 @@ namespace GPC.Model.Fem
                 throw new ArgumentNullException(nameof(elementProperty));
             }
 
-            if (elementProperty is Section)
+            if (elementProperty is BeamProperty beamProperty)
             {
-                if (_beamProperties.Contains(elementProperty))
+                if (_beamProperties.Contains(beamProperty))
                     return false;
 
-                _beamProperties.Add((Section)elementProperty);
+                _beamProperties.Add(beamProperty);
                 return true;
             }
 
@@ -237,7 +237,7 @@ namespace GPC.Model.Fem
         }
 
         /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
-        public virtual Section GetBeamProperty(string name)
+        public virtual BeamProperty GetBeamProperty(string name)
         {
             return _beamProperties.GetElementByName(name);
         }

@@ -366,7 +366,7 @@ namespace FemTest.SolverTest
             BrickProperty prop = new BrickProperty(mat.GetIsotropicFemMaterial(), "p");
             double d = 0.5;
             double t = d / 2.0;
-            Section sec = new SectionCHS(d, t, mat, "p");
+            var sec = new SectionCHS(d, t, "p");
 
             List<Node> nds = new List<Node>();
             nds.Add(new Node(0, 0, 0)); //0

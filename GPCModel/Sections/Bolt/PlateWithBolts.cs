@@ -34,9 +34,9 @@ namespace GPC.Model.Sections.Bolt
             set => _thickness = value > 0.01 ? value : 0.01;
         }
 
-        public SteelMaterial PlateMaterial
+        public Material PlateMaterial
         {
-            get => (SteelMaterial)_material;
+            get => _material;
             set => _material = value;
         }
 
@@ -51,14 +51,14 @@ namespace GPC.Model.Sections.Bolt
         /// <param name="plateMaterial">Plate material.</param>
         /// <param name="boltGrid">Bolt grid.</param>
         /// <param name="plateThickness">Plate plate thickness.</param>
-        public PlateWithBolts(in Polygon2d plateShape, in SteelMaterial plateMaterial, in BoltGrid boltGrid, in double plateThickness)
+        public PlateWithBolts(in Polygon2d plateShape, in Material plateMaterial, in BoltGrid boltGrid, in double plateThickness)
             : base(plateShape, plateMaterial)
         {
             _boltGrid = boltGrid;
             _thickness = plateThickness;
         }
 
-        public PlateWithBolts(in Polygon2d plateShape, in SteelMaterial plateMaterial)
+        public PlateWithBolts(in Polygon2d plateShape, in Material plateMaterial)
             : this(plateShape, plateMaterial, new BoltGrid(), 10.0)
         {
         }

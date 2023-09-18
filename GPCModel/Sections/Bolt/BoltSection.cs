@@ -75,17 +75,21 @@ namespace GPC.Model.Sections.Bolt
             {64.0, 88.16}
         };
 
+        #region Fields
+
+        protected SteelMaterial _boltMaterial;
+
+        #endregion
+
         #region Public Property
 
         public SteelMaterial BoltMaterial
         {
-            get => (SteelMaterial)_material;
+            get => _boltMaterial;
             set
             {
-                if (value != null && value is SteelMaterial)
-                {
-                    _material = value;
-                }
+                if (value is SteelMaterial)
+                    _boltMaterial = value;
             }
         }
 
@@ -93,15 +97,44 @@ namespace GPC.Model.Sections.Bolt
 
         #region Public Constructors
 
-        public BoltSection(double diameter, SteelMaterial material, string name = "") : base(diameter, material, name)
-        { }
+        public BoltSection(double diameter, SteelMaterial material, string name = "") : base(diameter, name)
+        {
+            _boltMaterial = material;
+        }
 
         public BoltSection(SerializationInfo info, StreamingContext context) : base(info, context)
-        { }
+        {
+            int version;
+            try
+            {
+                version = info.GetInt32("BoltSectionVersion");
+            }
+            catch (Exception)
+            {
+                version = 1;
+            }
+
+            if (version > 1)
+                _boltMaterial = (SteelMaterial)info.GetValue("BoltMaterial", typeof(SteelMaterial));
+            else
+                // Before version 2 this was a GPCCheckers.Core.Mvvm.Models.SteelMaterialModel class.
+                // Change of name in TypenameConverterBinder.
+                _boltMaterial = (SteelMaterial)info.GetValue("Material", typeof(SteelMaterial));
+        }
 
         #endregion
 
         #region Public Methods
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            double version = 2;
+            info.AddValue("BoltSectionVersion", version);
+
+            info.AddValue("BoltMaterial", _boltMaterial);
+        }
 
         protected decimal CalculateDiameterDecimal()
         {

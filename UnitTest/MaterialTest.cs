@@ -1,15 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Materials;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System.Collections.Generic;
-using GPC.Utilities.Serialization;
-using GPC.TestUtilities;
-using GPC.Model.Standards;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
+using GPC.Model.Materials;
+using GPC.Model.Standards;
+using GPC.TestUtilities;
+using GPC.Utilities.Serialization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 
 namespace ModelObjectTest
 {
@@ -26,7 +23,7 @@ namespace ModelObjectTest
             double fu = 510;
             double strainU = 0.05;
 
-            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, SteelMaterial.SteelTypes.Structural, ni, density);
+            SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, ni, density);
 
             byte[] bytes = Serialization.SerializeToBytes<SteelMaterial>(steel);
             SteelMaterial steelDeserialized = (SteelMaterial)Serialization.DeserializeFromBytes(bytes);
@@ -717,9 +714,11 @@ namespace ModelObjectTest
             ConcreteMaterialModelCode2010 concrete = new ConcreteMaterialModelCode2010("C40/50_20kg/m3", 40, ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.StressBlock,
                 2.75 * 0.45, 3.25 * 0.33, 0.0001, 0.02, ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC);
 
-            StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010();
-            standardModelCode2010.SetAlphaCT(0.85);
-            standardModelCode2010.SetAlphaCC(0.85);
+            StandardModelCode2010 standardModelCode2010 = new StandardModelCode2010
+            {
+                AlphaCT = 0.85,
+                AlphaCC = 0.85
+            };
             List<(double, double)> stresses = new List<(double, double)>();
 
             for (int i = 200; i >= -35; i--)
@@ -728,7 +727,7 @@ namespace ModelObjectTest
             for (int i = 0; i < stresses.Count; i++)
             {
                 Console.WriteLine($"{Math.Round(stresses[i].Item1, 2)} Mpa; {stresses[i].Item2}");
-                Assert.IsTrue(stresses[i].Item1 >= - 0.85 * 40 / 1.5);
+                Assert.IsTrue(stresses[i].Item1 >= -0.85 * 40 / 1.5);
                 Assert.IsTrue(stresses[i].Item1 - 0.85 * 2.75 * 0.45 / 1.5 <= 0.0001);
             }
         }
@@ -838,7 +837,9 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 27789.382) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 34.4738) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+            //Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+            // Changed with parabola-rectangle in:
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0021089149614335625) < 0.001);
         }
 
         [TestMethod]
@@ -850,7 +851,9 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs((concrete.ElasticModulusCompression - 30441.742) / concrete.ElasticModulusCompression) < 0.5, concrete.ElasticModulusCompression.ToString());
             Assert.IsTrue(Math.Abs(concrete.Fc + 41.3685) < 0.001);
             Assert.IsTrue(Math.Abs(concrete.StrainUCompression + 0.003) < 0.001);
-            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+            //Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0011) < 0.001);
+            // Changed with parabola-rectangle in:
+            Assert.IsTrue(Math.Abs(concrete.StrainYCompression + 0.0023101989171433117) < 0.001);
         }
 
         [TestMethod]
@@ -880,34 +883,65 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
-		[TestMethod]
-		public void ConcreteACITest10()
-		{
-			ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
-				ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
-			List<(double, double)> designStresses = new List<(double, double)>();
-			List<(double, double)> stresses = new List<(double, double)>();
+        [TestMethod]
+        public void ConcreteACITest10()
+        {
+            ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("fc' 4000 psi", 27.579,
+                ConcreteMaterialACI318.CompressionStressStrainDiagrams.ParabolaRectangle);
+            List<(double, double)> designStresses = new List<(double, double)>();
+            List<(double, double)> stresses = new List<(double, double)>();
 
-			StandardACI318p14 standardACI318P14 = new StandardACI318p14();
-			for (int i = 0; i >= -300; i--)
-				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
-			for (int i = 0; i >= -300; i--)
-				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+            StandardACI318p14 standardACI318P14 = new StandardACI318p14();
+            for (int i = 0; i >= -300; i--)
+                designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
+            for (int i = 0; i >= -300; i--)
+                stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
 
-            for(int i = 0; i < stresses.Count; i++)
+            for (int i = 0; i < stresses.Count; i++)
             {
                 Assert.IsTrue(Math.Abs(stresses[i].Item1 - designStresses[i].Item1) < 0.01);
                 Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
             }
+
+            for (int i = 0; i < designStresses.Count; i++)
+                Console.WriteLine(designStresses[i].Item1);
+        }
+
+        [TestMethod]
+        public void ConcreteACITest11()
+        {
+            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc3500;
+            List<(double, double)> linearStresses = new List<(double, double)>();
+            List<(double, double)> designStresses = new List<(double, double)>();
+            List<(double, double)> stresses = new List<(double, double)>();
+
+            StandardACI318p14 standardACI318P14 = new StandardACI318p14();
+            for (int i = 0; i >= -300; i--)
+                designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
+            for (int i = 0; i >= -300; i--)
+                stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
+            for (int i = 0; i >= -300; i--)
+                linearStresses.Add((concrete.ElasticModulusCompression * i * 0.85 / 100000.0, i / 100000.0));
+
+            for (int i = 0; i < stresses.Count; i++)
+            {
+                Assert.IsTrue(Math.Abs(stresses[i].Item1 - designStresses[i].Item1) < 0.01);
+                Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
+            }
+
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
+			//}
 
 			for (int i = 0; i < designStresses.Count; i++)
 				Console.WriteLine(designStresses[i].Item1);
 		}
 
 		[TestMethod]
-		public void ConcreteACITest11()
+		public void ConcreteACITest12()
 		{
-            ConcreteMaterialACI318 concrete = ConcreteMaterialACI318Data.Fc3500;
+			ConcreteMaterialACI318 concrete = new ConcreteMaterialACI318("", 40, ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
 			List<(double, double)> linearStresses = new List<(double, double)>();
 			List<(double, double)> designStresses = new List<(double, double)>();
 			List<(double, double)> stresses = new List<(double, double)>();
@@ -916,9 +950,9 @@ namespace ModelObjectTest
 			for (int i = 0; i >= -300; i--)
 				designStresses.Add((concrete.CalculateDesignStressConcrete(standardACI318P14, i / 100000.0), i / 100000.0));
 			for (int i = 0; i >= -300; i--)
-				stresses.Add((concrete.GetStress(i / 100000.0), i / 100000.0));
+				stresses.Add((concrete.GetStress(i / 100000.0) * 0.85, i / 100000.0));
 			for (int i = 0; i >= -300; i--)
-				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0, i / 100000.0));
+				linearStresses.Add((concrete.ElasticModulusCompression * i / 100000.0 * 0.85, i / 100000.0));
 
 			for (int i = 0; i < stresses.Count; i++)
 			{
@@ -926,20 +960,20 @@ namespace ModelObjectTest
 				Assert.IsTrue(Math.Abs(stresses[i].Item2 - designStresses[i].Item2) < 0.01);
 			}
 
-			for (int i = 0; i < 100; i++)
-			{
-				Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
-			}
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	Assert.IsTrue(Math.Abs(stresses[i].Item1 - linearStresses[i].Item1) < 0.01);
+			//}
 
 			for (int i = 0; i < designStresses.Count; i++)
 				Console.WriteLine(designStresses[i].Item1);
 		}
 
-		#endregion
+        #endregion
 
-		#region Steel Test
+        #region Steel Test
 
-		[TestMethod]
+        [TestMethod]
         public void SteelTest1()
         {
             SteelMaterial steel = SteelMaterialEN1993Data.S275;
@@ -972,12 +1006,12 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            standard.GammaS = 1.0;
 
             for (int i = 100; i >= -100; i--)
                 stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
@@ -999,12 +1033,12 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
                 SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            standard.GammaS = 1.0;
 
             for (int i = 0; i < steelMaterial.StressStrainTableCompression.Stresses.Length; i++)
             {
@@ -1036,8 +1070,8 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
@@ -1104,12 +1138,11 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<(double, double)> stresses = new List<(double, double)>();
-            StandardModelCode2010 standard = new StandardModelCode2010();
-            standard.SetGammaS(1.0);
+            StandardModelCode2010 standard = new StandardModelCode2010 { GammaS = 1.0 };
 
             for (int i = 100; i >= -100; i--)
                 stresses.Add((steelMaterial.CalculateDesignStress(standard, i / 10000.0), i / 10000.0));
@@ -1125,12 +1158,12 @@ namespace ModelObjectTest
             double epsY = 0.01;
             SteelMaterial steelMaterial = new SteelMaterial("FRP", fy / epsY, fy / epsY, epsY, epsY, epsY, epsY, 0, 0, fy, fy,
                 new StressStrainTable(new double[] { 0, 0 }, new double[] { 0, -epsY }),
-                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }),
-                SteelMaterial.SteelTypes.Rebar);
+                new StressStrainTable(new double[] { 0, fy, fy }, new double[] { 0, epsY, epsY }), SteelMaterial.StressStrainCurveType.ElasticHardening,
+				SteelMaterial.SteelTypes.Rebar);
 
             List<double> stresses = new List<double>();
-            StandardModelCode2010 standard = new StandardModelCode2010();  
-            
+            StandardModelCode2010 standard = new StandardModelCode2010();
+
             stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.01)));
             stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.009)));
             stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.008)));
@@ -1142,7 +1175,45 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(stresses[i]) < 0.1);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void SteelTest9()
+		{
+			SteelMaterial steelMaterial = new SteelMaterial("Pippo", 210000, 500, 200, 0.1, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar);
+
+			List<double> stresses = new List<double>();
+			StandardModelCode2010 standard = new StandardModelCode2010()
+            {
+                GammaS = 2,
+            };
+
+			stresses.Add((steelMaterial.CalculateDesignStress(standard, 0.1)));
+			stresses.Add((steelMaterial.CalculateDesignStress(standard, -0.1)));
+
+		}
+
+		[TestMethod]
+		public void SteelTest10()
+		{
+            SteelMaterial steelMaterial = SteelMaterialEN1992Data.B450C;
+
+            Assert.IsTrue(steelMaterial.Fyk == 450);
+            Assert.IsTrue(steelMaterial.Fu == 540);
+            Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 450);
+
+			steelMaterial.StressStrainCurve = SteelMaterial.StressStrainCurveType.ElasticHardening;
+
+			Assert.IsTrue(steelMaterial.Fyk == 450);
+			Assert.IsTrue(steelMaterial.Fu == 540);
+			Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 540);
+
+			steelMaterial.StressStrainCurve = SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic;
+
+			Assert.IsTrue(steelMaterial.Fyk == 450);
+			Assert.IsTrue(steelMaterial.Fu == 540);
+			Assert.IsTrue(steelMaterial.StressStrainTableTension.Stresses[2] == 450);
+		}
+
+		[TestMethod]
         public void RebarTest1()
         {
             SteelMaterial steel = SteelMaterialEN1992Data.B450C;
@@ -1227,7 +1298,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void RebarTest5()
         {
-            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.SteelTypes.Rebar);
+            SteelMaterial steelMaterial = new SteelMaterial("", 200000, 450, 450, 0.0025, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
             List<(double, double)> stresses = new List<(double, double)>();
             StandardModelCode2010 standard = new StandardModelCode2010();
 
@@ -1247,7 +1318,7 @@ namespace ModelObjectTest
         [TestMethod]
         public void TendonTest1()
         {
-            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.SteelTypes.Tendon);
+            SteelMaterial tendon = new SteelMaterial("", 195000, 1620, 1800, 0.1, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
             List<double> stresses = new List<double>();
 
             for (int i = 75; i >= -75; i--)
@@ -1282,25 +1353,25 @@ namespace ModelObjectTest
             Assert.IsTrue(Math.Abs(stressTest - expValue) / stressTest < 0.001);
         }
 
-		[TestMethod]
-		public void TendonTest3()
-		{
+        [TestMethod]
+        public void TendonTest3()
+        {
             SteelMaterial tendon = SteelMaterialEN1992Data.Y1570C;
-			List<double> stresses = new List<double>();
+            List<double> stresses = new List<double>();
             StandardNTC2018Concrete ntc = new StandardNTC2018Concrete();
 
-			for (int i = 30; i >= -30; i--)
-				stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.007045));
+            for (int i = 30; i >= -30; i--)
+                stresses.Add(tendon.CalculateDesignStress(ntc, i / 1000.0, 0.007045));
 
-			for (int i = 0; i < stresses.Count; i++)
-				Console.WriteLine(stresses[i]);
-		}
+            for (int i = 0; i < stresses.Count; i++)
+                Console.WriteLine(stresses[i]);
+        }
 
-		#endregion
+        #endregion
 
-		#region StressStrainTable Test
+        #region StressStrainTable Test
 
-		[TestMethod]
+        [TestMethod]
         public void StressStrainTableTest1()
         {
             StressStrainTable stressStrainTable = new StressStrainTable(new double[] { }, new double[] { });

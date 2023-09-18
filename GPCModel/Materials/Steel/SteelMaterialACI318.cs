@@ -1,6 +1,7 @@
 ﻿using GPC.Utilities.Attributes;
 using System;
 using System.Runtime.Serialization;
+using static GPC.Model.Materials.AluminiumMaterial;
 
 namespace GPC.Model.Materials
 {
@@ -10,19 +11,24 @@ namespace GPC.Model.Materials
 	{
 		#region Constructor
 
-		public SteelMaterialACI318(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1,
+		public SteelMaterialACI318(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic,
 			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
-			: base(name, elasticModulus, fyk, fu, strainU, steelType, poisson, density, alfaThermalExpansion)
+			: base(name, elasticModulus, fyk, fu, strainU, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
-		}
+        }
 
-		public SteelMaterialACI318(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
+        public SteelMaterialACI318(string name, SteelTypes steelType)
+            : base(name, steelType)
+        {
+        }
+
+        public SteelMaterialACI318(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
-			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Undefined,
+			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticHardening, SteelTypes steelType = SteelTypes.Undefined,
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression,
 				  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension,
-				  stressStrainTableCompression, stressStrainTableTensio, steelType, poisson, density, alfaThermalExpansion)
+				  stressStrainTableCompression, stressStrainTableTensio, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
 		}
 
@@ -31,9 +37,9 @@ namespace GPC.Model.Materials
 		{
 		}
 
-		protected SteelMaterialACI318(string name, double elasticModulus, double poisson, double fyk, double fu, double strainU,
+		protected SteelMaterialACI318(string name, double elasticModulus, double poisson, double fyk, double fu, double strainU, StressStrainCurveType stressStrainCurveType,
 			SteelTypes steelType, double density, double alfaThermalExpansion)
-			: base(name, elasticModulus, poisson, fyk, fu, strainU, steelType, density, alfaThermalExpansion)
+			: base(name, elasticModulus, poisson, fyk, fu, strainU, stressStrainCurveType, steelType, density, alfaThermalExpansion)
 		{
 		}
 

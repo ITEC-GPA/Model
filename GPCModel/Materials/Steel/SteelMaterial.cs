@@ -22,6 +22,24 @@ namespace GPC.Model.Materials
             [Description("Bolt steel material")] Bolt,
         }
 
+        public enum StressStrainCurveType
+        {
+            /// <summary>
+            /// Elastic and perfect plastic without hardening/softening.
+            /// Elastic up to Fyk and then constant with Fyk value until rupture.
+            /// </summary>
+            ElasticPerfectPlastic = 0,
+            /// <summary>
+            /// Elastic and then hardening.
+            /// Elastic up to Fyk and then rupture at Fu.
+            /// </summary>
+            ElasticHardening = 1,
+            /// <summary>
+            /// Elastic and then softening.
+            /// </summary>
+            Generic = 2
+        }
+
         #endregion
 
         #region Variables
@@ -29,15 +47,16 @@ namespace GPC.Model.Materials
         protected double _fyk;
         protected double _fu;
         protected SteelTypes _steelType;
+        protected StressStrainCurveType _stressStrainCurveType;
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        /// <summary>
-        /// Characteristic yield strength
-        /// </summary>
-        public double Fyk
+		/// <summary>
+		/// Characteristic yield strength
+		/// </summary>
+		public double Fyk
         {
             get => _fyk;
             set
@@ -80,35 +99,49 @@ namespace GPC.Model.Materials
             set => _steelType = value;
         }
 
-        #endregion
+        public StressStrainCurveType StressStrainCurve
+        {
+            get => _stressStrainCurveType;
+            set
+            {
+                if (value != _stressStrainCurveType)
+                {
+                    _stressStrainCurveType = value;
+					RecalculateMechanicalProperties();
+                }
+            }
+        }
 
-        #region Constructor
+		#endregion
 
-        /// <param name="name"></param>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="fyk">Yielding stress</param>
-        /// <param name="fu">Ultimate stress</param>
-        /// <param name="strainU">Ultimate strain</param>
-        /// <param name="steelType"></param>
-        /// <param name="poisson"></param>
-        /// <param name="density"></param>
-        /// <param name="alfaThermalExpansion"></param>
-        public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, SteelTypes steelType = SteelTypes.Undefined,
-             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
-            : this(name, elasticModulus, poisson, fyk, fu, strainU, steelType, density, alfaThermalExpansion)
+		#region Constructor
+
+		/// <param name="name"></param>
+		/// <param name="elasticModulus">Steel elastic modulus</param>
+		/// <param name="fyk">Yielding stress</param>
+		/// <param name="fu">Ultimate stress</param>
+		/// <param name="strainU">Ultimate strain</param>
+		/// <param name="steelType"></param>
+		/// <param name="poisson"></param>
+		/// <param name="density"></param>
+		/// <param name="alfaThermalExpansion"></param>
+		public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic,
+            SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            : this(name, elasticModulus, poisson, fyk, fu, strainU, stressStrainCurveType, steelType, density, alfaThermalExpansion)
         {
 
         }
 
         public SteelMaterial(string name, SteelTypes steelType)
-            : this(name, 210000, 235, 360, 0.1, steelType)
+            : this(name, 210000, 235, 360, 0.1, StressStrainCurveType.ElasticPerfectPlastic, steelType)
         {
         }
 
         public SteelMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
-            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, SteelTypes steelType = SteelTypes.Undefined,
+            StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, 
+            StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticHardening, SteelTypes steelType = SteelTypes.Undefined,
              double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
             : base(name, elasticModulusCompression, elasticModulusTension,
             strainYCompression, strainUCompression, strainYTension, strainUTension,
@@ -133,7 +166,7 @@ namespace GPC.Model.Materials
         /// <param name="density">Density of material</param>
         /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
         protected SteelMaterial(string name, double elasticModulus, double poisson, double fyk,
-            double fu, double strainU, SteelTypes steelType, double density, double alfaThermalExpansion)
+            double fu, double strainU, StressStrainCurveType stressStrainCurveType, SteelTypes steelType, double density, double alfaThermalExpansion)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
         {
             _fu = Math.Abs(fu);
@@ -141,6 +174,7 @@ namespace GPC.Model.Materials
             _strainUTension = Math.Abs(strainU);
             _strainUCompression = -Math.Abs(strainU);
             _steelType = steelType;
+            _stressStrainCurveType = stressStrainCurveType;
 
             SetDefaultMechanicalProperties();
         }
@@ -168,12 +202,17 @@ namespace GPC.Model.Materials
                 _strainUTension = info.GetDouble("EpsilonU");
                 _strainUCompression = -info.GetDouble("EpsilonU");
 
-                SetDefaultMechanicalProperties();
+				SetDefaultMechanicalProperties();
             }
-            else if (version >= 2)
+            if (version <= 2)
             {
-
+                _stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic;
             }
+            else
+            {
+				_stressStrainCurveType = (StressStrainCurveType)info.GetInt32("StressStrainCurveType");
+            }
+            RecalculateMechanicalProperties();
         }
 
         #endregion
@@ -192,14 +231,9 @@ namespace GPC.Model.Materials
 
         public virtual void RecalculateMechanicalProperties()
         {
-            _stressStrainTableCompression = new StressStrainTable(
-                new double[] { 0, _stressYCompression, _stressUCompression },
-                new double[] { 0, _stressYCompression / _elasticModulusCompression, _strainUCompression });
-            _stressStrainTableTension = new StressStrainTable(
-                new double[] { 0, _stressYTension, _stressUTension },
-                new double[] { 0, _stressYTension / _elasticModulusTension, _strainUTension });
+            SetStressStrain();
 
-            _strainYTension = _stressYTension / _elasticModulusTension;
+			_strainYTension = _stressYTension / _elasticModulusTension;
             _strainYCompression = _stressYCompression / _elasticModulusCompression;
 
             _fu = _stressUTension;
@@ -208,12 +242,7 @@ namespace GPC.Model.Materials
 
         public virtual void SetDefaultMechanicalProperties()
         {
-            _stressStrainTableCompression = new StressStrainTable(
-                new double[] { 0, -_fyk, -_fu },
-                new double[] { 0, -_fyk / _elasticModulusCompression, _strainUCompression });
-            _stressStrainTableTension = new StressStrainTable(
-                new double[] { 0, _fyk, _fu },
-                new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
+            SetStressStrain();
 
             _strainYTension = _fyk / _elasticModulusTension;
             _strainYCompression = -_fyk / _elasticModulusCompression;
@@ -222,6 +251,40 @@ namespace GPC.Model.Materials
             _stressUTension = _fu;
             _stressYCompression = -_fyk;
             _stressYTension = _fyk;
+        }
+
+        public virtual void SetStressStrain()
+        {
+            switch (_stressStrainCurveType)
+            {
+                case StressStrainCurveType.ElasticPerfectPlastic:
+                case StressStrainCurveType.ElasticHardening:
+                    {
+                        double fRupture;
+                        if (_stressStrainCurveType == StressStrainCurveType.ElasticPerfectPlastic)
+                            fRupture = _fyk;
+                        else
+                            fRupture = _fu;
+
+                        _stressStrainTableCompression = new StressStrainTable(
+                            new double[] { 0, -_fyk, -fRupture },
+                            new double[] { 0, -_fyk / _elasticModulusCompression, _strainUCompression });
+                        _stressStrainTableTension = new StressStrainTable(
+                            new double[] { 0, _fyk, fRupture },
+                            new double[] { 0, _fyk / _elasticModulusTension, _strainUTension });
+                        return;
+                    }
+				case StressStrainCurveType.Generic:
+                    _stressStrainTableCompression = new StressStrainTable(
+                        new double[] { 0, _stressYCompression, _stressUCompression },
+                        new double[] { 0, _stressYCompression / _elasticModulusCompression, _strainUCompression });
+					_stressStrainTableTension = new StressStrainTable(
+						new double[] { 0, _stressYTension, _stressUTension },
+						new double[] { 0, _stressYTension / _elasticModulusTension, _strainUTension });
+					return;
+				default:
+                    return;
+            }
         }
 
         #endregion
@@ -567,14 +630,15 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            double version = 2;
+            double version = 3;
 
             info.AddValue("SteelMaterialVersion", version);
 
             info.AddValue("Fyk", _fyk);
             info.AddValue("Fu", _fu);
             info.AddValue("SteelType", _steelType);
-        }
+            info.AddValue("StressStrainCurveType", _stressStrainCurveType);
+		}
 
         public override bool Equals(object obj)
         {

@@ -10,7 +10,6 @@ namespace GPC.Model.Standards
 	[Serializable]
 	public class StandardEN1992p11 : StandardModelCode2010, ISerializable
 	{
-
 		/// <summary>
 		/// Default Constructor
 		/// </summary>

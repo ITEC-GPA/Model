@@ -598,8 +598,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            GPC.Model.Sections.Section s = new GPC.Model.Sections.Section(
-                new Material("test", 10, 0.2, 20, 5), 50, 200, 300, 500, 40, Point3d.Origin, Point3d.Origin, 0.2, "section");
+            GPC.Model.Sections.Section s = new GPC.Model.Sections.Section(50, 200, 300, 500, 40, Point3d.Origin, Point3d.Origin, 0.2, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -611,8 +610,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Material != oggettoDeserializzato.Material ||
-                        s.Area != oggettoDeserializzato.Area ||
+                    if (s.Area != oggettoDeserializzato.Area ||
                         s.Jt != oggettoDeserializzato.Jt ||
                         s.Jw != oggettoDeserializzato.Jw ||
                         s.Jxx != oggettoDeserializzato.Jxx ||
@@ -659,7 +657,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionCircular s = new SectionCircular(10, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionCircular s = new SectionCircular(10, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -671,8 +669,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Material != oggettoDeserializzato.Material ||
-                        s.Diameter != oggettoDeserializzato.Diameter ||
+                    if (s.Diameter != oggettoDeserializzato.Diameter ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -695,7 +692,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionCHS s = new SectionCHS(10, 2, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionCHS s = new SectionCHS(10, 2, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -707,8 +704,7 @@ namespace GeneralTest
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Material != oggettoDeserializzato.Material ||
-                        s.Diameter != oggettoDeserializzato.Diameter ||
+                    if (s.Diameter != oggettoDeserializzato.Diameter ||
                         s.Thickness != oggettoDeserializzato.Thickness ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
@@ -732,7 +728,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionC s = new SectionC(200, 4, 100, 5, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionC s = new SectionC(200, 4, 100, 5, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -773,7 +769,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionH s = new SectionH(200, 4, 100, 5, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionH s = new SectionH(200, 4, 100, 5, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -814,7 +810,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionL s = new SectionL(200, 4, 100, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionL s = new SectionL(200, 4, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -852,7 +848,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionRectangular s = new SectionRectangular(200, 4, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionRectangular s = new SectionRectangular(200, 4, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -889,7 +885,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionRHS s = new SectionRHS(300, 200, 5, 5, 5, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionRHS s = new SectionRHS(300, 200, 5, 5, 5, 5, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -929,7 +925,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SectionT s = new SectionT(300, 200, 5, 5, new Material("test", 10, 0.2, 20, 5), "section");
+            SectionT s = new SectionT(300, 200, 5, 5, "section");
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1006,7 +1002,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCircular s = new ConcreteSectionCircular(10, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionCircular(10, "section"), ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1019,7 +1015,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionCircular oggettoDeserializzato = (ConcreteSectionCircular)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1048,7 +1044,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionCHS s = new ConcreteSectionCHS(10, 2, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionCHS(10, 2, "section"), ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1061,7 +1057,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionCHS oggettoDeserializzato = (ConcreteSectionCHS)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1090,7 +1086,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionT s = new ConcreteSectionT(500, 600, 50, 40, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionT(500, 600, 50, 40, "section"), ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1103,7 +1099,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionT oggettoDeserializzato = (ConcreteSectionT)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1143,7 +1139,6 @@ namespace GeneralTest
                 new Point2d(0, height)
             }));
 
-            ShapeEx shapeEx = new ShapeEx(shape, ConcreteMaterialEN1992Data.C25_30);
             RebarSectionCircular rebar = new RebarSectionCircular(18, SteelMaterialEN1992Data.B450A);
 
             ReinforcedConcreteRebar[] rebars = new ReinforcedConcreteRebar[]
@@ -1154,7 +1149,7 @@ namespace GeneralTest
                 new ReinforcedConcreteRebar(rebar, new Point2d(concreteCover, height - concreteCover))
             };
 
-            ReinforcedConcreteSection s = new ReinforcedConcreteSection(shapeEx);
+            var s = new ReinforcedConcreteSection(shape, ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(rebars);
 
             using (var ms = new MemoryStream())
@@ -1193,7 +1188,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ConcreteSectionRectangular s = new ConcreteSectionRectangular(500, 600, ConcreteMaterialEN1992Data.C25_30, "section");
+            var s = new ReinforcedConcreteSection(new SectionRectangular(500, 600, "section"), ConcreteMaterialEN1992Data.C25_30);
             s.AddRebars(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10)),
@@ -1206,7 +1201,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ConcreteSectionRectangular oggettoDeserializzato = (ConcreteSectionRectangular)casted;
+                var oggettoDeserializzato = (ReinforcedConcreteSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1371,7 +1366,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionCircular s = new SteelSectionCircular(10, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionCircular(10, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1379,12 +1374,14 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionCircular oggettoDeserializzato = (SteelSectionCircular)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Material != oggettoDeserializzato.Material ||
-                        s.Diameter != oggettoDeserializzato.Diameter ||
+                    var sC = s.SectionShape as SectionCircular;
+                    var sC2 = oggettoDeserializzato.SectionShape as SectionCircular;
+                    if (s.SteelMaterial != oggettoDeserializzato.SteelMaterial ||
+                        sC.Diameter != sC2.Diameter ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1407,7 +1404,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionCHS s = new SteelSectionCHS(10, 2, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionCHS(10, 2, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1415,13 +1412,15 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionCHS oggettoDeserializzato = (SteelSectionCHS)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.Material != oggettoDeserializzato.Material ||
-                        s.Diameter != oggettoDeserializzato.Diameter ||
-                        s.Thickness != oggettoDeserializzato.Thickness ||
+                    var sc1 = s.SectionShape as SectionCHS;
+                    var sc2 = oggettoDeserializzato.SectionShape as SectionCHS;
+                    if (s.SteelMaterial != oggettoDeserializzato.SteelMaterial ||
+                        sc1.Diameter != sc2.Diameter ||
+                        sc1.Thickness != sc2.Thickness ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1444,7 +1443,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionC s = new SteelSectionC(200, 4, 100, 5, 100, 5, SteelMaterialEN1993Data.S235, "section");
+            SteelSection s = new SteelSection(new SectionC(200, 4, 100, 5, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1452,17 +1451,20 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionC oggettoDeserializzato = (SteelSectionC)casted;
+                SteelSection oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
+                    var sC = s.SectionShape as SectionC;
+                    var sCType = s.SectionShape.GetType();
+                    var sC2 = oggettoDeserializzato.SectionShape as SectionC;
                     if (s.Height != oggettoDeserializzato.Height ||
-                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
-                        s.LengthBottom != oggettoDeserializzato.LengthBottom ||
-                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
-                        s.LengthTop != oggettoDeserializzato.LengthTop ||
-                        s.LengthTop != oggettoDeserializzato.LengthTop ||
-                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
+                        sC.ThicknessWeb != sC2.ThicknessWeb ||
+                        sC.LengthBottom != sC2.LengthBottom ||
+                        sC.ThicknessBottom != sC2.ThicknessBottom ||
+                        sC.LengthTop != sC2.LengthTop ||
+                        sC.LengthTop != sC2.LengthTop ||
+                        sC.ThicknessTop != sC2.ThicknessTop ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1485,7 +1487,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionH s = new SteelSectionH(200, 4, 100, 5, 100, 5, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionH(200, 4, 100, 5, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1493,17 +1495,20 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionH oggettoDeserializzato = (SteelSectionH)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
+                    var sc1 = s.SectionShape as SectionH;
+                    var sc2 = oggettoDeserializzato.SectionShape as SectionH;
+
                     if (s.Height != oggettoDeserializzato.Height ||
-                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
-                        s.LenghtBottomFlange != oggettoDeserializzato.LenghtBottomFlange ||
-                        s.LenghtTopFlange != oggettoDeserializzato.LenghtTopFlange ||
-                        s.ThicknessTopFlange != oggettoDeserializzato.ThicknessTopFlange ||
-                        s.ThicknessBottomFlange != oggettoDeserializzato.ThicknessBottomFlange ||
-                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
+                        sc1.ThicknessWeb != sc2.ThicknessWeb ||
+                        sc1.LenghtBottomFlange != sc2.LenghtBottomFlange ||
+                        sc1.LenghtTopFlange != sc2.LenghtTopFlange ||
+                        sc1.ThicknessTopFlange != sc2.ThicknessTopFlange ||
+                        sc1.ThicknessBottomFlange != sc2.ThicknessBottomFlange ||
+                        sc1.ThicknessWeb != sc2.ThicknessWeb ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1526,7 +1531,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionL s = new SteelSectionL(200, 4, 100, 5, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionL(200, 4, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1534,14 +1539,17 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionL oggettoDeserializzato = (SteelSectionL)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
-                    if (s.HorizontalLegLength != oggettoDeserializzato.HorizontalLegLength ||
-                        s.HorizontalLegThickness != oggettoDeserializzato.HorizontalLegThickness ||
-                        s.VerticalLegLength != oggettoDeserializzato.VerticalLegLength ||
-                        s.VerticalLegThickness != oggettoDeserializzato.VerticalLegThickness ||
+                    var sL = s.SectionShape as SectionL;
+                    var sL2 = oggettoDeserializzato.SectionShape as SectionL;
+
+                    if (sL.HorizontalLegLength != sL2.HorizontalLegLength ||
+                        sL.HorizontalLegThickness != sL2.HorizontalLegThickness ||
+                        sL.VerticalLegLength != sL2.VerticalLegLength ||
+                        sL.VerticalLegThickness != sL2.VerticalLegThickness ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1564,7 +1572,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionRectangular s = new SteelSectionRectangular(200, 4, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionRectangular(200, 4, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1572,13 +1580,16 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionRectangular oggettoDeserializzato = (SteelSectionRectangular)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
+                    var sH1 = s.SectionShape as SectionRectangular;
+                    var sH2 = oggettoDeserializzato.SectionShape as SectionRectangular;
+
                     if (s.Height != oggettoDeserializzato.Height ||
-                        s.Width != oggettoDeserializzato.Width ||
-                        s.Angle != oggettoDeserializzato.Angle ||
+                        sH1.Width != sH2.Width ||
+                        sH1.Angle != sH2.Angle ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1601,7 +1612,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionRHS s = new SteelSectionRHS(300, 200, 5, 5, 5, 5, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionRHS(300, 200, 5, 5, 5, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1609,16 +1620,19 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionRHS oggettoDeserializzato = (SteelSectionRHS)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
+                    var sH1 = s.SectionShape as SectionRHS;
+                    var sH2 = oggettoDeserializzato.SectionShape as SectionRHS;
+
                     if (s.Height != oggettoDeserializzato.Height ||
-                        s.Base != oggettoDeserializzato.Base ||
-                        s.ThicknessTop != oggettoDeserializzato.ThicknessTop ||
-                        s.ThicknessBottom != oggettoDeserializzato.ThicknessBottom ||
-                        s.ThicknessWebLeft != oggettoDeserializzato.ThicknessWebLeft ||
-                        s.ThicknessWebRight != oggettoDeserializzato.ThicknessWebRight ||
+                        sH1.Base != sH2.Base ||
+                        sH1.ThicknessTop != sH2.ThicknessTop ||
+                        sH1.ThicknessBottom != sH2.ThicknessBottom ||
+                        sH1.ThicknessWebLeft != sH2.ThicknessWebLeft ||
+                        sH1.ThicknessWebRight != sH2.ThicknessWebRight ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1641,7 +1655,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelSectionT s = new SteelSectionT(300, 200, 5, 5, SteelMaterialEN1993Data.S235, "section");
+            var s = new SteelSection(new SectionT(300, 200, 5, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1649,14 +1663,17 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                SteelSectionT oggettoDeserializzato = (SteelSectionT)casted;
+                var oggettoDeserializzato = (SteelSection)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
+                    var sT1 = s.SectionShape as SectionT;
+                    var sT2 = oggettoDeserializzato.SectionShape as SectionT;
+
                     if (s.Height != oggettoDeserializzato.Height ||
-                        s.ThicknessWeb != oggettoDeserializzato.ThicknessWeb ||
-                        s.ThicknessFlange != oggettoDeserializzato.ThicknessFlange ||
-                        s.LenghtFlange != oggettoDeserializzato.LenghtFlange ||
+                        sT1.ThicknessWeb != sT2.ThicknessWeb ||
+                        sT1.ThicknessFlange != sT2.ThicknessFlange ||
+                        sT1.LenghtFlange != sT2.LenghtFlange ||
                         s.Name != oggettoDeserializzato.Name)
                         check = false;
                 }
@@ -1725,7 +1742,7 @@ namespace GeneralTest
             bool check = true;
 
             ConcreteMaterialModelCode2010 m = new ConcreteMaterialModelCode2010("test", -25,
-                ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2, 
+                ConcreteMaterialEuropeanCommon.CompressionStressStrainDiagrams.ParabolaRectangle, 1, 2, 0.1, 0.2,
                 ConcreteMaterialEuropeanCommon.TensionStressStrainDiagrams.Bilinear, ConcreteMaterialEuropeanCommon.ConcreteTypes.FRC, 0.2, 20, 5);
 
             using (var ms = new MemoryStream())
@@ -1871,7 +1888,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -1913,7 +1930,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.SteelTypes.Rebar, 0.2, 20, 5);
+            SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();

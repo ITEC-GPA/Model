@@ -12,6 +12,7 @@ namespace GPC.Model.Fem.Properties
     public class PlateProperty : ElementProperty, IPlateProperty, ISerializable
     {
         #region Variables
+
         protected FemMaterial _material;
 
         protected double _bendingThickness;

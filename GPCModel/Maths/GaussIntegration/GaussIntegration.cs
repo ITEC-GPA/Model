@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +18,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         #region Line element
 
         /// <summary>
-        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
@@ -78,18 +78,18 @@ namespace GPC.Model.Maths.GaussIntegrations
             else
             {
                 int degree = numberOFShapeFunction / vertices.Length;
-                Parallel.For(0, vertices.Length, (i) =>
+                for(int i = 0; i < vertices.Length; i++)
                 {
                     shapeFunctionNode[i] = vertices[i];
-                });
+                };
 
-                Parallel.For(0, numberOFShapeFunction - vertices.Length, (i) =>
+                for(int i = 0; i < numberOFShapeFunction - vertices.Length; i++)
                 {
-                    shapeFunctionNode[vertices.Length + i] = i * (vertices[i] + vertices[i + 1]) / degree;
-                });
+                    shapeFunctionNode[vertices.Length + i] = (vertices[i] + vertices[i + 1]) / (degree + 1);
+                };
             }
 
-            var jacobian = JacobianMatrix1D(dNdCsi, vertices);
+            var jacobian = JacobianMatrix1D(dNdCsi, shapeFunctionNode);
 
             double[] ris = new double[gaussPoints.Length];
 
@@ -117,7 +117,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         }
 
         /// <summary>
-        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
@@ -801,12 +801,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <returns>Matrix</returns>
         private static Matrix<double> Jacob1D(double csi, Func<int, double, double> dNdCsi, Point3d[] points)
         {
-            // Matrice jacobiana per cambiamento di variabile
-            // dN/dCsi = dx/dCsi * dN/dx + dy/dCsi * dN/dy
-            // dN/dEta = dx/dEta * dN/dx + dy/dEta * dN/dy
-            // => dN/dNatural = J * dN/dLocal;
-            // => dN/dLocal = J^-1 * dN/dNatural;
-            // => dF/dNatural = J^-1 dF/dLocal;
+            double L = 0.5 * (points[1] - points[0]).DistanceTo(Point3d.Origin);
 
             // dx/dCsi, dy/dCsi
             // dy/dEta, dy/dEta
@@ -819,7 +814,7 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             for (int i = 0; i < points.Length; i++)
             {
-                j11 += dNdCsi(i + 1, csi) * points[i].X;
+                j11 += dNdCsi(i + 1, csi) * points[i].DistanceTo(points[0]);
             }
 
             return Matrix<double>.Build.Dense(2, 2, new[] { j11, 0, 0, 1 });
@@ -1046,11 +1041,16 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <returns>Point3d</returns>
         private static (double, double, double) TransformNaturalCoordToGlobalCoord(double csi, Func<int, double, double> shapeFunction, Point3d[] vertices)
         {
-            double valueX = shapeFunction(1, csi) * vertices[0].X + shapeFunction(2, csi) * vertices[1].X;
-            double valueY = shapeFunction(1, csi) * vertices[0].Y + shapeFunction(2, csi) * vertices[1].Y;
+			double valueX = 0;
+			double valueY = 0;
+			for (int i = 0; i < vertices.Length; i++)
+			{
+				valueX += shapeFunction(i + 1, csi) * vertices[i].X;
+				valueY += shapeFunction(i + 1, csi) * vertices[i].Y;
+			}
 
-            return (valueX, valueY, 0);
-        }
+			return (valueX, valueY, 0);
+		}
 
         #endregion
 

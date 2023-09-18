@@ -1,64 +1,51 @@
 using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.Materials;
+using GPC.Model.Sections.Steel;
 
 namespace GPC.Model.Sections.Concrete
 {
-    public interface IConcreteSection
+    public interface IConcreteSection : ISectionShape
     {
-		#region Section Properties
+        #region Section Properties
 
-		string Name { get; }
-
-        Shape2d Shape { get; }
-
+        /// <summary>
+        /// Concrete material.
+        /// </summary>
         ConcreteMaterial ConcreteMaterial { get; }
 
-        double Area { get; }
-
+        /// <summary>
+        /// Total rebars area.
+        /// </summary>
         double AreaRebars { get; }
 
+        /// <summary>
+        /// Number of rebars.
+        /// </summary>
         int RebarsCount { get; }
 
-        double R11 { get; }
+        Geometry.Meshes.Mesh Mesh { get; }
 
-        double R22 { get; }
+        /// <summary>
+        /// Cross section-shape of concrete, without material.
+        /// </summary>
+        ISectionShape SectionShape { get; }
 
-        Point2d Centroid { get; }
+        /// <summary>
+        /// Rebar list.
+        /// </summary>
+        IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
 
-        Point2d ShearCenter { get; }
+        IList<SteelSectionPosition> SteelSections { get; }
 
-        double J11 { get; }
+        /// <summary>
+        /// Returns if the section is composite (mixed) concrete with steel sections.
+        /// </summary>
+        bool IsCompositeSteelConcrete { get; }
 
-        double J22 { get; }
+        #endregion
 
-		double AngleX1 { get; }
-
-		double Jxx { get; }
-
-        double Jyy { get; }
-
-        double Jxy { get; }
-
-		double Wpl1 { get; }
-
-        double Wpl2 { get; }
-
-        double Wel1 { get; }
-
-        double Wel2 { get; }
-
-        bool IsSymmetricAlongXLocalAxis { get; }
-
-        bool IsSymmetricAlongYLocalAxis { get; }
-
-        bool IsDoubleSymmetric { get; }
-
-		#endregion
-
-		#region Rebars
-
-		IEnumerable<ReinforcedConcreteRebar> Rebars { get; }
+        #region Methods
 
         bool AddRebar(ReinforcedConcreteRebar rebar);
 
@@ -82,11 +69,13 @@ namespace GPC.Model.Sections.Concrete
 
         ReinforcedConcreteRebar[] GetRebars();
 
-		#endregion
+        Dictionary<int, bool> GetRebarIsInsideAssociation();
 
-		#region Homogenized Properties
+        #endregion
 
-		double GetHomogenizedArea(double phi);
+        #region Homogenized Properties
+
+        double GetHomogenizedArea(double phi);
 
         double GetHomogenizedArea();
 
@@ -102,8 +91,6 @@ namespace GPC.Model.Sections.Concrete
 
         Point2d GetHomogenizedCentroid(double n, out double SxHomog, out double SyHomog);
 
-        Geometry.Meshes.Mesh Mesh { get; }
-
         double CalculateN(ReinforcedConcreteRebar rebar);
 
         double CalculateN(int rebar);
@@ -114,8 +101,6 @@ namespace GPC.Model.Sections.Concrete
         (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi);
 
-		#endregion
-
-		ReinforcedConcreteSection ToReinforcedConcreteSection();
+        #endregion
     }
 }

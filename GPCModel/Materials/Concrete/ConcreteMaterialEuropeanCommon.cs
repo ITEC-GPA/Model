@@ -1,8 +1,8 @@
+using GPC.Model.Standards;
+using GPC.Utilities.Maths;
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.Standards;
-using GPC.Utilities.Maths;
 
 namespace GPC.Model.Materials
 {
@@ -24,18 +24,18 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Characteristic compressive cylinder strength of concrete at 28 days
         /// </summary>
-        public double Fck 
+        public double Fck
         {
-			get => _fck;
+            get => _fck;
             set
             {
-                if(_fck != value)
+                if (_fck != value)
                 {
                     _fck = value;
                     RecalculateMechanicalProperties();
                 }
             }
-		}
+        }
 
         /// <summary>
         /// Characteristic tensile strength of concrete
@@ -196,10 +196,10 @@ namespace GPC.Model.Materials
             {
                 _cementType = (CementTypes)info.GetValue("CementType", typeof(CementTypes));
             }
-            catch(Exception)
-			{
+            catch (Exception)
+            {
                 _cementType = CementTypes.ClassN;
-			}
+            }
         }
 
         #endregion
@@ -424,7 +424,7 @@ namespace GPC.Model.Materials
 
         public virtual double CalculateFcd(StandardModelCode2010 standardModelCode2010)
         {
-            return GetFcdReduction(standardModelCode2010) * Fck;            
+            return GetFcdReduction(standardModelCode2010) * Fck;
         }
 
         public override double CalculateDesignTensileStrength(Standards.Standard standard)
@@ -494,20 +494,30 @@ namespace GPC.Model.Materials
 
         public override double CalculateDesignStressConcrete(Standards.Standard standard, double strain)
         {
+            return CalculateDesignStressFromCharacteristic(standard, GetStress(strain));
+        }
+
+        public double CalculateDesignStressConcrete(StandardModelCode2010 standardModelCode2010, double strain)
+        {
+            return CalculateDesignStressFromCharacteristic(standardModelCode2010, GetStress(strain));
+        }
+
+        public override double CalculateDesignStressFromCharacteristic(Standard standard, double stress)
+        {
             if (standard is StandardModelCode2010 standardModelCode2010)
-                return CalculateDesignStressConcrete(standardModelCode2010, strain);
+                return CalculateDesignStressFromCharacteristic(standardModelCode2010, stress);
             else if (standard is StandardACI318)
-                return GetStress(strain);
+                return stress;
             else
                 throw new ArgumentException();
         }
 
-        public virtual double CalculateDesignStressConcrete(StandardModelCode2010 standardModelCode2010, double strain)
+        public double CalculateDesignStressFromCharacteristic(StandardModelCode2010 standard, double stress)
         {
-            if (strain < 0)
-                return GetStress(strain) * GetFcdReduction(standardModelCode2010);
+            if (stress < 0)
+                return stress * GetFcdReduction(standard);
             else
-                return GetStress(strain) * standardModelCode2010.AlphaCT / standardModelCode2010.GammaF;
+                return stress * standard.AlphaCT / standard.GammaF;
         }
 
         #endregion
@@ -663,37 +673,37 @@ namespace GPC.Model.Materials
                     case TensionStressStrainDiagrams.Linear:
                         _fctk = fctk;
                         _fctu = fctk;
-						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
+                        _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-						if (strainYTension > 0)
-							_strainYTension = strainYTension;
-						else
-							_strainYTension = fctk / _elasticModulusTension;
-						_strainUTension = _strainYTension;
+                        if (strainYTension > 0)
+                            _strainYTension = strainYTension;
+                        else
+                            _strainYTension = fctk / _elasticModulusTension;
+                        _strainUTension = _strainYTension;
                         break;
 
                     case TensionStressStrainDiagrams.Bilinear:
                         _fctk = fctk;
                         _fctu = fFtu;
-						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
+                        _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-						if (strainYTension > 0)
-							_strainYTension = strainYTension;
-						else
-							_strainYTension = fctk / _elasticModulusTension;
-						_strainUTension = strainUTension;
+                        if (strainYTension > 0)
+                            _strainYTension = strainYTension;
+                        else
+                            _strainYTension = fctk / _elasticModulusTension;
+                        _strainUTension = strainUTension;
                         break;
 
                     case TensionStressStrainDiagrams.Generic:
                         _fctk = fctk;
                         _fctu = _stressStrainTableTension.GetLastStress();
-						_elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
+                        _elasticModulusTension = GetEcm(Math.Abs(GetFcm()));
 
-						if (strainYTension > 0)
-							_strainYTension = strainYTension;
-						else
-							_strainYTension = fctk / _elasticModulusTension;
-						_strainUTension = _stressStrainTableTension.GetLastStrain();
+                        if (strainYTension > 0)
+                            _strainYTension = strainYTension;
+                        else
+                            _strainYTension = fctk / _elasticModulusTension;
+                        _strainUTension = _stressStrainTableTension.GetLastStrain();
                         break;
 
                     case TensionStressStrainDiagrams.RigidPlastic:
