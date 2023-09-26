@@ -36,8 +36,8 @@
     <Reference Include="GMesh, Version=1.0.1.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMesh.1.0.1.1\lib\net472\GMesh.dll</HintPath>
     </Reference>
-    <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMsh.Net.1.0.484.3\lib\netstandard2.0\GMsh.Net.dll</HintPath>
+    <Reference Include="GMsh.Net, Version=1.0.495.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMsh.Net.1.0.495.1\lib\netstandard2.0\GMsh.Net.dll</HintPath>
     </Reference>
     <Reference Include="GPCGeometry, Version=2.0.0.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GPCGeometry.2.0.0.4\lib\netstandard2.0\GPCGeometry.dll</HintPath>
@@ -71,11 +71,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets')" />
+  <Import Project="..\packages\GMsh.Net.1.0.495.1\build\GMsh.Net.targets" Condition="Exists('..\packages\GMsh.Net.1.0.495.1\build\GMsh.Net.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GMsh.Net.1.0.484.3\build\GMsh.Net.targets'))" />
+    <Error Condition="!Exists('..\packages\GMsh.Net.1.0.495.1\build\GMsh.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GMsh.Net.1.0.495.1\build\GMsh.Net.targets'))" />
   </Target>
 </Project>
