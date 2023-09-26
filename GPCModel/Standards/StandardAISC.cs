@@ -12,11 +12,32 @@ namespace GPC.Model.Standards
 	{
 		#region Variables
 
+		protected double _phiBending;
+		protected double _phiCompression;
+		protected double _phiTensionYielding;
+		protected double _phiTensionFracture;
+		protected double _phiShear;
+		protected double _phiShearShortWeberRolledI;
+		protected double _phiTorsion;
+
 		#endregion
 
 		#region Properties
 
-		
+		public double PhiBending { get => _phiBending; set => _phiBending = value; }
+
+		public double PhiCompression { get => _phiCompression; set => _phiCompression = value; }
+
+		public double PhiTensionYielding { get => _phiTensionYielding; set => _phiTensionYielding = value; }
+
+		public double PhiTensionFracture { get => _phiTensionFracture; set => _phiTensionFracture = value; }
+
+		public double PhiShear { get => _phiShear; set => _phiShear = value; }
+
+		public double PhiShearShortWeberRolledI { get => _phiShearShortWeberRolledI; set => _phiShearShortWeberRolledI = value; }
+
+		public double PhiTorsion { get => _phiTorsion; set => _phiTorsion = value; }
+
 		#endregion
 
 		#region Constructors
@@ -24,7 +45,13 @@ namespace GPC.Model.Standards
 		public StandardAISC(string name = "AISC", string remarks = "Specification for Structural Steel Buildings")
 			: base(name, remarks)
 		{
-
+			_phiBending = 0.9;
+			_phiCompression = 0.9;
+			_phiTensionYielding = 0.9;
+			_phiTensionFracture = 0.75;
+			_phiShear = 0.9;
+			_phiShearShortWeberRolledI = 1.0;
+			_phiTorsion = 0.9;
 		}
 
 		public StandardAISC(string name = "AISC")

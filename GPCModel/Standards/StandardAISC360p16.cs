@@ -8,7 +8,7 @@ namespace GPC.Model.Standards
 	/// <summary>
 	/// This class collects all the coefficient of the ANSI/AISC 360-16
 	/// </summary>
-	public abstract class StandardAISC360_16 : StandardAISC
+	public class StandardAISC360p16 : StandardAISC
 	{
 		#region Variables
 
@@ -21,23 +21,23 @@ namespace GPC.Model.Standards
 
 		#region Constructors
 
-		public StandardAISC360_16(string name = "ANSI/AISC 360-16", string remarks = "Specification for Structural Steel Buildings")
+		public StandardAISC360p16(string name = "ANSI/AISC 360-16", string remarks = "Specification for Structural Steel Buildings")
 			: base(name, remarks)
 		{
 
 		}
 
-		public StandardAISC360_16(string name = "ANSI/AISC 360-16")
+		public StandardAISC360p16(string name = "ANSI/AISC 360-16")
 			: this(name, "Specification for Structural Steel Buildings")
 		{
 		}
 
-		public StandardAISC360_16()
+		public StandardAISC360p16()
 			: this("ANSI/AISC 360-16", "Specification for Structural Steel Buildings")
 		{
 		}
 
-		protected StandardAISC360_16(SerializationInfo info, StreamingContext context)
+		protected StandardAISC360p16(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
 			int version;
@@ -57,10 +57,10 @@ namespace GPC.Model.Standards
 
 		public override bool Equals(object obj)
 		{
-			return Equals(obj as StandardAISC360_16);
+			return Equals(obj as StandardAISC360p16);
 		}
 
-		public bool Equals(StandardAISC360_16 other)
+		public bool Equals(StandardAISC360p16 other)
 		{
 			return other != null &&
 				   base.Equals(other);
