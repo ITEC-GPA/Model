@@ -24,8 +24,7 @@ namespace GPC.Model.Results
 
         #region Public Constructors
 
-        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
-            int stageId = ModelObjectId.IDUNASSIGNED)
+        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations, int stageId = ModelObjectId.IDUNASSIGNED)
             : base(Case, resultLocations.ToArray())
         {
             _stageId = stageId;
