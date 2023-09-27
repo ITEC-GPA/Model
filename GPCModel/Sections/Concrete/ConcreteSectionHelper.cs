@@ -360,7 +360,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// Get n factor = ES / ( EC / (1 + phi)) 
         /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar rebar, ConcreteMaterial concreteMaterial)
         {
@@ -368,7 +368,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// Get n factor = ES / ( EC / (1 + phi)) 
         /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial)
         {
@@ -376,7 +376,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// Get n factor = ES / ( EC / (1 + phi)) 
         /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, SteelSectionPosition steelSection, ConcreteMaterial concreteMaterial)
         {
@@ -384,7 +384,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Get n factor = ES / ( EC (1 + phi)) 
+        /// Get n factor = ES / ( EC / (1 + phi)) 
         /// </summary>
         internal static double CalculateHomogenizedFactorN(double phi, IList<SteelSectionPosition> steelSections, ConcreteMaterial concreteMaterial)
         {
