@@ -15,7 +15,8 @@ namespace GPC.Model.Standards
 		protected double _phiCTied;
 		protected double _phiMaximumCompressiveAxialLoadSpiral;
 		protected double _phiMaximumCompressiveAxialLoadTied;
-		protected double _phiT;
+        protected double _phiMaximumCompressiveAxialLoadComposite;
+        protected double _phiT;
 		protected double _phiTP;
 		protected double _phiDeformationTransitionIncrement;
 		protected double _phiDeformationTransitionIncrementPrestress;
@@ -46,10 +47,15 @@ namespace GPC.Model.Standards
 		/// </summary>
 		public double PhiMaximumCompressiveAxialLoadTied { get => _phiMaximumCompressiveAxialLoadTied; set => _phiMaximumCompressiveAxialLoadTied = value; }
 
-		/// <summary>
-		/// Resistance factor for tension-controlled concrete sections
-		/// </summary>
-		public double PhiT { get => _phiT; set => _phiT = value; }
+        /// <summary>
+        /// Resistance factor for maximum compressive axial load in composite sections.
+        /// </summary>
+        public double PhiMaximumCompressiveAxialLoadComposite { get => _phiMaximumCompressiveAxialLoadComposite; set => _phiMaximumCompressiveAxialLoadComposite = value; }
+
+        /// <summary>
+        /// Resistance factor for tension-controlled concrete sections
+        /// </summary>
+        public double PhiT { get => _phiT; set => _phiT = value; }
 
 		/// <summary>
 		/// Resistance factor for tension-controlled prestressed concrete sections
@@ -87,7 +93,8 @@ namespace GPC.Model.Standards
 			_phiCTied = 0.65;
 			_phiMaximumCompressiveAxialLoadSpiral = 0.85;
 			_phiMaximumCompressiveAxialLoadTied = 0.80;
-			_phiT = 0.90;
+            _phiMaximumCompressiveAxialLoadComposite = 0.85;
+            _phiT = 0.90;
 			_phiTP = 1.0;
 			_phiDeformationTransitionIncrement = 0.003;
 			_phiDeformationTransitionIncrementPrestress = 0.002;
@@ -137,7 +144,15 @@ namespace GPC.Model.Standards
                 _concreteStrengthReductionFactor = 0.85;
                 _phiDeformationTransitionMaxLimit = 0.005;
             }
-		}
+            if (version >= 3)
+            {
+                _phiMaximumCompressiveAxialLoadComposite = info.GetDouble("PhiComposite");
+            }
+			else
+            {
+				_phiMaximumCompressiveAxialLoadComposite = 0.85;
+            }
+        }
 
 		#endregion
 
@@ -155,7 +170,10 @@ namespace GPC.Model.Standards
 				   _phiCSpiral == other._phiCSpiral &&
 				   _phiCTied == other._phiCTied &&
 				   _phiT == other._phiT &&
-				   _phiDeformationTransitionIncrement == other._phiDeformationTransitionIncrement;
+                   _phiMaximumCompressiveAxialLoadSpiral == other._phiMaximumCompressiveAxialLoadSpiral &&
+                   _phiMaximumCompressiveAxialLoadTied == other._phiMaximumCompressiveAxialLoadTied &&
+                   _phiMaximumCompressiveAxialLoadComposite == other._phiMaximumCompressiveAxialLoadComposite &&
+                   _phiDeformationTransitionIncrement == other._phiDeformationTransitionIncrement;
 		}
 
 		public override int GetHashCode()
@@ -171,7 +189,8 @@ namespace GPC.Model.Standards
 				hashCode = hashCode * -17 + _phiDeformationTransitionIncrementPrestress.GetHashCode();
 				hashCode = hashCode * -17 + _phiMaximumCompressiveAxialLoadSpiral.GetHashCode();
 				hashCode = hashCode * -17 + _phiMaximumCompressiveAxialLoadTied.GetHashCode();
-				hashCode = hashCode * -17 + _concreteStrengthReductionFactor.GetHashCode();
+                hashCode = hashCode * -17 + _phiMaximumCompressiveAxialLoadComposite.GetHashCode();
+                hashCode = hashCode * -17 + _concreteStrengthReductionFactor.GetHashCode();
 				hashCode = hashCode * -17 + _phiDeformationTransitionMaxLimit.GetHashCode();
 				return hashCode;
 			}
@@ -181,14 +200,15 @@ namespace GPC.Model.Standards
 		{
 			base.GetObjectData(info, context);
 
-			double version = 2;
+			double version = 3;
 			info.AddValue("StandardACI318Version", version);
 
 			info.AddValue("PhiCSpiral", _phiCSpiral);
 			info.AddValue("PhiCTied", _phiCTied);
 			info.AddValue("PhiSpiral", _phiMaximumCompressiveAxialLoadSpiral);
 			info.AddValue("PhiTied", _phiMaximumCompressiveAxialLoadTied);
-			info.AddValue("PhiT", _phiT);
+            info.AddValue("PhiComposite", _phiMaximumCompressiveAxialLoadComposite);
+            info.AddValue("PhiT", _phiT);
 			info.AddValue("PhiTP", _phiTP);
 			info.AddValue("PhiDeformationTransitionIncrement", _phiDeformationTransitionIncrement);
 			info.AddValue("PhiDeformationTransitionIncrementPrestress", _phiDeformationTransitionIncrementPrestress);
