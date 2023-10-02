@@ -390,5 +390,18 @@ namespace GPC.Model.Sections.Concrete
         {
             return (steelSections.Select(i => i.Section.SteelMaterial.ElasticModulusTension).Average() / (concreteMaterial.ElasticModulusCompression / (1 + phi)));
         }
+
+        /// <summary>
+        /// Inverse of CalculateHomogenizedFactorN.
+        /// Calculate psi from a required n (e.g., n=15).
+        /// </summary>
+        /// <param name="n">Required homogenization coefficient.</param>
+        /// <param name="steelMaterial"></param>
+        /// <param name="concreteMaterial"></param>
+        /// <returns></returns>
+        public static double CalculateHomogenizedFactorPhi(in double n, in SteelMaterial steelMaterial, in ConcreteMaterial concreteMaterial)
+        {
+            return n * concreteMaterial.ElasticModulusCompression / steelMaterial.ElasticModulusTension - 1.0;
+        }
     }
 }
