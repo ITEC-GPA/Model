@@ -3,7 +3,6 @@ using GPC.Model.Data.Steel;
 using GPC.Model.Results;
 using GPC.Model.Sections.Bolt;
 using GPC.Utilities.Maths;
-using MathNet.Numerics.Random;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -100,7 +99,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test03_ForceTranslationInX_01()
+        public void Test04_ForceTranslationInX_01()
         {
             var BarSys = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 5000, 4000, 100, 0, 0, BarSys);
@@ -114,7 +113,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test03_ForceTranslationInXAndY_01()
+        public void Test05_ForceTranslationInXAndY_01()
         {
             var BarSys = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
             var VetSoll = new ResultBeamForces(0, 5000, 4000, 100, 0, 0, BarSys);
@@ -128,7 +127,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test04_ForcesSum_01()
+        public void Test06_ForcesSum_01()
         {
             // Force A
             var BarSysA = new CoordinateSystem(new Point3d(10, 5, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -147,7 +146,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test04_ForceCalculation_01()
+        public void Test07_ForceCalculation_01()
         {
             var BG = new RectangularBoltGrid(new double[] { }, new double[] { 200 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(50, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -159,7 +158,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test04_ForceCalculation_02()
+        public void Test08_ForceCalculation_02()
         {
             var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -171,7 +170,7 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
-        public void Test04_ForceCalculation_03()
+        public void Test09_ForceCalculation_03()
         {
             var BG = new RectangularBoltGrid(new double[] { 200 }, new double[] { 120, 120 }, 12, BoltMaterialEN1993Data.Class10_9);
             var AppSys = new CoordinateSystem(new Point3d(0, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -182,72 +181,128 @@ namespace ModelObjectTest
             Assert.IsTrue(BG.CheckShearForcesElastic(res, VetSoll));
         }
 
-		[TestMethod]
-		public void Test05_GridGeometry_01()
-		{
+        [TestMethod]
+        public void Test10_GridGeometry_01()
+        {
             double diameter = 12;
 
-			var plate = new RectangularPlateWithBolts(300, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200 }, new double[] { 120, 120 },
-				diameter, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+            var plate = new RectangularPlateWithBolts(300, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200 }, new double[] { 120, 120 },
+                diameter, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
             ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
             var dist1 = plate.CalculateE1(plate.BoltGrid.Bolts[0], resultBeamForces);
             var dist2 = plate.CalculateE1(plate.BoltGrid.Bolts[1], resultBeamForces);
             var dist4 = plate.CalculateE1(plate.BoltGrid.Bolts[3], resultBeamForces);
 
-			// Solution
-			double expDist1 = 250;
-			Assert.IsTrue(Math.Abs(dist1 - expDist1) < 1);
-			double expDist2 = 250;
-			Assert.IsTrue(Math.Abs(dist2 - expDist2) < 1);
-			double expDist4 = 50;
-			Assert.IsTrue(Math.Abs(dist4 - expDist4) < 1);
-		}
+            // Solution
+            double expDist1 = 250;
+            Assert.IsTrue(Math.Abs(dist1 - expDist1) < 1);
+            double expDist2 = 250;
+            Assert.IsTrue(Math.Abs(dist2 - expDist2) < 1);
+            double expDist4 = 50;
+            Assert.IsTrue(Math.Abs(dist4 - expDist4) < 1);
+        }
 
-		[TestMethod]
-		public void Test05_GridGeometry_02()
-		{
-			var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
-				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+        [TestMethod]
+        public void Test11_GridGeometry_02()
+        {
+            var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
+                12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
-			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
-			var distE1_1 = plate.CalculateE1(plate.BoltGrid.Bolts[0], resultBeamForces);
-			var distE1_2 = plate.CalculateE1(plate.BoltGrid.Bolts[1], resultBeamForces);
-			var distE1_4 = plate.CalculateE1(plate.BoltGrid.Bolts[3], resultBeamForces);
-			var distE1_7 = plate.CalculateE1(plate.BoltGrid.Bolts[6], resultBeamForces);
+            ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
+            var distE1_1 = plate.CalculateE1(plate.BoltGrid.Bolts[0], resultBeamForces);
+            var distE1_2 = plate.CalculateE1(plate.BoltGrid.Bolts[1], resultBeamForces);
+            var distE1_4 = plate.CalculateE1(plate.BoltGrid.Bolts[3], resultBeamForces);
+            var distE1_7 = plate.CalculateE1(plate.BoltGrid.Bolts[6], resultBeamForces);
 
-			// Solution
-			double expDistE1_1 = 450;
-			Assert.IsTrue(Math.Abs(distE1_1 - expDistE1_1) < 1);
-			double expDistE1_2 = 450;
-			Assert.IsTrue(Math.Abs(distE1_2 - expDistE1_2) < 1);
-			double expDistE1_4 = 250;
-			Assert.IsTrue(Math.Abs(distE1_4 - expDistE1_4) < 1);
-			double expDistE1_7 = 50;
-			Assert.IsTrue(Math.Abs(distE1_7 - expDistE1_7) < 1);
-		}
+            // Solution
+            double expDistE1_1 = 450;
+            Assert.IsTrue(Math.Abs(distE1_1 - expDistE1_1) < 1);
+            double expDistE1_2 = 450;
+            Assert.IsTrue(Math.Abs(distE1_2 - expDistE1_2) < 1);
+            double expDistE1_4 = 250;
+            Assert.IsTrue(Math.Abs(distE1_4 - expDistE1_4) < 1);
+            double expDistE1_7 = 50;
+            Assert.IsTrue(Math.Abs(distE1_7 - expDistE1_7) < 1);
+        }
 
-		[TestMethod]
-		public void Test05_GridGeometry_03()
-		{
-			var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
-				12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+        [TestMethod]
+        public void Test12_GridGeometry_03()
+        {
+            var plate = new RectangularPlateWithBolts(500, 340, SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
+                12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
 
-			ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
-			var distE2_1 = plate.CalculateE2(plate.BoltGrid.Bolts[0], resultBeamForces);
-			var distE2_2 = plate.CalculateE2(plate.BoltGrid.Bolts[1], resultBeamForces);
-			var distE2_4 = plate.CalculateE2(plate.BoltGrid.Bolts[3], resultBeamForces);
-			var distE2_7 = plate.CalculateE2(plate.BoltGrid.Bolts[6], resultBeamForces);
+            ResultBeamForces resultBeamForces = new ResultBeamForces(0, 10, 0, 0, 0, 0, new CoordinateSystem(plate.GetCoordinateSystem()));
+            var distE2_1 = plate.CalculateE2(plate.BoltGrid.Bolts[0], resultBeamForces);
+            var distE2_2 = plate.CalculateE2(plate.BoltGrid.Bolts[1], resultBeamForces);
+            var distE2_4 = plate.CalculateE2(plate.BoltGrid.Bolts[3], resultBeamForces);
+            var distE2_7 = plate.CalculateE2(plate.BoltGrid.Bolts[6], resultBeamForces);
 
-			double expDistE2_1 = 50;
-			Assert.IsTrue(Math.Abs(distE2_1 - expDistE2_1) < 1);
-			double expDistE2_2 = 170;
-			Assert.IsTrue(Math.Abs(distE2_2 - expDistE2_2) < 1);
-			double expDistE2_4 = 50;
-			Assert.IsTrue(Math.Abs(distE2_4 - expDistE2_4) < 1);
-			double expDistE2_7 = 50;
-			Assert.IsTrue(Math.Abs(distE2_7 - expDistE2_7) < 1);
-		}
-	}
+            double expDistE2_1 = 50;
+            Assert.IsTrue(Math.Abs(distE2_1 - expDistE2_1) < 1);
+            double expDistE2_2 = 170;
+            Assert.IsTrue(Math.Abs(distE2_2 - expDistE2_2) < 1);
+            double expDistE2_4 = 50;
+            Assert.IsTrue(Math.Abs(distE2_4 - expDistE2_4) < 1);
+            double expDistE2_7 = 50;
+            Assert.IsTrue(Math.Abs(distE2_7 - expDistE2_7) < 1);
+        }
+
+        [TestMethod]
+        public void Test13_TensionForceCalculation_01()
+        {
+            // Pure traction, 9 bolts.
+            var plate = new RectangularPlateWithBolts(500, 340,
+                SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { 120, 120 },
+                12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+
+            var barSys = new CoordinateSystem(plate.BoltGrid.CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
+
+            var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
+
+            var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
+            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+
+            foreach (var bf in boltsForces)
+                Assert.AreEqual(100, bf.Value.N, 0.0001);
+        }
+
+        [TestMethod]
+        public void Test14_TensionForceCalculation_02()
+        {
+            // Pure traction, 3 aligned bolts.
+            var plate = new RectangularPlateWithBolts(500, 340,
+                SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { },
+                12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 170));
+
+            var barSys = new CoordinateSystem(plate.BoltGrid.CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
+
+            var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
+
+            var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
+            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+
+            foreach (var bf in boltsForces)
+                Assert.AreEqual(300, bf.Value.N, 0.0001);
+        }
+
+        [TestMethod]
+        public void Test15_TensionForceCalculation_03()
+        {
+            // Pure traction, 3 aligned bolts, with bolts eccentric to the plate.
+            var plate = new RectangularPlateWithBolts(500, 340,
+                SteelMaterialEN1993Data.S235, 10, new double[] { 200, 200 }, new double[] { },
+                12, BoltMaterialEN1993Data.Class10_9, new Point2d(50, 50));
+
+            var barSys = new CoordinateSystem(plate.BoltGrid.CalculateBarycenter(), Vector3d.XAxis, Vector3d.YAxis);
+
+            var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
+
+            var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
+            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+
+            foreach (var bf in boltsForces)
+                Assert.AreEqual(300, bf.Value.N, 0.0001);
+        }
+    }
 }
- 

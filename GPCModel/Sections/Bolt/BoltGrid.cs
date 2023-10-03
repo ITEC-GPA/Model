@@ -121,6 +121,25 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
+        /// Calculate inertia moment of the whole group of bolts
+        /// </summary>
+        /// <returns></returns>
+        public void CalculateInertiaMoment(out double I_X, out double I_Y, out double I_XY)
+        {
+            I_X = 0; // Inertia moments.
+            I_Y = 0;
+            I_XY = 0; // Inertia product.
+
+            foreach (var b in Bolts)
+            {
+                var b_area = b.BoltDef.Area;
+                I_X += b.BoltDef.J11 + b_area * Math.Pow(b.Position.Y, 2);
+                I_Y += b.BoltDef.J22 + b_area * Math.Pow(b.Position.X, 2);
+                I_XY += b_area * b.Position.X * b.Position.Y;
+            }
+        }
+
+        /// <summary>
         /// Given a stress with point of application, determines a distribution of shear forces in the elastic field
         /// from shear and torsion stresses.
         /// Theory in "\\studio\Software_Development\01 Theory\08 BoltSection\Shear on bolts - elastic distribution.docx".

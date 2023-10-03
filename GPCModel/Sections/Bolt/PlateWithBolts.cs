@@ -2,7 +2,9 @@
 using GPC.Model.Materials;
 using GPC.Model.Results;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -565,6 +567,330 @@ namespace GPC.Model.Sections.Bolt
             return angles;
         }
 
+        /// <summary>
+        /// Calculation of partial concrete-steel sections.
+        /// In this case, concrete is under the plate and works by contact.
+        /// The method used here considers a behavior:
+        /// - conservation of plane section.
+        /// - resistance of concrete in compression only.
+        /// - homogenization of the section by a parameter n (quite similar to that used in the method
+        /// of allowable stresses): homogenization coefficient given by the ratio Es / Ec = n.
+        /// 
+        /// The initial shapes of the concrete and steel:
+        /// - concrete, polygonal shapes.
+        /// - steel, always formed by a series of circles.
+        /// </summary>
+        /// <param name="Soll">Stress on the entire section.</param>
+        /// <param name="boltForces">Update axial N values with redistribuited tension.</param>
+        public void CalculateTensionForcesElastic(in ResultBeamForces Soll, in double E_s, in double E_c, Dictionary<BoltPosition, ResultBeamForces> boltForces, out double concreteMinStress)
+        {
+            // Special case, there is no axial force.
+            concreteMinStress = 0;
+            if (Soll.N < 1)
+                return;
+
+            // Bounding box and first area.
+            var bounding = Shape.Get2dBoundingBox();
+            var diagonal = bounding.Min.DistanceTo(bounding.Max);
+            double A_c_0 = Shape.GetArea(); // Save first iteration area.
+
+            // Move sollecitation to global system.
+            var globalCS = new CoordinateSystem(Point3d.Origin, Vector3d.XAxis, Vector3d.YAxis);
+            var globalSoll = Soll.ToCoordinateSystemWithEccentricity(globalCS);
+
+            // Load eccentricity.
+            var eccentricity = new Point2d
+            {
+                X = -globalSoll.M2 / globalSoll.N,
+                Y = globalSoll.M1 / globalSoll.N
+            };
+
+            // Bolts inertia
+            var A_s = BoltGrid.CalculateArea();
+            var G_s = BoltGrid.CalculateBarycenter();
+            BoltGrid.CalculateInertiaMoment(out double I_X_s, out double I_Y_s, out double I_XY_s);
+
+            // Lines for boundaries. Positive areas are counterclockwise, hole areas are clockwise.
+            var edges = GetEdges();
+            int nIterazioni = 0;
+            double relativeError = 0.00001;
+            double relativeErrorInertia = 0.000001;
+            bool barycentricLoad = false;
+            double A_previous = 0.0;
+            double variazioneRelativa;
+
+            // Variables for concrete integration.
+            double A_c, S_X_c, S_Y_c, I_X_c, I_Y_c, I_XY_c;
+            Point2d G_c;
+
+            // Variables for homogenized section.
+            double homogCoeff = E_s / E_c;
+            double A_h = 0.0, I_X_h, I_Y_h, I_XY_h;
+            Point2d G_h = Point2d.Origin;
+            double I_X_h_g, I_Y_h_g, I_XY_h_g; // In centroid.
+            double I_X_h_0, I_Y_h_0, r_X_h_0, r_Y_h_0; // In principal system.
+            Point2d eccentricity_0 = Point2d.Origin;
+            double alpha_h;
+
+            // Intermediate results.
+            double sqrt_d_ab = 0.0;
+            var neutralAxis = new Line2d(Point2d.Origin, Point2d.Origin + Vector2d.XAxis);
+
+            do
+            {
+                nIterazioni++; // First iteration value is 1.
+
+                // Concrete inertia
+                A_c = 0.0;
+                S_X_c = 0.0;
+                S_Y_c = 0.0;
+                G_c = Point2d.Origin;
+                I_X_c = 0.0;
+                I_Y_c = 0.0;
+                I_XY_c = 0.0;
+
+                // Integrate area and intertia.
+                foreach (var e in edges)
+                    IntegrateLine2d(e, ref A_c, ref S_X_c, ref S_Y_c, ref I_X_c, ref I_Y_c, ref I_XY_c);
+
+                if (A_c != 0.0)
+                    G_c = new Point2d(S_Y_c / A_c, S_X_c / A_c);
+
+                // Convegergence.
+                variazioneRelativa = (A_c - A_previous) / A_c_0;
+                A_previous = A_c;
+                bool isConverged = Math.Abs(variazioneRelativa) < relativeError;
+                if (isConverged)
+                    break;
+
+                // Homogenized section properties.
+                A_h = A_c + homogCoeff * A_s;
+                I_X_h = I_X_c + homogCoeff * I_X_s;
+                I_Y_h = I_Y_c + homogCoeff * I_Y_s;
+                I_XY_h = I_XY_c + homogCoeff * I_XY_s;
+                G_h.X = A_c / A_h * G_c.X + ((homogCoeff * A_s) / A_h) * G_s.X;
+                G_h.Y = A_c / A_h * G_c.Y + ((homogCoeff * A_s) / A_h) * G_s.Y;
+
+                // Homogenized section properties in centroid.
+                I_X_h_g = I_X_h - A_h * Math.Pow(G_h.Y, 2.0);
+                I_Y_h_g = I_Y_h - A_h * Math.Pow(G_h.X, 2.0);
+                I_XY_h_g = I_XY_h - A_h * (G_h.X * G_h.Y);
+
+                alpha_h = 0.0;
+
+                if ((Math.Abs(I_X_h_g - I_Y_h_g) / (I_X_h_g + I_Y_h_g)) > relativeErrorInertia) // I_X_h_g != I_Y_h_g
+                    alpha_h = Math.Atan((2.0 * I_XY_h_g) / (I_X_h_g - I_Y_h_g)) / 2.0;
+
+                // Homogenized section properties in principal system.
+                I_Y_h_0 = (I_Y_h_g * Math.Pow(Math.Cos(alpha_h), 2.0) - I_X_h_g * Math.Pow(Math.Sin(alpha_h), 2.0)) /
+                    (Math.Pow(Math.Cos(alpha_h), 2.0) - Math.Pow(Math.Sin(alpha_h), 2.0));
+
+                I_X_h_0 = (I_X_h_g - I_Y_h_g * Math.Pow(Math.Sin(alpha_h), 2.0)) /
+                    Math.Pow(Math.Cos(alpha_h), 2.0);
+
+                r_Y_h_0 = Math.Sqrt(I_Y_h_0 / A_h);
+                r_X_h_0 = Math.Sqrt(I_X_h_0 / A_h);
+
+                // Eccentricity of the load with respect to the inertia ucs.
+                eccentricity_0.X = (eccentricity.X - G_h.X) * Math.Cos(-alpha_h) + (eccentricity.Y - G_h.Y) * Math.Sin(-alpha_h);
+                eccentricity_0.Y = -(eccentricity.X - G_h.X) * Math.Sin(-alpha_h) + (eccentricity.Y - G_h.Y) * Math.Cos(-alpha_h);
+
+                if ((Math.Abs(eccentricity_0.X) < relativeErrorInertia) && (Math.Abs(eccentricity_0.Y) < relativeErrorInertia))
+                {
+                    barycentricLoad = true;
+                    break;
+                }
+
+                // Find neutral axis.
+                double d_a = eccentricity_0.X / Math.Pow(r_Y_h_0, 2.0);
+                double d_b = eccentricity_0.Y / Math.Pow(r_X_h_0, 2.0);
+
+                double d_a_plus_b = Math.Pow(d_a, 2.0) + Math.Pow(d_b, 2.0);
+                sqrt_d_ab = Math.Sqrt(d_a_plus_b);
+
+                double P_X_0 = -(d_a / d_a_plus_b);
+                double P_Y_0 = -(d_b / d_a_plus_b);
+
+                double P1_X_0 = P_X_0 - diagonal * d_b / sqrt_d_ab;
+                double P1_Y_0 = P_Y_0 + diagonal * d_a / sqrt_d_ab;
+
+                double P2_X_0 = P_X_0 + diagonal * d_b / sqrt_d_ab;
+                double P2_Y_0 = P_Y_0 - diagonal * d_a / sqrt_d_ab;
+
+                double Q_X_0, Q_Y_0;
+                if (globalSoll.N < 0)
+                {
+                    Q_X_0 = P_X_0 + diagonal * d_a / sqrt_d_ab;
+                    Q_Y_0 = P_Y_0 + diagonal * d_b / sqrt_d_ab;
+                }
+                else
+                {
+                    Q_X_0 = P_X_0 - diagonal * d_a / sqrt_d_ab;
+                    Q_Y_0 = P_Y_0 - diagonal * d_b / sqrt_d_ab;
+                }
+
+                var P1 = new Point2d(Math.Cos(-alpha_h) * P1_X_0 - Math.Sin(-alpha_h) * P1_Y_0 + G_h.X,
+                    Math.Sin(-alpha_h) * P1_X_0 + Math.Cos(-alpha_h) * P1_Y_0 + G_h.Y);
+                var P2 = new Point2d(Math.Cos(-alpha_h) * P2_X_0 - Math.Sin(-alpha_h) * P2_Y_0 + G_h.X,
+                    Math.Sin(-alpha_h) * P2_X_0 + Math.Cos(-alpha_h) * P2_Y_0 + G_h.Y);
+                var Q = new Point2d(Math.Cos(-alpha_h) * Q_X_0 - Math.Sin(-alpha_h) * Q_Y_0 + G_h.X,
+                    Math.Sin(-alpha_h) * Q_X_0 + Math.Cos(-alpha_h) * Q_Y_0 + G_h.Y);
+
+                neutralAxis = new Line2d(P1, P2);
+                // Redefine concrete area.
+                // Evaluate whether point Q is above or below with respect to the line of intersection.
+                bool PointQIsAbove = false;
+                if (OrientedDistFromSegment2D(neutralAxis, Q) >= 0.0)
+                    PointQIsAbove = true;
+
+                // Find the intersections, and filter the segments according to their position relative to the line of intersection.
+                // Always use the original plate points for this part.
+                var edges_original = GetEdges();
+                edges.Clear();
+
+                Point2d previousPoint = null;
+                var paths = new List<List<Line2d>>();
+
+                foreach (var e_original in edges_original)
+                {
+                    // To reconstruct the paths, it is necessary to know when going from one perimeter path to another,
+                    // the holes are each a different path.
+                    // isNewPath identifies the path change.
+                    bool isNewPath = previousPoint is null || previousPoint != e_original.Start;
+                    if (isNewPath)
+                        paths.Add(new List<Line2d>());
+                    bool startIsSameSide = OrientedDistFromSegment2D(neutralAxis, e_original.Start) >= 0.0 == PointQIsAbove;
+                    bool endIsSameSide = OrientedDistFromSegment2D(neutralAxis, e_original.End) >= 0.0 == PointQIsAbove;
+
+                    if (startIsSameSide && endIsSameSide)
+                    {
+                        paths.Last().Add(e_original);
+                    }
+                    else if (startIsSameSide || endIsSameSide)
+                    {
+                        if (neutralAxis.GetIntersectionWithInfiniteLine(e_original, out Point2d intersection))
+                        {
+                            if (startIsSameSide)
+                                paths.Last().Add(new Line2d(e_original.Start, intersection));
+                            else
+                                paths.Last().Add(new Line2d(intersection, e_original.End));
+                        }
+                    }
+                    previousPoint = e_original.End;
+                }
+                // Reconstruct the paths with missing edges.
+                foreach (var path in paths)
+                {
+                    var pathCount = path.Count;
+                    if (pathCount > 1)
+                    {
+                        for (int i = 0; i < pathCount; i++)
+                        {
+                            var prevPoint = path[i].End;
+                            var nextPoint = path[(i + 1) % pathCount].Start;
+                            if (prevPoint != nextPoint)
+                                edges.Add(new Line2d(prevPoint, nextPoint));
+                        }
+                        foreach (var line in path)
+                            edges.Add(line);
+                    }
+                }
+
+            } while (nIterazioni < 30);
+
+            concreteMinStress = 0.0;
+
+            if (barycentricLoad == true)
+            {
+                // Calculates the stresses in the case of centered loading.
+                double sigmaConcrete;
+                double sigmaSteel;
+
+                if (globalSoll.N > 0.0) // Tension.
+                {
+                    sigmaConcrete = 0.0;
+                    sigmaSteel = globalSoll.N / A_s;
+                }
+                else // Compression.
+                {
+                    sigmaConcrete = globalSoll.N / A_h;
+                    sigmaSteel = homogCoeff * globalSoll.N / A_h;
+                }
+                concreteMinStress = sigmaConcrete;
+
+                foreach (var b in BoltGrid.Bolts)
+                {
+                    var forceSteel = sigmaSteel * b.BoltDef.Area;
+                    if (boltForces.TryGetValue(b, out var rbf))
+                        rbf.N = forceSteel;
+                    else
+                        boltForces[b] = new ResultBeamForces(forceSteel, 0, 0, 0, 0, 0, new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
+                }
+            }
+            else
+            {
+                double dC = sqrt_d_ab * globalSoll.N / A_h;
+
+                foreach (var e in edges)
+                {
+                    double distStart = OrientedDistFromSegment2D(neutralAxis, e.Start);
+                    double distEnd = OrientedDistFromSegment2D(neutralAxis, e.End);
+
+                    if ((dC * distStart) < concreteMinStress)
+                        concreteMinStress = dC * distStart;
+
+                    if ((dC * distEnd) < concreteMinStress)
+                        concreteMinStress = dC * distEnd;
+                }
+
+                foreach (var b in BoltGrid.Bolts)
+                {
+                    double dist = OrientedDistFromSegment2D(neutralAxis, b.Position);
+                    double stress = homogCoeff * dC * dist * b.BoltDef.Area;
+                    if (boltForces.TryGetValue(b, out var rbf))
+                        rbf.N = stress;
+                    else
+                        boltForces[b] = new ResultBeamForces(stress, 0, 0, 0, 0, 0, new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
+                }
+            }
+
+            // Boundary integration.
+            void IntegrateLine2d(Line2d line2d, ref double A_l, ref double S_X_l, ref double S_Y_l, ref double I_X_l, ref double I_Y_l, ref double I_XY_l)
+            {
+                var Pi = line2d.Start;
+                var Pj = line2d.End;
+
+                double cXp = Pj.X + Pi.X;
+                double cYm = Pj.Y - Pi.Y;
+                double cYp = Pj.Y + Pi.Y;
+                double cXXp = Pj.X * Pj.X + Pi.X * Pi.X;
+                double cXYp = Pj.X * Pj.Y + Pi.X * Pi.Y;
+                double cYYp = Pj.Y * Pj.Y + Pi.Y * Pi.Y;
+
+                A_l += 0.5 * cYm * cXp;
+                S_X_l += 1.0 / 6.0 * cYm * (cXp * cYp + cXYp);
+                S_Y_l += 1.0 / 6.0 * cYm * (cXXp + Pj.X * Pi.X);
+                I_X_l += 1.0 / 12.0 * cYm * (cYYp * cXp + 2.0 * cYp * cXYp);
+                I_Y_l += 1.0 / 12.0 * cYm * cXp * cXXp;
+                I_XY_l += 1.0 / 24.0 * cYm * (cXXp * cYp + 2.0 * cXp * cXYp);
+            }
+
+            // Distance with sign, on the left the sign is positive, on the right the sign is negative.
+            double OrientedDistFromSegment2D(Line2d line2d, Point2d P, double distanceTolerance = GeometryBase.Tolerance)
+            {
+                var Pi = line2d.Start;
+                var Pj = line2d.End;
+                double distance = 0.0;
+                double distP1_P2 = Pi.DistanceTo(Pj);
+                distance = (P.X * (Pi.Y - Pj.Y) + Pi.X * (Pj.Y - P.Y) + Pj.X * (P.Y - Pi.Y)) / distP1_P2;
+
+                if (Math.Abs(distance / distP1_P2) < distanceTolerance)
+                    distance = 0.0;
+
+                return distance;
+            }
+        }
+
         #endregion
 
         #region Comparers
@@ -573,13 +899,12 @@ namespace GPC.Model.Sections.Bolt
         {
             return Equals(obj as PlateWithBolts);
         }
-
         public bool Equals(PlateWithBolts other)
         {
             return !(other is null) &&
-                   base.Equals(other) &&
-                   EqualityComparer<BoltGrid>.Default.Equals(_boltGrid, other._boltGrid) &&
-                   _thickness == other._thickness;
+            base.Equals(other) &&
+            EqualityComparer<BoltGrid>.Default.Equals(_boltGrid, other._boltGrid) &&
+            _thickness == other._thickness;
         }
 
         public override int GetHashCode()
