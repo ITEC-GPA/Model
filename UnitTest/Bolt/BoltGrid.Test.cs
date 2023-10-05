@@ -261,7 +261,7 @@ namespace ModelObjectTest
             var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
 
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
-            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+            plate.CalculateTensionForcesElastic(resultBeamForces, 15000, boltsForces, out _);
 
             foreach (var bf in boltsForces)
                 Assert.AreEqual(100, bf.Value.N, 0.0001);
@@ -280,7 +280,7 @@ namespace ModelObjectTest
             var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
 
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
-            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+            plate.CalculateTensionForcesElastic(resultBeamForces, 15000, boltsForces, out _);
 
             foreach (var bf in boltsForces)
                 Assert.AreEqual(300, bf.Value.N, 0.0001);
@@ -299,7 +299,7 @@ namespace ModelObjectTest
             var resultBeamForces = new ResultBeamForces(900, 0, 0, 0, 0, 0, barSys);
 
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
-            plate.CalculateTensionForcesElastic(resultBeamForces, 200000, 15000, boltsForces, out _);
+            plate.CalculateTensionForcesElastic(resultBeamForces, 15000, boltsForces, out _);
 
             foreach (var bf in boltsForces)
                 Assert.AreEqual(300, bf.Value.N, 0.0001);
@@ -311,6 +311,7 @@ namespace ModelObjectTest
             // Bending moment in one direction, direction X.
             double barRadius = 20;
             double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
 
             var plate = new PlateWithBolts(
                 new Polygon2d(
@@ -327,7 +328,7 @@ namespace ModelObjectTest
                     new double[] { 700 },
                     new double[] { 700 },
                     40,
-                    BoltMaterialEN1993Data.Class10_9,
+                    barMaterial,
                     new Point2d(-350, -350)
                     ),
                 10
@@ -340,7 +341,7 @@ namespace ModelObjectTest
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
 
             { // n = 1
-                plate.CalculateTensionForcesElastic(resultBeamForces, 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
 
                 // Comparison values with calculation from VCA.
                 double referenceConcrStress = -9.604;
@@ -362,6 +363,7 @@ namespace ModelObjectTest
             // Bending moment in one direction, direction Y.
             double barRadius = 20;
             double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
 
             var plate = new PlateWithBolts(
                 new Polygon2d(
@@ -378,7 +380,7 @@ namespace ModelObjectTest
                     new double[] { 700 },
                     new double[] { 700 },
                     40,
-                    BoltMaterialEN1993Data.Class10_9,
+                    barMaterial,
                     new Point2d(-350, -350)
                     ),
                 10
@@ -391,7 +393,7 @@ namespace ModelObjectTest
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
 
             { // n = 1
-                plate.CalculateTensionForcesElastic(resultBeamForces, 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
 
                 double maxForceTension = boltsForces.Max(t => t.Value.N);
 
@@ -424,6 +426,7 @@ namespace ModelObjectTest
             // Bending moment in one direction, direction X.
             double barRadius = 20;
             double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
 
             var plate = new PlateWithBolts(
                 new Polygon2d(
@@ -440,7 +443,7 @@ namespace ModelObjectTest
                     new double[] { 700 },
                     new double[] { 700 },
                     40,
-                    BoltMaterialEN1993Data.Class10_9,
+                    barMaterial,
                     new Point2d(-350, -350)
                     ),
                 10
@@ -453,7 +456,7 @@ namespace ModelObjectTest
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
 
             { // n = 1
-                plate.CalculateTensionForcesElastic(resultBeamForces, 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
 
                 // Comparison values with calculation from VCA.
                 double referenceConcrStress = -9.604;
@@ -475,6 +478,7 @@ namespace ModelObjectTest
             // Bending moment in one direction, direction Y.
             double barRadius = 20;
             double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
 
             var plate = new PlateWithBolts(
                 new Polygon2d(
@@ -491,7 +495,7 @@ namespace ModelObjectTest
                     new double[] { 700 },
                     new double[] { 700 },
                     40,
-                    BoltMaterialEN1993Data.Class10_9,
+                    barMaterial,
                     new Point2d(-350, -350)
                     ),
                 10
@@ -504,7 +508,7 @@ namespace ModelObjectTest
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
 
             { // n = 1
-                plate.CalculateTensionForcesElastic(resultBeamForces, 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
 
                 double maxForceTension = boltsForces.Max(t => t.Value.N);
 
@@ -536,6 +540,7 @@ namespace ModelObjectTest
         {
             double barRadius = 20;
             double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
 
             var plate = new PlateWithBolts(
                 new Polygon2d(
@@ -552,7 +557,7 @@ namespace ModelObjectTest
                     new double[] { 700 },
                     new double[] { 700 },
                     40,
-                    BoltMaterialEN1993Data.Class10_9,
+                    barMaterial,
                     new Point2d(-350, -350)
                     ),
                 10
@@ -565,7 +570,7 @@ namespace ModelObjectTest
             var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
 
             { // n = 1
-                plate.CalculateTensionForcesElastic(resultBeamForces, 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
 
                 double maxForceTension = boltsForces.Max(t => t.Value.N);
 
@@ -592,7 +597,7 @@ namespace ModelObjectTest
             }
 
             { // n = 15
-                plate.CalculateTensionForcesElastic(resultBeamForces, 15 * 2000.0, 2000.0, boltsForces, out var minConcrStress);
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E / 15.0, boltsForces, out var minConcrStress);
 
                 double maxForceTension = boltsForces.Max(t => t.Value.N);
 
