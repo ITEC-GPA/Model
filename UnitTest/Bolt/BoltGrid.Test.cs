@@ -623,5 +623,107 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(steelRelativeErrorCHK) < 0.001);
             }
         }
+
+        [TestMethod]
+        public void Test21_TensionForceCalculation_09()
+        {
+            // Section with hole.
+            double barRadius = 20;
+            double barArea = barRadius * barRadius * Math.PI;
+            var barMaterial = BoltMaterialEN1993Data.Class10_9;
+
+            var plate = new PlateWithBolts(
+                new Polygon2d(
+                    new List<Point2d>()
+                    {
+                        new Point2d(-400, -500),
+                        new Point2d(400, -500),
+                        new Point2d(400, 500),
+                        new Point2d(-400, 500)
+                    }
+                    ),
+                SteelMaterialEN1993Data.S235,
+                new RectangularBoltGrid(
+                    new double[] { 700 },
+                    new double[] { 700 },
+                    40,
+                    barMaterial,
+                    new Point2d(-350, -350)
+                    ),
+                10,
+                new Polygon2d[]
+                {
+                    new Polygon2d(
+                        new List<Point2d>()
+                        {
+                            new Point2d(-300, 300),
+                            new Point2d(300, 300),
+                            new Point2d(300, -300),
+                            new Point2d(-300, -300)
+                        }
+                        )
+                }
+                );
+
+            var barSys = new CoordinateSystem(new Point2d(300, 0), Vector3d.XAxis, Vector3d.YAxis);
+
+            var resultBeamForces = new ResultBeamForces(-2000000, 0, 0, 0, 0, 0, barSys);
+
+            var boltsForces = new Dictionary<BoltPosition, ResultBeamForces>();
+
+            { // n = 1
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E, boltsForces, out var minConcrStress);
+
+                double maxForceTension = boltsForces.Max(t => t.Value.N);
+
+                // Comparison values with calculation from VCA.
+                double referenceConcrStressVCA = -14.16;
+                double referenceSteelTensionVCA = 10.06 * barArea;
+
+                double concrRelativeErrorVCA = Error.CalcRelativeError(minConcrStress, referenceConcrStressVCA);
+                double steelRelativeErrorVCA = Error.CalcRelativeError(maxForceTension, referenceSteelTensionVCA);
+
+                Assert.IsTrue(Math.Abs(concrRelativeErrorVCA) < 0.02);
+                Assert.IsTrue(Math.Abs(steelRelativeErrorVCA) < 0.04);
+
+                // Comparison values with calculation from checker (GPCChecker --> GPC.Checkers.Concrete) with fictitious section (this consider holes in concrete area).
+                // Result most like this.
+                double referenceConcrStressCHK = -14.441049152944515;
+                double referenceSteelTensionCHK = 10.4024006598917915 * barArea;
+
+                double concrRelativeErrorCHK = Error.CalcRelativeError(minConcrStress, referenceConcrStressCHK);
+                double steelRelativeErrorCHK = Error.CalcRelativeError(maxForceTension, referenceSteelTensionCHK);
+
+                Assert.IsTrue(Math.Abs(concrRelativeErrorCHK) < 0.001);
+                Assert.IsTrue(Math.Abs(steelRelativeErrorCHK) < 0.001);
+            }
+
+            { // n = 15
+                plate.CalculateTensionForcesElastic(resultBeamForces, barMaterial.E / 15.0, boltsForces, out var minConcrStress);
+
+                double maxForceTension = boltsForces.Max(t => t.Value.N);
+
+                // Comparison values with calculation from VCA.
+                double referenceConcrStressVCA = -10.17;
+                double referenceSteelTensionVCA = 41.97 * barArea;
+
+                double concrRelativeErrorVCA = Error.CalcRelativeError(minConcrStress, referenceConcrStressVCA);
+                double steelRelativeErrorVCA = Error.CalcRelativeError(maxForceTension, referenceSteelTensionVCA);
+
+                Assert.IsTrue(Math.Abs(concrRelativeErrorVCA) < 0.02);
+                Assert.IsTrue(Math.Abs(steelRelativeErrorVCA) < 0.03);
+
+                // Comparison values with calculation from checker (GPCChecker --> GPC.Checkers.Concrete) with fictitious section (this consider holes in concrete area).
+                // Result most like this.
+                double referenceConcrStressCHK = -10.305921519185328;
+                double referenceSteelTensionCHK = 42.870403300467034 * barArea;
+
+                double concrRelativeErrorCHK = Error.CalcRelativeError(minConcrStress, referenceConcrStressCHK);
+                double steelRelativeErrorCHK = Error.CalcRelativeError(maxForceTension, referenceSteelTensionCHK);
+
+                Assert.IsTrue(Math.Abs(concrRelativeErrorCHK) < 0.001);
+                Assert.IsTrue(Math.Abs(steelRelativeErrorCHK) < 0.001);
+            }
+        }
     }
 }

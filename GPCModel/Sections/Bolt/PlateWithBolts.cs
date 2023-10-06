@@ -52,8 +52,9 @@ namespace GPC.Model.Sections.Bolt
         /// <param name="plateMaterial">Plate material.</param>
         /// <param name="boltGrid">Bolt grid.</param>
         /// <param name="plateThickness">Plate plate thickness.</param>
-        public PlateWithBolts(in Polygon2d plateShape, in Material plateMaterial, in BoltGrid boltGrid, in double plateThickness)
-            : base(plateShape, plateMaterial)
+        /// <param name="holes">Holes.</param>
+        public PlateWithBolts(in Polygon2d plateShape, in Material plateMaterial, in BoltGrid boltGrid, in double plateThickness, Polygon2d[] holes = null)
+            : base(plateShape, plateMaterial, holes)
         {
             _boltGrid = boltGrid;
             _thickness = plateThickness;
@@ -226,6 +227,41 @@ namespace GPC.Model.Sections.Bolt
             if (Shape.HasHoles)
                 for (int i = 0; i < Shape.Holes2d.Length; i++)
                     edges.AddRange(Shape.Holes2d[i].Explode());
+
+            return edges;
+        }
+
+        /// <summary>
+        /// Utility.
+        /// Required area:
+        /// - positive area for outer border, point in counterclockwise order.
+        /// - negative area for inner border (holes), point in clockwise order.
+        /// </summary>
+        /// <returns></returns>
+        private List<Line2d> GetEdgesBoundaryOriented()
+        {
+            List<Line2d> edges;
+            if (Shape.Fill2d.GetSignedArea() > 0)
+                edges = Shape.Fill2d.Explode().ToList();
+            else
+            {
+                Shape.Fill2d.Reverse();
+                edges = Shape.Fill2d.Explode().ToList();
+                Shape.Fill2d.Reverse();
+            }
+            if (Shape.HasHoles)
+                for (int i = 0; i < Shape.Holes2d.Length; i++)
+                {
+                    var shapeI = Shape.Holes2d[i];
+                    if (shapeI.GetSignedArea() < 0)
+                        edges.AddRange(shapeI.Explode());
+                    else
+                    {
+                        shapeI.Reverse();
+                        edges.AddRange(shapeI.Explode());
+                        shapeI.Reverse();
+                    }
+                }
 
             return edges;
         }
@@ -612,7 +648,7 @@ namespace GPC.Model.Sections.Bolt
             BoltGrid.CalculateInertiaMoment(out double I_X_s, out double I_Y_s, out double I_XY_s);
 
             // Lines for boundaries. Positive areas are counterclockwise, hole areas are clockwise.
-            var edges = GetEdges();
+            var edges = GetEdgesBoundaryOriented();
             int nIteractions = 1;
             double relativeError = 0.1; // Distance error for neutral axis points.
             double relativeErrorInertia = 0.000001;
@@ -740,7 +776,7 @@ namespace GPC.Model.Sections.Bolt
                 {
                     // Find the intersections, and filter the segments according to their position relative to the line of intersection.
                     // Always use the original plate points for this part.
-                    var edges_original = GetEdges();
+                    var edges_original = GetEdgesBoundaryOriented();
                     edges.Clear();
 
                     Point2d previousPoint = null;
