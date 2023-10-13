@@ -1,11 +1,6 @@
-﻿using GPC.Model.LoadCases;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using GPC.Model.Combinations;
+using GPC.Model.LoadCases;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Model.Combinations;
 
 namespace GPC.Model.Standards
 {
@@ -13,53 +8,53 @@ namespace GPC.Model.Standards
     {
         protected string _remarks;
 
-		public string Remarks
-		{
-			get => _remarks;
-			set => _remarks = value;
-		}
+        public string Remarks
+        {
+            get => _remarks;
+            set => _remarks = value;
+        }
 
-		public Standard(string name = "", string remarks = "")
-            :base(name)
-		{
+        public Standard(string name = "", string remarks = "")
+            : base(name)
+        {
             _remarks = remarks;
-		}
+        }
 
-		protected Standard(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-			_remarks = info.GetString("Remarks");
-		}
+        protected Standard(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _remarks = info.GetString("Remarks");
+        }
 
 
-		public void SetName(string name)
-		{
-			if(name != null)
-				_name = name;
-		}
+        public void SetName(string name)
+        {
+            if (name != null)
+                _name = name;
+        }
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData(info, context);
-			info.AddValue("Remarks", _remarks);
-		}
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Remarks", _remarks);
+        }
 
-		public override bool Equals(object obj)
-		{
+        public override bool Equals(object obj)
+        {
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return obj is Standard standard && 
-				_remarks.Equals(standard.Remarks) && 
-				base.Equals(obj);
-		}
+            return obj is Standard standard &&
+                _remarks.Equals(standard.Remarks) &&
+                base.Equals(obj);
+        }
 
-		public override int GetHashCode()
-		{
-			return base.GetHashCode();
-		}
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
-		public interface ICombinationsGenerator
+        public interface ICombinationsGenerator
         {
             /// <summary>
             /// Get all the combinations of the loadCaseBase <paramref name="loadCases"/> with the options of generation <paramref name="options"/>
@@ -71,15 +66,15 @@ namespace GPC.Model.Standards
             CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
         }
 
-		#region Nested Class
+        #region Nested Class
 
-		public abstract class CombinationsOptions
+        public abstract class CombinationsOptions
         {
             public override abstract bool Equals(object obj);
 
             public override abstract int GetHashCode();
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

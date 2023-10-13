@@ -8,15 +8,15 @@
     </TypeIdentifier>
   </Class>
   <Class Name="GPC.Model.Standards.StandardACI318" Collapsed="true">
-    <Position X="10.5" Y="4.25" Width="1.5" />
+    <Position X="4.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAIBAAAAAAAAAAEBgAABAAAyAAAEAIEAAsAEAgCAABI=</HashCode>
+      <HashCode>IAIBAAAAAAAAAAEBgAABAAAygAAEAIEAAsBEAgCAABI=</HashCode>
       <FileName>Standards\StandardACI318.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardASCE16" Collapsed="true">
-    <Position X="8.25" Y="4.25" Width="1.5" />
+    <Position X="13.5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>zxAHPCNAAGICKAIcsDwANgMDCqA/KrMADwRAgwAIAjM=</HashCode>
       <FileName>Standards\StandardASCE16.cs</FileName>
@@ -24,7 +24,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardCopSuos2011" Collapsed="true">
-    <Position X="5.5" Y="4.25" Width="2" />
+    <Position X="18" Y="4.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAMAACAgBAAAAAAA=</HashCode>
       <FileName>Standards\StandardCopSuos2011.cs</FileName>
@@ -32,7 +32,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardEN1990" Collapsed="true">
-    <Position X="14" Y="4.25" Width="1.5" />
+    <Position X="10.5" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAgAjAdA+i8oIAAD9ByAACAgKYCQAIYArIH/BQP8G6A=</HashCode>
       <FileName>Standards\StandardEN1990.cs</FileName>
@@ -40,7 +40,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardEN1993p11" Collapsed="true">
-    <Position X="17.75" Y="4.25" Width="1.75" />
+    <Position X="22" Y="4.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AmAgECIAACAEQBsCgBgAIgAhwhQCAPqRAAhFkCAAAgA=</HashCode>
       <FileName>Standards\StandardEn1993p11.cs</FileName>
@@ -48,7 +48,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardModelCode2010" Collapsed="true">
-    <Position X="28" Y="4.25" Width="2" />
+    <Position X="28.25" Y="4.25" Width="2" />
     <TypeIdentifier>
       <HashCode>CBAAAQCAAJAAAEiAwACAAAEgAAAAIIACIAAAAAARBBA=</HashCode>
       <FileName>Standards\StandardModelCode2010.cs</FileName>
@@ -56,7 +56,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardAASHTO" Collapsed="true">
-    <Position X="5" Y="5.75" Width="1.5" />
+    <Position X="1.75" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardAASHTO.cs</FileName>
@@ -64,7 +64,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardACI318p08" Collapsed="true">
-    <Position X="6.75" Y="5.75" Width="1.75" />
+    <Position X="3.5" Y="5.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardACI318p08.cs</FileName>
@@ -72,7 +72,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardACI318p14" Collapsed="true">
-    <Position X="8.75" Y="5.75" Width="1.75" />
+    <Position X="5.5" Y="5.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardACI318p14.cs</FileName>
@@ -80,7 +80,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardACI318p19" Collapsed="true">
-    <Position X="10.75" Y="5.75" Width="1.75" />
+    <Position X="7.5" Y="5.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardACI318p19.cs</FileName>
@@ -88,7 +88,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardEN16612" Collapsed="true">
-    <Position X="13" Y="5.75" Width="1.5" />
+    <Position X="9.75" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>BAAFiAeASCABgAAghACAoBQgAACARIAALABFAgKgGAQ=</HashCode>
       <FileName>Standards\StandardEN16612.cs</FileName>
@@ -96,7 +96,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardUNIEN1990" Collapsed="true">
-    <Position X="14.75" Y="5.75" Width="1.75" />
+    <Position X="11.5" Y="5.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardUNIEN1990.cs</FileName>
@@ -104,7 +104,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardNTC2018Steel" Collapsed="true">
-    <Position X="16.75" Y="5.75" Width="2" />
+    <Position X="20.75" Y="5.75" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardNTC2018Steel.cs</FileName>
@@ -112,7 +112,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardUNIEN1993p11" Collapsed="true">
-    <Position X="19" Y="5.75" Width="2" />
+    <Position X="23" Y="5.75" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Standards\StandardUNIEn1993p11.cs</FileName>
@@ -184,12 +184,41 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Standards.StandardEN1999p11" Collapsed="true">
-    <Position X="23" Y="4.25" Width="1.75" />
+    <Position X="15.75" Y="4.25" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAACAAgAAAAAMAAAAAAEAAAIgE=</HashCode>
       <FileName>Standards\StandardEN1999p11.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Standards.StandardAISC" Collapsed="true">
+    <Position X="40" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACEAwAEAAJAAAAAwAAAAAAgFAIAAIgAAEAAAAAAAig=</HashCode>
+      <FileName>Standards\StandardAISC.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Standards.StandardAISC360p05" Collapsed="true">
+    <Position X="37.75" Y="5.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Standards\StandardAISC360p05.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Standards.StandardAISC360p10" Collapsed="true">
+    <Position X="39.75" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Standards\StandardAISC360p10.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Standards.StandardAISC360p16" Collapsed="true">
+    <Position X="42" Y="5.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Standards\StandardAISC360p16.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

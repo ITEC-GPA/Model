@@ -27,7 +27,7 @@
   <Class Name="GPC.Model.Sections.Bolt.PlateWithBolts" Collapsed="true">
     <Position X="6.5" Y="7.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ICAABQEAMASBgAAAgAEggKAgAgQAAICEAEQIAAAAAiA=</HashCode>
+      <HashCode>ICAABQEAMASBgAAAgAEggKAgAgQAAICEAEQIAAIAgiA=</HashCode>
       <FileName>Sections\Bolt\PlateWithBolts.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -42,7 +42,7 @@
   <Class Name="GPC.Model.Sections.Section" Collapsed="true">
     <Position X="25.25" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>Rdcsm0G9FCAzBIzggABZQQQh4xwgMMgMLUNhDYBgAqU=</HashCode>
+      <HashCode>RZcsm0G9FCAzBIzggABZQQQh4xwgMMgMLUNhDYBgAqU=</HashCode>
       <FileName>Sections\Section.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
