@@ -17,7 +17,7 @@ namespace GPC.Model.Sections.Steel
         protected readonly ISectionShape _sectionShape;
         protected readonly Section.SectionTypes _sectionType;
         protected readonly Section.FormedTypes _formedType;
-        protected readonly SteelMaterial _steelMaterial;
+        protected SteelMaterial _steelMaterial;
 
         #endregion
 
@@ -141,14 +141,13 @@ namespace GPC.Model.Sections.Steel
 
         public bool IsColdFormed => _formedType == Section.FormedTypes.ColdFormed;
 
-        public SteelMaterial SteelMaterial => _steelMaterial;
+        public SteelMaterial SteelMaterial
+        {
+            get => _steelMaterial;
+            set => _steelMaterial = value;
+        }
 
         public ISectionShape SectionShape => _sectionShape;
-
-        /// <summary>
-        /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
-        /// </summary>
-        public Material Material => throw new NotImplementedException();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
