@@ -509,7 +509,7 @@ namespace GPC.Model.Sections.Concrete
         {
             foreach (var steelSection in _steelSections)
             {
-                if (steelSection.Section.ThinWalls.Length > 0)
+                if (steelSection.Section.ThinWalls != null && steelSection.Section.ThinWalls.Length > 0)
                 {
                     var thinwall = steelSection.Section.ThinWalls[0];
                     var midLine = thinwall.GetMiddleLine();
@@ -518,7 +518,13 @@ namespace GPC.Model.Sections.Concrete
                     steelSection.IsInsideConcrete = Shape.IsLineInside(new Line2d(globStartPoint, globEndPoint));
                 }
                 else
-                    throw new ArgumentNullException("Thinwalls array cannot be empty.");
+                {
+                    // There are no thinwalls. Maybe is this a circular bar?
+                    // Use centerid.
+                    var centroidPoint = steelSection.Section.Centroid;
+                    var globCentroidPoint = steelSection.PositionToGlobal(centroidPoint);
+                    steelSection.IsInsideConcrete = Shape.IsPointInside(globCentroidPoint);
+                }
             }
         }
 
