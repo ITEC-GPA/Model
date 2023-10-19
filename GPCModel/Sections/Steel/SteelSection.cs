@@ -252,6 +252,15 @@ namespace GPC.Model.Sections.Steel
             return !(left == right);
         }
 
+        /// <summary>
+        /// Temporary setter to avoid making the Name property settable.
+        /// </summary>
+        /// <param name="name"></param>
+        public void SetName(in string name)
+        {
+            _name = name;
+        }
+
         #endregion
     }
 }
