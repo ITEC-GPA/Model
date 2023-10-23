@@ -660,7 +660,7 @@ namespace GPC.Model.Sections.Bolt
             var G_c = new Point2d();
             // Integrate area and intertia.
             foreach (var e in edges)
-                IntegrateLine2d(e, ref A_c, ref S_X_c, ref S_Y_c, ref I_X_c, ref I_Y_c, ref I_XY_c);
+                e.IntegrateOnBoundary(ref A_c, ref S_X_c, ref S_Y_c, ref I_X_c, ref I_Y_c, ref I_XY_c);
             if (A_c != 0.0)
                 G_c = new Point2d(S_Y_c / A_c, S_X_c / A_c);
 
@@ -767,7 +767,7 @@ namespace GPC.Model.Sections.Bolt
                 Debug.WriteLine($"{P1.X},{P1.Y}");
 #endif
                 // Evaluate whether point Q is above or below with respect to the line of intersection.
-                if (OrientedDistFromSegment2D(neutralAxis, Q) >= 0.0)
+                if (neutralAxis.OrientedDistFromSegment2D(Q) >= 0.0)
                     PointQIsAbove = true;
                 else
                     PointQIsAbove = false;
@@ -790,8 +790,8 @@ namespace GPC.Model.Sections.Bolt
                         bool isNewPath = previousPoint is null || previousPoint != e_original.Start;
                         if (isNewPath)
                             paths.Add(new List<Line2d>());
-                        bool startIsSameSide = OrientedDistFromSegment2D(neutralAxis, e_original.Start) >= 0.0 == PointQIsAbove;
-                        bool endIsSameSide = OrientedDistFromSegment2D(neutralAxis, e_original.End) >= 0.0 == PointQIsAbove;
+                        bool startIsSameSide = neutralAxis.OrientedDistFromSegment2D(e_original.Start) >= 0.0 == PointQIsAbove;
+                        bool endIsSameSide = neutralAxis.OrientedDistFromSegment2D(e_original.End) >= 0.0 == PointQIsAbove;
 
                         if (startIsSameSide && endIsSameSide)
                         {
@@ -842,11 +842,11 @@ namespace GPC.Model.Sections.Bolt
 
                     // Integrate area and intertia.
                     foreach (var e in edges)
-                        IntegrateLine2d(e, ref A_c, ref S_X_c, ref S_Y_c, ref I_X_c, ref I_Y_c, ref I_XY_c);
+                        e.IntegrateOnBoundary(ref A_c, ref S_X_c, ref S_Y_c, ref I_X_c, ref I_Y_c, ref I_XY_c);
                     // Remove holes from concrete area.
                     foreach (var b in BoltGrid.Bolts)
                     {
-                        if (OrientedDistFromSegment2D(neutralAxis, b.Position) >= 0.0 == PointQIsAbove)
+                        if (neutralAxis.OrientedDistFromSegment2D(b.Position) >= 0.0 == PointQIsAbove)
                         {
                             double boltArea = b.BoltDef.Area;
                             A_c -= boltArea;
@@ -904,8 +904,8 @@ namespace GPC.Model.Sections.Bolt
                 // Minimum stress in concrete.
                 foreach (var e in edges)
                 {
-                    double distStart = OrientedDistFromSegment2D(neutralAxis, e.Start);
-                    double distEnd = OrientedDistFromSegment2D(neutralAxis, e.End);
+                    double distStart = neutralAxis.OrientedDistFromSegment2D(e.Start);
+                    double distEnd = neutralAxis.OrientedDistFromSegment2D(e.End);
 
                     if ((dC * distStart) < concreteMinStress)
                         concreteMinStress = dC * distStart;
@@ -917,49 +917,13 @@ namespace GPC.Model.Sections.Bolt
                 // All tension forces in bolts.
                 foreach (var b in BoltGrid.Bolts)
                 {
-                    double dist = OrientedDistFromSegment2D(neutralAxis, b.Position);
+                    double dist = neutralAxis.OrientedDistFromSegment2D(b.Position);
                     double stress = homogCoeff * dC * dist * b.BoltDef.Area;
                     if (boltForces.TryGetValue(b, out var rbf))
                         rbf.N = stress;
                     else
                         boltForces[b] = new ResultBeamForces(stress, 0, 0, 0, 0, 0, new CoordinateSystem(new Point3d(b.Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
                 }
-            }
-
-            // Boundary integration.
-            void IntegrateLine2d(Line2d line2d, ref double A_l, ref double S_X_l, ref double S_Y_l, ref double I_X_l, ref double I_Y_l, ref double I_XY_l)
-            {
-                var Pi = line2d.Start;
-                var Pj = line2d.End;
-
-                double cXp = Pj.X + Pi.X;
-                double cYm = Pj.Y - Pi.Y;
-                double cYp = Pj.Y + Pi.Y;
-                double cXXp = Pj.X * Pj.X + Pi.X * Pi.X;
-                double cXYp = Pj.X * Pj.Y + Pi.X * Pi.Y;
-                double cYYp = Pj.Y * Pj.Y + Pi.Y * Pi.Y;
-
-                A_l += 0.5 * cYm * cXp;
-                S_X_l += 1.0 / 6.0 * cYm * (cXp * cYp + cXYp);
-                S_Y_l += 1.0 / 6.0 * cYm * (cXXp + Pj.X * Pi.X);
-                I_X_l += 1.0 / 12.0 * cYm * (cYYp * cXp + 2.0 * cYp * cXYp);
-                I_Y_l += 1.0 / 12.0 * cYm * cXp * cXXp;
-                I_XY_l += 1.0 / 24.0 * cYm * (cXXp * cYp + 2.0 * cXp * cXYp);
-            }
-
-            // Distance with sign, on the left the sign is positive, on the right the sign is negative.
-            double OrientedDistFromSegment2D(Line2d line2d, Point2d P, double distanceTolerance = GeometryBase.Tolerance)
-            {
-                var Pi = line2d.Start;
-                var Pj = line2d.End;
-                double distance = 0.0;
-                double distP1_P2 = Pi.DistanceTo(Pj);
-                distance = (P.X * (Pi.Y - Pj.Y) + Pi.X * (Pj.Y - P.Y) + Pj.X * (P.Y - Pi.Y)) / distP1_P2;
-
-                if (Math.Abs(distance / distP1_P2) < distanceTolerance)
-                    distance = 0.0;
-
-                return distance;
             }
         }
 

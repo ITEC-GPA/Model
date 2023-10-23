@@ -173,79 +173,64 @@ namespace GPC.Model.Sections
 
             _shearCenter = CalculateShearCenter();
 
-            var (WelTop, WelBottom, WelLeft, WelRight) = CalculateWel(AngleX1);
+            var (WelTop, WelBottom, WelLeft, WelRight) = CalculateWel(_angleX1, _j11, _j22);
             _wel1Max = WelTop;
             _wel1Min = WelBottom;
             _wel2Max = WelRight;
             _wel2Min = WelLeft;
-            _wpl1 = Math.Min(WelTop, WelBottom);
-            _wpl2 = Math.Min(WelRight, WelLeft);
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
 
-            var welL = CalculateWel(0.0);
+            var welL = CalculateWel(0.0, _jxx, _jyy);
             _welXMax = welL.WelTop;
             _welXMin = welL.WelBottom;
             _welYMax = welL.WelRight;
             _welYMin = welL.WelLeft;
-            _wplX = Math.Min(welL.WelTop, welL.WelBottom);
-            _wplY = Math.Min(welL.WelRight, welL.WelLeft);
+            _wplX = CalculateWplX();
+            _wplY = CalculateWplY();
         }
 
         protected override double CalculateWelXMax()
         {
-            return CalculateWel(0.0).WelTop;
+            return CalculateWel(0.0, _jxx, _jyy).WelTop;
         }
 
         protected override double CalculateWelXMin()
         {
-            return CalculateWel(0.0).WelBottom;
+            return CalculateWel(0.0, _jxx, _jyy).WelBottom;
         }
 
         protected override double CalculateWelYMax()
         {
-            return CalculateWel(0.0).WelRight;
+            return CalculateWel(0.0, _jxx, _jyy).WelRight;
         }
 
         protected override double CalculateWelYMin()
         {
-            return CalculateWel(0.0).WelLeft;
+            return CalculateWel(0.0, _jxx, _jyy).WelLeft;
         }
 
         protected override double CalculateWel1Max()
         {
-            return CalculateWel(AngleX1).WelTop;
+            return CalculateWel(_angleX1, _j11, _j22).WelTop;
         }
 
         protected override double CalculateWel1Min()
         {
-            return CalculateWel(AngleX1).WelBottom;
+            return CalculateWel(_angleX1, _j11, _j22).WelBottom;
         }
 
         protected override double CalculateWel2Max()
         {
-            return CalculateWel(AngleX1).WelRight;
+            return CalculateWel(_angleX1, _j11, _j22).WelRight;
         }
 
         protected override double CalculateWel2Min()
         {
-            return CalculateWel(AngleX1).WelLeft;
+            return CalculateWel(_angleX1, _j11, _j22).WelLeft;
         }
 
-        protected override double CalculateAngle()
-        {
-            return -1.0 / 2.0 * Math.Atan(2.0 * CalculateJxy() / (Jyy - Jxx));
-        }
-
-        protected override double CalculateJ11()
-        {
-            return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
-        }
-
-        protected override double CalculateJ22()
-        {
-            return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(CalculateJxy(), 2));
-        }
-
-        private (double WelTop, double WelBottom, double WelLeft, double WelRight) CalculateWel(double teta)
+        private (double WelTop, double WelBottom, double WelLeft, double WelRight) CalculateWel(in double teta, in double Jxx, in double Jyy)
         {
             var (minX, maxX, minY, maxY) = FivePointsCheck(teta);
             double WelTop = Jxx / Math.Abs(maxY);
@@ -256,7 +241,7 @@ namespace GPC.Model.Sections
             return (WelTop, WelBottom, WelLeft, WelRight);
         }
 
-        private (double minX, double maxX, double minY, double maxY) FivePointsCheck(double angle)
+        private (double minX, double maxX, double minY, double maxY) FivePointsCheck(in double angle)
         {
             //check 5 points
             //traslation
@@ -325,16 +310,6 @@ namespace GPC.Model.Sections
         protected override Point2d CalculateShearCenter()
         {
             return new Point2d(_horizontalLegThickness / 2.0, _verticalLegThickness / 2.0);
-        }
-
-        protected override double CalculateWpl1()
-        {
-            return Math.Min(_wel1Max, _wel1Min);
-        }
-
-        protected override double CalculateWpl2()
-        {
-            return Math.Min(_wel2Max, _wel2Min);
         }
 
         protected override Point2d CalculateCentroid()

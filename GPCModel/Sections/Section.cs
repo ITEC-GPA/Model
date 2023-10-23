@@ -466,19 +466,19 @@ namespace GPC.Model.Sections
 
         protected virtual double CalculateJxx()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out _, out _, out _);
             return Jxx;
         }
 
         protected virtual double CalculateJyy()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out _, out double Jyy, out _, out _);
             return Jyy;
         }
 
         protected virtual double CalculateJxy()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp);
+            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out _, out _, out double Jxy, out _);
             return Jxy;
         }
 
