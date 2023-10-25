@@ -117,6 +117,8 @@ namespace GPC.Model.Sections
 
         ThinWallSection.ThinWall[] ThinWalls { get; }
 
+        Mesh Mesh { get; }
+
         Point2d[] GetSectionPoints();
 
         void SetEdgeTypeFromSteelType(Section.SectionTypes sectionType);

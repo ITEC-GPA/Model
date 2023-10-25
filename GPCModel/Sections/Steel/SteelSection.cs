@@ -149,6 +149,8 @@ namespace GPC.Model.Sections.Steel
 
         public ISectionShape SectionShape => _sectionShape;
 
+        public Mesh Mesh => _sectionShape.Mesh;
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

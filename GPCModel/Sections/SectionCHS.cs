@@ -97,6 +97,8 @@ namespace GPC.Model.Sections
 
             _externalDiameter = info.GetDouble("D");
             _thickness = info.GetDouble("T");
+
+            _mesh = GetMesh();
         }
 
         #endregion
@@ -256,7 +258,7 @@ namespace GPC.Model.Sections
             for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
-                thinWalls[i] = new ThinWall(line.Length, _thickness, Math.Atan2(line.End.Y - line.Start.Y, line.End.X - line.Start.X), line.Mid);
+                thinWalls[i] = new ThinWall(line.Start, line.End, _thickness);
             }
 
             SetThinWalls(thinWalls);

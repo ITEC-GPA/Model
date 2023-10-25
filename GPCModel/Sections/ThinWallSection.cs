@@ -85,6 +85,7 @@ namespace GPC.Model.Sections
             {
                 _thinWalls = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
             }
+            _mesh = GetMesh();
         }
 
         #endregion
