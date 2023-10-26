@@ -35,12 +35,12 @@ namespace GPC.Model.Standards
         public double PhiCompression { get => _phiCompression; set => _phiCompression = value; }
 
         /// <summary>
-        /// Resistance factor for tension, φ_t ... section D2 (D2-1).
+        /// Resistance factor for tension in tensile yielding, φ_t ... section D2 (D2-1).
         /// </summary>
 		public double PhiTensionYielding { get => _phiTensionYielding; set => _phiTensionYielding = value; }
 
         /// <summary>
-        /// Resistance factor for tension, φ_t ... section D2 (D2-2).
+        /// Resistance factor for tension in tensile rupture, φ_t ... section D2 (D2-2).
         /// </summary>
         public double PhiTensionFracture { get => _phiTensionFracture; set => _phiTensionFracture = value; }
 
@@ -50,7 +50,7 @@ namespace GPC.Model.Standards
         public double PhiShear { get => _phiShear; set => _phiShear = value; }
 
         /// <summary>
-        /// Resistance factor for shear, φ_v ... section G2.1.(a).
+        /// Resistance factor for shear, for webs of rolled I-shaped members, φ_v ... section G2.1.(a).
         /// </summary>
         public double PhiShearShortWeberRolledI { get => _phiShearShortWeberRolledI; set => _phiShearShortWeberRolledI = value; }
 
