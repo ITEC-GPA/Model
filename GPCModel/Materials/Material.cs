@@ -31,6 +31,8 @@ namespace GPC.Model.Materials
 		protected StressStrainTable _stressStrainTableCompression;
 		protected StressStrainTable _stressStrainTableTension;
 
+        protected bool _accordingToStandard;
+
         #endregion
 
         #region Properties
@@ -128,6 +130,13 @@ namespace GPC.Model.Materials
         /// </summary>
         public bool IsReadOnly { get; set; }
 
+        /// <summary>
+        /// Set whether the material is entirely defined through its main characteristics or user-defined.<br/>
+		/// If true then in the case of steel the properties will be derived from the f_y of yield and f_u of fracture.<br/>
+		/// If true, then for concrete the properties will be derived from the f_ck characteristic strength.
+        /// </summary>
+        public bool AccordingToStandard { get => _accordingToStandard; set => _accordingToStandard = value; }
+
         #endregion
 
         #region Public Constructor
@@ -151,6 +160,7 @@ namespace GPC.Model.Materials
 			_elasticModulusCompression = elasticModulusCompression < 0 ? throw new ArgumentException($"{nameof(elasticModulusCompression)} cannot be lower than zero") : elasticModulusCompression;
 
             IsReadOnly = true;
+			_accordingToStandard = true;
         }
 
 		/// <summary>
@@ -171,6 +181,7 @@ namespace GPC.Model.Materials
 			: base(Guid.NewGuid(), name)
         {
             IsReadOnly = true;
+			_accordingToStandard = true;
         }
 
 		protected Material(string name, double elasticModulusCompression, double elasticModulusTension,
@@ -203,6 +214,7 @@ namespace GPC.Model.Materials
 			_stressStrainTableTension = stressStrainTableTension;
 
             IsReadOnly = true;
+            _accordingToStandard = true;
         }
 
 		protected Material(SerializationInfo info, StreamingContext context)
@@ -246,14 +258,15 @@ namespace GPC.Model.Materials
 			_ni = info.GetDouble("Ni");
 
 			if (version >= 3)
-			{
 				IsReadOnly = info.GetBoolean("IsReadOnly");
-            }
 			else
-			{
 				IsReadOnly = true;
-			}	
-		}
+
+            if (version >= 4)
+                _accordingToStandard = info.GetBoolean("AccordingToStandard");
+            else
+                _accordingToStandard = true;
+        }
 
 		#endregion
 
@@ -309,7 +322,7 @@ namespace GPC.Model.Materials
 		{
 			base.GetObjectData(info, context);
 
-			double version = 3;
+			double version = 4;
 
 			info.AddValue("MaterialVersion", version);
 
@@ -333,7 +346,8 @@ namespace GPC.Model.Materials
 			info.AddValue("TableCompression", _stressStrainTableCompression);
 			info.AddValue("TableTension", _stressStrainTableTension);
 
-			info.AddValue("IsReadOnly", IsReadOnly);
+            info.AddValue("IsReadOnly", IsReadOnly);
+            info.AddValue("AccordingToStandard", _accordingToStandard);
 		}
 
 		public override int GetHashCode()
@@ -373,7 +387,8 @@ namespace GPC.Model.Materials
 				   _ni == material._ni &&
 				   _alfaThermalExpansion == material._alfaThermalExpansion &&
 				   _density == material._density &&
-				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
+                   _accordingToStandard == material._accordingToStandard &&
+                   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
 				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
 		}
 
