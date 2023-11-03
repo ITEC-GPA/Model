@@ -6,6 +6,7 @@ namespace GPC.Model.Standards
     /// <summary>
     /// This class collects all the coefficient of the ANSI/AISC 360-05
     /// </summary>
+    [Serializable]
     public class StandardAISC360p05 : StandardAISC
     {
         #region Variables

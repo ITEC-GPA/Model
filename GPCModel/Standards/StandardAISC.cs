@@ -8,7 +8,8 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the AISC.
     /// Default values from ANSI/AISC 360-05.
     /// </summary>
-    public abstract class StandardAISC : Standard, IEquatable<StandardAISC>
+    [Serializable]
+    public abstract class StandardAISC : Standard, IEquatable<StandardAISC>, ISerializable
     {
         #region Variables
 
