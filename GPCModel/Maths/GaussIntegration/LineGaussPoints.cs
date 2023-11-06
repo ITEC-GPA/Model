@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
@@ -21,14 +18,13 @@ namespace GPC.Model.Maths.GaussIntegrations
             Line32 = 32,
         }
 
-
         public static readonly GaussPoint[] Line1 = new GaussPoint[] { new GaussPoint(0, 0, 0, 2.0, 1) };
 
         public static readonly GaussPoint[] Line2 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), 1.0, 1),
                                                                        new GaussPoint(+1.0 / Math.Sqrt(3.0), 1.0, 2)};
 
-        public static readonly GaussPoint[] Line3 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 1),                                                                       
-                                                                       new GaussPoint(+Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 2), 
+        public static readonly GaussPoint[] Line3 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 1),
+                                                                       new GaussPoint(+Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 2),
                                                                        new GaussPoint(0.0, 8.0 / 9.0, 3)};
 
         public static readonly GaussPoint[] Line4 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30.0)) / 36.0, 1),
@@ -51,7 +47,7 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(-0.8360311073266357942994298, 0.1806481606948574040584720, 6),
                                                                        new GaussPoint(+0.9681602395076260898355762, 0.0812743883615744119718922, 7),
                                                                        new GaussPoint(-0.9681602395076260898355762, 0.0812743883615744119718922, 8),
-		                                                               new GaussPoint(-0.0000000000000000000000000, 0.3302393550012597631645251, 9)};
+                                                                       new GaussPoint(-0.0000000000000000000000000, 0.3302393550012597631645251, 9)};
 
         public static readonly GaussPoint[] Line16 = new GaussPoint[] { new GaussPoint(-0.0950125098376374401853193, 0.1894506104550684962853967, 1),
                                                                         new GaussPoint(+0.0950125098376374401853193, 0.1894506104550684962853967, 2),
@@ -127,6 +123,17 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(-0.9972638618494815635449811, 0.0070186100094700966004071, 31),
                                                                         new GaussPoint(+0.9972638618494815635449811, 0.0070186100094700966004071, 32)};
 
-
+        public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
+        {
+            { GaussPointNumber.Line1, Line1 },
+            { GaussPointNumber.Line2, Line2 },
+            { GaussPointNumber.Line3, Line3 },
+            { GaussPointNumber.Line4, Line4 },
+            { GaussPointNumber.Line6, Line6 },
+            { GaussPointNumber.Line9, Line9 },
+            { GaussPointNumber.Line16, Line16 },
+            { GaussPointNumber.Line20, Line20 },
+            { GaussPointNumber.Line32, Line32 },
+        };
     }
 }
