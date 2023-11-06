@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
     public class TriangleGaussPoints
     {
-
-
         public enum GaussPointNumber
         {
             Tri1 = 1,
@@ -22,7 +16,6 @@ namespace GPC.Model.Maths.GaussIntegrations
             Tri61 = 61,
             Tri79 = 79,
         }
-
 
         public static readonly GaussPoint[] Tri1 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0, 1.0, 1) };
 
@@ -200,7 +193,6 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.752351005937729, 0.180483211648746, 0.018292796770025, 60),
                                                                        new GaussPoint(0.904625504095608, 0.080711313679564, 0.006665632004165, 61) };
 
-
         public static readonly GaussPoint[] Tri79 = new GaussPoint[] { new GaussPoint(0.333333333333333, 0.333333333333333, 0.033057055541624, 1),
                                                                        new GaussPoint(-0.0019009287044, 0.5009504643522, 0.000867019185663, 2),
                                                                        new GaussPoint(0.023574084130543, 0.488212957934729, 0.011660052716448, 3),
@@ -280,5 +272,18 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.861402717154987, 0.146965436053239, 0.000704404677908, 77),
                                                                        new GaussPoint(0.835586957912363, 0.137726978828923, 0.010112684927462, 78),
                                                                        new GaussPoint(0.929756171556853, 0.059696109149007, 0.00357390938595, 79) };
+
+        public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
+        {
+            { GaussPointNumber.Tri1, Tri1 },
+            { GaussPointNumber.Tri3, Tri3 },
+            { GaussPointNumber.Tri4, Tri4 },
+            { GaussPointNumber.Tri6, Tri6 },
+            { GaussPointNumber.Tri12, Tri12 },
+            { GaussPointNumber.Tri33, Tri33 },
+            { GaussPointNumber.Tri48, Tri48 },
+            { GaussPointNumber.Tri61, Tri61 },
+            { GaussPointNumber.Tri79, Tri79 },
+        };
     }
 }

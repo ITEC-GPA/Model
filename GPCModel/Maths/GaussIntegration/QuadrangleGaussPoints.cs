@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
     public static class QuadrangleGaussPoints
     {
-
         public enum GaussPointNumber
         {
             Quad1 = 1,
@@ -20,7 +15,6 @@ namespace GPC.Model.Maths.GaussIntegrations
             Quad121 = 121,
             Quad400 = 400,
         }
-
 
         public static readonly GaussPoint[] Quad1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 4.0, 1) };
 
@@ -655,5 +649,17 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(0.993128599185094, 0.912234428251325, 0.00110390590678228, 398),
                                                                         new GaussPoint(0.993128599185094, 0.963971927277913, 0.000715153874363798, 399),
                                                                         new GaussPoint(0.993128599185094, 0.993128599185094, 0.000310253247498101, 400) };
+
+        public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
+        {
+            { GaussPointNumber.Quad1, Quad1 },
+            { GaussPointNumber.Quad4, Quad4 },
+            { GaussPointNumber.Quad8, Quad8 },
+            { GaussPointNumber.Quad12, Quad12 },
+            { GaussPointNumber.Quad25, Quad25 },
+            { GaussPointNumber.Quad49, Quad49 },
+            { GaussPointNumber.Quad121, Quad121 },
+            { GaussPointNumber.Quad400, Quad400 },
+        };
     }
 }
