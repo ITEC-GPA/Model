@@ -85,6 +85,7 @@ namespace GPC.Model.Sections
             {
                 _thinWalls = (ThinWall[])info.GetValue("ThinWalls", typeof(ThinWall[]));
             }
+            _mesh = GetMesh();
         }
 
         #endregion
@@ -249,9 +250,77 @@ namespace GPC.Model.Sections
             return j;
         }
 
-        protected abstract override double CalculateWpl1();
+        /// <summary>
+        /// Calculate plastic modulus for a list of thinwall.
+        /// The modulus is calculated with respect to the barycenter, relative to a rotated axis of Alpha.
+        /// Approximate method using thinwall axis.
+        /// </summary>
+        /// <param name="angle">Angle in radians, counterclockwise, is zero for the x-positive direction.</param>
+        /// <returns></returns>
+        protected double CalculateWplAngle(in double angle)
+        {
+            // Axis with respect to which to calculate the plastic modulus.
+            var centroid = CalculateCentroid();
+            var versor = Vector2d.XAxis;
+            versor.Rotate(angle);
+            var axis = new Line2d(centroid, centroid + versor);
 
-        protected abstract override double CalculateWpl2();
+            // Redefine a list of thin walls.
+            var thinWalls = new List<ThinWall>();
+            foreach (var tw_original in _thinWalls)
+            {
+                var tw_originalMid = tw_original.GetMiddleLine();
+                bool startIsLeft = axis.OrientedDistFromSegment2D(tw_originalMid[0]) >= 0.0;
+                bool endIsLeft = axis.OrientedDistFromSegment2D(tw_originalMid[1]) >= 0.0;
+
+                if (startIsLeft && endIsLeft)
+                {
+                    thinWalls.Add(tw_original);
+                }
+                else if (startIsLeft || endIsLeft)
+                {
+                    if (axis.GetIntersectionWithInfiniteLine(new Line2d(tw_originalMid[0], tw_originalMid[1]), out Point2d intersection))
+                    {
+                        if (startIsLeft)
+                            thinWalls.Add(new ThinWall(tw_originalMid[0], intersection, tw_original.T));
+                        else
+                            thinWalls.Add(new ThinWall(intersection, tw_originalMid[1], tw_original.T));
+                    }
+                }
+            }
+
+            // Calculate the static moment of the half section with respect to the axis.
+            double S_axis = 0.0;
+            foreach (var tw in thinWalls)
+            {
+                double area = tw.Area;
+                double distance = axis.OrientedDistFromSegment2D(tw.Point); // This value is always positive.
+
+                S_axis += area * distance;
+            }
+
+            return S_axis * 2.0;
+        }
+
+        protected override double CalculateWpl1()
+        {
+            return CalculateWplAngle(AngleX1);
+        }
+
+        protected override double CalculateWpl2()
+        {
+            return CalculateWplAngle(AngleX1 + Math.PI * 0.5);
+        }
+
+        protected override double CalculateWplX()
+        {
+            return CalculateWplAngle(0);
+        }
+
+        protected override double CalculateWplY()
+        {
+            return CalculateWplAngle(Math.PI * 0.5);
+        }
 
         protected abstract override double CalculateWel1Max();
 
@@ -395,6 +464,21 @@ namespace GPC.Model.Sections
                 _l = length < 0 ? throw new ArgumentException($"Lenght cannot be lower than zero") : length;
                 _angle = angle;
                 _point = point ?? throw new ArgumentException($"Position cannot be null.");
+            }
+
+            /// <summary>
+            /// Constructor using axis end points and thickness.
+            /// </summary>
+            /// <param name="startPoint"></param>
+            /// <param name="endPoint"></param>
+            /// <param name="thickness"></param>
+            internal ThinWall(in Point2d startPoint, in Point2d endPoint, in double thickness)
+            {
+                _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
+                Vector2d vector = endPoint - startPoint;
+                _l = vector.Length;
+                _angle = Math.Atan2(vector.Y, vector.X);
+                _point = 0.5 * (startPoint + endPoint);
             }
 
             protected ThinWall(SerializationInfo info, StreamingContext _)

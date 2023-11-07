@@ -24,8 +24,6 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         int RebarsCount { get; }
 
-        Geometry.Meshes.Mesh Mesh { get; }
-
         /// <summary>
         /// Cross section-shape of concrete, without material.
         /// </summary>

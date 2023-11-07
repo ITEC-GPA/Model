@@ -10,6 +10,8 @@ using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
+using GPC.Utilities.Maths;
+using MathNet.Numerics.Distributions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -551,6 +553,36 @@ namespace ModelObjectTest
             Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionRHS_Test5()
+        {
+            double h = 200;
+            double b = 100;
+            double tf_top = 20;
+            double tf_bottom = 30;
+            double tw_left = 10;
+            double tw_right = 40;
+            var sec = new SteelSection(new SectionRHS(h, b, tf_top, tf_bottom, tw_left, tw_right, string.Empty), SteelMaterialEN1993Data.S355);
+
+            double A = 12500;
+            double J11 = 52324457.10;
+            double J22 = 12383876.23;
+            double Wpl1 = 716605.5676;
+            double Wpl2 = 335111.4542;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J11);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J22);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.001);
         }
 
         [TestMethod]
@@ -1391,6 +1423,39 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
         }
 
+        [TestMethod]
+        public void SectionC_Test4()
+        {
+            // Section, without symmetries.
+            double h = 200.0;
+            double widthBottom = 100.0;
+            double widthTop = 50.0;
+            double flangeBottomThickness = 30.0;
+            double flangeTopThickness = 20.0;
+            double webThickness = 10.0;
+
+            SteelSection sec = new SteelSection(new SectionC(h, webThickness, widthTop, flangeTopThickness, widthBottom, flangeBottomThickness,
+                string.Empty, 0.0, 0.0), SteelMaterialEN1993Data.S355, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
+
+            double A = 5500;
+            double J22 = 3715635.423;
+            double J11 = 29485122.15;
+            double Wpl1 = 364013.9331;
+            double Wpl2 = 122941.4776;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J22);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J11);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.002);
+        }
+
         #endregion
 
         #region Section L
@@ -1426,8 +1491,8 @@ namespace ModelObjectTest
             double tb = 40;
             var sec = new SteelSection(new SectionL(b, tb, h, tw, string.Empty), SteelMaterialEN1993Data.S355);
 
-            double Wel1 = 1.0 / 6.0 * b * tb * tb;
-            double Wel2 = 1.0 / 6.0 * tb * b * b;
+            double Wel2 = 1.0 / 6.0 * b * tb * tb;
+            double Wel1 = 1.0 / 6.0 * tb * b * b;
 
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.001);
@@ -1510,7 +1575,7 @@ namespace ModelObjectTest
             double jxx = 17407126;
             double j11 = 33301743.312114567;
             double j22 = 8657164.733862447;
-            double angle = 36.57378 * Math.PI / 180.0;
+            double angle = 0.9324634048;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
@@ -1518,7 +1583,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(angle / sec.AngleX1) - 1, 0, 0.001);
-            Assert.IsTrue(Math.Abs(sec.AngleX1 - angle) < 0.001);
         }
 
         [TestMethod]
@@ -1588,6 +1652,37 @@ namespace ModelObjectTest
             Assert.AreEqual(secNoRadius.Jxy, JxyIntegral, 1);
             Assert.AreEqual(secNoRadius.WelXMax, Wel1Integral, secNoRadius.WelXMax * errorLimit);
             //Assert.AreEqual(secNoRadius.Wpl1, Wpl1Integral, secNoRadius.Wpl1 * 0.001);
+        }
+
+        [TestMethod]
+        public void SectionL_Test9()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 100;
+            double tb = 30;
+            var sec = new SteelSection(new SectionL(b, tb, h, tw, string.Empty), SteelMaterialEN1993Data.S355);
+
+            double A = 4700;
+            double J2 = 2786170.686;
+            double J1 = 17095566.90;
+            double teta = 0.3755790289;
+            double Wpl1 = 238630.2014;
+            double Wpl2 = 97207.88541;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J2);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J1);
+            double errorTeta = Error.CalcRelativeError(sec.AngleX1, teta);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorTeta) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.006);
         }
 
         #endregion

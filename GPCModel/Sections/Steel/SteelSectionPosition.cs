@@ -2,6 +2,7 @@
 using GPC.Model.Elements;
 using GPC.Model.Materials;
 using GPC.Model.Sections.Concrete;
+using GPC.Utilities.Extensions;
 using System;
 using System.Runtime.Serialization;
 
@@ -16,6 +17,12 @@ namespace GPC.Model.Sections.Steel
     [Serializable]
     public class SteelSectionPosition : ISerializable
     {
+        #region Fields
+
+        private double _rotation;
+
+        #endregion
+
         #region Properties
 
         public SteelSection Section { get; set; }
@@ -32,7 +39,20 @@ namespace GPC.Model.Sections.Steel
         /// <summary>
         /// Angle of rotation in radians. Positive counterclockwise, angle with zero value for positive X direction.
         /// </summary>
-        public double Rotation { get; set; }
+        public double Rotation
+        {
+            get => _rotation;
+            set => _rotation = value;
+        }
+
+        /// <summary>
+        /// Utility. Angle of rotation in sexagesimal degrees.
+        /// </summary>
+        public double RotationDegrees
+        {
+            get => _rotation.ToDegrees();
+            set => _rotation = value.ToRadians();
+        }
 
         /// <summary>
         /// Traslation.

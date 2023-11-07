@@ -14,9 +14,14 @@ namespace GPC.Model.Materials
 			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulus, fyk, fu, strainU, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
-		}
+        }
 
-		public SteelMaterialAISC360(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
+        public SteelMaterialAISC360(string name)
+            : base(name, SteelTypes.Structural)
+        {
+        }
+
+        public SteelMaterialAISC360(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
 			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticHardening, SteelTypes steelType = SteelTypes.Undefined,
 			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)

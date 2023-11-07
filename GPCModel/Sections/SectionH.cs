@@ -432,6 +432,7 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[3] { web, flangeTop, flangeBottom });
 
             SetMechanicalProperties();
+            _shape = null;
             _mesh = GetMesh();
         }
 

@@ -216,7 +216,7 @@ namespace GPC.Model.Sections
                 }
             }
             else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
+                return base.CalculateWpl2();
         }
 
         protected override double CalculateWpl1()
@@ -234,7 +234,7 @@ namespace GPC.Model.Sections
                     throw new NotImplementedException("neutral axis in flange not yet supported");
             }
             else
-                throw new NotImplementedException("Different lenght or thickness not yet supported");
+                return base.CalculateWpl1();
         }
 
         protected override double CalculateWel2Min()
@@ -302,13 +302,14 @@ namespace GPC.Model.Sections
             ThinWall web = new ThinWall(Height, ThicknessWeb, Math.PI / 2.0,
                 new Point2d(ThicknessWeb / 2.0, Height / 2.0));
             ThinWall flangeTop = new ThinWall(LengthTop - ThicknessWeb, ThicknessTop, 0,
-                new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2.0, ThicknessBottom / 2.0));
+                new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2.0, Height - ThicknessTop * 0.5));
             ThinWall flangeBottom = new ThinWall(LengthBottom - ThicknessWeb, ThicknessBottom, 0,
-                new Point2d(ThicknessWeb + (LengthTop - ThicknessWeb) / 2.0, ThicknessBottom + HeightWeb + ThicknessTop / 2.0));
+                new Point2d(ThicknessWeb + (LengthBottom - ThicknessWeb) / 2.0, ThicknessBottom / 2.0));
 
             SetThinWalls(new ThinWall[] { web, flangeBottom, flangeTop });
 
             SetMechanicalProperties();
+            _shape = null;
             _mesh = GetMesh();
         }
 
@@ -339,11 +340,6 @@ namespace GPC.Model.Sections
         protected override double CalculateJyy()
         {
             return base.CalculateJyy() + CalculateAdditionaJyy();
-        }
-
-        protected override double CalculateJxy()
-        {
-            return 0;
         }
 
         private double CalculateAdditionaJxx()

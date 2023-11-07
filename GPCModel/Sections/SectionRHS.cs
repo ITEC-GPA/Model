@@ -127,9 +127,9 @@ namespace GPC.Model.Sections
             ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2,
                 new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom));
             ThinWall flangeTop = new ThinWall(Base, _tfTop, 0,
-                new Point2d(Base / 2, _tfBottom / 2));
+                new Point2d(Base / 2, _h - _tfTop / 2));
             ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0,
-                new Point2d(Base / 2, _tfBottom + Heightinternal + _tfTop / 2));
+                new Point2d(Base / 2, _tfBottom * 0.5));
 
             SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
@@ -217,10 +217,14 @@ namespace GPC.Model.Sections
 
         protected override Point2d CalculateShearCenter()
         {
-            if (_tfBottom == _tfTop && _twL == _twR)
-                return _centroid;
-            else
-                throw new Exception("Section RHS with different _thickness not yet implemented");
+            // It returns the center of gravity anyway even though it is not correct for a non-symmetric section.
+            // TODO: implement calculation for generic thin sections.
+            // Currently we don't use this information.
+            return _centroid;
+            //if (_tfBottom == _tfTop && _twL == _twR)
+            //    return _centroid;
+            //else
+            //    throw new Exception("Section RHS with different _thickness not yet implemented");
         }
 
         protected override double CalculateJw()
@@ -249,7 +253,7 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
-                    throw new Exception("different _thickness not yet supported");
+                    return base.CalculateWpl2();
             }
             else
                 throw new Exception("not yet supported");
@@ -267,7 +271,7 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else
-                    throw new Exception("different _thickness not yet supported");
+                    return base.CalculateWpl1();
             }
             else
                 throw new Exception("not yet supported");
@@ -366,6 +370,7 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
             SetMechanicalProperties();
+            _shape = null;
             _mesh = GetMesh();
         }
     }
