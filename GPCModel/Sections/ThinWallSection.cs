@@ -116,10 +116,10 @@ namespace GPC.Model.Sections
             for (int i = 0; i < _thinWalls.Count(); i++)
             {
                 Polygon2d a = ((Polygon2d)_thinWalls[i].GetPerimeter().Clone());
-                Point3d[] ps = new Point3d[a.Count];
-                for (int j = 0; j < ps.Length; j++)
-                    ps[j] = new Point2d(a[j].X, a[j].Y);
-                mesh.AddFaceMesh(ps);
+                Point3d[] ps1 = new Point3d[3] { new Point2d(a[0].X, a[0].Y), new Point2d(a[1].X, a[1].Y), new Point2d(a[2].X, a[2].Y) };
+                Point3d[] ps2 = new Point3d[3] { new Point2d(a[2].X, a[2].Y), new Point2d(a[3].X, a[3].Y), new Point2d(a[0].X, a[0].Y) };
+                mesh.AddFaceMesh(ps1);
+                mesh.AddFaceMesh(ps2);
             }
 
             return mesh;
