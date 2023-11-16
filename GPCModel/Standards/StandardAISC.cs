@@ -60,6 +60,8 @@ namespace GPC.Model.Standards
         /// </summary>
 		public double PhiTorsion { get => _phiTorsion; set => _phiTorsion = value; }
 
+        public override StandardGroupType StandardGroup => StandardGroupType.American;
+
         #endregion
 
         #region Constructors
