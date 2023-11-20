@@ -1,11 +1,12 @@
 ﻿using GPC.Geometry;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionL : ThinWallSection, ISerializable
+    public class SectionL : ThinWallSection, ISerializable, IEquatable<SectionL>
     {
         #region Variables
 
@@ -79,6 +80,8 @@ namespace GPC.Model.Sections
             get => VerticalLegLength;
             set => VerticalLegLength = value;
         }
+
+        public override double Width => _horizontalLegLength;
 
         #endregion
 
@@ -309,7 +312,7 @@ namespace GPC.Model.Sections
 
         protected override Point2d CalculateShearCenter()
         {
-            return new Point2d(_horizontalLegThickness / 2.0, _verticalLegThickness / 2.0);
+            return new Point2d(_verticalLegThickness / 2.0, _horizontalLegThickness / 2.0);
         }
 
         protected override Point2d CalculateCentroid()
@@ -354,6 +357,51 @@ namespace GPC.Model.Sections
             info.AddValue("VerticalLegLength", _verticalLegLength);
             info.AddValue("VerticalLegThickness", _verticalLegThickness);
             info.AddValue("R", _r);
+        }
+
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SectionL);
+        }
+
+        public bool Equals(SectionL other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _horizontalLegLength == other._horizontalLegLength &&
+                   _horizontalLegThickness == other._horizontalLegThickness &&
+                   _verticalLegLength == other._verticalLegLength &&
+                   _verticalLegThickness == other._verticalLegThickness &&
+                   _r == other._r;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -1338788454;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + _horizontalLegLength.GetHashCode();
+                hashCode = hashCode * -1521134295 + _horizontalLegThickness.GetHashCode();
+                hashCode = hashCode * -1521134295 + _verticalLegLength.GetHashCode();
+                hashCode = hashCode * -1521134295 + _verticalLegThickness.GetHashCode();
+                hashCode = hashCode * -1521134295 + _r.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionL left, SectionL right)
+        {
+            return EqualityComparer<SectionL>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(SectionL left, SectionL right)
+        {
+            return !(left == right);
         }
 
         #endregion

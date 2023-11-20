@@ -93,6 +93,8 @@ namespace GPC.Model.Sections.Concrete
 
         public double Height => _sectionShape.Height;
 
+        public double Width => _sectionShape.Width;
+
         public double Wel1Min => _sectionShape.Wel1Min;
 
         public double Wel1Max => _sectionShape.Wel1Max;
@@ -618,7 +620,7 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi)
         {
-            if (_rebars.Count > 0)
+            if (_rebars.Count > 0 || _steelSections.Count > 0)
             {
                 Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
 

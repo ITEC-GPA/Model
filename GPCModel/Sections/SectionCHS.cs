@@ -1,12 +1,13 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionCHS : ThinWallSection, ISerializable
+    public class SectionCHS : ThinWallSection, ISerializable, IEquatable<SectionCHS>
     {
         #region Variables
 
@@ -59,6 +60,8 @@ namespace GPC.Model.Sections
             get => Diameter;
             set => Diameter = value;
         }
+
+        public override double Width => _externalDiameter;
 
         #endregion
 
@@ -266,6 +269,45 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
             _shape = null;
             _mesh = GetMesh();
+        }
+
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SectionCHS);
+        }
+
+        public bool Equals(SectionCHS other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _externalDiameter == other._externalDiameter &&
+                   _thickness == other._thickness;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -241850544;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + _externalDiameter.GetHashCode();
+                hashCode = hashCode * -1521134295 + _thickness.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionCHS left, SectionCHS right)
+        {
+            return EqualityComparer<SectionCHS>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(SectionCHS left, SectionCHS right)
+        {
+            return !(left == right);
         }
 
         #endregion
