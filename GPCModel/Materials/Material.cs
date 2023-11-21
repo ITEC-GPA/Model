@@ -31,16 +31,17 @@ namespace GPC.Model.Materials
 		protected StressStrainTable _stressStrainTableCompression;
 		protected StressStrainTable _stressStrainTableTension;
 
-        protected bool _accordingToStandard;
+		protected bool _accordingToStandard;
+		protected bool _isReadOnly;
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        /// <summary>
-        /// Elastic modulus of material in compression
-        /// </summary>
-        public virtual double ElasticModulusCompression { get => _elasticModulusCompression; set => _elasticModulusCompression = value; }
+		/// <summary>
+		/// Elastic modulus of material in compression
+		/// </summary>
+		public virtual double ElasticModulusCompression { get => _elasticModulusCompression; set => _elasticModulusCompression = value; }
 
 		/// <summary>
 		/// Elastic modulus of material in tension
@@ -123,27 +124,26 @@ namespace GPC.Model.Materials
 		/// </summary>
 		public StressStrainTable StressStrainTableTension { get => _stressStrainTableTension; set => _stressStrainTableTension = value; }
 
-        /// <summary>
-        /// It is used to say whether this material is taken from the standard and created by us, so it is not editable.
-        /// If true --> not user-modifiable, created by us and defined by standard.
-        /// If false --> materials added and editable by user.
-        /// </summary>
-        public bool IsReadOnly { get; set; }
+		/// <summary>
+		/// It is used to say whether this material is taken from the standard and created by us, so it is not editable.
+		/// If true --> not user-modifiable, created by us and defined by standard.
+		/// If false --> materials added and editable by user.
+		/// </summary>
+		public bool IsReadOnly { get => _isReadOnly; set => _isReadOnly = value; }
 
-        /// <summary>
-        /// Set whether the material is entirely defined through its main characteristics or user-defined.<br/>
+		/// <summary>
+		/// Set whether the material is entirely defined through its main characteristics or user-defined.<br/>
 		/// If true then in the case of steel the properties will be derived from the f_y of yield and f_u of fracture.<br/>
 		/// If true, then for concrete the properties will be derived from the f_ck characteristic strength.
-        /// </summary>
-        public bool AccordingToStandard { get => _accordingToStandard; set => _accordingToStandard = value; }
+		/// </summary>
+		public bool AccordingToStandard { get => _accordingToStandard; set => _accordingToStandard = value; }
 
-        #endregion
+		#endregion
 
-        #region Public Constructor
+		#region Public Constructor
 
-        public Material(string name, StressStrainTable stressStrainTableCompression,
-			StressStrainTable stressStrainTableTension, double elasticModulusCompression, double elasticModulusTension,
-			double poisson, double density, double alfaThermalExpansion)
+		public Material(string name, StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, double elasticModulusCompression,
+			double elasticModulusTension, double poisson, double density, double alfaThermalExpansion)
 			: base(name)
 		{
 			if (poisson > 0.5)
@@ -159,9 +159,9 @@ namespace GPC.Model.Materials
 			_elasticModulusTension = elasticModulusTension < 0 ? throw new ArgumentException($"{nameof(elasticModulusTension)} cannot be lower than zero") : elasticModulusTension;
 			_elasticModulusCompression = elasticModulusCompression < 0 ? throw new ArgumentException($"{nameof(elasticModulusCompression)} cannot be lower than zero") : elasticModulusCompression;
 
-            IsReadOnly = true;
+			_isReadOnly = true;
 			_accordingToStandard = true;
-        }
+		}
 
 		/// <summary>
 		/// 
@@ -179,10 +179,10 @@ namespace GPC.Model.Materials
 
 		protected Material(string name)
 			: base(Guid.NewGuid(), name)
-        {
-            IsReadOnly = true;
+		{
+			_isReadOnly = true;
 			_accordingToStandard = true;
-        }
+		}
 
 		protected Material(string name, double elasticModulusCompression, double elasticModulusTension,
 			double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
@@ -213,9 +213,9 @@ namespace GPC.Model.Materials
 			_stressStrainTableCompression = stressStrainTableCompression;
 			_stressStrainTableTension = stressStrainTableTension;
 
-            IsReadOnly = true;
-            _accordingToStandard = true;
-        }
+			_isReadOnly = true;
+			_accordingToStandard = true;
+		}
 
 		protected Material(SerializationInfo info, StreamingContext context)
 			: base(info, context)
@@ -258,15 +258,15 @@ namespace GPC.Model.Materials
 			_ni = info.GetDouble("Ni");
 
 			if (version >= 3)
-				IsReadOnly = info.GetBoolean("IsReadOnly");
+				_isReadOnly = info.GetBoolean("IsReadOnly");
 			else
-				IsReadOnly = true;
+				_isReadOnly = true;
 
-            if (version >= 4)
-                _accordingToStandard = info.GetBoolean("AccordingToStandard");
-            else
-                _accordingToStandard = true;
-        }
+			if (version >= 4)
+				_accordingToStandard = info.GetBoolean("AccordingToStandard");
+			else
+				_accordingToStandard = true;
+		}
 
 		#endregion
 
@@ -346,8 +346,8 @@ namespace GPC.Model.Materials
 			info.AddValue("TableCompression", _stressStrainTableCompression);
 			info.AddValue("TableTension", _stressStrainTableTension);
 
-            info.AddValue("IsReadOnly", IsReadOnly);
-            info.AddValue("AccordingToStandard", _accordingToStandard);
+			info.AddValue("IsReadOnly", _isReadOnly);
+			info.AddValue("AccordingToStandard", _accordingToStandard);
 		}
 
 		public override int GetHashCode()
@@ -363,7 +363,7 @@ namespace GPC.Model.Materials
 				hashCode = hashCode * -17 + _density.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableCompression.GetHashCode();
 				hashCode = hashCode * -17 + _stressStrainTableTension.GetHashCode();
-                return hashCode;
+				return hashCode;
 			}
 		}
 
@@ -387,8 +387,8 @@ namespace GPC.Model.Materials
 				   _ni == material._ni &&
 				   _alfaThermalExpansion == material._alfaThermalExpansion &&
 				   _density == material._density &&
-                   _accordingToStandard == material._accordingToStandard &&
-                   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
+				   _accordingToStandard == material._accordingToStandard &&
+				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
 				   EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
 		}
 
