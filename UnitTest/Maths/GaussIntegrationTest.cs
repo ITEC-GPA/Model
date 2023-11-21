@@ -5,307 +5,314 @@ using System;
 
 namespace MathTest
 {
-    [TestClass]
-    public class GaussIntegrationTest
-    {
+	[TestClass]
+	public class GaussIntegrationTest
+	{
 		#region CommonAssert
 
 		public void CommonEqualAssert(double result, double expectedValue)
-        {
-            if (expectedValue == 0)
-            {
-                Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
-            }
-            else
-            {
-                if (result != 0)
-                {
-                    Assert.IsTrue(Math.Abs((result - expectedValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
-                }
-                else
-                {
-                    Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
-                }
-            }
+		{
+			if (expectedValue == 0)
+			{
+				Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+			}
+			else
+			{
+				if (result != 0)
+				{
+					Assert.IsTrue(Math.Abs((result - expectedValue) / result) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+				}
+				else
+				{
+					Assert.IsTrue(Math.Abs(result - expectedValue) < 0.01, $"1) calculated value: {result}, expValue: {expectedValue}");
+				}
+			}
 
-        }
+		}
 
-        protected void CommonAssertLineLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue,
-            LineGaussPoints.GaussPointNumber minGaussPoint = LineGaussPoints.GaussPointNumber.Line3)
-        {
-            double result;
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line20)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line20);
-                CommonEqualAssert(result, expectedValue);
-            }
+		protected void CommonAssertLineLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue,
+			LineGaussPoints.GaussPointNumber minGaussPoint = LineGaussPoints.GaussPointNumber.Line3)
+		{
+			double result;
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line20)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line20);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line32)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line32);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line32)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line32);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line16)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line16);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line16)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line16);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line9)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line9);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line9)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line9);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line6)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line6);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line6)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line6);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line4)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line4);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line4)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line4);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line3)
-            {
-                result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line3);
-                CommonEqualAssert(result, expectedValue);
-            }
-        }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line3)
+			{
+				result = GaussIntegration.IntegrationLineLinearShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line3);
+				CommonEqualAssert(result, expectedValue);
+			}
+		}
 
-        protected void CommonAssertLineQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue,
-            LineGaussPoints.GaussPointNumber minGaussPoint = LineGaussPoints.GaussPointNumber.Line3)
-        {
-            double result;
+		protected void CommonAssertLineQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue,
+			LineGaussPoints.GaussPointNumber minGaussPoint = LineGaussPoints.GaussPointNumber.Line3)
+		{
+			double result;
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line20)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line20);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line20)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line20);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line32)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line32);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line32)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line32);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line16)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line16);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line16)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line16);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line9)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line9);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line9)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line9);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line6)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line6);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line6)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line6);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line4)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line4);
-                CommonEqualAssert(result, expectedValue);
-            }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line4)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line4);
+				CommonEqualAssert(result, expectedValue);
+			}
 
-            if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line3)
-            {
-                result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line3);
-                CommonEqualAssert(result, expectedValue);
-            }
-        }
+			if (minGaussPoint <= LineGaussPoints.GaussPointNumber.Line3)
+			{
+				result = GaussIntegration.IntegrationLineQuadraticShapeFunction(func, poly, LineGaussPoints.GaussPointNumber.Line3);
+				CommonEqualAssert(result, expectedValue);
+			}
+		}
 
 		protected void CommonAssertQuadLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue)
-        {
-            double result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad4);
+		{
+			double result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad4);
 
-            CommonEqualAssert(result, expectedValue);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad8);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad8);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad12);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad12);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad25);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad25);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad49);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad49);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad121);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad121);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad400);
-            CommonEqualAssert(result, expectedValue);
-        }
+			result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad400);
+			CommonEqualAssert(result, expectedValue);
+		}
 
+		protected void CommonAssertQuadQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
+		{
+			double result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad4);
+			CommonEqualAssert(result, expectedValue);
 
-        protected void CommonAssertQuadQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
-        {
-            double result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad4);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad8);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad8);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad12);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad12);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad25);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad25);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad49);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad49);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad121);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad121);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad400);
+			CommonEqualAssert(result, expectedValue);
+		}
 
-            result = GaussIntegration.IntegrationQuadrilateralQuadraticShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad400);
-            CommonEqualAssert(result, expectedValue);
-        }
+		protected void CommonAssertTriLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue)
+		{
+			double result;
 
-        protected void CommonAssertTriLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue)
-        {
-            double result;
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri4);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri4);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri6);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri6);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri12);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri12);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri33);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri33);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri48);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri48);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri61);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri61);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri79);
+			CommonEqualAssert(result, expectedValue);
+		}
 
-            result = GaussIntegration.IntegrationTriangularLinearShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri79);
-            CommonEqualAssert(result, expectedValue);
-        }
+		protected void CommonAssertTriQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
+		{
+			double result;
 
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri4);
+			CommonEqualAssert(result, expectedValue);
 
-        protected void CommonAssertTriQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
-        {
-            double result;
-
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri4);
-            CommonEqualAssert(result, expectedValue);
-
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri6);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri6);
+			CommonEqualAssert(result, expectedValue);
 
 
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri12);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri12);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri33);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri33);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri48);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri48);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri61);
-            CommonEqualAssert(result, expectedValue);
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri61);
+			CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri79);
-            CommonEqualAssert(result, expectedValue);
-        }
+			result = GaussIntegration.IntegrationTriangularQuadraticShapeFunction(func, poly, TriangleGaussPoints.GaussPointNumber.Tri79);
+			CommonEqualAssert(result, expectedValue);
+		}
+
+		protected void CommonAssertHexaLinear(Func<double, double, double, double> func, Point3d[] poly, double expectedValue)
+		{
+			double result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedroGaussPoints.GaussPointNumber.Hexa8);
+			CommonEqualAssert(result, expectedValue);
+
+			result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedroGaussPoints.GaussPointNumber.Hexa27);
+			CommonEqualAssert(result, expectedValue);
+		}
 
 		#endregion
 
 		#region Linear Shape Function
 
 		[TestMethod]
-        public void Line2Test1LSF()
-        {
-            double constant = 3.0;
+		public void Line2Test1LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
-            double expValue = 999;
-            double func(double x, double y) => constant * x * x;
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+			double expValue = 999;
+			double func(double x, double y) => constant * x * x;
 
-            CommonAssertLineLinear(func, poly, expValue);
+			CommonAssertLineLinear(func, poly, expValue);
 
-        }
+		}
 
-        [TestMethod]
-        public void Line2Test2LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Line2Test2LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
-            double expValue = 7499.25;
-            double func(double x, double y) => constant * x * x * x;
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+			double expValue = 7499.25;
+			double func(double x, double y) => constant * x * x * x;
 
-            CommonAssertLineLinear(func, poly, expValue);
-        }
+			CommonAssertLineLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Line2Test3LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Line2Test3LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
-            double expValue = 468.75;
-            double func(double x, double y) => x <= 5 ? 0.0 : constant * Math.Pow(x - 5, 3);
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+			double expValue = 468.75;
+			double func(double x, double y) => x <= 5 ? 0.0 : constant * Math.Pow(x - 5, 3);
 
-            CommonAssertLineLinear(func, poly, expValue, LineGaussPoints.GaussPointNumber.Line4);
-        }
+			CommonAssertLineLinear(func, poly, expValue, LineGaussPoints.GaussPointNumber.Line4);
+		}
 
-        [TestMethod]
-        public void Line2Test4LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Line2Test4LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
-            double expValue = 468.75;
-            double func(double x, double y) => y <= 5 ? 0.0 : constant * Math.Pow(y - 5, 3);
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
+			double expValue = 468.75;
+			double func(double x, double y) => y <= 5 ? 0.0 : constant * Math.Pow(y - 5, 3);
 
-            CommonAssertLineLinear(func, poly, expValue, LineGaussPoints.GaussPointNumber.Line4);
-        }
+			CommonAssertLineLinear(func, poly, expValue, LineGaussPoints.GaussPointNumber.Line4);
+		}
 
-        [TestMethod]
-        public void Line2Test1QSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Line2Test1QSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
-            double expValue = 999;
-            double func(double x, double y) => constant * x * x;
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+			double expValue = 999;
+			double func(double x, double y) => constant * x * x;
 
-            CommonAssertLineQuadratic(func, poly, expValue);
+			CommonAssertLineQuadratic(func, poly, expValue);
 
-        }
+		}
 
-        [TestMethod]
-        public void Line2Test2QSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Line2Test2QSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
-            double expValue = 7499.25;
-            double func(double x, double y) => constant * x * x * x;
+			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(10.0, 1.0, 0) };
+			double expValue = 7499.25;
+			double func(double x, double y) => constant * x * x * x;
 
-            CommonAssertLineQuadratic(func, poly, expValue);
-        }
+			CommonAssertLineQuadratic(func, poly, expValue);
+		}
 
 		[TestMethod]
 		public void Line2Test5QSF()
@@ -314,9 +321,9 @@ namespace MathTest
 
 			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
 			double expValue = 999;
-            double func(double x, double y) => constant * y * y;
+			double func(double x, double y) => constant * y * y;
 
-            CommonAssertLineQuadratic(func, poly, expValue);
+			CommonAssertLineQuadratic(func, poly, expValue);
 
 		}
 
@@ -327,268 +334,348 @@ namespace MathTest
 
 			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
 			double expValue = 7499.25;
-            double func(double x, double y) => constant * y * y * y;
+			double func(double x, double y) => constant * y * y * y;
 
-            CommonAssertLineQuadratic(func, poly, expValue);
+			CommonAssertLineQuadratic(func, poly, expValue);
 		}
 
 		[TestMethod]
-        public void Quad4Test1LSF()
-        {
-            double constant = 3.0;
+		public void Quad4Test1LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(-1.0, -1.0, 0), new Point3d(+1.0, -1.0, 0), new Point3d(+1.0, +1.0, 0), new Point3d(-1.0, +1.0, 0) };
-            double expValue = constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0;
-            double func(double x, double y) => constant * x * x;
+			Point3d[] poly = new Point3d[] { new Point3d(-1.0, -1.0, 0), new Point3d(+1.0, -1.0, 0), new Point3d(+1.0, +1.0, 0), new Point3d(-1.0, +1.0, 0) };
+			double expValue = constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0;
+			double func(double x, double y) => constant * x * x;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test2LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Quad4Test2LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(0.0, 0.0, 0), new Point3d(10, 0.0, 0), new Point3d(10, 10, 0), new Point3d(0.0, 10, 0) };
-            double func(double x, double y) => constant * x * x;
-            double expValue = 10000;
+			Point3d[] poly = new Point3d[] { new Point3d(0.0, 0.0, 0), new Point3d(10, 0.0, 0), new Point3d(10, 10, 0), new Point3d(0.0, 10, 0) };
+			double func(double x, double y) => constant * x * x;
+			double expValue = 10000;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test3LSF()
-        {
-            double constant = 3.0;
-            double expValue = 4218.75;
+		[TestMethod]
+		public void Quad4Test3LSF()
+		{
+			double constant = 3.0;
+			double expValue = 4218.75;
 
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
-            double func(double x, double y) => constant * x * y;
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
+			double func(double x, double y) => constant * x * y;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test4LSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(12, 12, 0), new Point3d(4.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 241.5;
+		[TestMethod]
+		public void Quad4Test4LSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(12, 12, 0), new Point3d(4.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 241.5;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test5LSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 336;
+		[TestMethod]
+		public void Quad4Test5LSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 336;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test6LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Quad4Test6LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
-            double func(double x, double y) => constant * y * x;
-            double expValue = 4218.75;
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
+			double func(double x, double y) => constant * y * x;
+			double expValue = 4218.75;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test7LSF()
-        {
-            double constant = 3.0;
+		[TestMethod]
+		public void Quad4Test7LSF()
+		{
+			double constant = 3.0;
 
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
-            double func(double x, double y) => -constant * y * x;
-            double expValue = -4218.75;
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
+			double func(double x, double y) => -constant * y * x;
+			double expValue = -4218.75;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test8LSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => -x;
-            double expValue = -336;
+		[TestMethod]
+		public void Quad4Test8LSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => -x;
+			double expValue = -336;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Quad4Test9LSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => 0;
-            double expValue = 0;
+		[TestMethod]
+		public void Quad4Test9LSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => 0;
+			double expValue = 0;
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test1LSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 85.5;
+		[TestMethod]
+		public void Tri3Test1LSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 85.5;
 
-            CommonAssertTriLinear(func, vertices, expValue);
-        }
+			CommonAssertTriLinear(func, vertices, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test2LSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 126;
+		[TestMethod]
+		public void Tri3Test2LSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 126;
 
-            CommonAssertTriLinear(func, vertices, expValue);
-        }
+			CommonAssertTriLinear(func, vertices, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test3LSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+		[TestMethod]
+		public void Tri3Test3LSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
 
-            double func(double x, double y) => x;
-            double expValue = 354.66666;
+			double func(double x, double y) => x;
+			double expValue = 354.66666;
 
-            CommonAssertTriLinear(func, vertices, expValue);
-        }
+			CommonAssertTriLinear(func, vertices, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test4LSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+		[TestMethod]
+		public void Tri3Test4LSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
 
-            double func(double x, double y) => y;
-            double expValue = 466.6666;
+			double func(double x, double y) => y;
+			double expValue = 466.6666;
 
-            CommonAssertTriLinear(func, vertices, expValue);
-        }
+			CommonAssertTriLinear(func, vertices, expValue);
+		}
 
-        #endregion
+		[TestMethod]
+		public void Hexahedro8Test0LSF()
+		{
+			Point3d[] vertices = new Point3d[] {
+				new Point3d(0, 0, 0),
+				new Point3d(1, 0, 0),
+				new Point3d(1, 1, 0),
+				new Point3d(0, 1, 0),
+				new Point3d(0, 0, 1),
+				new Point3d(1, 0, 1),
+				new Point3d(1, 1, 1),
+				new Point3d(0, 1, 1),
+			};
 
-        #region Quadratic Shape Function
+			double func(double x, double y, double z) => 1;
+			double expValue = 1;
 
-        [TestMethod]
-        public void Quad4Test1QSF()
-        {
-            double constant = 3.0;
+			CommonAssertHexaLinear(func, vertices, expValue);
+		}
 
-            Point3d[] poly = new Point3d[] { new Point3d(-1.0, -1.0, 0), new Point3d(+1.0, -1.0, 0), new Point3d(+1.0, +1.0, 0), new Point3d(-1.0, +1.0, 0) };
-            double expValue = constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0;
-            double func(double x, double y) => constant * x * x;
+		[TestMethod]
+		public void Hexahedro8Test1LSF()
+		{
+			Point3d[] vertices = new Point3d[] {
+				new Point3d(0, 0, 0),
+				new Point3d(1, 0, 0),
+				new Point3d(1, 1, 0),
+				new Point3d(0, 1, 0),
+				new Point3d(0, 0, 1),
+				new Point3d(1, 0, 1),
+				new Point3d(1, 1, 1),
+				new Point3d(0, 1, 1),
+			};
 
-            CommonAssertQuadQuadratic(func, poly, expValue);
-        }
+			double func(double x, double y, double z) => x;
+			double expValue = 0.5;
 
-        [TestMethod]
-        public void Quad4Test2QSF()
-        {
-            double constant = 3.0;
+			CommonAssertHexaLinear(func, vertices, expValue);
+		}
 
-            Point3d[] poly = new Point3d[] { new Point3d(0.0, 0.0, 0), new Point3d(10, 0.0, 0), new Point3d(10, 10, 0), new Point3d(0.0, 10, 0) };
-            double func(double x, double y) => constant * x * x;
-            double expValue = 10000;
+		[TestMethod]
+		public void Hexahedro8Test2LSF()
+		{
+			Point3d[] vertices = new Point3d[] {
+				new Point3d(0, 0, 0),
+				new Point3d(1, 0, 0),
+				new Point3d(1, 1, 0),
+				new Point3d(0, 1, 0),
+				new Point3d(0, 0, 1),
+				new Point3d(1, 0, 1),
+				new Point3d(1, 1, 1),
+				new Point3d(0, 1, 1),
+			};
 
-            CommonAssertQuadQuadratic(func, poly, expValue);
-        }
+			double func(double x, double y, double z) => y;
+			double expValue = 0.5;
 
-        [TestMethod]
-        public void Quad4Test3QSF()
-        {
-            double constant = 3.0;
-            double expValue = 4218.75;
+			CommonAssertHexaLinear(func, vertices, expValue);
+		}
 
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
-            double func(double x, double y) => constant * x * y;
+		[TestMethod]
+		public void Hexahedro8Test3LSF()
+		{
+			Point3d[] vertices = new Point3d[] {
+				new Point3d(0, 0, 0),
+				new Point3d(1, 0, 0),
+				new Point3d(1, 1, 0),
+				new Point3d(0, 1, 0),
+				new Point3d(0, 0, 1),
+				new Point3d(1, 0, 1),
+				new Point3d(1, 1, 1),
+				new Point3d(0, 1, 1),
+			};
 
-            CommonAssertQuadQuadratic(func, poly, expValue);
-        }
+			double func(double x, double y, double z) => z;
+			double expValue = 0.5;
 
-        [TestMethod]
-        public void Quad4Test4QSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(12, 12, 0), new Point3d(4.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 241.5;
+			CommonAssertHexaLinear(func, vertices, expValue);
+		}
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+		#endregion
 
-        [TestMethod]
-        public void Quad4Test5QSF()
-        {
-            Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 336;
+		#region Quadratic Shape Function
 
-            CommonAssertQuadQuadratic(func, poly, expValue);
-        }
+		[TestMethod]
+		public void Quad4Test1QSF()
+		{
+			double constant = 3.0;
 
-        [TestMethod]
-        public void Quad4Test6QSF()
-        {
-            double constant = 3.0;
+			Point3d[] poly = new Point3d[] { new Point3d(-1.0, -1.0, 0), new Point3d(+1.0, -1.0, 0), new Point3d(+1.0, +1.0, 0), new Point3d(-1.0, +1.0, 0) };
+			double expValue = constant * ((1.0 * 1.0 * 1.0) - (-1.0 * -1.0 * -1.0)) / 3.0 * 2.0;
+			double func(double x, double y) => constant * x * x;
 
-            Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
-            double func(double x, double y) => constant * y * x;
-            double expValue = 4218.75;
+			CommonAssertQuadQuadratic(func, poly, expValue);
+		}
 
-            CommonAssertQuadLinear(func, poly, expValue);
-        }
+		[TestMethod]
+		public void Quad4Test2QSF()
+		{
+			double constant = 3.0;
 
-        [TestMethod]
-        public void Tri3Test1QSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 85.5;
+			Point3d[] poly = new Point3d[] { new Point3d(0.0, 0.0, 0), new Point3d(10, 0.0, 0), new Point3d(10, 10, 0), new Point3d(0.0, 10, 0) };
+			double func(double x, double y) => constant * x * x;
+			double expValue = 10000;
 
-            CommonAssertTriQuadratic(func, vertices, expValue);
-        }
+			CommonAssertQuadQuadratic(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test2QSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(7.0, 10, 0) };
-            double func(double x, double y) => x;
-            double expValue = 126;
+		[TestMethod]
+		public void Quad4Test3QSF()
+		{
+			double constant = 3.0;
+			double expValue = 4218.75;
 
-            CommonAssertTriQuadratic(func, vertices, expValue);
-        }
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
+			double func(double x, double y) => constant * x * y;
 
-        [TestMethod]
-        public void Tri3Test3QSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+			CommonAssertQuadQuadratic(func, poly, expValue);
+		}
 
-            double func(double x, double y) => x;
-            double expValue = 354.66666;
+		[TestMethod]
+		public void Quad4Test4QSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(12, 12, 0), new Point3d(4.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 241.5;
 
-            CommonAssertTriQuadratic(func, vertices, expValue);
-        }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
 
-        [TestMethod]
-        public void Tri3Test4QSF()
-        {
-            Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+		[TestMethod]
+		public void Quad4Test5QSF()
+		{
+			Point3d[] poly = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(15, 12, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 336;
 
-            double func(double x, double y) => y;
-            double expValue = 466.6666;
+			CommonAssertQuadQuadratic(func, poly, expValue);
+		}
 
-            CommonAssertTriQuadratic(func, vertices, expValue);
-        }
+		[TestMethod]
+		public void Quad4Test6QSF()
+		{
+			double constant = 3.0;
 
-        #endregion
+			Point3d[] poly = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 5.0, 0), new Point3d(10, 10, 0), new Point3d(5.0, 10, 0) };
+			double func(double x, double y) => constant * y * x;
+			double expValue = 4218.75;
 
-    }
+			CommonAssertQuadLinear(func, poly, expValue);
+		}
+
+		[TestMethod]
+		public void Tri3Test1QSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(5.0, 5.0, 0), new Point3d(10, 7.0, 0), new Point3d(4.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 85.5;
+
+			CommonAssertTriQuadratic(func, vertices, expValue);
+		}
+
+		[TestMethod]
+		public void Tri3Test2QSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(8.0, 5.0, 0), new Point3d(13, 7.0, 0), new Point3d(7.0, 10, 0) };
+			double func(double x, double y) => x;
+			double expValue = 126;
+
+			CommonAssertTriQuadratic(func, vertices, expValue);
+		}
+
+		[TestMethod]
+		public void Tri3Test3QSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+
+			double func(double x, double y) => x;
+			double expValue = 354.66666;
+
+			CommonAssertTriQuadratic(func, vertices, expValue);
+		}
+
+		[TestMethod]
+		public void Tri3Test4QSF()
+		{
+			Point3d[] vertices = new Point3d[] { new Point3d(2, 2, 0), new Point3d(12, 8, 0), new Point3d(5, 15, 0) };
+
+			double func(double x, double y) => y;
+			double expValue = 466.6666;
+
+			CommonAssertTriQuadratic(func, vertices, expValue);
+		}
+
+		#endregion
+
+	}
 }

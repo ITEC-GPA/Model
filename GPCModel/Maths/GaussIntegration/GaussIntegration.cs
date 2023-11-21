@@ -356,19 +356,16 @@ namespace GPC.Model.Maths.GaussIntegrations
 				throw new ArgumentException("Points must be 8. Polygon must be a Hexaedron");
 
 			GaussPoint[] gaussPoints;
+			bool parallelComputing = false;
 
-			switch ((int)numberOfGaussPoints)
+			if (HexahedroGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
 			{
-				case 1:
-					gaussPoints = HexahedroGaussPoints.Hexa1;
-					break;
-				case 8:
-					gaussPoints = HexahedroGaussPoints.Hexa8;
-					break;
-
-				default:
-					throw new ArgumentException("Wrong number of Gauss Points");
+				gaussPoints = HexahedroGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
+				if ((int)numberOfGaussPoints >= 27)
+					parallelComputing = true;
 			}
+			else
+				throw new ArgumentException("Wrong number of Quad Gauss Points");
 
 			Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
 
@@ -385,11 +382,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 
 			double[] ris = new double[gaussPoints.Length];
 
-			Parallel.For(0, gaussPoints.Length, (i) =>
+			if (parallelComputing)
 			{
-				var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
-				ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
-			});
+				Parallel.For(0, gaussPoints.Length, (i) =>
+				{
+					var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+					ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+				});
+			}
+			else
+			{
+				for (int i = 0; i < gaussPoints.Length; i++)
+				{
+					var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+					ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+				};
+			}
 
 			return ris.Sum();
 		}
@@ -550,6 +558,19 @@ namespace GPC.Model.Maths.GaussIntegrations
 		}
 
 		/// <summary>
+		/// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
+		/// </summary>
+		/// <param name="function">The function (with variables x and y) to integrate</param>
+		/// <param name="mesh"></param>
+		/// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for hexahedro volume</param>
+		/// <returns>The value of the integral</returns>
+		/// <remarks>Linear shape functions and its derivatives are used</remarks>
+		public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh, HexahedroGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints)
+		{
+			return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(mesh, hexahedroNumberOfGaussPoints));
+		}
+
+		/// <summary>
 		/// Get the mesh gauss points in global coordinate system associated with relative multiplicative factor
 		/// </summary>
 		/// <param name="mesh"></param>
@@ -581,17 +602,18 @@ namespace GPC.Model.Maths.GaussIntegrations
 			int volumeCount = mesh.VolumesCount;
 			IEnumerator<MeshVolume> facesEnumerator = mesh.GetVolumesEnumerator();
 
-			GlobalCoordinateGaussPoint[][][] globalGaussPoints = new GlobalCoordinateGaussPoint[volumeCount][][];
+			GlobalCoordinateGaussPoint[][] globalGaussPoints = new GlobalCoordinateGaussPoint[volumeCount][];
 			int index = 0;
 
 			while (facesEnumerator.MoveNext())
 			{
-				Point3d[] shapeFunctionNode = mesh.GetFacePoints(facesEnumerator.Current);
+				MeshVolume meshVolume = facesEnumerator.Current;
+				Point3d[] shapeFunctionNode = mesh.GetVolumePoints(meshVolume);
 
-				if (facesEnumerator.Current.IsQuad)
+				if (facesEnumerator.Current.IsQuadrangular)
 				{
 					globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsQuad.Length];
-					Func<double, double, Matrix<double>> jacobian = JacobianMatrix2D(dNdCsiQuad, dNdEtaQuad, shapeFunctionNode);
+					Func<double, double, double, Matrix<double>> jacobian = JacobianMatrix3D(dNdCsiQuad, dNdEtaQuad, dNdZetaQuad, shapeFunctionNode);
 
 					if (parallelComputing)
 					{
@@ -601,8 +623,8 @@ namespace GPC.Model.Maths.GaussIntegrations
 							double y = 0;
 							for (int i = range.Item1; i < range.Item2; i++)
 							{
-								TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, shapeFunctionQuad, shapeFunctionNode, out x, out y);
-								globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+								TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+								globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
 							}
 						});
 					}
@@ -612,39 +634,14 @@ namespace GPC.Model.Maths.GaussIntegrations
 						double y = 0;
 						for (int i = 0; i < gaussPointsQuad.Length; i++)
 						{
-							TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, shapeFunctionQuad, shapeFunctionNode, out x, out y);
-							globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+							TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+							globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
 						}
 					}
 				}
 				else
 				{
-					globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsTri.Length];
-					Func<double, double, Matrix<double>> jacobian = JacobianMatrix2D(dNdCsiTri, dNdEtaTri, shapeFunctionNode);
 
-					if (parallelComputing)
-					{
-						Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPointsTri.Length), (range) =>
-						{
-							double x = 0;
-							double y = 0;
-							for (int i = range.Item1; i < range.Item2; i++)
-							{
-								TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, shapeFunctionTri, shapeFunctionNode, out x, out y);
-								globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta).Determinant(), gaussPointsTri[i].Weight, 0.5);
-							}
-						});
-					}
-					else
-					{
-						double x = 0;
-						double y = 0;
-						for (int i = 0; i < gaussPointsTri.Length; i++)
-						{
-							TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, shapeFunctionTri, shapeFunctionNode, out x, out y);
-							globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta).Determinant(), gaussPointsTri[i].Weight, 0.5);
-						}
-					}
 				}
 
 				index++;

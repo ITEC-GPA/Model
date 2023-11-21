@@ -154,7 +154,7 @@ namespace GPC.Model.Fem
 						if (generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()].ContainsKey(al.GetGeometry()))
 							plateLoadMeshEntityMap[al] = generateMeshStatus.EmbeddedGeometriesVertexMap[meshes.First()][al.GetGeometry()];
 						else if (al.GetGeometry() == shape)
-							plateLoadMeshEntityMap[al] = meshes[0].Faces.GetIds().ToArray();
+							plateLoadMeshEntityMap[al] = meshes[0].Faces.GetElementHashMap().Keys.ToArray();
 					}
 					else
 						throw new NotSupportedException($"Load type: {load.GetType()} not supported");
