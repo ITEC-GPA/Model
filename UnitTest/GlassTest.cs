@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using GPC.TestUtilities;
-using GPC.Model.Glasses;
 using GPC.Model.Materials;
 using GPC.Model;
+using GPC.Model.Sections.Glass;
 
 namespace ModelObjectTest
 {

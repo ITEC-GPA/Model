@@ -1,6 +1,5 @@
 ﻿using GPC.Model;
 using GPC.Model.Elements;
-using GPC.Model.Glasses;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Geometry;
@@ -18,6 +17,7 @@ using GPC.Model.Fem.Collections;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Geometry.Meshes;
+using GPC.Model.Sections.Glass;
 
 namespace GeneralTest
 {
