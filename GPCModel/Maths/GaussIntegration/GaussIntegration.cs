@@ -439,7 +439,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <remarks>The vertices must be added with this order:
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th
         /// </remarks>
-        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints,
+        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, HexahedronGaussPoints.GaussPointNumber numberOfGaussPoints,
             Func<int, double, double, double, double> shapeFunction, Func<int, double, double, double, double> dNdCsi,
             Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, int numberOFShapeFunction)
         {
@@ -449,9 +449,9 @@ namespace GPC.Model.Maths.GaussIntegrations
             GaussPoint[] gaussPoints;
             bool parallelComputing = false;
 
-            if (HexahedroGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
+            if (HexahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
             {
-                gaussPoints = HexahedroGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
+                gaussPoints = HexahedronGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
                 if ((int)numberOfGaussPoints >= 27)
                     parallelComputing = true;
             }
@@ -505,7 +505,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
         /// Linear shape functions and its derivative are used
         /// </remarks>
-        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints)
+        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedronGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationHexaedron(function, vertices, numberOfGaussPoints, LinearShapeFunctionHexaedron8.NaturalShapeFunction,
                 LinearShapeFunctionHexaedron8.DNdCsi, LinearShapeFunctionHexaedron8.DNdEta, LinearShapeFunctionHexaedron8.DNdZeta, 8);
@@ -656,7 +656,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for hexahedro volume</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh, HexahedroGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints,
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh, HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints,
             PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
         {
             return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(mesh, hexahedroNumberOfGaussPoints, pentaNumberOfGaussPoints));
@@ -670,7 +670,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
         public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(Mesh mesh,
-            HexahedroGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints, PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
+            HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints, PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
         {
             Func<int, double, double, double, double> shapeFunctionQuad = LinearShapeFunctionHexaedron8.NaturalShapeFunction;
             Func<int, double, double, double, double> dNdCsiQuad = LinearShapeFunctionHexaedron8.DNdCsi;
@@ -686,9 +686,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             bool parallelComputing = false;
 
-            if (HexahedroGaussPoints.GaussPointNumberAssociation.ContainsKey(hexahedroNumberOfGaussPoints))
+            if (HexahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(hexahedroNumberOfGaussPoints))
             {
-                gaussPointsQuad = HexahedroGaussPoints.GaussPointNumberAssociation[hexahedroNumberOfGaussPoints];
+                gaussPointsQuad = HexahedronGaussPoints.GaussPointNumberAssociation[hexahedroNumberOfGaussPoints];
                 if ((int)hexahedroNumberOfGaussPoints >= 27)
                     parallelComputing = true;
             }

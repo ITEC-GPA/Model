@@ -229,10 +229,10 @@ namespace MathTest
 
         protected void CommonAssertHexaLinear(Func<double, double, double, double> func, Point3d[] poly, double expectedValue)
         {
-            double result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedroGaussPoints.GaussPointNumber.Hexa8);
+            double result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedronGaussPoints.GaussPointNumber.Hexa8);
             CommonEqualAssert(result, expectedValue);
 
-            result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedroGaussPoints.GaussPointNumber.Hexa27);
+            result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedronGaussPoints.GaussPointNumber.Hexa27);
             CommonEqualAssert(result, expectedValue);
         }
 
