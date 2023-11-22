@@ -9,19 +9,27 @@ namespace GPC.Model.Loads
     [Serializable]
     public abstract class Load : ModelObjectId
     {
-        // Classe load e derivate deve rimanere immutabile 
+        #region Variables
 
-        private readonly LoadCaseBase _loadCase;
+        private LoadCaseBase _loadCase;
 
-        public LoadCaseBase LoadCase => _loadCase;
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Load case associated with the load
+        /// </summary>
+        public LoadCaseBase LoadCase { get => _loadCase; set => _loadCase = value; }
+
+        public string LoadCaseName { get => _loadCase.Name; set => _loadCase.Name = value; }
+
+        #endregion
+
+        #region Constructor
 
         protected Load(LoadCaseBase loadCase)
-            : this(loadCase, Guid.NewGuid())
-        {
-        }
-
-        protected Load(LoadCaseBase loadCase, Guid guid)
-            : base(guid)
+            : base(Guid.NewGuid())
         {
             _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
         }
@@ -32,15 +40,17 @@ namespace GPC.Model.Loads
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
         }
 
+        #endregion
+
+        #region Equals, HashCode and operators
+
+        public abstract GeometryBase GetGeometryBase();
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
         }
-
-        public abstract GeometryBase GetGeometryBase();
-
-        #region Equals, HashCode and operators
 
         public override bool Equals(object obj)
         {
@@ -57,7 +67,7 @@ namespace GPC.Model.Loads
                 int hashCode = -23 * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
 
-                return hashCode; 
+                return hashCode;
             }
         }
 

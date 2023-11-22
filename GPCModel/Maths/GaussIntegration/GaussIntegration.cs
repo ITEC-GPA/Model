@@ -718,7 +718,7 @@ namespace GPC.Model.Maths.GaussIntegrations
                 MeshVolume meshVolume = facesEnumerator.Current;
                 Point3d[] shapeFunctionNode = mesh.GetVolumePoints(meshVolume);
 
-                if (facesEnumerator.Current.IsQuadrangular)
+                if (facesEnumerator.Current.IsQuadrangularPrism)
                 {
                     globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsQuad.Length];
                     Func<double, double, double, Matrix<double>> jacobian = JacobianMatrix3D(dNdCsiQuad, dNdEtaQuad, dNdZetaQuad, shapeFunctionNode);

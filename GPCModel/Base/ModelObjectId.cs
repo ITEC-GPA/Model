@@ -20,6 +20,7 @@ namespace GPC.Model
         public virtual int Id { get => _id; internal set { _id = value; } }
 
         public ModelObjectId()
+            : base()
         {
             _id = IDUNASSIGNED;
         }
@@ -87,7 +88,7 @@ namespace GPC.Model
         {
             unchecked
             {
-                return 17 * base.GetHashCode(); 
+                return 17 * base.GetHashCode();
             }
         }
 
@@ -142,7 +143,7 @@ namespace GPC.Model
             {
                 unchecked
                 {
-                    return -17 * obj.Id.GetHashCode(); 
+                    return -17 * obj.Id.GetHashCode();
                 }
             }
         }

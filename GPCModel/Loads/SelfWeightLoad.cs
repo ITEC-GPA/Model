@@ -2,9 +2,7 @@
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
@@ -13,74 +11,78 @@ namespace GPC.Model.Loads
     /// </summary>
     public class SelfWeightLoad : Load
     {
-        // Classe load e derivate deve rimanere immutabile 
+        #region Variables
 
-        protected readonly double _acceleration;
-
+        protected double _acceleration;
         protected Vector3d _gravityAxis;
 
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Get the unitized gravity vector
         /// </summary>
-        public Vector3d GravityAxis => _gravityAxis;
+        public Vector3d GravityAxis { get => _gravityAxis; set => _gravityAxis = value; }
+
+        /// <summary>
+        /// Get the gravity acceleration value
+        /// </summary>
+        public double Acceleration { get => _acceleration; set => _acceleration = value; }
 
         /// <summary>
         /// Get the gravity vector, i.e the gravity axis * acceleration 
         /// </summary>
         public Vector3d GravityVector => _gravityAxis * _acceleration;
 
-        /// <summary>
-        /// Get the gravity acceleration value
-        /// </summary>
-        public double Acceleration => _acceleration;
+        #endregion
 
+        #region Constructor
 
         /// <param name="loadCase"></param>
         /// <param name="acceleration">A positive acceleration means acceleration along the positive axis</param>
         /// <remarks>The <see cref="LoadCase.LoadCaseType"/> of <paramref name="loadCase"/> must be <see cref="LoadCase.LoadCaseTypes.SelfWeight"/>. Default vector is global.Z</remarks>
-        public SelfWeightLoad(LoadCase loadCase, double acceleration) 
+        public SelfWeightLoad(LoadCase loadCase, double acceleration)
             : base(loadCase)
         {
             if (loadCase.LoadCaseType != LoadCases.LoadCase.LoadCaseTypes.SelfWeight)
-            {
                 throw new ArgumentException($"LoadCaseType must be {LoadCases.LoadCase.LoadCaseTypes.SelfWeight}");
-            }
 
             _gravityAxis = CoordinateSystem.Global.V3; // di default è Z
-            
             _acceleration = acceleration;
         }
 
+        protected SelfWeightLoad(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _acceleration = info.GetDouble("Acceleration");
+            _gravityAxis = (Vector3d)info.GetValue("GravityAxis", typeof(Vector3d));
+        }
+
+        #endregion
+
+        #region Equals, HashCode and operators
 
         public override GeometryBase GetGeometryBase()
         {
             return null;
         }
 
-        public void SetGravityAxisToX()
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            _gravityAxis = CoordinateSystem.Global.V1;
+            base.GetObjectData(info, context);
+            info.AddValue("GravityAxis", _gravityAxis);
+            info.AddValue("Acceleration", _acceleration);
         }
-
-        public void SetGravityAxisToY()
-        {
-            _gravityAxis = CoordinateSystem.Global.V2;
-        }
-        public void SetGravityAxisToZ()
-        {
-            _gravityAxis = CoordinateSystem.Global.V3;
-        }
-
-        #region Equals, HashCode and operators
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return (obj is SelfWeightLoad objCasted) && _acceleration.Equals(objCasted._acceleration)
-                                                     && _gravityAxis.Equals(objCasted._gravityAxis) && base.Equals(objCasted);
+            return (obj is SelfWeightLoad objCasted) &&
+                _acceleration.Equals(objCasted._acceleration) &&
+                _gravityAxis.Equals(objCasted._gravityAxis) && base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -91,16 +93,14 @@ namespace GPC.Model.Loads
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _acceleration.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<Vector3d>.Default.GetHashCode(_gravityAxis);
-                return hashCode; 
+                return hashCode;
             }
         }
 
         public static bool operator ==(SelfWeightLoad obj1, SelfWeightLoad obj2)
         {
             if (obj1 is null)
-            {
                 return obj2 is null;
-            }
 
             if (ReferenceEquals(obj1, obj2))
                 return true;

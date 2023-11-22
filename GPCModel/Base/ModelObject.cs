@@ -7,37 +7,33 @@ namespace GPC.Model
     [Serializable]
     public abstract class ModelObject : ISerializable
     {
-		#region Variables
+        #region Variables
 
-		protected Guid _guid;
+        protected Guid _guid;
 
         protected string _name;
 
         private int _serializationVersion;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		/// <summary>
-		/// Default value is zero.
-		/// Increment this parameter if you have modified a class already serialized. Then handle the deserialiazation in the constructor
-		/// </summary>
-		protected int SerializationVersion 
-        { 
-            get => _serializationVersion; 
-            set => _serializationVersion = value; 
-        }
+        /// <summary>
+        /// Default value is zero.
+        /// Increment this parameter if you have modified a class already serialized. Then handle the deserialiazation in the constructor
+        /// </summary>
+        protected int SerializationVersion { get => _serializationVersion; set => _serializationVersion = value; }
 
-		public Guid Guid => _guid;
+        public Guid Guid => _guid;
 
-        public string Name => _name; // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
+        public string Name { get => _name; set => _name = value; } // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
 
-		#endregion
+        #endregion
 
-		#region Public Constructors
+        #region Public Constructors
 
-		public ModelObject()
+        public ModelObject()
         {
             _guid = Guid.NewGuid();
         }
