@@ -4,7 +4,6 @@ namespace GPC.Model.Maths.GaussIntegrations
 {
 	public static class HexahedroGaussPoints
 	{
-
 		public enum GaussPointNumber
 		{
 			Hexa1 = 1,

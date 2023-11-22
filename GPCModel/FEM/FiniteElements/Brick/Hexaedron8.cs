@@ -1,6 +1,6 @@
-﻿using System;
-using GPC.Model.Fem.Properties;
+﻿using GPC.Model.Fem.Properties;
 using GPC.Utilities.Fem;
+using System;
 using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Fem.FiniteElements
@@ -57,7 +57,7 @@ namespace GPC.Model.Fem.FiniteElements
                 return b.Transpose() * _d * b;
             };
 
-            var jacob = FemUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
+            var jacob = FemUtilities.J3D(LinearShapeFunctionHexaedron8.DNdCsi, LinearShapeFunctionHexaedron8.DNdEta, LinearShapeFunctionHexaedron8.DNdZeta, _nodesGlobal);
 
             _kElementLocalCoord = OldGaussIntegration.IntegrationHexaedron(kFunc, jacob, 8);
         }
@@ -107,21 +107,21 @@ namespace GPC.Model.Fem.FiniteElements
         /// <returns></returns>
         private static mnl.Matrix<double> GetBi(int i, double csi, double eta, double zeta, Node[] nodes)
         {
-            Func<double, double, double, mnl.Matrix<double>> jacob = FemUtilities.J3D(TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, nodes);
+            Func<double, double, double, mnl.Matrix<double>> jacob = FemUtilities.J3D(LinearShapeFunctionHexaedron8.DNdCsi, LinearShapeFunctionHexaedron8.DNdEta, LinearShapeFunctionHexaedron8.DNdZeta, nodes);
 
             Func<double, double, double, double> FdNdCsi = (double r, double s, double t) =>
             {
-                return TriLinearShapeFunctionHexaedron8.DNdCsi(i, r, s, t);
+                return LinearShapeFunctionHexaedron8.DNdCsi(i, r, s, t);
             };
 
             Func<double, double, double, double> FdNdEta = (double r, double s, double t) =>
             {
-                return TriLinearShapeFunctionHexaedron8.DNdEta(i, r, s, t);
+                return LinearShapeFunctionHexaedron8.DNdEta(i, r, s, t);
             };
 
             Func<double, double, double, double> FdNdZeta = (double r, double s, double t) =>
             {
-                return TriLinearShapeFunctionHexaedron8.DNdZeta(i, r, s, t);
+                return LinearShapeFunctionHexaedron8.DNdZeta(i, r, s, t);
             };
 
             mnl.Vector<double> dNdLocal = FemUtilities.GetdNdLocalFromdNdNatural3D(csi, eta, zeta, FdNdCsi, FdNdEta, FdNdZeta, jacob);
