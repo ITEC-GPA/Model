@@ -1,7 +1,7 @@
-﻿using System;
+﻿using GPC.Model.Fem;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GPC.Model.Fem;
 
 namespace GPC.Model.Restrains
 {
@@ -11,11 +11,16 @@ namespace GPC.Model.Restrains
     [Serializable]
     public sealed class DofRestrain : ModelObject, IEquatable<DofRestrain>
     {
+        #region Variables
 
         private readonly Solver.DOF _dof;
         private bool _restrained;
         private double _imposedDisplacement;
         private double _stiffness;
+
+        #endregion
+
+        #region Properties
 
         public Solver.DOF Dof => _dof;
 
@@ -23,24 +28,55 @@ namespace GPC.Model.Restrains
         /// <see langword="True"/> if the <see cref="_dof"/> is restrained. 
         /// <see langword="False"/> if there is a stiffness or imposed displacement
         /// </summary>
-        public bool IsRestrained => _restrained;
+        public bool IsRestrained
+        {
+            get => _restrained;
+            set
+            {
+                _restrained = value;
+                if (value)
+                {
+                    _imposedDisplacement = 0;
+                    _stiffness = 0;
+                }
+            }
+        }
 
         public bool HasStiffness => _stiffness != 0;
 
         public bool HasImposedDisplacement => _imposedDisplacement != 0;
 
-        public double Stiffness => _stiffness;
+        public double Stiffness
+        {
+            get => _stiffness;
+            set
+            {
+                _stiffness = value;
+                if (value != 0)
+                    _restrained = false;
+            }
+        }
 
-        public double ImposedDisplacement => _imposedDisplacement;
+        public double ImposedDisplacement
+        {
+            get => _imposedDisplacement;
+            set
+            {
+                _imposedDisplacement = value;
+                if (value != 0)
+                    _restrained = false;
+            }
+        }
 
+        #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Set the <paramref name="dof"/> as restrained
+        /// Set the <paramref name="dof"/> as restrained or released
         /// </summary>
-        public DofRestrain(Solver.DOF dof)
-            : this(dof, true, 0, 0)
+        public DofRestrain(Solver.DOF dof, bool restrained = true)
+            : this(dof, restrained, 0, 0)
         {
 
         }
@@ -64,7 +100,7 @@ namespace GPC.Model.Restrains
             _stiffness = stiffness < 0 ? throw new ArgumentException($"Stiffness is lower than zero: {stiffness}") : stiffness;
         }
 
-        public DofRestrain(SerializationInfo info, StreamingContext context)
+        private DofRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _dof = (Solver.DOF)info.GetValue("Dof", typeof(Solver.DOF));

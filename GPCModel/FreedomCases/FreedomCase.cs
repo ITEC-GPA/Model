@@ -6,13 +6,10 @@ namespace GPC.Model.FreedomCases
     [Serializable]
     public class FreedomCase : ModelObject, ISerializable
     {
+        #region Constructor
+
         public FreedomCase(string name)
             : base(Guid.NewGuid(), name)
-        {
-        }
-
-        public FreedomCase(Guid guid, string name)
-            : base(guid, name)
         {
         }
 
@@ -20,6 +17,10 @@ namespace GPC.Model.FreedomCases
             : base(info, context)
         {
         }
+
+        #endregion
+
+        #region Methods
 
         public override bool Equals(object obj)
         {
@@ -35,5 +36,7 @@ namespace GPC.Model.FreedomCases
         {
             base.GetObjectData(info, context);
         }
+
+        #endregion
     }
 }

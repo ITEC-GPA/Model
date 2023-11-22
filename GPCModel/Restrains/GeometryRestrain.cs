@@ -1,42 +1,58 @@
-﻿using System;
+﻿using GPC.Geometry;
+using GPC.Model.Fem;
+using GPC.Model.FreedomCases;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using GPC.Geometry;
-using GPC.Model.Fem;
-using GPC.Model.FreedomCases;
 
 namespace GPC.Model.Restrains
 {
     public abstract class GeometryRestrain : ModelObject
     {
+        #region Variables
 
         private FreedomCase _freedomCases;
-
         private CoordinateSystem _coordinateSystem;
-
         private List<DofRestrain> _restrains;
 
+        #endregion
 
-        public FreedomCase FreedomCase => _freedomCases;
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
-        public List<DofRestrain> Restrains => _restrains;
+        #region Properties
 
-        public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name)
-            : base(guid, name)
+        public FreedomCase FreedomCase { get => _freedomCases; set => _freedomCases = value; }
+
+        /// <summary>
+        /// The coordinate system of the restrain
+        /// </summary>
+        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
+
+        /// <summary>
+        /// List of restrain, one for each direction
+        /// </summary>
+        public List<DofRestrain> Restrains { get => _restrains; set => _restrains = value; }
+
+        #endregion
+
+        #region Constructor
+
+        public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name)
+            : base(name)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
             _freedomCases = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
             _restrains = restrains ?? new List<DofRestrain>();
         }
 
-        public GeometryRestrain(SerializationInfo info, StreamingContext context)
+        protected GeometryRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+
+        #region Methods
 
         public void SetCoordinateSystem(CoordinateSystem coordinateSystem)
         {
@@ -56,6 +72,7 @@ namespace GPC.Model.Restrains
 
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 
+        public abstract GeometryBase GetGeometry();
 
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.IsRestrained"/> is <see langword="true"/></returns>
         public Dictionary<Solver.DOF, bool> GetRestrains()
@@ -80,7 +97,6 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
         public Dictionary<Solver.DOF, double> GetStiffnesses()
         {
@@ -96,7 +112,6 @@ namespace GPC.Model.Restrains
 
             return kvp;
         }
-
 
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
         public Dictionary<Solver.DOF, double> GetImposedDisplacement()
@@ -114,9 +129,39 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-        public abstract GeometryBase GetGeometry();
+        /// <summary>
+        /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> restrained for the given line and freedomcase
+        /// </summary>
+        public void FixAll()
+        {
+            Restrains = new List<DofRestrain>() {
+                new DofRestrain(Solver.DOF.DX), new DofRestrain(Solver.DOF.DY), new DofRestrain(Solver.DOF.DZ),
+                new DofRestrain(Solver.DOF.RX), new DofRestrain(Solver.DOF.RY), new DofRestrain(Solver.DOF.RZ) };
+        }
 
+        /// <summary>
+        /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> restrained for the given line and freedomcase
+        /// </summary>
+        public void FixDisplacement()
+        {
+            Restrains = new List<DofRestrain>() {
+                new DofRestrain(Solver.DOF.DX), new DofRestrain(Solver.DOF.DY), new DofRestrain(Solver.DOF.DZ),
+                new DofRestrain(Solver.DOF.RX, false), new DofRestrain(Solver.DOF.RY, false), new DofRestrain(Solver.DOF.RZ, false) };
+        }
 
+        /// <summary>
+        /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> release for the given line and freedomcase
+        /// </summary>
+        public void ReleaseAll()
+        {
+            Restrains = new List<DofRestrain>() {
+                new DofRestrain(Solver.DOF.DX, false), new DofRestrain(Solver.DOF.DY, false), new DofRestrain(Solver.DOF.DZ, false),
+                new DofRestrain(Solver.DOF.RX, false), new DofRestrain(Solver.DOF.RY, false), new DofRestrain(Solver.DOF.RZ, false) };
+        }
+
+        #endregion
+
+        #region Equals, HasCode and operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -138,7 +183,6 @@ namespace GPC.Model.Restrains
                                                           base.Equals(objCasted);
         }
 
-
         public override int GetHashCode()
         {
             unchecked
@@ -150,5 +194,7 @@ namespace GPC.Model.Restrains
                 return hashCode;
             }
         }
+
+        #endregion
     }
 }

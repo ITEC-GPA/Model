@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Fem;
 using GPC.Model.FreedomCases;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Restrains
 {
@@ -26,30 +25,27 @@ namespace GPC.Model.Restrains
         #region Constructors
 
         /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
-        public PointRestrain(Point3d point, FreedomCase freedomCase, List<DofRestrain> restrains)
-            : this(point, freedomCase, CoordinateSystem.Global, restrains, Guid.NewGuid(), string.Empty)
+        public PointRestrain(Point3d point, FreedomCase freedomCase, List<DofRestrain> restrains, string name = "")
+            : this(point, freedomCase, CoordinateSystem.Global, restrains, name)
         {
 
         }
 
-        public PointRestrain(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains)
-            : this(point, freedomCase, coordinateSystem, restrains, Guid.NewGuid(), string.Empty)
-        {
-
-        }
-
-        public PointRestrain(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, Guid guid, string name)
-            : base(freedomCase, coordinateSystem, restrains, guid, name)
+        public PointRestrain(Point3d point, FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "")
+            : base(freedomCase, coordinateSystem, restrains, name)
         {
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
-        public PointRestrain(SerializationInfo info, StreamingContext context)
+        protected PointRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _point = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
@@ -82,24 +78,17 @@ namespace GPC.Model.Restrains
             );
         }
 
+        public override GeometryBase GetGeometry() => _point;
+
         #endregion
 
-        #region Public methods
-
-        public override GeometryBase GetGeometry() => _point;
+        #region Equals, hashcode, operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Point", _point);
         }
-
-
-        #endregion
-
-
-        #region Equals, hashcode, operators
-
 
         public override bool Equals(object obj)
         {
@@ -111,7 +100,6 @@ namespace GPC.Model.Restrains
 
             return (obj is PointRestrain objCasted) && _point.Equals(objCasted.Point) && base.Equals(objCasted);
         }
-
 
         public override int GetHashCode()
         {
@@ -130,7 +118,6 @@ namespace GPC.Model.Restrains
 
             return obj1.Equals(obj2);
         }
-
 
         public static bool operator !=(PointRestrain obj1, PointRestrain obj2)
         {
