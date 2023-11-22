@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Combinations;
 using GPC.Model.Fem.Attributes;
@@ -17,6 +11,11 @@ using GPC.Model.Loads;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
 using GPC.Model.Sections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace GPC.Model.Fem
 {
@@ -139,8 +138,8 @@ namespace GPC.Model.Fem
         public FemModel(string name)
             : base(name)
         {
-            _nodes = new NodeCollection(); 
-            _elements = new FiniteElementCollection(); 
+            _nodes = new NodeCollection();
+            _elements = new FiniteElementCollection();
             _costrains = new FemObjectCollection<Costrain>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
@@ -923,9 +922,9 @@ namespace GPC.Model.Fem
 
 
         #endregion
-        
+
         #region Mesh
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1160,7 +1159,7 @@ namespace GPC.Model.Fem
             {
                 for (int i = 0; i < mesh.Volumes.Count; i++)
                 {
-                    if (volumes[i].IsQuadrangular)
+                    if (volumes[i].IsQuadrangularPrism)
                     {
                         if (brickProperty is BrickProperty bp)
                         {

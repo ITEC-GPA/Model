@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using GPC.Model.Fem.FiniteElements;
+﻿using GPC.Geometry;
 using GPC.Model.Fem;
-using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.Materials;
-using GPC.Model.FreedomCases;
-using GPC.Geometry;
-using GPC.Model.Fem.Properties;
 using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
+using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
+using GPC.Model.Materials;
 using GPC.Model.Sections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace FemTest.SolverTest
 {
@@ -194,7 +194,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AddRestrainAndForceMatrixTest1()
         {
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
@@ -275,7 +275,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AddRestrainAndForceMatrixTest2()
         {
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
@@ -359,7 +359,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void AssemblyMixedElement()
         {
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 1, 0.0, 355, 510);

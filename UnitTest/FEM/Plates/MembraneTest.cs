@@ -1,17 +1,15 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using GPC.Model.Fem.FiniteElements;
+﻿using GPC.Geometry;
 using GPC.Model.Fem;
-using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.Elements;
-using GPC.Model.Materials;
-using GPC.Model.FreedomCases;
-using GPC.Geometry;
-using GPC.Model.Fem.Properties;
 using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
+using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
+using GPC.Model.Materials;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using mnl = MathNet.Numerics.LinearAlgebra;
 
 namespace FemTest.SolverTest
 {
@@ -99,7 +97,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void PlatePressureTest1()
         {
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("steel", 200000, 0.2, 355, 510);
@@ -143,7 +141,7 @@ namespace FemTest.SolverTest
 
             List<FiniteElement> elements = new List<FiniteElement>();
             Plate e0 = new Tri3PlaneStress(nodesPlate1.ToArray(), prop);
-        
+
             PlatePressureAttribute p = new PlatePressureAttribute("loadCase", sys, -10.0, 0, 0);
             e0.AddLoadCaseAttribute(p);
 
@@ -198,11 +196,11 @@ namespace FemTest.SolverTest
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
-        
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
-            
+
             double[] r0 = new double[] { 0.5000, 0.1250, -0.2500, -0.1250, -0.2500, -0.1250, 0.0000, 0.1250 };
             double[] r1 = new double[] { 0.1250, 0.5000, 0.1250, 0.0000, -0.1250, -0.2500, -0.1250, -0.2500 };
             double[] r2 = new double[] { -0.2500, 0.1250, 0.5000, -0.1250, 0.0000, -0.1250, -0.2500, 0.1250 };
@@ -252,7 +250,7 @@ namespace FemTest.SolverTest
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
-       
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -306,7 +304,7 @@ namespace FemTest.SolverTest
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
-           
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kLocalManual = mnl.Matrix<double>.Build.Dense(0, 8);
@@ -360,7 +358,7 @@ namespace FemTest.SolverTest
 
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
-     
+
             el.BuildMatrix();
             mnl.Matrix<double> kLocal = el.KElementLocalCoord;
             mnl.Matrix<double> kGlobalManual = mnl.Matrix<double>.Build.Dense(0, 12);
@@ -433,7 +431,7 @@ namespace FemTest.SolverTest
 
             NodeRestrainAttribute dZ = new NodeRestrainAttribute("freedomCase", sys);
             dZ.AddExternalRestrain(LinearSolver.DOF.DZ);
-            
+
             nds[0].AddAttribute(fix);
             nds[1].AddAttribute(fix);
             nds[2].AddAttribute(dZ);
@@ -442,15 +440,15 @@ namespace FemTest.SolverTest
             LoadCaseBase lc = new LoadCaseBase("lc");
             double px = 0.1;
             PlatePressureAttribute pressure = new PlatePressureAttribute("lc", sys, px, 0, 0);
-            
+
             Quad4Membranal el = new Quad4Membranal(nds);
             el.SetProperty(prop);
-    
+
             el.AddLoadCaseAttribute(pressure);
-            
+
             LinearSolver fem = new LinearSolver(new FiniteElement[] { el });
-            Console.WriteLine("kGlob="+fem.KGlobal);
-            Console.WriteLine("F="+fem.F);
+            Console.WriteLine("kGlob=" + fem.KGlobal);
+            Console.WriteLine("F=" + fem.F);
 
             //Check force applied
             Assert.AreEqual(0.04167, fem.F[0], 0.001);

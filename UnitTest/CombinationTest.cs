@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Combinations;
+﻿using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
-using GPC.Utilities.Extensions;
-using System.Collections.Generic;
-using GPC.TestUtilities;
-using System.Linq;
 using GPC.Model.Standards;
+using GPC.TestUtilities;
+using GPC.Utilities.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelObjectTest
 {
@@ -157,19 +157,19 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             loadCases.Add(sdl);
             coefficients.Add(4);
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad));
             coefficients.Add(2);
 
             Combination combination = new Combination("test");
@@ -420,7 +420,7 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
@@ -446,13 +446,13 @@ namespace ModelObjectTest
             combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
             combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
             combination2.AddLoadCaseCoefficient(snowLoadCase, 1.5);
-            
+
             Combination combination3 = new Combination("cmb 3", options);
             combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
             combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
             combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.5);
             combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
-            
+
             Combination combination4 = new Combination("cmb 4", options);
             combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
             combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
@@ -1737,7 +1737,7 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
@@ -1802,7 +1802,7 @@ namespace ModelObjectTest
                 liveLoadLoadCase3,
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
@@ -1866,7 +1866,7 @@ namespace ModelObjectTest
                 liveLoadLoadCase2,
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
@@ -1924,7 +1924,7 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase2
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
@@ -1996,7 +1996,7 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase3
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
@@ -2367,7 +2367,7 @@ namespace ModelObjectTest
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
-        
+
             // Assert
             Assert.IsTrue(outList.Count() == 30);
         }
@@ -2577,7 +2577,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2625,7 +2625,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2667,7 +2667,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2721,7 +2721,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2763,7 +2763,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2805,7 +2805,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2847,7 +2847,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2901,7 +2901,7 @@ namespace ModelObjectTest
             foreach (Combination combination in outList)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -3064,7 +3064,7 @@ namespace ModelObjectTest
 
             Assert.IsFalse(combination1.Equals(combination5));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
-            
+
         }
 
         [TestMethod]
@@ -3073,7 +3073,7 @@ namespace ModelObjectTest
             // Arrange
 
             StandardEN1990.EN1990CombinationsOptions options1 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
-            
+
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
             Combination combination3 = new Combination("cmb3", options1);
@@ -3139,16 +3139,16 @@ namespace ModelObjectTest
             // comb 6 ha coeff diversi
 
             // Assert / Act
-            Assert.IsTrue(combination1.Equals(combination2));       
-            Assert.IsFalse(combination1.Equals(combination3));      
-            Assert.IsFalse(combination1.Equals(combination4));      
-            Assert.IsTrue(combination1.Equals(combination5));       
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsFalse(combination1.Equals(combination3));
+            Assert.IsFalse(combination1.Equals(combination4));
+            Assert.IsTrue(combination1.Equals(combination5));
             Assert.IsFalse(combination1.Equals(combination6));
 
-            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));       
-            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));      
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
-            
+
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase2));
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase3));
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase4));

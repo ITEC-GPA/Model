@@ -1,17 +1,14 @@
-﻿using System;
-using System.Linq;
+﻿using GPC.Geometry;
+using GPC.Model.Fem;
+using GPC.Model.Fem.Attributes;
+using GPC.Model.Fem.FiniteElements;
+using GPC.Model.Fem.Properties;
+using GPC.Model.FreedomCases;
+using GPC.Model.LoadCases;
+using GPC.Model.Materials;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using GPC.Model.Fem.FiniteElements;
-using GPC.Model.Fem;
-using mnl = MathNet.Numerics.LinearAlgebra;
-using GPC.Model.Elements;
-using GPC.Model.Materials;
-using GPC.Model.FreedomCases;
-using GPC.Geometry;
-using GPC.Model.Fem.Properties;
-using GPC.Model.Fem.Attributes;
-using GPC.Model.LoadCases;
+using System.Linq;
 
 namespace FemTest.SolverTest
 {
@@ -33,7 +30,7 @@ namespace FemTest.SolverTest
             Plate e0 = new Quad4Element(nodesPlate1);
             e0.SetProperty(prop);
 
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
             PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, 1.0);
@@ -153,18 +150,18 @@ namespace FemTest.SolverTest
             NodeForceAttribute F = new NodeForceAttribute("loadCase", sys, 0.0, 1.0, 0.0, 1.0, 0, 0);
             #endregion
 
-            Node nodeA = new Node(0.0, 8, 0,  "A");
-            nodeA.AddAttribute(fixRZ);            
-            nodeA.AddAttribute(F);                
-                                                  
-            Node nodeB = new Node(0.0, 0, 0,  "B");
-            nodeB.AddAttribute(fix);              
-                                                  
-            Node nodeC = new Node(8.0, 8, 0,  "C");
-            nodeC.AddAttribute(F);                
-            nodeC.AddAttribute(fixRZ);            
-                                                  
-            Node nodeD = new Node(8.0, 0, 0,  "D");
+            Node nodeA = new Node(0.0, 8, 0, "A");
+            nodeA.AddAttribute(fixRZ);
+            nodeA.AddAttribute(F);
+
+            Node nodeB = new Node(0.0, 0, 0, "B");
+            nodeB.AddAttribute(fix);
+
+            Node nodeC = new Node(8.0, 8, 0, "C");
+            nodeC.AddAttribute(F);
+            nodeC.AddAttribute(fixRZ);
+
+            Node nodeD = new Node(8.0, 0, 0, "D");
             nodeD.AddAttribute(fix);
 
             FiniteElement e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
@@ -172,7 +169,7 @@ namespace FemTest.SolverTest
 
             Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
             e1.SetProperty(prop);
-          
+
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
             double DY = fem.GetNodeDisplacementGlobalCoordinates(nodeC, Solver.DOF.DY);
@@ -204,7 +201,7 @@ namespace FemTest.SolverTest
         [TestMethod]
         public void Tri3ElementTest2()
         {
-            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase", new Guid());
+            LoadCaseBase loadCase = new LoadCaseBase("myLoadCase");
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
 
             Material mat = new SteelMaterial("mat", 10000, 0.0, 355, 510);
@@ -230,28 +227,28 @@ namespace FemTest.SolverTest
             #endregion
 
             Node nodeA = new Node(0.0, 8, 0, "A");
-         
+
             nodeA.AddAttribute(fixRZ);
-            
+
             Node nodeB = new Node(0.0, 0, 0, "B");
-        ;                 
-            nodeB.AddAttribute(fix);        
-                                            
+            ;
+            nodeB.AddAttribute(fix);
+
             Node nodeC = new Node(8.0, 8, 0, "C");
-                
-            nodeC.AddAttribute(fixRZ);      
-                                            
+
+            nodeC.AddAttribute(fixRZ);
+
             Node nodeD = new Node(8.0, 0, 0, "D");
-        
+
             nodeD.AddAttribute(fix);
 
             Plate e0 = new Tri3Element(new Node[] { nodeA, nodeB, nodeC });
             e0.SetProperty(prop);
-         
+
             e0.AddLoadCaseAttribute(p);
             Plate e1 = new Tri3Element(new Node[] { nodeB, nodeD, nodeC });
             e1.SetProperty(prop);
-           
+
             e1.AddLoadCaseAttribute(p);
             LinearSolver fem = new LinearSolver(new FiniteElement[] { e0, e1 });
 
@@ -512,7 +509,7 @@ namespace FemTest.SolverTest
             FreedomCase freedomCase = new FreedomCase("freedomCase1");
             CoordinateSystem sys = new CoordinateSystem(new Point3d(0, 0, 0), new Point3d(1, 0, 0), new Point3d(0, 1, 0));
 
-            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, (2.418/1000.0 * 9.81) * (t / 1000.0));
+            PlatePressureAttribute pressure = new PlatePressureAttribute("loadCase", sys, 0.0, 0.0, (2.418 / 1000.0 * 9.81) * (t / 1000.0));
             els.ForEach(x => x.AddLoadCaseAttribute(pressure));
 
             /*NodeForceAttribute F = new NodeForceAttribute(loadCase, sys, 0, 0, 8.0 * 9.81 / 2.0 / 3.0, 0, 0, 0);

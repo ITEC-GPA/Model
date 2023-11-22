@@ -1,23 +1,20 @@
-﻿using GPC.Model;
-using GPC.Model.Elements;
-using GPC.Model.LoadCases;
-using GPC.Model.Materials;
-using GPC.Geometry;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Fem.Properties;
-using System;
-using System.Linq;
-using System.IO;
-using GPC.Model.Fem;
+﻿using GPC.Geometry;
+using GPC.Geometry.Meshes;
+using GPC.Model;
 using GPC.Model.Combinations;
-using System.Collections.Generic;
-using GPC.Model.Loads;
-using GPC.TestUtilities;
+using GPC.Model.Fem;
 using GPC.Model.Fem.Collections;
+using GPC.Model.Fem.Properties;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
+using GPC.Model.Materials;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
-using GPC.Geometry.Meshes;
 using GPC.Model.Sections.Glass;
+using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GeneralTest
 {
@@ -159,10 +156,10 @@ namespace GeneralTest
         [TestMethod]
         public void LoadCase()
         {
-            LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
-            LoadCaseEn16612 ldpr = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, Guid.NewGuid());
+            LoadCase sdl1 = new LoadCase("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
+            LoadCaseEn16612 ldpr = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies);
 
-            LoadCase lc3 = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies, Guid.NewGuid());
+            LoadCase lc3 = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies);
 
             Assert.IsTrue(sdl1.Equals(ldpr));
             Assert.IsFalse(ldpr.Equals(sdl1));
@@ -275,7 +272,7 @@ namespace GeneralTest
             dictWithComparer.Add(n2, 1);
 
             dict.Add(n1, 1);
-            
+
             Assert.IsTrue(dictWithComparer.ContainsKey(n3));
             Assert.IsTrue(dict.ContainsKey(n2));
             Assert.IsTrue(dict.ContainsKey(n3));
@@ -397,8 +394,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(lc1, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(lc2, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(lc1, new[] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(lc2, new[] { resultLocationId2 });
 
             Assert.IsTrue(rd1.Equals(rd2));
             Assert.IsTrue(lc1.Equals(lc2));
@@ -424,8 +421,8 @@ namespace GeneralTest
             ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
             ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
 
-            NodeResult nr1 = new NodeResult(cmb1, new [] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(cmb2, new [] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(cmb1, new[] { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(cmb2, new[] { resultLocationId2 });
 
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(cmb1.Equals(cmb2));

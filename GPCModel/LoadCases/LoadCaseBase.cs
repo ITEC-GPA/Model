@@ -6,7 +6,7 @@ namespace GPC.Model.LoadCases
 {
     [Serializable]
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public abstract class LoadCaseBase : ModelObject, ISerializable, ILoadCase
+    public class LoadCaseBase : ModelObject, ISerializable, ILoadCase
     {
         #region PUBLIC CONSTRUCTOR
 
