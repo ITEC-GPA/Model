@@ -25,6 +25,8 @@ namespace GPC.Model.Sections.Steel
 
         public double Height => _sectionShape.Height;
 
+        public double Width => _sectionShape.Width;
+
         public Shape2d Shape => _sectionShape.Shape;
 
         public double Area => _sectionShape.Area;

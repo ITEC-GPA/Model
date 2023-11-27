@@ -29,6 +29,8 @@ namespace GPC.Model.Sections
 
         public override double Height => _diameter;
 
+        public override double Width => _diameter;
+
         public override ThinWallSection.ThinWall[] ThinWalls => null;
 
         #region Public Constructors

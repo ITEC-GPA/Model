@@ -129,7 +129,9 @@ namespace GPC.Model.Sections.Concrete
             IList<SteelSectionPosition> steelSections = null)
         {
             // Rebars
-            double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            double? nRebars = null;
+            if (rebars != null && rebars.Length > 0)
+                nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
             // Steel sections
             double? nSteelSections = null;
             if (steelSections != null && steelSections.Count > 0)
@@ -173,7 +175,9 @@ namespace GPC.Model.Sections.Concrete
             double area, out double SxHomog, out double SyHomog, IList<SteelSectionPosition> steelSections = null)
         {
             // Rebars
-            double nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
+            double? nRebars = null;
+            if (rebars != null && rebars.Length > 0)
+                nRebars = CalculateHomogenizedFactorN(phi, rebars, concreteMaterial);
             // Steel sections
             double? nSteelSections = null;
             if (steelSections != null && steelSections.Count > 0)

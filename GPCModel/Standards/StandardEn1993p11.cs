@@ -121,6 +121,8 @@ namespace GPC.Model.Standards
         public double BetaForLateralTorsionalBucklingMod { get => _betaForLateralTorsionalBucklingMod; set => _betaForLateralTorsionalBucklingMod = value; }
         public double LambdaLT0ForLateralTorsionalBucklingMod { get => _lambdaLT0ForLateralTorsionalBucklingMod; set => _lambdaLT0ForLateralTorsionalBucklingMod = value; }
 
+        public override StandardGroupType StandardGroup => StandardGroupType.European;
+
         #endregion
 
         #region Constructor

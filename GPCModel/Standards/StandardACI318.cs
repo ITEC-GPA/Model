@@ -82,11 +82,13 @@ namespace GPC.Model.Standards
 		/// </summary>
 		public double PhiDeformationTransitionMaxLimit { get => _phiDeformationTransitionMaxLimit; set => _phiDeformationTransitionMaxLimit = value; }
 
-		#endregion
+        public override StandardGroupType StandardGroup => StandardGroupType.American;
 
-		#region Constructors
+        #endregion
 
-		public StandardACI318(string name = "ACI 318", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
+        #region Constructors
+
+        public StandardACI318(string name = "ACI 318", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
 			: base(name, remarks)
 		{
 			_phiCSpiral = 0.75;
