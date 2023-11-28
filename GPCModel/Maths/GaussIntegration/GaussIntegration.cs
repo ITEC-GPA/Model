@@ -409,8 +409,8 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// </remarks>
         public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
-            return IntegrationHexaedron(function, vertices, numberOfGaussPoints, TriLinearShapeFunctionHexaedron8.NaturalShapeFunction,
-                TriLinearShapeFunctionHexaedron8.DNdCsi, TriLinearShapeFunctionHexaedron8.DNdEta, TriLinearShapeFunctionHexaedron8.DNdZeta, 8);
+            return IntegrationHexaedron(function, vertices, numberOfGaussPoints, LinearShapeFunctionHexaedron8.NaturalShapeFunction,
+                LinearShapeFunctionHexaedron8.DNdCsi, LinearShapeFunctionHexaedron8.DNdEta, LinearShapeFunctionHexaedron8.DNdZeta, 8);
         }
 
         #endregion

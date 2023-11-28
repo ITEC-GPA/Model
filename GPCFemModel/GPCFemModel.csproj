@@ -42,8 +42,8 @@
     <Reference Include="GPCGeometry, Version=2.0.0.6, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GPCGeometry.2.0.0.6\lib\netstandard2.0\GPCGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="GPCUtilities, Version=2.0.0.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GPCUtilities.2.0.0.2\lib\netstandard2.0\GPCUtilities.dll</HintPath>
+    <Reference Include="GPCUtilities, Version=2.0.0.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GPCUtilities.2.0.0.5\lib\netstandard2.0\GPCUtilities.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
