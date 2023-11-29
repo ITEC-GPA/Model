@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 using GPC.Model.Fem.Collections;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.FiniteElements;
 using GPC.Geometry;
 using GPC.TestUtilities;
@@ -12,6 +12,7 @@ using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using System.Collections.Generic;
 using System.Diagnostics;
+using GPC.Model.Stages;
 
 namespace FemTest
 {

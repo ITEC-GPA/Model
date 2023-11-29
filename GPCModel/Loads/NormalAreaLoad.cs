@@ -13,7 +13,6 @@ namespace GPC.Model.Loads
 
         protected double _pressure;
         protected Shape _shape;
-        protected CoordinateSystem _coordinateSystem;
 
         #endregion
 
@@ -23,14 +22,12 @@ namespace GPC.Model.Loads
 
         public Shape Shape { get => _shape; set => _shape = value; }
 
-        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
-
         #endregion
 
         #region Public constructors 
 
-        public NormalAreaLoad(double pressure, Shape shape, LoadCaseBase loadCase)
-            : base(loadCase)
+        public NormalAreaLoad(double pressure, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : base(loadCase, coordinateSystem, name, id)
         {
             _pressure = pressure;
             _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");

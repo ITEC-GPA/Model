@@ -1,5 +1,5 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Attributes;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

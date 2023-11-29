@@ -2,7 +2,7 @@
 using GPC.Geometry.Meshes;
 using GPC.Model;
 using GPC.Model.Combinations;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Collections;
 using GPC.Model.Fem.Properties;
 using GPC.Model.LoadCases;

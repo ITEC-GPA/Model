@@ -7,7 +7,7 @@ using GPC.Geometry;
 using GPC.Model.Fem.Properties;
 using GPC.Model.Fem.Attributes;
 using System.Collections.Generic;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Materials;
 
 namespace FemTest.SolverTest

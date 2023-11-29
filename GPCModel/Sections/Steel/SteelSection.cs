@@ -1,6 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Fem.Properties;
+using GPC.Model.ElementProperties;
 using GPC.Model.Materials;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Steel
 {
     [Serializable]
-    public class SteelSection : BeamProperty, IBeamProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
+    public class SteelSection : BeamProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
     {
         #region Varibles
 

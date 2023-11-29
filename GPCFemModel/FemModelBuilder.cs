@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace GPC.Model.Fem
 {
     [Serializable]
-    public class FemModelBuilder : FemModel, ISerializable
+    public class FemModelBuilder : Models.Model, ISerializable
     {
         #region Constructors
 
@@ -107,7 +107,7 @@ namespace GPC.Model.Fem
                     {
                         embeddedGeometries.Add(lr.GetGeometry());
                     }
-                    else if (restrain is PointRestrain pr)
+                    else if (restrain is NodeRestrain pr)
                     {
                         embeddedGeometries.Add(pr.GetGeometry());
                     }

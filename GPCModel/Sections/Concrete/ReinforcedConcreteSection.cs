@@ -1,6 +1,6 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Fem.Properties;
+using GPC.Model.ElementProperties;
 using GPC.Model.Materials;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections.Concrete
 {
     [Serializable]
-    public class ReinforcedConcreteSection : BeamProperty, IBeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
+    public class ReinforcedConcreteSection : BeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
     {
         #region Variables
 

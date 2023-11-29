@@ -67,7 +67,7 @@ namespace GPC.Model.Standards
 
 		#endregion
 
-		public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
+		public UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
 		{
 			throw new NotImplementedException();
 		}

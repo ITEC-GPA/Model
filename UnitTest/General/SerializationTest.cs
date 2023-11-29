@@ -22,7 +22,7 @@ using System.Text;
 
 namespace GeneralTest
 {
-	[TestClass]
+    [TestClass]
 	public class SerializationTest : UnitTestBase
 	{
 		private bool SerializationClassesCommonAsserts(object objToTest)

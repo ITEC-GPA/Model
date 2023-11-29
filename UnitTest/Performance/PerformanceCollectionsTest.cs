@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Collections;
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Maths.GaussIntegrations;

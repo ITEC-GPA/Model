@@ -1,7 +1,7 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Geometry.Meshes.GMesh;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Fem.Properties;
@@ -176,9 +176,9 @@ namespace FemTest
 
             Dictionary<GeometryRestrain, int[]> geometryRestrains = new Dictionary<GeometryRestrain, int[]>
             {
-                { new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 1 } },
-                { new PointRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 2 } },
-                { new PointRestrain(Point3d.Origin, new FreedomCase("fc3"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 3 } }
+                { new NodeRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 1 } },
+                { new NodeRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 2 } },
+                { new NodeRestrain(Point3d.Origin, new FreedomCase("fc3"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }), new int[] { 3 } }
             };
 
 
@@ -232,8 +232,8 @@ namespace FemTest
 
             List<GeometryRestrain> restrains = new List<GeometryRestrain>
             {
-                new PointRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }),
-                new PointRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) })
+                new NodeRestrain(Point3d.Origin, new FreedomCase("fc1"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }),
+                new NodeRestrain(Point3d.Origin, new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) })
             };
             //restrains.Add(new LineRestrain(new Line3d(new Point3d(0, 0, 0), new Point3d(1, 0, 0)), new FreedomCase("fc2"), CoordinateSystem.Global, new List<DofRestrain> { new DofRestrain(LinearSolver.DOF.DX) }));
 

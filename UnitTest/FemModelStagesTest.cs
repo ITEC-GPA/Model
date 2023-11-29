@@ -1,6 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using GPC.TestUtilities;

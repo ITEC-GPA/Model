@@ -11,11 +11,10 @@ namespace GPC.Model.Loads
     {
         #region Variables
 
-        private double _p1;
-        private double _p2;
-        private double _p3;
-        private Shape _shape;
-        private CoordinateSystem _coordinateSystem;
+        protected double _p1;
+        protected double _p2;
+        protected double _p3;
+        protected Shape _shape;
 
         #endregion
 
@@ -41,11 +40,6 @@ namespace GPC.Model.Loads
         /// </summary>
         public Shape Shape { get => _shape; set => _shape = value; }
 
-        /// <summary>
-        /// reference system of the load
-        /// </summary>
-        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
-
         #endregion
 
         #region Constructor
@@ -57,8 +51,8 @@ namespace GPC.Model.Loads
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem">Reference system of the load</param>
         /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
-            : base(loadCase)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : base(loadCase, coordinateSystem, name, id)
         {
             _p1 = p1;
             _p2 = p2;
@@ -74,8 +68,8 @@ namespace GPC.Model.Loads
         /// <param name="shape">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
-            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global, name, id)
         {
 
         }
@@ -100,9 +94,9 @@ namespace GPC.Model.Loads
         /// <remarks>The not normal portion will be lost</remarks>
         public virtual NormalAreaLoad ConvertToNormalAreaLoad()
         {
-            var globalLoad = this.GetGlobalLoadVector();
-
-            return new NormalAreaLoad(_shape.GetCoordinateSystem().ToLocal(globalLoad).Z, _shape, LoadCase);
+            Vector3d globalLoad = this.GetGlobalLoadVector();
+            CoordinateSystem coordinateSystem = _shape.GetCoordinateSystem();
+            return new NormalAreaLoad(coordinateSystem.ToLocal(globalLoad).Z, _shape, LoadCase, coordinateSystem);
         }
 
         /// <returns>The total load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>

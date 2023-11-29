@@ -1,6 +1,6 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Fem;
-using GPC.Model.FreedomCases;
+using GPC.Model.Elements;
+using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,19 +8,29 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Restrains
 {
-    public abstract class GeometryRestrain : ModelObject
+    public abstract class GeometryRestrain : Attributes.Attribute
     {
+        public enum DOF
+        {
+            DX,   //0
+            DY,   //1
+            DZ,   //2
+            RX,   //3
+            RY,   //4
+            RZ,   //5
+            DDX,   //0
+            DDY,   //1
+            DDZ,   //2
+        }
+
         #region Variables
 
-        private FreedomCase _freedomCases;
-        private CoordinateSystem _coordinateSystem;
-        private List<DofRestrain> _restrains;
+        protected CoordinateSystem _coordinateSystem;
+        protected List<DofRestrain> _restrains;
 
         #endregion
 
         #region Properties
-
-        public FreedomCase FreedomCase { get => _freedomCases; set => _freedomCases = value; }
 
         /// <summary>
         /// The coordinate system of the restrain
@@ -36,11 +46,10 @@ namespace GPC.Model.Restrains
 
         #region Constructor
 
-        public GeometryRestrain(FreedomCase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name)
-            : base(name)
+        public GeometryRestrain(LoadCaseBase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
+            : base(freedomCase, name, id)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
-            _freedomCases = freedomCase ?? throw new ArgumentNullException(nameof(freedomCase));
             _restrains = restrains ?? new List<DofRestrain>();
         }
 
@@ -74,10 +83,12 @@ namespace GPC.Model.Restrains
 
         public abstract GeometryBase GetGeometry();
 
+        public abstract Element GetElement();
+
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.IsRestrained"/> is <see langword="true"/></returns>
-        public Dictionary<Solver.DOF, bool> GetRestrains()
+        public Dictionary<DOF, bool> GetRestrains()
         {
-            Dictionary<Solver.DOF, bool> kvp = new Dictionary<Solver.DOF, bool>();
+            Dictionary<DOF, bool> kvp = new Dictionary<DOF, bool>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -98,9 +109,9 @@ namespace GPC.Model.Restrains
         }
 
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
-        public Dictionary<Solver.DOF, double> GetStiffnesses()
+        public Dictionary<DOF, double> GetStiffnesses()
         {
-            Dictionary<Solver.DOF, double> kvp = new Dictionary<Solver.DOF, double>();
+            Dictionary<DOF, double> kvp = new Dictionary<DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -114,9 +125,9 @@ namespace GPC.Model.Restrains
         }
 
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
-        public Dictionary<Solver.DOF, double> GetImposedDisplacement()
+        public Dictionary<DOF, double> GetImposedDisplacement()
         {
-            Dictionary<Solver.DOF, double> kvp = new Dictionary<Solver.DOF, double>();
+            Dictionary<DOF, double> kvp = new Dictionary<DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
@@ -135,8 +146,8 @@ namespace GPC.Model.Restrains
         public void FixAll()
         {
             Restrains = new List<DofRestrain>() {
-                new DofRestrain(Solver.DOF.DX), new DofRestrain(Solver.DOF.DY), new DofRestrain(Solver.DOF.DZ),
-                new DofRestrain(Solver.DOF.RX), new DofRestrain(Solver.DOF.RY), new DofRestrain(Solver.DOF.RZ) };
+                new DofRestrain(DOF.DX), new DofRestrain(DOF.DY), new DofRestrain(DOF.DZ),
+                new DofRestrain(DOF.RX), new DofRestrain(DOF.RY), new DofRestrain(DOF.RZ) };
         }
 
         /// <summary>
@@ -145,8 +156,8 @@ namespace GPC.Model.Restrains
         public void FixDisplacement()
         {
             Restrains = new List<DofRestrain>() {
-                new DofRestrain(Solver.DOF.DX), new DofRestrain(Solver.DOF.DY), new DofRestrain(Solver.DOF.DZ),
-                new DofRestrain(Solver.DOF.RX, false), new DofRestrain(Solver.DOF.RY, false), new DofRestrain(Solver.DOF.RZ, false) };
+                new DofRestrain(DOF.DX), new DofRestrain(DOF.DY), new DofRestrain(DOF.DZ),
+                new DofRestrain(DOF.RX, false), new DofRestrain(DOF.RY, false), new DofRestrain(DOF.RZ, false) };
         }
 
         /// <summary>
@@ -155,8 +166,8 @@ namespace GPC.Model.Restrains
         public void ReleaseAll()
         {
             Restrains = new List<DofRestrain>() {
-                new DofRestrain(Solver.DOF.DX, false), new DofRestrain(Solver.DOF.DY, false), new DofRestrain(Solver.DOF.DZ, false),
-                new DofRestrain(Solver.DOF.RX, false), new DofRestrain(Solver.DOF.RY, false), new DofRestrain(Solver.DOF.RZ, false) };
+                new DofRestrain(DOF.DX, false), new DofRestrain(DOF.DY, false), new DofRestrain(DOF.DZ, false),
+                new DofRestrain(DOF.RX, false), new DofRestrain(DOF.RY, false), new DofRestrain(DOF.RZ, false) };
         }
 
         #endregion
@@ -177,10 +188,10 @@ namespace GPC.Model.Restrains
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is GeometryRestrain objCasted) && _freedomCases.Equals(objCasted._freedomCases) &&
-                                                          _coordinateSystem.Equals(objCasted._coordinateSystem) &&
-                                                          _restrains.SequenceEqual(objCasted._restrains) &&
-                                                          base.Equals(objCasted);
+            return (obj is GeometryRestrain objCasted) &&
+                _coordinateSystem.Equals(objCasted._coordinateSystem) &&
+                _restrains.SequenceEqual(objCasted._restrains) &&
+                base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -188,7 +199,6 @@ namespace GPC.Model.Restrains
             unchecked
             {
                 int hashCode = -23;
-                hashCode = hashCode * -17 + EqualityComparer<FreedomCase>.Default.GetHashCode(_freedomCases);
                 hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
                 hashCode = hashCode * -17 + EqualityComparer<List<DofRestrain>>.Default.GetHashCode(_restrains);
                 return hashCode;

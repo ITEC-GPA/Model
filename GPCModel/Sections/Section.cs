@@ -1,6 +1,5 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Fem.Properties;
 using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
@@ -8,7 +7,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class Section : ElementProperty, ISectionShape, ISerializable
+    public class Section : ModelObjectId, ISectionShape, ISerializable
     {
         #region Enumerator
 

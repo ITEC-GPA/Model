@@ -1,5 +1,5 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.Attributes;
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.FreedomCases;
@@ -9,7 +9,7 @@ using GPC.Model.Sections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using static GPC.Model.Fem.Solver;
+
 
 namespace FemTest.SolverTest
 {

@@ -1,6 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Combinations;
-using GPC.Model.Fem;
+
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Fem.Materials;
 using GPC.Model.Fem.Properties;

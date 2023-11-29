@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GPC.Model.Fem;
+
 using mnl = MathNet.Numerics.LinearAlgebra;
 using GPC.Model.Fem.FiniteElements;
 using GPC.Model.Fem.Properties;

@@ -12,6 +12,7 @@ namespace GPC.Model.Loads
         #region Variables
 
         private LoadCaseBase _loadCase;
+        protected CoordinateSystem _coordinateSystem;
 
         #endregion
 
@@ -24,20 +25,27 @@ namespace GPC.Model.Loads
 
         public string LoadCaseName { get => _loadCase.Name; set => _loadCase.Name = value; }
 
+        /// <summary>
+        /// reference system of the load
+        /// </summary>
+        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
+
         #endregion
 
         #region Constructor
 
-        protected Load(LoadCaseBase loadCase)
-            : base(Guid.NewGuid())
+        protected Load(LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name, int id)
+            : base(id, name)
         {
-            _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
+            _loadCase = loadCase;
+            _coordinateSystem = coordinateSystem;
         }
 
         protected Load(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 
         #endregion
@@ -50,6 +58,7 @@ namespace GPC.Model.Loads
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
         public override bool Equals(object obj)
@@ -57,7 +66,10 @@ namespace GPC.Model.Loads
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) && base.Equals(obj);
+            return obj is Load load &&
+                EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) &&
+                _coordinateSystem.Equals(load.CoordinateSystem) &&
+                base.Equals(obj);
         }
 
         public override int GetHashCode()
@@ -66,6 +78,7 @@ namespace GPC.Model.Loads
             {
                 int hashCode = -23 * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
+                hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
 
                 return hashCode;
             }
