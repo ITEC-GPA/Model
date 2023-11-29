@@ -3,13 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model
+namespace GPC.Model.Collections
 {
-    /// <summary>
-    /// Collection of <see cref="ModelObject"/> with unique name. This class use an <see cref="HashSet{T}"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <remarks>The collection is thread-safe</remarks>
     [Serializable]
     public class UniqueNameCollection<T> : Dictionary<string, T> where T : ModelObject, ISerializable
     {
@@ -43,11 +38,6 @@ namespace GPC.Model
             return false;
         }
 
-        /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
-        /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
-        /// <exception cref="InvalidOperationException" ></exception>
-        /// <exception cref="KeyNotFoundException"></exception>
-        /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetElementByName(string name)
         {
             if (ContainsKey(name))

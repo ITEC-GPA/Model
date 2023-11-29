@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.FreedomCases
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Serializable]
     public class FreedomCase : ModelObject, ISerializable
     {

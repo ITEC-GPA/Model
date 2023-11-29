@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Attributes;
+using GPC.Model.Collections;
 using GPC.Model.Loads;
 using GPC.Model.Results;
 using System;
@@ -20,13 +21,13 @@ namespace GPC.Model.Elements
         protected UniqueNameCollection<Group> _groups;
         protected UniqueIdCollection<Attributes.Attribute> _attributes;
         protected UniqueIdCollection<Load> _loads;
-        protected List<FiniteElementResult> _results;
+        protected List<ElementResult> _results;
 
         public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
         public UniqueNameCollection<Group> Groups { get => _groups; set => _groups = value; }
         public UniqueIdCollection<Attributes.Attribute> Attributes { get => _attributes; set => _attributes = value; }
         public UniqueIdCollection<Load> Loads { get => _loads; set => _loads = value; }
-        public List<FiniteElementResult> Results => _results;
+        public List<ElementResult> Results => _results;
 
         protected Element(string name = "")
             : this(IDUNASSIGNED, name)
@@ -44,6 +45,7 @@ namespace GPC.Model.Elements
             _groups = new UniqueNameCollection<Group>();
             _attributes = new UniqueIdCollection<Attributes.Attribute>();
             _loads = new UniqueIdCollection<Load>();
+            _results = new List<ElementResult>();
         }
 
         protected Element(int id)

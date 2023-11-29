@@ -1,6 +1,7 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Attributes;
+using GPC.Model.Collections;
 using GPC.Model.Combinations;
 using GPC.Model.Costrains;
 using GPC.Model.ElementProperties;
@@ -9,6 +10,7 @@ using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Restrains;
+using GPC.Model.Results;
 using GPC.Model.Sections;
 using GPC.Model.Stages;
 using System;
@@ -23,10 +25,10 @@ namespace GPC.Model.Models
     {
         #region Variables
 
-        protected SortedCollection2<NodeElement> _nodesElements;
-        protected SortedCollection2<BeamElement> _beamElements;
-        protected SortedCollection2<AreaElement> _areaElements;
-        protected SortedCollection2<VolumeElement> _volumeElements;
+        protected SortedCollection<NodeElement> _nodesElements;
+        protected SortedCollection<BeamElement> _beamElements;
+        protected SortedCollection<AreaElement> _areaElements;
+        protected SortedCollection<VolumeElement> _volumeElements;
         protected UniqueIdCollection<Costrain> _costrains;
 
         protected UniqueNameCollection<BeamProperty> _beamProperties;
@@ -49,25 +51,25 @@ namespace GPC.Model.Models
         /// Collection of <see cref="NodeElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        public SortedCollection2<NodeElement> NodesElements => _nodesElements;
+        public SortedCollection<NodeElement> NodesElements => _nodesElements;
 
         /// <summary>
         /// Collection of <see cref="BeamElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        public SortedCollection2<BeamElement> BeamElements => _beamElements;
+        public SortedCollection<BeamElement> BeamElements => _beamElements;
 
         /// <summary>
         /// Collection of <see cref="AreaElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        public SortedCollection2<AreaElement> AreaElements => _areaElements;
+        public SortedCollection<AreaElement> AreaElements => _areaElements;
 
         /// <summary>
         /// Collection of <see cref="VolumeElement"/>
         /// The elements on this collection does not have duplicate ID and can not be duplicate. (different element with different id)
         /// </summary>
-        public SortedCollection2<VolumeElement> VolumeElements => _volumeElements;
+        public SortedCollection<VolumeElement> VolumeElements => _volumeElements;
 
         /// <summary>
         /// Collection of <see cref="Costrain"/>
@@ -134,9 +136,9 @@ namespace GPC.Model.Models
             _groups = new UniqueNameCollection<Group>();
             _costrains = new UniqueIdCollection<Costrain>();
 
-            _nodesElements = new SortedCollection2<NodeElement>();
-            _beamElements = new SortedCollection2<BeamElement>();
-            _areaElements = new SortedCollection2<AreaElement>();
+            _nodesElements = new SortedCollection<NodeElement>();
+            _beamElements = new SortedCollection<BeamElement>();
+            _areaElements = new SortedCollection<AreaElement>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
@@ -150,10 +152,10 @@ namespace GPC.Model.Models
         protected Model(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _nodesElements = (SortedCollection2<NodeElement>)info.GetValue("Nodes", typeof(SortedCollection2<NodeElement>));
-            _beamElements = (SortedCollection2<BeamElement>)info.GetValue("Beams", typeof(SortedCollection2<BeamElement>));
-            _areaElements = (SortedCollection2<AreaElement>)info.GetValue("Areas", typeof(SortedCollection2<AreaElement>));
-            _volumeElements = (SortedCollection2<VolumeElement>)info.GetValue("Volumes", typeof(SortedCollection2<VolumeElement>));
+            _nodesElements = (SortedCollection<NodeElement>)info.GetValue("Nodes", typeof(SortedCollection<NodeElement>));
+            _beamElements = (SortedCollection<BeamElement>)info.GetValue("Beams", typeof(SortedCollection<BeamElement>));
+            _areaElements = (SortedCollection<AreaElement>)info.GetValue("Areas", typeof(SortedCollection<AreaElement>));
+            _volumeElements = (SortedCollection<VolumeElement>)info.GetValue("Volumes", typeof(SortedCollection<VolumeElement>));
             _costrains = (UniqueIdCollection<Costrain>)info.GetValue("Costrains", typeof(UniqueIdCollection<Costrain>));
 
             _beamProperties = (UniqueNameCollection<BeamProperty>)info.GetValue("BeamProperties", typeof(UniqueNameCollection<BeamProperty>));
@@ -299,7 +301,6 @@ namespace GPC.Model.Models
             return _freedomCases.GetNames().ToArray();
         }
 
-
         #endregion
 
         #region Combinations
@@ -309,7 +310,6 @@ namespace GPC.Model.Models
             _combinations.Add(combination.Name, combination);
             return true;
         }
-
 
         public virtual bool AddCombinations(IEnumerable<Combination> combinations)
         {
@@ -547,7 +547,6 @@ namespace GPC.Model.Models
             return _nodesElements.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
-
         /// <inheritdoc cref="AddNode(Node)"/>
         protected virtual int[] AddNodes(NodeElement[] nodes)
         {
@@ -570,13 +569,11 @@ namespace GPC.Model.Models
             throw new ArgumentNullException();
         }
 
-
         /// <inheritdoc cref="SortedCollection{T}.GetById(int)"/>
         public virtual NodeElement GetNode(int id)
         {
             return _nodesElements[id];
         }
-
 
         public virtual IEnumerator<NodeElement> GetNodesEnumerator()
         {
@@ -920,23 +917,8 @@ namespace GPC.Model.Models
                     Dictionary<GeometryRestrain.DOF, double> stiffneses = geometryRestrain.GetStiffnesses();
                     Dictionary<GeometryRestrain.DOF, double> displacements = geometryRestrain.GetImposedDisplacement();
 
-                    LoadCaseBase freedomCase;
-                    if (LoadCaseExist(geometryRestrain.LoadCaseName))
-                    {
-                        freedomCase = GetLoadCaseByName(geometryRestrain.LoadCaseName);
-                        if (!freedomCase.Equals(geometryRestrain.LoadCase))
-                            throw new ArgumentException($"FreedomCase {geometryRestrain.LoadCaseName} is not equal to the one inside the FemModel");
-                    }
-                    else
-                    {
-                        if (AddLoadCase(geometryRestrain.LoadCase))
-                            freedomCase = geometryRestrain.LoadCase;
-                        else
-                            throw new InvalidOperationException();
-                    }
-
-                    NodeRestrain nra = new NodeRestrain((NodeElement)geometryRestrain.GetElement(), freedomCase, geometryRestrain.CoordinateSystem);
-                    NodeRestrain nsa = new NodeRestrain((NodeElement)geometryRestrain.GetElement(), freedomCase, geometryRestrain.CoordinateSystem);
+                    NodeRestrain nra = new NodeRestrain((NodeElement)geometryRestrain.GetElement(), geometryRestrain.CoordinateSystem);
+                    NodeRestrain nsa = new NodeRestrain((NodeElement)geometryRestrain.GetElement(), geometryRestrain.CoordinateSystem);
 
                     // TODO:  gestire il fatto che uno spostamento imposto può essere applicato in un grado di libertà vincolato
                     foreach (KeyValuePair<GeometryRestrain.DOF, bool> restrain in restrains)
@@ -1006,7 +988,7 @@ namespace GPC.Model.Models
 
                         if (load is PointLoad pl)
                         {
-                            PointLoad nfa = new PointLoad(pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3, node, loadCase, pl.CoordinateSystem);
+                            PointLoad nfa = new PointLoad(pl.F1, pl.F2, pl.F3, pl.M1, pl.M2, pl.M3, node.Position, loadCase, pl.CoordinateSystem);
                             node.Loads.Add(nfa);
                         }
                         else
@@ -1062,7 +1044,7 @@ namespace GPC.Model.Models
                                 factor /= 2.0;
 
                             PointLoad pointLoad = new PointLoad(ll.F1 * factor, ll.F2 * factor, ll.F3 * factor,
-                                ll.M1 * factor, ll.M2 * factor, ll.M3 * factor, node, ll.LoadCase, ll.CoordinateSystem);
+                                ll.M1 * factor, ll.M2 * factor, ll.M3 * factor, node.Position, ll.LoadCase, ll.CoordinateSystem);
 
                             node.Loads.Add(pointLoad);
                         }
@@ -1145,6 +1127,38 @@ namespace GPC.Model.Models
 
         #endregion
 
+        #region Results
+
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        public ResultType[] GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
+        {
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                var group = _groups.GetElementByName(groupName);
+                return _nodesElements.SelectMany(i => i.Value.Results.Where(j => j.Case.Equals(combination)).Where(j => i.Value.ContainsGroup(group) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement)).ToArray();
+            }
+            else
+            {
+                return _nodesElements.SelectMany(i => i.Value.Results.Where(j => j.Case.Equals(combination)).Where(j => j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
+            }
+        }
+
+
+        public ElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return _areaElements.SelectMany(i => i.Value.Results.Where(k => k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
+            }
+            else
+            {
+                var group = _groups.GetElementByName(groupName);
+                return _areaElements.SelectMany(i => i.Value.Results.Where(k => i.Value.ContainsGroup(group) && k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Edits
@@ -1204,10 +1218,10 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("Nodes", _nodesElements, typeof(SortedCollection2<NodeElement>));
-            info.AddValue("Elements", _beamElements, typeof(SortedCollection2<BeamElement>));
-            info.AddValue("Areas", _areaElements, typeof(SortedCollection2<AreaElement>));
-            info.AddValue("Volumes", _volumeElements, typeof(SortedCollection2<VolumeElement>));
+            info.AddValue("Nodes", _nodesElements, typeof(SortedCollection<NodeElement>));
+            info.AddValue("Elements", _beamElements, typeof(SortedCollection<BeamElement>));
+            info.AddValue("Areas", _areaElements, typeof(SortedCollection<AreaElement>));
+            info.AddValue("Volumes", _volumeElements, typeof(SortedCollection<VolumeElement>));
             info.AddValue("Costrains", _costrains, typeof(UniqueIdCollection<Costrain>));
 
             info.AddValue("PlateProperties", _beamProperties, typeof(UniqueNameCollection<BeamProperty>));

@@ -1,40 +1,24 @@
-﻿using System;
+﻿using GPC.Model.LoadCases;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Geometry;
-using GPC.Model.LoadCases;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>, IFemResult
+    public sealed class NodeResult : FiniteElementResult, ISerializable, IEquatable<NodeResult>, IFemResult
     {
-        #region Variables
-
-        private readonly int _stageId;
-
-        #endregion
-
-        #region Properties
-
-        public int StageId => _stageId;
-
-        #endregion
-
         #region Public Constructors
 
-        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations,
-            int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, resultLocations.ToArray())
+        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations, int stageId = ModelObjectId.IDUNASSIGNED)
+            : base(Case, resultLocations.ToArray(), stageId)
         {
-            _stageId = stageId;
         }
 
         private NodeResult(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _stageId = (int)info.GetValue("StageId", typeof(int));
         }
 
         #endregion
@@ -47,11 +31,11 @@ namespace GPC.Model.Results
             info.AddValue("StageId", _stageId, typeof(int));
         }
 
-		#endregion
+        #endregion
 
-		#region Equals - hascode - operators
+        #region Equals - hascode - operators
 
-		public override int GetHashCode()
+        public override int GetHashCode()
         {
             unchecked
             {

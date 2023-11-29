@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,8 +45,8 @@ namespace GPC.Model.Restrains
 
         #region Constructor
 
-        public GeometryRestrain(LoadCaseBase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
-            : base(freedomCase, name, id)
+        public GeometryRestrain(CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
+            : base(name, id)
         {
             _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException(nameof(coordinateSystem));
             _restrains = restrains ?? new List<DofRestrain>();

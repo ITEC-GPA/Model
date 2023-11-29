@@ -1,3 +1,4 @@
+using GPC.Model.Collections;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;

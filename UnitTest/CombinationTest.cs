@@ -1,4 +1,5 @@
-﻿using GPC.Model.Combinations;
+﻿using GPC.Model.Collections;
+using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using GPC.Model.Standards;
 using GPC.TestUtilities;
@@ -30,7 +31,6 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(comboCoef1[i] - comboCoef2[i]) < 0.001, $"Coefficient Combo {i} error! Load Case. {list1[i].Name} comboCoef 1: {comboCoef1[i]} ; comboCoef 2: {comboCoef2[i]}");
             }
         }
-
 
         #region COMBINATION TEST
 
@@ -374,7 +374,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -428,7 +428,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -496,7 +496,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -558,7 +558,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -626,7 +626,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -694,7 +694,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -762,7 +762,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -816,7 +816,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -884,7 +884,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -952,7 +952,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1020,7 +1020,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1088,7 +1088,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1142,7 +1142,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1195,7 +1195,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1246,7 +1246,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1309,10 +1309,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            var outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1410,7 +1410,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1516,7 +1516,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1591,7 +1591,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1745,7 +1745,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1810,7 +1810,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1874,7 +1874,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1932,7 +1932,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2004,7 +2004,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2090,7 +2090,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2194,7 +2194,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2361,7 +2361,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2416,7 +2416,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2470,7 +2470,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2525,7 +2525,7 @@ namespace ModelObjectTest
             UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2574,7 +2574,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 11);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2622,7 +2622,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 12);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2664,7 +2664,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 8);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2718,7 +2718,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 15);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2760,7 +2760,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 11);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2802,7 +2802,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 7);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2844,7 +2844,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 7);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");
@@ -2898,7 +2898,7 @@ namespace ModelObjectTest
             Assert.IsTrue(outList.Count() == 13);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine($"Cmb {count} : {combinationName} ");

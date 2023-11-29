@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -24,14 +23,14 @@ namespace GPC.Model.Restrains
         #region Public Constructors
 
         /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
-        public LineRestrain(Line3d line, LoadCaseBase freedomCase, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
-            : this(line, freedomCase, CoordinateSystem.Global, restrains, name, id)
+        public LineRestrain(Line3d line, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
+            : this(line, CoordinateSystem.Global, restrains, name, id)
         {
 
         }
 
-        public LineRestrain(Line3d line, LoadCaseBase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
-            : base(freedomCase, coordinateSystem, restrains, name, id)
+        public LineRestrain(Line3d line, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
+            : base(coordinateSystem, restrains, name, id)
         {
             _line = line ?? throw new ArgumentNullException("Base line is null");
         }
@@ -49,9 +48,9 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> to restrained for the given line and freedomcase
         /// </summary>
-        public static LineRestrain GetAllFixed(Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+        public static LineRestrain GetAllFixed(Line3d line, CoordinateSystem coordinateSystem)
         {
-            return new LineRestrain(line, loadCase, coordinateSystem, new List<DofRestrain>
+            return new LineRestrain(line, coordinateSystem, new List<DofRestrain>
                                                                         {
                                                                             new DofRestrain(DOF.DX),
                                                                             new DofRestrain(DOF.DY),
@@ -66,9 +65,9 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
-        public static LineRestrain GetAllDisplacementFixed(Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
+        public static LineRestrain GetAllDisplacementFixed(Line3d line, CoordinateSystem coordinateSystem)
         {
-            return new LineRestrain(line, loadCase, coordinateSystem, new List<DofRestrain>
+            return new LineRestrain(line, coordinateSystem, new List<DofRestrain>
                                                                             {
                                                                                 new DofRestrain(DOF.DX),
                                                                                 new DofRestrain(DOF.DY),

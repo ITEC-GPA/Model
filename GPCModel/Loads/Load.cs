@@ -23,7 +23,7 @@ namespace GPC.Model.Loads
         /// </summary>
         public LoadCaseBase LoadCase { get => _loadCase; set => _loadCase = value; }
 
-        public string LoadCaseName { get => _loadCase.Name; set => _loadCase.Name = value; }
+        public string LoadCaseName { get => _loadCase.Name; }
 
         /// <summary>
         /// reference system of the load

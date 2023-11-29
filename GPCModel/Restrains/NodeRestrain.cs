@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +11,13 @@ namespace GPC.Model.Restrains
     {
         #region Variables
 
-        private readonly NodeElement _point;
+        private NodeElement _point;
 
         #endregion
 
         #region Properties
 
-        public NodeElement Point => _point;
+        public NodeElement Point { get => _point; set => _point = value; }
 
 
         #endregion
@@ -26,20 +25,20 @@ namespace GPC.Model.Restrains
         #region Constructors
 
         /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
-        public NodeRestrain(NodeElement point, LoadCaseBase freedomCase, List<DofRestrain> restrains, string name = "")
-            : this(point, freedomCase, CoordinateSystem.Global, restrains, name)
+        public NodeRestrain(NodeElement point, List<DofRestrain> restrains, string name = "")
+            : this(point, CoordinateSystem.Global, restrains, name)
         {
 
         }
 
-        public NodeRestrain(NodeElement point, LoadCaseBase freedomCase, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "")
-            : base(freedomCase, coordinateSystem, restrains, name)
+        public NodeRestrain(NodeElement point, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "")
+            : base(coordinateSystem, restrains, name)
         {
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
-        public NodeRestrain(NodeElement point, LoadCaseBase freedomCase, CoordinateSystem coordinateSystem, string name = "")
-            : this(point, freedomCase, coordinateSystem, new List<DofRestrain>(), name)
+        public NodeRestrain(NodeElement point, CoordinateSystem coordinateSystem, string name = "")
+            : this(point, coordinateSystem, new List<DofRestrain>(), name)
         {
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
@@ -57,10 +56,10 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
         /// </summary>
-        public static NodeRestrain GetAllFixed(NodeElement point, LoadCaseBase freedomCase, CoordinateSystem coordinateSystem)
+        public static NodeRestrain GetAllFixed(NodeElement point, CoordinateSystem coordinateSystem)
         {
 
-            return new NodeRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
+            return new NodeRestrain(point, coordinateSystem, new List<DofRestrain>
             {
                 new DofRestrain(DOF.DX),
                 new DofRestrain(DOF.DY),
@@ -74,9 +73,9 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
         /// </summary>
-        public static NodeRestrain GetAllDisplacementFixed(NodeElement point, LoadCaseBase freedomCase, CoordinateSystem coordinateSystem)
+        public static NodeRestrain GetAllDisplacementFixed(NodeElement point, CoordinateSystem coordinateSystem)
         {
-            return new NodeRestrain(point, freedomCase, coordinateSystem, new List<DofRestrain>
+            return new NodeRestrain(point, coordinateSystem, new List<DofRestrain>
             {
                 new DofRestrain(DOF.DX),
                 new DofRestrain(DOF.DY),

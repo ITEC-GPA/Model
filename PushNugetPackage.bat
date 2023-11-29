@@ -1,13 +1,13 @@
 @echo off
 
-cd GPCModelData
+cd GPCModel
 REM delete existing nuget packages
 del *.nupkg
 
 
 
 echo PACKING
-nuget pack GPCModelData.csproj -Version 0.0.1.9 -properties Configuration=Release
+nuget pack GPCModel.csproj -properties Configuration=Release
 
 
 echo PUSHING

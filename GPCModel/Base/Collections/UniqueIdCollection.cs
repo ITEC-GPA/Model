@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model
+namespace GPC.Model.Collections
 {
-
-    /// <summary>
-    /// Collection of <see cref="ModelObjectId"/> with unique id. This class use an <see cref="HashSet{T}"/>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <remarks>The collection is thread-safe
-    /// <para>Id of <typeparamref name="T"/> must be unmutable</para></remarks>
     [Serializable]
     public class UniqueIdCollection<T> : Dictionary<int, T> where T : ModelObjectId, ISerializable
     {
+        #region Variables
+
         protected int _maxId;
 
+        #endregion
+
+        #region Properties
+
         public int MaxId { get => _maxId; protected set => _maxId = value; }
+
+        #endregion
+
+        #region Constructor
 
         public UniqueIdCollection()
             : base()
@@ -25,23 +28,16 @@ namespace GPC.Model
             _maxId = 0;
         }
 
-
         protected UniqueIdCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _maxId = info.GetInt32("maxId");
         }
 
+        #endregion
 
         #region Add
 
-        /// <inheritdoc cref="ModelObjectEnumerable{T}.Add(T)" />
-        /// <returns><see langword="True"/> if the element has been added
-        /// <para><see langword="False"/> if the element has not been added</para>
-        /// </returns>
-        /// <remarks>This is a O(1) operation
-        /// <para> To get the element in the collection use <see cref="GetItem(T, out T)"/> </para>
-        /// <para> If an element with same id already exist, <paramref name="item"/> will replace this item</para></remarks>
         public bool Add(T item)
         {
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
@@ -80,12 +76,8 @@ namespace GPC.Model
 
         #endregion
 
+        #region Get
 
-        /// <summary><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></summary>
-        /// <returns><inheritdoc cref="Enumerable.SingleOrDefault{TSource}(IEnumerable{TSource})"/></returns>
-        /// <exception cref="InvalidOperationException" ></exception>
-        /// <exception cref="KeyNotFoundException"></exception>
-        /// <remarks>This is a O(n) operation</remarks>
         public virtual T GetById(int id)
         {
             if (ContainsKey(id))
@@ -98,6 +90,8 @@ namespace GPC.Model
         {
             return ContainsKey(id);
         }
+
+        #endregion
 
         #region Edit
 
@@ -162,10 +156,14 @@ namespace GPC.Model
 
         #endregion
 
+        #region Methos
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("maxId", _maxId, typeof(int));
         }
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GPC.Geometry;
+using GPC.Model.Results;
 using System;
 using System.Runtime.Serialization;
 
@@ -35,6 +36,13 @@ namespace GPC.Model.Elements
         }
 
         #endregion
+
+        public void AddResult(NodeResult result)
+        {
+            if (result != null)
+                _results.Add(result);
+        }
+
 
         #region Equals, hascode, operators
 
