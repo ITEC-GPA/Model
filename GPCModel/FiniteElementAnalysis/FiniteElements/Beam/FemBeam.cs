@@ -1,12 +1,12 @@
 ﻿using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
-using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
 using MathNet.Numerics.LinearAlgebra;
 using System;
 
 namespace GPC.Model.FiniteElementAnalysis.FiniteElements.Beam
 {
-    public abstract class FemBeam : BeamElement, IFiniteElement
+    public abstract class FemBeam : BeamElement
     {
         #region Variables
 
@@ -29,7 +29,7 @@ namespace GPC.Model.FiniteElementAnalysis.FiniteElements.Beam
             base.AddResult(result);
         }
 
-        public override void AddResult(FiniteElementResult result)
+        public override void AddResult(ElementResult result)
         {
             if (result is BeamResult)
             {

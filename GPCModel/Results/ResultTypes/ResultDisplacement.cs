@@ -5,381 +5,376 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
-	[Serializable]
-	public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
-	{
-		#region Variables
+    [Serializable]
+    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
+    {
+        #region Variables
 
-		private readonly double _d1;
-		private readonly double _d2;
-		private readonly double _d3;
-		private readonly double _r1;
-		private readonly double _r2;
-		private readonly double _r3;
+        private double _d1;
+        private double _d2;
+        private double _d3;
+        private double _r1;
+        private double _r2;
+        private double _r3;
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		public double D1 => _d1;
+        public double D1 { get => _d1; set => _d1 = value; }
+        public double D2 { get => _d2; set => _d2 = value; }
+        public double D3 { get => _d3; set => _d3 = value; }
+        public double R1 { get => _r1; set => _r1 = value; }
+        public double R2 { get => _r2; set => _r2 = value; }
+        public double R3 { get => _r3; set => _r3 = value; }
 
-		public double D2 => _d2;
+        #endregion
 
-		public double D3 => _d3;
+        #region Public Constructors
 
-		public double R1 => _r1;
+        /// <param name="coordinateSystem">Coordinate system where these result are provided </param>
+        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <param name="id"></param>
+        public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3, int id = ModelObjectId.IDUNASSIGNED)
+            : base(coordinateSystem, string.Empty, id)
+        {
+            _d1 = d1;
+            _d2 = d2;
+            _d3 = d3;
+            _r1 = r1;
+            _r2 = r2;
+            _r3 = r3;
+        }
 
-		public double R2 => _r2;
+        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
+        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
+        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
+        /// <remarks>Set the <see cref="CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/></remarks>
+        public ResultDisplacement(double d1, double d2, double d3, double r1, double r2, double r3)
+            : base(CoordinateSystem.Global)
+        {
+            _d1 = d1;
+            _d2 = d2;
+            _d3 = d3;
+            _r1 = r1;
+            _r2 = r2;
+            _r3 = r3;
+        }
 
-		public double R3 => _r3;
+        private ResultDisplacement(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            _d1 = info.GetDouble("D1");
+            _d2 = info.GetDouble("D2");
+            _d3 = info.GetDouble("D3");
+            _r1 = info.GetDouble("R1");
+            _r2 = info.GetDouble("R2");
+            _r3 = info.GetDouble("R3");
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Constructors
+        #region Public Methods - Get displacement
 
-		/// <param name="coordinateSystem">Coordinate system where these result are provided </param>
-		/// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
-		/// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
-		/// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
-		/// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
-		/// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
-		/// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-		/// <param name="id"></param>
-		public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3, int id = ModelObjectId.IDUNASSIGNED)
-			: base(coordinateSystem, string.Empty, id)
-		{
-			_d1 = d1;
-			_d2 = d2;
-			_d3 = d3;
-			_r1 = r1;
-			_r2 = r2;
-			_r3 = r3;
-		}
+        /// <summary>
+        /// Return the resulting displacement 
+        /// </summary>
+        public double GetResultingDisplacement()
+        {
+            return Math.Sqrt(Math.Pow(_d1, 2) + Math.Pow(_d2, 2) + Math.Pow(_d3, 2));
+        }
 
-		/// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
-		/// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
-		/// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
-		/// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
-		/// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
-		/// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-		/// <remarks>Set the <see cref="CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/></remarks>
-		public ResultDisplacement(double d1, double d2, double d3, double r1, double r2, double r3)
-			: base(CoordinateSystem.Global)
-		{
-			_d1 = d1;
-			_d2 = d2;
-			_d3 = d3;
-			_r1 = r1;
-			_r2 = r2;
-			_r3 = r3;
-		}
+        /// <summary>
+        /// Return the resulting vector displacement 
+        /// </summary>
+        public Vector3d GetResultingVectorDisplacement()
+        {
+            return new Vector3d(_d1, _d2, _d3);
+        }
 
-		private ResultDisplacement(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-			_d1 = info.GetDouble("D1");
-			_d2 = info.GetDouble("D2");
-			_d3 = info.GetDouble("D3");
-			_r1 = info.GetDouble("R1");
-			_r2 = info.GetDouble("R2");
-			_r3 = info.GetDouble("R3");
-		}
+        /// <summary>
+        /// Return the resulting Rotation 
+        /// </summary>
+        public double GetResultingRotation()
+        {
+            return Math.Sqrt(Math.Pow(_r1, 2) + Math.Pow(_r2, 2) + Math.Pow(_r3, 2));
+        }
 
-		#endregion
+        /// <summary>
+        /// Return the resulting vector rotation 
+        /// </summary>
+        public Vector3d GetResultingVectorRotation()
+        {
+            return new Vector3d(_r1, _r2, _r3);
+        }
 
-		#region Public Methods - Get displacement
+        /// <summary>
+        /// Return the global displacements
+        /// </summary>
+        /// <returns>Array of displacements in global coordinate</returns>
+        public double[] GetGlobalDisplacements()
+        {
+            Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3));
+            Vector3d GlobalRotResult = _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3));
 
-		/// <summary>
-		/// Return the resulting displacement 
-		/// </summary>
-		public double GetResultingDisplacement()
-		{
-			return Math.Sqrt(Math.Pow(_d1, 2) + Math.Pow(_d2, 2) + Math.Pow(_d3, 2));
-		}
+            double[] globalDispRot = new double[6];
 
-		/// <summary>
-		/// Return the resulting vector displacement 
-		/// </summary>
-		public Vector3d GetResultingVectorDisplacement()
-		{
-			return new Vector3d(_d1, _d2, _d3);
-		}
+            globalDispRot[0] = GlobalDisplResult.X;
+            globalDispRot[1] = GlobalDisplResult.Y;
+            globalDispRot[2] = GlobalDisplResult.Z;
+            globalDispRot[3] = GlobalRotResult.X;
+            globalDispRot[4] = GlobalRotResult.Y;
+            globalDispRot[5] = GlobalRotResult.Z;
 
-		/// <summary>
-		/// Return the resulting Rotation 
-		/// </summary>
-		public double GetResultingRotation()
-		{
-			return Math.Sqrt(Math.Pow(_r1, 2) + Math.Pow(_r2, 2) + Math.Pow(_r3, 2));
-		}
+            return globalDispRot;
+        }
 
-		/// <summary>
-		/// Return the resulting vector rotation 
-		/// </summary>
-		public Vector3d GetResultingVectorRotation()
-		{
-			return new Vector3d(_r1, _r2, _r3);
-		}
+        /// <summary>
+        /// Return the global displacements tuple
+        /// </summary>
+        /// <returns>Tuple of displacements in global coordinate</returns>
+        public (Vector3d displacements, Vector3d rotations) GetGlobalDisplacementsTuple()
+        {
+            return (_coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3)), _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3)));
+        }
 
-		/// <summary>
-		/// Return the global displacements
-		/// </summary>
-		/// <returns>Array of displacements in global coordinate</returns>
-		public double[] GetGlobalDisplacements()
-		{
-			Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3));
-			Vector3d GlobalRotResult = _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3));
+        /// <summary>
+        /// Return the local displacements vector
+        /// </summary>
+        /// <returns>Array of displacements in local coordinate</returns>
+        public double[] GetLocalDisplacements()
+        {
+            double[] localDisplacements = new double[6];
 
-			double[] globalDispRot = new double[6];
+            localDisplacements[0] = _d1;
+            localDisplacements[1] = _d2;
+            localDisplacements[2] = _d3;
+            localDisplacements[3] = _r1;
+            localDisplacements[4] = _r2;
+            localDisplacements[5] = _r3;
 
-			globalDispRot[0] = GlobalDisplResult.X;
-			globalDispRot[1] = GlobalDisplResult.Y;
-			globalDispRot[2] = GlobalDisplResult.Z;
-			globalDispRot[3] = GlobalRotResult.X;
-			globalDispRot[4] = GlobalRotResult.Y;
-			globalDispRot[5] = GlobalRotResult.Z;
+            return localDisplacements;
+        }
 
-			return globalDispRot;
-		}
+        /// <summary>
+        /// Return the local displacements tuple
+        /// </summary>
+        /// <returns>Tuple of displacements in local coordinate</returns>
+        public (Vector3d displacements, Vector3d rotations) GetLocalDisplacementsTuple()
+        {
+            return (new Vector3d(_d1, _d2, _d3), new Vector3d(_r1, _r2, _r3));
+        }
 
-		/// <summary>
-		/// Return the global displacements tuple
-		/// </summary>
-		/// <returns>Tuple of displacements in global coordinate</returns>
-		public (Vector3d displacements, Vector3d rotations) GetGlobalDisplacementsTuple()
-		{
-			return (_coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3)), _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3)));
-		}
+        public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
+        {
+            Vector3d vector3dDisplacement = new Vector3d(_d1, _d2, _d3);
+            Vector3d vector3dRotation = new Vector3d(_r1, _r2, _r3);
 
-		/// <summary>
-		/// Return the local displacements vector
-		/// </summary>
-		/// <returns>Array of displacements in local coordinate</returns>
-		public double[] GetLocalDisplacements()
-		{
-			double[] localDisplacements = new double[6];
+            Vector3d vector3dvector3dDisplacementGlobal = CoordinateSystem.ToGlobal(vector3dDisplacement);
+            Vector3d vector3dvector3dRotationGlobal = CoordinateSystem.ToGlobal(vector3dRotation);
 
-			localDisplacements[0] = _d1;
-			localDisplacements[1] = _d2;
-			localDisplacements[2] = _d3;
-			localDisplacements[3] = _r1;
-			localDisplacements[4] = _r2;
-			localDisplacements[5] = _r3;
+            var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
+            var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
 
-			return localDisplacements;
-		}
+            return new ResultDisplacement(coordinateSystem, displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
+                rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
+        }
 
-		/// <summary>
-		/// Return the local displacements tuple
-		/// </summary>
-		/// <returns>Tuple of displacements in local coordinate</returns>
-		public (Vector3d displacements, Vector3d rotations) GetLocalDisplacementsTuple()
-		{
-			return (new Vector3d(_d1, _d2, _d3), new Vector3d(_r1, _r2, _r3));
-		}
+        public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
+        {
+            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+            {
+                return new ResultDisplacement(
+                    values[0]._coordinateSystem,
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray()));
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-		public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
-		{
-			Vector3d vector3dDisplacement = new Vector3d(_d1, _d2, _d3);
-			Vector3d vector3dRotation = new Vector3d(_r1, _r2, _r3);
+        #endregion
 
-			Vector3d vector3dvector3dDisplacementGlobal = CoordinateSystem.ToGlobal(vector3dDisplacement);
-			Vector3d vector3dvector3dRotationGlobal = CoordinateSystem.ToGlobal(vector3dRotation);
+        #region Equals, hashcode, operators
 
-			var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
-			var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("D1", _d1, typeof(double));
+            info.AddValue("D2", _d2, typeof(double));
+            info.AddValue("D3", _d3, typeof(double));
+            info.AddValue("R1", _r1, typeof(double));
+            info.AddValue("R2", _r2, typeof(double));
+            info.AddValue("R3", _r3, typeof(double));
+        }
 
-			return new ResultDisplacement(coordinateSystem, displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
-				rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
-		}
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+                return false;
 
-		public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
-		{
-			if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
-			{
-				return new ResultDisplacement(
-					values[0]._coordinateSystem,
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
-					Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray()));
-			}
-			else
-			{
-				throw new NotImplementedException();
-			}
-		}
+            if (ReferenceEquals(this, obj))
+                return true;
 
-		#endregion
+            return Equals((ResultDisplacement)obj);
+        }
 
-		#region Equals, hashcode, operators
+        public bool Equals(ResultDisplacement other)
+        {
+            return !(other is null) &&
+                _d1 == other._d1 && _d2 == other._d2 && _d3 == other._d3 &&
+                _r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
+                base.Equals(other);
+        }
 
-		public override void GetObjectData(SerializationInfo info, StreamingContext context)
-		{
-			base.GetObjectData(info, context);
-			info.AddValue("D1", _d1, typeof(double));
-			info.AddValue("D2", _d2, typeof(double));
-			info.AddValue("D3", _d3, typeof(double));
-			info.AddValue("R1", _r1, typeof(double));
-			info.AddValue("R2", _r2, typeof(double));
-			info.AddValue("R3", _r3, typeof(double));
-		}
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 23;
+                hashCode = hashCode * -17 + base.GetHashCode();
+                hashCode = hashCode * -17 + _d1.GetHashCode();
+                hashCode = hashCode * -17 + _d2.GetHashCode();
+                hashCode = hashCode * -17 + _d3.GetHashCode();
+                hashCode = hashCode * -17 + _r1.GetHashCode();
+                hashCode = hashCode * -17 + _r2.GetHashCode();
+                hashCode = hashCode * -17 + _r3.GetHashCode();
+                return hashCode;
+            }
+        }
 
-		public override bool Equals(object obj)
-		{
-			if (obj is null)
-				return false;
+        public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
+        {
+            if (obj1 is null)
+            {
+                return obj2 is null;
+            }
 
-			if (ReferenceEquals(this, obj))
-				return true;
+            if (ReferenceEquals(obj1, obj2))
+                return true;
 
-			return Equals((ResultDisplacement)obj);
-		}
+            return obj1.Equals(obj2);
+        }
 
-		public bool Equals(ResultDisplacement other)
-		{
-			return !(other is null) &&
-				_d1 == other._d1 && _d2 == other._d2 && _d3 == other._d3 &&
-				_r1 == other._r1 && _r2 == other._r2 && _r3 == other._r3 &&
-				base.Equals(other);
-		}
+        public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
+        {
+            return !(obj1 == obj2);
+        }
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				int hashCode = 23;
-				hashCode = hashCode * -17 + base.GetHashCode();
-				hashCode = hashCode * -17 + _d1.GetHashCode();
-				hashCode = hashCode * -17 + _d2.GetHashCode();
-				hashCode = hashCode * -17 + _d3.GetHashCode();
-				hashCode = hashCode * -17 + _r1.GetHashCode();
-				hashCode = hashCode * -17 + _r2.GetHashCode();
-				hashCode = hashCode * -17 + _r3.GetHashCode();
-				return hashCode;
-			}
-		}
+        /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+        public static ResultDisplacement operator +(ResultDisplacement obj1, ResultDisplacement obj2)
+        {
+            if (obj1 is null || obj2 is null)
+                throw new ArgumentNullException();
 
-		public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
-		{
-			if (obj1 is null)
-			{
-				return obj2 is null;
-			}
+            if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
+            {
+                return new ResultDisplacement(
+                    obj1._coordinateSystem,
+                    obj1._d1 + obj2._d1,
+                    obj1._d2 + obj2._d2,
+                    obj1._d3 + obj2._d3,
+                    obj1._r1 + obj2._r1,
+                    obj1._r2 + obj2._r2,
+                    obj1._r3 + obj2._r3);
+            }
+            else
+            {
+                // prendo spostamenti 2 nel globale
+                // li giro nel locale di obj1
+                // sommo e ritonrno classe con obj1.coordinasystem
 
-			if (ReferenceEquals(obj1, obj2))
-				return true;
+                (Vector3d displacements, Vector3d rotations) obj2GlobalDisp = obj2.GetGlobalDisplacementsTuple();
 
-			return obj1.Equals(obj2);
-		}
+                var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
+                var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
-		public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
-		{
-			return !(obj1 == obj2);
-		}
+                return new ResultDisplacement(
+                    obj1._coordinateSystem,
+                    obj1._d1 + obj2GlobalDispToObj1.X,
+                    obj1._d2 + obj2GlobalDispToObj1.Y,
+                    obj1._d3 + obj2GlobalDispToObj1.Z,
+                    obj1._r1 + obj2GlobalRotToObj2.X,
+                    obj1._r2 + obj2GlobalRotToObj2.Y,
+                    obj1._r3 + obj2GlobalRotToObj2.Z);
+            }
+        }
 
-		/// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
-		public static ResultDisplacement operator +(ResultDisplacement obj1, ResultDisplacement obj2)
-		{
-			if (obj1 is null || obj2 is null)
-				throw new ArgumentNullException();
+        /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+        public static ResultDisplacement operator -(ResultDisplacement obj1, ResultDisplacement obj2)
+        {
+            if (obj1 is null || obj2 is null)
+                throw new ArgumentNullException();
 
-			if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
-			{
-				return new ResultDisplacement(
-					obj1._coordinateSystem,
-					obj1._d1 + obj2._d1,
-					obj1._d2 + obj2._d2,
-					obj1._d3 + obj2._d3,
-					obj1._r1 + obj2._r1,
-					obj1._r2 + obj2._r2,
-					obj1._r3 + obj2._r3);
-			}
-			else
-			{
-				// prendo spostamenti 2 nel globale
-				// li giro nel locale di obj1
-				// sommo e ritonrno classe con obj1.coordinasystem
+            if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
+            {
+                return new ResultDisplacement(
+                    obj1._coordinateSystem,
+                    obj1._d1 - obj2._d1,
+                    obj1._d2 - obj2._d2,
+                    obj1._d3 - obj2._d3,
+                    obj1._r1 - obj2._r1,
+                    obj1._r2 - obj2._r2,
+                    obj1._r3 - obj2._r3);
+            }
+            else
+            {
+                // prendo spostamenti 2 nel globale
+                // li giro nel locale di obj1
+                // sommo e ritonrno classe con obj1.coordinasystem
 
-				(Vector3d displacements, Vector3d rotations) obj2GlobalDisp = obj2.GetGlobalDisplacementsTuple();
+                (Vector3d displacements, Vector3d rotations) obj2GlobalDisp = obj2.GetGlobalDisplacementsTuple();
 
-				var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
-				var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
+                var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
+                var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
-				return new ResultDisplacement(
-					obj1._coordinateSystem,
-					obj1._d1 + obj2GlobalDispToObj1.X,
-					obj1._d2 + obj2GlobalDispToObj1.Y,
-					obj1._d3 + obj2GlobalDispToObj1.Z,
-					obj1._r1 + obj2GlobalRotToObj2.X,
-					obj1._r2 + obj2GlobalRotToObj2.Y,
-					obj1._r3 + obj2GlobalRotToObj2.Z);
-			}
-		}
+                return new ResultDisplacement(
+                    obj1._coordinateSystem,
+                    obj1._d1 - obj2GlobalDispToObj1.X,
+                    obj1._d2 - obj2GlobalDispToObj1.Y,
+                    obj1._d3 - obj2GlobalDispToObj1.Z,
+                    obj1._r1 - obj2GlobalRotToObj2.X,
+                    obj1._r2 - obj2GlobalRotToObj2.Y,
+                    obj1._r3 - obj2GlobalRotToObj2.Z);
+            }
+        }
 
-		/// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
-		public static ResultDisplacement operator -(ResultDisplacement obj1, ResultDisplacement obj2)
-		{
-			if (obj1 is null || obj2 is null)
-				throw new ArgumentNullException();
+        /// <returns>Multiply the displacements for a given factor</returns>
+        public static ResultDisplacement operator *(ResultDisplacement obj1, double factor)
+        {
+            if (obj1 is null)
+                throw new ArgumentNullException();
 
-			if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
-			{
-				return new ResultDisplacement(
-					obj1._coordinateSystem,
-					obj1._d1 - obj2._d1,
-					obj1._d2 - obj2._d2,
-					obj1._d3 - obj2._d3,
-					obj1._r1 - obj2._r1,
-					obj1._r2 - obj2._r2,
-					obj1._r3 - obj2._r3);
-			}
-			else
-			{
-				// prendo spostamenti 2 nel globale
-				// li giro nel locale di obj1
-				// sommo e ritonrno classe con obj1.coordinasystem
+            return new ResultDisplacement(
+                obj1._coordinateSystem,
+                obj1._d1 * factor,
+                obj1._d2 * factor,
+                obj1._d3 * factor,
+                obj1._r1 * factor,
+                obj1._r2 * factor,
+                obj1._r3 * factor);
+        }
 
-				(Vector3d displacements, Vector3d rotations) obj2GlobalDisp = obj2.GetGlobalDisplacementsTuple();
+        /// <returns>Multiply the displacements for a given factor</returns>
+        public static ResultDisplacement operator *(ResultDisplacement obj1, int factor)
+        {
+            return obj1 * (double)factor;
+        }
 
-				var obj2GlobalDispToObj1 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.displacements); // spostamenti nel locale di obj1
-				var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
-
-				return new ResultDisplacement(
-					obj1._coordinateSystem,
-					obj1._d1 - obj2GlobalDispToObj1.X,
-					obj1._d2 - obj2GlobalDispToObj1.Y,
-					obj1._d3 - obj2GlobalDispToObj1.Z,
-					obj1._r1 - obj2GlobalRotToObj2.X,
-					obj1._r2 - obj2GlobalRotToObj2.Y,
-					obj1._r3 - obj2GlobalRotToObj2.Z);
-			}
-		}
-
-		/// <returns>Multiply the displacements for a given factor</returns>
-		public static ResultDisplacement operator *(ResultDisplacement obj1, double factor)
-		{
-			if (obj1 is null)
-				throw new ArgumentNullException();
-
-			return new ResultDisplacement(
-				obj1._coordinateSystem,
-				obj1._d1 * factor,
-				obj1._d2 * factor,
-				obj1._d3 * factor,
-				obj1._r1 * factor,
-				obj1._r2 * factor,
-				obj1._r3 * factor);
-		}
-
-		/// <returns>Multiply the displacements for a given factor</returns>
-		public static ResultDisplacement operator *(ResultDisplacement obj1, int factor)
-		{
-			return obj1 * (double)factor;
-		}
-
-		#endregion
-	}
+        #endregion
+    }
 }

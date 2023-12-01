@@ -1,5 +1,5 @@
 ﻿using GPC.Geometry;
-using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
 using System;
 using System.Runtime.Serialization;
 

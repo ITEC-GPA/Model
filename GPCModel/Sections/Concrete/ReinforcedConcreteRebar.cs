@@ -96,10 +96,11 @@ namespace GPC.Model.Sections.Concrete
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return obj is ReinforcedConcreteRebar rebar && base.Equals(obj)
-                                                        && _rebarSection.Equals(rebar._rebarSection)
-                                                        && _position.Equals(rebar._position)
-                                                        && _epsilonP == rebar._epsilonP;
+            return obj is ReinforcedConcreteRebar rebar &&
+                base.Equals(obj) &&
+                _rebarSection.Equals(rebar._rebarSection) &&
+                _position.Equals(rebar._position) &&
+                _epsilonP == rebar._epsilonP;
         }
 
         public override int GetHashCode()

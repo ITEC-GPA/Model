@@ -9,6 +9,8 @@ using GPC.Model.Loads;
 using GPC.Model.Materials;
 using GPC.Model.Restrains;
 using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
+using GPC.Model.Results.ResultLocations;
 using GPC.Model.Sections.Glass;
 using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -277,11 +279,11 @@ namespace GeneralTest
             ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
             ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
 
-            ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
-            ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
+            NodeResultDisplacement resultLocationId1 = new NodeResultDisplacement(lc1, rd1, 1);
+            NodeResultDisplacement resultLocationId2 = new NodeResultDisplacement(lc2, rd2, 2);
 
-            NodeResult nr1 = new NodeResult(lc1, new[] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(lc2, new[] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(new List<INodeResultLocation> { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(new List<INodeResultLocation> { resultLocationId2 });
 
             Assert.IsTrue(rd1.Equals(rd2));
             Assert.IsTrue(lc1.Equals(lc2));
@@ -303,11 +305,11 @@ namespace GeneralTest
             ResultDisplacement rd1 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
             ResultDisplacement rd2 = new ResultDisplacement(0, 1, 2, 3, 0, 0);
 
-            ResultLocationId resultLocationId1 = new ResultLocationId(new INodeResult[] { rd1 }, 1);
-            ResultLocationId resultLocationId2 = new ResultLocationId(new INodeResult[] { rd2 }, 2);
+            NodeResultDisplacement resultLocationId1 = new NodeResultDisplacement(lc1, rd1, 1);
+            NodeResultDisplacement resultLocationId2 = new NodeResultDisplacement(lc2, rd2, 2);
 
-            NodeResult nr1 = new NodeResult(cmb1, new[] { resultLocationId1 });
-            NodeResult nr2 = new NodeResult(cmb2, new[] { resultLocationId2 });
+            NodeResult nr1 = new NodeResult(new List<INodeResultLocation> { resultLocationId1 });
+            NodeResult nr2 = new NodeResult(new List<INodeResultLocation> { resultLocationId2 });
 
             Assert.IsTrue(lc1.Equals(lc2));
             Assert.IsTrue(cmb1.Equals(cmb2));

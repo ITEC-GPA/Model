@@ -1,19 +1,20 @@
-﻿using GPC.Model.LoadCases;
+﻿using GPC.Model.Results.ResultLocations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Results
+namespace GPC.Model.Results.ElementResults
 {
     [Serializable]
-    public sealed class NodeResult : FiniteElementResult, ISerializable, IEquatable<NodeResult>, IFemResult
+    public sealed class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>
     {
         #region Public Constructors
 
-        public NodeResult(ILoadCase Case, IEnumerable<ResultLocationId> resultLocations, int stageId = ModelObjectId.IDUNASSIGNED)
-            : base(Case, resultLocations.ToArray(), stageId)
+        public NodeResult(List<INodeResultLocation> resultStation, int stageId = IDUNASSIGNED, string name = "", int id = IDUNASSIGNED)
+            : base(resultStation.Cast<ResultLocation>().ToList(), stageId, name, id)
         {
+
         }
 
         private NodeResult(SerializationInfo info, StreamingContext context)
@@ -25,26 +26,9 @@ namespace GPC.Model.Results
 
         #region Public Methods
 
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("StageId", _stageId, typeof(int));
-        }
-
-        #endregion
-
-        #region Equals - hascode - operators
-
         public override int GetHashCode()
         {
-            unchecked
-            {
-                int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _stageId.GetHashCode();
-
-                return hashCode;
-            }
+            return base.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -54,21 +38,24 @@ namespace GPC.Model.Results
 
         public bool Equals(NodeResult other)
         {
-            if (other is null)
+            if (other == null)
                 return false;
 
             if (ReferenceEquals(this, other))
                 return true;
 
-            return _stageId.Equals(other.StageId) && base.Equals(other);
+            return base.Equals(other);
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
 
         public static bool operator ==(NodeResult obj1, NodeResult obj2)
         {
             if (obj1 is null)
-            {
                 return obj2 is null;
-            }
 
             if (ReferenceEquals(obj1, obj2))
                 return true;

@@ -1,5 +1,5 @@
 ﻿using GPC.Model.ElementProperties;
-using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
 
 namespace GPC.Model.FiniteElementAnalysis.FiniteElements
 {
@@ -7,7 +7,7 @@ namespace GPC.Model.FiniteElementAnalysis.FiniteElements
     {
         ElementProperty ElementProperty { get; }
 
-        void AddResult(FiniteElementResult result);
+        void AddResult(ElementResult result);
 
         /// <summary>
         /// Build Stiffness Matrix etc

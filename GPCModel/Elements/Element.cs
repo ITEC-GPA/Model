@@ -2,7 +2,7 @@
 using GPC.Model.Attributes;
 using GPC.Model.Collections;
 using GPC.Model.Loads;
-using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +95,7 @@ namespace GPC.Model.Elements
             return _groups.Values.ToArray();
         }
 
-        public virtual void AddResult(FiniteElementResult result)
+        public virtual void AddResult(ElementResult result)
         {
             if (result != null)
                 _results.Add(result);

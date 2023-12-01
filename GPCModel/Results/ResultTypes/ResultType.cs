@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using GPC.Geometry;
+using System;
 using System.Runtime.Serialization;
-using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
@@ -10,13 +9,13 @@ namespace GPC.Model.Results
     {
         #region Variables
 
-        protected readonly CoordinateSystem _coordinateSystem;
+        protected CoordinateSystem _coordinateSystem;
 
         #endregion
 
         #region Properties
 
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
 
         #endregion
 
@@ -81,6 +80,6 @@ namespace GPC.Model.Results
             return !(obj1 == obj2);
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

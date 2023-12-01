@@ -10,7 +10,8 @@ using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Restrains;
-using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
+using GPC.Model.Results.ResultLocations;
 using GPC.Model.Sections;
 using GPC.Model.Stages;
 using System;
@@ -1130,31 +1131,154 @@ namespace GPC.Model.Models
         #region Results
 
         /// <returns>The results related to <paramref name="combination"/></returns>
-        public ResultType[] GetCombinationNodeDisplacementResults(Combination combination, string groupName = "")
+        public ResultLocation[] GetCombinationNodeResults(Combination combination, Group group = null)
         {
-            if (!string.IsNullOrEmpty(groupName))
+            List<ResultLocation> results = new List<ResultLocation>();
+            if (group != null)
             {
-                var group = _groups.GetElementByName(groupName);
-                return _nodesElements.SelectMany(i => i.Value.Results.Where(j => j.Case.Equals(combination)).Where(j => i.Value.ContainsGroup(group) && j.ResultLocations.First().ResultTypes.First() is ResultDisplacement)).ToArray();
+                for (int i = 0; i < _nodesElements.Count; i++)
+                {
+                    NodeElement nodeElement = _nodesElements[i];
+
+                    if (nodeElement.ContainsGroup(group))
+                    {
+                        for (int j = 0; j < nodeElement.Results.Count; j++)
+                        {
+                            ElementResult nodeElementResults = nodeElement.Results[j];
+                            for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                            {
+                                ResultLocation res = nodeElementResults.Results[k];
+                                if (res.Case.Equals(combination))
+                                {
+                                    results.Add(res);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                return _nodesElements.SelectMany(i => i.Value.Results.Where(j => j.Case.Equals(combination)).Where(j => j.ResultLocations.First().ResultTypes.First() is ResultDisplacement));
+                for (int i = 0; i < _nodesElements.Count; i++)
+                {
+                    NodeElement nodeElement = _nodesElements[i];
+
+                    for (int j = 0; j < nodeElement.Results.Count; j++)
+                    {
+                        ElementResult nodeElementResults = nodeElement.Results[j];
+                        for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                        {
+                            ResultLocation res = nodeElementResults.Results[k];
+                            if (res.Case.Equals(combination))
+                            {
+                                results.Add(res);
+                            }
+                        }
+                    }
+                }
             }
+
+            return results.ToArray();
         }
 
-
-        public ElementResult[] GetCombinationResultsPlateStress(Combination combination, string groupName = "")
+        public ResultLocation[] GetCombinationBeamResults(Combination combination, Group group = null)
         {
-            if (string.IsNullOrEmpty(groupName))
+            List<ResultLocation> results = new List<ResultLocation>();
+            if (group != null)
             {
-                return _areaElements.SelectMany(i => i.Value.Results.Where(k => k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
+                for (int i = 0; i < _beamElements.Count; i++)
+                {
+                    BeamElement element = _beamElements[i];
+
+                    if (element.ContainsGroup(group))
+                    {
+                        for (int j = 0; j < element.Results.Count; j++)
+                        {
+                            ElementResult nodeElementResults = element.Results[j];
+                            for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                            {
+                                ResultLocation res = nodeElementResults.Results[k];
+                                if (res.Case.Equals(combination))
+                                {
+                                    results.Add(res);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                var group = _groups.GetElementByName(groupName);
-                return _areaElements.SelectMany(i => i.Value.Results.Where(k => i.Value.ContainsGroup(group) && k.Case.Equals(combination) && k.ResultLocations.First().ResultTypes.First() is ResultPlateStress)).ToArray();
+                for (int i = 0; i < _beamElements.Count; i++)
+                {
+                    BeamElement element = _beamElements[i];
+
+                    for (int j = 0; j < element.Results.Count; j++)
+                    {
+                        ElementResult nodeElementResults = element.Results[j];
+                        for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                        {
+                            ResultLocation res = nodeElementResults.Results[k];
+                            if (res.Case.Equals(combination))
+                            {
+                                results.Add(res);
+                            }
+                        }
+                    }
+                }
             }
+
+            return results.ToArray();
+        }
+
+        public ResultLocation[] GetCombinationAreaResults(Combination combination, Group group = null)
+        {
+            List<ResultLocation> results = new List<ResultLocation>();
+            if (group != null)
+            {
+                for (int i = 0; i < _areaElements.Count; i++)
+                {
+                    AreaElement element = _areaElements[i];
+
+                    if (element.ContainsGroup(group))
+                    {
+                        for (int j = 0; j < element.Results.Count; j++)
+                        {
+                            ElementResult nodeElementResults = element.Results[j];
+                            for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                            {
+                                ResultLocation res = nodeElementResults.Results[k];
+                                if (res.Case.Equals(combination))
+                                {
+                                    results.Add(res);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _areaElements.Count; i++)
+                {
+                    AreaElement element = _areaElements[i];
+
+                    for (int j = 0; j < element.Results.Count; j++)
+                    {
+                        ElementResult nodeElementResults = element.Results[j];
+                        for (int k = 0; k < nodeElementResults.Results.Count; k++)
+                        {
+                            ResultLocation res = nodeElementResults.Results[k];
+                            if (res.Case.Equals(combination))
+                            {
+                                results.Add(res);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return results.ToArray();
         }
 
         #endregion
