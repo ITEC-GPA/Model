@@ -92,7 +92,7 @@ namespace GPC.Model.Sections.Glass
                 return true;
 
             return !(other is null) &&
-                other._glassLayer.Equals(_glassLayer) &&
+                other._glassLayer.SequenceEqual(_glassLayer) &&
                 base.Equals(other);
         }
 
@@ -107,7 +107,8 @@ namespace GPC.Model.Sections.Glass
             {
                 int hashCode = -23;
                 hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _glassLayer.GetHashCode();
+                for (int i = 0; i < _glassLayer.Count; i++)
+                    hashCode = hashCode * -17 + _glassLayer[i].GetHashCode();
                 return hashCode;
             }
         }
