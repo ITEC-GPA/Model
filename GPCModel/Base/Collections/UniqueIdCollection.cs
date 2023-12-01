@@ -43,7 +43,7 @@ namespace GPC.Model.Collections
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
                 item.Id = ++_maxId;
-                Add(item);
+                Add(item.Id, item);
                 return true;
             }
             else
@@ -57,7 +57,7 @@ namespace GPC.Model.Collections
                 if (item.Id > _maxId)
                     _maxId = item.Id;
 
-                Add(item);
+                Add(item.Id, item);
                 return true;
             }
         }
@@ -162,6 +162,11 @@ namespace GPC.Model.Collections
         {
             base.GetObjectData(info, context);
             info.AddValue("maxId", _maxId, typeof(int));
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is UniqueIdCollection<T> collection && collection.SequenceEqual(this);
         }
 
         #endregion
