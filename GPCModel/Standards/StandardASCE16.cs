@@ -170,8 +170,9 @@ namespace GPC.Model.Standards
         public double Asd10VarCoef1 { get => _asd10VarCoef1; set => _asd10VarCoef1 = value; }
         public double Asd10VarCoef2 { get => _asd10VarCoef2; set => _asd10VarCoef2 = value; }
 
-        #endregion
         public override StandardGroupType StandardGroup => StandardGroupType.American;
+
+        #endregion
 
         #region PUBLIC CONSTRUCTOR
 
@@ -316,19 +317,6 @@ namespace GPC.Model.Standards
                     idProg++;
                 }
 
-            if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.LFRD)
-            {
-                List<Combination.LoadCaseCoefficient> LFRDCombo1List = LFRDCombo1(loadCases.Cast<LoadCase>().ToList());
-                Combination combo1 = new Combination(name + $" {idProg}");
-                for (int j = 0; j < LFRDCombo1List.Count; j++)
-                {
-                    combo1.AddLoadCaseCoefficient(LFRDCombo1List[j].LoadCase, LFRDCombo1List[j].Coefficient);
-                }
-                if (!combinationsHashSet.Contains(combo1))
-                {
-                    combinationsHashSet.Add(combo1);
-                    idProg++;
-                }
 
                 List<List<Combination.LoadCaseCoefficient>> LFRDCombo2List = LFRDCombo2(loadCases.Cast<LoadCase>().ToList());
                 for (int i = 0; i < LFRDCombo2List.Count; i++)
@@ -986,8 +974,6 @@ namespace GPC.Model.Standards
 
         #endregion
 
-        #endregion
-
         #region ASD
 
         private List<Combination.LoadCaseCoefficient> ASDCombo1(List<LoadCase> loadCases)
@@ -1448,8 +1434,6 @@ namespace GPC.Model.Standards
             return loadCaseCoefficientSList;
         }
 
-            return loadCaseCoefficientSList;
-        }
 
 
         #endregion
@@ -1457,10 +1441,6 @@ namespace GPC.Model.Standards
         #endregion
 
         #endregion
-
-        #endregion
-
-        #region PUBLIC OVERRIDE METHODS
 
         #region PUBLIC OVERRIDE METHODS
 
@@ -1476,12 +1456,6 @@ namespace GPC.Model.Standards
         {
             var cloned = new StandardASCE16();
             return cloned;
-        }
-
-        public Combination Duplicate(string nameOverride)
-        {
-            var duplicated = (Combination)Clone(nameOverride);
-            return duplicated;
         }
 
         public Combination Duplicate(string nameOverride)

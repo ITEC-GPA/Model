@@ -211,7 +211,8 @@ namespace GPC.Model.Standards
 
         #region PUBLIC CONSTRUCTOR
 
-        public StandardEN1990()
+        public StandardEN1990(string name = "EN 1990:2002/A1:2005", string remarks = "Eurocode - Basis of structural design")
+            : base(name, remarks)
         {
             _gammaGUnfavourableSetA = 1.10;
             _gammaGFavourableSetA = 0.90;
@@ -599,12 +600,6 @@ namespace GPC.Model.Standards
                 }
             }
         }
-
-                    return hashCode;
-                }
-            }
-        }
-
 
         #endregion
 
@@ -1294,18 +1289,6 @@ namespace GPC.Model.Standards
                 List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
-        /// <summary>
-        /// Generate all the combination for permanent loads with favourable coefficients
-        /// </summary>
-        /// <param name="loadCases">List of load cases</param>
-        /// <param name="optionsInput">The normative options</param>
-        /// <returns>A list of load case coefficient</returns>
-        protected virtual List<List<Combination.LoadCaseCoefficient>> GetBasicCombinationsMinCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
-        {
-            if (optionsInput is EN1990CombinationsOptions options)
-            {
-                List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
-                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
                 // aggiungo i SelfWeight
                 foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight).Cast<LoadCase>())
@@ -1744,7 +1727,6 @@ namespace GPC.Model.Standards
             throw new ArgumentException("Failed to set the coefficient for leading variable actions");
         }
 
-        #endregion
-
+        #endregion           
     }
 }
