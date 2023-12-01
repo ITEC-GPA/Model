@@ -302,6 +302,8 @@ namespace GPC.Model.Materials
                     return CalculateDesignStress(aci, strain, epsilonP);
                 case Standards.StandardEN1993p11 ec3:
                     return CalculateDesignStress(ec3, strain, epsilonP);
+                case Standards.StandardAISC aisc:
+                    return CalculateDesignStress(aisc, strain, epsilonP);
                 default:
                     return 0;
             }
@@ -317,6 +319,8 @@ namespace GPC.Model.Materials
                     return CalculateDesignStrain(aci, strain);
                 case Standards.StandardEN1993p11 ec3:
                     return CalculateDesignStrain(ec3, strain);
+                case Standards.StandardAISC aisc:
+                    return CalculateDesignStrain(aisc, strain);
                 default:
                     return 0;
             }
@@ -360,12 +364,17 @@ namespace GPC.Model.Materials
             return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
         }
 
-        public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
+        public double CalculateDesignUltimateStrainTension(Standards.StandardModelCode2010 standard)
         {
             if (SteelType == SteelTypes.Rebar || SteelType == SteelTypes.Bars || SteelType == SteelTypes.Tendon || SteelType == SteelTypes.Structural)
                 return StrainUTension * standard.SteelCoefficientStrainTension;
             else
                 throw new Exception();
+        }
+
+        public double CalculateDesignUltimateStrainCompression(Standards.StandardModelCode2010 standard)
+        {
+            return StrainUCompression;
         }
 
         public double CalculateDesignStrain(Standards.StandardModelCode2010 standardModelCode2010, double strain)
@@ -442,9 +451,14 @@ namespace GPC.Model.Materials
             return CalculateDesignYieldingStress(standard) / ElasticModulusTension;
         }
 
-        public double CalculateDesignUltimateStrain(Standards.StandardACI318 standard)
+        public double CalculateDesignUltimateStrainTension(Standards.StandardACI318 standard)
         {
             return StrainUTension;
+        }
+
+        public double CalculateDesignUltimateStrainCompression(Standards.StandardACI318 standard)
+        {
+            return StrainUCompression;
         }
 
         public double CalculateDesignStrain(Standards.StandardACI318 standardACI318, double strain)
@@ -473,6 +487,8 @@ namespace GPC.Model.Materials
                     return CalculateDesignStress(aci, stress, strain, epsilonP);
                 case Standards.StandardEN1993p11 ec3:
                     return CalculateDesignStress(ec3, stress, strain, epsilonP);
+                case Standards.StandardAISC aisc:
+                    return CalculateDesignStress(aisc, stress, strain, epsilonP);
                 default:
                     return 0;
             }
@@ -518,7 +534,7 @@ namespace GPC.Model.Materials
             return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
         }
 
-        public double CalculateDesignUltimateStrain(Standards.StandardEN1993p11 standard)
+        public double CalculateDesignUltimateStrainTension(Standards.StandardEN1993p11 standard)
         {
             if (SteelType == SteelTypes.Structural)
                 return StrainUTension;
@@ -526,6 +542,11 @@ namespace GPC.Model.Materials
                 return StrainUTension;
             else
                 throw new Exception();
+        }
+
+        public double CalculateDesignUltimateStrainCompression(Standards.StandardEN1993p11 standard)
+        {
+            return StrainUCompression;
         }
 
         public double CalculateDesignStrain(Standards.StandardEN1993p11 standard, double strain)
@@ -570,6 +591,102 @@ namespace GPC.Model.Materials
 
         /// Copied from same method for StandardModelCode2010.
         public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double stress, double strain, double epsilonP = 0)
+        {
+            if (strain >= 0)
+            {
+                double strainYd = CalculateDesignYieldingStrainTension(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressTension(standard);
+                    double deltaStress = StressYTension - fyd;
+
+                    if (strain > StrainUTension)
+                        return 0;
+
+                    return stress - deltaStress;
+                }
+            }
+            else
+            {
+                double strainYd = CalculateDesignYieldingStrainCompression(standard);
+
+                if (Math.Abs(strain + epsilonP) <= strainYd)
+                    return stress;
+
+                else
+                {
+                    double fyd = CalculateDesignYieldingStressCompression(standard);
+                    double deltaStress = StressYCompression - fyd;
+
+                    if (strain < StrainUCompression)
+                        return 0;
+
+                    return stress - deltaStress;
+                }
+            }
+        }
+
+        #endregion
+
+        #region AISC 360
+
+        /// <returns>The design steel yielding stress</returns>
+        public double CalculateFyd(Standards.StandardAISC standard)
+        {
+            return Fyk;
+        }
+
+        public double CalculateDesignYieldingStressTension(Standards.StandardAISC standard)
+        {
+            return StressYTension;
+        }
+
+        public double CalculateDesignYieldingStressCompression(Standards.StandardAISC standard)
+        {
+            return StressYCompression;
+        }
+
+        public double CalculateDesignYieldingStrainTension(Standards.StandardAISC standard)
+        {
+            return CalculateDesignYieldingStressTension(standard) / ElasticModulusTension;
+        }
+
+        public double CalculateDesignYieldingStrainCompression(Standards.StandardAISC standard)
+        {
+            return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
+        }
+
+        public double CalculateDesignUltimateStrainTension(Standards.StandardAISC standard)
+        {
+            return StrainUTension;
+        }
+
+        public double CalculateDesignUltimateStrainCompression(Standards.StandardAISC standard)
+        {
+            return StrainUCompression;
+        }
+
+        public double CalculateDesignStrain(Standards.StandardAISC standard, double strain)
+        {
+            return strain;
+        }
+
+        /// <returns>The design steel stress related to <paramref name="strain"/></returns>
+        /// Copied from same method for StandardModelCode2010.
+        public double CalculateDesignStress(Standards.StandardAISC standard, double strain, double epsilonP = 0)
+        {
+            double fyd = CalculateDesignYieldingStressTension(standard);
+            double strainYd = CalculateDesignYieldingStrainTension(standard);
+
+            return CalculateDesignStressCommon(strain, epsilonP, fyd, strainYd);
+        }
+
+        /// Copied from same method for StandardModelCode2010.
+        public double CalculateDesignStress(Standards.StandardAISC standard, double stress, double strain, double epsilonP = 0)
         {
             if (strain >= 0)
             {

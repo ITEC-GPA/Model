@@ -1,5 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Model.Sections.Steel;
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
@@ -344,6 +345,48 @@ namespace GPC.Model.Sections
             return points.ToArray();
         }
 
+        /// <summary>
+        /// Break all thiwall in lines.
+        /// </summary>
+        /// <param name="edges">List of perimeter sides in the local system of ThinWallSection.</param>
+        /// <returns>A new list with all breaked thinwalls.</returns>
+        public ThinWall[] BreakThinWallsInEdges(IList<Line2d> edges)
+        {
+            var thinWallsBreaked = new LinkedList<ThinWall>();
+            // Clone all thinwalls.
+            for (int j = 0; j < _thinWalls.Length; j++)
+                thinWallsBreaked.AddLast((ThinWall)_thinWalls[j].Clone());
+
+            for (int j = 0; j < edges.Count(); j++)
+            {
+                for (LinkedListNode<ThinWall> thinWallnode = thinWallsBreaked.First; thinWallnode != null; thinWallnode = thinWallnode.Next)
+                {
+                    // Build middle line in global position.
+                    var thinWall = thinWallnode.Value;
+                    var midLinePoint = thinWall.GetMiddleLine();
+                    var midLine = new Line2d(midLinePoint[0], midLinePoint[1]);
+
+                    if (edges[j].GetIntersection(midLine, out Point2d intersection) &&
+                        intersection.DistanceTo(midLine.Start) > 1 &&
+                        intersection.DistanceTo(midLine.End) > 1)
+                    {
+                        // Break in local position.
+                        var localBreaked = thinWall.BreaksAtAnIntermediatePoint(intersection);
+                        for (int k = localBreaked.Length - 1; k >= 0; k--)
+                            thinWallsBreaked.AddAfter(thinWallnode, localBreaked[k]);
+
+                        // Save the position to be deleted and move to the next one.
+                        // A thinwall can only be broken once on one side of the concrete so it can move to the next thinwall.
+                        var thinWallnodeToRemove = thinWallnode;
+                        thinWallnode = thinWallnode.Next;
+                        thinWallsBreaked.Remove(thinWallnodeToRemove);
+                    }
+                }
+            }
+
+            return thinWallsBreaked.ToArray();
+        }
+
         #endregion
 
         #region Equals, hashcode, operators
@@ -396,7 +439,7 @@ namespace GPC.Model.Sections
         ///            _l
         /// </summary>
         [Serializable]
-        public class ThinWall
+        public class ThinWall : ICloneable
         {
             #region Variables
 
@@ -434,6 +477,11 @@ namespace GPC.Model.Sections
             /// The area og the thin wal
             /// </summary>
             public double Area => CalculateArea();
+
+            /// <summary>
+            /// Defines whether the ThinWall is entirely outside or inside the concrete area.
+            /// </summary>
+            public bool IsInsideConcrete { get; set; }
 
             #endregion
 
@@ -483,6 +531,16 @@ namespace GPC.Model.Sections
 
             protected ThinWall(SerializationInfo info, StreamingContext _)
             {
+                int version;
+                try
+                {
+                    version = info.GetInt32("ThinWallVersion");
+                }
+                catch (Exception)
+                {
+                    version = 1;
+                }
+
                 _t = info.GetDouble("T");
                 _l = info.GetDouble("L");
                 _angle = info.GetDouble("Angle");
@@ -494,6 +552,11 @@ namespace GPC.Model.Sections
                 {
                     _point = Point2d.Origin;
                 }
+
+                if (version >= 2)
+                    IsInsideConcrete = info.GetBoolean("IsInsideConcrete");
+                else
+                    IsInsideConcrete = false;
             }
 
             #endregion
@@ -524,6 +587,34 @@ namespace GPC.Model.Sections
                 var lHalf = _l / 2.0;
                 return new Point2d[] {  _point + new Point2d(-lHalf * cosAngle, -lHalf * sinAngle),
                                         _point + new Point2d(lHalf * cosAngle, lHalf * sinAngle) };
+            }
+
+            /// <summary>
+            /// Breaks at an intermediate point.
+            /// Returns two thinwalls if the point is intermediate, otherwise returns the thinwall itself.
+            /// </summary>
+            /// <returns></returns>
+            public ThinWall[] BreaksAtAnIntermediatePoint(in Point2d intermediatePoint)
+            {
+                var midLinePoints = GetMiddleLine();
+                var midLine = new Line2d(midLinePoints[0], midLinePoints[1]);
+                if (midLine.IsPointOnLine(intermediatePoint) &&
+                    intermediatePoint.DistanceTo(midLinePoints[0]) > 1 &&
+                    intermediatePoint.DistanceTo(midLinePoints[1]) > 1)
+                {
+                    return new ThinWall[]
+                    {
+                        new ThinWall(midLinePoints[0], intermediatePoint, _t),
+                        new ThinWall(intermediatePoint, midLinePoints[1], _t)
+                    };
+                }
+                else
+                {
+                    return new ThinWall[]
+                    {
+                        this
+                    };
+                }
             }
 
             /// <summary>
@@ -652,10 +743,18 @@ namespace GPC.Model.Sections
 
             public void GetObjectData(SerializationInfo info, StreamingContext context)
             {
+                int version = 2;
+                info.AddValue("ThinWallVersion", version);
                 info.AddValue("T", _t);
                 info.AddValue("L", _l);
                 info.AddValue("Angle", _angle);
                 info.AddValue("Point", _point);
+                info.AddValue("IsInsideConcrete", IsInsideConcrete);
+            }
+
+            public object Clone()
+            {
+                return (ThinWall)MemberwiseClone();
             }
 
             #endregion

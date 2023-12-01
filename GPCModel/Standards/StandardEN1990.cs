@@ -1,4 +1,4 @@
-﻿using GPC.Model.Collections;
+using GPC.Model.Collections;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
@@ -206,6 +206,7 @@ namespace GPC.Model.Standards
         public double Psi1Temperature { get => _psi1Temperature; set => _psi1Temperature = value; }
         public double Psi2Temperature { get => _psi2Temperature; set => _psi2Temperature = value; }
 
+        public override StandardGroupType StandardGroup => StandardGroupType.European;
         #endregion
 
         #region PUBLIC CONSTRUCTOR
@@ -599,6 +600,10 @@ namespace GPC.Model.Standards
             }
         }
 
+                    return hashCode;
+                }
+            }
+        }
 
 
         #endregion
@@ -1289,6 +1294,18 @@ namespace GPC.Model.Standards
                 List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
+        /// <summary>
+        /// Generate all the combination for permanent loads with favourable coefficients
+        /// </summary>
+        /// <param name="loadCases">List of load cases</param>
+        /// <param name="optionsInput">The normative options</param>
+        /// <returns>A list of load case coefficient</returns>
+        protected virtual List<List<Combination.LoadCaseCoefficient>> GetBasicCombinationsMinCoeff(LoadCaseBase[] loadCases, CombinationsOptions optionsInput)
+        {
+            if (optionsInput is EN1990CombinationsOptions options)
+            {
+                List<List<Combination.LoadCaseCoefficient>> outList = new List<List<Combination.LoadCaseCoefficient>>();
+                List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
                 // aggiungo i SelfWeight
                 foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight).Cast<LoadCase>())

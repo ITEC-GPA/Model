@@ -294,6 +294,12 @@ namespace GPC.Model.Sections
             set => throw new NotImplementedException();
         }
 
+        public virtual double Width
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         public virtual ThinWallSection.ThinWall[] ThinWalls => throw new NotImplementedException();
 
         #endregion

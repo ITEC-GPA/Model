@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionC : ThinWallSection, ISerializable
+    public class SectionC : ThinWallSection, ISerializable, IEquatable<SectionC>
     {
         #region Variables
 
@@ -35,6 +35,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+
+        public override double Width => Math.Max(_lengthBottom, _lengthTop);
 
         public double HeightWeb => _h - _tBottom - _tTop;
 
@@ -465,16 +467,7 @@ namespace GPC.Model.Sections
 
         public override bool Equals(object obj)
         {
-            return obj is SectionC c &&
-                   base.Equals(obj) &&
-                   _h == c._h &&
-                   _tw == c._tw &&
-                   _lengthBottom == c._lengthBottom &&
-                   _tBottom == c._tBottom &&
-                   _lengthTop == c._lengthTop &&
-                   _tTop == c._tTop &&
-                   _r1 == c._r1 &&
-                   _r2 == c._r2;
+            return Equals(obj as SectionC);
         }
 
         public override int GetHashCode()
@@ -493,6 +486,20 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -23 + _r2.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public bool Equals(SectionC other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _h == other._h &&
+                   _tw == other._tw &&
+                   _lengthBottom == other._lengthBottom &&
+                   _tBottom == other._tBottom &&
+                   _lengthTop == other._lengthTop &&
+                   _tTop == other._tTop &&
+                   _r1 == other._r1 &&
+                   _r2 == other._r2;
         }
 
         public static bool operator ==(SectionC left, SectionC right)

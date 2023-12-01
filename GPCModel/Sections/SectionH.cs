@@ -1,11 +1,12 @@
 using GPC.Geometry;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionH : ThinWallSection, ISerializable
+    public class SectionH : ThinWallSection, ISerializable, IEquatable<SectionH>
     {
         #region Variables
 
@@ -33,6 +34,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+
+        public override double Width => Math.Max(_btop, _bbottom);
 
         public double LenghtBottomFlange
         {
@@ -439,6 +442,55 @@ namespace GPC.Model.Sections
         public override string ToString()
         {
             return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
+        }
+
+        #endregion
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SectionH);
+        }
+
+        public bool Equals(SectionH other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _h == other._h &&
+                   _tw == other._tw &&
+                   _ttop == other._ttop &&
+                   _tbottom == other._tbottom &&
+                   _btop == other._btop &&
+                   _bbottom == other._bbottom &&
+                   _r == other._r;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = -1753634061;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + _h.GetHashCode();
+                hashCode = hashCode * -1521134295 + _tw.GetHashCode();
+                hashCode = hashCode * -1521134295 + _ttop.GetHashCode();
+                hashCode = hashCode * -1521134295 + _tbottom.GetHashCode();
+                hashCode = hashCode * -1521134295 + _btop.GetHashCode();
+                hashCode = hashCode * -1521134295 + _bbottom.GetHashCode();
+                hashCode = hashCode * -1521134295 + _r.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionH left, SectionH right)
+        {
+            return EqualityComparer<SectionH>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(SectionH left, SectionH right)
+        {
+            return !(left == right);
         }
 
         #endregion

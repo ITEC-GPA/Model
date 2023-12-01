@@ -12,6 +12,11 @@ namespace GPC.Model.Sections
 
         double Height { get; }
 
+        /// <summary>
+        /// Maximum overall width.
+        /// </summary>
+        double Width { get; }
+
         Shape2d Shape { get; }
 
         double Area { get; }

@@ -1,4 +1,4 @@
-﻿using GPC.Model.Collections;
+using GPC.Model.Collections;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
@@ -40,6 +40,7 @@ namespace GPC.Model.Standards
         public double GammaM2 { get => _gammaM2; set => _gammaM2 = value; }
 
         #endregion
+        public override StandardGroupType StandardGroup => StandardGroupType.HongKong;
 
         #region Public Constructor
 

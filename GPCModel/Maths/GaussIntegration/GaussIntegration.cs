@@ -1,5 +1,6 @@
 using GPC.Geometry;
 using GPC.Geometry.Meshes;
+using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
 using GPC.Utilities.Fem;
 using MathNet.Numerics.LinearAlgebra;
@@ -795,9 +796,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
-        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, SteelSectionPosition steelSectionPosition, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, SteelSectionPosition steelSectionPosition, ThinWallSection.ThinWall[] breakedThinWalls, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
-            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(steelSectionPosition, numberOfGaussPoints));
+            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(steelSectionPosition, breakedThinWalls, numberOfGaussPoints));
         }
 
         /// <summary>
@@ -805,7 +806,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// </summary>
         /// <param name="steelSectionPosition"></param>
         /// <param name="numberOfGaussPoints">The number of Gauss points for line</param>
-        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(SteelSectionPosition steelSectionPosition, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
+        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(SteelSectionPosition steelSectionPosition, ThinWallSection.ThinWall[] breakedThinWalls, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             GaussPoint[] gaussPoints;
             Func<int, double, double> shapeFunction = LinearShapeFunctionsLine2.NaturalShapeFunction;
@@ -823,13 +824,13 @@ namespace GPC.Model.Maths.GaussIntegrations
                 throw new ArgumentException("Wrong number of Gauss Points");
 
 
-            int thinWallCount = steelSectionPosition.Section.ThinWalls.Length;
+            int thinWallCount = breakedThinWalls.Length;
 
             GlobalCoordinateGaussPoint[][] globalGaussPoints = new GlobalCoordinateGaussPoint[thinWallCount][];
 
             for (int index = 0; index < thinWallCount; index++)
             {
-                Point2d[] line = steelSectionPosition.Section.ThinWalls[index].GetMiddleLine();
+                Point2d[] line = breakedThinWalls[index].GetMiddleLine();
                 Point3d[] shapeFunctionNode = line.Select(n => new Point3d(steelSectionPosition.PositionToGlobal(n))).ToArray();
 
                 globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPoints.Length];

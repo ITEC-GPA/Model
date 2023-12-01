@@ -5,6 +5,17 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Standards
 {
+    #region Public Enum        
+
+    public enum StandardGroupType
+    {
+        European,
+        American,
+        HongKong
+    }
+
+    #endregion
+
     public abstract class Standard : ModelObject
     {
         protected string _remarks;
@@ -14,6 +25,12 @@ namespace GPC.Model.Standards
             get => _remarks;
             set => _remarks = value;
         }
+
+        /// <summary>
+        /// Distinction between standards.
+        /// Influences the selection of standards, materials, and checks.
+        /// </summary>
+        public abstract StandardGroupType StandardGroup { get; }
 
         public Standard(string name = "", string remarks = "")
             : base(name)

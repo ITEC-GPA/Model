@@ -1,11 +1,12 @@
 ﻿using GPC.Geometry;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRHS : ThinWallSection, ISerializable
+    public class SectionRHS : ThinWallSection, ISerializable, IEquatable<SectionRHS>
     {
         #region Varibles
 
@@ -49,6 +50,8 @@ namespace GPC.Model.Sections
                 }
             }
         }
+
+        public override double Width => _b;
 
         public double Heightinternal => _h - _tfBottom - _tfTop;
 
@@ -373,5 +376,54 @@ namespace GPC.Model.Sections
             _shape = null;
             _mesh = GetMesh();
         }
+
+        #region Equals, hashcode, operators
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SectionRHS);
+        }
+
+        public bool Equals(SectionRHS other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _h == other._h &&
+                   _b == other._b &&
+                   _tfTop == other._tfTop &&
+                   _tfBottom == other._tfBottom &&
+                   _twL == other._twL &&
+                   _twR == other._twR &&
+                   _r == other._r;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = 372658446;
+                hashCode = hashCode * -1521134295 + base.GetHashCode();
+                hashCode = hashCode * -1521134295 + _h.GetHashCode();
+                hashCode = hashCode * -1521134295 + _b.GetHashCode();
+                hashCode = hashCode * -1521134295 + _tfTop.GetHashCode();
+                hashCode = hashCode * -1521134295 + _tfBottom.GetHashCode();
+                hashCode = hashCode * -1521134295 + _twL.GetHashCode();
+                hashCode = hashCode * -1521134295 + _twR.GetHashCode();
+                hashCode = hashCode * -1521134295 + _r.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(SectionRHS left, SectionRHS right)
+        {
+            return EqualityComparer<SectionRHS>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(SectionRHS left, SectionRHS right)
+        {
+            return !(left == right);
+        }
+
+        #endregion
     }
 }

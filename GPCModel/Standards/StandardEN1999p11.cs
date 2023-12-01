@@ -46,6 +46,8 @@ namespace GPC.Model.Standards
         /// </summary>
         public double GammaMsSer { get; set; }
 
+        public override StandardGroupType StandardGroup => StandardGroupType.European;
+
         #endregion
 
         #region Constructor

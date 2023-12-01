@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Sections
 {
     [Serializable]
-    public class SectionRectangular : ThinWallSection, ISerializable
+    public class SectionRectangular : ThinWallSection, ISerializable, IEquatable<SectionRectangular>
     {
         #region Variables
 
@@ -36,7 +36,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The width of the section
         /// </summary>
-        public double Width
+        public override double Width
         {
             get => _width;
             set
@@ -257,12 +257,22 @@ namespace GPC.Model.Sections
             return $"Rectangular {_height}x{_width}";
         }
 
+        #endregion
+
+        #region Equals, hashcode, operators
+
         public override bool Equals(object obj)
         {
-            return obj is SectionRectangular rectangular &&
-                   base.Equals(obj) &&
-                   _height == rectangular._height &&
-                   _width == rectangular._width;
+            return Equals(obj as SectionRectangular);
+        }
+
+        public bool Equals(SectionRectangular other)
+        {
+            return !(other is null) &&
+                   base.Equals(other) &&
+                   _height == other._height &&
+                   _width == other._width &&
+                   _angle == other._angle;
         }
 
         public override int GetHashCode()
