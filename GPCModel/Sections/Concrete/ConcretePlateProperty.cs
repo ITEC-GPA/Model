@@ -9,7 +9,7 @@ namespace GPC.Model.Sections.Concrete
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]
-    public class ConcretePlateProperty : PlateProperty, ISerializable
+    public class ConcretePlateProperty : PlateProperty, ISerializable, IFemPlateProperty
     {
         #region Variables
 
@@ -25,7 +25,9 @@ namespace GPC.Model.Sections.Concrete
 
         public double MembraneThickness { get => _membraneThickness; set => _membraneThickness = value; }
 
-        public ConcreteMaterial Material { get => _material; set => _material = value; }
+        public ConcreteMaterial ConcreteMaterial { get => _material; set => _material = value; }
+
+        public Material Material { get => _material; }
 
         #endregion
 

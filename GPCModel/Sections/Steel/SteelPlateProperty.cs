@@ -9,7 +9,7 @@ namespace GPC.Model.Sections.Steel
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]
-    public class SteelPlateProperty : PlateProperty, ISerializable
+    public class SteelPlateProperty : PlateProperty, ISerializable, IFemPlateProperty
     {
         #region Variables
 
@@ -25,7 +25,9 @@ namespace GPC.Model.Sections.Steel
 
         public double MembraneThickness { get => _membraneThickness; set => _membraneThickness = value; }
 
-        public SteelMaterial Material { get => _material; set => _material = value; }
+        public SteelMaterial SteelMaterial { get => _material; set => _material = value; }
+
+        public Material Material { get => _material; }
 
         #endregion
 

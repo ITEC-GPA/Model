@@ -11,7 +11,7 @@ namespace GPC.Model.Results.ElementResults
     {
         #region Public Constructors
 
-        public BeamResult(List<IBeamResultLocation> resultStation, int stageId = IDUNASSIGNED, string name = "", int id = IDUNASSIGNED)
+        public BeamResult(IEnumerable<IBeamResultLocation> resultStation, int stageId = IDUNASSIGNED, string name = "", int id = IDUNASSIGNED)
             : base(resultStation.Cast<ResultLocation>().ToList(), stageId, name, id)
         {
 
