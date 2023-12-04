@@ -25,6 +25,11 @@ namespace GPC.Model.Collections
 
         #region Methods
 
+        public void Add(T item)
+        {
+            Add(item.Name, item);
+        }
+
         public bool AddRange(IEnumerable<T> items)
         {
             if (items != null)

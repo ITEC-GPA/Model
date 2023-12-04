@@ -101,6 +101,12 @@ namespace GPC.Model.Elements
                 _results.Add(result);
         }
 
+        public virtual void AddResults(IEnumerable<ElementResult> results)
+        {
+            if (results != null)
+                _results.AddRange(results);
+        }
+
         #endregion
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

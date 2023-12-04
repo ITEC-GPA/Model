@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Results.ResultLocations
 {
     [Serializable]
-    public class StationResultDisplacement : ResultLocation, ISerializable
+    public class StationResultDisplacement : ResultLocation, ISerializable, IBeamResultLocation
     {
         #region Variables
 
