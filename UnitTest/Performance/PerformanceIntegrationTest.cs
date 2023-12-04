@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
@@ -11,6 +9,8 @@ using GPC.Model.Sections.Rebar;
 using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Linq;
 
 namespace PerformanceTest
 {
@@ -72,7 +72,6 @@ namespace PerformanceTest
 
             return section;
         }
-
 
         [TestMethod]
         public void IntegrationTest1()
@@ -245,7 +244,7 @@ namespace PerformanceTest
             double initialTolerance = 0.015;
             double expJ = Math.PI / 64 * Math.Pow(diameter, 4);
 
-			int[] subdivision = new int[] { 32, 64 };
+            int[] subdivision = new int[] { 32, 64 };
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]
                 {

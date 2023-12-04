@@ -1,19 +1,21 @@
 using GPC.Geometry;
+using GPC.Model.Collections;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
-using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Model.Results;
+using GPC.Model.Results.ElementResults;
+using GPC.Model.Results.ResultLocations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Standards;
 using GPC.TestUtilities;
-using GPC.Utilities.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -74,21 +76,6 @@ namespace GeneralTest
         }
 
         #region Standards
-
-        /// <summary>
-        /// Testa che tutte le classi nell'assembly siano abbiano l'attributo [Serializable]
-        /// </summary>
-        [TestMethod]
-        public void SerializableTest1()
-        {
-            GhostElement ghostElement = new GhostElement();
-
-            var bytes = Serialization.SerializeToBytes(ghostElement);
-
-            var a = Serialization.DeserializeFromBytes(bytes);
-
-            Assert.IsTrue(ghostElement.Equals(a));
-        }
 
         [TestMethod]
         public void Standard_CopSuos2011Test()
@@ -1230,7 +1217,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            RebarCollection s = new RebarCollection();
+            UniqueIdCollection<ReinforcedConcreteRebar> s = new UniqueIdCollection<ReinforcedConcreteRebar>();
             s.AddRange(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, 50, 1, "a"),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), new Point2d(10, 10), 60, 2, "b"),
@@ -1245,7 +1232,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+                UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1274,7 +1261,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            RebarCollection s = new RebarCollection();
+            UniqueIdCollection<ReinforcedConcreteRebar> s = new UniqueIdCollection<ReinforcedConcreteRebar>();
             s.AddRange(new ReinforcedConcreteRebar[] { });
 
             using (var ms = new MemoryStream())
@@ -1284,7 +1271,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+                UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -1313,7 +1300,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            RebarCollection s = new RebarCollection();
+            UniqueIdCollection<ReinforcedConcreteRebar> s = new UniqueIdCollection<ReinforcedConcreteRebar>();
             s.AddRange(new ReinforcedConcreteRebar[] {
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, 50, 1, "a"),
                 new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, 50, 2, "b"),
@@ -1333,7 +1320,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                RebarCollection oggettoDeserializzato = (RebarCollection)casted;
+                UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
                 if (s.Equals(oggettoDeserializzato))
                 {
@@ -2058,7 +2045,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ResultPlateForces m = new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1);
+            ResultBrickForces m = new ResultBrickForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 1);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -2066,7 +2053,7 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ResultPlateForces oggettoDeserializzato = (ResultPlateForces)casted;
+                ResultBrickForces oggettoDeserializzato = (ResultBrickForces)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
@@ -2186,51 +2173,12 @@ namespace GeneralTest
         }
 
         [TestMethod]
-        public void Result_ResultLocationIdTest()
-        {
-            bool check = true;
-
-            ResultLocationId m = new ResultLocationId(new ResultPlateForces[] {
-                new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1)}, 1, "a");
-
-            using (var ms = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(ms, m);
-                ms.Position = 0;
-
-                var casted = formatter.Deserialize(ms);
-                ResultLocationId oggettoDeserializzato = (ResultLocationId)casted;
-
-                if (m.Equals(oggettoDeserializzato))
-                {
-                    for (int i = 0; i < m.ResultTypes.Length; i++)
-                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
-                            check = false;
-                    if (m.Id != oggettoDeserializzato.Id)
-                        check = false;
-                }
-                else
-                {
-                    check = false;
-                }
-            }
-
-            if (check)
-                Console.WriteLine($"Class {m} is serializable");
-            else
-                Console.WriteLine($"Warning: Class {m} is not serializable");
-
-            Assert.IsTrue(check);
-        }
-
-        [TestMethod]
         public void Result_ResultLocationStationTest()
         {
             bool check = true;
 
-            ResultLocationStation m = new ResultLocationStation(new ResultBeamForces[] {
-                new ResultBeamForces(1, 2, 3, 4, 5, 6, CoordinateSystem.Global, 1)}, 1, 2);
+            StationResultBeamForces m = new StationResultBeamForces(new LoadCase("Pippo", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultBeamForces(1, 2, 3, 4, 5, 6, CoordinateSystem.Global, 1), 1, 2);
 
             using (var ms = new MemoryStream())
             {
@@ -2239,17 +2187,15 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ResultLocationStation oggettoDeserializzato = (ResultLocationStation)casted;
+                StationResultBeamForces oggettoDeserializzato = (StationResultBeamForces)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if (m.DistanceFromStartPoint != oggettoDeserializzato.DistanceFromStartPoint ||
-                        m.ElementLenght != oggettoDeserializzato.ElementLenght ||
+                    if (m.ParametricDistance != oggettoDeserializzato.ParametricDistance ||
                         m.Id != oggettoDeserializzato.Id)
                         check = false;
-                    for (int i = 0; i < m.ResultTypes.Length; i++)
-                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
-                            check = false;
+                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes)
+                        check = false;
                 }
                 else
                 {
@@ -2270,8 +2216,8 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ResultLocationPoint m = new ResultLocationPoint(new ResultPlateForces[] {
-                new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 1)}, Point2d.Origin, 1);
+            PointResultPlateStress m = new PointResultPlateStress(new LoadCase("Pippo", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6), Point2d.Origin, 1);
 
             using (var ms = new MemoryStream())
             {
@@ -2280,16 +2226,15 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ResultLocationPoint oggettoDeserializzato = (ResultLocationPoint)casted;
+                PointResultPlateStress oggettoDeserializzato = (PointResultPlateStress)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
                     if (m.Location != oggettoDeserializzato.Location ||
                         m.Id != oggettoDeserializzato.Id)
                         check = false;
-                    for (int i = 0; i < m.ResultTypes.Length; i++)
-                        if (m.ResultTypes[i] != oggettoDeserializzato.ResultTypes[i])
-                            check = false;
+                    if (m.ResultTypes != oggettoDeserializzato.ResultTypes)
+                        check = false;
                 }
                 else
                 {
@@ -2310,8 +2255,10 @@ namespace GeneralTest
         {
             bool check = true;
 
-            BeamResult m = new BeamResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
-                new ResultLocationStation[] { new ResultLocationStation(new ResultBeamForces[] { }, 5, 10, 3) }, 2);
+            var array = new List<IBeamResultLocation> {
+                new StationResultBeamForces(new LoadCase("Pippo", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultBeamForces(5, 10, 3, 2, 1, 0, CoordinateSystem.Global), 0.5) };
+            BeamResult m = new BeamResult(array);
 
             using (var ms = new MemoryStream())
             {
@@ -2324,14 +2271,12 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
-                        check = false;
-                    if (m.Length != oggettoDeserializzato.Length ||
+                    if (m.Id != oggettoDeserializzato.Id ||
                         m.Name != oggettoDeserializzato.Name ||
-                        m.StageId != oggettoDeserializzato.StageId)
+                        m.StageID != oggettoDeserializzato.StageID)
                         check = false;
-                    for (int i = 0; i < m.ResultLocations.Length; i++)
-                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                    for (int i = 0; i < m.Results.Count; i++)
+                        if (m.Results[i] != oggettoDeserializzato.Results[i])
                             check = false;
                 }
                 else
@@ -2353,9 +2298,10 @@ namespace GeneralTest
         {
             bool check = true;
 
-            BrickResult m = new BrickResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
-                new ResultLocationPoint[] { new ResultLocationPoint(new ResultStress[]{
-                    new ResultStress(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, "Test", 22)}, Point2d.Origin, 5) }, 5);
+            var array = new List<IBrickResultLocation> {
+                new BrickPointResultForces(new LoadCase("Pippo", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultStress(CoordinateSystem.Global, 5, 10, 3, 2, 1, 0), Point3d.Origin) };
+            BrickElementResult m = new BrickElementResult(array);
 
             using (var ms = new MemoryStream())
             {
@@ -2364,17 +2310,16 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                BrickResult oggettoDeserializzato = (BrickResult)casted;
+                BrickElementResult oggettoDeserializzato = (BrickElementResult)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                    if (m.Id != oggettoDeserializzato.Id ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.StageID != oggettoDeserializzato.StageID)
                         check = false;
-                    if (m.Name != oggettoDeserializzato.Name ||
-                        m.StageId != oggettoDeserializzato.StageId)
-                        check = false;
-                    for (int i = 0; i < m.ResultLocations.Length; i++)
-                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                    for (int i = 0; i < m.Results.Count; i++)
+                        if (m.Results[i] != oggettoDeserializzato.Results[i])
                             check = false;
                 }
                 else
@@ -2396,7 +2341,8 @@ namespace GeneralTest
         {
             bool check = true;
 
-            NodeResult m = new NodeResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] { }, 3);
+            NodeResult m = new NodeResult(new List<INodeResultLocation>(){
+                new NodeResultForces(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultBeamForces(0,1,2,3,4,5,CoordinateSystem.Global)) });
 
             using (var ms = new MemoryStream())
             {
@@ -2409,12 +2355,12 @@ namespace GeneralTest
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                    if (m.Id != oggettoDeserializzato.Id ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.StageID != oggettoDeserializzato.StageID)
                         check = false;
-                    if (m.Name != oggettoDeserializzato.Name)
-                        check = false;
-                    for (int i = 0; i < m.ResultLocations.Length; i++)
-                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                    for (int i = 0; i < m.Results.Count; i++)
+                        if (m.Results[i] != oggettoDeserializzato.Results[i])
                             check = false;
                 }
                 else
@@ -2436,8 +2382,9 @@ namespace GeneralTest
         {
             bool check = true;
 
-            PlateResult m = new PlateResult(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad), new ResultLocationId[] {
-            new ResultLocationId(new ResultPlateForces[]{new ResultPlateForces(CoordinateSystem.Global, 1,2,3,4,5,6,7,8,2)}, 3)}, 3, "a");
+            PlateElementResult m = new PlateElementResult(new List<IPlateResultLocation>()            {
+                new PointResultPlateStress(new LoadCase("test", LoadCase.LoadCaseTypes.SuperImposedDeadLoad),
+                new ResultStress(CoordinateSystem.Global, 1,2,3,4,5,6), Point2d.Origin) });
 
             using (var ms = new MemoryStream())
             {
@@ -2446,17 +2393,16 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                PlateResult oggettoDeserializzato = (PlateResult)casted;
+                PlateElementResult oggettoDeserializzato = (PlateElementResult)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
-                    if ((LoadCase)m.Case != (LoadCase)oggettoDeserializzato.Case)
+                    if (m.Id != oggettoDeserializzato.Id ||
+                        m.Name != oggettoDeserializzato.Name ||
+                        m.StageID != oggettoDeserializzato.StageID)
                         check = false;
-                    if (m.Name != oggettoDeserializzato.Name ||
-                        m.StageId != oggettoDeserializzato.StageId)
-                        check = false;
-                    for (int i = 0; i < m.ResultLocations.Length; i++)
-                        if (m.ResultLocations[i] != oggettoDeserializzato.ResultLocations[i])
+                    for (int i = 0; i < m.Results.Count; i++)
+                        if (m.Results[i] != oggettoDeserializzato.Results[i])
                             check = false;
                 }
                 else

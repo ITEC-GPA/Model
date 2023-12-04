@@ -1,12 +1,13 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GPC.Model.Collections;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
-using GPC.Utilities.Extensions;
-using System.Collections.Generic;
-using GPC.TestUtilities;
-using System.Linq;
 using GPC.Model.Standards;
+using GPC.TestUtilities;
+using GPC.Utilities.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelObjectTest
 {
@@ -30,7 +31,6 @@ namespace ModelObjectTest
                 Assert.IsTrue(Math.Abs(comboCoef1[i] - comboCoef2[i]) < 0.001, $"Coefficient Combo {i} error! Load Case. {list1[i].Name} comboCoef 1: {comboCoef1[i]} ; comboCoef 2: {comboCoef2[i]}");
             }
         }
-
 
         #region COMBINATION TEST
 
@@ -157,19 +157,19 @@ namespace ModelObjectTest
             List<LoadCase> loadCases = new List<LoadCase>();
             List<double> coefficients = new List<double>();
 
-            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Snow", LoadCase.LoadCaseTypes.Snow));
             coefficients.Add(2);
 
-            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("Live", LoadCase.LoadCaseTypes.LiveLoad));
             coefficients.Add(1);
 
-            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SW", LoadCase.LoadCaseTypes.SelfWeight));
             coefficients.Add(0.5);
 
-            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid());
+            LoadCase sdl = new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad);
             loadCases.Add(sdl);
             coefficients.Add(4);
-            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad, Guid.NewGuid()));
+            loadCases.Add(new LoadCase("SDL", LoadCase.LoadCaseTypes.SuperImposedDeadLoad));
             coefficients.Add(2);
 
             Combination combination = new Combination("test");
@@ -371,10 +371,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -420,15 +420,15 @@ namespace ModelObjectTest
                 prestressLoadCase
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -446,13 +446,13 @@ namespace ModelObjectTest
             combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
             combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.90);
             combination2.AddLoadCaseCoefficient(snowLoadCase, 1.5);
-            
+
             Combination combination3 = new Combination("cmb 3", options);
             combination3.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
             combination3.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
             combination3.AddLoadCaseCoefficient(WindPressureLoadCase, 1.5);
             combination3.AddLoadCaseCoefficient(snowLoadCase, 1.05);
-            
+
             Combination combination4 = new Combination("cmb 4", options);
             combination4.AddLoadCaseCoefficient(selfWeightLoadCase, 1.35);
             combination4.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
@@ -493,10 +493,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -555,10 +555,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -623,10 +623,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -691,10 +691,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -759,10 +759,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -813,10 +813,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -881,10 +881,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -949,10 +949,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1017,10 +1017,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1085,10 +1085,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1139,10 +1139,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1192,10 +1192,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1243,10 +1243,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1309,10 +1309,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            var outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1407,10 +1407,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1513,10 +1513,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1588,10 +1588,10 @@ namespace ModelObjectTest
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1737,15 +1737,15 @@ namespace ModelObjectTest
                 liveLoadLoadCase
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1802,15 +1802,15 @@ namespace ModelObjectTest
                 liveLoadLoadCase3,
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, false);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1866,15 +1866,15 @@ namespace ModelObjectTest
                 liveLoadLoadCase2,
             };
 
-            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic, 
+            StandardEN1990.EN1990CombinationsOptions options = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateSeismic,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetC, StandardEN1990.ImposedLoadCategories.CategoryC, true);
             StandardEN1990 standardEN1990 = new StandardEN1990();
 
             // Act
-            CombinationsCollection outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN1990.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1924,15 +1924,15 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase2
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -1996,15 +1996,15 @@ namespace ModelObjectTest
                 climateSummerDeltaPLoadCase3
             };
 
-            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural, 
+            StandardEN16612.EN16612CombinationsOptions options = new StandardEN16612.EN16612CombinationsOptions(StandardEN1990.LimitStates.UltimateStructural,
                 StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, true);
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2087,10 +2087,10 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2191,10 +2191,10 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2358,16 +2358,16 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
                 listComb.Add(combination);
             }
-        
+
             // Assert
             Assert.IsTrue(outList.Count() == 30);
         }
@@ -2413,10 +2413,10 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2467,10 +2467,10 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2522,10 +2522,10 @@ namespace ModelObjectTest
             StandardEN16612 standardEN16612 = new StandardEN16612();
 
             // Act
-            CombinationsCollection outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardEN16612.CreateCombinations(loadCaseList.ToArray(), options);
 
             List<Combination> listComb = new List<Combination>();
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
                 Console.WriteLine(combinationName);
@@ -2568,16 +2568,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2616,16 +2616,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 12);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2658,16 +2658,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 8);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2712,16 +2712,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 15);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2754,16 +2754,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 11);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2796,16 +2796,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2838,16 +2838,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.ASD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 7);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -2892,16 +2892,16 @@ namespace ModelObjectTest
             StandardASCE16.ASCE16CombinationsOptions options = new StandardASCE16.ASCE16CombinationsOptions(StandardASCE16.LimitStates.LFRD);
 
             // Act
-            CombinationsCollection outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
+            UniqueNameCollection<Combination> outList = standardASCE16.CreateCombinations(loadCaseList.ToArray(), options);
 
             // Assert
             Assert.IsTrue(outList.Count() == 13);
 
             int count = 1;
-            foreach (Combination combination in outList)
+            foreach (Combination combination in outList.Values)
             {
                 string combinationName = combination.ToString();
-                Console.WriteLine($"Cmb { count } : { combinationName } ");
+                Console.WriteLine($"Cmb {count} : {combinationName} ");
                 count++;
             }
         }
@@ -3064,7 +3064,7 @@ namespace ModelObjectTest
 
             Assert.IsFalse(combination1.Equals(combination5));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination5.GetHashCode()));
-            
+
         }
 
         [TestMethod]
@@ -3073,7 +3073,7 @@ namespace ModelObjectTest
             // Arrange
 
             StandardEN1990.EN1990CombinationsOptions options1 = new StandardEN1990.EN1990CombinationsOptions(StandardEN1990.LimitStates.UltimateGeotechnical, StandardEN1990.ULSStructuralGeotechicalCombinationSets.SetB, StandardEN1990.ImposedLoadCategories.CategoryA, false);
-            
+
             Combination combination1 = new Combination("cmb1", options1);
             Combination combination2 = new Combination("cmb1", options1);
             Combination combination3 = new Combination("cmb3", options1);
@@ -3139,16 +3139,16 @@ namespace ModelObjectTest
             // comb 6 ha coeff diversi
 
             // Assert / Act
-            Assert.IsTrue(combination1.Equals(combination2));       
-            Assert.IsFalse(combination1.Equals(combination3));      
-            Assert.IsFalse(combination1.Equals(combination4));      
-            Assert.IsTrue(combination1.Equals(combination5));       
+            Assert.IsTrue(combination1.Equals(combination2));
+            Assert.IsFalse(combination1.Equals(combination3));
+            Assert.IsFalse(combination1.Equals(combination4));
+            Assert.IsTrue(combination1.Equals(combination5));
             Assert.IsFalse(combination1.Equals(combination6));
 
-            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));       
-            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));      
+            Assert.IsTrue(combination1.GetHashCode().Equals(combination2.GetHashCode()));
+            Assert.IsFalse(combination1.GetHashCode().Equals(combination3.GetHashCode()));
             Assert.IsFalse(combination1.GetHashCode().Equals(combination4.GetHashCode()));
-            
+
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase2));
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase3));
             Assert.IsTrue(loadCase1.SequenceEqual(loadCase4));

@@ -1,5 +1,4 @@
-﻿using GPC.Model.Fem.Materials;
-using GPC.Utilities.Attributes;
+﻿using GPC.Utilities.Attributes;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
@@ -218,16 +217,6 @@ namespace GPC.Model.Materials
         #endregion
 
         #region Public Methods
-
-        public override IsotropicFemMaterial GetIsotropicFemMaterial()
-        {
-            return new IsotropicFemMaterial(ElasticModulusCompression, Ni, AlfaThermalExpansion, Density);
-        }
-
-        public override OrthotropicFemMaterial GetOrthotropicFemMaterial()
-        {
-            return new OrthotropicFemMaterial(ElasticModulusCompression, ElasticModulusCompression, ElasticModulusCompression, Ni, Ni, Ni, GetShearModule(), GetShearModule(), GetShearModule(), AlfaThermalExpansion, AlfaThermalExpansion, AlfaThermalExpansion, Density);
-        }
 
         public virtual void RecalculateMechanicalProperties()
         {

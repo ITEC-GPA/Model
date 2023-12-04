@@ -332,6 +332,97 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         #endregion
 
+        #region Pentahedron element
+
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <param name="shapeFunction">The shape function for coordinate transformation</param>
+        /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>/param>
+        /// <param name="numberOFShapeFunction">The number of shape function</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>The vertices must be added with this order:
+        /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 4th, 2nd with 5th, 3rd with 6th
+        /// </remarks>
+        public static double IntegrationPentahedron(Func<double, double, double, double> function, Point3d[] vertices, PentahedronGaussPoints.GaussPointNumber numberOfGaussPoints,
+            Func<int, double, double, double, double> shapeFunction, Func<int, double, double, double, double> dNdCsi,
+            Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, int numberOFShapeFunction)
+        {
+            if (vertices.Length != 6)
+                throw new ArgumentException("Points must be 6. Polygon must be a Pentahedron");
+
+            GaussPoint[] gaussPoints;
+            bool parallelComputing = false;
+
+            if (PentahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
+            {
+                gaussPoints = PentahedronGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
+                if ((int)numberOfGaussPoints >= 15)
+                    parallelComputing = true;
+            }
+            else
+                throw new ArgumentException("Wrong number of Quad Gauss Points");
+
+            Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
+
+            if (numberOFShapeFunction == vertices.Length)
+            {
+                shapeFunctionNode = vertices;
+            }
+            else
+            {
+                throw new NotImplementedException("Quadratic shape function not implemented");
+            }
+
+            var jacobian = JacobianMatrix3D(dNdCsi, dNdEta, dNdZeta, shapeFunctionNode);
+
+            double[] ris = new double[gaussPoints.Length];
+
+            if (parallelComputing)
+            {
+                Parallel.For(0, gaussPoints.Length, (i) =>
+                {
+                    var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+                });
+            }
+            else
+            {
+                for (int i = 0; i < gaussPoints.Length; i++)
+                {
+                    var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+                };
+            }
+
+            return ris.Sum() / 2.0;
+        }
+
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
+        /// <param name="numberOfGaussPoints">The number of Gauss points</param>
+        /// <returns>The value of the integral</returns>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>The vertices must be added with this order:
+        /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
+        /// Linear shape functions and its derivative are used
+        /// </remarks>
+        public static double IntegrationPentahedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, PentahedronGaussPoints.GaussPointNumber numberOfGaussPoints)
+        {
+            return IntegrationPentahedron(function, vertices, numberOfGaussPoints, LinearShapeFunctionPentahedron6.NaturalShapeFunction,
+                LinearShapeFunctionPentahedron6.DNdCsi, LinearShapeFunctionPentahedron6.DNdEta, LinearShapeFunctionPentahedron6.DNdZeta, 6);
+        }
+
+        #endregion
+
         #region Hexaedron element
 
         /// <summary>
@@ -349,7 +440,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <remarks>The vertices must be added with this order:
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th
         /// </remarks>
-        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints,
+        public static double IntegrationHexaedron(Func<double, double, double, double> function, Point3d[] vertices, HexahedronGaussPoints.GaussPointNumber numberOfGaussPoints,
             Func<int, double, double, double, double> shapeFunction, Func<int, double, double, double, double> dNdCsi,
             Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, int numberOFShapeFunction)
         {
@@ -357,19 +448,16 @@ namespace GPC.Model.Maths.GaussIntegrations
                 throw new ArgumentException("Points must be 8. Polygon must be a Hexaedron");
 
             GaussPoint[] gaussPoints;
+            bool parallelComputing = false;
 
-            switch ((int)numberOfGaussPoints)
+            if (HexahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
             {
-                case 1:
-                    gaussPoints = HexahedroGaussPoints.Hexa1;
-                    break;
-                case 8:
-                    gaussPoints = HexahedroGaussPoints.Hexa8;
-                    break;
-
-                default:
-                    throw new ArgumentException("Wrong number of Gauss Points");
+                gaussPoints = HexahedronGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
+                if ((int)numberOfGaussPoints >= 27)
+                    parallelComputing = true;
             }
+            else
+                throw new ArgumentException("Wrong number of Quad Gauss Points");
 
             Point3d[] shapeFunctionNode = new Point3d[numberOFShapeFunction];
 
@@ -386,11 +474,22 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             double[] ris = new double[gaussPoints.Length];
 
-            Parallel.For(0, gaussPoints.Length, (i) =>
+            if (parallelComputing)
             {
-                var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
-                ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
-            });
+                Parallel.For(0, gaussPoints.Length, (i) =>
+                {
+                    var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+                });
+            }
+            else
+            {
+                for (int i = 0; i < gaussPoints.Length; i++)
+                {
+                    var point = GaussIntegration.TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta, shapeFunction, shapeFunctionNode);
+                    ris[i] = gaussPoints[i].Weight * jacobian(gaussPoints[i].Csi, gaussPoints[i].Eta, gaussPoints[i].Zeta).Determinant() * function(point.Item1, point.Item2, point.Item3);
+                };
+            }
 
             return ris.Sum();
         }
@@ -407,7 +506,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
         /// Linear shape functions and its derivative are used
         /// </remarks>
-        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedroGaussPoints.GaussPointNumber numberOfGaussPoints)
+        public static double IntegrationHexaedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, HexahedronGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             return IntegrationHexaedron(function, vertices, numberOfGaussPoints, LinearShapeFunctionHexaedron8.NaturalShapeFunction,
                 LinearShapeFunctionHexaedron8.DNdCsi, LinearShapeFunctionHexaedron8.DNdEta, LinearShapeFunctionHexaedron8.DNdZeta, 8);
@@ -550,6 +649,141 @@ namespace GPC.Model.Maths.GaussIntegrations
             return globalGaussPoints;
         }
 
+        /// <summary>
+        /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
+        /// </summary>
+        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="mesh"></param>
+        /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for hexahedro volume</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh, HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints,
+            PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
+        {
+            return IntegrationLinearShapeFunction(function, GetGlobalCoordinateGaussPointsLinearShapeFunction(mesh, hexahedroNumberOfGaussPoints, pentaNumberOfGaussPoints));
+        }
+
+        /// <summary>
+        /// Get the mesh gauss points in global coordinate system associated with relative multiplicative factor
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for volume element</param>
+        /// <returns>The value of the integral</returns>
+        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(Mesh mesh,
+            HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints, PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
+        {
+            Func<int, double, double, double, double> shapeFunctionQuad = LinearShapeFunctionHexaedron8.NaturalShapeFunction;
+            Func<int, double, double, double, double> dNdCsiQuad = LinearShapeFunctionHexaedron8.DNdCsi;
+            Func<int, double, double, double, double> dNdEtaQuad = LinearShapeFunctionHexaedron8.DNdEta;
+            Func<int, double, double, double, double> dNdZetaQuad = LinearShapeFunctionHexaedron8.DNdZeta;
+
+            Func<int, double, double, double, double> shapeFunctionTri = LinearShapeFunctionPentahedron6.NaturalShapeFunction;
+            Func<int, double, double, double, double> dNdCsiTri = LinearShapeFunctionPentahedron6.DNdCsi;
+            Func<int, double, double, double, double> dNdEtaTri = LinearShapeFunctionPentahedron6.DNdEta;
+            Func<int, double, double, double, double> dNdZetaTri = LinearShapeFunctionPentahedron6.DNdZeta;
+
+            GaussPoint[] gaussPointsQuad;
+
+            bool parallelComputing = false;
+
+            if (HexahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(hexahedroNumberOfGaussPoints))
+            {
+                gaussPointsQuad = HexahedronGaussPoints.GaussPointNumberAssociation[hexahedroNumberOfGaussPoints];
+                if ((int)hexahedroNumberOfGaussPoints >= 27)
+                    parallelComputing = true;
+            }
+            else
+                throw new ArgumentException("Wrong number of Hexahedro Gauss Points");
+
+            GaussPoint[] gaussPointsTri;
+
+            if (PentahedronGaussPoints.GaussPointNumberAssociation.ContainsKey(pentaNumberOfGaussPoints))
+            {
+                gaussPointsTri = PentahedronGaussPoints.GaussPointNumberAssociation[pentaNumberOfGaussPoints];
+                if ((int)pentaNumberOfGaussPoints >= 15)
+                    parallelComputing = true;
+            }
+            else
+                throw new ArgumentException("Wrong number of Pentahedro Gauss Points");
+
+
+            int volumeCount = mesh.VolumesCount;
+            IEnumerator<MeshVolume> facesEnumerator = mesh.GetVolumesEnumerator();
+
+            GlobalCoordinateGaussPoint[][] globalGaussPoints = new GlobalCoordinateGaussPoint[volumeCount][];
+            int index = 0;
+
+            while (facesEnumerator.MoveNext())
+            {
+                MeshVolume meshVolume = facesEnumerator.Current;
+                Point3d[] shapeFunctionNode = mesh.GetVolumePoints(meshVolume);
+
+                if (facesEnumerator.Current.IsQuadrangularPrism)
+                {
+                    globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsQuad.Length];
+                    Func<double, double, double, Matrix<double>> jacobian = JacobianMatrix3D(dNdCsiQuad, dNdEtaQuad, dNdZetaQuad, shapeFunctionNode);
+
+                    if (parallelComputing)
+                    {
+                        Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPointsQuad.Length), (range) =>
+                        {
+                            double x = 0;
+                            double y = 0;
+                            for (int i = range.Item1; i < range.Item2; i++)
+                            {
+                                TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+                                globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        double x = 0;
+                        double y = 0;
+                        for (int i = 0; i < gaussPointsQuad.Length; i++)
+                        {
+                            TransformNaturalCoordToGlobalCoord(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+                            globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsQuad[i].Csi, gaussPointsQuad[i].Eta, gaussPointsQuad[i].Zeta).Determinant(), gaussPointsQuad[i].Weight, 1.0);
+                        }
+                    }
+                }
+                else
+                {
+                    globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPointsTri.Length];
+                    Func<double, double, double, Matrix<double>> jacobian = JacobianMatrix3D(dNdCsiQuad, dNdEtaQuad, dNdZetaQuad, shapeFunctionNode);
+
+                    if (parallelComputing)
+                    {
+                        Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPointsTri.Length), (range) =>
+                        {
+                            double x = 0;
+                            double y = 0;
+                            for (int i = range.Item1; i < range.Item2; i++)
+                            {
+                                TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, gaussPointsTri[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+                                globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, gaussPointsTri[i].Zeta).Determinant(), gaussPointsTri[i].Weight, 0.5);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        double x = 0;
+                        double y = 0;
+                        for (int i = 0; i < gaussPointsTri.Length; i++)
+                        {
+                            TransformNaturalCoordToGlobalCoord(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, gaussPointsTri[i].Zeta, shapeFunctionQuad, shapeFunctionNode, out x, out y, out double z);
+                            globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, z, jacobian(gaussPointsTri[i].Csi, gaussPointsTri[i].Eta, gaussPointsTri[i].Zeta).Determinant(), gaussPointsTri[i].Weight, 0.5);
+                        }
+                    }
+                }
+
+                index++;
+            }
+
+            return globalGaussPoints;
+        }
+
         #endregion
 
         #region ThinWall Section
@@ -633,6 +867,124 @@ namespace GPC.Model.Maths.GaussIntegrations
         #endregion
 
         #region GlobalCoordinateGaussPoint Integration
+
+        public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][][] globalGaussPoints)
+        {
+            double[] res = new double[function.Length];
+
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, function.Length), (range) =>
+            {
+                for (int f = range.Item1; f < range.Item2; f++)
+                {
+                    res[f] = IntegrationLinearShapeFunction(function[f], globalGaussPoints);
+                }
+            });
+
+            return res;
+        }
+
+        public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[][][] globalGaussPoints)
+        {
+            T[] res = new T[function.Length];
+
+            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, function.Length), (range) =>
+            {
+                for (int f = range.Item1; f < range.Item2; f++)
+                {
+                    res[f] = IntegrationLinearShapeFunction(function[f], globalGaussPoints);
+                }
+            });
+
+            return res;
+        }
+
+        public static double IntegrationLinearShapeFunction(Func<double, double, double> function, GlobalCoordinateGaussPoint[][][] globalGaussPoints, bool parallelComputing = false)
+        {
+            if (parallelComputing)
+            {
+                List<double> results = new List<double>();
+
+                Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
+                {
+                    double res = 0;
+                    for (int g = range.Item1; g < range.Item2; g++)
+                    {
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            for (int k = 0; k < globalGaussPoints[g][j].Length; k++)
+                            {
+                                res += globalGaussPoints[g][j][k].EvaluateFunction(function);
+                            }
+                        }
+                    }
+
+                    results.Add(res);
+                });
+
+                return results.Sum();
+            }
+            else
+            {
+                double results = 0;
+                for (int g = 0; g < globalGaussPoints.Length; g++)
+                {
+                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    {
+                        for (int k = 0; k < globalGaussPoints[g][j].Length; k++)
+                        {
+                            results += globalGaussPoints[g][j][k].EvaluateFunction(function);
+                        }
+                    }
+                }
+
+
+                return results;
+            }
+        }
+
+        public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[][][] globalGaussPoints, bool parallelComputing = false)
+        {
+            if (parallelComputing)
+            {
+                T[][][] results = new T[globalGaussPoints.Length][][];
+
+                Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
+                {
+                    for (int g = range.Item1; g < range.Item2; g++)
+                    {
+                        results[g] = new T[globalGaussPoints[g].Length][];
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            results[g][j] = new T[globalGaussPoints[g][j].Length];
+                            for (int k = 0; k < globalGaussPoints[g][j].Length; k++)
+                            {
+                                results[g][j][k] = globalGaussPoints[g][j][k].EvaluateFunction(function);
+                            }
+                        }
+                    }
+                });
+
+                return GlobalCoordinateGaussPoint.MassSum<T>(results);
+            }
+            else
+            {
+                T[][][] results = new T[globalGaussPoints.Length][][];
+                for (int g = 0; g < globalGaussPoints.Length; g++)
+                {
+                    results[g] = new T[globalGaussPoints[g].Length][];
+                    for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                    {
+                        results[g][j] = new T[globalGaussPoints[g][j].Length];
+                        for (int k = 0; k < globalGaussPoints[g][j].Length; k++)
+                        {
+                            results[g][j][k] = globalGaussPoints[g][j][k].EvaluateFunction(function);
+                        }
+                    }
+                }
+
+                return GlobalCoordinateGaussPoint.MassSum<T>(results);
+            }
+        }
 
         public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
         {
@@ -902,7 +1254,6 @@ namespace GPC.Model.Maths.GaussIntegrations
                 j12 += dNdCsi(i + 1, csi, eta) * points[i].Y;
                 j21 += dNdEta(i + 1, csi, eta) * points[i].X;
                 j22 += dNdEta(i + 1, csi, eta) * points[i].Y;
-
             }
 
             return Matrix<double>.Build.Dense(2, 2, new[] { j11, j12, j21, j22 });
@@ -1188,6 +1539,14 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
+            public static T MassSum<T>(T[][][] values)
+            {
+                _calculator = GaussPointCalculator.GetInstance<T>();
+
+                return ((ICalculator<T>)_calculator).MassSum(values);
+            }
+
+            /// <exception cref="KeyNotFoundException"></exception>
             public static T MassSum<T>(T[][] values)
             {
                 _calculator = GaussPointCalculator.GetInstance<T>();
@@ -1225,6 +1584,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         protected interface ICalculator<T> : IGaussPointCalculator
         {
             T Multiply(double constants, T function);
+            T MassSum(T[][][] value);
             T MassSum(T[][] value);
             T MassSum(T[] value);
         }
@@ -1237,6 +1597,10 @@ namespace GPC.Model.Maths.GaussIntegrations
         protected class DoubleCalculator : ICalculator<double>
         {
             public double Multiply(double constants, double function) { return constants * function; }
+            public double MassSum(double[][][] value)
+            {
+                return value.Select(i => i.Select(j => j.Sum()).Sum()).Sum();
+            }
             public double MassSum(double[][] value)
             {
                 return value.Select(i => i.Sum()).Sum();
@@ -1252,6 +1616,11 @@ namespace GPC.Model.Maths.GaussIntegrations
             public Tuple<double> Multiply(double constants, Tuple<double> function)
             {
                 return new Tuple<double>(constants * function.Item1);
+            }
+
+            public Tuple<double> MassSum(Tuple<double>[][][] value)
+            {
+                return new Tuple<double>(value.Select(i => i.Select(j => j.Select(k => k.Item1).Sum()).Sum()).Sum());
             }
 
             public Tuple<double> MassSum(Tuple<double>[][] value)
@@ -1270,6 +1639,25 @@ namespace GPC.Model.Maths.GaussIntegrations
             public Tuple<double, double> Multiply(double constants, Tuple<double, double> function)
             {
                 return new Tuple<double, double>(constants * function.Item1, constants * function.Item2);
+            }
+
+            public Tuple<double, double> MassSum(Tuple<double, double>[][][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        for (int k = 0; k < value[i][j].Length; k++)
+                        {
+                            res1 += value[i][j][k].Item1;
+                            res2 += value[i][j][k].Item2;
+                        }
+                    }
+                }
+
+                return new Tuple<double, double>(res1, res2);
             }
 
             public Tuple<double, double> MassSum(Tuple<double, double>[][] value)
@@ -1309,6 +1697,25 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return (constants * function.Item1, constants * function.Item2);
             }
 
+            public (double, double) MassSum((double, double)[][][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        for (int k = 0; k < value[i][j].Length; k++)
+                        {
+                            res1 += value[i][j][k].Item1;
+                            res2 += value[i][j][k].Item2;
+                        }
+                    }
+                }
+
+                return (res1, res2);
+            }
+
             public (double, double) MassSum((double, double)[][] value)
             {
                 double res1 = 0;
@@ -1344,6 +1751,28 @@ namespace GPC.Model.Maths.GaussIntegrations
             public Tuple<double, double, double> Multiply(double constants, Tuple<double, double, double> function)
             {
                 return new Tuple<double, double, double>(constants * function.Item1, constants * function.Item2, constants * function.Item3);
+            }
+
+            public Tuple<double, double, double> MassSum(Tuple<double, double, double>[][][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                double res3 = 0;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        for (int k = 0; k < value[i][j].Length; k++)
+                        {
+                            res1 += value[i][j][k].Item1;
+                            res2 += value[i][j][k].Item2;
+                            res3 += value[i][j][k].Item3;
+                        }
+                    }
+                }
+
+                return new Tuple<double, double, double>(res1, res2, res3);
             }
 
             public Tuple<double, double, double> MassSum(Tuple<double, double, double>[][] value)
@@ -1387,6 +1816,28 @@ namespace GPC.Model.Maths.GaussIntegrations
             public (double, double, double) Multiply(double constants, (double, double, double) function)
             {
                 return (constants * function.Item1, constants * function.Item2, constants * function.Item3);
+            }
+
+            public (double, double, double) MassSum((double, double, double)[][][] value)
+            {
+                double res1 = 0;
+                double res2 = 0;
+                double res3 = 0;
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    for (int j = 0; j < value[i].Length; j++)
+                    {
+                        for (int k = 0; k < value[i][j].Length; k++)
+                        {
+                            res1 += value[i][j][k].Item1;
+                            res2 += value[i][j][k].Item2;
+                            res3 += value[i][j][k].Item3;
+                        }
+                    }
+                }
+
+                return (res1, res2, res3);
             }
 
             public (double, double, double) MassSum((double, double, double)[][] value)

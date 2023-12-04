@@ -1,39 +1,32 @@
+using GPC.Geometry;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Geometry;
 
 namespace GPC.Model.Results
 {
     [Serializable]
-    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>,
-        ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
+    public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
     {
         #region Variables
 
-        private readonly double _d1;
-        private readonly double _d2;
-        private readonly double _d3;
-        private readonly double _r1;
-        private readonly double _r2;
-        private readonly double _r3;
+        private double _d1;
+        private double _d2;
+        private double _d3;
+        private double _r1;
+        private double _r2;
+        private double _r3;
 
         #endregion
 
         #region Properties
-        
-        public double D1 => _d1;
 
-        public double D2 => _d2;
-
-        public double D3 => _d3;
-
-        public double R1 => _r1;
-
-        public double R2 => _r2;
-
-        public double R3 => _r3;
+        public double D1 { get => _d1; set => _d1 = value; }
+        public double D2 { get => _d2; set => _d2 = value; }
+        public double D3 { get => _d3; set => _d3 = value; }
+        public double R1 { get => _r1; set => _r1 = value; }
+        public double R2 { get => _r2; set => _r2 = value; }
+        public double R3 { get => _r3; set => _r3 = value; }
 
         #endregion
 
@@ -91,7 +84,6 @@ namespace GPC.Model.Results
 
         #region Public Methods - Get displacement
 
-
         /// <summary>
         /// Return the resulting displacement 
         /// </summary>
@@ -131,7 +123,6 @@ namespace GPC.Model.Results
         public double[] GetGlobalDisplacements()
         {
             Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3));
-
             Vector3d GlobalRotResult = _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3));
 
             double[] globalDispRot = new double[6];
@@ -146,7 +137,6 @@ namespace GPC.Model.Results
             return globalDispRot;
         }
 
-
         /// <summary>
         /// Return the global displacements tuple
         /// </summary>
@@ -156,14 +146,12 @@ namespace GPC.Model.Results
             return (_coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3)), _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3)));
         }
 
-
         /// <summary>
         /// Return the local displacements vector
         /// </summary>
         /// <returns>Array of displacements in local coordinate</returns>
         public double[] GetLocalDisplacements()
         {
-
             double[] localDisplacements = new double[6];
 
             localDisplacements[0] = _d1;
@@ -196,14 +184,33 @@ namespace GPC.Model.Results
             var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
             var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
 
-            return new ResultDisplacement(coordinateSystem,
-                                          displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
-                                          rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
+            return new ResultDisplacement(coordinateSystem, displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
+                rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
         }
 
+        public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
+        {
+            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
+            {
+                return new ResultDisplacement(
+                    values[0]._coordinateSystem,
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
+                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray()));
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         #endregion
-                
+
+        #region Equals, hashcode, operators
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -214,8 +221,6 @@ namespace GPC.Model.Results
             info.AddValue("R2", _r2, typeof(double));
             info.AddValue("R3", _r3, typeof(double));
         }
-
-        #region Equals, hashcode, operators
 
         public override bool Equals(object obj)
         {
@@ -252,28 +257,6 @@ namespace GPC.Model.Results
             }
         }
 
-        public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
-        {
-
-            if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
-            {
-                return new ResultDisplacement(
-                    values[0]._coordinateSystem,
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D1).ToArray()),
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D2).ToArray()),
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.D3).ToArray()),
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R1).ToArray()),
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R2).ToArray()),
-                    Utilities.Maths.Averages.ArithmeticMean(values.Select(i => i.R3).ToArray()));
-            }
-            else
-            {
-                throw new NotImplementedException();
-
-            }
-
-        }
-
         public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             if (obj1 is null)
@@ -286,7 +269,6 @@ namespace GPC.Model.Results
 
             return obj1.Equals(obj2);
         }
-
 
         public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
         {
@@ -302,7 +284,7 @@ namespace GPC.Model.Results
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
                 return new ResultDisplacement(
-                    obj1._coordinateSystem, 
+                    obj1._coordinateSystem,
                     obj1._d1 + obj2._d1,
                     obj1._d2 + obj2._d2,
                     obj1._d3 + obj2._d3,
@@ -322,7 +304,7 @@ namespace GPC.Model.Results
                 var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
                 return new ResultDisplacement(
-                    obj1._coordinateSystem, 
+                    obj1._coordinateSystem,
                     obj1._d1 + obj2GlobalDispToObj1.X,
                     obj1._d2 + obj2GlobalDispToObj1.Y,
                     obj1._d3 + obj2GlobalDispToObj1.Z,
@@ -341,7 +323,7 @@ namespace GPC.Model.Results
             if (obj1._coordinateSystem.Equals(obj2._coordinateSystem))
             {
                 return new ResultDisplacement(
-                    obj1._coordinateSystem, 
+                    obj1._coordinateSystem,
                     obj1._d1 - obj2._d1,
                     obj1._d2 - obj2._d2,
                     obj1._d3 - obj2._d3,
@@ -361,7 +343,7 @@ namespace GPC.Model.Results
                 var obj2GlobalRotToObj2 = obj1._coordinateSystem.ToLocal(obj2GlobalDisp.rotations);   // rotazioni nel locale di obj1
 
                 return new ResultDisplacement(
-                    obj1._coordinateSystem, 
+                    obj1._coordinateSystem,
                     obj1._d1 - obj2GlobalDispToObj1.X,
                     obj1._d2 - obj2GlobalDispToObj1.Y,
                     obj1._d3 - obj2GlobalDispToObj1.Z,
@@ -378,7 +360,7 @@ namespace GPC.Model.Results
                 throw new ArgumentNullException();
 
             return new ResultDisplacement(
-                obj1._coordinateSystem, 
+                obj1._coordinateSystem,
                 obj1._d1 * factor,
                 obj1._d2 * factor,
                 obj1._d3 * factor,

@@ -1,4 +1,5 @@
-﻿using GPC.Model.Combinations;
+using GPC.Model.Collections;
+using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -290,7 +291,7 @@ namespace GPC.Model.Standards
 
         #region PUBLIC METHOD
 
-        public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
+        public UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
             if (loadCases.Any(i => i is ClimateLoadCase))
             {
@@ -300,7 +301,7 @@ namespace GPC.Model.Standards
             int idProg = 1;
             Combination.CombinationCoefficientEqualityComparer equalityComparer = new Combination.CombinationCoefficientEqualityComparer();
             HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
-            CombinationsCollection combinations = new CombinationsCollection();
+            UniqueNameCollection<Combination> combinations = new UniqueNameCollection<Combination>();
 
             if (((ASCE16CombinationsOptions)options).LimitState == StandardASCE16.LimitStates.LFRD)
             {
@@ -547,7 +548,7 @@ namespace GPC.Model.Standards
                 throw new ArgumentException("Fail to generate");
 
             foreach (Combination comb in combinationsHashSet)
-                combinations.Add(comb);
+                combinations.Add(comb.Name, comb);
             return combinations;
         }
 
@@ -972,7 +973,6 @@ namespace GPC.Model.Standards
         }
 
         #endregion
-
 
         #region ASD
 
@@ -1440,11 +1440,9 @@ namespace GPC.Model.Standards
 
         #endregion
 
-
         #endregion
 
         #region PUBLIC OVERRIDE METHODS
-
 
         public object Clone(string name)
         {
@@ -1465,7 +1463,6 @@ namespace GPC.Model.Standards
             var duplicated = (Combination)Clone(nameOverride);
             return duplicated;
         }
-
 
         public override bool Equals(object obj)
         {

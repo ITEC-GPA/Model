@@ -8,37 +8,62 @@ namespace GPC.Model.Loads
 {
     public class LineLoad : Load, ILineLoad, IConvertibleLoad
     {
-        // Classe load e derivate deve rimanere immutabile 
+        #region Variables
 
         // sono forze per unità di lunghezza ( F / L )
-        protected readonly double _f1;                 
-        protected readonly double _f2;
-        protected readonly double _f3;
+        protected double _f1;
+        protected double _f2;
+        protected double _f3;
 
         // sono momenti per unità di lunghezza ( F * L / L )
-        protected readonly double _m1;                
-        protected readonly double _m2;
-        protected readonly double _m3;
+        protected double _m1;
+        protected double _m2;
+        protected double _m3;
 
-        protected readonly CoordinateSystem _coordinateSystem;
+        protected Line3d _line;
 
-        protected readonly Line3d _line;
+        #endregion
 
-        public double F1 => _f1;
-        public double F2 => _f2;
-        public double F3 => _f3;
-        public double M1 => _m1;
-        public double M2 => _m2;
-        public double M3 => _m3;
+        #region Properties
+
+        /// <summary>
+        /// Force load component in V1 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double F1 { get => _f1; set => _f1 = value; }
+
+        /// <summary>
+        /// Force load component in V2 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double F2 { get => _f2; set => _f2 = value; }
+
+        /// <summary>
+        /// Force load component in V3 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double F3 { get => _f3; set => _f3 = value; }
+
+        /// <summary>
+        /// Moment load component around V1 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double M1 { get => _m1; set => _m1 = value; }
+
+        /// <summary>
+        /// Moment load component around V2 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double M2 { get => _m2; set => _m2 = value; }
+
+        /// <summary>
+        /// Moment load component around V3 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double M3 { get => _m3; set => _m3 = value; }
 
         /// <summary>
         /// Line in the global reference system
         /// </summary>
-        public Line3d Line => _line;
+        public Line3d Line { get => _line; set => _line = value; }
 
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        #endregion
 
-        #region Costruttori
+        #region Constructor
 
         /// <param name="f1">Unit measure [F/L]</param>
         /// <param name="f2">Unit measure [F/L]</param>
@@ -49,9 +74,9 @@ namespace GPC.Model.Loads
         /// <param name="line">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem">Orientation of the load</param>
-        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3,
-                        Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
-            : base(loadCase, Guid.NewGuid())
+        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase,
+            CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : base(loadCase, coordinateSystem, name, id)
         {
             _f1 = f1;
             _f2 = f2;
@@ -59,10 +84,8 @@ namespace GPC.Model.Loads
             _m1 = m1;
             _m2 = m2;
             _m3 = m3;
-            _coordinateSystem = coordinateSystem ?? throw new ArgumentNullException("Coordinate system cannot be null");
             _line = line ?? throw new ArgumentNullException("Line cannot be null");
         }
-
 
         /// <param name="f1">Unit measure [F/L]</param>
         /// <param name="f2">Unit measure [F/L]</param>
@@ -73,31 +96,30 @@ namespace GPC.Model.Loads
         /// <param name="line">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
-        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase)
-            : this(f1, f2, f3, m1, m2, m3, line, loadCase, CoordinateSystem.Global)
+        public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
+            : this(f1, f2, f3, m1, m2, m3, line, loadCase, CoordinateSystem.Global, name, id)
         {
 
         }
-
 
         /// <param name="force"></param>
         /// <param name="moment"></param>
         /// <param name="line">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem">Orientation of the load</param>
-        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
-            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, coordinateSystem)
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, coordinateSystem, name, id)
         {
 
-        } 
-        #endregion
+        }
 
-        public Line3d GetGeometry() => _line;
+        public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
+            : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, CoordinateSystem.Global, name, id)
+        {
 
-        public override GeometryBase GetGeometryBase() => GetGeometry();
+        }
 
-
-        public LineLoad(SerializationInfo info, StreamingContext context)
+        protected LineLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _f1 = info.GetDouble("F1");
@@ -110,20 +132,7 @@ namespace GPC.Model.Loads
             _line = (Line3d)info.GetValue("Line3d", typeof(Line3d));
         }
 
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("F1", _f1);
-            info.AddValue("F2", _f2);
-            info.AddValue("F3", _f3);
-            info.AddValue("M1", _m1);
-            info.AddValue("M2", _m2);
-            info.AddValue("M3", _m3);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
-            info.AddValue("Line3d", _line);
-        }
-
+        #endregion
 
         #region Convert to area load
 
@@ -135,14 +144,14 @@ namespace GPC.Model.Loads
             Line3d line = (Line3d)_line.Clone();
             double lineLenght = _line.GetLength();
 
-            CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
+            //CoordinateSystem referenceCoordinateSystem = referencePlane.GetCoordinateSystem();
 
             Vector3d normalVector = referencePlane.Normal;
             normalVector.Unitize();
 
             //var lineGlobal = CoordinateSystem.ToGlobal(line);
 
-            Vector3d lineVector = new Vector3d(line.Start, line.End); 
+            Vector3d lineVector = new Vector3d(line.Start, line.End);
             Vector3d movementVector = normalVector.CrossProduct(lineVector); // calcolo il vettore spostamento come prodottovettore tra la normale del piano di rif e la linea
 
             movementVector.Unitize();
@@ -171,7 +180,7 @@ namespace GPC.Model.Loads
             // creo shape con coordinate nel globale
             Shape loadShape = new Shape(loadPerimeterGlobal); // TODO: tagliare con bordo esterno shape nel caso sbordi
 
-                        
+
             // devo convertire il carico dal sistema _coordinateSystem
             // al sistema globale
 
@@ -184,7 +193,7 @@ namespace GPC.Model.Loads
                                 loadVectorGlobal.Y * lineLenght / loadArea,
                                 loadVectorGlobal.Z * lineLenght / loadArea,
                                 loadShape,
-                                LoadCase, 
+                                LoadCase,
                                 CoordinateSystem.Global);
         }
 
@@ -193,7 +202,6 @@ namespace GPC.Model.Loads
         /// <remarks>Moments will be lost. Only the force normal part will be keepeed</remarks>
         public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
         {
-
             Line3d line = (Line3d)_line.Clone();
             double lineLenght = _line.GetLength();
 
@@ -217,34 +225,32 @@ namespace GPC.Model.Loads
             Point3d p3 = line.End.CloneAndMove(movementVector);
             Point3d p4 = line.Start.CloneAndMove(movementVector);
 
-            var loadPerimeterGlobal = new Polygon3d()
-                                    {
-                                        p1,
-                                        p2,
-                                        p3,
-                                        p4
-                                    };
+            Polygon3d loadPerimeterGlobal = new Polygon3d() { p1, p2, p3, p4 };
 
             if (!loadPerimeterGlobal.IsRightHandOrdered())
             {
                 loadPerimeterGlobal.Reverse();
             }
 
-            var loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
+            Polygon2d loadPerimeterReference = referenceCoordinateSystem.ToLocal(loadPerimeterGlobal);
 
             Shape loadShape = new Shape(loadPerimeterReference); // TODO: tagliare con bordo esterno shape nel caso sbordi
             double loadArea = loadShape.GetArea();
 
             Vector3d loadVector = new Vector3d(F1, F2, F3);
-            var loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
-            var loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
+            Vector3d loadVectorGlobal = _coordinateSystem.ToGlobal(loadVector);
+            Vector3d loadVectorReference = referenceCoordinateSystem.ToLocal(loadVectorGlobal);
 
-            return new NormalAreaLoad(loadVectorReference.Z * lineLenght / loadArea, loadShape, LoadCase);
-
+            return new NormalAreaLoad(loadVectorReference.Z * lineLenght / loadArea, loadShape, LoadCase, referenceCoordinateSystem);
         }
 
         #endregion
 
+        #region Public Methods
+
+        public Line3d GetGeometry() => _line;
+
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
         /// <returns>The total local load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
         public (Vector3d force, Vector3d moment) GetLocalLoadVector()
@@ -252,7 +258,6 @@ namespace GPC.Model.Loads
             double line = _line.GetLength();
             return (new Vector3d(_f1 * line, _f2 * line, _f3 * line), new Vector3d(_m1 * line, _m2 * line, _m3 * line));
         }
-
 
         /// <returns>The total global load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
         public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
@@ -281,10 +286,10 @@ namespace GPC.Model.Loads
             // Crea un array di double in le 3 componenti di forza e di momento
             // nelle 3 direzioni del sistema di coordinate locali.
 
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);           
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);          
-                                                                        
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);        
+            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);
+            Point3d momentglobal = new Point3d(_m1, _m2, _m3);
+
+            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);
             Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
 
             Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
@@ -303,7 +308,6 @@ namespace GPC.Model.Loads
             return pointLoad;
         }
 
-
         /// <summary>
         /// Return the lineload in a global coordinate system
         /// </summary>
@@ -312,31 +316,20 @@ namespace GPC.Model.Loads
             // Cambia le proprietà del LineLoad passando da un sistema di riferimento globale
             // ad un sistema di rifarimento locale.
 
-
-            return new LineLoad(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)),
-                                _coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)),
-                                _line,
-                                LoadCase, 
-                                CoordinateSystem.Global);
+            return new LineLoad(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)), _coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)),
+                _line, LoadCase, CoordinateSystem.Global);
         }
-
 
         /// <summary>
         /// Return the lineload in a local coordinate system
         /// </summary>
         public LineLoad ToLocal(CoordinateSystem cSys)
         {
-
             Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
             Vector3d momentLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_m1, _m2, _m3)));
             // Line3d lineLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(_line)); la linea non va cambiata dato che sempre riferita al globale
 
-
-            return new LineLoad(forceLocal,
-                                 momentLocal,
-                                 _line,
-                                 LoadCase,
-                                 cSys);
+            return new LineLoad(forceLocal, momentLocal, _line, LoadCase, cSys);
         }
 
         /// <summary>
@@ -350,7 +343,6 @@ namespace GPC.Model.Loads
 
             Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
             Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
-
 
             double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
             double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
@@ -370,17 +362,36 @@ namespace GPC.Model.Loads
             return PointLoad;
         }
 
+        #endregion
 
         #region Equals, HasCode and operators
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("F1", _f1);
+            info.AddValue("F2", _f2);
+            info.AddValue("F3", _f3);
+            info.AddValue("M1", _m1);
+            info.AddValue("M2", _m2);
+            info.AddValue("M3", _m3);
+            info.AddValue("Line3d", _line);
+        }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return (obj is LineLoad objCasted) && _line.Equals(objCasted._line) && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                               && _f1.Equals(objCasted._f1) && _f2.Equals(objCasted._f2) && _f3.Equals(objCasted._f3)
-                                               && _m1.Equals(objCasted._m1) && _m2.Equals(objCasted._m2) && _m3.Equals(objCasted._m3) && base.Equals(objCasted);
+            return (obj is LineLoad objCasted) &&
+                _line.Equals(objCasted._line) &&
+                _f1.Equals(objCasted._f1) &&
+                _f2.Equals(objCasted._f2) &&
+                _f3.Equals(objCasted._f3) &&
+                _m1.Equals(objCasted._m1) &&
+                _m2.Equals(objCasted._m2) &&
+                _m3.Equals(objCasted._m3) &&
+                base.Equals(objCasted);
         }
 
         public override int GetHashCode()
@@ -395,7 +406,6 @@ namespace GPC.Model.Loads
                 hashCode = hashCode * -17 + _m1.GetHashCode();
                 hashCode = hashCode * -17 + _m2.GetHashCode();
                 hashCode = hashCode * -17 + _m3.GetHashCode();
-                hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
                 hashCode = hashCode * -17 + EqualityComparer<Line3d>.Default.GetHashCode(_line);
                 return hashCode;
             }
@@ -418,6 +428,7 @@ namespace GPC.Model.Loads
         {
             return !(obj1 == obj2);
         }
+
         #endregion
     }
 }

@@ -26,29 +26,29 @@ namespace GPC.Model.LoadCases
 
         #region Class Variables
 
-        private readonly Seasons _season;
-        private readonly ClimateTypes _climateType;
-        private readonly double _manufactoring;
-        private readonly double _installation;
+        private Seasons _season;
+        private ClimateTypes _climateType;
+        private double _manufactoring;
+        private double _installation;
 
         #endregion
 
         #region Properties
 
-        public Seasons Season => _season;
+        public Seasons Season { get => _season; set => _season = value; }
 
-        public ClimateTypes ClimateType => _climateType;
+        public ClimateTypes ClimateType { get => _climateType; set => _climateType = value; }
 
-        public double Manufactoring => _manufactoring;
+        public double Manufactoring { get => _manufactoring; set => _manufactoring = value; }
 
-        public double Installation => _installation;
+        public double Installation { get => _installation; set => _installation = value; }
 
         #endregion
 
         #region Constructors
 
-        public ClimateLoadCase(string name, Seasons season, ClimateTypes climateType, double manufactoring, double installation, Guid guid)
-            : base (name, guid)
+        public ClimateLoadCase(string name, Seasons season, ClimateTypes climateType, double manufactoring, double installation)
+            : base(name)
         {
             _season = season;
             _climateType = climateType;
@@ -56,12 +56,7 @@ namespace GPC.Model.LoadCases
             _installation = installation;
         }
 
-        public ClimateLoadCase(string name, Seasons season, ClimateTypes climateType, double manufactoring, double installation)
-            : this(name, season, climateType, manufactoring, installation, Guid.NewGuid())
-        {
-        }
-
-        public ClimateLoadCase(SerializationInfo info, StreamingContext context)
+        protected ClimateLoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _season = (Seasons)info.GetValue("Season", typeof(Seasons));
@@ -71,6 +66,8 @@ namespace GPC.Model.LoadCases
         }
 
         #endregion
+
+        #region Methods
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -89,14 +86,12 @@ namespace GPC.Model.LoadCases
             if (ReferenceEquals(this, obj))
                 return true;
 
-            ClimateLoadCase clc = obj as ClimateLoadCase;
-
-            return !(clc is null)
-                   && base.Equals(obj)
-                   && _season == clc._season
-                   && _climateType == clc._climateType
-                   && _manufactoring == clc._manufactoring
-                   && _installation == clc._installation;
+            return !(!(obj is ClimateLoadCase clc)) &&
+                base.Equals(obj) &&
+                _season == clc._season &&
+                _climateType == clc._climateType &&
+                _manufactoring == clc._manufactoring &&
+                _installation == clc._installation;
         }
 
         public override int GetHashCode()
@@ -109,8 +104,10 @@ namespace GPC.Model.LoadCases
                 hashCode = hashCode * -17 + _climateType.GetHashCode();
                 hashCode = hashCode * -17 + _manufactoring.GetHashCode();
                 hashCode = hashCode * -17 + _installation.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
+
+        #endregion
     }
 }

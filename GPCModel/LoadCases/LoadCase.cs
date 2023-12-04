@@ -29,22 +29,20 @@ namespace GPC.Model.LoadCases
 
         #region VARIABLES
 
-        private readonly LoadCaseTypes _loadCaseType;
+        private LoadCaseTypes _loadCaseType;
 
-        #endregion 
+        #endregion
 
-        public LoadCaseTypes LoadCaseType => _loadCaseType;
+        #region Properties
+
+        public LoadCaseTypes LoadCaseType { get => _loadCaseType; set => _loadCaseType = value; }
+
+        #endregion
 
         #region PUBLIC CONSTRUCTORS
 
         public LoadCase(string name, LoadCaseTypes loadCaseType)
-            : this(name, loadCaseType, Guid.NewGuid())
-        {
-
-        }
-
-        public LoadCase(string name, LoadCaseTypes loadCaseType, Guid guid)
-            : base(name, guid)
+            : base(name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Loadcase name cannot be empty");
@@ -60,6 +58,8 @@ namespace GPC.Model.LoadCases
 
         #endregion
 
+        #region Methods
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -70,7 +70,6 @@ namespace GPC.Model.LoadCases
         public override bool Equals(object obj)
         {
             LoadCase lc = obj as LoadCase;
-
             return lc != null && base.Equals(lc) && _loadCaseType.Equals(lc._loadCaseType);
         }
 
@@ -81,7 +80,7 @@ namespace GPC.Model.LoadCases
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _loadCaseType.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
@@ -105,5 +104,7 @@ namespace GPC.Model.LoadCases
         {
             return $"LoadCase {Name} {_loadCaseType}";
         }
+
+        #endregion
     }
 }

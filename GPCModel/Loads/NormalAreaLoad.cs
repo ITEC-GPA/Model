@@ -9,34 +9,32 @@ namespace GPC.Model.Loads
     [Serializable]
     public class NormalAreaLoad : Load, IAreaLoad
     {
-        // Classe load e derivate deve rimanere immutabile 
+        #region Variables
 
-        protected readonly double _pressure;
-        protected readonly Shape _shape;
-        private readonly CoordinateSystem _coordinateSystem;
+        protected double _pressure;
+        protected Shape _shape;
+
+        #endregion
 
         #region Properties
 
-        public double Pressure => _pressure;
+        public double Pressure { get => _pressure; set => _pressure = value; }
 
-        public Shape Shape => _shape;
-
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        public Shape Shape { get => _shape; set => _shape = value; }
 
         #endregion
 
         #region Public constructors 
-        
-        public NormalAreaLoad(double pressure, Shape shape, LoadCaseBase loadCase)
-            : base(loadCase, Guid.NewGuid())
+
+        public NormalAreaLoad(double pressure, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : base(loadCase, coordinateSystem, name, id)
         {
             _pressure = pressure;
             _shape = shape ?? throw new ArgumentNullException("Shape cannot be null");
             _coordinateSystem = shape.GetCoordinateSystem();
         }
 
-
-        public NormalAreaLoad(SerializationInfo info, StreamingContext context)
+        protected NormalAreaLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _pressure = info.GetDouble("Pressure");
@@ -46,9 +44,11 @@ namespace GPC.Model.Loads
 
         #endregion
 
-        public Shape GetGeometry() => _shape;
-        public override GeometryBase GetGeometryBase() => GetGeometry();
+        #region Methods
 
+        public Shape GetGeometry() => _shape;
+
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
         /// <returns>The total load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>
         public Vector3d GetLocalLoadVector()
@@ -62,12 +62,12 @@ namespace GPC.Model.Loads
             if (_shape.GetCoordinateSystem() == CoordinateSystem.Global)
                 return GetLocalLoadVector();
             else
-            {
                 return _shape.GetCoordinateSystem().ToGlobal(GetLocalLoadVector());
-            }
         }
 
+        #endregion
 
+        #region Equals, HasCode and operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -77,18 +77,15 @@ namespace GPC.Model.Loads
             info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
-
-
-        #region Equals, HasCode and operators
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return (obj is NormalAreaLoad objCasted) && _shape.Equals(objCasted._shape) 
-                                                     && _pressure.Equals(objCasted._pressure)
-                                                     && base.Equals(objCasted);
+            return (obj is NormalAreaLoad objCasted) &&
+                _shape.Equals(objCasted._shape) &&
+                _pressure.Equals(objCasted._pressure) &&
+                base.Equals(objCasted);
         }
 
         public override int GetHashCode()

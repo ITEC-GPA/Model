@@ -9,45 +9,67 @@ namespace GPC.Model.Loads
     [Serializable]
     public abstract class Load : ModelObjectId
     {
-        // Classe load e derivate deve rimanere immutabile 
+        #region Variables
 
-        private readonly LoadCaseBase _loadCase;
+        private LoadCaseBase _loadCase;
+        protected CoordinateSystem _coordinateSystem;
 
-        public LoadCaseBase LoadCase => _loadCase;
+        #endregion
 
-        protected Load(LoadCaseBase loadCase)
-            : this(loadCase, Guid.NewGuid())
+        #region Properties
+
+        /// <summary>
+        /// Load case associated with the load
+        /// </summary>
+        public LoadCaseBase LoadCase { get => _loadCase; set => _loadCase = value; }
+
+        public string LoadCaseName { get => _loadCase.Name; }
+
+        /// <summary>
+        /// reference system of the load
+        /// </summary>
+        public CoordinateSystem CoordinateSystem { get => _coordinateSystem; set => _coordinateSystem = value; }
+
+        #endregion
+
+        #region Constructor
+
+        protected Load(LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name, int id)
+            : base(id, name)
         {
-        }
-
-        protected Load(LoadCaseBase loadCase, Guid guid)
-            : base(guid)
-        {
-            _loadCase = loadCase ?? throw new ArgumentNullException(nameof(loadCase));
+            _loadCase = loadCase;
+            _coordinateSystem = coordinateSystem;
         }
 
         protected Load(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
+            _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
+
+        #endregion
+
+        #region Equals, HashCode and operators
+
+        public abstract GeometryBase GetGeometryBase();
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("LoadCase", _loadCase);
+            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
-
-        public abstract GeometryBase GetGeometryBase();
-
-        #region Equals, HashCode and operators
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return obj is Load load && EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) && base.Equals(obj);
+            return obj is Load load &&
+                EqualityComparer<LoadCaseBase>.Default.Equals(_loadCase, load._loadCase) &&
+                _coordinateSystem.Equals(load.CoordinateSystem) &&
+                base.Equals(obj);
         }
 
         public override int GetHashCode()
@@ -56,8 +78,9 @@ namespace GPC.Model.Loads
             {
                 int hashCode = -23 * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<LoadCaseBase>.Default.GetHashCode(_loadCase);
+                hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
 
-                return hashCode; 
+                return hashCode;
             }
         }
 

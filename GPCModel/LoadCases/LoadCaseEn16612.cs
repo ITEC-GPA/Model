@@ -11,6 +11,7 @@ namespace GPC.Model.LoadCases
     public class LoadCaseEn16612 : LoadCase, ISerializable
     {
         #region PUBLIC ENUMS
+
         public enum LoadCaseEn16612Types
         {
             [Description("Wind gust load mediterranean")] WindGustLoadMediterranean,
@@ -26,25 +27,38 @@ namespace GPC.Model.LoadCases
             //[Description("Climatic summer")] ClimaticSummer,
             //[Description("Climatic winter")] ClimaticWinter,
         }
+
         #endregion
 
-        private readonly LoadCaseEn16612Types _loadCaseEn16612Type;
+        #region Variables
+
+        private LoadCaseEn16612Types _loadCaseEn16612Type;
+
+        #endregion
+
+        #region Properties
+
+        public LoadCaseEn16612Types LoadCaseEn16612Type { get => _loadCaseEn16612Type; set => _loadCaseEn16612Type = value; }
+
+        #endregion
 
         #region PUBLIC CONSTRUCTOR
 
-        public LoadCaseEn16612(string name, LoadCaseTypes loadCaseType, LoadCaseEn16612Types loadCaseEn16612Type, Guid guid)
-            : base(name, loadCaseType, guid)
+        public LoadCaseEn16612(string name, LoadCaseTypes loadCaseType, LoadCaseEn16612Types loadCaseEn16612Type)
+            : base(name, loadCaseType)
         {
-            this._loadCaseEn16612Type = loadCaseEn16612Type;
+            _loadCaseEn16612Type = loadCaseEn16612Type;
         }
 
-        public LoadCaseEn16612(SerializationInfo info, StreamingContext context)
+        protected LoadCaseEn16612(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _loadCaseEn16612Type = (LoadCaseEn16612Types)info.GetValue("LoadCaseEn16612Type", typeof(LoadCaseEn16612Types));
         }
 
         #endregion
+
+        #region Methods
 
         public LoadCaseEn16612Types GetLoadCasePrEnType() => _loadCaseEn16612Type;
 
@@ -72,10 +86,9 @@ namespace GPC.Model.LoadCases
                 int hashCode = 23;
                 hashCode = hashCode * -17 + base.GetHashCode();
                 hashCode = hashCode * -17 + _loadCaseEn16612Type.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
-
 
         public static bool operator ==(LoadCaseEn16612 obj1, LoadCaseEn16612 obj2)
         {
@@ -94,5 +107,7 @@ namespace GPC.Model.LoadCases
         {
             return !(obj1 == obj2);
         }
+
+        #endregion
     }
 }
