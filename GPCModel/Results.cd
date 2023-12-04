@@ -1,39 +1,151 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="GPC.Model.Results.ResultStress" Collapsed="true">
-    <Position X="5.5" Y="6.25" Width="2" />
+  <Class Name="GPC.Model.Results.ElementResults.ElementResult" Collapsed="true">
+    <Position X="23.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAABAJACAEAAgAUA4AHAAIAmAgBIAIAAgAAxAAGAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultStress.cs</FileName>
+      <HashCode>AAAAAAAAAAAQAAAAgAAACAAgCAAAAIAAAAAAAIAAAiA=</HashCode>
+      <FileName>Results\ElementResults\ElementResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Results.ResultType" Collapsed="true">
-    <Position X="8.25" Y="4" Width="1.5" />
+  <Class Name="GPC.Model.Results.ElementResults.BeamResult" Collapsed="true">
+    <Position X="20.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAIAAAAAAAAAAAAAgAAAAAAgAAAAAIAAgAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultType.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ElementResults\BeamResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ElementResults.BrickElementResult" Collapsed="true">
+    <Position X="22.5" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ElementResults\BrickElementResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ElementResults.NodeResult" Collapsed="true">
+    <Position X="24.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ElementResults\NodeResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ElementResults.PlateElementResult" Collapsed="true">
+    <Position X="26.5" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ElementResults\PlateElementResult.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.ResultLocation" Collapsed="true">
+    <Position X="9.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAQAQAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\ResultLocation.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.BrickPointResultDisplacement" Collapsed="true">
+    <Position X="1" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAwAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\BrickPointResultDisplacement.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.BrickPointResultForces" Collapsed="true">
+    <Position X="3.75" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAgAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\BrickPointResultForces.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.NodeResultDisplacement" Collapsed="true">
+    <Position X="6" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAwAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\NodeResultDisplacement.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.NodeResultForces" Collapsed="true">
+    <Position X="8.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\NodeResultForces.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.PointResultDisplacement" Collapsed="true">
+    <Position X="10" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAwAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\PointResultDisplacement.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.PointResultPlateStress" Collapsed="true">
+    <Position X="12.25" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAgAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\PointResultPlateStress.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.StationResultBeamForces" Collapsed="true">
+    <Position X="14.5" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAABAAAAAgAAAAAAgACAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\StationResultBeamForces.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Results.ResultLocations.StationResultDisplacement" Collapsed="true">
+    <Position X="16.75" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAwAAAAAAgACAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultLocations\StationResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.ModelObjectId" Collapsed="true">
-    <Position X="13.5" Y="0.5" Width="1.5" />
+    <Position X="16.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAAAgABAAAAgAAAAAIAIAAAAAAAAAiA=</HashCode>
       <FileName>Base\ModelObjectId.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="GPC.Model.Results.ResultType" Collapsed="true">
+    <Position X="34.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAgAAAAAAgAAAAAIAAgAAAAAAAAiA=</HashCode>
+      <FileName>Results\ResultTypes\ResultType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
   <Class Name="GPC.Model.Results.ResultBeamForces" Collapsed="true">
-    <Position X="2.75" Y="6.25" Width="2" />
+    <Position X="29.75" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAABABCBAAAAAAAAwAUABCQwAAAAApIAAAAAAhAEAiA=</HashCode>
       <FileName>Results\ResultTypes\ResultBeamForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="GPC.Model.Results.ResultBrickForces" Collapsed="true">
+    <Position X="32" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAARAgAAAAAAEAIAgAAAAAAgAAAAAIAAAMBiQQgAAiA=</HashCode>
+      <FileName>Results\ResultTypes\ResultBrickForces.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
   <Class Name="GPC.Model.Results.ResultDisplacement" Collapsed="true">
-    <Position X="8.25" Y="6.25" Width="2" />
+    <Position X="33.75" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AIABgCAIAAAAACAA4AVAAAA0AiAgAIAIACgAAAAAAiA=</HashCode>
       <FileName>Results\ResultTypes\ResultDisplacement.cs</FileName>
@@ -41,7 +153,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Results.ResultPlateForces" Collapsed="true">
-    <Position X="11" Y="6.25" Width="2" />
+    <Position X="36" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAARAgAAAAAAEAIAgAAAAAAgAAAAAIAAAMBiAAAAAiA=</HashCode>
       <FileName>Results\ResultTypes\ResultPlateForces.cs</FileName>
@@ -49,114 +161,18 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="GPC.Model.Results.ResultPlateStress" Collapsed="true">
-    <Position X="13.5" Y="6.25" Width="2.25" />
+    <Position X="37.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAABEAACEAAAAAgA4IEAAAAwAgEIAIAAABARAACAAiA=</HashCode>
       <FileName>Results\ResultTypes\ResultPlateStress.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="GPC.Model.Results.NodeResult" Collapsed="true">
-    <Position X="25.5" Y="8.75" Width="1.5" />
+  <Class Name="GPC.Model.Results.ResultStress" Collapsed="true">
+    <Position X="39.5" Y="6.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResult\NodeResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ElementResult" Collapsed="true">
-    <Position X="29.25" Y="4.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAiAIAAAAAAQAAAAgAAAAAAgAAAAAIAAACAAAQAAAiA=</HashCode>
-      <FileName>Results\ElementResult\ElementResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.ModelObject" Collapsed="true">
-    <Position X="29.25" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAIAAAAAAAAAAAgIAAACQgBAAABIBAAAAAAAAAAiA=</HashCode>
-      <FileName>Base\ModelObject.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.FiniteElementResult" Collapsed="true">
-    <Position X="29.25" Y="6.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>gAAACAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAAA=</HashCode>
-      <FileName>Results\ElementResult\FiniteElementResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.SectionResult" Collapsed="true">
-    <Position X="31.5" Y="6.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResult\SectionResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ResultLocationId" Collapsed="true">
-    <Position X="17.25" Y="6.25" Width="2" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocation\ResultLocationId.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ResultLocation" Collapsed="true">
-    <Position X="19" Y="4" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>CAAAAAAAAAAAAAAAgAAAAAAgAAAAAYAAAAAQAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocation\ResultLocation.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ResultLocationPoint" Collapsed="true">
-    <Position X="20" Y="6.25" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocation\ResultLocationPoint.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ResultLocationStation" Collapsed="true">
-    <Position X="22.75" Y="6.25" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>AAAABAAAAABQAAAAgAAAAAAgAAAAAIAAAAAAAAAAIiA=</HashCode>
-      <FileName>Results\ResultLocation\ResultLocationStation.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.ResultBrickForces" Collapsed="true">
-    <Position X="0.5" Y="6.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAARAgAAAAAAEAIAgAAAAAAgAAAAAIAAAMBiQQgAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultBrickForces.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.BeamResult" Collapsed="true">
-    <Position X="23.25" Y="8.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAAAAABgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResult\BeamResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.BrickResult" Collapsed="true">
-    <Position X="27.75" Y="8.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResult\BrickResult.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="GPC.Model.Results.PlateResult" Collapsed="true">
-    <Position X="30" Y="8.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResult\PlateResult.cs</FileName>
+      <HashCode>AAABAJACAEAAgAUA4AHAAIAmAgBIAIAAgAAxAAGAAiA=</HashCode>
+      <FileName>Results\ResultTypes\ResultStress.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
