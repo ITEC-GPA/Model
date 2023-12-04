@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="GPC.Model.Elements.Element" Collapsed="true">
+    <Position X="9.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAICAEAAAAAAAAACgAEAAIA4CAAgAIQEgABAAAgAAiA=</HashCode>
+      <FileName>Elements\Element.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.ModelObjectId" Collapsed="true">
+    <Position X="9.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAgABAAAAgAAAAAIAIAAAAAAAAAiA=</HashCode>
+      <FileName>Base\ModelObjectId.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Elements.AreaElement" Collapsed="true">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAgAAAAAAgAAIgAAAAAAgAAAACIAAQAAAABAAAiA=</HashCode>
+      <FileName>Elements\AreaElement.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.Elements.BeamElement" Collapsed="true">
+    <Position X="8.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAACgQAAAgAECAABgAAEAAIAQAAAAAAABAig=</HashCode>
+      <FileName>Elements\BeamElement.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Elements.NodeElement" Collapsed="true">
+    <Position X="10.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAggAAAAAAoAAAAAIAAAAAAgAAAAiA=</HashCode>
+      <FileName>Elements\NodeElement.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GPC.Model.Elements.VolumeElement" Collapsed="true">
+    <Position X="12.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgABAAAAAAAAAAgAAAAAAgAAAAAIAAQAAAABAAAiA=</HashCode>
+      <FileName>Elements\VolumeElement.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.FemBeam" Collapsed="true">
+    <Position X="8.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAEAAAAAAAAQAAQIAAAQAoAAAAAACAAAAAg=</HashCode>
+      <FileName>FiniteElementAnalysis\FiniteElements\Beam\FemBeam.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.EulerBeam" Collapsed="true">
+    <Position X="8.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>FiniteElementAnalysis\FiniteElements\Beam\EulerBeam.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

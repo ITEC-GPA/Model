@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <Compile Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+    <None Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <None Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DelaunayMesh" Version="2.0.0.1" />
     <PackageReference Include="GPCGeometry" Version="2.0.1" />
     <PackageReference Include="GPCUtilities" Version="2.0.0.5" />
@@ -14,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="FiniteElementAnalysis\FiniteElements\Brick\" />
-    <Folder Include="FiniteElementAnalysis\FiniteElements\Plate\" />
     <Folder Include="Materials\Aluminium\" />
   </ItemGroup>
 
