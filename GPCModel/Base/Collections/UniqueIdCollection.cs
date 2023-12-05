@@ -97,7 +97,7 @@ namespace GPC.Model.Collections
 
         public new void Clear()
         {
-            Clear();
+            base.Clear();
             _maxId = 0;
         }
 
