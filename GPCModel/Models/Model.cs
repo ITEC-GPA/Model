@@ -470,14 +470,20 @@ namespace GPC.Model.Models
                 _nodesElements.Add(new NodeElement(beamElement.StartPoint));
                 _nodesElements.Add(new NodeElement(beamElement.EndPoint));
                 _beamElements.Add(beamElement);
-                _beamProperties.Add(beamElement.Name, beamElement.BeamProperty);
+                if (!_beamProperties.ContainsKey(beamElement.BeamProperty.Name))
+                    _beamProperties.Add(beamElement.BeamProperty.Name, beamElement.BeamProperty);
+                else
+                    _beamProperties[beamElement.BeamProperty.Name] = beamElement.BeamProperty;
             }
             else if (finiteElement is AreaElement areaElement)
             {
                 for (int i = 0; i < areaElement.Points.Length; i++)
                     _nodesElements.Add(new NodeElement(areaElement.Points[i]));
                 _areaElements.Add(areaElement);
-                _areaProperties.Add(areaElement.Name, areaElement.PlateProperty);
+                if (!_areaProperties.ContainsKey(areaElement.PlateProperty.Name))
+                    _areaProperties.Add(areaElement.PlateProperty.Name, areaElement.PlateProperty);
+                else
+                    _areaProperties[areaElement.PlateProperty.Name] = areaElement.PlateProperty;
             }
             else if (finiteElement is VolumeElement)
             {
