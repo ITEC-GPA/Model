@@ -1,4 +1,5 @@
-﻿using GPC.Model.Combinations;
+using GPC.Model.Collections;
+using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
@@ -38,9 +39,8 @@ namespace GPC.Model.Standards
 
         public double GammaM2 { get => _gammaM2; set => _gammaM2 = value; }
 
-        public override StandardGroupType StandardGroup => StandardGroupType.HongKong;
-
         #endregion
+        public override StandardGroupType StandardGroup => StandardGroupType.HongKong;
 
         #region Public Constructor
 
@@ -69,7 +69,7 @@ namespace GPC.Model.Standards
 
         #endregion
 
-        public CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
+        public UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
             throw new NotImplementedException();
         }

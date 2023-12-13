@@ -1,124 +1,38 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GPC.Model
+namespace GPC.Model.Collections
 {
     [Serializable]
-    public abstract class SortedCollection<T> : IEnumerable<T>, ISerializable where T : ModelObjectId, INotifyPropertyChanged
+    public class SortedCollection<T> : SortedDictionary<int, T>, ISerializable where T : ModelObjectId
     {
-        protected readonly object _locker = new object();
-        protected readonly List<T> _collection;
+        #region Variables
+
         protected int _lastId;
-        protected bool _autoSort;
 
-        /// <summary>
-        /// Get the private static comparer used to sort the collection
-        /// </summary>
-        public abstract IComparer<T> Comparer { get; }
+        #endregion
 
-        /// <summary>
-        /// Get an item by his id
-        /// </summary>
-        /// <param name="id">The Id of the item to retrieve</param>
-        /// <returns>The node foud or null if it not exists</returns>
-        public T this[int id] => GetById(id);
-
-        public int Count => _collection.Count;
-
-        public bool AutoSort
-        {
-            get => _autoSort;
-            set
-            {
-                if (_autoSort == false && value == true) // Force sorting when the AutoSort is activated
-                    Sort();
-                _autoSort = value;
-            }
-        }
+        #region Constructor
 
         public SortedCollection()
         {
-            _collection = new List<T>();
-            _lastId = 1;
-            _autoSort = true;
+            _lastId = 0;
         }
 
         protected SortedCollection(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
-                throw new ArgumentNullException("info can't be null");
-
-            _collection = (List<T>)info.GetValue("Collection", typeof(List<T>));
             _lastId = info.GetInt32("LastId");
-            _autoSort = info.GetBoolean("AutoSort");
         }
+
+        #endregion
+
+        #region Methos
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
-                throw new ArgumentNullException("info can't be null");
-            info.AddValue("Collection", _collection, typeof(List<T>));
             info.AddValue("LastId", _lastId);
-            info.AddValue("AutoSort", _autoSort);
-        }
-
-        /// <summary>
-        /// Get the node index by its id
-        /// </summary>
-        /// <param name="id">The node index</param>
-        public int GetIndexById(int id)
-        {
-            int pos = -1;
-            Parallel.For(0, _collection.Count, (i, state) =>
-            {
-                if (_collection[i].Id == id)
-                {
-                    pos = i;
-                    state.Stop();
-                }
-            });
-            return pos;
-        }
-
-        /// <summary>
-        /// Search an item by its value (the id is not considered). It uses the binary search algorithm of the <see cref="List{T}"/> class
-        /// </summary>
-        /// <param name="item">The item to search</param>
-        /// <returns>The index of the item if found, or a negative value if the item does not exist</returns>
-        protected int GetIndexByValue(T item)
-        {
-            return _collection.BinarySearch(0, 1, item, Comparer);
-        }
-
-        /// <summary>
-        /// Get an item by its Id.
-        /// </summary>
-        /// <param name="id">The id of the item to get</param>
-        /// <returns>The item or null if not exists</returns>
-        public T GetById(int id)
-        {
-            int pos = GetIndexById(id);
-            if (pos >= 0)
-                return _collection[pos];
-            return null;
-        }
-
-        /// <summary>
-        /// Get an item by its index. 
-        /// </summary>
-        /// <param name="index">The node index</param>
-        /// <returns>The note or null if out of range</returns>
-        public T GetByIndex(int index)
-        {
-            if (index > _collection.Count - 1)
-                return null;
-            return _collection[index];
         }
 
         /// <summary>
@@ -128,59 +42,16 @@ namespace GPC.Model
         /// <returns>True if the collection contains the given item</returns>
         public bool Contains(T item)
         {
-            return _collection.BinarySearch(item, Comparer) >= 0;
-        }
-
-        /// <summary>
-        /// Reorder the collection based on the items value
-        /// </summary>
-        public void Sort()
-        {
-            lock (_locker)
-            {
-                T[] items = _collection.ToArray();
-                Array.Sort(items, Comparer);
-                _collection.Clear();
-                _collection.AddRange(items);
-            }
+            return ContainsValue(item);
         }
 
         /// <summary>
         /// Remove all the items from the collection
         /// </summary>
-        public void Clear()
+        public new void Clear()
         {
-            lock (_locker)
-            {
-                _collection.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Copy the ordered collection in the given array
-        /// </summary>
-        /// <param name="array">The array to fill with the nodes of the collection</param>
-        /// <param name="arrayIndex">The 0 based index where to start the copy</param>
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            lock (_locker)
-            {
-                _collection.CopyTo(array, arrayIndex);
-            }
-        }
-
-        /// <summary>
-        /// Returns the inxed of an item
-        /// </summary>
-        /// <param name="item">The item</param>
-        /// <returns>The index of the node or -1 if not exist</returns>
-        public int IndexOf(T item)
-        {
-            lock (_locker)
-            {
-                int pos = _collection.BinarySearch(item, Comparer);
-                return pos >= 0 ? pos : -1;
-            }
+            Clear();
+            _lastId = 0;
         }
 
         /// <summary>
@@ -190,51 +61,25 @@ namespace GPC.Model
         /// <returns>The item Id</returns>
         public int Add(T item)
         {
-            lock (_locker)
+            if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
-                if (AutoSort == false) // When a new node is added force AutoSort enabled
-                    AutoSort = true;
-
-                int pos = _collection.BinarySearch(item, Comparer);
-
-                if (pos < 0) // New not existing item
+                item.Id = ++_lastId;
+                base.Add(item.Id, item);
+                return item.Id;
+            }
+            else
+            {
+                if (ContainsKey(item.Id))
                 {
-                    item.Id = _lastId++;
-
-                    if (pos == -_collection.Count - 1)
-                        _collection.Add(item); // Append to the end of the collection
-                    else
-                        _collection.Insert(-pos - 1, item); // Insert inside to keep the collection ordered
-
-                    item.PropertyChanged += OnItemChanged;
-
+                    this[item.Id] = item;
                     return item.Id;
                 }
-                return _collection[pos].Id;
-            }
-        }
 
-        private void OnItemChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (!_autoSort)
-                return;
-            if (sender is T item)
-            {
-                bool needToMove = false;
-                int currPos = _collection.IndexOf(item);
-                if (currPos > 0 && Comparer.Compare(_collection[currPos - 1], item) >= 0)
-                    needToMove = true;
-                if (currPos < _collection.Count - 1 && Comparer.Compare(_collection[currPos + 1], item) <= 0)
-                    needToMove = true;
-                if (needToMove)
-                {
-                    _collection.RemoveAt(currPos);
-                    int newPos = _collection.BinarySearch(item, Comparer);
-                    if (newPos == -_collection.Count - 1)
-                        _collection.Add(item); // Append to the end of the collection
-                    else
-                        _collection.Insert(-newPos - 1, item); // Insert inside to keep the collection ordered           
-                }
+                if (item.Id > _lastId)
+                    _lastId = item.Id;
+
+                base.Add(item.Id, item);
+                return item.Id;
             }
         }
 
@@ -246,19 +91,14 @@ namespace GPC.Model
         /// <returns>The new item index</returns>
         public int Replace(int id, T item)
         {
-            int i = GetIndexById(id);
-            _collection.RemoveAt(i);
-            int newPos = _collection.BinarySearch(item, Comparer);
-            item.Id = id;
-            if (newPos == -_collection.Count - 1)
+            if (ContainsKey(id))
             {
-                _collection.Add(item); // Append to the end of the collection
-                return _collection.Count - 1;
+                this[id] = item;
+                return item.Id;
             }
             else
             {
-                _collection.Insert(-newPos - 1, item); // Insert inside to keep the collection ordered
-                return -newPos - 1;
+                return ModelObjectId.IDUNASSIGNED;
             }
         }
 
@@ -269,28 +109,18 @@ namespace GPC.Model
         /// <returns>True id success</returns>
         public bool Remove(T item)
         {
-            lock (_locker)
+            if (ContainsValue(item))
             {
-                int pos = _collection.BinarySearch(item, Comparer);
-                if (pos >= 0)
+                foreach (var i in this.Where(kvp => kvp.Value == item).ToList())
                 {
-                    _collection.RemoveAt(pos);
-                    return true;
+                    if (i.Value.Id == _lastId)
+                        _lastId = Keys.Max();
+                    if (!Remove(i.Key))
+                        return false;
                 }
-                return false;
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Remove the item at the given index
-        /// </summary>
-        /// <param name="index">The index of the node to remove</param>
-        public void RemoveAt(int index)
-        {
-            lock (_locker)
-            {
-                _collection.RemoveAt(index);
-            }
+            return false;
         }
 
         /// <summary>
@@ -300,26 +130,9 @@ namespace GPC.Model
         /// <returns>True id success</returns>
         public bool RemoveById(int id)
         {
-            lock (_locker)
-            {
-                int pos = GetIndexById(id);
-                if (pos >= 0)
-                {
-                    _collection.RemoveAt(pos);
-                    return true;
-                }
-                return false;
-            }
+            return Remove(id);
         }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return _collection.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _collection.GetEnumerator();
-        }
+        #endregion
     }
 }

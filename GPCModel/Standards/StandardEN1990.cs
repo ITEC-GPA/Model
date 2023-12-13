@@ -1,4 +1,5 @@
-﻿using GPC.Model.Combinations;
+using GPC.Model.Collections;
+using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -206,12 +207,12 @@ namespace GPC.Model.Standards
         public double Psi2Temperature { get => _psi2Temperature; set => _psi2Temperature = value; }
 
         public override StandardGroupType StandardGroup => StandardGroupType.European;
-
         #endregion
 
         #region PUBLIC CONSTRUCTOR
 
-        public StandardEN1990()
+        public StandardEN1990(string name = "EN 1990:2002/A1:2005", string remarks = "Eurocode - Basis of structural design")
+            : base(name, remarks)
         {
             _gammaGUnfavourableSetA = 1.10;
             _gammaGFavourableSetA = 0.90;
@@ -599,8 +600,6 @@ namespace GPC.Model.Standards
                 }
             }
         }
-
-
 
         #endregion
 
@@ -1110,10 +1109,10 @@ namespace GPC.Model.Standards
         /// <param name="prefix">The common prefix for each combination in the collection (default name is "cmb")</param>
         /// <returns>A collection of combinations</returns>
         /// <exception cref="ArgumentException"> If there are any  climate load in the <paramref name="loadCasesInput"/></exception>
-        public virtual CombinationsCollection CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string prefix = "cmb")
+        public virtual UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCasesInput, CombinationsOptions options, string prefix = "cmb")
         {
             List<LoadCase> loadCases = new List<LoadCase>();
-            foreach (LoadCaseBase loadCase in loadCasesInput)
+            foreach (LoadCaseBase loadCase in loadCasesInput.Cast<LoadCase>())
             {
                 if (loadCase is ClimateLoadCase climateLoadCase)
                     throw new ArgumentException("EN not support climate load: Load case must not be a climate load case");
@@ -1122,7 +1121,7 @@ namespace GPC.Model.Standards
                     loadCases.Add(LoadCaseNormal);
             }
 
-            CombinationsCollection combinations = new CombinationsCollection();
+            UniqueNameCollection<Combination> combinations = new UniqueNameCollection<Combination>();
             Combination.CombinationCoefficientEqualityComparer equalityComparer = new Combination.CombinationCoefficientEqualityComparer();
             HashSet<Combination> combinationsHashSet = new HashSet<Combination>(equalityComparer);
             int idProg = 1;
@@ -1190,7 +1189,7 @@ namespace GPC.Model.Standards
             }
 
             foreach (Combination cmb in combinationsHashSet)
-                combinations.Add(cmb);
+                combinations.Add(cmb.Name, cmb);
 
             return combinations;
         }
@@ -1213,7 +1212,7 @@ namespace GPC.Model.Standards
                 List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMinCoeff(loadCases, options);
 
                 List<LoadCase> list = new List<LoadCase>();
-                foreach (LoadCase loadCase in loadCases)
+                foreach (LoadCase loadCase in loadCases.Cast<LoadCase>())
                 {
                     if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
                         lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
@@ -1252,7 +1251,7 @@ namespace GPC.Model.Standards
                 List<List<Combination.LoadCaseCoefficient>> loadCaseCoefficientsBuffer = GetBasicCombinationsMaxCoeff(loadCases, options);
 
                 List<LoadCase> list = new List<LoadCase>();
-                foreach (LoadCase loadCase in loadCases)
+                foreach (LoadCase loadCase in loadCases.Cast<LoadCase>())
                 {
                     if (loadCase is LoadCase lc && (lc.LoadCaseType != LoadCase.LoadCaseTypes.Prestress && lc.LoadCaseType != LoadCase.LoadCaseTypes.SelfWeight &&
                         lc.LoadCaseType != LoadCase.LoadCaseTypes.SuperImposedDeadLoad && lc.LoadCaseType != LoadCase.LoadCaseTypes.Earthquake))
@@ -1292,19 +1291,19 @@ namespace GPC.Model.Standards
 
 
                 // aggiungo i SelfWeight
-                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiungo i SuperImposedDeadLoad
-                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto i Prestress
-                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
+                foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
@@ -1312,7 +1311,7 @@ namespace GPC.Model.Standards
                 // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
                 if (options.LimitState == LimitStates.UltimateSeismic)
                 {
-                    foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                    foreach (LoadCase loadCase in loadCases.Where(x => x is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake).Cast<LoadCase>())
                     {
                         Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientFavourablePermanentActions(loadCase, options), loadCase);
                         loadCaseCoefficientsBase.Add(lc);
@@ -1340,19 +1339,19 @@ namespace GPC.Model.Standards
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBase = new List<Combination.LoadCaseCoefficient>();
 
                 // aggiungo i SelfWeight
-                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight))
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SelfWeight).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiungo i SuperImposedDeadLoad
-                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad))
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.SuperImposedDeadLoad).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
                 }
                 // aggiunto i Prestress
-                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress))
+                foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Prestress).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                     loadCaseCoefficientsBase.Add(lc);
@@ -1360,7 +1359,7 @@ namespace GPC.Model.Standards
                 // aggiunto il carico sismico se siamo in condizione sismica (come se fosse un permanente perchè non deve variare)
                 if (options.LimitState == StandardEN1990.LimitStates.UltimateSeismic)
                 {
-                    foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake))
+                    foreach (LoadCase loadCase in loadCases.Where(i => i is LoadCase lc && lc.LoadCaseType == LoadCase.LoadCaseTypes.Earthquake).Cast<LoadCase>())
                     {
                         Combination.LoadCaseCoefficient lc = new Combination.LoadCaseCoefficient(GetCoefficientUnfavourablePermanentActions(loadCase, options), loadCase);
                         loadCaseCoefficientsBase.Add(lc);
@@ -1389,7 +1388,7 @@ namespace GPC.Model.Standards
                 List<LoadCase> loadCasesList = new List<LoadCase>();
 
                 // controllo che i carichi siano variabili
-                foreach (LoadCaseBase loadCase in loadCasesInput)
+                foreach (LoadCaseBase loadCase in loadCasesInput.Cast<LoadCase>())
                 {
                     if (loadCase is LoadCase lc)
                     {
@@ -1411,9 +1410,9 @@ namespace GPC.Model.Standards
                     #region LIST, HASHSET E BOOL
 
                     HashSet<LoadCase.LoadCaseTypes> hash = new HashSet<LoadCase.LoadCaseTypes>();
-                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
-                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer2 = new List<Combination.LoadCaseCoefficient>();
-                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer3 = new List<Combination.LoadCaseCoefficient>();
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer;
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer2;
+                    List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer3;
                     List<Combination.LoadCaseCoefficient> loadCaseCoefficientsWindPressure = new List<Combination.LoadCaseCoefficient>();
                     List<Combination.LoadCaseCoefficient> loadCaseCoefficientsWindSuction = new List<Combination.LoadCaseCoefficient>();
                     HashSet<LoadCase.LoadCaseTypes> hashAcc = new HashSet<LoadCase.LoadCaseTypes>();
@@ -1432,7 +1431,7 @@ namespace GPC.Model.Standards
                     #endregion
 
                     // aggiunge tutti i carichi secondari che non siano wind pressure o wind suction. quei due vanno trattati a parte
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    foreach (LoadCase loadCaseAccompanying in loadCases.Cast<LoadCase>())
                     {
                         #region NORMAL LOAD ADD
 
@@ -1459,7 +1458,7 @@ namespace GPC.Model.Standards
                     #region WIND LOAD ADD
 
                     // gestione carichi secondari windsuction
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    foreach (LoadCase loadCaseAccompanying in loadCases.Cast<LoadCase>())
                     {
                         if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindPressure && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindSuction &&
                             !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
@@ -1470,7 +1469,7 @@ namespace GPC.Model.Standards
                     }
 
                     // gestione carichi secondari windpressure
-                    foreach (LoadCase loadCaseAccompanying in loadCases)
+                    foreach (LoadCase loadCaseAccompanying in loadCases.Cast<LoadCase>())
                     {
                         if (loadCaseLead.LoadCaseType != LoadCase.LoadCaseTypes.WindSuction && loadCaseAccompanying.LoadCaseType == LoadCase.LoadCaseTypes.WindPressure &&
                             !loadCaseAccompanying.LoadCaseType.Equals(loadCaseLead.LoadCaseType) && !hashAcc.Contains(loadCaseAccompanying.LoadCaseType))
@@ -1550,7 +1549,7 @@ namespace GPC.Model.Standards
             if (optionsInput is EN1990CombinationsOptions options)
             {
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
-                foreach (LoadCase loadCaseL in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
+                foreach (LoadCase loadCaseL in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient loadCaseCoefficientLead = new Combination.LoadCaseCoefficient(GetCoefficientLeadingVariableAction(loadCaseL, options), loadCaseL);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
@@ -1573,7 +1572,7 @@ namespace GPC.Model.Standards
             if (optionsInput is EN1990CombinationsOptions options)
             {
                 List<Combination.LoadCaseCoefficient> loadCaseCoefficientsBuffer = new List<Combination.LoadCaseCoefficient>();
-                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types))
+                foreach (LoadCase loadCase in loadCases.Where(j => j is LoadCase lc && lc.LoadCaseType == types).Cast<LoadCase>())
                 {
                     Combination.LoadCaseCoefficient loadCaseCoefficientLead = new Combination.LoadCaseCoefficient(GetCoefficientAccompanyingVariableAction(loadCase, options), loadCase);
                     loadCaseCoefficientsBuffer.Add(loadCaseCoefficientLead);
@@ -1728,7 +1727,6 @@ namespace GPC.Model.Standards
             throw new ArgumentException("Failed to set the coefficient for leading variable actions");
         }
 
-        #endregion
-
+        #endregion           
     }
 }

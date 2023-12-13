@@ -1,16 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using GPC.TestUtilities;
-using GPC.Model.Glasses;
+﻿using GPC.Model;
 using GPC.Model.Materials;
-using GPC.Model;
+using GPC.Model.Sections.Glass;
+using GPC.TestUtilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace ModelObjectTest
 {
     [TestClass]
     public class GlassTest : UnitTestBase
     {
-
         private GlassMaterialAstm GetGlassMaterialAstm()
         {
             return new GlassMaterialAstm("Glass", 70000, 0.23, 1, 16, 23.3, 18.3, 0.001, 2500, 0.1);
@@ -23,7 +22,6 @@ namespace ModelObjectTest
             it.AddShearModule(100, new double[] { 10, 20, 50 }, new double[] { 0.15, 0.25, 0.35 });
             return it;
         }
-
 
         [TestMethod]
         public void LaminatedGlassPackage()
@@ -40,11 +38,11 @@ namespace ModelObjectTest
             Interlayer intr3 = new Interlayer("Int3", 0.76, GetInterlayerMaterial());
             Interlayer intr4 = new Interlayer("Int4", 0.76, GetInterlayerMaterial());
 
-            LaminatedGlass lg = new LaminatedGlass("lg", new MonolithicGlass[] { mg1, mg2, mg3, mg4, mg5 }, new Interlayer[] { intr1, intr2, intr3, intr4 });
+            GlassPlateProperty lg = new GlassPlateProperty("lg", new List<IGlassLayer>() { mg1, intr1, mg2, intr2, mg3, intr3, mg4, intr4, mg5 });
 
-            IGlassPackage[] array = lg.GetGlassPackage();
+            List<IGlassLayer> array = lg.GlassLayers;
 
-            Assert.IsTrue(array.Length == 9);
+            Assert.IsTrue(array.Count == 9);
 
             Assert.IsTrue(array[0].GetType() == typeof(MonolithicGlass));
             Assert.IsTrue(array[1].GetType() == typeof(Interlayer));
@@ -56,9 +54,7 @@ namespace ModelObjectTest
             Assert.IsTrue(array[7].GetType() == typeof(Interlayer));
             Assert.IsTrue(array[8].GetType() == typeof(MonolithicGlass));
 
-
-            Assert.IsTrue((array[0] as ModelObject).Name  == mg1.Name);
-
+            Assert.IsTrue((array[0] as ModelObject).Name == mg1.Name);
             Assert.IsTrue((array[7] as ModelObject).Name == intr4.Name);
         }
     }

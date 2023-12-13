@@ -2,38 +2,47 @@
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPC.Model.Loads
 {
     [Serializable]
     public class AreaLoad : Load, IAreaLoad
     {
-        private readonly double _p1;
-        private readonly double _p2;
-        private readonly double _p3;
+        #region Variables
 
-        private readonly Shape _shape;
+        protected double _p1;
+        protected double _p2;
+        protected double _p3;
+        protected Shape _shape;
 
-        private readonly CoordinateSystem _coordinateSystem;
+        #endregion
 
-        public double P1 => _p1;
-        public double P2 => _p2;
-        public double P3 => _p3;
+        #region Properties
+
+        /// <summary>
+        /// Load component in V1 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double P1 { get => _p1; set => _p1 = value; }
+
+        /// <summary>
+        /// Load component in V2 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double P2 { get => _p2; set => _p2 = value; }
+
+        /// <summary>
+        /// Load component in V3 vector <see cref="CoordinateSystem"/>
+        /// </summary>
+        public double P3 { get => _p3; set => _p3 = value; }
 
         /// <summary>
         /// In the global reference system
         /// </summary>
-        public Shape Shape => _shape;
+        public Shape Shape { get => _shape; set => _shape = value; }
 
-        /// <summary>
-        /// reference system of the load
-        /// </summary>
-        public CoordinateSystem CoordinateSystem => _coordinateSystem;
+        #endregion
 
+        #region Constructor
 
         /// <param name="p1"></param>
         /// <param name="p2"></param>
@@ -42,8 +51,8 @@ namespace GPC.Model.Loads
         /// <param name="loadCase"></param>
         /// <param name="coordinateSystem">Reference system of the load</param>
         /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem)
-            : base(loadCase, Guid.NewGuid())
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
+            : base(loadCase, coordinateSystem, name, id)
         {
             _p1 = p1;
             _p2 = p2;
@@ -59,22 +68,25 @@ namespace GPC.Model.Loads
         /// <param name="shape">In the global reference system</param>
         /// <param name="loadCase"></param>
         /// <remarks><see cref="CoordinateSystem"/> set to <see cref="Shape.GetCoordinateSystem()"/></remarks>
-        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase)
-            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global)
+        public AreaLoad(double p1, double p2, double p3, Shape shape, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
+            : this(p1, p2, p3, shape, loadCase, CoordinateSystem.Global, name, id)
         {
 
         }
 
-
-        public AreaLoad(SerializationInfo info, StreamingContext context) 
+        protected AreaLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             throw new NotImplementedException();
         }
 
-        public Shape GetGeometry() => _shape;
-        public override GeometryBase GetGeometryBase() => GetGeometry();
+        #endregion
 
+        #region Public Methods
+
+        public Shape GetGeometry() => _shape;
+
+        public override GeometryBase GetGeometryBase() => GetGeometry();
 
         /// <summary>
         /// Convert this load into a normal area loads.
@@ -82,11 +94,10 @@ namespace GPC.Model.Loads
         /// <remarks>The not normal portion will be lost</remarks>
         public virtual NormalAreaLoad ConvertToNormalAreaLoad()
         {
-            var globalLoad = this.GetGlobalLoadVector();
-
-            return new NormalAreaLoad(_shape.GetCoordinateSystem().ToLocal(globalLoad).Z, _shape, LoadCase);
+            Vector3d globalLoad = this.GetGlobalLoadVector();
+            CoordinateSystem coordinateSystem = _shape.GetCoordinateSystem();
+            return new NormalAreaLoad(coordinateSystem.ToLocal(globalLoad).Z, _shape, LoadCase, coordinateSystem);
         }
-
 
         /// <returns>The total load vector in the local system. i.e. _p1 * area, _p2 * area, _p3 * area</returns>
         public Vector3d GetLocalLoadVector()
@@ -106,6 +117,9 @@ namespace GPC.Model.Loads
             }
         }
 
+        #endregion
+
+        #region Equals, HasCode and operators
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -113,16 +127,14 @@ namespace GPC.Model.Loads
             throw new NotImplementedException();
         }
 
-        #region Equals, HasCode and operators
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
                 return true;
 
-            return (obj is AreaLoad objCasted) && _shape.Equals(objCasted._shape) 
+            return (obj is AreaLoad objCasted) && _shape.Equals(objCasted._shape)
                                                && _coordinateSystem.Equals(objCasted._coordinateSystem)
-                                               && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3) 
+                                               && _p1.Equals(objCasted._p1) && _p2.Equals(objCasted._p2) && _p3.Equals(objCasted._p3)
                                                && base.Equals(objCasted);
         }
 
@@ -137,7 +149,7 @@ namespace GPC.Model.Loads
                 hashCode = hashCode * -17 + _p3.GetHashCode();
                 hashCode = hashCode * -17 + EqualityComparer<CoordinateSystem>.Default.GetHashCode(_coordinateSystem);
                 hashCode = hashCode * -17 + EqualityComparer<Shape>.Default.GetHashCode(_shape);
-                return hashCode; 
+                return hashCode;
             }
         }
 

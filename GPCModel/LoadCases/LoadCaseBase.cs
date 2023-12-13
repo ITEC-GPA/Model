@@ -11,24 +11,20 @@ namespace GPC.Model.LoadCases
         #region PUBLIC CONSTRUCTOR
 
         public LoadCaseBase(string name)
-            : this(name, Guid.NewGuid())
-        {            
-        }
-
-        public LoadCaseBase(string name, Guid guid)
-            : base(guid, name)
+            : base(name)
         {
             if (String.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Loadcase name cannot be empty");
         }
-
 
         protected LoadCaseBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
-        #endregion 
+        #endregion
+
+        #region Methods
 
         public override bool Equals(object obj)
         {
@@ -46,7 +42,7 @@ namespace GPC.Model.LoadCases
             unchecked
             {
                 int hashCode = -391 + base.GetHashCode();
-                return hashCode; 
+                return hashCode;
             }
         }
 
@@ -70,5 +66,7 @@ namespace GPC.Model.LoadCases
         {
             return $"LoadCase {Name}";
         }
+
+        #endregion
     }
 }

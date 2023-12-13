@@ -1,4 +1,5 @@
-﻿using GPC.Model.Combinations;
+﻿using GPC.Model.Collections;
+using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using System.Runtime.Serialization;
 
@@ -80,7 +81,7 @@ namespace GPC.Model.Standards
             /// <param name="loadCases">The array of load case base to combine</param>
             /// <param name="options">The options of combinations parameter</param>
             /// <returns>The Combination collections</returns>
-            CombinationsCollection CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
+            UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string prefix = "cmb");
         }
 
         #region Nested Class

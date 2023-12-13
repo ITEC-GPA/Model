@@ -1,10 +1,10 @@
+using GPC.Utilities.Attributes;
 using GPC.Utilities.Maths;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using GPC.Utilities.Attributes;
 using System.ComponentModel;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
@@ -33,26 +33,20 @@ namespace GPC.Model.Materials
 
         #region PROPERTIES
 
-        public InterlayerType Type => _type;
+        public InterlayerType Type { get => _type; set => _type = value; }
 
         #endregion
 
         #region CONSTRUCTOR
 
-        public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type, Guid guid)
+        public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type)
             : base(name, 0, 0, density, alfaThermalExpansion)
         {
             _shearModulus = new List<LoadDurationShearModules>();
             _type = type;
         }
 
-        public InterlayerMaterial(string name, double density, double alfaThermalExpansion, InterlayerType type)
-            : this(name, density, alfaThermalExpansion, type, Guid.NewGuid())
-        {
-
-        }
-
-        public InterlayerMaterial(SerializationInfo info, StreamingContext context)
+        private InterlayerMaterial(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             _shearModulus = (List<LoadDurationShearModules>)info.GetValue("ShearModulus", typeof(List<LoadDurationShearModules>));
@@ -63,7 +57,6 @@ namespace GPC.Model.Materials
 
         #region PUBLIC METHODS
 
-
         /// <summary>
         /// Do not use this method. Use: <see cref="GetShearModule(double, double)"/>
         /// </summary>
@@ -72,10 +65,45 @@ namespace GPC.Model.Materials
             throw new NotImplementedException($"Do not use this method. Use: GetShearModule(double, double)");
         }
 
-        /// <inheritdoc cref="this[double, double]" />
         public double GetShearModule(double loadDuration, double temperature)
         {
-            return this[loadDuration, temperature];
+            for (int i = 0; i < _shearModulus.Count; i++)
+            {
+                if (_shearModulus[i].LoadDuration == loadDuration)
+                    return _shearModulus[i][temperature];
+
+                if (i == 0)
+                {
+                    if (loadDuration < _shearModulus[i].LoadDuration)
+                    {
+                        throw new IndexOutOfRangeException("Requested load duration is lower than minimum load duration available");
+                    }
+
+                    if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
+                    {
+                        return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
+                                                                    _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
+                                                                        temperature);
+                    }
+                }
+                else if (i < _shearModulus.Count - 1)
+                {
+                    if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
+                    {
+                        return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
+                                                                    _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
+                                                                        temperature);
+                    }
+                }
+                else if (i == _shearModulus.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
+                {
+                    if (loadDuration > _shearModulus[i].LoadDuration)
+                    {
+                        throw new IndexOutOfRangeException("Requested load duration is greater than maximum load duration available");
+                    }
+                }
+            }
+            throw new KeyNotFoundException();
         }
 
         public void AddShearModule(double loadDuration, double[] temperature, double[] shearModules)
@@ -88,6 +116,11 @@ namespace GPC.Model.Materials
             ld.Sort();
 
             _shearModulus.Add(ld);
+        }
+
+        public void AddLoadDurationShearModules(List<LoadDurationShearModules> loadDurationShearModules)
+        {
+            _shearModulus = loadDurationShearModules;
         }
 
         /// <summary>
@@ -113,63 +146,6 @@ namespace GPC.Model.Materials
         {
             return _shearModulus.SelectMany(i => i.TemperatureShearModules.Select(j => j.Temperature)).Distinct().ToList();
         }
-
-
-        /// <returns>The <see cref="Fem.Materials.IsotropicFemMaterial"/> with shearModulus equals to the first one on the <see cref="_shearModulus"/> list </returns>
-        public override Fem.Materials.IsotropicFemMaterial GetIsotropicFemMaterial()
-        {
-            var g = _shearModulus.First().TemperatureShearModules.First().ShearModule;
-            var e = g * 2.0 * (1.0 + Fem.FemOptions.Instance.InterlayerPoissonValue);
-
-            e = e > Fem.FemOptions.Instance.ZeroElasticModulus ? e : Fem.FemOptions.Instance.ZeroElasticModulus;
-
-            double ni = (e - 2.0 * g) / (2.0 * g);
-
-            return new Fem.Materials.IsotropicFemMaterial(e, ni, _alfaThermalExpansion, _density);
-        }
-
-
-        /// <returns>The <see cref="Fem.Materials.IsotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/>, <paramref name="temperature"/>. 
-        /// And ElasticModulus calculated from G, <paramref name="ni"/> </returns>
-        public Fem.Materials.IsotropicFemMaterial GetIsotropicFemMaterial(double loadDuration, double temperature, double ni)
-        {
-            var g = GetShearModule(loadDuration, temperature);
-            var e = g * 2.0 * (1.0 + ni);
-
-            return new Fem.Materials.IsotropicFemMaterial(e, ni, _alfaThermalExpansion, _density);
-        }
-
-
-        /// <returns>The <see cref="Fem.Materials.OrthotropicFemMaterial"/> with shearModulus equals to the first one on the <see cref="_shearModulus"/> list </returns>
-        public override Fem.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial()
-        {
-            var g = _shearModulus.First().TemperatureShearModules.First().ShearModule;
-            var ni = Fem.FemOptions.Instance.InterlayerPoissonValue;
-            var e = g * 2.0 * (1.0 + ni);
-
-            return new Fem.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
-        }
-
-
-        /// <returns>The <see cref="Fem.Materials.OrthotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/> and <paramref name="temperature"/>. 
-        /// And ElasticModulus calculated from G, <paramref name="ni"/>.</returns>
-        public Fem.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double ni)
-        {
-            var g = GetShearModule(loadDuration, temperature);
-            var e = g * 2.0 * (1.0 + ni);
-
-            return new Fem.Materials.OrthotropicFemMaterial(e, e, e, ni, ni, ni, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
-        }
-
-
-        /// <returns>The <see cref="Fem.Materials.OrthotropicFemMaterial"/> with ShearModulus calculated from <paramref name="loadDuration"/> and <paramref name="temperature"/> </returns>
-        public Fem.Materials.OrthotropicFemMaterial GetOrthotropicFemMaterial(double loadDuration, double temperature, double e1, double e2, double e3, double ni12, double ni23, double ni31)
-        {
-            var g = GetShearModule(loadDuration, temperature);
-
-            return new Fem.Materials.OrthotropicFemMaterial(e1, e2, e3, ni12, ni23, ni31, g, g, g, _alfaThermalExpansion, _alfaThermalExpansion, _alfaThermalExpansion, _density);
-        }
-
 
         #region Equals - Hashcode - Operators
 
@@ -234,63 +210,9 @@ namespace GPC.Model.Materials
 
         #endregion
 
-        #region INDEXER
-
-
-        /// <param name="loadDuration"></param>
-        /// <param name="temperature"></param>
-        /// <returns>The value of Shear modulus</returns>
-        /// <exception cref="IndexOutOfRangeException"></exception>
-        /// <exception cref="KeyNotFoundException"></exception>
-        public double this[double loadDuration, double temperature]
-        {
-            get
-            {
-                for (int i = 0; i < _shearModulus.Count; i++)
-                {
-                    if (_shearModulus[i].LoadDuration == loadDuration)
-                        return _shearModulus[i][temperature];
-
-                    if (i == 0)
-                    {
-                        if (loadDuration < _shearModulus[i].LoadDuration)
-                        {
-                            throw new IndexOutOfRangeException("Requested load duration is lower than minimum load duration available");
-                        }
-
-                        if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
-                        {
-                            return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
-                                                                        _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
-                                                                            temperature);
-                        }
-                    }
-                    else if (i < _shearModulus.Count - 1)
-                    {
-                        if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
-                        {
-                            return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
-                                                                        _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
-                                                                            temperature);
-                        }
-                    }
-                    else if (i == _shearModulus.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
-                    {
-                        if (loadDuration > _shearModulus[i].LoadDuration)
-                        {
-                            throw new IndexOutOfRangeException("Requested load duration is greater than maximum load duration available");
-                        }
-                    }
-                }
-                throw new KeyNotFoundException();
-            }
-        }
-
-        #endregion
-
         #region NESTED CLASS
 
-        private sealed class LoadDurationShearModules : IComparable<LoadDurationShearModules>, IEquatable<LoadDurationShearModules>
+        public sealed class LoadDurationShearModules : IComparable<LoadDurationShearModules>, IEquatable<LoadDurationShearModules>
         {
             #region VARIABLES
 
@@ -301,8 +223,8 @@ namespace GPC.Model.Materials
 
             #region PROPERTIES
 
-            public double LoadDuration => _loadDuration;
-            public List<TemperatureShearModule> TemperatureShearModules => _temperatureShearModules;
+            public double LoadDuration { get => _loadDuration; set => _loadDuration = value; }
+            public List<TemperatureShearModule> TemperatureShearModules { get => _temperatureShearModules; set => _temperatureShearModules = value; }
 
             #endregion
 
@@ -353,53 +275,52 @@ namespace GPC.Model.Materials
                 _temperatureShearModules.Sort();
             }
 
+            public double GetShearModulus(double temperature)
+            {
+                for (int i = 0; i < _temperatureShearModules.Count; i++)
+                {
+                    if (_temperatureShearModules[i].Temperature == temperature)
+                        return _temperatureShearModules[i].ShearModule;
+
+                    if (i == 0)
+                    {
+                        if (temperature < _temperatureShearModules[i].Temperature)
+                        {
+                            throw new IndexOutOfRangeException("Requested temperature lower than minimum temperature available");
+                        }
+
+                        if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
+                        {
+                            return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
+                                                                         _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
+                                                                          temperature);
+                        }
+                    }
+                    else if (i < _temperatureShearModules.Count - 1)
+                    {
+                        if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
+                        {
+                            return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
+                                                                         _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
+                                                                          temperature);
+                        }
+                    }
+                    else if (i == _temperatureShearModules.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
+                    {
+                        if (temperature > _temperatureShearModules[i].Temperature)
+                        {
+                            throw new IndexOutOfRangeException("Requested temperature greater than maximum temperature available");
+                        }
+                    }
+                }
+                throw new KeyNotFoundException();
+            }
+
             #endregion
 
             #region INDEXER
 
-            public double this[double temperature]
-            {
-                get
-                {
-                    for (int i = 0; i < _temperatureShearModules.Count; i++)
-                    {
-                        if (_temperatureShearModules[i].Temperature == temperature)
-                            return _temperatureShearModules[i].ShearModule;
-
-                        if (i == 0)
-                        {
-                            if (temperature < _temperatureShearModules[i].Temperature)
-                            {
-                                throw new IndexOutOfRangeException("Requested temperature lower than minimum temperature available");
-                            }
-
-                            if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
-                            {
-                                return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
-                                                                             _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
-                                                                              temperature);
-                            }
-                        }
-                        else if (i < _temperatureShearModules.Count - 1)
-                        {
-                            if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
-                            {
-                                return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
-                                                                             _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
-                                                                              temperature);
-                            }
-                        }
-                        else if (i == _temperatureShearModules.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
-                        {
-                            if (temperature > _temperatureShearModules[i].Temperature)
-                            {
-                                throw new IndexOutOfRangeException("Requested temperature greater than maximum temperature available");
-                            }
-                        }
-                    }
-                    throw new KeyNotFoundException();
-                }
-            }
+            public double this[double temperature] { get => GetShearModulus(temperature); }
 
             #endregion
 
@@ -419,7 +340,7 @@ namespace GPC.Model.Materials
                 if (ReferenceEquals(this, other))
                     return true;
 
-                if (other is null || !other._loadDuration.Equals(_loadDuration) || 
+                if (other is null || !other._loadDuration.Equals(_loadDuration) ||
                     other._temperatureShearModules.Count != _temperatureShearModules.Count)
                     return false;
 
@@ -431,7 +352,7 @@ namespace GPC.Model.Materials
                         isEqual = false;
                         break;
                     }
-                    
+
                 }
                 return isEqual;
             }
@@ -468,7 +389,7 @@ namespace GPC.Model.Materials
             #endregion
         }
 
-        private sealed class TemperatureShearModule : IComparable<TemperatureShearModule>, IEquatable<TemperatureShearModule>
+        public sealed class TemperatureShearModule : IComparable<TemperatureShearModule>, IEquatable<TemperatureShearModule>
         {
             #region VARIABLES
 
@@ -479,8 +400,8 @@ namespace GPC.Model.Materials
 
             #region PROPERTIES
 
-            public double Temperature => _temperature;
-            public double ShearModule => _shearModule;
+            public double Temperature { get => _temperature; set => _temperature = value; }
+            public double ShearModule { get => _shearModule; set => _shearModule = value; }
 
             #endregion
 
@@ -511,8 +432,9 @@ namespace GPC.Model.Materials
                 if (ReferenceEquals(this, other))
                     return true;
 
-                return !(other is null) && other._temperature.Equals(_temperature)
-                                        && other._shearModule.Equals(_shearModule);
+                return !(other is null) &&
+                    other._temperature.Equals(_temperature) &&
+                    other._shearModule.Equals(_shearModule);
             }
 
             public override bool Equals(object obj)
@@ -546,6 +468,6 @@ namespace GPC.Model.Materials
             #endregion
         }
 
-        #endregion 
+        #endregion
     }
 }
