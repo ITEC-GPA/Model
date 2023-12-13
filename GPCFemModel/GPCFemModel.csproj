@@ -36,9 +36,8 @@
     <Reference Include="DelaunayMesh, Version=2.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DelaunayMesh.2.0.0.1\lib\netstandard2.0\DelaunayMesh.dll</HintPath>
     </Reference>
-    <Reference Include="GMesh, Version=1.0.1.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\gpc-geometry\GMesh\bin\Debug\GMesh.dll</HintPath>
+    <Reference Include="GMesh, Version=1.0.1.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMesh.1.0.1.2\lib\net472\GMesh.dll</HintPath>
     </Reference>
     <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\GMsh.Net.1.0.484.3\lib\netstandard2.0\GMsh.Net.dll</HintPath>
