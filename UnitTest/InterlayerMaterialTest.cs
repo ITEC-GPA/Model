@@ -9,9 +9,9 @@ namespace ModelObjectTest
 	[TestClass]
 	public class InterlayerMaterialTest : UnitTestBase
 	{
-		private static double[] _loadDuration;
-		private static double[] _temperatures;
-		private static double[][] _shearModules;
+		private static double[]? _loadDuration;
+		private static double[]? _temperatures;
+		private static double[][]? _shearModules;
 
 		[TestInitialize]
 		public override void TestInitialize()
@@ -79,6 +79,7 @@ namespace ModelObjectTest
 
 			List<double> temperatures = interlayerMaterial.GetTemperatures();
 
+			Assert.IsNotNull(_temperatures);
 			List<double> temperatureExpected = new List<double>(_temperatures);
 			temperatureExpected.Sort();
 
@@ -102,6 +103,7 @@ namespace ModelObjectTest
 
 			List<double> loadDurations = interlayerMaterial.GetLoadDurations();
 
+			Assert.IsNotNull(_loadDuration);
 			List<double> loadDurationseExpected = new List<double>(_loadDuration);
 			loadDurationseExpected.Sort();
 

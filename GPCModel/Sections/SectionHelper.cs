@@ -54,6 +54,31 @@ namespace GPC.Model.Sections
 
         internal static double CalculateAngle(double Jxx, double Jyy, double Jxy)
         {
+            // Change due to .NET Core, change in (Jxx - Jyy) that is not zero if two double are equals.
+            // If ( (Jxx = Jyy) && (Jxy! = 0))
+            // the ellipse degenerates into a circle and all directions are principal.
+            double ZERO = 1e-12;
+            if (Math.Abs((Jyy - Jxx) / (Jyy + Jxx)) < ZERO)
+            {
+                if (Math.Abs((Jxy) / (Jyy + Jxx)) < ZERO)
+                {
+                    // in this case we are in the presence of a gyroscope and all axes are principal
+                    // the inertia matrix is in the form
+                    // I 0
+                    // 0 I
+                    return 0.0;
+                }
+                else
+                {
+                    // in this case the inertia matrix is in the form
+                    // IX IXY
+                    // IXY IX
+                    // the eigenvectors are 45° and the eigenvalues are the principal inertias
+                    // and have distinct values
+                    return Math.PI / 4.0;
+                }
+            }
+
             double angle = -1.0 / 2.0 * Math.Atan2(2.0 * Jxy, (Jxx - Jyy));
 
             if (Math.Abs(angle - Math.PI) < GeometryBase.GetDefaultAngularTolerance() || Math.Abs(angle) < GeometryBase.GetDefaultAngularTolerance())

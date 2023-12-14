@@ -37,7 +37,7 @@ namespace PerformanceTest
         }
 
         protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, double rebarDiameter = 18, double concreteCover = 50,
-            int numberOfRebars = 16, ConcreteMaterial concreteMaterial = null, SteelMaterial rebarMaterial = null)
+            int numberOfRebars = 16, ConcreteMaterial? concreteMaterial = null, SteelMaterial? rebarMaterial = null)
         {
             if (concreteMaterial == null)
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
@@ -62,7 +62,7 @@ namespace PerformanceTest
             return section;
         }
 
-        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, ConcreteMaterial concreteMaterial = null)
+        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, ConcreteMaterial? concreteMaterial = null)
         {
             if (concreteMaterial == null)
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;

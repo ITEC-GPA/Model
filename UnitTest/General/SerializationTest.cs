@@ -22,6 +22,9 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
+#pragma warning disable SYSLIB0050
+#pragma warning disable SYSLIB0011
+
 namespace GeneralTest
 {
     [TestClass]
