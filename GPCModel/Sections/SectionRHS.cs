@@ -372,9 +372,9 @@ namespace GPC.Model.Sections
 
             SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
+            _mesh = GetMesh();
             SetMechanicalProperties();
             _shape = null;
-            _mesh = GetMesh();
         }
 
         #region Equals, hashcode, operators

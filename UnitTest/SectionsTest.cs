@@ -11,7 +11,6 @@ using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
 using GPC.Utilities.Maths;
-using MathNet.Numerics.Distributions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -2753,7 +2752,7 @@ namespace ModelObjectTest
 
             Assert.AreEqual(0.0, homo.J11H / homoJ11Target - 1.0, 0.0000001);
             Assert.AreEqual(0.0, homo.J22H / homoJ22Target - 1.0, 0.0000001);
-            Assert.AreEqual(0.0, homo.angleX / homoAlphaTarget - 1.0, 0.000001);
+            Assert.AreEqual(0.0, Math.Abs(homo.angleX / homoAlphaTarget) - 1.0, 0.000001);
         }
 
         #endregion

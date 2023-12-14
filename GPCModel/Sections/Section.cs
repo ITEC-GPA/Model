@@ -271,7 +271,7 @@ namespace GPC.Model.Sections
                 if (_mesh is null)
                 {
                     Point2d bBox = Shape.Get2dBoundingBox().Size;
-                    double size = Math.Min(Math.Max(bBox.X, bBox.Y) / 5.0, Math.Min(bBox.X, bBox.Y));
+                    double size = Math.Min(Math.Max(bBox.X, bBox.Y) / 2.0, Math.Min(bBox.X, bBox.Y));
                     _mesh = GetMesh(size);
                 }
                 return _mesh;

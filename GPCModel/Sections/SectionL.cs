@@ -331,9 +331,9 @@ namespace GPC.Model.Sections
 
             SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
+            _mesh = GetMesh();
             SetMechanicalProperties();
             _shape = null;
-            _mesh = GetMesh();
         }
 
         #endregion

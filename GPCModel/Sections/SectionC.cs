@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using System;
 using System.Runtime.Serialization;
 
@@ -310,9 +310,9 @@ namespace GPC.Model.Sections
 
             SetThinWalls(new ThinWall[] { web, flangeBottom, flangeTop });
 
+            _mesh = GetMesh();
             SetMechanicalProperties();
             _shape = null;
-            _mesh = GetMesh();
         }
 
         protected override double CalculateArea()

@@ -44,8 +44,8 @@ namespace GPC.Model.Sections
             : base(name)
         {
             _diameter = diameter;
-            SetMechanicalProperties();
             _mesh = GetMesh();
+            SetMechanicalProperties();
         }
 
         public SectionCircular(SectionCircular sectionCircular)
@@ -101,7 +101,8 @@ namespace GPC.Model.Sections
 
         protected Mesh GetMesh(int numberOfEdges = 32)
         {
-            Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, _centroid) });
+            Point2d centroid = new Point2d(_diameter / 2.0, _diameter / 2.0);
+            Shape2d shape = new Shape2d(new Polygon2d(_diameter, numberOfEdges, centroid), new[] { new Polygon2d(_diameter / 3.0, numberOfEdges, centroid) });
 
             Mesh mesh = new Mesh();
 
@@ -119,7 +120,7 @@ namespace GPC.Model.Sections
                 {
                     new Point3d(shape.Holes[0][i]),
                     new Point3d(shape.Holes[0][shape.Holes[0].GetNextIndex(i)]),
-                    _centroid,
+                    centroid,
                 });
             }
 
