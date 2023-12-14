@@ -11,7 +11,6 @@ using GPC.Model.Sections.Steel;
 using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
 using GPC.Utilities.Maths;
-using MathNet.Numerics.Distributions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

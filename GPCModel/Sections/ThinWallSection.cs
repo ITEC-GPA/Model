@@ -1,6 +1,5 @@
 ﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
-using GPC.Model.Sections.Steel;
 using GPC.Utilities.Extensions;
 using System;
 using System.Collections.Generic;
@@ -114,13 +113,35 @@ namespace GPC.Model.Sections
         {
             Mesh mesh = new Mesh();
 
+            Dictionary<Point2d, MeshVertex> pointVertexAss = new Dictionary<Point2d, MeshVertex>();
             for (int i = 0; i < _thinWalls.Count(); i++)
             {
-                Polygon2d a = ((Polygon2d)_thinWalls[i].GetPerimeter().Clone());
-                Point3d[] ps1 = new Point3d[3] { new Point2d(a[0].X, a[0].Y), new Point2d(a[1].X, a[1].Y), new Point2d(a[2].X, a[2].Y) };
-                Point3d[] ps2 = new Point3d[3] { new Point2d(a[2].X, a[2].Y), new Point2d(a[3].X, a[3].Y), new Point2d(a[0].X, a[0].Y) };
-                mesh.AddFaceMesh(ps1);
-                mesh.AddFaceMesh(ps2);
+                Polygon2d polygon = ((Polygon2d)_thinWalls[i].GetPerimeter().Clone());
+                for (int j = 0; j < polygon.Count; j++)
+                {
+                    if (!pointVertexAss.ContainsKey(polygon[j]))
+                    {
+                        MeshVertex meshVertex = new MeshVertex(polygon[j]);
+                        mesh.Vertices.Add(meshVertex);
+                        pointVertexAss.Add(polygon[j], meshVertex);
+                    }
+                }
+            }
+
+            for (int i = 0; i < _thinWalls.Count(); i++)
+            {
+                Polygon2d polygon = (Polygon2d)_thinWalls[i].GetPerimeter().Clone();
+
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[1]].Id));
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[1]].Id, pointVertexAss[polygon[2]].Id));
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[0]].Id));
+
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[3]].Id));
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[3]].Id, pointVertexAss[polygon[0]].Id));
+                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[2]].Id));
+
+                mesh.Faces.Add(new MeshFace(new int[] { pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[1]].Id, pointVertexAss[polygon[2]].Id }));
+                mesh.Faces.Add(new MeshFace(new int[] { pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[3]].Id, pointVertexAss[polygon[0]].Id }));
             }
 
             return mesh;
