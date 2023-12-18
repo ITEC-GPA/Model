@@ -10,7 +10,7 @@ namespace GeneralTest
         public void ResultType()
         {
             ResultDisplacement rd1 = new ResultDisplacement(1, 2, 3, 4, 5, 6);
-            ResultDisplacement rd2 = null;
+            ResultDisplacement? rd2 = null;
 
             Assert.IsTrue(rd1 != null);
             Assert.IsTrue(rd2 == null);

@@ -16,7 +16,7 @@ namespace GeneralTest
 
             if (type != null)
             {
-                UIAttribute attr = (UIAttribute)type.GetCustomAttribute(typeof(UIAttribute));
+                UIAttribute? attr = type.GetCustomAttribute(typeof(UIAttribute)) as UIAttribute;
                 Assert.IsNotNull(attr);
             }
         }
