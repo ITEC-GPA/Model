@@ -24,32 +24,6 @@
     <Reference Include="GPCGeometry">
       <HintPath>..\..\GPCGeometry\GPCGeometry\bin\Debug\netstandard2.0\GPCGeometry.dll</HintPath>
 	</Reference>
-    <Reference Include="DelaunayMesh, Version=2.0.0.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DelaunayMesh.2.0.0.2\lib\netstandard2.0\DelaunayMesh.dll</HintPath>
-    </Reference>
-    <Reference Include="GMesh, Version=1.0.1.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMesh.1.0.1.2\lib\net472\GMesh.dll</HintPath>
-    </Reference>
-    <Reference Include="GMsh.Net, Version=1.0.484.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GMsh.Net.1.0.484.3\lib\netstandard2.0\GMsh.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="GPCGeometry, Version=2.0.1.6, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GPCGeometry.2.0.1.6\lib\netstandard2.0\GPCGeometry.dll</HintPath>
-    </Reference>
-    <Reference Include="GPCUtilities, Version=2.0.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\GPCUtilities.2.0.0.5\lib\netstandard2.0\GPCUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="UnsafeEx, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\UnsafeEx.1.0.0\lib\netstandard2.0\UnsafeEx.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
