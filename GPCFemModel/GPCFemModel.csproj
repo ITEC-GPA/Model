@@ -2,19 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Configurations>Debug;Release;DebugLocalLibs</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugLocalLibs|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' ">
+    <PackageReference Include="GPCGeometry" Version="2.0.1.9" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'DebugLocalLibs' ">
+    <Reference Include="GPCGeometry">
+      <HintPath>..\..\GPCGeometry\GPCGeometry\bin\Debug\netstandard2.0\GPCGeometry.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="GMesh" Version="1.0.1.2" />
-    <PackageReference Include="GPCGeometry" Version="2.0.1.9" />
   </ItemGroup>
 
   <ItemGroup>

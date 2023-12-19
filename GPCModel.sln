@@ -19,23 +19,32 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugLocalLibs|Any CPU = DebugLocalLibs|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.DebugLocalLibs|Any CPU.ActiveCfg = DebugLocalLibs|Any CPU
+		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.DebugLocalLibs|Any CPU.Build.0 = DebugLocalLibs|Any CPU
 		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B68C46B-DE89-4458-AE10-A4A1A9A40BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.DebugLocalLibs|Any CPU.ActiveCfg = DebugLocalLibs|Any CPU
+		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.DebugLocalLibs|Any CPU.Build.0 = DebugLocalLibs|Any CPU
 		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F351A4CA-2C00-4F16-805E-820DD6FB3093}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.DebugLocalLibs|Any CPU.ActiveCfg = DebugLocalLibs|Any CPU
+		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.DebugLocalLibs|Any CPU.Build.0 = DebugLocalLibs|Any CPU
 		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A40B44C-6D97-4A3E-90EA-44A41674481C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.DebugLocalLibs|Any CPU.ActiveCfg = DebugLocalLibs|Any CPU
+		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.DebugLocalLibs|Any CPU.Build.0 = DebugLocalLibs|Any CPU
 		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8A5AF6C-80EB-4645-B72F-5038E423C55C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
