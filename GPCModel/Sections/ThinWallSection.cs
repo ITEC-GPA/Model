@@ -112,36 +112,39 @@ namespace GPC.Model.Sections
         public Mesh GetMesh()
         {
             Mesh mesh = new Mesh();
-
-            Dictionary<Point2d, MeshVertex> pointVertexAss = new Dictionary<Point2d, MeshVertex>();
-            for (int i = 0; i < _thinWalls.Count(); i++)
-            {
-                Polygon2d polygon = ((Polygon2d)_thinWalls[i].GetPerimeter().Clone());
-                for (int j = 0; j < polygon.Count; j++)
-                {
-                    if (!pointVertexAss.ContainsKey(polygon[j]))
-                    {
-                        MeshVertex meshVertex = new MeshVertex(polygon[j]);
-                        mesh.Vertices.Add(meshVertex);
-                        pointVertexAss.Add(polygon[j], meshVertex);
-                    }
-                }
-            }
+            double tol = 0.01;
 
             for (int i = 0; i < _thinWalls.Count(); i++)
             {
+                List<int> idList = new List<int>();
+                mesh.UpdateVertexBVH();
                 Polygon2d polygon = (Polygon2d)_thinWalls[i].GetPerimeter().Clone();
 
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[1]].Id));
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[1]].Id, pointVertexAss[polygon[2]].Id));
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[0]].Id));
+                for (int j = 0; j < polygon.Count; j++)
+                {
+                    List<int> neighboursId = mesh.FindNeighbours(polygon[j], tol);
 
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[3]].Id));
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[3]].Id, pointVertexAss[polygon[0]].Id));
-                mesh.Edges.Add(new MeshEdge(pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[2]].Id));
+                    if (neighboursId.Count == 0)
+                    {
+                        MeshVertex meshVertex = new MeshVertex(polygon[j]);
+                        idList.Add(mesh.Vertices.Add(meshVertex));
+                    }
+                    else
+                    {
+                        idList.Add(neighboursId.FirstOrDefault());
+                    }
+                }
 
-                mesh.Faces.Add(new MeshFace(new int[] { pointVertexAss[polygon[0]].Id, pointVertexAss[polygon[1]].Id, pointVertexAss[polygon[2]].Id }));
-                mesh.Faces.Add(new MeshFace(new int[] { pointVertexAss[polygon[2]].Id, pointVertexAss[polygon[3]].Id, pointVertexAss[polygon[0]].Id }));
+                mesh.Edges.Add(new MeshEdge(idList[0], idList[1]));
+                mesh.Edges.Add(new MeshEdge(idList[1], idList[2]));
+                mesh.Edges.Add(new MeshEdge(idList[2], idList[0]));
+
+                mesh.Edges.Add(new MeshEdge(idList[2], idList[3]));
+                mesh.Edges.Add(new MeshEdge(idList[3], idList[0]));
+                mesh.Edges.Add(new MeshEdge(idList[0], idList[2]));
+
+                mesh.Faces.Add(new MeshFace(new int[] { idList[0], idList[1], idList[2] }));
+                mesh.Faces.Add(new MeshFace(new int[] { idList[2], idList[3], idList[0] }));
             }
 
             return mesh;
