@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="GMesh" Version="1.0.1.2" />
-    <PackageReference Include="GPCGeometry" Version="2.0.1.8" />
+    <PackageReference Include="GPCGeometry" Version="2.0.1.9" />
   </ItemGroup>
 
   <ItemGroup>
