@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' ">
-    <PackageReference Include="DelaunayMesh" Version="2.0.0.2" />
+    <PackageReference Include="DelaunayMesh" Version="2.0.0.3" />
     <PackageReference Include="GPCGeometry" Version="2.0.1.9" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'DebugLocalLibs' ">
