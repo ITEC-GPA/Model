@@ -1,14 +1,13 @@
 ﻿using GPC.Model;
 using GPC.Model.Materials;
 using GPC.Model.Sections.Glass;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class GlassTest : UnitTestBase
+    public class GlassTest
     {
         private GlassMaterialAstm GetGlassMaterialAstm()
         {

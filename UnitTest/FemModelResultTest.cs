@@ -1,10 +1,9 @@
-﻿using GPC.TestUtilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FemTest
 {
     [TestClass]
-    public class FemModelResultTest : UnitTestBase
+    public class FemModelResultTest
     {
         [TestMethod]
         public void ResultTest1()

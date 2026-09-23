@@ -2,12 +2,11 @@
 using System;
 using System.Reflection;
 using GPC.Utilities.Attributes;
-using GPC.TestUtilities;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class DescriptionAttributesTest : UnitTestBase
+    public class DescriptionAttributesTest 
     {
         [TestMethod]
         public void TestMethod1()

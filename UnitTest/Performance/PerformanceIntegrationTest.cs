@@ -6,7 +6,6 @@ using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -15,7 +14,7 @@ using System.Linq;
 namespace PerformanceTest
 {
     [TestClass]
-    public class PerformanceIntegrationTest : UnitTestBase
+    public class PerformanceIntegrationTest
     {
         protected void CommonEqualAssert(double result, double expectedValue, double tolerance = 0.01)
         {

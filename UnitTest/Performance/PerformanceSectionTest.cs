@@ -12,14 +12,13 @@ using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PerformanceTest
 {
     [TestClass]
-    public class PerformanceSectionTest : UnitTestBase
+    public class PerformanceSectionTest
     {
         [TestMethod]
         public void ReinforcedConcreteSection1()

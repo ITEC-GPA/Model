@@ -8,7 +8,6 @@ using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
-using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
 using GPC.Utilities.Maths;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +18,7 @@ using System.Linq;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class SectionsTest : UnitTestBase
+    public class SectionsTest 
     {
         /// <summary>
         /// Metodo per visualizzare la geometria della sezione

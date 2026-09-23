@@ -2,7 +2,6 @@
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
 using GPC.Model.Standards;
-using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -12,7 +11,7 @@ using System.Linq;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class CombinationTest : UnitTestBase
+    public class CombinationTest
     {
         private void CommonAssert(Combination combo1, Combination combo2)
         {

@@ -1,12 +1,11 @@
 ﻿using GPC.Model.LoadCases;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace ModelObjectTest
 {
     [TestClass]
-    public class LoadCaseTest : UnitTestBase
+    public class LoadCaseTest 
     {
 
         [TestMethod]

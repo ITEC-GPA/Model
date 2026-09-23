@@ -12,14 +12,13 @@ using GPC.Model.Results;
 using GPC.Model.Results.ElementResults;
 using GPC.Model.Results.ResultLocations;
 using GPC.Model.Sections.Glass;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class EquatableHashCodeTest : UnitTestBase
+    public class EquatableHashCodeTest 
     {
         private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
         {

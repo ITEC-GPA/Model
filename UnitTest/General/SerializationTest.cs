@@ -12,7 +12,6 @@ using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Standards;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ using System.Text;
 namespace GeneralTest
 {
     [TestClass]
-    public class SerializationTest : UnitTestBase
+    public class SerializationTest
     {
         private bool SerializationClassesCommonAsserts(object objToTest)
         {
@@ -62,20 +61,20 @@ namespace GeneralTest
         [TestCategory("Fail: Not implemented Test")]
         public void SerializableAttributeTest()
         {
-            var assemblyName = "GPCModel";
-            var nameSpace = "GPC.Model";
+            //var assemblyName = "GPCModel";
+            //var nameSpace = "GPC.Model";
 
-            var assembly = Assembly.Load(assemblyName);
-            var classes = assembly.GetTypes().Where(a => a.IsClass && a.Namespace != null && a.Namespace.Contains(nameSpace)).ToList();
+            //var assembly = Assembly.Load(assemblyName);
+            //var classes = assembly.GetTypes().Where(a => a.IsClass && a.Namespace != null && a.Namespace.Contains(nameSpace)).ToList();
 
-            StringBuilder sb = new StringBuilder();
-            foreach (var cl in classes)
-            {
-                if (!cl.IsSerializable)
-                    sb.Append($"{cl.Name}\n");
-            }
-            System.Diagnostics.Trace.WriteLine($"Classes are not serializable:\n{sb}");
-            //Assert.Fail($"Classes are not serializable:\n{sb}");
+            //StringBuilder sb = new StringBuilder();
+            //foreach (var cl in classes)
+            //{
+            //    if (!cl.IsSerializable)
+            //        sb.Append($"{cl.Name}\n");
+            //}
+            //System.Diagnostics.Trace.WriteLine($"Classes are not serializable:\n{sb}");
+            ////Assert.Fail($"Classes are not serializable:\n{sb}");
         }
 
         #region Standards
