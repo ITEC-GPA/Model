@@ -231,7 +231,7 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Static moments of the shape (fill minus holes, the region meshed by <see cref="GenerateMesh"/>), exact
+        /// Static moments of the shape (fill minus holes plus childs, the region meshed by <see cref="GenerateMesh"/>), exact
         /// </summary>
         internal static void CalculateStaticMoments(Shape2d shape, out double Sx, out double Sy)
         {
@@ -251,7 +251,7 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Moments of inertia of the shape (fill minus holes, the region meshed by <see cref="GenerateMesh"/>) respect to the axes through <paramref name="centroid"/>, exact
+        /// Moments of inertia of the shape (fill minus holes plus childs, the region meshed by <see cref="GenerateMesh"/>) respect to the axes through <paramref name="centroid"/>, exact
         /// </summary>
         internal static void CalculateInertiaMoments(Shape2d shape, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
         {
@@ -263,7 +263,7 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Integrals on the shape region (fill minus holes) computed on the boundary with the Green's theorem: exact for polygons.
+        /// Integrals on the shape region (fill minus holes, plus childs) computed on the boundary with the Green's theorem: exact for polygons.
         /// The coordinates are relative to (<paramref name="originX"/>, <paramref name="originY"/>)
         /// </summary>
         /// <param name="area">Integral of dA</param>
@@ -272,11 +272,16 @@ namespace GPC.Model.Sections
         /// <param name="ixx">Integral of y^2 dA</param>
         /// <param name="iyy">Integral of x^2 dA</param>
         /// <param name="ixy">Integral of x y dA</param>
-        internal static void IntegrateShape(Shape2d shape, double originX, double originY,
+        internal static void IntegrateShape(Shape shape, double originX, double originY,
             out double area, out double sx, out double sy, out double ixx, out double iyy, out double ixy)
         {
             area = 0; sx = 0; sy = 0; ixx = 0; iyy = 0; ixy = 0;
+            AddShapeIntegrals(shape, originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
+        }
 
+        private static void AddShapeIntegrals(Shape shape, double originX, double originY,
+            ref double area, ref double sx, ref double sy, ref double ixx, ref double iyy, ref double ixy)
+        {
             if (shape is null)
                 return;
 
@@ -286,6 +291,13 @@ namespace GPC.Model.Sections
             {
                 for (int i = 0; i < shape.Holes.Length; i++)
                     AddPolygonIntegrals(shape.Holes[i], -1.0, originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
+            }
+
+            // shapes inside the holes
+            if (shape.Childs != null)
+            {
+                for (int i = 0; i < shape.Childs.Length; i++)
+                    AddShapeIntegrals(shape.Childs[i], originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
             }
         }
 

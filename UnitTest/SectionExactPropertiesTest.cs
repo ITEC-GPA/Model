@@ -71,6 +71,29 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void ShapeWithChildInsideTheHole()
+        {
+            // square 100 with a hole 50 and a child 20 inside the hole: the child is part of the section, as in Shape.GetArea and in the mesh
+            var child = new Shape2d(new Polygon2d(new[] { Q(40, 40), Q(60, 40), Q(60, 60), Q(40, 60) }));
+            var shape = new Shape2d(new Polygon2d(new[] { Q(0, 0), Q(100, 0), Q(100, 100), Q(0, 100) }),
+                new[] { new Polygon2d(new[] { Q(25, 25), Q(75, 25), Q(75, 75), Q(25, 75) }) }, new[] { child });
+            var section = new Section(shape, "child");
+            section.SetMechanicalProperties();
+
+            double jxx = (System.Math.Pow(100, 4) - System.Math.Pow(50, 4) + System.Math.Pow(20, 4)) / 12.0;
+
+            AssertRelative(100.0 * 100.0 - 50.0 * 50.0 + 20.0 * 20.0, section.Area);
+            AssertRelative(50.0, section.Centroid.X);
+            AssertRelative(50.0, section.Centroid.Y);
+            AssertRelative(jxx, section.Jxx);
+            AssertRelative(jxx, section.Jyy);
+
+            SectionHelper.CalculateStaticMoments(section.Mesh, out double sxMesh, out double syMesh);
+            AssertRelative(section.Area * 50.0, sxMesh, 1e-9);
+            AssertRelative(section.Area * 50.0, syMesh, 1e-9);
+        }
+
+        [TestMethod]
         public void StaticMomentsOfTheMeshEqualTheExactOnes()
         {
             var shape = new Shape2d(new Polygon2d(new[] { Q(0, 500), Q(0, 600), Q(400, 600), Q(400, 500), Q(250, 500), Q(250, 0), Q(150, 0), Q(150, 500) }));
