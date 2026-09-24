@@ -193,27 +193,134 @@ namespace GPC.Model.Sections
                 Jxy = 0.0; // Se la sezione simmetrica vale zero e pu� diventare negativo per errore numerico 
         }
 
+        /// <summary>
+        /// Static moments of the mesh faces in the X-Y plane: sum of the face area (absolute value) by the face centroid.
+        /// The quads are divided in two triangles from the first vertex, as in <see cref="Polygon3d.GetCentroid"/>
+        /// </summary>
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
-            double[] SxArray = new double[mesh.FacesCount];
-            double[] SyArray = new double[mesh.FacesCount];
+            Sx = 0;
+            Sy = 0;
 
-            Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, mesh.FacesCount), (range) =>
+            for (int i = 0; i < mesh.FacesCount; i++)
             {
-                for (int i = range.Item1; i < range.Item2; i++)
+                MeshFace face = mesh.Faces[i];
+                Point3d a = mesh.Vertices.GetElementById(face.A).Point;
+                Point3d b = mesh.Vertices.GetElementById(face.B).Point;
+                Point3d c = mesh.Vertices.GetElementById(face.C).Point;
+
+                // twice the signed area and the (area x centroid) of the triangles
+                double area2 = (b.X - a.X) * (c.Y - a.Y) - (c.X - a.X) * (b.Y - a.Y);
+                double momentX = area2 * (a.Y + b.Y + c.Y);
+                double momentY = area2 * (a.X + b.X + c.X);
+
+                if (face.IsQuad)
                 {
-                    MeshFace meshFace = mesh.Faces.ElementAt(i);
-
-                    double area = mesh.GetFaceArea(meshFace);
-                    Point2d centroid = mesh.GetFaceCentroid(meshFace);
-
-                    SxArray[i] = area * centroid.Y;
-                    SyArray[i] = area * centroid.X;
+                    Point3d d = mesh.Vertices.GetElementById(face.D).Point;
+                    double area2Second = (c.X - a.X) * (d.Y - a.Y) - (d.X - a.X) * (c.Y - a.Y);
+                    area2 += area2Second;
+                    momentX += area2Second * (a.Y + c.Y + d.Y);
+                    momentY += area2Second * (a.X + c.X + d.X);
                 }
-            });
 
-            Sx = SxArray.Sum();
-            Sy = SyArray.Sum();
+                // area * centroid = |A| * (moment / A)
+                double sign = area2 < 0 ? -1.0 : 1.0;
+                Sx += sign * momentX / 6.0;
+                Sy += sign * momentY / 6.0;
+            }
+        }
+
+        /// <summary>
+        /// Static moments of the shape (fill minus holes, the region meshed by <see cref="GenerateMesh"/>), exact
+        /// </summary>
+        internal static void CalculateStaticMoments(Shape2d shape, out double Sx, out double Sy)
+        {
+            if (shape is null || shape.Fill.Count == 0)
+            {
+                Sx = 0;
+                Sy = 0;
+                return;
+            }
+
+            // integration relative to a point of the shape, for a better precision
+            Point3d origin = shape.Fill[0];
+            IntegrateShape(shape, origin.X, origin.Y, out double area, out double sx, out double sy, out _, out _, out _);
+
+            Sx = sx + area * origin.Y;
+            Sy = sy + area * origin.X;
+        }
+
+        /// <summary>
+        /// Moments of inertia of the shape (fill minus holes, the region meshed by <see cref="GenerateMesh"/>) respect to the axes through <paramref name="centroid"/>, exact
+        /// </summary>
+        internal static void CalculateInertiaMoments(Shape2d shape, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
+        {
+            IntegrateShape(shape, centroid.X, centroid.Y, out _, out _, out _, out Jxx, out Jyy, out Jxy);
+            Jp = Jxx + Jyy;
+
+            if (Math.Abs(Jxy) < 100000)
+                Jxy = 0.0; // Se la sezione simmetrica vale zero e può diventare negativo per errore numerico
+        }
+
+        /// <summary>
+        /// Integrals on the shape region (fill minus holes) computed on the boundary with the Green's theorem: exact for polygons.
+        /// The coordinates are relative to (<paramref name="originX"/>, <paramref name="originY"/>)
+        /// </summary>
+        /// <param name="area">Integral of dA</param>
+        /// <param name="sx">Integral of y dA</param>
+        /// <param name="sy">Integral of x dA</param>
+        /// <param name="ixx">Integral of y^2 dA</param>
+        /// <param name="iyy">Integral of x^2 dA</param>
+        /// <param name="ixy">Integral of x y dA</param>
+        internal static void IntegrateShape(Shape2d shape, double originX, double originY,
+            out double area, out double sx, out double sy, out double ixx, out double iyy, out double ixy)
+        {
+            area = 0; sx = 0; sy = 0; ixx = 0; iyy = 0; ixy = 0;
+
+            if (shape is null)
+                return;
+
+            AddPolygonIntegrals(shape.Fill, 1.0, originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
+
+            if (shape.Holes != null)
+            {
+                for (int i = 0; i < shape.Holes.Length; i++)
+                    AddPolygonIntegrals(shape.Holes[i], -1.0, originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
+            }
+        }
+
+        /// <param name="sign">1 to add the polygon region, -1 to subtract it. The orientation of the polygon does not matter</param>
+        private static void AddPolygonIntegrals(Polygon3d polygon, double sign, double originX, double originY,
+            ref double area, ref double sx, ref double sy, ref double ixx, ref double iyy, ref double ixy)
+        {
+            int count = polygon.Count;
+            double a = 0, x1 = 0, y1 = 0, xx = 0, yy = 0, xy = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                Point3d p = polygon[i];
+                Point3d q = polygon[(i + 1) % count];
+                double x0 = p.X - originX, y0 = p.Y - originY;
+                double xn = q.X - originX, yn = q.Y - originY;
+                double cross = x0 * yn - xn * y0;
+
+                a += cross;
+                x1 += (x0 + xn) * cross;
+                y1 += (y0 + yn) * cross;
+                xx += (x0 * x0 + x0 * xn + xn * xn) * cross;
+                yy += (y0 * y0 + y0 * yn + yn * yn) * cross;
+                xy += (x0 * yn + 2.0 * x0 * y0 + 2.0 * xn * yn + xn * y0) * cross;
+            }
+
+            // the formulas give positive values for counterclockwise polygons
+            double factor = a < 0 ? -sign : sign;
+
+            area += factor * a / 2.0;
+            sy += factor * x1 / 6.0;
+            sx += factor * y1 / 6.0;
+            iyy += factor * xx / 12.0;
+            ixx += factor * yy / 12.0;
+            ixy += factor * xy / 24.0;
         }
     }
 }

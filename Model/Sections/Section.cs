@@ -469,21 +469,23 @@ namespace GPC.Model.Sections
         /// <returns></returns>
         protected virtual double CalculateJ22() => SectionHelper.CalculateJ22(_jxx, _jyy, _jxy);
 
+        // The properties are integrated exactly on the boundary of the shape: the mesh is not needed
+
         protected virtual double CalculateJxx()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out double Jxx, out _, out _, out _);
+            SectionHelper.CalculateInertiaMoments(Shape, _centroid, out double Jxx, out _, out _, out _);
             return Jxx;
         }
 
         protected virtual double CalculateJyy()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out _, out double Jyy, out _, out _);
+            SectionHelper.CalculateInertiaMoments(Shape, _centroid, out _, out double Jyy, out _, out _);
             return Jyy;
         }
 
         protected virtual double CalculateJxy()
         {
-            SectionHelper.CalculateInertiaMoments(Mesh, _centroid, out _, out _, out double Jxy, out _);
+            SectionHelper.CalculateInertiaMoments(Shape, _centroid, out _, out _, out double Jxy, out _);
             return Jxy;
         }
 
@@ -507,12 +509,12 @@ namespace GPC.Model.Sections
         /// </summary>
         protected virtual Point2d CalculateCentroid()
         {
-            SectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
+            SectionHelper.CalculateStaticMoments(Shape, out double Sx, out double Sy);
             return SectionHelper.CalculateCentroid(Sx, Sy, _area);
         }
 
         /// <summary>
-        /// Calculate the static moment of the section in X-Y plane 
+        /// Calculate the static moment of the section in X-Y plane
         /// </summary>
         public virtual (double Sx, double Sy) CalculateStaticMoments()
         {
