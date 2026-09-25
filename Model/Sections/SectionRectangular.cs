@@ -206,6 +206,19 @@ namespace GPC.Model.Sections
             return _angle;
         }
 
+        // The axis 1 is the local X axis of the rectangle (the angle is its rotation), as for the moduli (b h^2 / 6):
+        // J11 respect to it also when the width is bigger than the height (before, the bigger principal moment)
+
+        protected override double CalculateJ11()
+        {
+            return _width * Math.Pow(_height, 3.0) / 12.0;
+        }
+
+        protected override double CalculateJ22()
+        {
+            return _height * Math.Pow(_width, 3.0) / 12.0;
+        }
+
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {
 
@@ -232,8 +245,10 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[] { thin });
 
             ResetMesh();
+
+            _shape = null; // before SetMechanicalProperties (it was after: the properties computed on the shape used the old one)
+
             SetMechanicalProperties();
-            _shape = null;
         }
 
         #endregion

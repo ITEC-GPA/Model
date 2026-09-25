@@ -311,8 +311,10 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[] { web, flangeBottom, flangeTop });
 
             ResetMesh();
+
+            _shape = null; // before SetMechanicalProperties (it was after: the properties computed on the shape used the old one)
+
             SetMechanicalProperties();
-            _shape = null;
         }
 
         protected override double CalculateArea()

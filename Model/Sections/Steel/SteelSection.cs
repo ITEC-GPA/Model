@@ -35,9 +35,9 @@ namespace GPC.Model.Sections.Steel
 
         public double R22 => _sectionShape.R22;
 
-        public double Rxx => _sectionShape.Rxy;
+        public double Rxx => _sectionShape.Rxx; // it returned Rxy
 
-        public double Ryy => _sectionShape.Rxy;
+        public double Ryy => _sectionShape.Ryy; // it returned Rxy
 
         public double Rxy => _sectionShape.Rxy;
 

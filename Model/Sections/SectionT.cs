@@ -288,8 +288,10 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[] { web, flange });
 
             ResetMesh();
+
+            _shape = null; // before SetMechanicalProperties (it was after: the properties computed on the shape used the old one)
+
             SetMechanicalProperties();
-            _shape = null;
         }
 
         #endregion

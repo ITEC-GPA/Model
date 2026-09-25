@@ -151,6 +151,14 @@ namespace GPC.Model.Sections
             _wpl1 = CalculateWpl();
             _wpl2 = CalculateWpl();
 
+            // the moduli respect to X and Y are the same (before, not set: zero)
+            _welXMax = _wel1Max;
+            _welXMin = _wel1Max;
+            _welYMax = _wel1Max;
+            _welYMin = _wel1Max;
+            _wplX = _wpl1;
+            _wplY = _wpl1;
+
             _isSymmetricAlongXLocalAxis = CalculateIsSymmetricAlongXLocalAxis();
             _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
         }

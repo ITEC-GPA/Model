@@ -121,14 +121,16 @@ namespace GPC.Model.Sections
         public double J22 => _j22;
 
         /// <summary>
-        /// The minimum plastic modulus calculated respect the 1-principal axes
+        /// The plastic modulus calculated respect the 1-principal axes
         /// </summary>
-        public double Wpl1 => _wpl1;
+        /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
+        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = ShapePlasticModulus(_angleX1)) : _wpl1;
 
         /// <summary>
-        /// The plastic modulus calculated respect the 2-principal axes 
+        /// The plastic modulus calculated respect the 2-principal axes
         /// </summary>
-        public double Wpl2 => _wpl2;
+        /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
+        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = ShapePlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
 
         /// <summary>
         /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid
@@ -148,7 +150,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The elastic modulus calculated respect the 2-principal axes and the maximum (with sign) distance respect the centroid
         /// </summary>
-        public double Wel2Max => _wel2Min;
+        public double Wel2Max => _wel2Max; // it returned _wel2Min
 
         /// <summary>
         /// The minimum elastic modulus calculated respect the 1-principal axes 
@@ -191,14 +193,16 @@ namespace GPC.Model.Sections
         public double WelY => Math.Min(_welYMax, _welYMin);
 
         /// <summary>
-        /// The minimum plastic modulus calculated respect the X axes 
+        /// The plastic modulus calculated respect the X axes
         /// </summary>
-        public double WplX => _wplX;
+        /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
+        public double WplX => double.IsNaN(_wplX) ? (_wplX = ShapePlasticModulus(0.0)) : _wplX;
 
         /// <summary>
-        /// The minimum plastic modulus calculated respect the Y axes 
+        /// The plastic modulus calculated respect the Y axes
         /// </summary>
-        public double WplY => _wplY;
+        /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, <see cref="Wel2Max"/>)</remarks>
+        public double WplY => double.IsNaN(_wplY) ? (_wplY = ShapePlasticModulus(Math.PI / 2.0)) : _wplY;
 
         /// <summary>
         /// The centroid of the section
@@ -221,12 +225,13 @@ namespace GPC.Model.Sections
         public double AngleX1 => _angleX1;
 
         /// <summary>
-        /// The radius of gyration respect the axis 2
+        /// The radius of gyration respect the axis 2: sqrt(J22 / A), the one of the buckling in the direction of the axis 1
+        /// (the convention of the checkers: e.g. Cop2011Checker uses the effective length 1 with R11)
         /// </summary>
         public double R11 => Math.Sqrt(J22 / Area);
 
         /// <summary>
-        /// The radius of gyration respect the axis 1
+        /// The radius of gyration respect the axis 1: sqrt(J11 / A), the one of the buckling in the direction of the axis 2
         /// </summary>
         public double R22 => Math.Sqrt(J11 / Area);
 
@@ -241,9 +246,9 @@ namespace GPC.Model.Sections
         public double Ryy => Math.Sqrt(Jxx / Area);
 
         /// <summary>
-        /// The radius of gyration respect the <see cref="Jxy"/> 
+        /// The radius of gyration respect the <see cref="Jxy"/>, with the sign of <see cref="Jxy"/> (before, NaN when Jxy is negative)
         /// </summary>
-        public double Rxy => Math.Sqrt(Jxy / Area);
+        public double Rxy => Math.Sign(Jxy) * Math.Sqrt(Math.Abs(Jxy) / Area);
 
         /// <summary>
         /// The radius of gyration respect <see cref="Jp"/> 
@@ -337,13 +342,21 @@ namespace GPC.Model.Sections
             : base(name)
         {
             _area = area < 0 ? throw new ArgumentException($"Area cannot be lower than zero") : area;
-            _jxx = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11;
-            _jyy = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22;
+            _j11 = j11 < 0 ? throw new ArgumentException($"Moment of Inertia J11 cannot be lower than zero") : j11;
+            _j22 = j22 < 0 ? throw new ArgumentException($"Moment of Inertia J22 cannot be lower than zero") : j22;
             _jt = jt < 0 ? throw new ArgumentException($"Moment of Inertia Jt cannot be lower than zero") : jt;
             _jw = jw < 0 ? throw new ArgumentException($"Moment of Inertia Jw cannot be lower than zero") : jw;
             _centroid = centroid;
             _shearCenter = shearCenter;
             _angleX1 = angle;
+
+            // before, J11 and J22 were written only in Jxx and Jyy (J11, J22 and Jp were zero), also with the principal axes rotated.
+            // Axes X-Y from the principal ones (the inverse of CalculateAngle / CalculateJAlpha)
+            double cos = Math.Cos(angle), sin = Math.Sin(angle);
+            _jxx = j11 * cos * cos + j22 * sin * sin;
+            _jyy = j11 * sin * sin + j22 * cos * cos;
+            _jxy = -0.5 * (j11 - j22) * Math.Sin(2.0 * angle);
+            _jp = j11 + j22;
         }
 
         protected Section(SerializationInfo info, StreamingContext context)
@@ -445,9 +458,10 @@ namespace GPC.Model.Sections
             _jyy = CalculateJyy();
             _jxy = CalculateJxy();
 
-            _angleX1 = CalculateAngle();
+            // J11 and J22 before the angle, that compares them with Jxx and Jyy (before, the values of the previous calculation were used)
             _j11 = CalculateJ11();
             _j22 = CalculateJ22();
+            _angleX1 = CalculateAngle();
 
             _jp = _jxx + _jyy;
             _jt = CalculateJt();
@@ -549,184 +563,100 @@ namespace GPC.Model.Sections
             return _centroid;
         }
 
+        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl1"/>
+        /// (before, the minimum elastic modulus)</returns>
         protected virtual double CalculateWpl1()
         {
-            return Math.Min(CalculateWel1Max(), CalculateWel1Min());
+            return double.NaN;
         }
 
+        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl2"/>
+        /// (before, the minimum elastic modulus)</returns>
         protected virtual double CalculateWpl2()
         {
-            return Math.Min(CalculateWel2Max(), CalculateWel2Min());
+            return double.NaN;
+        }
+
+        /// <returns>The plastic modulus of the shape for the bending about the axis through the centroid with direction <paramref name="angle"/>,
+        /// 0 if the section has no shape</returns>
+        private double ShapePlasticModulus(double angle)
+        {
+            Shape2d shape = Shape;
+            return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
+        }
+
+        /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum distance with sign of the vertices of the shape from the axis through
+        /// the centroid with direction <paramref name="angle"/>: (y - yc) cos - (x - xc) sin</returns>
+        private double ExtremeDistance(double angle, bool maximum)
+        {
+            double cosTeta = Math.Cos(angle);
+            double sinTeta = Math.Sin(angle);
+            Polygon3d fill = Shape.Fill;
+
+            double extreme = maximum ? double.MinValue : double.MaxValue;
+            for (int c = 0; c < fill.Count; c++)
+            {
+                double w = (fill[c].Y - Centroid.Y) * cosTeta - (fill[c].X - Centroid.X) * sinTeta;
+                extreme = maximum ? Math.Max(extreme, w) : Math.Min(extreme, w);
+            }
+
+            return extreme;
         }
 
         protected virtual double CalculateWel1Min()
         {
-            double cosTeta = Math.Cos(_angleX1);
-            double sinTeta = Math.Sin(_angleX1);
-
-            double dminConcrete = double.MaxValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dminConcrete)
-                {
-                    dminConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dminConcrete);
+            return _j11 / Math.Abs(ExtremeDistance(_angleX1, false));
         }
 
         protected virtual double CalculateWel1Max()
         {
-            double cosTeta = Math.Cos(_angleX1);
-            double sinTeta = Math.Sin(_angleX1);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dmaxConcrete);
+            return _j11 / Math.Abs(ExtremeDistance(_angleX1, true));
         }
 
         protected virtual double CalculateWel2Min()
         {
-            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
-            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
-
-            double dmaxConcrete = double.MaxValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
+            return _j22 / Math.Abs(ExtremeDistance(_angleX1 + Math.PI / 2.0, false));
         }
 
         protected virtual double CalculateWel2Max()
         {
-            double cosTeta = Math.Cos(_angleX1 + Math.PI / 2.0);
-            double sinTeta = Math.Sin(_angleX1 + Math.PI / 2.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
+            return _j22 / Math.Abs(ExtremeDistance(_angleX1 + Math.PI / 2.0, true));
         }
 
+        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="WplY"/>
+        /// (before, <see cref="Wel2Max"/>)</returns>
         protected virtual double CalculateWplY()
         {
-            return CalculateWel2Max();
+            return double.NaN;
         }
 
+        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="WplX"/>
+        /// (before, the minimum elastic modulus respect to the axis 1)</returns>
         protected virtual double CalculateWplX()
         {
-            return Math.Min(CalculateWel1Min(), CalculateWel1Max());
+            return double.NaN;
         }
+
+        // The moduli respect to X and Y use Jxx and Jyy (before, J11 and J22: wrong when the principal axes are rotated or when J11 was Jyy)
 
         protected virtual double CalculateWelXMax()
         {
-            double cosTeta = Math.Cos(0.0);
-            double sinTeta = Math.Sin(0.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dmaxConcrete);
+            return _jxx / Math.Abs(ExtremeDistance(0.0, true));
         }
 
         protected virtual double CalculateWelXMin()
         {
-            double cosTeta = Math.Cos(0.0);
-            double sinTeta = Math.Sin(0.0);
-
-            double dminConcrete = double.MaxValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dminConcrete)
-                {
-                    dminConcrete = w1;
-                }
-            }
-
-            return _j11 / Math.Abs(dminConcrete);
+            return _jxx / Math.Abs(ExtremeDistance(0.0, false));
         }
 
         protected virtual double CalculateWelYMax()
         {
-            double cosTeta = Math.Cos(Math.PI / 2.0);
-            double sinTeta = Math.Sin(Math.PI / 2.0);
-
-            double dmaxConcrete = double.MinValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 >= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
+            return _jyy / Math.Abs(ExtremeDistance(Math.PI / 2.0, true));
         }
 
         protected virtual double CalculateWelYMin()
         {
-            double cosTeta = Math.Cos(Math.PI / 2.0);
-            double sinTeta = Math.Sin(Math.PI / 2.0);
-
-            double dmaxConcrete = double.MaxValue;
-
-            for (int c = 0; c < _shape.Fill.Count; c++)
-            {
-                double w1 = (_shape.Fill[c].Y - Centroid.Y) * cosTeta - (_shape.Fill[c].X - Centroid.X) * sinTeta;
-
-                if (w1 <= dmaxConcrete)
-                {
-                    dmaxConcrete = w1;
-                }
-            }
-
-            return _j22 / Math.Abs(dmaxConcrete);
+            return _jyy / Math.Abs(ExtremeDistance(Math.PI / 2.0, false));
         }
 
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
@@ -779,14 +709,14 @@ namespace GPC.Model.Sections
             info.AddValue("Jw", _jw);
             info.AddValue("J11", _j11);
             info.AddValue("J22", _j22);
-            info.AddValue("WPL1", _wpl1);
-            info.AddValue("WPL2", _wpl2);
+            info.AddValue("WPL1", Wpl1); // the property: the lazy value is computed
+            info.AddValue("WPL2", Wpl2);
             info.AddValue("WEL1Max", _wel1Max);
             info.AddValue("WEL1Min", _wel1Min);
             info.AddValue("WEL2Max", _wel2Max);
             info.AddValue("WEL2Min", _wel2Min);
-            info.AddValue("WPLX", _wplX);
-            info.AddValue("WPLY", _wplY);
+            info.AddValue("WPLX", WplX);
+            info.AddValue("WPLY", WplY);
             info.AddValue("WELXMax", _welXMax);
             info.AddValue("WELXMin", _welXMin);
             info.AddValue("WELYMax", _welYMax);
@@ -876,6 +806,11 @@ namespace GPC.Model.Sections
 
         public static bool operator ==(Section left, Section right)
         {
+            // before, NullReferenceException when left was null
+            if (ReferenceEquals(left, right))
+                return true;
+            if (left is null || right is null)
+                return false;
             return left.Equals(right);
         }
 

@@ -3,6 +3,7 @@ using GPC.Geometry.Meshes;
 using GPC.Geometry.Meshes.DelaunayMesh;
 using GPC.Model.Maths.GaussIntegrations;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -88,22 +89,46 @@ namespace GPC.Model.Sections
             return angle;
         }
 
+        /// <remarks>The comparison of J11, J22 with Jxx, Jyy is relative (before, absolute with the geometric tolerance 1e-4: for a section in metres,
+        /// with moments of about 1e-7, the angle was always zero)</remarks>
         internal static double CalculateAngle(double J11, double J22, double Jxx, double Jyy, double Jxy)
         {
-            if (Math.Abs(J11 - Jxx) < GeometryBase.GetDefaultTolerance() &&
-                Math.Abs(J22 - Jyy) < GeometryBase.GetDefaultTolerance())
+            double tolerance = ProductOfInertiaZero * (Math.Abs(J11) + Math.Abs(J22));
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy) ||
+                (Math.Abs(J11 - Jxx) <= tolerance && Math.Abs(J22 - Jyy) <= tolerance))
                 return 0.0;
 
             return CalculateAngle(Jxx, Jyy, Jxy);
         }
 
+        /// <summary>
+        /// The product of inertia is zero (the X and Y axes are principal) if it is negligible respect to the moments of inertia
+        /// </summary>
+        internal static bool IsProductOfInertiaZero(double Jxx, double Jyy, double Jxy)
+        {
+            return Math.Abs(Jxy) <= ProductOfInertiaZero * (Math.Abs(Jxx) + Math.Abs(Jyy));
+        }
+
+        private const double ProductOfInertiaZero = 1e-10;
+
+        /// <remarks>If the X axis is principal (Jxy = 0), J11 is the moment of inertia respect to X, also if it is the smaller one (the convention of
+        /// the constructor of <see cref="Section"/> and of the moduli of the thin wall sections, computed respect to X). Before, J11 was always the
+        /// bigger one: for a symmetric section with Jyy > Jxx (a wide rectangle or RHS) J11 = Jyy and the axis 1 was rotated by -90°, while the
+        /// moduli (e.g. J11 / distance from the bottom) were computed respect to X</remarks>
         internal static double CalculateJ11(double Jxx, double Jyy, double Jxy)
         {
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy))
+                return Jxx;
+
             return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
 
+        /// <remarks>If the X axis is principal (Jxy = 0), J22 is the moment of inertia respect to Y (see <see cref="CalculateJ11"/>)</remarks>
         internal static double CalculateJ22(double Jxx, double Jyy, double Jxy)
         {
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy))
+                return Jyy;
+
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
 
@@ -190,7 +215,7 @@ namespace GPC.Model.Sections
             Jxy = JxyArray.Sum();
             Jp = Jxx + Jyy;
 
-            if (Math.Abs(Jxy) < 100000)
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy)) // before, |Jxy| < 100000: wrong for the sections in metres and for the small ones in mm
                 Jxy = 0.0; // Se la sezione simmetrica vale zero e pu� diventare negativo per errore numerico 
         }
 
@@ -259,7 +284,7 @@ namespace GPC.Model.Sections
             IntegrateShape(shape, centroid.X, centroid.Y, out _, out _, out _, out Jxx, out Jyy, out Jxy);
             Jp = Jxx + Jyy;
 
-            if (Math.Abs(Jxy) < 100000)
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy)) // before, |Jxy| < 100000: wrong for the sections in metres and for the small ones in mm
                 Jxy = 0.0; // Se la sezione simmetrica vale zero e può diventare negativo per errore numerico
         }
 
@@ -299,6 +324,157 @@ namespace GPC.Model.Sections
             {
                 for (int i = 0; i < shape.Childs.Length; i++)
                     AddShapeIntegrals(shape.Childs[i], originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
+            }
+        }
+
+        /// <summary>
+        /// Plastic modulus of the shape (fill minus holes plus childs) for the bending about an axis with direction <paramref name="angle"/>:
+        /// the integral of the distance from the plastic neutral axis, the parallel axis that divides the area in two halves. Exact for polygons
+        /// </summary>
+        /// <param name="angle">The direction of the axis (0: X axis, <see cref="Math.PI"/> / 2: Y axis), as the angle of the elastic moduli</param>
+        internal static double CalculatePlasticModulus(Shape shape, Point2d centroid, double angle)
+        {
+            if (shape is null || shape.Fill is null || shape.Fill.Count < 3)
+                return 0.0;
+
+            // the rings in the coordinates (u, w): u along the axis, w = (y - yc) cos - (x - xc) sin the distance from it
+            double cos = Math.Cos(angle), sin = Math.Sin(angle);
+            var rings = new List<(double[] u, double[] w, double factor)>();
+            AddPlasticRings(shape, centroid, cos, sin, 1.0, rings);
+
+            double wMin = double.MaxValue, wMax = double.MinValue;
+            foreach (var ring in rings)
+            {
+                for (int i = 0; i < ring.w.Length; i++)
+                {
+                    wMin = Math.Min(wMin, ring.w[i]);
+                    wMax = Math.Max(wMax, ring.w[i]);
+                }
+            }
+
+            ClippedIntegrals(rings, double.MinValue, out double area, out double firstMoment);
+            if (area <= 0)
+                return 0.0;
+
+            // the plastic neutral axis: area above it = half the area (the area above w = c decreases from area to 0)
+            double low = wMin, high = wMax;
+            for (int k = 0; k < 200 && high - low > 1e-14 * (wMax - wMin); k++)
+            {
+                double c = 0.5 * (low + high);
+                ClippedIntegrals(rings, c, out double areaAbove, out _);
+                if (areaAbove > 0.5 * area)
+                    low = c;
+                else
+                    high = c;
+            }
+
+            double neutralAxis = 0.5 * (low + high);
+            ClippedIntegrals(rings, neutralAxis, out double aAbove, out double qAbove);
+            double aBelow = area - aAbove, qBelow = firstMoment - qAbove;
+
+            // integral of |w - c|: (w - c) above the axis, (c - w) below it
+            return (qAbove - neutralAxis * aAbove) + (neutralAxis * aBelow - qBelow);
+        }
+
+        /// <param name="sign">1 for a region to add, -1 for a region to subtract</param>
+        private static void AddPlasticRings(Shape shape, Point2d centroid, double cos, double sin, double sign, List<(double[] u, double[] w, double factor)> rings)
+        {
+            AddPlasticRing(shape.Fill, centroid, cos, sin, sign, rings);
+
+            if (shape.Holes != null)
+            {
+                for (int i = 0; i < shape.Holes.Length; i++)
+                    AddPlasticRing(shape.Holes[i], centroid, cos, sin, -sign, rings);
+            }
+
+            // shapes inside the holes
+            if (shape.Childs != null)
+            {
+                for (int i = 0; i < shape.Childs.Length; i++)
+                    AddPlasticRings(shape.Childs[i], centroid, cos, sin, sign, rings);
+            }
+        }
+
+        private static void AddPlasticRing(Polygon3d polygon, Point2d centroid, double cos, double sin, double sign, List<(double[] u, double[] w, double factor)> rings)
+        {
+            int count = polygon.Count;
+            if (count < 3)
+                return;
+
+            var u = new double[count];
+            var w = new double[count];
+            double doubleArea = 0;
+            for (int i = 0; i < count; i++)
+            {
+                double x = polygon[i].X - centroid.X, y = polygon[i].Y - centroid.Y;
+                u[i] = x * cos + y * sin;
+                w[i] = y * cos - x * sin;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                int next = (i + 1) % count;
+                doubleArea += u[i] * w[next] - u[next] * w[i];
+            }
+
+            // the integrals are positive for counterclockwise rings (the rotation keeps the orientation)
+            rings.Add((u, w, doubleArea < 0 ? -sign : sign));
+        }
+
+        /// <summary>
+        /// Area and first moment (integral of w dA) of the part of the rings with w >= <paramref name="c"/>: every ring is clipped by the half-plane
+        /// (Sutherland-Hodgman) and integrated with the Green's theorem; the sides added along w = c do not change the integrals of the other rings
+        /// </summary>
+        private static void ClippedIntegrals(List<(double[] u, double[] w, double factor)> rings, double c, out double area, out double firstMoment)
+        {
+            area = 0;
+            firstMoment = 0;
+
+            foreach (var ring in rings)
+            {
+                double[] u = ring.u, w = ring.w;
+                int count = u.Length;
+                double a = 0, m = 0;
+                bool hasFirst = false;
+                double u0 = 0, w0 = 0, uPrevious = 0, wPrevious = 0;
+
+                void AddVertex(double uv, double wv)
+                {
+                    if (!hasFirst)
+                    {
+                        u0 = uv; w0 = wv;
+                        hasFirst = true;
+                    }
+                    else
+                    {
+                        double cross = uPrevious * wv - uv * wPrevious;
+                        a += cross;
+                        m += (wPrevious + wv) * cross;
+                    }
+                    uPrevious = uv;
+                    wPrevious = wv;
+                }
+
+                for (int i = 0; i < count; i++)
+                {
+                    int next = (i + 1) % count;
+                    double dp = w[i] - c, dq = w[next] - c;
+
+                    if (dp >= 0)
+                        AddVertex(u[i], w[i]);
+                    if ((dp >= 0) != (dq >= 0))
+                        AddVertex(u[i] + (u[next] - u[i]) * dp / (dp - dq), c);
+                }
+
+                if (!hasFirst)
+                    continue;
+
+                // closing side
+                double closing = uPrevious * w0 - u0 * wPrevious;
+                a += closing;
+                m += (wPrevious + w0) * closing;
+
+                area += ring.factor * a / 2.0;
+                firstMoment += ring.factor * m / 6.0;
             }
         }
 

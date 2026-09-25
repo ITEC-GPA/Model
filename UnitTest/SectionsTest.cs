@@ -359,9 +359,11 @@ namespace ModelObjectTest
             double Wpl2 = A / 2.0 * h / 2.0;
             double Wpl1 = A / 2.0 * b / 2.0;
 
+            // September 2026: the axis 1 of the rectangle is its X axis (the one of Wel1 and Wpl1), also when it is wider than high:
+            // J11 = Jxx = J2 here (before, J11 was the bigger moment J1, not coherent with Wel1 = J11 / (height / 2))
             Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
-            Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
-            Assert.AreEqual(Math.Abs(J1 - sec.J11), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J1 - sec.J22), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J2 - sec.J11), 0, 0.0015);
             Assert.AreEqual(0, Math.Abs(Jxx - sec.Jxx), 0.0015);
             Assert.AreEqual(0, Math.Abs(Jyy - sec.Jyy), 0.0015);
             Assert.AreEqual(0, Math.Abs(Jxy - sec.Jxy), 0.0015);
@@ -369,6 +371,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+            Assert.AreEqual(sec.Wel1, sec.J11 / (b / 2.0), 1e-9 * sec.Wel1);
         }
 
         [TestMethod]
@@ -389,9 +392,10 @@ namespace ModelObjectTest
             double Wpl1 = A / 2.0 * h / 2.0;
             double Wpl2 = A / 2.0 * b / 2.0;
 
+            // September 2026: J11 is respect to the X axis of the rectangle, the axis of Wel1 and Wpl1 (before, the bigger moment J1)
             Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
-            Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
-            Assert.AreEqual(Math.Abs(J1 - sec.J11), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J1 - sec.J22), 0, 0.0015);
+            Assert.AreEqual(Math.Abs(J2 - sec.J11), 0, 0.0015);
             Assert.AreEqual(0, Math.Abs(Jxx - sec.Jxx), 0.0015);
             Assert.AreEqual(0, Math.Abs(Jyy - sec.Jyy), 0.0015);
             Assert.AreEqual(0, Math.Abs(Jxy - sec.Jxy), 0.0015);
@@ -399,6 +403,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+            Assert.AreEqual(sec.Wel1, sec.J11 / (h / 2.0), 1e-9 * sec.Wel1);
         }
 
         [TestMethod]
@@ -421,9 +426,12 @@ namespace ModelObjectTest
 
             double precision = 0.0000001;
 
+            // September 2026: J11 is respect to the X axis of the rotated rectangle (the axis 1, at the angle 1.0, of Wel1 and Wpl1);
+            // before, J11 was the bigger moment J1
             Assert.AreEqual(0, A / sec.Area - 1.0, precision);
-            Assert.AreEqual(0, J2 / sec.J22 - 1.0, precision);
-            Assert.AreEqual(0, J1 / sec.J11 - 1.0, precision);
+            Assert.AreEqual(0, J1 / sec.J22 - 1.0, precision);
+            Assert.AreEqual(0, J2 / sec.J11 - 1.0, precision);
+            Assert.AreEqual(1.0, sec.AngleX1, precision);
             Assert.AreEqual(0, Jxx / sec.Jxx - 1.0, precision);
             Assert.AreEqual(0, Jyy / sec.Jyy - 1.0, precision);
             Assert.AreEqual(0, Jxy / sec.Jxy - 1.0, precision);
@@ -1489,8 +1497,10 @@ namespace ModelObjectTest
             double tb = 40;
             var sec = new SteelSection(new SectionL(b, tb, h, tw, string.Empty), SteelMaterialEN1993Data.S355);
 
-            double Wel2 = 1.0 / 6.0 * b * tb * tb;
-            double Wel1 = 1.0 / 6.0 * tb * b * b;
+            // The vertical leg has the length of the thickness: the section is a rectangle 500 x 40, with the X axis principal.
+            // September 2026: the axis 1 is X when X is principal (J11 = Jxx), so Wel1 is respect to X (before, J11 was the bigger moment)
+            double Wel1 = 1.0 / 6.0 * b * tb * tb;
+            double Wel2 = 1.0 / 6.0 * tb * b * b;
 
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.001);
@@ -2737,7 +2747,9 @@ namespace ModelObjectTest
 
             double homoJ11Target = SectionHelper.CalculateJ11(homoJxxTarget, homoJyyTarget, homoJxyTarget);
             double homoJ22Target = SectionHelper.CalculateJ22(homoJxxTarget, homoJyyTarget, homoJxyTarget);
-            double homoAlphaTarget = SectionHelper.CalculateAngle(homoJxxTarget, homoJyyTarget, homoJxyTarget);
+            // September 2026: the section is symmetric (Jxy = 0), the X axis is the axis 1 (J11 = Jxx, angle 0): the angle is computed as in
+            // the section, from J11 and J22 (before, the angle of the bigger moment, -90°, with J11 = Jyy)
+            double homoAlphaTarget = SectionHelper.CalculateAngle(homoJ11Target, homoJ22Target, homoJxxTarget, homoJyyTarget, homoJxyTarget);
 
             // Test
 
@@ -2751,7 +2763,9 @@ namespace ModelObjectTest
 
             Assert.AreEqual(0.0, homo.J11H / homoJ11Target - 1.0, 0.0000001);
             Assert.AreEqual(0.0, homo.J22H / homoJ22Target - 1.0, 0.0000001);
-            Assert.AreEqual(0.0, Math.Abs(homo.angleX / homoAlphaTarget) - 1.0, 0.000001);
+            Assert.AreEqual(homoAlphaTarget, homo.angleX, 0.000001);
+            Assert.AreEqual(0.0, homo.angleX, 0.000001);
+            Assert.AreEqual(homoJxxTarget, homo.J11H, 1e-7 * homoJxxTarget);
         }
 
         #endregion
