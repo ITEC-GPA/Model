@@ -125,19 +125,7 @@ namespace GPC.Model.Sections
             _twR = thickenssWebRight;
             _r = radius < 0 ? 0 : radius;
 
-            ThinWall webSx = new ThinWall(Heightinternal, _twL, Math.PI / 2,
-                new Point2d(_twL / 2, Heightinternal / 2 + _tfBottom));
-            ThinWall webDx = new ThinWall(Heightinternal, _twR, Math.PI / 2,
-                new Point2d(Base - _twR / 2, Heightinternal / 2 + _tfBottom));
-            ThinWall flangeTop = new ThinWall(Base, _tfTop, 0,
-                new Point2d(Base / 2, _h - _tfTop / 2));
-            ThinWall flangeBottom = new ThinWall(Base, _tfBottom, 0,
-                new Point2d(Base / 2, _tfBottom * 0.5));
-
-            SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
-
-            SetMechanicalProperties();
-            _mesh = GetMesh();
+            CalculateSection();
         }
 
         protected SectionRHS(SerializationInfo info, StreamingContext context)
@@ -173,7 +161,7 @@ namespace GPC.Model.Sections
 
         public double DistanceYCentroidFromTop()
         {
-            return Height + CalculateCentroid().Y;
+            return Height - CalculateCentroid().Y;
         }
 
         public double DistanceXCentroidFromRight()
@@ -366,13 +354,13 @@ namespace GPC.Model.Sections
             ThinWall webDx = new ThinWall(Heightinternal, ThicknessWebRight, Math.PI / 2,
                 new Point2d(Base - ThicknessWebRight / 2, Heightinternal / 2 + ThicknessBottom));
             ThinWall flangeTop = new ThinWall(Base, ThicknessTop, 0,
-                new Point2d(Base / 2, ThicknessBottom / 2));
+                new Point2d(Base / 2, Height - ThicknessTop / 2));
             ThinWall flangeBottom = new ThinWall(Base, ThicknessBottom, 0,
-                new Point2d(Base / 2, ThicknessBottom + Heightinternal + ThicknessTop / 2));
+                new Point2d(Base / 2, ThicknessBottom / 2));
 
             SetThinWalls(new ThinWall[] { webSx, webDx, flangeBottom, flangeTop });
 
-            _mesh = GetMesh();
+            ResetMesh();
             SetMechanicalProperties();
             _shape = null;
         }

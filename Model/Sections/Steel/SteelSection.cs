@@ -245,7 +245,7 @@ namespace GPC.Model.Sections.Steel
             return hashCode;
         }
 
-        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             return _sectionShape.GetMesh(meshSize, initialMeshOnly, recombine, refine);
         }

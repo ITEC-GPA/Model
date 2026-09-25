@@ -130,7 +130,7 @@ namespace GPC.Model.Sections
 
         void SetMechanicalProperties();
 
-        Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false);
+        Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false);
 
         void SetMeshSize(double size);
 

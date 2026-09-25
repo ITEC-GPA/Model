@@ -127,7 +127,7 @@ namespace GPC.Model.Sections
             SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
             SetMechanicalProperties();
-            _mesh = GetMesh();
+            ResetMesh();
         }
 
         protected SectionL(SerializationInfo info, StreamingContext context)
@@ -331,7 +331,7 @@ namespace GPC.Model.Sections
 
             SetThinWalls(new ThinWall[] { thinWall1, thinWall2 });
 
-            _mesh = GetMesh();
+            ResetMesh();
             SetMechanicalProperties();
             _shape = null;
         }

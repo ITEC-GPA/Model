@@ -3,6 +3,7 @@ using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using System;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace GPC.Model.Sections
 {
@@ -264,16 +265,15 @@ namespace GPC.Model.Sections
         /// </summary>
         public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);
 
+        /// <summary>
+        /// The mesh of the section, generated at the first access
+        /// </summary>
         public virtual Mesh Mesh
         {
             get
             {
                 if (_mesh is null)
-                {
-                    Point2d bBox = Shape.Get2dBoundingBox().Size;
-                    double size = Math.Min(Math.Max(bBox.X, bBox.Y) / 2.0, Math.Min(bBox.X, bBox.Y));
-                    _mesh = GetMesh(size);
-                }
+                    Interlocked.CompareExchange(ref _mesh, CreateMesh(), null);
                 return _mesh;
             }
         }
@@ -402,6 +402,28 @@ namespace GPC.Model.Sections
         {
             _meshSize = size > 0 ? size : 0;
             _mesh = GetMesh();
+        }
+
+        #endregion
+
+        #region Protected methods
+
+        /// <summary>
+        /// The mesh returned by <see cref="Mesh"/> when it is not generated yet
+        /// </summary>
+        protected virtual Mesh CreateMesh()
+        {
+            Point2d bBox = Shape.Get2dBoundingBox().Size;
+            double size = Math.Min(Math.Max(bBox.X, bBox.Y) / 2.0, Math.Min(bBox.X, bBox.Y));
+            return GetMesh(size);
+        }
+
+        /// <summary>
+        /// Discards the mesh: it will be generated again at the next access to <see cref="Mesh"/>
+        /// </summary>
+        protected void ResetMesh()
+        {
+            _mesh = null;
         }
 
         #endregion
@@ -722,7 +744,7 @@ namespace GPC.Model.Sections
             return _shape;
         }
 
-        public virtual Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        public virtual Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             if (meshSize == 0)
                 meshSize = _meshSize;

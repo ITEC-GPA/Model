@@ -101,7 +101,7 @@ namespace GPC.Model.Sections
             _externalDiameter = info.GetDouble("D");
             _thickness = info.GetDouble("T");
 
-            _mesh = GetMesh();
+            ResetMesh();
         }
 
         #endregion
@@ -222,6 +222,8 @@ namespace GPC.Model.Sections
             return mesh;
         }
 
+        protected override Mesh CreateMesh() => GetMesh(numberOfEdges: 32);
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -266,7 +268,7 @@ namespace GPC.Model.Sections
 
             SetThinWalls(thinWalls);
 
-            _mesh = GetMesh();
+            ResetMesh();
             SetMechanicalProperties();
             _shape = null;
         }

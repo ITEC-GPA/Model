@@ -16,10 +16,11 @@ namespace GPC.Model.Sections
         /// <param name="shape">The shape</param>
         /// <param name="size">The mesh size</param>
         /// <param name="initialMeshOnly">If true, use only shape vertices for meshing</param>
-        /// <param name="recombine">If true, recombine the mesh into quad mesh</param>
+        /// <param name="recombine">If true, quadrilaterals as square as possible (see <see cref="DelaunayMesh"/>); false (default): triangles,
+        /// the mesh used by the checks until September 2026 (Recombine was not implemented)</param>
         /// <param name="refine"></param>
         /// <returns></returns>
-        internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             if (shape is null)
                 return null;

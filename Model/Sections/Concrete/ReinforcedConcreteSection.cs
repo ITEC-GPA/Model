@@ -276,9 +276,8 @@ namespace GPC.Model.Sections.Concrete
             if (steelShapeH != null && steelMaterial != null)
                 _steelSections.Add(new SteelSectionPosition(new SteelSection(steelShapeH, steelMaterial),
                     Point2d.Origin, 0.0,
-                    new Point2d(0.5 * concreteWidth - 0.5 * Math.Max(steelShapeH.LenghtBottomFlange, steelShapeH.LenghtTopFlange) + steelEccentricity, -steelShapeH.Height)));
-
-            _steelSections[0].IsInsideConcrete = false;
+                    new Point2d(0.5 * concreteWidth - 0.5 * Math.Max(steelShapeH.LenghtBottomFlange, steelShapeH.LenghtTopFlange) + steelEccentricity, -steelShapeH.Height))
+                { IsInsideConcrete = false });
         }
 
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
@@ -824,7 +823,7 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
-        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = true, bool refine = false)
+        public Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             lock (_meshSync)
             {

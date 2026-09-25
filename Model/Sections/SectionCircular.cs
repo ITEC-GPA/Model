@@ -18,11 +18,11 @@ namespace GPC.Model.Sections
             get => _diameter;
             set
             {
-                if (_diameter != value && _diameter > 0)
+                if (_diameter != value && value > 0)
                 {
                     _diameter = value;
                     SetMechanicalProperties();
-                    _mesh = GetMesh();
+                    ResetMesh();
                 }
             }
         }
@@ -44,7 +44,6 @@ namespace GPC.Model.Sections
             : base(name)
         {
             _diameter = diameter;
-            _mesh = GetMesh();
             SetMechanicalProperties();
         }
 
@@ -126,6 +125,8 @@ namespace GPC.Model.Sections
 
             return mesh;
         }
+
+        protected override Mesh CreateMesh() => GetMesh(numberOfEdges: 32);
 
         public override void SetMechanicalProperties()
         {
