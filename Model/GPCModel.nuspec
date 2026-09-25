@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>GPC</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <description>Base elements library for GPC applications</description>
+    <releaseNotes>Added composite section, fix on ACI.</releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags>Model</tags>
+  </metadata>
+</package>

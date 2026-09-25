@@ -8,9 +8,9 @@ namespace MathTest
     [TestClass]
     public class GaussIntegrationTest
     {
-		#region CommonAssert
+        #region CommonAssert
 
-		public void CommonEqualAssert(double result, double expectedValue)
+        public void CommonEqualAssert(double result, double expectedValue)
         {
             if (expectedValue == 0)
             {
@@ -125,7 +125,7 @@ namespace MathTest
             }
         }
 
-		protected void CommonAssertQuadLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue)
+        protected void CommonAssertQuadLinear(Func<double, double, double> func, Point3d[] poly, double expectedValue)
         {
             double result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad4);
 
@@ -149,7 +149,6 @@ namespace MathTest
             result = GaussIntegration.IntegrationQuadrilateralLinearShapeFunction(func, poly, QuadrangleGaussPoints.GaussPointNumber.Quad400);
             CommonEqualAssert(result, expectedValue);
         }
-
 
         protected void CommonAssertQuadQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
         {
@@ -201,7 +200,6 @@ namespace MathTest
             CommonEqualAssert(result, expectedValue);
         }
 
-
         protected void CommonAssertTriQuadratic(Func<double, double, double> func, Point3d[] poly, double expectedValue)
         {
             double result;
@@ -229,11 +227,35 @@ namespace MathTest
             CommonEqualAssert(result, expectedValue);
         }
 
-		#endregion
+        protected void CommonAssertHexaLinear(Func<double, double, double, double> func, Point3d[] poly, double expectedValue)
+        {
+            double result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedronGaussPoints.GaussPointNumber.Hexa8);
+            CommonEqualAssert(result, expectedValue);
 
-		#region Linear Shape Function
+            result = GaussIntegration.IntegrationHexaedronLinearShapeFunction(func, poly, HexahedronGaussPoints.GaussPointNumber.Hexa27);
+            CommonEqualAssert(result, expectedValue);
+        }
 
-		[TestMethod]
+        protected void CommonAssertPentaLinear(Func<double, double, double, double> func, Point3d[] poly, double expectedValue)
+        {
+            var result = GaussIntegration.IntegrationPentahedronLinearShapeFunction(func, poly, PentahedronGaussPoints.GaussPointNumber.Penta6);
+            CommonEqualAssert(result, expectedValue);
+
+            result = GaussIntegration.IntegrationPentahedronLinearShapeFunction(func, poly, PentahedronGaussPoints.GaussPointNumber.Penta8);
+            CommonEqualAssert(result, expectedValue);
+
+            result = GaussIntegration.IntegrationPentahedronLinearShapeFunction(func, poly, PentahedronGaussPoints.GaussPointNumber.Penta18);
+            CommonEqualAssert(result, expectedValue);
+
+            result = GaussIntegration.IntegrationPentahedronLinearShapeFunction(func, poly, PentahedronGaussPoints.GaussPointNumber.Penta36);
+            CommonEqualAssert(result, expectedValue);
+        }
+
+        #endregion
+
+        #region Linear Shape Function
+
+        [TestMethod]
         public void Line2Test1LSF()
         {
             double constant = 3.0;
@@ -307,32 +329,32 @@ namespace MathTest
             CommonAssertLineQuadratic(func, poly, expValue);
         }
 
-		[TestMethod]
-		public void Line2Test5QSF()
-		{
-			double constant = 3.0;
+        [TestMethod]
+        public void Line2Test5QSF()
+        {
+            double constant = 3.0;
 
-			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
-			double expValue = 999;
+            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
+            double expValue = 999;
             double func(double x, double y) => constant * y * y;
 
             CommonAssertLineQuadratic(func, poly, expValue);
 
-		}
+        }
 
-		[TestMethod]
-		public void Line2Test6QSF()
-		{
-			double constant = 3.0;
+        [TestMethod]
+        public void Line2Test6QSF()
+        {
+            double constant = 3.0;
 
-			Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
-			double expValue = 7499.25;
+            Point3d[] poly = new Point3d[] { new Point3d(1.0, 1.0, 0), new Point3d(1.0, 10.0, 0) };
+            double expValue = 7499.25;
             double func(double x, double y) => constant * y * y * y;
 
             CommonAssertLineQuadratic(func, poly, expValue);
-		}
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void Quad4Test1LSF()
         {
             double constant = 3.0;
@@ -474,6 +496,212 @@ namespace MathTest
             CommonAssertTriLinear(func, vertices, expValue);
         }
 
+        [TestMethod]
+        public void Hexahedro8Test0LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(1, 0, 0),
+                new Point3d(1, 1, 0),
+                new Point3d(0, 1, 0),
+                new Point3d(0, 0, 1),
+                new Point3d(1, 0, 1),
+                new Point3d(1, 1, 1),
+                new Point3d(0, 1, 1),
+            };
+
+            double func(double x, double y, double z) => 1;
+            double expValue = 1;
+
+            CommonAssertHexaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Hexahedro8Test1LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(1, 0, 0),
+                new Point3d(1, 1, 0),
+                new Point3d(0, 1, 0),
+                new Point3d(0, 0, 1),
+                new Point3d(1, 0, 1),
+                new Point3d(1, 1, 1),
+                new Point3d(0, 1, 1),
+            };
+
+            double func(double x, double y, double z) => x;
+            double expValue = 0.5;
+
+            CommonAssertHexaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Hexahedro8Test2LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(1, 0, 0),
+                new Point3d(1, 1, 0),
+                new Point3d(0, 1, 0),
+                new Point3d(0, 0, 1),
+                new Point3d(1, 0, 1),
+                new Point3d(1, 1, 1),
+                new Point3d(0, 1, 1),
+            };
+
+            double func(double x, double y, double z) => y;
+            double expValue = 0.5;
+
+            CommonAssertHexaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Hexahedro8Test3LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(1, 0, 0),
+                new Point3d(1, 1, 0),
+                new Point3d(0, 1, 0),
+                new Point3d(0, 0, 1),
+                new Point3d(1, 0, 1),
+                new Point3d(1, 1, 1),
+                new Point3d(0, 1, 1),
+            };
+
+            double func(double x, double y, double z) => z;
+            double expValue = 0.5;
+
+            CommonAssertHexaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test0LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, -1),
+                new Point3d(1, 0, -1),
+                new Point3d(0, 1, -1),
+                new Point3d(0, 0, +1),
+                new Point3d(1, 0, +1),
+                new Point3d(0, 1, +1),
+            };
+
+            double func(double x, double y, double z) => 1;
+            double expValue = 1.0;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test1LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(-1, 0, 0),
+                new Point3d(0, -1, 0),
+                new Point3d(0, 0, 1),
+                new Point3d(-1, 0, 1),
+                new Point3d(0, -1, 1),
+            };
+
+            double func(double x, double y, double z) => 1;
+            double expValue = 0.5;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test2LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(0, 0, 0),
+                new Point3d(10, 0, 0),
+                new Point3d(0, 10, 0),
+                new Point3d(0, 0, 10),
+                new Point3d(10, 0, 10),
+                new Point3d(0, 10, 10),
+            };
+
+            double func(double x, double y, double z) => z;
+            double expValue = 2500;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test3LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(10, 10, 10),
+                new Point3d(11, 10, 10),
+                new Point3d(10, 11, 10),
+                new Point3d(10, 10, 11),
+                new Point3d(11, 10, 11),
+                new Point3d(10, 11, 11),
+            };
+
+            double func(double x, double y, double z) => 1;
+            double expValue = 0.5;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test4LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(10, 10, 10),
+                new Point3d(11, 10, 10),
+                new Point3d(10, 11, 10),
+                new Point3d(10, 10, 11),
+                new Point3d(11, 10, 11),
+                new Point3d(10, 11, 11),
+            };
+
+            double func(double x, double y, double z) => z;
+            double expValue = 5.25;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test5LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(10, 10, 10),
+                new Point3d(11, 10, 10),
+                new Point3d(10, 11, 10),
+                new Point3d(10, 10, 11),
+                new Point3d(11, 10, 11),
+                new Point3d(10, 11, 11),
+            };
+
+            double func(double x, double y, double z) => x;
+            double expValue = 5.16666;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
+        [TestMethod]
+        public void Pentahedron6Test6LSF()
+        {
+            Point3d[] vertices = new Point3d[] {
+                new Point3d(10, 10, 10),
+                new Point3d(11, 10, 10),
+                new Point3d(10, 11, 10),
+                new Point3d(10, 10, 11),
+                new Point3d(11, 10, 11),
+                new Point3d(10, 11, 11),
+            };
+
+            double func(double x, double y, double z) => y;
+            double expValue = 5.16666;
+
+            CommonAssertPentaLinear(func, vertices, expValue);
+        }
+
         #endregion
 
         #region Quadratic Shape Function
@@ -588,7 +816,6 @@ namespace MathTest
             CommonAssertTriQuadratic(func, vertices, expValue);
         }
 
-        #endregion
-
+        #endregion        
     }
 }

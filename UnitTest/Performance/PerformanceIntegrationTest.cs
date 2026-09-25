@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
@@ -8,14 +6,15 @@ using GPC.Model.Maths.GaussIntegrations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.TestUtilities;
 using GPC.Utilities.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Linq;
 
 namespace PerformanceTest
 {
     [TestClass]
-    public class PerformanceIntegrationTest : UnitTestBase
+    public class PerformanceIntegrationTest
     {
         protected void CommonEqualAssert(double result, double expectedValue, double tolerance = 0.01)
         {
@@ -37,7 +36,7 @@ namespace PerformanceTest
         }
 
         protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, double rebarDiameter = 18, double concreteCover = 50,
-            int numberOfRebars = 16, ConcreteMaterial concreteMaterial = null, SteelMaterial rebarMaterial = null)
+            int numberOfRebars = 16, ConcreteMaterial? concreteMaterial = null, SteelMaterial? rebarMaterial = null)
         {
             if (concreteMaterial == null)
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
@@ -62,7 +61,7 @@ namespace PerformanceTest
             return section;
         }
 
-        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, ConcreteMaterial concreteMaterial = null)
+        protected ReinforcedConcreteSection GetCircularSection(double diameter = 300, int subdivision = 32, ConcreteMaterial? concreteMaterial = null)
         {
             if (concreteMaterial == null)
                 concreteMaterial = ConcreteMaterialEN1992Data.C25_30;
@@ -72,7 +71,6 @@ namespace PerformanceTest
 
             return section;
         }
-
 
         [TestMethod]
         public void IntegrationTest1()
@@ -245,7 +243,7 @@ namespace PerformanceTest
             double initialTolerance = 0.015;
             double expJ = Math.PI / 64 * Math.Pow(diameter, 4);
 
-			int[] subdivision = new int[] { 32, 64 };
+            int[] subdivision = new int[] { 32, 64 };
             (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[] gp =
                 new (QuadrangleGaussPoints.GaussPointNumber, TriangleGaussPoints.GaussPointNumber)[]
                 {

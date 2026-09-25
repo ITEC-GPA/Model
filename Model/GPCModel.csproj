@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>    
+  <RootNamespace>GPC.Model</RootNamespace>    
+  <Configurations>Debug;Release;DebugLocalLibs</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <Compile Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+    <None Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
+    <None Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Materials\Aluminium\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DelaunayMesh">
+      <HintPath>..\..\Geometry\DelaunayMesh\bin\Release\netstandard2.0\DelaunayMesh.dll</HintPath>
+    </Reference>
+    <Reference Include="GPCGeometry">
+      <HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath>
+    </Reference>
+    <Reference Include="GPCUtilities">
+      <HintPath>..\..\Utilities\GPCUtilities\bin\Release\netstandard2.0\GPCUtilities.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

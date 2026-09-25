@@ -2,7 +2,6 @@ using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Standards;
-using GPC.TestUtilities;
 using GPC.Utilities.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -11,7 +10,7 @@ using System.Collections.Generic;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class MaterialTest : UnitTestBase
+    public class MaterialTest
     {
         [TestMethod]
         public void TestMethod1()

@@ -8,8 +8,8 @@ using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
-using GPC.TestUtilities;
 using GPC.Utilities.Extensions;
+using GPC.Utilities.Maths;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ using System.Linq;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class SectionsTest : UnitTestBase
+    public class SectionsTest 
     {
         /// <summary>
         /// Metodo per visualizzare la geometria della sezione
@@ -354,10 +354,12 @@ namespace ModelObjectTest
             double Jxx = J2;
             double Jyy = J1;
             double Jxy = 0.0;
-            double Wel2 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
-            double Wel1 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
-            double Wpl2 = A / 2.0 * h / 2.0;
-            double Wpl1 = A / 2.0 * b / 2.0;
+            // September 2026: the axis 1 is the principal axis of the maximum moment J1, here the vertical one (height 10, width 100), and the
+            // moduli 1 are respect to it (before, J11 = J1 but Wel1 and Wpl1 were respect to the horizontal axis: Wel1 = 1/6 h b^2, Wpl1 = A/2 b/2)
+            double Wel1 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
+            double Wel2 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
+            double Wpl1 = A / 2.0 * h / 2.0;
+            double Wpl2 = A / 2.0 * b / 2.0;
 
             Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
             Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
@@ -369,6 +371,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+            Assert.AreEqual(-Math.PI / 2.0, sec.AngleX1, 1e-12);
+            Assert.AreEqual(sec.Wel1, sec.J11 / (h / 2.0), 1e-9 * sec.Wel1);
         }
 
         [TestMethod]
@@ -384,10 +388,12 @@ namespace ModelObjectTest
             double Jxx = J2;
             double Jyy = J1;
             double Jxy = 0.0;
-            double Wel1 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
-            double Wel2 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
-            double Wpl1 = A / 2.0 * h / 2.0;
-            double Wpl2 = A / 2.0 * b / 2.0;
+            // September 2026: the axis 1 is the principal axis of the maximum moment J1, here the vertical one (height 2, width 10), and the
+            // moduli 1 are respect to it (before, J11 = J1 but Wel1 and Wpl1 were respect to the horizontal axis: Wel1 = 1/6 b h^2, Wpl1 = A/2 h/2)
+            double Wel1 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
+            double Wel2 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
+            double Wpl1 = A / 2.0 * b / 2.0;
+            double Wpl2 = A / 2.0 * h / 2.0;
 
             Assert.AreEqual(Math.Abs(A - sec.Area), 0, 0.0015);
             Assert.AreEqual(Math.Abs(J2 - sec.J22), 0, 0.0015);
@@ -399,6 +405,8 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wel1 - sec.Wel1), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl2 - sec.Wpl2), 0, 0.0015);
             Assert.AreEqual(Math.Abs(Wpl1 - sec.Wpl1), 0, 0.0015);
+            Assert.AreEqual(-Math.PI / 2.0, sec.AngleX1, 1e-12);
+            Assert.AreEqual(sec.Wel1, sec.J11 / (b / 2.0), 1e-9 * sec.Wel1);
         }
 
         [TestMethod]
@@ -414,16 +422,19 @@ namespace ModelObjectTest
             double Jxx = 119.9584136;
             double Jyy = 53.37491974;
             double Jxy = 72.74379415;
-            double Wel1 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
-            double Wel2 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
-            double Wpl1 = A / 2.0 * h / 2.0;
-            double Wpl2 = A / 2.0 * b / 2.0;
+            // September 2026: the axis 1 is the principal axis of the maximum moment J1, the local Y axis of the rectangle rotated by 1.0
+            // (angle 1.0 - 90°), and the moduli 1 are respect to it (before, the angle was 1.0 and Wel1, Wpl1 were respect to the local X axis)
+            double Wel1 = 1.0 / 6.0 * h * Math.Pow(b, 2.0);
+            double Wel2 = 1.0 / 6.0 * b * Math.Pow(h, 2.0);
+            double Wpl1 = A / 2.0 * b / 2.0;
+            double Wpl2 = A / 2.0 * h / 2.0;
 
             double precision = 0.0000001;
 
             Assert.AreEqual(0, A / sec.Area - 1.0, precision);
             Assert.AreEqual(0, J2 / sec.J22 - 1.0, precision);
             Assert.AreEqual(0, J1 / sec.J11 - 1.0, precision);
+            Assert.AreEqual(1.0 - Math.PI / 2.0, sec.AngleX1, precision);
             Assert.AreEqual(0, Jxx / sec.Jxx - 1.0, precision);
             Assert.AreEqual(0, Jyy / sec.Jyy - 1.0, precision);
             Assert.AreEqual(0, Jxy / sec.Jxy - 1.0, precision);
@@ -551,6 +562,39 @@ namespace ModelObjectTest
             Assert.AreEqual(h - 2 * tf, ((SectionRHS)sec.SectionShape).Heightinternal);
             Assert.AreEqual(Math.Abs(Jy / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jx / sec.J11) - 1, 0, 0.001);
+        }
+
+        [TestMethod]
+        public void SectionRHS_Test5()
+        {
+            double h = 200;
+            double b = 100;
+            double tf_top = 20;
+            double tf_bottom = 30;
+            double tw_left = 10;
+            double tw_right = 40;
+            var sec = new SteelSection(new SectionRHS(h, b, tf_top, tf_bottom, tw_left, tw_right, string.Empty), SteelMaterialEN1993Data.S355);
+
+            double A = 12500;
+            double J11 = 52324457.10;
+            double J22 = 12383876.23;
+            // September 2026: the plastic moduli respect to the plastic neutral axis (the axis parallel to the principal one that divides the area
+            // in two equal parts), checked with an integration on a grid of 0.25 mm. Before, Wpl1 = 716605.5676 and Wpl2 = 335111.4542: the
+            // static moment respect to the axis through the centroid (the same integration gives 716605.29 and 335110.99), 5.8% more for Wpl2
+            double Wpl1 = 716431.5;
+            double Wpl2 = 316599.4;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J11);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J22);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.001);
         }
 
         [TestMethod]
@@ -1391,6 +1435,42 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
         }
 
+        [TestMethod]
+        public void SectionC_Test4()
+        {
+            // Section, without symmetries.
+            double h = 200.0;
+            double widthBottom = 100.0;
+            double widthTop = 50.0;
+            double flangeBottomThickness = 30.0;
+            double flangeTopThickness = 20.0;
+            double webThickness = 10.0;
+
+            SteelSection sec = new SteelSection(new SectionC(h, webThickness, widthTop, flangeTopThickness, widthBottom, flangeBottomThickness,
+                string.Empty, 0.0, 0.0), SteelMaterialEN1993Data.S355, Section.SectionTypes.Rolled, Section.FormedTypes.HotFinished);
+
+            double A = 5500;
+            double J22 = 3715635.423;
+            double J11 = 29485122.15;
+            // September 2026: the plastic moduli respect to the plastic neutral axis, checked with an integration on a grid of 0.25 mm. Before,
+            // Wpl1 = 364013.9331 and Wpl2 = 122941.4776: the static moment respect to the axis through the centroid (the same integration gives
+            // 364013.88 and 122941.21), 9.8% more for Wpl1
+            double Wpl1 = 331622.3;
+            double Wpl2 = 121734.0;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J22);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J11);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.002);
+        }
+
         #endregion
 
         #region Section L
@@ -1426,8 +1506,10 @@ namespace ModelObjectTest
             double tb = 40;
             var sec = new SteelSection(new SectionL(b, tb, h, tw, string.Empty), SteelMaterialEN1993Data.S355);
 
-            double Wel1 = 1.0 / 6.0 * b * tb * tb;
-            double Wel2 = 1.0 / 6.0 * tb * b * b;
+            // The vertical leg has the length of the thickness: the section is a rectangle 500 x 40; the axis 1 is the principal axis of the
+            // maximum moment, the vertical one
+            double Wel2 = 1.0 / 6.0 * b * tb * tb;
+            double Wel1 = 1.0 / 6.0 * tb * b * b;
 
             Assert.AreEqual(Math.Abs(Wel2 / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wel1 / sec.Wel1) - 1, 0, 0.001);
@@ -1510,7 +1592,7 @@ namespace ModelObjectTest
             double jxx = 17407126;
             double j11 = 33301743.312114567;
             double j22 = 8657164.733862447;
-            double angle = 36.57378 * Math.PI / 180.0;
+            double angle = 0.9324634048;
 
             Assert.AreEqual(A, sec.Area);
             Assert.AreEqual(Math.Abs(jxx / sec.Jxx) - 1, 0, 0.001);
@@ -1518,7 +1600,6 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(j11 / sec.J11) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(j22 / sec.J22) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(angle / sec.AngleX1) - 1, 0, 0.001);
-            Assert.IsTrue(Math.Abs(sec.AngleX1 - angle) < 0.001);
         }
 
         [TestMethod]
@@ -1588,6 +1669,40 @@ namespace ModelObjectTest
             Assert.AreEqual(secNoRadius.Jxy, JxyIntegral, 1);
             Assert.AreEqual(secNoRadius.WelXMax, Wel1Integral, secNoRadius.WelXMax * errorLimit);
             //Assert.AreEqual(secNoRadius.Wpl1, Wpl1Integral, secNoRadius.Wpl1 * 0.001);
+        }
+
+        [TestMethod]
+        public void SectionL_Test9()
+        {
+            double h = 200;
+            double tw = 10;
+            double b = 100;
+            double tb = 30;
+            var sec = new SteelSection(new SectionL(b, tb, h, tw, string.Empty), SteelMaterialEN1993Data.S355);
+
+            double A = 4700;
+            double J2 = 2786170.686;
+            double J1 = 17095566.90;
+            double teta = 0.3755790289;
+            // September 2026: the plastic moduli respect to the plastic neutral axis, checked with an integration on a grid of 0.25 mm. Before,
+            // Wpl1 = 238630.2014 and Wpl2 = 97207.88541: the static moment respect to the axis through the centroid (the same integration gives
+            // 238630.15 and 97207.57), 13.7% more for Wpl1
+            double Wpl1 = 209940.6;
+            double Wpl2 = 97192.7;
+
+            double errorA = Error.CalcRelativeError(sec.Area, A);
+            double errorJ22 = Error.CalcRelativeError(sec.J22, J2);
+            double errorJ11 = Error.CalcRelativeError(sec.J11, J1);
+            double errorTeta = Error.CalcRelativeError(sec.AngleX1, teta);
+            double errorWpl1 = Error.CalcRelativeError(sec.Wpl1, Wpl1);
+            double errorWpl2 = Error.CalcRelativeError(sec.Wpl2, Wpl2);
+
+            Assert.IsTrue(Math.Abs(errorA) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ22) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorJ11) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorTeta) < 1e-6);
+            Assert.IsTrue(Math.Abs(errorWpl1) < 0.001);
+            Assert.IsTrue(Math.Abs(errorWpl2) < 0.006);
         }
 
         #endregion
@@ -2658,7 +2773,7 @@ namespace ModelObjectTest
 
             Assert.AreEqual(0.0, homo.J11H / homoJ11Target - 1.0, 0.0000001);
             Assert.AreEqual(0.0, homo.J22H / homoJ22Target - 1.0, 0.0000001);
-            Assert.AreEqual(0.0, homo.angleX / homoAlphaTarget - 1.0, 0.000001);
+            Assert.AreEqual(0.0, Math.Abs(homo.angleX / homoAlphaTarget) - 1.0, 0.000001);
         }
 
         #endregion

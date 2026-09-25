@@ -1,7 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -9,7 +8,7 @@ using System.IO;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class LoadTest : UnitTestBase
+    public class LoadTest
     {
         
 

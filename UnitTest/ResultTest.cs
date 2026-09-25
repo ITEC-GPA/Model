@@ -1,7 +1,6 @@
 ﻿using GPC.Geometry;
 using GPC.Model.Results;
 using GPC.Model.LoadCases;
-using GPC.TestUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MathNet.Numerics.LinearAlgebra;
 using System;
@@ -11,7 +10,7 @@ using GPC.Utilities.Maths;
 namespace ModelObjectTest
 {
     [TestClass]
-    public class ResultTest : UnitTestBase
+    public class ResultTest
     {
         [TestMethod]
         public void PrincipalStressTest1()

@@ -2,12 +2,11 @@
 using System;
 using System.Reflection;
 using GPC.Utilities.Attributes;
-using GPC.TestUtilities;
 
 namespace GeneralTest
 {
     [TestClass]
-    public class DescriptionAttributesTest : UnitTestBase
+    public class DescriptionAttributesTest 
     {
         [TestMethod]
         public void TestMethod1()
@@ -16,7 +15,7 @@ namespace GeneralTest
 
             if (type != null)
             {
-                UIAttribute attr = (UIAttribute)type.GetCustomAttribute(typeof(UIAttribute));
+                UIAttribute? attr = type.GetCustomAttribute(typeof(UIAttribute)) as UIAttribute;
                 Assert.IsNotNull(attr);
             }
         }

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>GPC.ModelData</RootNamespace>
+    <Configurations>Debug;Release;DebugLocalLibs</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>    
+    <ProjectReference Include="..\Model\GPCModel.csproj" />
+  </ItemGroup>
+
+</Project>
