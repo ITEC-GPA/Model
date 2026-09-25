@@ -470,14 +470,32 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// The factor β1 of the depth of the equivalent rectangular stress block (ACI 318-14/19 Table 22.2.2.4.3, SI): 0.85 for f'c up to 28 MPa,
+        /// 0.85 - 0.05 (f'c - 28) / 7 between 28 and 55 MPa, 0.65 from 55 MPa. Before, 0.85 up to 30 MPa, 0.65 from 58 MPa and in between an
+        /// interpolation with the arguments in the wrong order (e.g. -5451 for f'c 40 MPa instead of 0.764)
+        /// </summary>
+        /// <returns>β1</returns>
+        public double GetBeta1()
+        {
+            double fc = Math.Abs(_fc);
+
+            if (fc <= 28.0)
+                return 0.85;
+
+            if (fc >= 55.0)
+                return 0.65;
+
+            return 0.85 - 0.05 * (fc - 28.0) / 7.0;
+        }
+
+        /// <summary>
         /// The strain at the peak of a diagram: f'c / Ec (bilinear), (1 - β1) εcu (stress block), ε0 (parabola), the strain of the minimum stress (generic)
         /// </summary>
         /// <param name="compressionStressStrainDiagrams">The diagram</param>
         /// <param name="strainU">The ultimate strain (stress block)</param>
         /// <returns>The strain (negative)</returns>
         /// <exception cref="ArgumentException">For the other diagrams</exception>
-        /// <remarks>Sign convention: Stress and strain negative if compression. β1 of the stress block: 0.85 up to 30 MPa, 0.65 from 58 MPa; in
-        /// between the interpolation has the arguments in the wrong order (see the list of the defects found; ACI 318 uses 28 and 55 MPa)</remarks>
+        /// <remarks>Sign convention: Stress and strain negative if compression. β1 of the stress block: see <see cref="GetBeta1"/></remarks>
         protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams, double strainU = 0)
         {
             switch (compressionStressStrainDiagrams)
@@ -486,18 +504,7 @@ namespace GPC.Model.Materials
                     return -Math.Abs(_fc) / CalculateElasticModulus(Math.Abs(_fc));
 
                 case CompressionStressStrainDiagrams.StressBlock:
-                    {
-                        double lambda;
-
-                        if (Math.Abs(_fc) <= 30.0)
-                            lambda = 0.85;
-                        else if (Math.Abs(_fc) >= 58.0)
-                            lambda = 0.65;
-                        else
-                            lambda = GPC.Utilities.Maths.Interpolation.GetLinearInterpolation(0.85, 0.65, 30.0, 58.0, Math.Abs(_fc));
-
-                        return strainU * (1.0 - lambda);
-                    }
+                    return strainU * (1.0 - GetBeta1());
 
                 case CompressionStressStrainDiagrams.Generic:
                     _stressStrainTableCompression.GetMinimumStress(out double strain);
