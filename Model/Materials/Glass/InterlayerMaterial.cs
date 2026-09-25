@@ -99,52 +99,40 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The shear modulus for a load duration and a temperature: the value of the table of the duration; between two durations the values of the two
-        /// tables at the temperature are interpolated, but with the temperature as abscissa instead of the duration (see the list of the defects found)
+        /// The shear modulus for a load duration and a temperature: the value of the table of the duration; between two durations the linear
+        /// interpolation, on the load duration, of the values of the two tables at the temperature. Before, the abscissa of the interpolation
+        /// between two durations was the temperature (wrong shear modulus between the durations of the tables)
         /// </summary>
         /// <param name="loadDuration">The load duration</param>
         /// <param name="temperature">The temperature</param>
         /// <returns>The shear modulus</returns>
-        /// <exception cref="IndexOutOfRangeException">If the duration or the temperature is out of the tables</exception>
-        /// <exception cref="KeyNotFoundException">If the value is not found</exception>
+        /// <exception cref="IndexOutOfRangeException">If the duration or the temperature is out of the tables (before, with one table a greater
+        /// duration threw <see cref="ArgumentOutOfRangeException"/>)</exception>
+        /// <exception cref="KeyNotFoundException">If there are no tables or the value is not found</exception>
+        /// <remarks>The tables must be sorted by load duration (see <see cref="Sort"/>)</remarks>
         public double GetShearModule(double loadDuration, double temperature)
         {
-            for (int i = 0; i < _shearModulus.Count; i++)
+            int count = _shearModulus.Count;
+            if (count == 0)
+                throw new KeyNotFoundException();
+
+            if (loadDuration < _shearModulus[0].LoadDuration)
+                throw new IndexOutOfRangeException("Requested load duration is lower than minimum load duration available");
+
+            if (loadDuration > _shearModulus[count - 1].LoadDuration)
+                throw new IndexOutOfRangeException("Requested load duration is greater than maximum load duration available");
+
+            for (int i = 0; i < count; i++)
             {
                 if (_shearModulus[i].LoadDuration == loadDuration)
                     return _shearModulus[i][temperature];
 
-                if (i == 0)
-                {
-                    if (loadDuration < _shearModulus[i].LoadDuration)
-                    {
-                        throw new IndexOutOfRangeException("Requested load duration is lower than minimum load duration available");
-                    }
-
-                    if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
-                    {
-                        return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
-                                                                    _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
-                                                                        temperature);
-                    }
-                }
-                else if (i < _shearModulus.Count - 1)
-                {
-                    if (_shearModulus[i].LoadDuration < loadDuration && _shearModulus[i + 1].LoadDuration > loadDuration)
-                    {
-                        return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
-                                                                    _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
-                                                                        temperature);
-                    }
-                }
-                else if (i == _shearModulus.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
-                {
-                    if (loadDuration > _shearModulus[i].LoadDuration)
-                    {
-                        throw new IndexOutOfRangeException("Requested load duration is greater than maximum load duration available");
-                    }
-                }
+                if (i < count - 1 && _shearModulus[i].LoadDuration < loadDuration && loadDuration < _shearModulus[i + 1].LoadDuration)
+                    return Interpolation.GetLinearInterpolation(_shearModulus[i].LoadDuration, _shearModulus[i + 1].LoadDuration,
+                                                                _shearModulus[i][temperature], _shearModulus[i + 1][temperature],
+                                                                loadDuration);
             }
+
             throw new KeyNotFoundException();
         }
 
@@ -405,46 +393,32 @@ namespace GPC.Model.Materials
             /// </summary>
             /// <param name="temperature">The temperature</param>
             /// <returns>The shear modulus</returns>
-            /// <exception cref="IndexOutOfRangeException">If the temperature is out of the table</exception>
-            /// <exception cref="KeyNotFoundException">If the value is not found</exception>
+            /// <exception cref="IndexOutOfRangeException">If the temperature is out of the table (before, with one temperature a greater
+            /// temperature threw <see cref="ArgumentOutOfRangeException"/>)</exception>
+            /// <exception cref="KeyNotFoundException">If the table is empty or the temperature is not a number</exception>
             public double GetShearModulus(double temperature)
             {
-                for (int i = 0; i < _temperatureShearModules.Count; i++)
+                int count = _temperatureShearModules.Count;
+                if (count == 0)
+                    throw new KeyNotFoundException();
+
+                if (temperature < _temperatureShearModules[0].Temperature)
+                    throw new IndexOutOfRangeException("Requested temperature lower than minimum temperature available");
+
+                if (temperature > _temperatureShearModules[count - 1].Temperature)
+                    throw new IndexOutOfRangeException("Requested temperature greater than maximum temperature available");
+
+                for (int i = 0; i < count; i++)
                 {
                     if (_temperatureShearModules[i].Temperature == temperature)
                         return _temperatureShearModules[i].ShearModule;
 
-                    if (i == 0)
-                    {
-                        if (temperature < _temperatureShearModules[i].Temperature)
-                        {
-                            throw new IndexOutOfRangeException("Requested temperature lower than minimum temperature available");
-                        }
-
-                        if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
-                        {
-                            return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
-                                                                         _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
-                                                                          temperature);
-                        }
-                    }
-                    else if (i < _temperatureShearModules.Count - 1)
-                    {
-                        if (_temperatureShearModules[i].Temperature <= temperature && _temperatureShearModules[i + 1].Temperature >= temperature)
-                        {
-                            return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
-                                                                         _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
-                                                                          temperature);
-                        }
-                    }
-                    else if (i == _temperatureShearModules.Count - 1) // Caso di temperature == all'ultimo valore già coperto all'inizio.
-                    {
-                        if (temperature > _temperatureShearModules[i].Temperature)
-                        {
-                            throw new IndexOutOfRangeException("Requested temperature greater than maximum temperature available");
-                        }
-                    }
+                    if (i < count - 1 && _temperatureShearModules[i].Temperature < temperature && temperature < _temperatureShearModules[i + 1].Temperature)
+                        return Interpolation.GetLinearInterpolation(_temperatureShearModules[i].Temperature, _temperatureShearModules[i + 1].Temperature,
+                                                                    _temperatureShearModules[i].ShearModule, _temperatureShearModules[i + 1].ShearModule,
+                                                                    temperature);
                 }
+
                 throw new KeyNotFoundException();
             }
 

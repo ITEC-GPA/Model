@@ -229,8 +229,9 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// The same result in another coordinate system. The components are returned PERMUTED (d1 = local Z, d2 = local X, d3 = local Y, the same
-        /// for the rotations: copied from <see cref="ResultBeamForces.ToCoordinateSystem(CoordinateSystem)"/>); the id is lost
+        /// The same result in another coordinate system: the displacement and rotation vectors are rotated (d1, d2, d3 along the new axes). Before,
+        /// the components were returned permuted (d1 = local Z, d2 = local X, d3 = local Y, the same for the rotations: copied from
+        /// <see cref="ResultBeamForces.ToCoordinateSystem(CoordinateSystem)"/>, where N is along Z) and the id was lost
         /// </summary>
         /// <param name="coordinateSystem">The new coordinate system</param>
         /// <returns>The new result</returns>
@@ -245,8 +246,8 @@ namespace GPC.Model.Results
             var displacementNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dDisplacementGlobal);
             var rotationNewCoordinate = coordinateSystem.ToLocal(vector3dvector3dRotationGlobal);
 
-            return new ResultDisplacement(coordinateSystem, displacementNewCoordinate.Z, displacementNewCoordinate.X, displacementNewCoordinate.Y,
-                rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
+            return new ResultDisplacement(coordinateSystem, displacementNewCoordinate.X, displacementNewCoordinate.Y, displacementNewCoordinate.Z,
+                rotationNewCoordinate.X, rotationNewCoordinate.Y, rotationNewCoordinate.Z, _id);
         }
 
         /// <summary>

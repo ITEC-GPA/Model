@@ -479,64 +479,50 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about X: the thin walls plus the inside corners
+        /// Calculate the moment of inertia about X: the thin walls plus the inside corners minus the outside fillets
         /// </summary>
         /// <returns>The moment of inertia</returns>
         protected override double CalculateJxx()
         {
-            return base.CalculateJxx() + CalculateAdditionaJxx();
+            double j = base.CalculateJxx();
+
+            foreach (Corner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJ + corner.Area * (corner.Y - Centroid.Y) * (corner.Y - Centroid.Y));
+
+            return j;
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about Y: the thin walls plus the inside corners
+        /// Calculate the moment of inertia about Y: the thin walls plus the inside corners minus the outside fillets
         /// </summary>
+        /// <remarks>
+        /// Before: the transport term of the fillets R1 was R1² - R1² d² (dimensionally wrong), the outside fillets R2 were subtracted from the
+        /// area and from the centroid but not from the moments of inertia, and the thin walls were moved to the centroid of the section as if
+        /// it were their centroid (see <see cref="ThinWallSection"/>): Jyy of a UPN 300 was 4% greater, now it is the exact one
+        /// </remarks>
         /// <returns>The moment of inertia</returns>
         protected override double CalculateJyy()
         {
-            return base.CalculateJyy() + CalculateAdditionaJyy();
+            double j = base.CalculateJyy();
+
+            foreach (Corner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJ + corner.Area * (corner.X - Centroid.X) * (corner.X - Centroid.X));
+
+            return j;
         }
 
         /// <summary>
-        /// The moment of inertia about X of the inside corners (welds or fillets; the outside fillets R2 are not considered)
+        /// Calculate the product of inertia: the thin walls plus the inside corners minus the outside fillets (0 when the flanges are equal)
         /// </summary>
-        /// <returns>The additional moment of inertia</returns>
-        private double CalculateAdditionaJxx()
+        /// <returns>The product of inertia</returns>
+        protected override double CalculateJxy()
         {
-            if (_edgeWorking == EdgeType.Chamfer)
-            {
-                return 2.0 * (Math.Pow((1.41 * _r1), 4) / 24.0) +
-                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Height - Centroid.Y - ThicknessTop - R1 / 3.5, 2) +
-                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.Y - ThicknessBottom - R1 / 3.5, 2);
-            }
-            else if (_edgeWorking == EdgeType.Fillet)
-            {
-                return 2.0 * ((1.0 / 3.0) * Math.Pow(_r1, 4.0) - (Math.PI / 16.0) * Math.Pow(_r1, 4.0)) +
-                    (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) * Math.Pow(Height - Centroid.Y - ThicknessTop - R1 / 3.5, 2) +
-                    (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) * Math.Pow(Centroid.Y - ThicknessBottom - R1 / 3.5, 2);
-            }
-            else
-                return 0.0;
-        }
+            double j = base.CalculateJxy();
 
-        /// <summary>
-        /// The moment of inertia about Y of the inside corners (welds or fillets). For the fillets the transport term is R1² - R1² d², not
-        /// (R1² - π R1² / 4) d² as for X: wrong
-        /// </summary>
-        /// <returns>The additional moment of inertia</returns>
-        private double CalculateAdditionaJyy()
-        {
-            if (_edgeWorking == EdgeType.Chamfer)
-            {
-                return 2.0 * (Math.Pow((1.41 * R1), 4) / 24.0 +
-                    Math.Pow((1.41 * R1), 2) / 2.0 * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2));
-            }
-            else if (_edgeWorking == EdgeType.Fillet)
-            {
-                return 2.0 * ((1.0 / 3.0) * Math.Pow(R1, 4.0) - (Math.PI / 16.0) * Math.Pow(R1, 4.0) +
-                    Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.Pow(Centroid.X - ThicknessWeb - R1 / 3.5, 2));
-            }
-            else
-                return 0.0;
+            foreach (Corner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJxy + corner.Area * (corner.X - Centroid.X) * (corner.Y - Centroid.Y));
+
+            return j;
         }
 
         /// <summary>
@@ -556,52 +542,155 @@ namespace GPC.Model.Sections
                 area += _thinWalls[i].Area;
             }
 
-            if (R1 != 0)
+            foreach (Corner corner in GetCorners())
             {
-                if (_edgeWorking == EdgeType.Chamfer)
-                {
-                    xSum += 2 * Math.Pow((1.41 * R1), 2) / 2.0 *
-                        Math.Abs(ThicknessWeb + R1 / 3.5);
-
-                    ySum += Math.Pow((1.41 * R1), 2) / 2.0 *
-                        Math.Abs(ThicknessBottom + R1 / 3.5);
-                    ySum += Math.Pow((1.41 * R1), 2) / 2.0 *
-                        Math.Abs(Height - ThicknessTop - R1 / 3.5);
-
-                    area += 2 * Math.Pow((1.41 * R1), 2) / 2.0;
-                }
-
-                else if (_edgeWorking == EdgeType.Fillet)
-                {
-                    xSum += 2 * (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
-                        Math.Abs(ThicknessWeb + R1 / 3.5);
-
-                    ySum += (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
-                        Math.Abs(ThicknessBottom + R1 / 3.5);
-                    ySum += (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0) *
-                        Math.Abs(Height - ThicknessTop - R1 / 3.5);
-
-                    area += 2 * (Math.Pow(R1, 2) - Math.Pow(R1, 2) * Math.PI / 4.0);
-
-                }
-            }
-
-            if (R2 != 0)
-            {
-                xSum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
-                    Math.Abs(LengthBottom - R2 / 3.5);
-                xSum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
-                    Math.Abs(LengthTop - R2 / 3.5);
-
-                ySum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
-                    Math.Abs(ThicknessBottom + R2 / 3.5);
-                ySum -= (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0) *
-                    Math.Abs(Height - ThicknessTop - R2 / 3.5);
-
-                area -= 2 * (Math.Pow(R2, 2) - Math.Pow(R2, 2) * Math.PI / 4.0);
+                xSum += corner.Sign * corner.Area * corner.X;
+                ySum += corner.Sign * corner.Area * corner.Y;
+                area += corner.Sign * corner.Area;
             }
 
             return new Point2d((xSum / area), (ySum / area));
+        }
+
+        /// <summary>
+        /// The areas of the corners, with the exact centroids and own moments of inertia (before, the centroid was R / 3.5 from the sides
+        /// and the own moment of a fillet was (1 / 3 - π / 16) R⁴, the one about the side far from it): the inside corners, welds (right
+        /// triangles with legs 1.41 R1) or fillets R1, and the outside fillets R2 at the tips of the flanges, on their inner faces (also for
+        /// the welded sections, as in <see cref="CalculateAdditionalArea"/>). Nothing for the sharp corners
+        /// </summary>
+        /// <returns>The corners</returns>
+        private Corner[] GetCorners()
+        {
+            if (_edgeWorking == EdgeType.Sharp)
+                return new Corner[0];
+
+            Corner.Profile inside = _edgeWorking == EdgeType.Chamfer ? Corner.Triangle(1.41 * R1) : Corner.Fillet(R1);
+            Corner.Profile outside = Corner.Fillet(R2);
+
+            return new Corner[]
+            {
+                new Corner(1, inside, ThicknessWeb, ThicknessBottom, 1, 1),
+                new Corner(1, inside, ThicknessWeb, Height - ThicknessTop, 1, -1),
+                new Corner(-1, outside, LengthBottom, ThicknessBottom, -1, -1),
+                new Corner(-1, outside, LengthTop, Height - ThicknessTop, -1, 1),
+            };
+        }
+
+        /// <summary>
+        /// The area of a corner of the section: a fillet (a square minus the quarter circle inscribed in it) or a weld (a right isosceles
+        /// triangle) placed in the corner between two perpendicular sides
+        /// </summary>
+        private readonly struct Corner
+        {
+            /// <summary>
+            /// The properties of the corner area in the axes of its sides (corner in the origin, the area in the first quadrant)
+            /// </summary>
+            internal readonly struct Profile
+            {
+                internal Profile(double area, double distance, double ownJ, double ownJxy)
+                {
+                    Area = area;
+                    Distance = distance;
+                    OwnJ = ownJ;
+                    OwnJxy = ownJxy;
+                }
+
+                /// <summary>
+                /// The area
+                /// </summary>
+                internal double Area { get; }
+
+                /// <summary>
+                /// The distance of the centroid from both the sides
+                /// </summary>
+                internal double Distance { get; }
+
+                /// <summary>
+                /// The moment of inertia about the axes through the centroid parallel to the sides (the same for both)
+                /// </summary>
+                internal double OwnJ { get; }
+
+                /// <summary>
+                /// The product of inertia about the axes through the centroid parallel to the sides
+                /// </summary>
+                internal double OwnJxy { get; }
+            }
+
+            /// <summary>
+            /// A fillet of radius r: area (1 - π / 4) r², moment about a side (1 - 5 π / 16) r⁴, product about the sides (19 / 24 - π / 4) r⁴
+            /// </summary>
+            /// <param name="r">The radius</param>
+            /// <returns>The properties</returns>
+            internal static Profile Fillet(double r)
+            {
+                double area = Math.Pow(r, 2) - Math.Pow(r, 2) * Math.PI / 4.0;
+                if (area <= 0.0)
+                    return new Profile(0, 0, 0, 0);
+
+                double distance = (5.0 / 6.0 - Math.PI / 4.0) * Math.Pow(r, 3) / area;
+                return new Profile(area, distance,
+                    (1.0 - 5.0 * Math.PI / 16.0) * Math.Pow(r, 4) - area * distance * distance,
+                    (19.0 / 24.0 - Math.PI / 4.0) * Math.Pow(r, 4) - area * distance * distance);
+            }
+
+            /// <summary>
+            /// A right isosceles triangle with legs a: area a² / 2, centroid a / 3 from the legs, own moment a⁴ / 36 and product -a⁴ / 72
+            /// </summary>
+            /// <param name="a">The length of the legs</param>
+            /// <returns>The properties</returns>
+            internal static Profile Triangle(double a)
+            {
+                return new Profile(Math.Pow(a, 2) / 2.0, a / 3.0, Math.Pow(a, 4) / 36.0, -Math.Pow(a, 4) / 72.0);
+            }
+
+            /// <summary>
+            /// Places a corner area in the section
+            /// </summary>
+            /// <param name="sign">1 for an added area, -1 for a removed one</param>
+            /// <param name="profile">The properties of the area in the axes of its sides</param>
+            /// <param name="x">X of the corner</param>
+            /// <param name="y">Y of the corner</param>
+            /// <param name="directionX">1 if the area is on the side of the positive X from the corner, -1 otherwise</param>
+            /// <param name="directionY">1 if the area is on the side of the positive Y from the corner, -1 otherwise</param>
+            internal Corner(double sign, Profile profile, double x, double y, double directionX, double directionY)
+            {
+                Sign = sign;
+                Area = profile.Area;
+                X = x + directionX * profile.Distance;
+                Y = y + directionY * profile.Distance;
+                OwnJ = profile.OwnJ;
+                OwnJxy = directionX * directionY * profile.OwnJxy;
+            }
+
+            /// <summary>
+            /// 1 for an added area, -1 for a removed one
+            /// </summary>
+            internal double Sign { get; }
+
+            /// <summary>
+            /// The area
+            /// </summary>
+            internal double Area { get; }
+
+            /// <summary>
+            /// X of the centroid
+            /// </summary>
+            internal double X { get; }
+
+            /// <summary>
+            /// Y of the centroid
+            /// </summary>
+            internal double Y { get; }
+
+            /// <summary>
+            /// The moment of inertia about the X and Y axes through the centroid
+            /// </summary>
+            internal double OwnJ { get; }
+
+            /// <summary>
+            /// The product of inertia about the X and Y axes through the centroid
+            /// </summary>
+            internal double OwnJxy { get; }
         }
 
         #endregion
