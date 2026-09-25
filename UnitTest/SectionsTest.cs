@@ -575,8 +575,11 @@ namespace ModelObjectTest
             double A = 12500;
             double J11 = 52324457.10;
             double J22 = 12383876.23;
-            double Wpl1 = 716605.5676;
-            double Wpl2 = 335111.4542;
+            // September 2026: the plastic moduli respect to the plastic neutral axis (the axis parallel to the principal one that divides the area
+            // in two equal parts), checked with an integration on a grid of 0.25 mm. Before, Wpl1 = 716605.5676 and Wpl2 = 335111.4542: the
+            // static moment respect to the axis through the centroid (the same integration gives 716605.29 and 335110.99), 5.8% more for Wpl2
+            double Wpl1 = 716431.5;
+            double Wpl2 = 316599.4;
 
             double errorA = Error.CalcRelativeError(sec.Area, A);
             double errorJ11 = Error.CalcRelativeError(sec.J11, J11);
@@ -1446,8 +1449,11 @@ namespace ModelObjectTest
             double A = 5500;
             double J22 = 3715635.423;
             double J11 = 29485122.15;
-            double Wpl1 = 364013.9331;
-            double Wpl2 = 122941.4776;
+            // September 2026: the plastic moduli respect to the plastic neutral axis, checked with an integration on a grid of 0.25 mm. Before,
+            // Wpl1 = 364013.9331 and Wpl2 = 122941.4776: the static moment respect to the axis through the centroid (the same integration gives
+            // 364013.88 and 122941.21), 9.8% more for Wpl1
+            double Wpl1 = 331622.3;
+            double Wpl2 = 121734.0;
 
             double errorA = Error.CalcRelativeError(sec.Area, A);
             double errorJ22 = Error.CalcRelativeError(sec.J22, J22);
@@ -1675,8 +1681,11 @@ namespace ModelObjectTest
             double J2 = 2786170.686;
             double J1 = 17095566.90;
             double teta = 0.3755790289;
-            double Wpl1 = 238630.2014;
-            double Wpl2 = 97207.88541;
+            // September 2026: the plastic moduli respect to the plastic neutral axis, checked with an integration on a grid of 0.25 mm. Before,
+            // Wpl1 = 238630.2014 and Wpl2 = 97207.88541: the static moment respect to the axis through the centroid (the same integration gives
+            // 238630.15 and 97207.57), 13.7% more for Wpl1
+            double Wpl1 = 209940.6;
+            double Wpl2 = 97192.7;
 
             double errorA = Error.CalcRelativeError(sec.Area, A);
             double errorJ22 = Error.CalcRelativeError(sec.J22, J2);

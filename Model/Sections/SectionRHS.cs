@@ -164,14 +164,16 @@ namespace GPC.Model.Sections
             return Height - CalculateCentroid().Y;
         }
 
+        /// <returns>The distance of the centroid from the right side (x = <see cref="Base"/>). Before, the distance from the left side</returns>
         public double DistanceXCentroidFromRight()
         {
-            return CalculateCentroid().X;
+            return Base - CalculateCentroid().X;
         }
 
+        /// <returns>The distance of the centroid from the left side (x = 0). Before, the distance from the right side</returns>
         public double DistanceXCentroidFromLeft()
         {
-            return Base - CalculateCentroid().X;
+            return CalculateCentroid().X;
         }
 
         #endregion
@@ -247,7 +249,7 @@ namespace GPC.Model.Sections
                     return base.CalculateWpl2();
             }
             else
-                throw new Exception("not yet supported");
+                return base.CalculateWpl2(); // plastic neutral axis in the web: the exact modulus of the shape (before, an exception in the constructor)
 
         }
 
@@ -265,17 +267,20 @@ namespace GPC.Model.Sections
                     return base.CalculateWpl1();
             }
             else
-                throw new Exception("not yet supported");
+                return base.CalculateWpl1(); // plastic neutral axis in the web: the exact modulus of the shape (before, an exception in the constructor)
         }
+
+        // Y and 2 moduli: Min on the left side, Max on the right side, as before (the calls used the distance from the left with the name
+        // DistanceXCentroidFromRight)
 
         protected override double CalculateWelYMin()
         {
-            return Jyy / DistanceXCentroidFromRight();
+            return Jyy / DistanceXCentroidFromLeft();
         }
 
         protected override double CalculateWelYMax()
         {
-            return Jyy / (_b - DistanceXCentroidFromRight());
+            return Jyy / DistanceXCentroidFromRight();
         }
 
         protected override double CalculateWelXMin()
@@ -290,12 +295,12 @@ namespace GPC.Model.Sections
 
         protected override double CalculateWel2Min()
         {
-            return J22 / DistanceXCentroidFromRight();
+            return J22 / DistanceXCentroidFromLeft();
         }
 
         protected override double CalculateWel2Max()
         {
-            return J22 / (_b - DistanceXCentroidFromRight());
+            return J22 / DistanceXCentroidFromRight();
         }
 
         protected override double CalculateWel1Min()

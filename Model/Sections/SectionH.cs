@@ -223,7 +223,14 @@ namespace GPC.Model.Sections
             return Height - DistanceYCentroidFromBottom();
         }
 
+        /// <returns>The distance of the centroid from the right end of the wider flange. Before, the distance from the left end</returns>
         public virtual double DistanceXCentroidFromRight()
+        {
+            return Math.Max(LenghtTopFlange, LenghtBottomFlange) - CalculateCentroid().X;
+        }
+
+        /// <returns>The distance of the centroid from the left end of the wider flange</returns>
+        public virtual double DistanceXCentroidFromLeft()
         {
             return CalculateCentroid().X;
         }
@@ -338,17 +345,21 @@ namespace GPC.Model.Sections
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
             else
-                throw new NotImplementedException("Cannot calculate Wpl : Plastic neutral axis in flanges...to be implemented");
+                return base.CalculateWpl1(); // plastic neutral axis in both flanges: the exact modulus of the shape (before, an exception in the constructor)
         }
+
+        // The extreme fibres respect to the axis 2 are the ends of the wider flange, on both sides (before, the length of each flange minus the
+        // distance of the centroid from the left end: with different flanges one modulus was wrong, infinite or negative, e.g. flanges
+        // 100 and 300: Wel2Max = J22 / (100 - 150) < 0, so Wel2 < 0). Min on the left side, Max on the right side, as in SectionC and SectionL
 
         protected override double CalculateWel2Min()
         {
-            return J22 / (LenghtBottomFlange - DistanceXCentroidFromRight());
+            return J22 / DistanceXCentroidFromLeft();
         }
 
         protected override double CalculateWel2Max()
         {
-            return J22 / (LenghtTopFlange - DistanceXCentroidFromRight());
+            return J22 / DistanceXCentroidFromRight();
         }
 
         protected override double CalculateWel1Min()

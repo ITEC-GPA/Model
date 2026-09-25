@@ -233,7 +233,7 @@ namespace GPC.Model.Sections
                     return _area / 2.0 * (secTop.DistanceYCentroidFromBottom() + secBottom.DistanceYCentroidFromBottom());
                 }
                 else
-                    throw new NotImplementedException("neutral axis in flange not yet supported");
+                    return base.CalculateWpl1(); // plastic neutral axis in the flange: the exact modulus of the shape (before, an exception in the constructor)
             }
             else
                 return base.CalculateWpl1();

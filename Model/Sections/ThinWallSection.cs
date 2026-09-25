@@ -282,7 +282,10 @@ namespace GPC.Model.Sections
         /// Approximate method using thinwall axis.
         /// </summary>
         /// <param name="angle">Angle in radians, counterclockwise, is zero for the x-positive direction.</param>
-        /// <returns></returns>
+        /// <returns>The plastic modulus of the thin walls when the axis through the centroid divides their area in two equal parts (it is the
+        /// plastic neutral axis: the sections symmetric respect to the axis); otherwise <see cref="double.NaN"/>: the exact modulus of the shape is
+        /// computed at the first access (before, the static moment respect to the axis through the centroid, that is not the plastic neutral
+        /// axis: the modulus was overestimated, e.g. +21% for a RHS 400x200 with webs 30 and 10 about the vertical axis)</returns>
         protected double CalculateWplAngle(in double angle)
         {
             // Axis with respect to which to calculate the plastic modulus.
@@ -290,6 +293,9 @@ namespace GPC.Model.Sections
             var versor = Vector2d.XAxis;
             versor.Rotate(angle);
             var axis = new Line2d(centroid, centroid + versor);
+
+            if (!DividesInEqualAreas(axis))
+                return double.NaN;
 
             // Redefine a list of thin walls.
             var thinWalls = new List<ThinWall>();
@@ -326,6 +332,51 @@ namespace GPC.Model.Sections
             }
 
             return S_axis * 2.0;
+        }
+
+        /// <returns>True if the thin walls have the same area on the two sides of <paramref name="axis"/> (a wall on the axis is half on each side)</returns>
+        private bool DividesInEqualAreas(Line2d axis)
+        {
+            double left = 0.0, right = 0.0;
+            foreach (var wall in _thinWalls)
+            {
+                var middle = wall.GetMiddleLine();
+                double d0 = axis.OrientedDistFromSegment2D(middle[0]);
+                double d1 = axis.OrientedDistFromSegment2D(middle[1]);
+                double area = wall.Area;
+
+                if (d0 >= 0.0 && d1 >= 0.0 || d0 <= 0.0 && d1 <= 0.0)
+                {
+                    double dMax = Math.Max(Math.Abs(d0), Math.Abs(d1));
+                    if (dMax == 0.0)
+                    {
+                        left += area / 2.0;
+                        right += area / 2.0;
+                    }
+                    else if (d0 + d1 > 0.0)
+                        left += area;
+                    else
+                        right += area;
+                }
+                else
+                {
+                    // the wall crosses the axis: the parts are proportional to the distances of the ends
+                    double fraction = Math.Abs(d0) / (Math.Abs(d0) + Math.Abs(d1));
+                    double partStart = area * fraction;
+                    if (d0 > 0.0)
+                    {
+                        left += partStart;
+                        right += area - partStart;
+                    }
+                    else
+                    {
+                        right += partStart;
+                        left += area - partStart;
+                    }
+                }
+            }
+
+            return Math.Abs(left - right) <= 1e-9 * (left + right);
         }
 
         protected override double CalculateWpl1()

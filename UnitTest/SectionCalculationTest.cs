@@ -229,7 +229,7 @@ namespace UnitTest
         public void EqualityOperatorWithNull()
         {
             // before, NullReferenceException when the left operand was null
-            Section none = null;
+            Section? none = null;
             Section section = Generic(Q(0, 0), Q(1, 0), Q(1, 1));
             Assert.IsFalse(none == section);
             Assert.IsTrue(none != section);
@@ -248,6 +248,47 @@ namespace UnitTest
             Assert.AreEqual(built.WelXMax, changed.WelXMax, 1e-9 * built.WelXMax);
             Assert.AreEqual(built.WelYMax, changed.WelYMax, 1e-9 * built.WelYMax);
             Assert.AreEqual(built.Shape.GetArea(), changed.Shape.GetArea(), 1e-9);
+        }
+
+        [TestMethod]
+        public void RhsDistancesFromTheSidesHaveTheRightNames()
+        {
+            // webs of different thickness: the centroid is nearer to the thicker left web (x = 0 is the left side). Before, the constructor
+            // threw "not yet supported": the plastic neutral axis for the axis 2 is in the left web
+            var rhs = new SectionRHS(400, 200, 10, 10, 30, 10, string.Empty);
+            Section generic = Generic(rhs.Shape);
+            Assert.AreEqual(generic.Wpl2, rhs.Wpl2, 1e-9 * generic.Wpl2);
+            Assert.AreEqual(generic.Wpl1, rhs.Wpl1, 1e-9 * generic.Wpl1);
+            double x = rhs.Centroid.X;
+            Assert.IsTrue(x < 100);
+
+            // before, the two names were swapped
+            Assert.AreEqual(x, rhs.DistanceXCentroidFromLeft(), 1e-9);
+            Assert.AreEqual(200 - x, rhs.DistanceXCentroidFromRight(), 1e-9);
+
+            // the moduli are the same as before: Min on the left side, Max on the right side
+            Assert.AreEqual(rhs.Jyy / x, rhs.WelYMin, 1e-9 * rhs.WelYMin);
+            Assert.AreEqual(rhs.Jyy / (200 - x), rhs.WelYMax, 1e-9 * rhs.WelYMax);
+            Assert.AreEqual(rhs.Jyy / (200 - x), rhs.WelY, 1e-9 * rhs.WelY);
+        }
+
+        [TestMethod]
+        public void HWithDifferentFlangesHasTheModuliOfTheWiderFlange()
+        {
+            // flanges 100 (top) and 300 (bottom): the extreme fibres respect to the axis 2 are the ends of the bottom flange, 150 from the axis
+            var h = new SectionH(400, 12, 100, 10, 300, 25, string.Empty);
+            Assert.AreEqual(150, h.DistanceXCentroidFromLeft(), 1e-9);
+            Assert.AreEqual(150, h.DistanceXCentroidFromRight(), 1e-9, "before, the distance from the left end");
+
+            // before, Wel2Max = J22 / (100 - 150) < 0, so Wel2 was negative
+            Assert.AreEqual(h.J22 / 150, h.Wel2Min, 1e-9 * h.Wel2Min);
+            Assert.AreEqual(h.J22 / 150, h.Wel2Max, 1e-9 * h.Wel2Max);
+            Assert.IsTrue(h.Wel2 > 0 && h.WelY > 0);
+
+            // the section of the Checker tests (flanges 200 and 300): Wel2 was already right, the smaller modulus is the same
+            var checker = new SectionH(400, 12, 200, 10, 300, 25, string.Empty);
+            Assert.AreEqual(checker.J22 / 150, checker.Wel2, 1e-9 * checker.Wel2);
+            Assert.AreEqual(checker.J22 / 150, checker.Wel2Max, 1e-9 * checker.Wel2, "before, J22 / 50");
         }
 
         #endregion
