@@ -76,8 +76,9 @@ namespace GPC.Model.Sections
                     // IX IXY
                     // IXY IX
                     // the eigenvectors are 45° and the eigenvalues are the principal inertias
-                    // and have distinct values
-                    return Math.PI / 4.0;
+                    // and have distinct values: the axis of the maximum moment is at -45° if IXY > 0, at +45° if IXY < 0, as in the general formula
+                    // below (before, always +45°: with IXY > 0 it was the axis of the minimum moment, e.g. an equal leg angle mirrored)
+                    return Jxy > 0 ? -Math.PI / 4.0 : Math.PI / 4.0;
                 }
             }
 
@@ -89,13 +90,21 @@ namespace GPC.Model.Sections
             return angle;
         }
 
-        /// <remarks>The comparison of J11, J22 with Jxx, Jyy is relative (before, absolute with the geometric tolerance 1e-4: for a section in metres,
-        /// with moments of about 1e-7, the angle was always zero)</remarks>
+        /// <summary>
+        /// The angle of the principal axis 1, the one of the maximum moment of inertia <paramref name="J11"/>, from the X axis
+        /// </summary>
+        /// <returns>0 if the X axis is the axis 1; -pi/2 if X and Y are principal and Jyy is bigger than Jxx (the axis 1 is the Y axis, directed
+        /// towards the negative Y, as the angle given by <see cref="CalculateAngle(double, double, double)"/>); otherwise the angle of the axis 1</returns>
+        /// <remarks>The comparisons are relative (before, absolute with the geometric tolerance 1e-4: for a section in metres, with moments of
+        /// about 1e-7, the angle was always zero); with X and Y principal the angle is exactly 0 or -pi/2 (before, -pi/2 or +pi/2 depending on
+        /// the sign of a zero product of inertia)</remarks>
         internal static double CalculateAngle(double J11, double J22, double Jxx, double Jyy, double Jxy)
         {
+            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy))
+                return XIsAxisOne(Jxx, Jyy) ? 0.0 : -Math.PI / 2.0;
+
             double tolerance = ProductOfInertiaZero * (Math.Abs(J11) + Math.Abs(J22));
-            if (IsProductOfInertiaZero(Jxx, Jyy, Jxy) ||
-                (Math.Abs(J11 - Jxx) <= tolerance && Math.Abs(J22 - Jyy) <= tolerance))
+            if (Math.Abs(J11 - Jxx) <= tolerance && Math.Abs(J22 - Jyy) <= tolerance)
                 return 0.0;
 
             return CalculateAngle(Jxx, Jyy, Jxy);
@@ -111,23 +120,31 @@ namespace GPC.Model.Sections
 
         private const double ProductOfInertiaZero = 1e-10;
 
-        /// <remarks>If the X axis is principal (Jxy = 0), J11 is the moment of inertia respect to X, also if it is the smaller one (the convention of
-        /// the constructor of <see cref="Section"/> and of the moduli of the thin wall sections, computed respect to X). Before, J11 was always the
-        /// bigger one: for a symmetric section with Jyy > Jxx (a wide rectangle or RHS) J11 = Jyy and the axis 1 was rotated by -90°, while the
-        /// moduli (e.g. J11 / distance from the bottom) were computed respect to X</remarks>
+        /// <summary>
+        /// With X and Y principal: true if the axis 1 is X, that is if Jxx is the bigger moment or if the two moments are equal but for the rounding
+        /// errors (all the axes are principal, e.g. a circle or a square); false if the axis 1 is Y
+        /// </summary>
+        private static bool XIsAxisOne(double Jxx, double Jyy)
+        {
+            return Jxx >= Jyy - ProductOfInertiaZero * (Math.Abs(Jxx) + Math.Abs(Jyy));
+        }
+
+        /// <returns>The maximum principal moment of inertia (the moment respect to the axis 1)</returns>
+        /// <remarks>The axis 1 is always the principal axis of the maximum moment, also when X and Y are principal (e.g. for a wide rectangle
+        /// J11 = Jyy and the axis 1 is the Y axis): see <see cref="CalculateAngle(double, double, double, double, double)"/></remarks>
         internal static double CalculateJ11(double Jxx, double Jyy, double Jxy)
         {
             if (IsProductOfInertiaZero(Jxx, Jyy, Jxy))
-                return Jxx;
+                return XIsAxisOne(Jxx, Jyy) ? Jxx : Jyy;
 
             return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
 
-        /// <remarks>If the X axis is principal (Jxy = 0), J22 is the moment of inertia respect to Y (see <see cref="CalculateJ11"/>)</remarks>
+        /// <returns>The minimum principal moment of inertia (the moment respect to the axis 2)</returns>
         internal static double CalculateJ22(double Jxx, double Jyy, double Jxy)
         {
             if (IsProductOfInertiaZero(Jxx, Jyy, Jxy))
-                return Jyy;
+                return XIsAxisOne(Jxx, Jyy) ? Jyy : Jxx;
 
             return (Jxx + Jyy) / 2.0 - 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }

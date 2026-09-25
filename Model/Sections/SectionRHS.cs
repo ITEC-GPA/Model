@@ -235,7 +235,8 @@ namespace GPC.Model.Sections
             return 4.0 * Amed * Amed / (LmedBottom / _tfBottom + LmedTop / _tfTop + LmedWeb1 / _twL + LmedWeb2 / _twR);
         }
 
-        protected override double CalculateWpl2()
+        /// <returns>The plastic modulus respect to Y</returns>
+        protected override double CalculateWplY()
         {
             if (_area / 2.0 >= _twL * Heightinternal + _tfTop * _twL + _tfBottom * _twL)
             {
@@ -246,14 +247,14 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionLeft.DistanceXCentroidFromRight() + halfSectionRigth.DistanceXCentroidFromRight());
                 }
                 else
-                    return base.CalculateWpl2();
+                    return base.CalculateWplY();
             }
             else
-                return base.CalculateWpl2(); // plastic neutral axis in the web: the exact modulus of the shape (before, an exception in the constructor)
-
+                return base.CalculateWplY(); // plastic neutral axis in the web: the modulus of ThinWallSection (before, an exception in the constructor)
         }
 
-        protected override double CalculateWpl1()
+        /// <returns>The plastic modulus respect to X</returns>
+        protected override double CalculateWplX()
         {
             if (_area / 2.0 >= (_twR * Heightinternal)) //plateTop
             {
@@ -264,53 +265,38 @@ namespace GPC.Model.Sections
                     return (_area / 2.0) * (halfSectionTop.DistanceXCentroidFromRight() + halfSectionBottom.DistanceXCentroidFromRight());
                 }
                 else
-                    return base.CalculateWpl1();
+                    return base.CalculateWplX();
             }
             else
-                return base.CalculateWpl1(); // plastic neutral axis in the web: the exact modulus of the shape (before, an exception in the constructor)
+                return base.CalculateWplX(); // plastic neutral axis in the web: the modulus of ThinWallSection (before, an exception in the constructor)
         }
 
-        // Y and 2 moduli: Min on the left side, Max on the right side, as before (the calls used the distance from the left with the name
-        // DistanceXCentroidFromRight)
+        // The moduli respect to X and Y (the principal ones are taken from them by Section when X and Y are principal, otherwise computed respect to
+        // the rotated principal axes; before, the moduli respect to the axis 1 were computed respect to X also with J11 = Jyy or rotated axes).
+        // Min: bottom and left fibres, Max: top and right fibres
 
+        /// <returns>The elastic modulus respect to Y of the left fibre</returns>
         protected override double CalculateWelYMin()
         {
             return Jyy / DistanceXCentroidFromLeft();
         }
 
+        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
         protected override double CalculateWelYMax()
         {
             return Jyy / DistanceXCentroidFromRight();
         }
 
+        /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
         protected override double CalculateWelXMin()
         {
             return Jxx / DistanceYCentroidFromBottom();
         }
 
+        /// <returns>The elastic modulus respect to X of the top fibre</returns>
         protected override double CalculateWelXMax()
         {
             return Jxx / (Height - DistanceYCentroidFromBottom());
-        }
-
-        protected override double CalculateWel2Min()
-        {
-            return J22 / DistanceXCentroidFromLeft();
-        }
-
-        protected override double CalculateWel2Max()
-        {
-            return J22 / DistanceXCentroidFromRight();
-        }
-
-        protected override double CalculateWel1Min()
-        {
-            return J11 / DistanceYCentroidFromBottom();
-        }
-
-        protected override double CalculateWel1Max()
-        {
-            return J11 / (Height - DistanceYCentroidFromBottom());
         }
 
         protected override bool CalculateIsSymmetricAlongXLocalAxis()

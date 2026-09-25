@@ -200,7 +200,8 @@ namespace GPC.Model.Sections
             return new Point2d(_tw / 2.0 - 3.0 * length * length * tf / (hf * _tw + 6.0 * length * tf), CalculateCentroid().Y);
         }
 
-        protected override double CalculateWpl2()
+        /// <returns>The plastic modulus respect to Y</returns>
+        protected override double CalculateWplY()
         {
             if (IsSymmetricAlongXLocalAxis)
             {
@@ -218,10 +219,11 @@ namespace GPC.Model.Sections
                 }
             }
             else
-                return base.CalculateWpl2();
+                return base.CalculateWplY();
         }
 
-        protected override double CalculateWpl1()
+        /// <returns>The plastic modulus respect to X</returns>
+        protected override double CalculateWplX()
         {
             if (IsSymmetricAlongXLocalAxis)
             {
@@ -233,39 +235,39 @@ namespace GPC.Model.Sections
                     return _area / 2.0 * (secTop.DistanceYCentroidFromBottom() + secBottom.DistanceYCentroidFromBottom());
                 }
                 else
-                    return base.CalculateWpl1(); // plastic neutral axis in the flange: the exact modulus of the shape (before, an exception in the constructor)
+                    return base.CalculateWplX(); // plastic neutral axis in the flange: the modulus of ThinWallSection (before, an exception in the constructor)
             }
             else
-                return base.CalculateWpl1();
+                return base.CalculateWplX();
         }
 
-        protected override double CalculateWel2Min()
+        // The moduli respect to X and Y (the principal ones are taken from them by Section when X and Y are principal, otherwise they are computed
+        // respect to the rotated principal axes; before, the moduli respect to the axis 1 were computed respect to X also for the section without
+        // symmetry, with the principal axes rotated)
+
+        /// <returns>The elastic modulus respect to X of the top fibre</returns>
+        protected override double CalculateWelXMax()
         {
-            return J22 / DistanceXCentroidFromLeft();
+            return Jxx / DistanceYCentroidFromTop();
         }
 
-        protected override double CalculateWel2Max()
+        /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
+        protected override double CalculateWelXMin()
         {
-            return J22 / DistanceXCentroidFromRight();
+            return Jxx / DistanceYCentroidFromBottom();
         }
 
-        protected override double CalculateWel1Max()
+        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
+        protected override double CalculateWelYMax()
         {
-            return J11 / DistanceYCentroidFromTop();
+            return Jyy / DistanceXCentroidFromRight();
         }
 
-        protected override double CalculateWel1Min()
+        /// <returns>The elastic modulus respect to Y of the left fibre (the web)</returns>
+        protected override double CalculateWelYMin()
         {
-            return J11 / DistanceYCentroidFromBottom();
+            return Jyy / DistanceXCentroidFromLeft();
         }
-
-        protected override double CalculateWelXMax() => CalculateWel1Max();
-
-        protected override double CalculateWelXMin() => CalculateWel1Min();
-
-        protected override double CalculateWelYMax() => CalculateWel2Max();
-
-        protected override double CalculateWelYMin() => CalculateWel2Min();
 
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {

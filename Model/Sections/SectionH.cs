@@ -299,7 +299,8 @@ namespace GPC.Model.Sections
             return base.CalculateArea() + CalculateAdditionalArea();
         }
 
-        protected override double CalculateWpl2()
+        /// <returns>The plastic modulus respect to Y (the symmetry axis)</returns>
+        protected override double CalculateWplY()
         {
             SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange,
                 ThicknessWeb / 2.0, string.Empty);
@@ -313,7 +314,8 @@ namespace GPC.Model.Sections
             return 2.0 * d * _area / 2.0;
         }
 
-        protected override double CalculateWpl1()
+        /// <returns>The plastic modulus respect to X</returns>
+        protected override double CalculateWplX()
         {
             if (_area / 2.0 >= LenghtTopFlange * ThicknessTopFlange && _area / 2.0 >= LenghtBottomFlange * ThicknessBottomFlange)
             {
@@ -345,40 +347,37 @@ namespace GPC.Model.Sections
                 return _area / 2.0 * (hHalf / 2.0 + halfSectionBottom.DistanceYCentroidFromBottom());
             }
             else
-                return base.CalculateWpl1(); // plastic neutral axis in both flanges: the exact modulus of the shape (before, an exception in the constructor)
+                return base.CalculateWplX(); // plastic neutral axis in both flanges: the modulus of ThinWallSection (before, an exception in the constructor)
         }
 
-        // The extreme fibres respect to the axis 2 are the ends of the wider flange, on both sides (before, the length of each flange minus the
-        // distance of the centroid from the left end: with different flanges one modulus was wrong, infinite or negative, e.g. flanges
-        // 100 and 300: Wel2Max = J22 / (100 - 150) < 0, so Wel2 < 0). Min on the left side, Max on the right side, as in SectionC and SectionL
+        // The moduli respect to X and Y (the principal ones are taken from them by Section: the axis 1 is X for the usual sections, Y when Jyy is
+        // bigger than Jxx). Respect to Y the extreme fibres are the ends of the wider flange, on both sides (before, the length of each flange minus
+        // the distance of the centroid from the left end: with different flanges one modulus was wrong, infinite or negative, e.g. flanges
+        // 100 and 300: Wel2Max = J22 / (100 - 150) < 0, so Wel2 < 0)
 
-        protected override double CalculateWel2Min()
+        /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
+        protected override double CalculateWelXMin()
         {
-            return J22 / DistanceXCentroidFromLeft();
+            return Jxx / DistanceYCentroidFromBottom();
         }
 
-        protected override double CalculateWel2Max()
+        /// <returns>The elastic modulus respect to X of the top fibre</returns>
+        protected override double CalculateWelXMax()
         {
-            return J22 / DistanceXCentroidFromRight();
+            return Jxx / DistanceYCentroidFromTop();
         }
 
-        protected override double CalculateWel1Min()
+        /// <returns>The elastic modulus respect to Y of the left fibre</returns>
+        protected override double CalculateWelYMin()
         {
-            return J11 / DistanceYCentroidFromBottom();
+            return Jyy / DistanceXCentroidFromLeft();
         }
 
-        protected override double CalculateWel1Max()
+        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
+        protected override double CalculateWelYMax()
         {
-            return J11 / DistanceYCentroidFromTop();
+            return Jyy / DistanceXCentroidFromRight();
         }
-
-        protected override double CalculateWelXMax() => CalculateWel1Max();
-
-        protected override double CalculateWelXMin() => CalculateWel1Min();
-
-        protected override double CalculateWelYMax() => CalculateWel2Max();
-
-        protected override double CalculateWelYMin() => CalculateWel2Min();
 
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {

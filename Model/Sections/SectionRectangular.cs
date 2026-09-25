@@ -163,79 +163,93 @@ namespace GPC.Model.Sections
             return 1.0 / 3.0 - 0.21 * latoMinore / latoMaggiore * (1.0 - 1.0 / 12.0 * Math.Pow(latoMinore / latoMaggiore, 4.0));
         }
 
-        protected override double CalculateWpl1()
+        // The axis 1 is the principal axis of the maximum moment of inertia: the local X axis of the rectangle (rotated by Angle) when the height is
+        // not smaller than the width, otherwise the local Y axis (angle Angle - 90°). The moduli respect to X and Y are the ones respect to the local
+        // axes of the rectangle. Before, the angle was always Angle while J11 was the bigger moment (with the width bigger than the height the axis 1
+        // was the local X and J11 the moment respect to the local Y)
+
+        /// <summary>
+        /// True if the axis 1 is the local X axis of the rectangle (the height is not smaller than the width)
+        /// </summary>
+        private bool AxisOneIsLocalX => _height >= _width;
+
+        /// <returns>The plastic modulus respect to the local X axis</returns>
+        protected override double CalculateWplX()
         {
             return _width * Math.Pow(_height, 2.0) / 4.0;
         }
 
-        protected override double CalculateWpl2()
+        /// <returns>The plastic modulus respect to the local Y axis</returns>
+        protected override double CalculateWplY()
         {
             return _height * Math.Pow(_width, 2.0) / 4.0;
         }
 
+        /// <returns>The plastic modulus respect to the axis 1</returns>
+        protected override double CalculateWpl1()
+        {
+            return AxisOneIsLocalX ? CalculateWplX() : CalculateWplY();
+        }
+
+        /// <returns>The plastic modulus respect to the axis 2</returns>
+        protected override double CalculateWpl2()
+        {
+            return AxisOneIsLocalX ? CalculateWplY() : CalculateWplX();
+        }
+
+        /// <returns>The elastic modulus respect to the local X axis (the same for the two fibres)</returns>
+        protected override double CalculateWelXMax()
+        {
+            return _width * Math.Pow(_height, 2.0) / 6.0;
+        }
+
+        /// <returns>The elastic modulus respect to the local X axis (the same for the two fibres)</returns>
+        protected override double CalculateWelXMin() => CalculateWelXMax();
+
+        /// <returns>The elastic modulus respect to the local Y axis (the same for the two fibres)</returns>
+        protected override double CalculateWelYMax()
+        {
+            return _height * Math.Pow(_width, 2.0) / 6.0;
+        }
+
+        /// <returns>The elastic modulus respect to the local Y axis (the same for the two fibres)</returns>
+        protected override double CalculateWelYMin() => CalculateWelYMax();
+
+        /// <returns>The elastic modulus respect to the axis 1</returns>
         protected override double CalculateWel1Max()
         {
-            return _width * Math.Pow(_height, 2.0) / 6.0;
+            return AxisOneIsLocalX ? CalculateWelXMax() : CalculateWelYMax();
         }
 
-        protected override double CalculateWel1Min()
-        {
-            return _width * Math.Pow(_height, 2.0) / 6.0;
-        }
+        /// <returns>The elastic modulus respect to the axis 1</returns>
+        protected override double CalculateWel1Min() => CalculateWel1Max();
 
+        /// <returns>The elastic modulus respect to the axis 2</returns>
         protected override double CalculateWel2Max()
         {
-            return _height * Math.Pow(_width, 2.0) / 6.0;
+            return AxisOneIsLocalX ? CalculateWelYMax() : CalculateWelXMax();
         }
 
-        protected override double CalculateWel2Min()
-        {
-            return _height * Math.Pow(_width, 2.0) / 6.0;
-        }
+        /// <returns>The elastic modulus respect to the axis 2</returns>
+        protected override double CalculateWel2Min() => CalculateWel2Max();
 
-        protected override double CalculateWelXMax() => CalculateWel1Max();
-
-        protected override double CalculateWelXMin() => CalculateWel1Min();
-
-        protected override double CalculateWelYMax() => CalculateWel2Max();
-
-        protected override double CalculateWelYMin() => CalculateWel2Min();
-
+        /// <returns>The angle of the axis 1: the rotation of the rectangle, minus 90° when the width is bigger than the height</returns>
         protected override double CalculateAngle()
         {
-            return _angle;
+            return AxisOneIsLocalX ? _angle : _angle - Math.PI / 2.0;
         }
 
-        // The axis 1 is the local X axis of the rectangle (the angle is its rotation), as for the moduli (b h^2 / 6):
-        // J11 respect to it also when the width is bigger than the height (before, the bigger principal moment)
-
-        protected override double CalculateJ11()
-        {
-            return _width * Math.Pow(_height, 3.0) / 12.0;
-        }
-
-        protected override double CalculateJ22()
-        {
-            return _height * Math.Pow(_width, 3.0) / 12.0;
-        }
+        // Symmetric respect to its local axes when they are the X and Y axes (the rotation of the rectangle is 0 or 90°; before, the comparison was
+        // on the angle of the axis 1, that was the rotation of the rectangle)
 
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {
-
-            if (_angleX1 == 0 || _angleX1 == Math.PI / 2.0)
-            {
-                return true;
-            }
-            return false;
+            return _angle == 0 || _angle == Math.PI / 2.0;
         }
 
         protected override bool CalculateIsSymmetricAlongYLocalAxis()
         {
-            if (_angleX1 == 0 || _angleX1 == Math.PI / 2.0)
-            {
-                return true;
-            }
-            return false;
+            return _angle == 0 || _angle == Math.PI / 2.0;
         }
 
         private void CalculateSection()

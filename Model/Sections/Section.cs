@@ -469,19 +469,20 @@ namespace GPC.Model.Sections
 
             _shearCenter = CalculateShearCenter();
 
-            _wel1Max = CalculateWel1Max();
-            _wel1Min = CalculateWel1Min();
-            _wel2Max = CalculateWel2Max();
-            _wel2Min = CalculateWel2Min();
-            _wpl1 = CalculateWpl1();
-            _wpl2 = CalculateWpl2();
-
+            // the moduli respect to X and Y first: when X and Y are principal the principal moduli are taken from them
             _welXMax = CalculateWelXMax();
             _welXMin = CalculateWelXMin();
             _welYMax = CalculateWelYMax();
             _welYMin = CalculateWelYMin();
             _wplX = CalculateWplX();
             _wplY = CalculateWplY();
+
+            _wel1Max = CalculateWel1Max();
+            _wel1Min = CalculateWel1Min();
+            _wel2Max = CalculateWel2Max();
+            _wel2Min = CalculateWel2Min();
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
         }
 
         /// <summary>
@@ -563,18 +564,81 @@ namespace GPC.Model.Sections
             return _centroid;
         }
 
-        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl1"/>
-        /// (before, the minimum elastic modulus)</returns>
-        protected virtual double CalculateWpl1()
+        // Moduli respect to the principal axes 1 and 2 and to the axes X and Y.
+        // The axis 1 is the principal axis of the maximum moment of inertia J11, with direction AngleX1 from X; the axis 2 is at +90° from it.
+        // Coordinates of the principal system: x1 = (x - xc) cos + (y - yc) sin along the axis 1, y1 = -(x - xc) sin + (y - yc) cos along the axis 2.
+        // The moduli respect to the axis 1 use the distances y1, the ones respect to the axis 2 the distances x1; "Min" is the fibre with the minimum
+        // (negative) coordinate, "Max" the one with the maximum coordinate. Respect to X: Min at the bottom, Max at the top; respect to Y: Min on the left,
+        // Max on the right. The moduli respect to X and Y are computed before the principal ones: when X and Y are principal the principal moduli are
+        // taken from them (see PrincipalFromXY), so the sections that compute only the X and Y moduli get coherent principal moduli.
+        // Before, the moduli respect to the axis 2 and to Y had the Min on the right (distance -x1), the other sections on the left
+
+        /// <summary>
+        /// The position of the principal axes respect to X and Y
+        /// </summary>
+        protected enum PrincipalAxes
         {
-            return double.NaN;
+            /// <summary>The principal axes are rotated respect to X and Y</summary>
+            Rotated,
+            /// <summary>The axis 1 is X (angle 0): x1 = x, y1 = y</summary>
+            AlongX,
+            /// <summary>The axis 1 is -Y (angle -90°, the Y axis when Jyy is bigger than Jxx): x1 = -y, y1 = x</summary>
+            AlongMinusY,
+            /// <summary>The axis 1 is Y (angle +90°): x1 = y, y1 = -x</summary>
+            AlongY,
+            /// <summary>The axis 1 is -X (angle 180°): x1 = -x, y1 = -y</summary>
+            AlongMinusX,
         }
 
-        /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl2"/>
-        /// (before, the minimum elastic modulus)</returns>
+        /// <returns>The position of the principal axes respect to X and Y, from <see cref="AngleX1"/></returns>
+        protected PrincipalAxes PrincipalFromXY()
+        {
+            const double tolerance = 1e-12;
+            if (Math.Abs(_angleX1) <= tolerance)
+                return PrincipalAxes.AlongX;
+            if (Math.Abs(_angleX1 + Math.PI / 2.0) <= tolerance)
+                return PrincipalAxes.AlongMinusY;
+            if (Math.Abs(_angleX1 - Math.PI / 2.0) <= tolerance)
+                return PrincipalAxes.AlongY;
+            if (Math.Abs(Math.Abs(_angleX1) - Math.PI) <= tolerance)
+                return PrincipalAxes.AlongMinusX;
+            return PrincipalAxes.Rotated;
+        }
+
+        /// <returns>The plastic modulus respect to the axis 1: <see cref="WplX"/> or <see cref="WplY"/> when X and Y are principal, otherwise
+        /// <see cref="double.NaN"/> (the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl1"/>). Before, the
+        /// minimum elastic modulus</returns>
+        protected virtual double CalculateWpl1()
+        {
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX:
+                case PrincipalAxes.AlongMinusX:
+                    return _wplX;
+                case PrincipalAxes.AlongY:
+                case PrincipalAxes.AlongMinusY:
+                    return _wplY;
+                default:
+                    return double.NaN;
+            }
+        }
+
+        /// <returns>The plastic modulus respect to the axis 2: <see cref="WplY"/> or <see cref="WplX"/> when X and Y are principal, otherwise
+        /// <see cref="double.NaN"/> (the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl2"/>). Before, the
+        /// minimum elastic modulus</returns>
         protected virtual double CalculateWpl2()
         {
-            return double.NaN;
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX:
+                case PrincipalAxes.AlongMinusX:
+                    return _wplY;
+                case PrincipalAxes.AlongY:
+                case PrincipalAxes.AlongMinusY:
+                    return _wplX;
+                default:
+                    return double.NaN;
+            }
         }
 
         /// <returns>The plastic modulus of the shape for the bending about the axis through the centroid with direction <paramref name="angle"/>,
@@ -585,8 +649,8 @@ namespace GPC.Model.Sections
             return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
         }
 
-        /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum distance with sign of the vertices of the shape from the axis through
-        /// the centroid with direction <paramref name="angle"/>: (y - yc) cos - (x - xc) sin</returns>
+        /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum coordinate y1 of the vertices of the shape, perpendicular to the
+        /// axis through the centroid with direction <paramref name="angle"/>: -(x - xc) sin + (y - yc) cos (the distance with sign from the axis)</returns>
         private double ExtremeDistance(double angle, bool maximum)
         {
             double cosTeta = Math.Cos(angle);
@@ -603,24 +667,74 @@ namespace GPC.Model.Sections
             return extreme;
         }
 
+        /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum coordinate x1 of the vertices of the shape along the axis through
+        /// the centroid with direction <paramref name="angle"/>: (x - xc) cos + (y - yc) sin (the distance with sign from the perpendicular axis)</returns>
+        private double ExtremeCoordinate(double angle, bool maximum)
+        {
+            double cosTeta = Math.Cos(angle);
+            double sinTeta = Math.Sin(angle);
+            Polygon3d fill = Shape.Fill;
+
+            double extreme = maximum ? double.MinValue : double.MaxValue;
+            for (int c = 0; c < fill.Count; c++)
+            {
+                double u = (fill[c].X - Centroid.X) * cosTeta + (fill[c].Y - Centroid.Y) * sinTeta;
+                extreme = maximum ? Math.Max(extreme, u) : Math.Min(extreme, u);
+            }
+
+            return extreme;
+        }
+
+        /// <returns>The elastic modulus respect to the axis 1 of the fibre with the minimum coordinate y1</returns>
         protected virtual double CalculateWel1Min()
         {
-            return _j11 / Math.Abs(ExtremeDistance(_angleX1, false));
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX: return _welXMin;
+                case PrincipalAxes.AlongMinusY: return _welYMin;
+                case PrincipalAxes.AlongY: return _welYMax;
+                case PrincipalAxes.AlongMinusX: return _welXMax;
+                default: return _j11 / Math.Abs(ExtremeDistance(_angleX1, false));
+            }
         }
 
+        /// <returns>The elastic modulus respect to the axis 1 of the fibre with the maximum coordinate y1</returns>
         protected virtual double CalculateWel1Max()
         {
-            return _j11 / Math.Abs(ExtremeDistance(_angleX1, true));
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX: return _welXMax;
+                case PrincipalAxes.AlongMinusY: return _welYMax;
+                case PrincipalAxes.AlongY: return _welYMin;
+                case PrincipalAxes.AlongMinusX: return _welXMin;
+                default: return _j11 / Math.Abs(ExtremeDistance(_angleX1, true));
+            }
         }
 
+        /// <returns>The elastic modulus respect to the axis 2 of the fibre with the minimum coordinate x1</returns>
         protected virtual double CalculateWel2Min()
         {
-            return _j22 / Math.Abs(ExtremeDistance(_angleX1 + Math.PI / 2.0, false));
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX: return _welYMin;
+                case PrincipalAxes.AlongMinusY: return _welXMax;
+                case PrincipalAxes.AlongY: return _welXMin;
+                case PrincipalAxes.AlongMinusX: return _welYMax;
+                default: return _j22 / Math.Abs(ExtremeCoordinate(_angleX1, false));
+            }
         }
 
+        /// <returns>The elastic modulus respect to the axis 2 of the fibre with the maximum coordinate x1</returns>
         protected virtual double CalculateWel2Max()
         {
-            return _j22 / Math.Abs(ExtremeDistance(_angleX1 + Math.PI / 2.0, true));
+            switch (PrincipalFromXY())
+            {
+                case PrincipalAxes.AlongX: return _welYMax;
+                case PrincipalAxes.AlongMinusY: return _welXMin;
+                case PrincipalAxes.AlongY: return _welXMax;
+                case PrincipalAxes.AlongMinusX: return _welYMin;
+                default: return _j22 / Math.Abs(ExtremeCoordinate(_angleX1, true));
+            }
         }
 
         /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="WplY"/>
@@ -639,26 +753,29 @@ namespace GPC.Model.Sections
 
         // The moduli respect to X and Y use Jxx and Jyy (before, J11 and J22: wrong when the principal axes are rotated or when J11 was Jyy)
 
+        /// <returns>The elastic modulus respect to X of the top fibre</returns>
         protected virtual double CalculateWelXMax()
         {
             return _jxx / Math.Abs(ExtremeDistance(0.0, true));
         }
 
+        /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
         protected virtual double CalculateWelXMin()
         {
             return _jxx / Math.Abs(ExtremeDistance(0.0, false));
         }
 
+        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
         protected virtual double CalculateWelYMax()
         {
-            return _jyy / Math.Abs(ExtremeDistance(Math.PI / 2.0, true));
+            return _jyy / Math.Abs(ExtremeCoordinate(0.0, true));
         }
 
+        /// <returns>The elastic modulus respect to Y of the left fibre (before, of the right one)</returns>
         protected virtual double CalculateWelYMin()
         {
-            return _jyy / Math.Abs(ExtremeDistance(Math.PI / 2.0, false));
+            return _jyy / Math.Abs(ExtremeCoordinate(0.0, false));
         }
-
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
         {
             return false;

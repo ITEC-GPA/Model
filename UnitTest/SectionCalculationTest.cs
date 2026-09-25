@@ -123,10 +123,13 @@ namespace UnitTest
             Assert.AreEqual(b * h * h / 6, section.WelX, 1e-9 * b * h * h);
             Assert.AreEqual(h * b * b / 6, section.WelY, 1e-9 * b * b * h);
 
-            // the X axis is principal: it is the axis 1 (the convention of the constructor with J11 and J22)
-            Assert.AreEqual(0, section.AngleX1);
-            Assert.AreEqual(b * h * h * h / 12, section.J11, 1e-9 * b * h * h * h);
-            Assert.AreEqual(section.WelX, section.Wel1, 1e-9 * section.WelX);
+            // the axis 1 is the principal axis of the maximum moment, here Y (angle -90°): the moduli 1 are the ones respect to Y
+            Assert.AreEqual(-Math.PI / 2, section.AngleX1);
+            Assert.AreEqual(h * b * b * b / 12, section.J11, 1e-9 * h * b * b * b);
+            Assert.AreEqual(section.WelY, section.Wel1, 1e-9 * section.WelY);
+            Assert.AreEqual(section.WelX, section.Wel2, 1e-9 * section.WelX);
+            Assert.AreEqual(h * b * b / 4, section.Wpl1, 1e-9 * h * b * b);
+            Assert.AreEqual(b * h * h / 4, section.Wpl2, 1e-9 * b * h * h);
         }
 
         [TestMethod]
@@ -175,18 +178,65 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void WideSectionsHaveTheAxis1AlongX()
+        public void WideSectionsHaveTheAxis1AlongTheStrongAxis()
         {
-            // RHS lying and wide rectangle: the moduli respect to the axis 1 are computed respect to X (Wel1 = J11 / distance from the
-            // bottom): J11 must be Jxx (before, J11 = Jyy, the bigger one, and Wel1 = Jyy / (h / 2))
+            // RHS lying and wide rectangle: the axis 1 is the principal axis of the maximum moment (Y, angle -90°) and the moduli 1 are respect to
+            // it. Before, J11 = Jyy but Wel1 = J11 / distance from the bottom, computed as if the axis 1 was X
             var rhs = new SectionRHS(100, 200, 10, 10, 10, 10, "RHS 200x100");
-            Assert.AreEqual(rhs.Jxx, rhs.J11);
-            Assert.AreEqual(0, rhs.AngleX1);
-            Assert.AreEqual(rhs.J11 / 50, rhs.Wel1, 1e-9 * rhs.Wel1);
+            Assert.AreEqual(rhs.Jyy, rhs.J11);
+            Assert.AreEqual(rhs.Jxx, rhs.J22);
+            Assert.AreEqual(-Math.PI / 2, rhs.AngleX1);
+            Assert.AreEqual(rhs.J11 / 100, rhs.Wel1, 1e-9 * rhs.Wel1);
+            Assert.AreEqual(rhs.J22 / 50, rhs.Wel2, 1e-9 * rhs.Wel2);
+            Assert.AreEqual(rhs.WplY, rhs.Wpl1, 1e-9 * rhs.Wpl1);
 
             var rectangle = new SectionRectangular(100, 400, "400x100");
-            Assert.AreEqual(400.0 * 100 * 100 * 100 / 12, rectangle.J11, 1e-6);
-            Assert.AreEqual(rectangle.J11 / 50, rectangle.Wel1, 1e-9 * rectangle.Wel1);
+            Assert.AreEqual(100.0 * 400 * 400 * 400 / 12, rectangle.J11, 1e-6);
+            Assert.AreEqual(rectangle.J11 / 200, rectangle.Wel1, 1e-9 * rectangle.Wel1);
+            Assert.AreEqual(100.0 * 400 * 400 / 4, rectangle.Wpl1, 1e-6);
+
+            // a usual IPE: nothing changes, the axis 1 is X
+            var ipe = new SectionH(300, 7.1, 150, 10.7, 150, 10.7, "IPE300");
+            Assert.AreEqual(0, ipe.AngleX1);
+            Assert.AreEqual(ipe.Jxx, ipe.J11);
+            Assert.AreEqual(ipe.WelX, ipe.Wel1, 1e-9 * ipe.Wel1);
+        }
+
+        [TestMethod]
+        public void MinimumAndMaximumFibresAreTheSameForAllTheSections()
+        {
+            // for every section the distances of the extreme fibres (J / Wel) are the ones of the generic section with the same shape:
+            // respect to X Min is the bottom fibre, respect to Y the left one, respect to the principal axes the fibres with the minimum
+            // coordinates y1 (axis 1) and x1 (axis 2). Before, respect to Y the generic section and the T had Min on the right, the others on the left
+            Section[] sections =
+            {
+                new SectionC(200, 10, 50, 20, 100, 30, string.Empty),          // without symmetry: rotated principal axes
+                new SectionC(200, 10, 80, 12, 80, 12, string.Empty),           // symmetric respect to X
+                new SectionT(300, 250, 12, 20, string.Empty),                  // symmetric respect to Y
+                new SectionRHS(400, 200, 10, 10, 30, 10, string.Empty),        // webs of different thickness
+                new SectionH(400, 12, 100, 10, 300, 25, string.Empty),         // flanges of different width
+                new SectionL(100, 30, 200, 10, string.Empty),                  // rotated principal axes
+                new SectionRHS(100, 200, 10, 10, 10, 10, string.Empty),        // axis 1 along Y
+            };
+            foreach (Section section in sections)
+            {
+                Section generic = Generic(section.Shape);
+                string name = section.GetType().Name;
+
+                Assert.AreEqual(generic.Jxx / generic.WelXMin, section.Jxx / section.WelXMin, 1e-6, name + " WelXMin");
+                Assert.AreEqual(generic.Jxx / generic.WelXMax, section.Jxx / section.WelXMax, 1e-6, name + " WelXMax");
+                Assert.AreEqual(generic.Jyy / generic.WelYMin, section.Jyy / section.WelYMin, 1e-6, name + " WelYMin");
+                Assert.AreEqual(generic.Jyy / generic.WelYMax, section.Jyy / section.WelYMax, 1e-6, name + " WelYMax");
+
+                // the principal axes of the thin wall moments can differ from the exact ones: compared only when they are the same
+                if (Math.Abs(generic.AngleX1 - section.AngleX1) < 1e-6)
+                {
+                    Assert.AreEqual(generic.J11 / generic.Wel1Min, section.J11 / section.Wel1Min, 1e-6, name + " Wel1Min");
+                    Assert.AreEqual(generic.J11 / generic.Wel1Max, section.J11 / section.Wel1Max, 1e-6, name + " Wel1Max");
+                    Assert.AreEqual(generic.J22 / generic.Wel2Min, section.J22 / section.Wel2Min, 1e-6, name + " Wel2Min");
+                    Assert.AreEqual(generic.J22 / generic.Wel2Max, section.J22 / section.Wel2Max, 1e-6, name + " Wel2Max");
+                }
+            }
         }
 
         #endregion

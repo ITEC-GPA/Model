@@ -142,27 +142,8 @@ namespace GPC.Model.Sections
             info.AddValue("R", _r);
         }
 
-        protected override double CalculateWel2Max()
-        {
-            return CalculateWelYMax();
-        }
-
-        protected override double CalculateWel2Min()
-        {
-            return CalculateWelYMin();
-        }
-
-        protected override double CalculateWel1Max()
-        {
-            return CalculateWelXMax();
-        }
-
-        protected override double CalculateWel1Min()
-        {
-            return CalculateWelXMin();
-        }
-
-        protected override double CalculateWpl1()
+        /// <returns>The plastic modulus respect to X</returns>
+        protected override double CalculateWplX()
         {
             if (_area / 2.0 >= _b * _tf)
             {
@@ -181,29 +162,38 @@ namespace GPC.Model.Sections
             }
         }
 
-        protected override double CalculateWpl2()
+        /// <returns>The plastic modulus respect to Y (the symmetry axis)</returns>
+        protected override double CalculateWplY()
         {
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
 
+        // The moduli respect to X and Y with Jxx and Jyy (before, J11 and J22, assuming that the axis 1 was X: wrong for a wide T with Jyy bigger
+        // than Jxx); the principal ones are taken from them by Section. Min: bottom and left fibres, Max: top and right fibres (before, respect to Y
+        // the Min was on the right)
+
+        /// <returns>The elastic modulus respect to Y of the left fibre</returns>
         protected override double CalculateWelYMin()
         {
-            return J22 / DistanceXCentroidFromRight();
+            return Jyy / DistanceXCentroidFromLeft();
         }
 
+        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
         protected override double CalculateWelYMax()
         {
-            return J22 / (_b - DistanceXCentroidFromRight());
+            return Jyy / DistanceXCentroidFromRight();
         }
 
+        /// <returns>The elastic modulus respect to X of the bottom fibre (the end of the web)</returns>
         protected override double CalculateWelXMin()
         {
-            return J11 / DistanceYCentroidFromBottom();
+            return Jxx / DistanceYCentroidFromBottom();
         }
 
+        /// <returns>The elastic modulus respect to X of the top fibre (the flange)</returns>
         protected override double CalculateWelXMax()
         {
-            return J11 / (Height - DistanceYCentroidFromBottom());
+            return Jxx / (Height - DistanceYCentroidFromBottom());
         }
 
         internal virtual double DistanceYCentroidFromBottom()

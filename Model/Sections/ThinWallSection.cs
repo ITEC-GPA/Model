@@ -379,33 +379,34 @@ namespace GPC.Model.Sections
             return Math.Abs(left - right) <= 1e-9 * (left + right);
         }
 
+        /// <returns>The plastic modulus respect to the axis 1: when X and Y are principal the one respect to X or Y (see <see cref="Section.CalculateWpl1"/>,
+        /// so the sections that compute <see cref="CalculateWplX"/> and <see cref="CalculateWplY"/> get coherent principal moduli), otherwise the one of
+        /// the thin walls respect to the axis 1 (<see cref="CalculateWplAngle"/>)</returns>
         protected override double CalculateWpl1()
         {
-            return CalculateWplAngle(AngleX1);
+            return PrincipalFromXY() == PrincipalAxes.Rotated ? CalculateWplAngle(AngleX1) : base.CalculateWpl1();
         }
 
+        /// <returns>The plastic modulus respect to the axis 2 (see <see cref="CalculateWpl1"/>)</returns>
         protected override double CalculateWpl2()
         {
-            return CalculateWplAngle(AngleX1 + Math.PI * 0.5);
+            return PrincipalFromXY() == PrincipalAxes.Rotated ? CalculateWplAngle(AngleX1 + Math.PI * 0.5) : base.CalculateWpl2();
         }
 
+        /// <returns>The plastic modulus of the thin walls respect to X (<see cref="CalculateWplAngle"/>)</returns>
         protected override double CalculateWplX()
         {
             return CalculateWplAngle(0);
         }
 
+        /// <returns>The plastic modulus of the thin walls respect to Y (<see cref="CalculateWplAngle"/>)</returns>
         protected override double CalculateWplY()
         {
             return CalculateWplAngle(Math.PI * 0.5);
         }
 
-        protected abstract override double CalculateWel1Max();
-
-        protected abstract override double CalculateWel1Min();
-
-        protected abstract override double CalculateWel2Max();
-
-        protected abstract override double CalculateWel2Min();
+        // The elastic moduli respect to the principal axes are the ones of Section: taken from the moduli respect to X and Y when X and Y are
+        // principal (before, they were abstract and every section computed them assuming that the axis 1 was X)
 
         public override Point2d[] GetSectionPoints()
         {

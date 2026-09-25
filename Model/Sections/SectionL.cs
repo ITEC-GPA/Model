@@ -166,9 +166,10 @@ namespace GPC.Model.Sections
             _jyy = CalculateJyy();
             _jxy = CalculateJxy();
 
-            _angleX1 = CalculateAngle();
+            // J11 and J22 before the angle, that compares them with Jxx and Jyy (before, the values of the previous calculation were used)
             _j11 = CalculateJ11();
             _j22 = CalculateJ22();
+            _angleX1 = CalculateAngle();
 
             _jp = _jxx + _jyy;
             _jt = CalculateJt();
@@ -176,14 +177,7 @@ namespace GPC.Model.Sections
 
             _shearCenter = CalculateShearCenter();
 
-            var (WelTop, WelBottom, WelLeft, WelRight) = CalculateWel(_angleX1, _j11, _j22);
-            _wel1Max = WelTop;
-            _wel1Min = WelBottom;
-            _wel2Max = WelRight;
-            _wel2Min = WelLeft;
-            _wpl1 = CalculateWpl1();
-            _wpl2 = CalculateWpl2();
-
+            // the moduli respect to X and Y first: the plastic moduli respect to the principal axes are taken from them when X and Y are principal
             var welL = CalculateWel(0.0, _jxx, _jyy);
             _welXMax = welL.WelTop;
             _welXMin = welL.WelBottom;
@@ -191,6 +185,15 @@ namespace GPC.Model.Sections
             _welYMin = welL.WelLeft;
             _wplX = CalculateWplX();
             _wplY = CalculateWplY();
+
+            // respect to the principal axes: top/bottom = maximum/minimum coordinate y1, right/left = maximum/minimum coordinate x1
+            var (WelTop, WelBottom, WelLeft, WelRight) = CalculateWel(_angleX1, _j11, _j22);
+            _wel1Max = WelTop;
+            _wel1Min = WelBottom;
+            _wel2Max = WelRight;
+            _wel2Min = WelLeft;
+            _wpl1 = CalculateWpl1();
+            _wpl2 = CalculateWpl2();
         }
 
         protected override double CalculateWelXMax()
