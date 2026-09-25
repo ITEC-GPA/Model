@@ -902,7 +902,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         {
             if (parallelComputing)
             {
-                List<double> results = new List<double>();
+                // partial sums of the ranges (List.Add from several threads lost values)
+                double total = 0;
+                object gate = new object();
 
                 Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
                 {
@@ -918,10 +920,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                         }
                     }
 
-                    results.Add(res);
+                    lock (gate)
+                        total += res;
                 });
 
-                return results.Sum();
+                return total;
             }
             else
             {
@@ -1020,7 +1023,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         {
             if (parallelComputing)
             {
-                List<double> results = new List<double>();
+                // partial sums of the ranges (List.Add from several threads lost values)
+                double total = 0;
+                object gate = new object();
 
                 Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, globalGaussPoints.Length), (range) =>
                 {
@@ -1033,10 +1038,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                         }
                     }
 
-                    results.Add(res);
+                    lock (gate)
+                        total += res;
                 });
 
-                return results.Sum();
+                return total;
             }
             else
             {
@@ -1475,10 +1481,6 @@ namespace GPC.Model.Maths.GaussIntegrations
 
             private readonly double _determinantWeightFactorMultiplication;
 
-            private static IGaussPointCalculator _calculator;
-
-            private bool _calculatorInstantiated;
-
 
             /// <param name="gpX">X coordinate of Gauss in global coordinate system</param>
             /// <param name="gpY">Y coordinate of Gauss in global coordinate system</param>
@@ -1493,20 +1495,12 @@ namespace GPC.Model.Maths.GaussIntegrations
                 GpZ = gpZ;
 
                 _determinantWeightFactorMultiplication = jacobianDeterminant * gaussPointWeight * factor;
-
-                _calculatorInstantiated = false;
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
             public T EvaluateFunction<T>(Func<double, T> function)
             {
-                if (!_calculatorInstantiated)
-                {
-                    _calculator = GaussPointCalculator.GetInstance<T>();
-                    _calculatorInstantiated = true;
-                }
-
-                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX));
+                return CalculatorOf<T>.Get().Multiply(_determinantWeightFactorMultiplication, function(GpX));
             }
 
             public double EvaluateFunction(Func<double, double, double> function)
@@ -1517,49 +1511,31 @@ namespace GPC.Model.Maths.GaussIntegrations
             /// <exception cref="KeyNotFoundException"></exception>
             public T EvaluateFunction<T>(Func<double, double, T> function)
             {
-                if (!_calculatorInstantiated)
-                {
-                    _calculator = GaussPointCalculator.GetInstance<T>();
-                    _calculatorInstantiated = true;
-                }
-
-                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY));
+                return CalculatorOf<T>.Get().Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY));
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
             public T EvaluateFunction<T>(Func<double, double, double, T> function)
             {
-                if (!_calculatorInstantiated)
-                {
-                    _calculator = GaussPointCalculator.GetInstance<T>();
-                    _calculatorInstantiated = true;
-                }
-
-                return ((ICalculator<T>)_calculator).Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY, GpZ));
+                return CalculatorOf<T>.Get().Multiply(_determinantWeightFactorMultiplication, function(GpX, GpY, GpZ));
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
             public static T MassSum<T>(T[][][] values)
             {
-                _calculator = GaussPointCalculator.GetInstance<T>();
-
-                return ((ICalculator<T>)_calculator).MassSum(values);
+                return CalculatorOf<T>.Get().MassSum(values);
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
             public static T MassSum<T>(T[][] values)
             {
-                _calculator = GaussPointCalculator.GetInstance<T>();
-
-                return ((ICalculator<T>)_calculator).MassSum(values);
+                return CalculatorOf<T>.Get().MassSum(values);
             }
 
             /// <exception cref="KeyNotFoundException"></exception>
             public static T MassSum<T>(T[] values)
             {
-                _calculator = GaussPointCalculator.GetInstance<T>();
-
-                return ((ICalculator<T>)_calculator).MassSum(values);
+                return CalculatorOf<T>.Get().MassSum(values);
             }
         }
 
@@ -1578,6 +1554,21 @@ namespace GPC.Model.Maths.GaussIntegrations
             public static ICalculator<T> GetInstance<T>()
             {
                 return (ICalculator<T>)Calculators[typeof(T)];
+            }
+        }
+
+        /// <summary>
+        /// The calculator of the type <typeparamref name="T"/>, looked up once per type (the previous static field was shared by all the types:
+        /// integrating two different types could use the calculator of the other one)
+        /// </summary>
+        private static class CalculatorOf<T>
+        {
+            private static readonly ICalculator<T> Instance = GaussPointCalculator.Calculators.TryGetValue(typeof(T), out IGaussPointCalculator calculator) ? (ICalculator<T>)calculator : null;
+
+            /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
+            public static ICalculator<T> Get()
+            {
+                return Instance ?? throw new KeyNotFoundException($"Gauss integration of the type {typeof(T)} is not supported");
             }
         }
 

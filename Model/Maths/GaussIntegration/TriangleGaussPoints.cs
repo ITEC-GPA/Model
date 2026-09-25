@@ -19,9 +19,10 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         public static readonly GaussPoint[] Tri1 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0, 1.0, 1) };
 
-        public static readonly GaussPoint[] Tri3 = new GaussPoint[] { new GaussPoint(0.5, 0.5, 0, 1.0 / 6.0, 1),
-                                                                      new GaussPoint(0.0, 0.5, 0, 1.0 / 6.0, 2),
-                                                                      new GaussPoint(0.5, 0.0, 0, 1.0 / 6.0, 3) };
+        // the weights sum to 1, like the other rules (the integration multiplies by the area of the reference triangle, 1/2)
+        public static readonly GaussPoint[] Tri3 = new GaussPoint[] { new GaussPoint(0.5, 0.5, 0, 1.0 / 3.0, 1),
+                                                                      new GaussPoint(0.0, 0.5, 0, 1.0 / 3.0, 2),
+                                                                      new GaussPoint(0.5, 0.0, 0, 1.0 / 3.0, 3) };
 
         public static readonly GaussPoint[] Tri4 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0.0, -0.56250, 1),
                                                                       new GaussPoint(0.2, 0.2, 0.0, +0.52083333333333333, 2),
@@ -46,7 +47,7 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.053145049844817, 0.310352451033784, 0.082851075618374, 9),
                                                                        new GaussPoint(0.636502499121399, 0.310352451033784, 0.082851075618374, 10),
                                                                        new GaussPoint(0.310352451033784, 0.053145049844817, 0.082851075618374, 11),
-                                                                       new GaussPoint(0.091576213509771, 0.636502499121399, 0.082851075618374, 12) };
+                                                                       new GaussPoint(0.053145049844817, 0.636502499121399, 0.082851075618374, 12) };
 
         public static readonly GaussPoint[] Tri33 = new GaussPoint[] { new GaussPoint(0.023565220452390, 0.488217389773805, 0.025731066440455, 1),
                                                                        new GaussPoint(0.120551215411079, 0.439724392294460, 0.043692544538038, 2),
