@@ -8,6 +8,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Standards
 {
+    /// <summary>
+    /// EN 16612 (glass panes, lateral loads): the EN 1990 coefficients plus the ψ coefficients of the climatic loads of the insulating glass units (the default values are to be checked)
+    /// </summary>
     [Serializable]
     public class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator, ISerializable
     {
@@ -28,23 +31,62 @@ namespace GPC.Model.Standards
         private double _psi2ClimateWinterDeltaT;
 
         // Climate Psi
+        /// <summary>
+        /// ψ0 of the climatic load of the insulating glass units in summer: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi0ClimateSummerDeltaP { get => _psi0ClimateSummerDeltaP; set => _psi0ClimateSummerDeltaP = value; }
+        /// <summary>
+        /// ψ0 of the climatic load of the insulating glass units in summer: the variation of the temperature ΔT
+        /// </summary>
         public double Psi0ClimateSummerDeltaT { get => _psi0ClimateSummerDeltaT; set => _psi0ClimateSummerDeltaT = value; }
+        /// <summary>
+        /// ψ0 of the climatic load of the insulating glass units in winter: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi0ClimateWinterDeltaP { get => _psi0ClimateWinterDeltaP; set => _psi0ClimateWinterDeltaP = value; }
+        /// <summary>
+        /// ψ0 of the climatic load of the insulating glass units in winter: the variation of the temperature ΔT
+        /// </summary>
         public double Psi0ClimateWinterDeltaT { get => _psi0ClimateWinterDeltaT; set => _psi0ClimateWinterDeltaT = value; }
+        /// <summary>
+        /// ψ1 of the climatic load of the insulating glass units in summer: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi1ClimateSummerDeltaP { get => _psi1ClimateSummerDeltaP; set => _psi1ClimateSummerDeltaP = value; }
+        /// <summary>
+        /// ψ1 of the climatic load of the insulating glass units in summer: the variation of the temperature ΔT
+        /// </summary>
         public double Psi1ClimateSummerDeltaT { get => _psi1ClimateSummerDeltaT; set => _psi1ClimateSummerDeltaT = value; }
+        /// <summary>
+        /// ψ1 of the climatic load of the insulating glass units in winter: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi1ClimateWinterDeltaP { get => _psi1ClimateWinterDeltaP; set => _psi1ClimateWinterDeltaP = value; }
+        /// <summary>
+        /// ψ1 of the climatic load of the insulating glass units in winter: the variation of the temperature ΔT
+        /// </summary>
         public double Psi1ClimateWinterDeltaT { get => _psi1ClimateWinterDeltaT; set => _psi1ClimateWinterDeltaT = value; }
+        /// <summary>
+        /// ψ2 of the climatic load of the insulating glass units in summer: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi2ClimateSummerDeltaP { get => _psi2ClimateSummerDeltaP; set => _psi2ClimateSummerDeltaP = value; }
+        /// <summary>
+        /// ψ2 of the climatic load of the insulating glass units in summer: the variation of the temperature ΔT
+        /// </summary>
         public double Psi2ClimateSummerDeltaT { get => _psi2ClimateSummerDeltaT; set => _psi2ClimateSummerDeltaT = value; }
+        /// <summary>
+        /// ψ2 of the climatic load of the insulating glass units in winter: the variation of the atmospheric pressure ΔP
+        /// </summary>
         public double Psi2ClimateWinterDeltaP { get => _psi2ClimateWinterDeltaP; set => _psi2ClimateWinterDeltaP = value; }
+        /// <summary>
+        /// ψ2 of the climatic load of the insulating glass units in winter: the variation of the temperature ΔT
+        /// </summary>
         public double Psi2ClimateWinterDeltaT { get => _psi2ClimateWinterDeltaT; set => _psi2ClimateWinterDeltaT = value; }
 
         #endregion
 
         #region PUBLIC CONSTRUCTOR
 
+        /// <summary>
+        /// Creates the standard with the default name and remarks
+        /// </summary>
         public StandardEN16612()
         {
             // da controllare. non sono corretti
@@ -62,6 +104,11 @@ namespace GPC.Model.Standards
             _psi2ClimateWinterDeltaT = 0.00;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardEN16612(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -83,14 +130,28 @@ namespace GPC.Model.Standards
 
         #region COMBINATIONS OPTIONS
 
+        /// <summary>
+        /// The options of the generation of the EN 16612 combinations
+        /// </summary>
         public class EN16612CombinationsOptions : EN1990CombinationsOptions
         {
+            /// <summary>
+            /// Creates the options
+            /// </summary>
+            /// <param name="limitState">The limit state</param>
+            /// <param name="uLS">The set of the partial factors</param>
+            /// <param name="imposedLoadCategories">The category of the imposed loads</param>
+            /// <param name="highAltitude">True for sites at altitude higher than 1000 m</param>
             public EN16612CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
                 : base(limitState, uLS, imposedLoadCategories, highAltitude)
             {
 
             }
 
+            /// <summary>
+            /// Creates the options with the default category (A), set (B) and altitude (high)
+            /// </summary>
+            /// <param name="limitState">The limit state</param>
             public EN16612CombinationsOptions(LimitStates limitState)
                 : base(limitState)
             {
@@ -2028,6 +2089,11 @@ namespace GPC.Model.Standards
 
         #region Equals - hashcode - operators
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -2049,6 +2115,10 @@ namespace GPC.Model.Standards
                    _psi2ClimateWinterDeltaT == eN._psi2ClimateWinterDeltaT;
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -2071,6 +2141,11 @@ namespace GPC.Model.Standards
             }
         }
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

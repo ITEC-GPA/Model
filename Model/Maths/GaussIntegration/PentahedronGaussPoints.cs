@@ -2,13 +2,23 @@
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
+    /// <summary>
+    /// Gauss rules on the triangular prism: triangle rule (weights summing to 1) × Gauss-Legendre rule on [-1, 1] (the weights sum to 2)
+    /// </summary>
     public static class PentahedronGaussPoints
     {
+        /// <summary>
+        /// The available rules, by number of points
+        /// </summary>
         public enum GaussPointNumber
         {
+            /// <summary>The rule with 6 points on the prism</summary>
             Penta6 = 6,
+            /// <summary>The rule with 8 points on the prism</summary>
             Penta8 = 8,
+            /// <summary>The rule with 18 points on the prism</summary>
             Penta18 = 18,
+            /// <summary>The rule with 36 points on the prism</summary>
             Penta36 = 36,
         }
 
@@ -19,6 +29,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         //                                                                new GaussPoint(+0.0000000000000000000000000000, +0.5000000000000000000000000000, +0.57735026918962576450914878050196, 0.16666666666666666666666666666667, 5),
         //                                                                new GaussPoint(+0.5000000000000000000000000000, +0.0000000000000000000000000000, +0.57735026918962576450914878050196, 0.16666666666666666666666666666667, 6) };
 
+        /// <summary>
+        /// The rule with 6 points on the prism
+        /// </summary>
         public static readonly GaussPoint[] Penta6 = new GaussPoint[] { new GaussPoint(+0.1666666666666666666666666666, +0.1666666666666666666666666666, -0.57735026918962576450914878050196, 0.33333333333333333333333333333333, 1),
                                                                         new GaussPoint(+0.6666666666666666666666666666, +0.1666666666666666666666666666, -0.57735026918962576450914878050196, 0.33333333333333333333333333333333, 2),
                                                                         new GaussPoint(+0.1666666666666666666666666666, +0.6666666666666666666666666666, -0.57735026918962576450914878050196, 0.33333333333333333333333333333333, 3),
@@ -26,6 +39,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(+0.6666666666666666666666666666, +0.1666666666666666666666666666, +0.57735026918962576450914878050196, 0.33333333333333333333333333333333, 5),
                                                                         new GaussPoint(+0.1666666666666666666666666666, +0.6666666666666666666666666666, +0.57735026918962576450914878050196, 0.33333333333333333333333333333333, 6) };
 
+        /// <summary>
+        /// The rule with 8 points on the prism
+        /// </summary>
         public static readonly GaussPoint[] Penta8 = new GaussPoint[] { new GaussPoint(+0.3333333333333333333333333333, +0.3333333333333333333333333333, -0.57735026918962576450914878050196, -0.56250000000000000, 1),
                                                                         new GaussPoint(+0.2000000000000000000000000000, +0.2000000000000000000000000000, -0.57735026918962576450914878050196, +0.52083333333333333, 2),
                                                                         new GaussPoint(+0.6000000000000000000000000000, +0.2000000000000000000000000000, -0.57735026918962576450914878050196, +0.52083333333333333, 3),
@@ -35,6 +51,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(+0.6000000000000000000000000000, +0.2000000000000000000000000000, +0.57735026918962576450914878050196, +0.52083333333333333, 7),
                                                                         new GaussPoint(+0.2000000000000000000000000000, +0.6000000000000000000000000000, +0.57735026918962576450914878050196, +0.52083333333333333, 8) };
 
+        /// <summary>
+        /// The rule with 18 points on the prism
+        /// </summary>
         public static readonly GaussPoint[] Penta18 = new GaussPoint[] { new GaussPoint(0.108103018168070, 0.445948490915965, +0.77459666924148337703585307995648, 0.12410088315445055555555555555555, 1),
                                                                          new GaussPoint(0.445948490915965, 0.108103018168070, +0.77459666924148337703585307995648, 0.12410088315445055555555555555555, 2),
                                                                          new GaussPoint(0.445948490915965, 0.445948490915965, +0.77459666924148337703585307995648, 0.12410088315445055555555555555555, 3),
@@ -55,6 +74,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                          new GaussPoint(0.091576213509771, 0.816847572980459, -0.77459666924148337703585307995648, 0.06108430203073444444444444444444, 18),};
 
 
+        /// <summary>
+        /// The rule with 36 points on the prism
+        /// </summary>
         public static readonly GaussPoint[] Penta36 = new GaussPoint[] { new GaussPoint(0.249286745170910, 0.249286745170910, +0.77459666924148337703585307995648, 0.06488126429243277777777777777778, 1),
                                                                          new GaussPoint(0.249286745170910, 0.501426509658179, +0.77459666924148337703585307995648, 0.06488126429243277777777777777778, 2),
                                                                          new GaussPoint(0.501426509658179, 0.249286745170910, +0.77459666924148337703585307995648, 0.06488126429243277777777777777778, 3),
@@ -95,6 +117,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                          new GaussPoint(0.091576213509771, 0.636502499121399, -0.77459666924148337703585307995648, 0.04602837534354111111111111111111, 36) };
 
 
+        /// <summary>
+        /// The rules by number of points
+        /// </summary>
         public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
         {
             { GaussPointNumber.Penta6, Penta6 },

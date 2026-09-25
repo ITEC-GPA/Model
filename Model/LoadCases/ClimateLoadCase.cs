@@ -4,21 +4,36 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.LoadCases
 {
+    /// <summary>
+    /// A climatic load case of an insulating glass unit (EN 16612): variation of altitude, pressure or temperature between the manufacturing
+    /// and the installation, in summer or in winter
+    /// </summary>
     [Serializable]
     public class ClimateLoadCase : LoadCaseBase
     {
         #region Public Enums
 
+        /// <summary>
+        /// The seasons of the climatic actions
+        /// </summary>
         public enum Seasons
         {
+            /// <summary>Summer conditions</summary>
             Summer,
+            /// <summary>Winter conditions</summary>
             Winter
         }
 
+        /// <summary>
+        /// The climatic parameters
+        /// </summary>
         public enum ClimateTypes
         {
+            /// <summary>Difference of altitude</summary>
             [Description("Climate delta H")] DeltaH,
+            /// <summary>Difference of atmospheric pressure</summary>
             [Description("Climate delta P")] DeltaP,
+            /// <summary>Difference of temperature</summary>
             [Description("Climate delta T")] DeltaT
         }
 
@@ -26,27 +41,60 @@ namespace GPC.Model.LoadCases
 
         #region Class Variables
 
+        /// <summary>
+        /// The season
+        /// </summary>
         private Seasons _season;
+        /// <summary>
+        /// The climatic parameter
+        /// </summary>
         private ClimateTypes _climateType;
+        /// <summary>
+        /// The value of the parameter at the manufacturing
+        /// </summary>
         private double _manufactoring;
+        /// <summary>
+        /// The value of the parameter at the installation
+        /// </summary>
         private double _installation;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The season
+        /// </summary>
         public Seasons Season { get => _season; set => _season = value; }
 
+        /// <summary>
+        /// The climatic parameter
+        /// </summary>
         public ClimateTypes ClimateType { get => _climateType; set => _climateType = value; }
 
+        /// <summary>
+        /// The value of the parameter at the manufacturing
+        /// </summary>
         public double Manufactoring { get => _manufactoring; set => _manufactoring = value; }
 
+        /// <summary>
+        /// The value of the parameter at the installation
+        /// </summary>
         public double Installation { get => _installation; set => _installation = value; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates a climatic load case with a new Guid
+        /// </summary>
+        /// <param name="name">The name (not empty)</param>
+        /// <param name="season">The season</param>
+        /// <param name="climateType">The climatic parameter</param>
+        /// <param name="manufactoring">The value at the manufacturing</param>
+        /// <param name="installation">The value at the installation</param>
+        /// <exception cref="ArgumentException">If the name is null, empty or white space</exception>
         public ClimateLoadCase(string name, Seasons season, ClimateTypes climateType, double manufactoring, double installation)
             : base(name)
         {
@@ -56,6 +104,11 @@ namespace GPC.Model.LoadCases
             _installation = installation;
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the data of <see cref="LoadCaseBase"/>, season, parameter and values
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected ClimateLoadCase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -69,6 +122,11 @@ namespace GPC.Model.LoadCases
 
         #region Methods
 
+        /// <summary>
+        /// Serializes the data of <see cref="LoadCaseBase"/>, season, parameter and values
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -78,6 +136,11 @@ namespace GPC.Model.LoadCases
             info.AddValue("Installation", _installation);
         }
 
+        /// <summary>
+        /// Equality of name, season, parameter and values (exact)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal climatic load case</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -94,6 +157,10 @@ namespace GPC.Model.LoadCases
                 _installation == clc._installation;
         }
 
+        /// <summary>
+        /// The hash code of name, season, parameter and values
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

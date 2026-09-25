@@ -8,22 +8,40 @@ using GPC.Utilities.Units;
 
 namespace GPC.Model
 {
+    /// <summary>
+    /// The predefined systems of units and the conversions from and to the default one (<see cref="DefaultUnits"/>: N, mm, ton, MPa, °C)
+    /// </summary>
     [Serializable]
     public static class Units
     {
+        /// <summary>
+        /// kN, m, ton, kPa, °C
+        /// </summary>
         [Description("kNm")]
         public static UnitsSystem Knm = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.kN,
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.kPa, UnitsConvert.TemperatureUnits.C);
 
+        /// <summary>
+        /// International system: N, m, kg, Pa, °C
+        /// </summary>
         public static UnitsSystem SI = new UnitsSystem(UnitsConvert.LengthUnits.m, UnitsConvert.ForceUnits.N,
             UnitsConvert.MassUnits.kg, UnitsConvert.PressureUnits.Pa, UnitsConvert.TemperatureUnits.C);
 
+        /// <summary>
+        /// N, mm, ton, MPa, °C (the default units)
+        /// </summary>
         public static UnitsSystem Nmm = new UnitsSystem(UnitsConvert.LengthUnits.mm, UnitsConvert.ForceUnits.N,
             UnitsConvert.MassUnits.ton, UnitsConvert.PressureUnits.MPa, UnitsConvert.TemperatureUnits.C);
 
+        /// <summary>
+        /// Inch-pound-second: lbf, inch, lb, psi, °F
+        /// </summary>
         public static UnitsSystem IPS = new UnitsSystem(UnitsConvert.LengthUnits.inch, UnitsConvert.ForceUnits.lbf,
             UnitsConvert.MassUnits.lb, UnitsConvert.PressureUnits.psi, UnitsConvert.TemperatureUnits.F);
 
+        /// <summary>
+        /// The units of the values of the model: <see cref="Nmm"/>
+        /// </summary>
         public static readonly UnitsSystem DefaultUnits = Nmm;
 
         #region To default
@@ -152,9 +170,9 @@ namespace GPC.Model
         /// <summary>
         /// Convert density from the given units to the default units
         /// </summary>
-        /// <param name="density">The temperature to convert</param>
+        /// <param name="density">The density to convert</param>
         /// <param name="units">The source measure units</param>
-        /// <returns>The converted temperature</returns>
+        /// <returns>The converted density</returns>
         public static double ConvertDensityToDefault(this double density, UnitsSystem units)
         {
             return UnitsConvert.Convert(density, units.MassUnits, DefaultUnits.MassUnits, 1, units.LengthUnits, DefaultUnits.LengthUnits, -3);
@@ -290,7 +308,7 @@ namespace GPC.Model
         /// </summary>
         /// <param name="density">The density to convert</param>
         /// <param name="units">The destination measure units</param>
-        /// <returns>The converted temperature</returns>
+        /// <returns>The converted density</returns>
         public static double ConvertDensityFromDefault(this double density, UnitsSystem units)
         {
             return UnitsConvert.Convert(density, DefaultUnits.MassUnits, units.MassUnits, 1, DefaultUnits.LengthUnits, units.LengthUnits, -3);

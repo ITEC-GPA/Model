@@ -5,19 +5,41 @@ using System.Linq;
 
 namespace GPC.Model.Costrains
 {
+    /// <summary>
+    /// A constraint between a node and other nodes, expressed by linear equations between their degrees of freedom (see <see cref="MultiPointsCostrain"/>)
+    /// </summary>
     public abstract class Costrain : ModelObjectId
     {
 
+        /// <summary>
+        /// The master node
+        /// </summary>
         protected NodeElement _startNode;
+        /// <summary>
+        /// The constrained nodes
+        /// </summary>
         protected NodeElement[] _endNodes;
 
+        /// <summary>
+        /// The equations of the constraint (null until a derived class sets them)
+        /// </summary>
         protected MultiPointsCostrain[] _links;
 
 
 
+        /// <summary>
+        /// The master node
+        /// </summary>
         public NodeElement StartNode => _startNode;
+        /// <summary>
+        /// The constrained nodes
+        /// </summary>
         public NodeElement[] EndNodes => _endNodes;
 
+        /// <summary>
+        /// The constrained node, when there is only one
+        /// </summary>
+        /// <exception cref="IndexOutOfRangeException">If there is not exactly one constrained node</exception>
         public NodeElement EndNode
         {
             get
@@ -33,9 +55,19 @@ namespace GPC.Model.Costrains
             }
         }
 
+        /// <summary>
+        /// The equations of the constraint
+        /// </summary>
         public MultiPointsCostrain[] Links => _links;
 
 
+        /// <summary>
+        /// Creates a constraint (the equations are set by the derived classes)
+        /// </summary>
+        /// <param name="nodo1">The master node</param>
+        /// <param name="nodes">The constrained nodes</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         public Costrain(NodeElement nodo1, NodeElement[] nodes, string name = "", int id = IDUNASSIGNED)
             : base(id, name)
         {
@@ -43,6 +75,11 @@ namespace GPC.Model.Costrains
             _endNodes = nodes;
         }
 
+        /// <summary>
+        /// Equality of name, nodes and equations (the equations must not be null)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal constraint</returns>
         public override bool Equals(object obj)
         {
             return obj is Costrain costrain &&
@@ -53,6 +90,10 @@ namespace GPC.Model.Costrains
         }
 
 
+        /// <summary>
+        /// The hash code of name, nodes and equations
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

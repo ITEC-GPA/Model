@@ -21,7 +21,13 @@ namespace GPC.Model.Standards
         /// </summary>
         public enum LimitStates
         {
+            /// <summary>
+            /// Load and resistance factor design (LRFD)
+            /// </summary>
             LFRD,
+            /// <summary>
+            /// Allowable stress design (ASD)
+            /// </summary>
             ASD
         }
 
@@ -103,79 +109,231 @@ namespace GPC.Model.Standards
 
         // LFRD
         // combo1
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 1 of ASCE 7-16: 1.4D
+        /// </summary>
         public double Lfrd1PermCoef1 { get => _lfrd1PermCoef1; set => _lfrd1PermCoef1 = value; }
         // combo2
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 2 of ASCE 7-16: 1.2D + 1.6L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd2PermCoef1 { get => _lfrd2PermCoef1; set => _lfrd2PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the LRFD (2.3.1) combination 2 of ASCE 7-16: 1.2D + 1.6L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd2VarCoef1 { get => _lfrd2VarCoef1; set => _lfrd2VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the LRFD (2.3.1) combination 2 of ASCE 7-16: 1.2D + 1.6L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd2VarCoef2 { get => _lfrd2VarCoef2; set => _lfrd2VarCoef2 = value; }
         // combo3                
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 3 of ASCE 7-16: 1.2D + 1.6(Lr or S or R) + (L or 0.5W)
+        /// </summary>
         public double Lfrd3PermCoef1 { get => _lfrd3PermCoef1; set => _lfrd3PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the LRFD (2.3.1) combination 3 of ASCE 7-16: 1.2D + 1.6(Lr or S or R) + (L or 0.5W)
+        /// </summary>
         public double Lfrd3VarCoef1 { get => _lfrd3VarCoef1; set => _lfrd3VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the LRFD (2.3.1) combination 3 of ASCE 7-16: 1.2D + 1.6(Lr or S or R) + (L or 0.5W)
+        /// </summary>
         public double Lfrd3VarCoef2L { get => _lfrd3VarCoef2L; set => _lfrd3VarCoef2L = value; }
+        /// <summary>
+        /// Coefficient of W in the LRFD (2.3.1) combination 3 of ASCE 7-16: 1.2D + 1.6(Lr or S or R) + (L or 0.5W)
+        /// </summary>
         public double Lfrd3VarCoef2W { get => _lfrd3VarCoef2W; set => _lfrd3VarCoef2W = value; }
         // combo4      
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 4 of ASCE 7-16: 1.2D + 1.0W + L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd4PermCoef1 { get => _lfrd4PermCoef1; set => _lfrd4PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of W in the LRFD (2.3.1) combination 4 of ASCE 7-16: 1.2D + 1.0W + L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd4VarCoef1 { get => _lfrd4VarCoef1; set => _lfrd4VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the LRFD (2.3.1) combination 4 of ASCE 7-16: 1.2D + 1.0W + L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd4VarCoef2 { get => _lfrd4VarCoef2; set => _lfrd4VarCoef2 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the LRFD (2.3.1) combination 4 of ASCE 7-16: 1.2D + 1.0W + L + 0.5(Lr or S or R)
+        /// </summary>
         public double Lfrd4VarCoef3 { get => _lfrd4VarCoef3; set => _lfrd4VarCoef3 = value; }
         // combo5                          
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 5 of ASCE 7-16: 0.9D + 1.0W
+        /// </summary>
         public double Lfrd5PermCoef1 { get => _lfrd5PermCoef1; set => _lfrd5PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of W in the LRFD (2.3.1) combination 5 of ASCE 7-16: 0.9D + 1.0W
+        /// </summary>
         public double Lfrd5VarCoef1 { get => _lfrd5VarCoef1; set => _lfrd5VarCoef1 = value; }
         // combo6         
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 6 of ASCE 7-16: 1.2D + E + L + 0.2S
+        /// </summary>
         public double Lfrd6PermCoef1 { get => _lfrd6PermCoef1; set => _lfrd6PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of E in the LRFD (2.3.1) combination 6 of ASCE 7-16: 1.2D + E + L + 0.2S
+        /// </summary>
         public double Lfrd6VarCoef1 { get => _lfrd6VarCoef1; set => _lfrd6VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the LRFD (2.3.1) combination 6 of ASCE 7-16: 1.2D + E + L + 0.2S
+        /// </summary>
         public double Lfrd6VarCoef2 { get => _lfrd6VarCoef2; set => _lfrd6VarCoef2 = value; }
+        /// <summary>
+        /// Coefficient of S in the LRFD (2.3.1) combination 6 of ASCE 7-16: 1.2D + E + L + 0.2S
+        /// </summary>
         public double Lfrd6VarCoef3 { get => _lfrd6VarCoef3; set => _lfrd6VarCoef3 = value; }
         // combo7            
+        /// <summary>
+        /// Coefficient of the dead load D in the LRFD (2.3.1) combination 7 of ASCE 7-16: 0.9D - Ev + Eh
+        /// </summary>
         public double Lfrd7PermCoef1 { get => _lfrd7PermCoef1; set => _lfrd7PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Ev in the LRFD (2.3.1) combination 7 of ASCE 7-16: 0.9D - Ev + Eh
+        /// </summary>
         public double Lfrd7VarCoef1 { get => _lfrd7VarCoef1; set => _lfrd7VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Eh in the LRFD (2.3.1) combination 7 of ASCE 7-16: 0.9D - Ev + Eh
+        /// </summary>
         public double Lfrd7VarCoef2 { get => _lfrd7VarCoef2; set => _lfrd7VarCoef2 = value; }
 
         // ASD
         // combo1
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 1 of ASCE 7-16: D
+        /// </summary>
         public double Asd1PermCoef1 { get => _asd1PermCoef1; set => _asd1PermCoef1 = value; }
         // combo2              
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 2 of ASCE 7-16: D + L
+        /// </summary>
         public double Asd2PermCoef1 { get => _asd2PermCoef1; set => _asd2PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the ASD (2.4.1) combination 2 of ASCE 7-16: D + L
+        /// </summary>
         public double Asd2VarCoef1 { get => _asd2VarCoef1; set => _asd2VarCoef1 = value; }
         // combo3     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 3 of ASCE 7-16: D + (Lr or S or R)
+        /// </summary>
         public double Asd3PermCoef1 { get => _asd3PermCoef1; set => _asd3PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the ASD (2.4.1) combination 3 of ASCE 7-16: D + (Lr or S or R)
+        /// </summary>
         public double Asd3VarCoef1 { get => _asd3VarCoef1; set => _asd3VarCoef1 = value; }
         // combo4     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 4 of ASCE 7-16: D + 0.75L + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd4PermCoef1 { get => _asd4PermCoef1; set => _asd4PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the ASD (2.4.1) combination 4 of ASCE 7-16: D + 0.75L + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd4VarCoef1 { get => _asd4VarCoef1; set => _asd4VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the ASD (2.4.1) combination 4 of ASCE 7-16: D + 0.75L + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd4VarCoef2 { get => _asd4VarCoef2; set => _asd4VarCoef2 = value; }
         // combo5     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 5 of ASCE 7-16: D + 0.6W
+        /// </summary>
         public double Asd5PermCoef1 { get => _asd5PermCoef1; set => _asd5PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of W in the ASD (2.4.1) combination 5 of ASCE 7-16: D + 0.6W
+        /// </summary>
         public double Asd5VarCoef1 { get => _asd5VarCoef1; set => _asd5VarCoef1 = value; }
         // combo6     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 6 of ASCE 7-16: D + 0.75L + 0.75(0.6W) + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd6PermCoef1 { get => _asd6PermCoef1; set => _asd6PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of L in the ASD (2.4.1) combination 6 of ASCE 7-16: D + 0.75L + 0.75(0.6W) + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd6VarCoef1 { get => _asd6VarCoef1; set => _asd6VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of W in the ASD (2.4.1) combination 6 of ASCE 7-16: D + 0.75L + 0.75(0.6W) + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd6VarCoef2 { get => _asd6VarCoef2; set => _asd6VarCoef2 = value; }
+        /// <summary>
+        /// Coefficient of Lr or S or R in the ASD (2.4.1) combination 6 of ASCE 7-16: D + 0.75L + 0.75(0.6W) + 0.75(Lr or S or R)
+        /// </summary>
         public double Asd6VarCoef3 { get => _asd6VarCoef3; set => _asd6VarCoef3 = value; }
         // combo7     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 7 of ASCE 7-16: 0.6D + 0.6W
+        /// </summary>
         public double Asd7PermCoef1 { get => _asd7PermCoef1; set => _asd7PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of W in the ASD (2.4.1) combination 7 of ASCE 7-16: 0.6D + 0.6W
+        /// </summary>
         public double Asd7VarCoef1 { get => _asd7VarCoef1; set => _asd7VarCoef1 = value; }
         // combo8     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 8 of ASCE 7-16: D + 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd8PermCoef1 { get => _asd8PermCoef1; set => _asd8PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Ev in the ASD (2.4.1) combination 8 of ASCE 7-16: D + 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd8VarCoef1 { get => _asd8VarCoef1; set => _asd8VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Eh in the ASD (2.4.1) combination 8 of ASCE 7-16: D + 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd8VarCoef2 { get => _asd8VarCoef2; set => _asd8VarCoef2 = value; }
         // combo9     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 9 of ASCE 7-16: D + 0.525Ev + 0.525Eh + 0.75L + 0.75S
+        /// </summary>
         public double Asd9PermCoef1 { get => _asd9PermCoef1; set => _asd9PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Ev in the ASD (2.4.1) combination 9 of ASCE 7-16: D + 0.525Ev + 0.525Eh + 0.75L + 0.75S
+        /// </summary>
         public double Asd9VarCoef1 { get => _asd9VarCoef1; set => _asd9VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Eh in the ASD (2.4.1) combination 9 of ASCE 7-16: D + 0.525Ev + 0.525Eh + 0.75L + 0.75S
+        /// </summary>
         public double Asd9VarCoef2 { get => _asd9VarCoef2; set => _asd9VarCoef2 = value; }
+        /// <summary>
+        /// Coefficient of L in the ASD (2.4.1) combination 9 of ASCE 7-16: D + 0.525Ev + 0.525Eh + 0.75L + 0.75S
+        /// </summary>
         public double Asd9VarCoef3 { get => _asd9VarCoef3; set => _asd9VarCoef3 = value; }
+        /// <summary>
+        /// Coefficient of S in the ASD (2.4.1) combination 9 of ASCE 7-16: D + 0.525Ev + 0.525Eh + 0.75L + 0.75S
+        /// </summary>
         public double Asd9VarCoef4 { get => _asd9VarCoef4; set => _asd9VarCoef4 = value; }
         // combo10     
+        /// <summary>
+        /// Coefficient of the dead load D in the ASD (2.4.1) combination 10 of ASCE 7-16: 0.6D - 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd10PermCoef1 { get => _asd10PermCoef1; set => _asd10PermCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Ev in the ASD (2.4.1) combination 10 of ASCE 7-16: 0.6D - 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd10VarCoef1 { get => _asd10VarCoef1; set => _asd10VarCoef1 = value; }
+        /// <summary>
+        /// Coefficient of Eh in the ASD (2.4.1) combination 10 of ASCE 7-16: 0.6D - 0.7Ev + 0.7Eh
+        /// </summary>
         public double Asd10VarCoef2 { get => _asd10VarCoef2; set => _asd10VarCoef2 = value; }
 
+        /// <summary>
+        /// The group of the standard: American
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.American;
 
         #endregion
 
         #region PUBLIC CONSTRUCTOR
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardASCE16(string name = "ASCE7-16", string remarks = "Minimum Design Loads for Buildings and Other Structures: ASCE Standard ASCE/SEI 7-16")
             : base(name, remarks)
         {
@@ -251,15 +409,30 @@ namespace GPC.Model.Standards
 
         #region COMBINATIONS OPTIONS
 
+        /// <summary>
+        /// The options of the generation of the ASCE 7-16 combinations
+        /// </summary>
         public class ASCE16CombinationsOptions : CombinationsOptions
         {
+            /// <summary>
+            /// The limit state (LRFD or ASD)
+            /// </summary>
             public LimitStates LimitState { get; set; }
 
+            /// <summary>
+            /// Creates the options
+            /// </summary>
+            /// <param name="limitState">The limit state (LRFD or ASD)</param>
             public ASCE16CombinationsOptions(LimitStates limitState)
             {
                 LimitState = limitState;
             }
 
+            /// <summary>
+            /// Equality with an object of the same type
+            /// </summary>
+            /// <param name="obj">The object to compare</param>
+            /// <returns>True if <paramref name="obj"/> is equal</returns>
             public override bool Equals(object obj)
             {
                 if (obj is null)
@@ -273,6 +446,10 @@ namespace GPC.Model.Standards
                 return !(objCasted is null) && objCasted.LimitState.Equals(LimitState);
             }
 
+            /// <summary>
+            /// The hash code of the limit state
+            /// </summary>
+            /// <returns>The hash code</returns>
             public override int GetHashCode()
             {
                 unchecked
@@ -291,6 +468,14 @@ namespace GPC.Model.Standards
 
         #region PUBLIC METHOD
 
+        /// <summary>
+        /// Creates the LRFD or ASD combinations of ASCE 7-16 of the load cases
+        /// </summary>
+        /// <param name="loadCases">The load cases (not climate loads)</param>
+        /// <param name="options">The options (<see cref="ASCE16CombinationsOptions"/>)</param>
+        /// <param name="name">The prefix of the names of the combinations</param>
+        /// <returns>The combinations</returns>
+        /// <exception cref="ArgumentException">If a load case is a climate load</exception>
         public UniqueNameCollection<Combination> CreateCombinations(LoadCaseBase[] loadCases, CombinationsOptions options, string name = "cmb")
         {
             if (loadCases.Any(i => i is ClimateLoadCase))
@@ -1444,6 +1629,11 @@ namespace GPC.Model.Standards
 
         #region PUBLIC OVERRIDE METHODS
 
+        /// <summary>
+        /// A new empty combination with a name (not a copy of the standard)
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <returns>The new combination</returns>
         public object Clone(string name)
         {
             return new Combination(name);
@@ -1458,17 +1648,32 @@ namespace GPC.Model.Standards
             return cloned;
         }
 
+        /// <summary>
+        /// A new empty combination with a name (see <see cref="Clone(string)"/>)
+        /// </summary>
+        /// <param name="nameOverride">The name</param>
+        /// <returns>The new combination</returns>
         public Combination Duplicate(string nameOverride)
         {
             var duplicated = (Combination)Clone(nameOverride);
             return duplicated;
         }
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as StandardASCE16);
         }
 
+        /// <summary>
+        /// Equality of the name and of the remarks (the coefficients are not compared)
+        /// </summary>
+        /// <param name="other">The object to compare</param>
+        /// <returns>True if the objects are equal</returns>
         public bool Equals(StandardASCE16 other)
         {
             if (other is null)
@@ -1480,6 +1685,10 @@ namespace GPC.Model.Standards
             return other != null && base.Equals(other);
         }
 
+        /// <summary>
+        /// The hash code of the name
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             var hashCode = 23;
@@ -1487,6 +1696,12 @@ namespace GPC.Model.Standards
             return hashCode;
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(StandardASCE16)"/>)
+        /// </summary>
+        /// <param name="obj1">The first standard</param>
+        /// <param name="obj2">The second standard</param>
+        /// <returns>True if the standards are equal</returns>
         public static bool operator ==(StandardASCE16 obj1, StandardASCE16 obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -1498,6 +1713,12 @@ namespace GPC.Model.Standards
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(StandardASCE16)"/>)
+        /// </summary>
+        /// <param name="obj1">The first standard</param>
+        /// <param name="obj2">The second standard</param>
+        /// <returns>True if the standards are different</returns>
         public static bool operator !=(StandardASCE16 obj1, StandardASCE16 obj2)
         {
             return !(obj1 == obj2);

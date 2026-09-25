@@ -2,27 +2,50 @@
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
+	/// <summary>
+	/// Gauss rules on the square [-1, 1] x [-1, 1] (the weights sum to 4)
+	/// </summary>
 	public static class QuadrangleGaussPoints
 	{
+		/// <summary>
+		/// The available rules, by number of points
+		/// </summary>
 		public enum GaussPointNumber
 		{
+			/// <summary>The rule with 1 point on the square</summary>
 			Quad1 = 1,
+			/// <summary>The rule with 4 points on the square</summary>
 			Quad4 = 4,
+			/// <summary>The rule with 8 points on the square</summary>
 			Quad8 = 8,
+			/// <summary>The rule with 12 points on the square</summary>
 			Quad12 = 12,
+			/// <summary>The rule with 25 points on the square</summary>
 			Quad25 = 25,
+			/// <summary>The rule with 49 points on the square</summary>
 			Quad49 = 49,
+			/// <summary>The rule with 121 points on the square</summary>
 			Quad121 = 121,
+			/// <summary>The rule with 400 points on the square</summary>
 			Quad400 = 400,
 		}
 
+		/// <summary>
+		/// The rule with 1 point on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 4.0, 1) };
 
+		/// <summary>
+		/// The rule with 4 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad4 = new GaussPoint[] { new GaussPoint(+0.577350269189626, +0.577350269189626, 1.0, 1),
 																	   new GaussPoint(+0.577350269189626, -0.577350269189626, 1.0, 2),
 																	   new GaussPoint(-0.577350269189626, +0.577350269189626, 1.0, 3),
 																	   new GaussPoint(-0.577350269189626, -0.577350269189626, 1.0, 4) };
 
+		/// <summary>
+		/// The rule with 8 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad8 = new GaussPoint[] { new GaussPoint(+0.683130051063973, 0.0, 0.816326530612245, 1),
 																	   new GaussPoint(-0.683130051063973, 0.0, 0.816326530612245, 2),
 																	   new GaussPoint(0.0, +0.683130051063973, 0.816326530612245, 3),
@@ -32,6 +55,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 																	   new GaussPoint(-0.881917103688197, +0.881917103688197, 0.183673469387755, 7),
 																	   new GaussPoint(-0.881917103688197, -0.881917103688197, 0.183673469387755, 8) };
 
+		/// <summary>
+		/// The rule with 12 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad12 = new GaussPoint[] { new GaussPoint(+0.925820099772551, +0.00000000000000000000000000000000000000000000, 0.241975308641975, 1),
 																		new GaussPoint(-0.925820099772551, -0.00000000000000000000000000000000000000000000, 0.241975308641975, 2),
 																		new GaussPoint(+0.00000000000000000000000000000000000000000000, +0.925820099772551, 0.241975308641975, 3),
@@ -45,6 +71,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 																		new GaussPoint(-0.380554433208316, +0.380554433208316, 0.520592916667394, 11),
 																		new GaussPoint(-0.380554433208316, -0.380554433208316, 0.520592916667394, 12) };
 
+		/// <summary>
+		/// The rule with 25 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad25 = new GaussPoint[] { new GaussPoint(-0.906179845938663, -0.906179845938663, 0.0561343488624286, 1),
 																		new GaussPoint(-0.906179845938663, -0.538469310105683, 0.1134, 2),
 																		new GaussPoint(-0.906179845938663, 0.0, 0.134785072387521, 3),
@@ -71,6 +100,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 																		new GaussPoint(0.906179845938663, 0.538469310105683, 0.1134, 24),
 																		new GaussPoint(0.906179845938663, 0.906179845938663, 0.0561343488624286, 25) };
 
+		/// <summary>
+		/// The rule with 49 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad49 = new GaussPoint[] { new GaussPoint(- 0.949107912342758,-0.949107912342758,0.0167663564637532, 1),
 																		new GaussPoint(- 0.949107912342758,-0.741531185599394,0.0362176431542392, 2),
 																		new GaussPoint(- 0.949107912342758,-0.405845151377397,0.0494412511719127, 3),
@@ -127,6 +159,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 																		new GaussPoint(0.949107912342758,0.741531185599394,0.0362176431542392, 48),
 																		new GaussPoint(0.949107912342758,0.949107912342758,0.0167663564637532, 49) };
 
+		/// <summary>
+		/// The rule with 121 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad121 = new GaussPoint[] {new GaussPoint(-0.978228658146056, -0.978228658146056, 0.00309898936476792, 1),
 																		new GaussPoint(-0.978228658146056, -0.887062599768095, 0.00699087922603089, 2),
 																		new GaussPoint(-0.978228658146056, -0.730152005574049, 0.0103705091101167, 3),
@@ -250,8 +285,14 @@ namespace GPC.Model.Maths.GaussIntegrations
 																		new GaussPoint(0.978228658146056, 0.978228658146056, 0.00309898936476792, 121) };
 
 		// 20 x 20 Gauss-Legendre points, computed (the table had some weights written without the exponent: the weights summed to 3.993 instead of 4)
+		/// <summary>
+		/// The rule with 400 points on the square
+		/// </summary>
 		public static readonly GaussPoint[] Quad400 = TensorProduct(20);
 
+		/// <summary>
+		/// The rules by number of points
+		/// </summary>
 		public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
 		{
 			{ GaussPointNumber.Quad1, Quad1 },

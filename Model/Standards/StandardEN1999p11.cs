@@ -46,12 +46,20 @@ namespace GPC.Model.Standards
         /// </summary>
         public double GammaMsSer { get; set; }
 
+        /// <summary>
+        /// The group of the standard: European
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.European;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardEN1999p11(string name = "EN 1999-1-1:2023", string remarks = "Eurocode 9")
             : base(name, remarks)
         {
@@ -64,6 +72,11 @@ namespace GPC.Model.Standards
             GammaMsSer = 1.0; // EN 1999-1-1:2023, UNI EN 1999-1-1:2023 (E)
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardEN1999p11(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -80,6 +93,11 @@ namespace GPC.Model.Standards
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -92,6 +110,11 @@ namespace GPC.Model.Standards
             info.AddValue("GammaMsSer", GammaMsSer);
         }
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -107,6 +130,10 @@ namespace GPC.Model.Standards
                    GammaMsSer == p.GammaMsSer;
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

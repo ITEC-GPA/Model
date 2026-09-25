@@ -4,51 +4,103 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// The forces per unit length of a plate (area) element in its local coordinate system
+    /// </summary>
     [Serializable]
     public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult, IResult<ResultPlateForces>
     {
         #region Variables
 
-        /// Local Forces
+        /// <summary>
+        /// Membrane force per unit length xx (local)
+        /// </summary>
         private double _fxx;
+        /// <summary>
+        /// Membrane force per unit length yy (local)
+        /// </summary>
         private double _fyy;
+        /// <summary>
+        /// Membrane shear force per unit length xy (local)
+        /// </summary>
         private double _fxy;
+        /// <summary>
+        /// Transverse shear force per unit length xz (local)
+        /// </summary>
         private double _fxz;
+        /// <summary>
+        /// Transverse shear force per unit length yz (local)
+        /// </summary>
         private double _fyz;
 
-        /// Local Moments
+        /// <summary>
+        /// Bending moment per unit length xx (local)
+        /// </summary>
         private double _mxx;
+        /// <summary>
+        /// Bending moment per unit length yy (local)
+        /// </summary>
         private double _myy;
+        /// <summary>
+        /// Twisting moment per unit length xy (local)
+        /// </summary>
         private double _mxy;
 
         #endregion
 
         #region Properties
 
-        /// Local Forces
+        /// <summary>
+        /// Membrane force per unit length xx (local)
+        /// </summary>
         public double Fxx { get => _fxx; set => _fxx = value; }
+        /// <summary>
+        /// Membrane force per unit length yy (local)
+        /// </summary>
         public double Fyy { get => _fyy; set => _fyy = value; }
+        /// <summary>
+        /// Membrane shear force per unit length xy (local)
+        /// </summary>
         public double Fxy { get => _fxy; set => _fxy = value; }
+        /// <summary>
+        /// Transverse shear force per unit length xz (local)
+        /// </summary>
         public double Fxz { get => _fxz; set => _fxz = value; }
+        /// <summary>
+        /// Transverse shear force per unit length yz (local)
+        /// </summary>
         public double Fyz { get => _fyz; set => _fyz = value; }
+        /// <summary>
+        /// Bending moment per unit length xx (local)
+        /// </summary>
         public double Mxx { get => _mxx; set => _mxx = value; }
+        /// <summary>
+        /// Bending moment per unit length yy (local)
+        /// </summary>
         public double Myy { get => _myy; set => _myy = value; }
+        /// <summary>
+        /// Twisting moment per unit length xy (local)
+        /// </summary>
         public double Mxy { get => _mxy; set => _mxy = value; }
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Creates the result
+        /// </summary>
         /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
-        /// <param name="fxx"></param>
-        /// <param name="fyy"></param>
-        /// <param name="fxy"></param>
-        /// <param name="fxz"></param>
-        /// <param name="fyz"></param>
-        /// <param name="mxx"></param>
-        /// <param name="myy"></param>
-        /// <param name="mxy"></param>
-        /// <param name="id"></param>
+        /// <param name="fxx">Membrane force per unit length xx</param>
+        /// <param name="fyy">Membrane force per unit length yy</param>
+        /// <param name="fxy">Membrane shear force per unit length xy</param>
+        /// <param name="fxz">Transverse shear force per unit length xz</param>
+        /// <param name="fyz">Transverse shear force per unit length yz</param>
+        /// <param name="mxx">Bending moment per unit length xx</param>
+        /// <param name="myy">Bending moment per unit length yy</param>
+        /// <param name="mxy">Twisting moment per unit length xy</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="coordinateSystem"/> is null</exception>
         public ResultPlateForces(CoordinateSystem coordinateSystem,
             double fxx, double fyy, double fxy, double fxz, double fyz, double mxx, double myy, double mxy, int id = ModelObjectId.IDUNASSIGNED)
             : base(coordinateSystem, string.Empty, id)
@@ -63,6 +115,11 @@ namespace GPC.Model.Results
             _mxy = mxy;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private ResultPlateForces(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -81,6 +138,12 @@ namespace GPC.Model.Results
 
         #region Public Methods
 
+        /// <summary>
+        /// The same result in another coordinate system (not implemented)
+        /// </summary>
+        /// <param name="coordinateSystem">The new coordinate system</param>
+        /// <returns>Nothing</returns>
+        /// <exception cref="NotImplementedException">Always</exception>
         public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             throw new NotImplementedException();
@@ -90,6 +153,11 @@ namespace GPC.Model.Results
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Serializes the result
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -104,6 +172,11 @@ namespace GPC.Model.Results
             info.AddValue("Mxy", _mxy);
         }
 
+        /// <summary>
+        /// Equality with another result (see <see cref="Equals(ResultPlateForces)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal result</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -115,6 +188,11 @@ namespace GPC.Model.Results
             return Equals(obj as ResultPlateForces);
         }
 
+        /// <summary>
+        /// Exact equality of the components and of the name (the coordinate system is not compared)
+        /// </summary>
+        /// <param name="other">The result to compare</param>
+        /// <returns>True if the results are equal</returns>
         public bool Equals(ResultPlateForces other)
         {
             if (other is null)
@@ -134,6 +212,10 @@ namespace GPC.Model.Results
                 base.Equals(other);
         }
 
+        /// <summary>
+        /// The hash code of the name and of the components
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -152,6 +234,12 @@ namespace GPC.Model.Results
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(ResultPlateForces)"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>True if the results are equal</returns>
         public static bool operator ==(ResultPlateForces obj1, ResultPlateForces obj2)
         {
             if (obj1 is null)
@@ -165,6 +253,12 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(ResultPlateForces)"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>True if the results are different</returns>
         public static bool operator !=(ResultPlateForces obj1, ResultPlateForces obj2)
         {
             return !(obj1 == obj2);

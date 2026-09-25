@@ -4,16 +4,26 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    /// <summary>
+    /// A fiber reinforced polymer (FRP): tension only (the compression table is zero), defined by E, fyk, fu and εu, with the design stresses of
+    /// Model Code 2010, ACI 318 and EN 1993-1-1 computed as for <see cref="SteelMaterial"/>
+    /// </summary>
     [Serializable]
     [UI(Description = "Steel", Group = "Materials", Kind = "Material")]
     public class FRP : Material
     {
         #region Public Enum        
 
+        /// <summary>
+        /// The shapes of the tension curve
+        /// </summary>
         public enum StressStrainCurveType
         {
+            /// <summary>Not defined (the tables are not rebuilt)</summary>
             Undefined = 0,
+            /// <summary>Elastic up to fyk, then constant fyk up to εu (elastic perfectly plastic)</summary>
             Linear = 1,
+            /// <summary>Elastic up to fyk, then linear to fu at εu</summary>
             Bilinear = 2,
         }
 
@@ -21,8 +31,17 @@ namespace GPC.Model.Materials
 
         #region Variables
 
+        /// <summary>
+        /// The characteristic yield strength
+        /// </summary>
         protected double _fyk;
+        /// <summary>
+        /// The ultimate strength
+        /// </summary>
         protected double _fu;
+        /// <summary>
+        /// The shape of the tension curve
+        /// </summary>
         protected StressStrainCurveType _stressStrainCurveType;
 
         #endregion
@@ -30,7 +49,7 @@ namespace GPC.Model.Materials
         #region Properties
 
         /// <summary>
-        /// Characteristic yield strength
+        /// Characteristic yield strength (the setter has the defect of <see cref="SteelMaterial.Fyk"/>: the value is taken back from the stresses)
         /// </summary>
         public double Fyk
         {
@@ -46,7 +65,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Ultimate strength
+        /// Ultimate strength (the setter has the defect of <see cref="SteelMaterial.Fyk"/>)
         /// </summary>
         public double Fu
         {
@@ -62,10 +81,13 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Strain hardening modulus
+        /// Strain hardening modulus: (fu - fyk) / (εu - εy); 0 if fu = fyk
         /// </summary>
         public double Et => GetEt();
 
+        /// <summary>
+        /// The shape of the tension curve; the setter rebuilds tables and stresses from fyk and fu
+        /// </summary>
         public StressStrainCurveType StressStrainCurve
         {
             get => _stressStrainCurveType;
@@ -83,15 +105,18 @@ namespace GPC.Model.Materials
 
         #region Constructor
 
-        /// <param name="name"></param>
+        /// <summary>
+        /// Creates an FRP (read only, according to the standard)
+        /// </summary>
+        /// <param name="name">The name</param>
         /// <param name="elasticModulus">FRP elastic modulus</param>
         /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="strainU">Ultimate strain</param>
-        /// <param name="steelType"></param>
-        /// <param name="poisson"></param>
-        /// <param name="density"></param>
-        /// <param name="alfaThermalExpansion"></param>
+        /// <param name="stressStrainCurveType">The shape of the tension curve</param>
+        /// <param name="poisson">The Poisson's ratio</param>
+        /// <param name="density">The density (the default is the one of the steel)</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public FRP(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.Linear,
             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
             : this(name, elasticModulus, poisson, fyk, fu, strainU, stressStrainCurveType, density, alfaThermalExpansion)
@@ -99,11 +124,35 @@ namespace GPC.Model.Materials
 
         }
 
+        /// <summary>
+        /// Creates an FRP with the values of a steel S235 (E = 210000, fyk = 235, fu = 360, εu = 0.1)
+        /// </summary>
+        /// <param name="name">The name</param>
         public FRP(string name)
             : this(name, 210000, 235, 360, 0.1, StressStrainCurveType.Linear)
         {
         }
 
+        /// <summary>
+        /// Creates an FRP from all the properties; fyk and fu are the yield and ultimate stresses in tension
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="elasticModulusCompression">The elastic modulus in compression</param>
+        /// <param name="elasticModulusTension">The elastic modulus in tension</param>
+        /// <param name="strainYCompression">The strain at the yield stress in compression</param>
+        /// <param name="strainUCompression">The ultimate strain in compression</param>
+        /// <param name="strainYTension">The strain at the yield stress in tension</param>
+        /// <param name="strainUTension">The ultimate strain in tension</param>
+        /// <param name="stressYCompression">The yield stress in compression</param>
+        /// <param name="stressUCompression">The ultimate stress in compression</param>
+        /// <param name="stressYTension">The yield stress in tension</param>
+        /// <param name="stressUTension">The ultimate stress in tension</param>
+        /// <param name="stressStrainTableCompression">The table in compression</param>
+        /// <param name="stressStrainTableTensio">The table in tension</param>
+        /// <param name="stressStrainCurveType">Not used</param>
+        /// <param name="poisson">The Poisson's ratio</param>
+        /// <param name="density">The density (passed to the base constructor as thermal expansion: see the list of the defects found)</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (passed as density)</param>
         public FRP(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
@@ -120,17 +169,17 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Protected steelMaterial constructor 
+        /// Protected constructor: the tables are built from the curve type, fyk, fu and εu
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus">Steel elastic modulus</param>
-        /// <param name="poisson">Poissoins's Ratio</param>
+        /// <param name="name">The name</param>
+        /// <param name="elasticModulus">Elastic modulus</param>
+        /// <param name="poisson">Poisson's Ratio</param>
         /// <param name="fyk">Yielding stress</param>
         /// <param name="fu">Ultimate stress</param>
         /// <param name="strainU">The ultimate strain</param>
-        /// <param name="steelType">Type of steel</param>
+        /// <param name="stressStrainCurveType">The shape of the tension curve</param>
         /// <param name="density">Density of material</param>
-        /// <param name="alfaThermalExpansion">Linear thermal expasion coefficient</param>
+        /// <param name="alfaThermalExpansion">Linear thermal expansion coefficient</param>
         protected FRP(string name, double elasticModulus, double poisson, double fyk,
             double fu, double strainU, StressStrainCurveType stressStrainCurveType, double density, double alfaThermalExpansion)
             : base(name, elasticModulus, poisson, density, alfaThermalExpansion)
@@ -144,6 +193,11 @@ namespace GPC.Model.Materials
             SetDefaultMechanicalProperties();
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the data of <see cref="Material"/>, fu, fyk and the curve type; the tables are rebuilt
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected FRP(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
@@ -170,6 +224,9 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
+        /// <summary>
+        /// Rebuilds the tables and the yield strains; fyk and fu are taken from the yield and ultimate stresses in tension
+        /// </summary>
         public virtual void RecalculateMechanicalProperties()
         {
             SetStressStrain();
@@ -181,6 +238,9 @@ namespace GPC.Model.Materials
             _fyk = _stressYTension;
         }
 
+        /// <summary>
+        /// Builds the tables and sets yield strains and yield and ultimate stresses from fyk, fu and E
+        /// </summary>
         public virtual void SetDefaultMechanicalProperties()
         {
             SetStressStrain();
@@ -194,6 +254,9 @@ namespace GPC.Model.Materials
             _stressYTension = _fyk;
         }
 
+        /// <summary>
+        /// Builds the characteristic tables of the curve type (compression: zero)
+        /// </summary>
         public virtual void SetStressStrain()
         {
             switch (_stressStrainCurveType)
@@ -227,6 +290,10 @@ namespace GPC.Model.Materials
 
         #region Protected Methods
 
+        /// <summary>
+        /// The strain hardening modulus
+        /// </summary>
+        /// <returns>(fu - fyk) / (εu - εy); 0 if fu = fyk</returns>
         protected double GetEt()
         {
             if (Math.Abs(Fu - Fyk) < GPC.Geometry.GeometryBase.GetDefaultTolerance())
@@ -239,6 +306,13 @@ namespace GPC.Model.Materials
 
         #region Public Standard Methods
 
+        /// <summary>
+        /// The design stress for a strain, according to the standard
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010, ACI 318 or EN 1993-1-1)</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress; 0 for the other standards</returns>
         public double CalculateDesignStress(Standards.Standard standard, double strain, double epsilonP = 0)
         {
             switch (standard)
@@ -254,6 +328,12 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <summary>
+        /// The design strain for a strain (the strain itself for the supported standards)
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010, ACI 318 or EN 1993-1-1)</param>
+        /// <param name="strain">The strain</param>
+        /// <returns>The design strain; 0 for the other standards</returns>
         public double CalculateDesignStrain(Standards.Standard standard, double strain)
         {
             switch (standard)
@@ -271,43 +351,84 @@ namespace GPC.Model.Materials
 
         #region ModelCode2010
 
-        /// <returns>The design rebar yielding stress</returns>
+        /// <summary>
+        /// The design yield strength: fyk / γs
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design yielding stress</returns>
         public double CalculateFyd(Standards.StandardModelCode2010 standard)
         {
             return Fyk / standard.GammaS;
         }
 
+        /// <summary>
+        /// The design yield stress in tension: fy / γs
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design yield stress</returns>
         public double CalculateDesignYieldingStressTension(Standards.StandardModelCode2010 standard)
         {
             return StressYTension / standard.GammaS;
         }
 
+        /// <summary>
+        /// The design yield stress in compression: fy / γs
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design yield stress (negative)</returns>
         public double CalculateDesignYieldingStressCompression(Standards.StandardModelCode2010 standard)
         {
             return StressYCompression / standard.GammaS;
         }
 
+        /// <summary>
+        /// The design yield strain in tension: design yield stress / E
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design yield strain</returns>
         public double CalculateDesignYieldingStrainTension(Standards.StandardModelCode2010 standard)
         {
             return CalculateDesignYieldingStressTension(standard) / ElasticModulusTension;
         }
 
+        /// <summary>
+        /// The design yield strain in compression: design yield stress / E
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design yield strain (negative)</returns>
         public double CalculateDesignYieldingStrainCompression(Standards.StandardModelCode2010 standard)
         {
             return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
         }
 
+        /// <summary>
+        /// The design ultimate strain: εu × the coefficient of the standard
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <returns>The design ultimate strain</returns>
         public double CalculateDesignUltimateStrain(Standards.StandardModelCode2010 standard)
         {
             return StrainUTension * standard.SteelCoefficientStrainTension;
         }
 
+        /// <summary>
+        /// The design strain: the strain itself
+        /// </summary>
+        /// <param name="standardModelCode2010">The standard (Model Code 2010)</param>
+        /// <param name="strain">The strain</param>
+        /// <returns><paramref name="strain"/></returns>
         public double CalculateDesignStrain(Standards.StandardModelCode2010 standardModelCode2010, double strain)
         {
             return strain;
         }
 
-        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
+        /// <summary>
+        /// The design stress (see <see cref="SteelMaterial.CalculateDesignStress(Standards.StandardModelCode2010, double, double)"/>)
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress related to <paramref name="strain"/></returns>
         public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double strain, double epsilonP = 0)
         {
             double fyd = CalculateDesignYieldingStressTension(standard);
@@ -316,6 +437,14 @@ namespace GPC.Model.Materials
             return CalculateDesignStressCommon(strain, epsilonP, fyd, strainYd);
         }
 
+        /// <summary>
+        /// The design stress from a characteristic stress: the stress itself in the elastic range, lowered by fy - fyd beyond it, zero beyond εu
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010)</param>
+        /// <param name="stress">The characteristic stress</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress</returns>
         public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double stress, double strain, double epsilonP = 0)
         {
             if (strain >= 0)
@@ -360,43 +489,90 @@ namespace GPC.Model.Materials
 
         #region ACI318
 
-        /// <returns>The design rebar yielding stress</returns>
+        /// <summary>
+        /// The design yield strength: fyk
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <returns>The design yielding stress</returns>
         public double CalculateFyd(Standards.StandardACI318 standard)
         {
             return Fyk;
         }
 
+        /// <summary>
+        /// The design yield stress: fyk
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <returns>The design yield stress</returns>
         public double CalculateDesignYieldingStress(Standards.StandardACI318 standard)
         {
             return Fyk;
         }
 
+        /// <summary>
+        /// The design yield strain: fyk / E
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <returns>The design yield strain</returns>
         public double CalculateDesignYieldingStrain(Standards.StandardACI318 standard)
         {
             return CalculateDesignYieldingStress(standard) / ElasticModulusTension;
         }
 
+        /// <summary>
+        /// The design ultimate strain: εu
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <returns>The ultimate strain</returns>
         public double CalculateDesignUltimateStrain(Standards.StandardACI318 standard)
         {
             return StrainUTension;
         }
 
+        /// <summary>
+        /// The design strain: the strain itself
+        /// </summary>
+        /// <param name="standardACI318">The standard (ACI 318)</param>
+        /// <param name="strain">The strain</param>
+        /// <returns><paramref name="strain"/></returns>
         public double CalculateDesignStrain(Standards.StandardACI318 standardACI318, double strain)
         {
             return strain;
         }
 
-        /// <returns>The design rebar stress related to <paramref name="strain"/></returns>
+        /// <summary>
+        /// The design stress: the characteristic stress at strain + prestrain
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress related to <paramref name="strain"/></returns>
         public double CalculateDesignStress(Standards.StandardACI318 standard, double strain, double epsilonP = 0)
         {
             return GetStress(strain + epsilonP);
         }
 
+        /// <summary>
+        /// The design stress from a characteristic stress: the stress itself
+        /// </summary>
+        /// <param name="standard">The standard (ACI 318)</param>
+        /// <param name="stress">The characteristic stress</param>
+        /// <param name="strain">Not used</param>
+        /// <param name="epsilonP">Not used</param>
+        /// <returns><paramref name="stress"/></returns>
         public double CalculateDesignStress(Standards.StandardACI318 standard, double stress, double strain, double epsilonP = 0)
         {
             return stress;
         }
 
+        /// <summary>
+        /// The design stress from a characteristic stress, according to the standard
+        /// </summary>
+        /// <param name="standard">The standard (Model Code 2010, ACI 318 or EN 1993-1-1)</param>
+        /// <param name="stress">The characteristic stress</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress; 0 for the other standards</returns>
         public double CalculateDesignStress(Standards.Standard standard, double stress, double strain, double epsilonP = 0)
         {
             switch (standard)
@@ -416,44 +592,84 @@ namespace GPC.Model.Materials
 
         #region Eurocode 3
 
-        /// <returns>The design steel yielding stress</returns>
+        /// <summary>
+        /// The design yield strength: fyk / γM0
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The design yielding stress</returns>
         public double CalculateFyd(Standards.StandardEN1993p11 standard)
         {
             return Fyk / standard.GammaM0;
         }
 
+        /// <summary>
+        /// The design yield stress in tension: fy / γM0
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The design yield stress</returns>
         public double CalculateDesignYieldingStressTension(Standards.StandardEN1993p11 standard)
         {
             return StressYTension / standard.GammaM0;
         }
 
+        /// <summary>
+        /// The design yield stress in compression: fy / γM0
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The design yield stress (negative)</returns>
         public double CalculateDesignYieldingStressCompression(Standards.StandardEN1993p11 standard)
         {
             return StressYCompression / standard.GammaM0;
         }
 
+        /// <summary>
+        /// The design yield strain in tension: design yield stress / E
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The design yield strain</returns>
         public double CalculateDesignYieldingStrainTension(Standards.StandardEN1993p11 standard)
         {
             return CalculateDesignYieldingStressTension(standard) / ElasticModulusTension;
         }
 
+        /// <summary>
+        /// The design yield strain in compression: design yield stress / E
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The design yield strain (negative)</returns>
         public double CalculateDesignYieldingStrainCompression(Standards.StandardEN1993p11 standard)
         {
             return CalculateDesignYieldingStressCompression(standard) / ElasticModulusCompression;
         }
 
+        /// <summary>
+        /// The design ultimate strain: εu
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <returns>The ultimate strain</returns>
         public double CalculateDesignUltimateStrain(Standards.StandardEN1993p11 standard)
         {
             return StrainUTension;
         }
 
+        /// <summary>
+        /// The design strain: the strain itself
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <param name="strain">The strain</param>
+        /// <returns><paramref name="strain"/></returns>
         public double CalculateDesignStrain(Standards.StandardEN1993p11 standard, double strain)
         {
             return strain;
         }
 
-        /// <returns>The design steel stress related to <paramref name="strain"/></returns>
-        /// Copied from same method for StandardModelCode2010.
+        /// <summary>
+        /// The design stress (as for Model Code 2010)
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress related to <paramref name="strain"/></returns>
         public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double strain, double epsilonP = 0)
         {
             double fyd = CalculateDesignYieldingStressTension(standard);
@@ -462,6 +678,15 @@ namespace GPC.Model.Materials
             return CalculateDesignStressCommon(strain, epsilonP, fyd, strainYd);
         }
 
+        /// <summary>
+        /// The design stress: the characteristic curve in the elastic range, then the curve at the strain increased by (fyk - fyd) / E and lowered
+        /// by fyk - fyd, limited at εu; zero beyond εu
+        /// </summary>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <param name="fyd">The design yield stress</param>
+        /// <param name="strainYd">The design yield strain</param>
+        /// <returns>The design stress</returns>
         private double CalculateDesignStressCommon(double strain, double epsilonP, double fyd, double strainYd)
         {
             if (Math.Abs(strain + epsilonP) <= strainYd)
@@ -487,7 +712,14 @@ namespace GPC.Model.Materials
             }
         }
 
-        /// Copied from same method for StandardModelCode2010.
+        /// <summary>
+        /// The design stress from a characteristic stress (as for Model Code 2010)
+        /// </summary>
+        /// <param name="standard">The standard (EN 1993-1-1)</param>
+        /// <param name="stress">The characteristic stress</param>
+        /// <param name="strain">The strain (positive in tension)</param>
+        /// <param name="epsilonP">The prestrain</param>
+        /// <returns>The design stress</returns>
         public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double stress, double strain, double epsilonP = 0)
         {
             if (strain >= 0)
@@ -534,6 +766,11 @@ namespace GPC.Model.Materials
 
         #region Public Methods Override
 
+        /// <summary>
+        /// Serializes the data of <see cref="Material"/>, fyk, fu and the curve type (version 1)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -547,6 +784,11 @@ namespace GPC.Model.Materials
             info.AddValue("StressStrainCurveType", _stressStrainCurveType);
         }
 
+        /// <summary>
+        /// Equality of the data of <see cref="Material"/>, fyk and fu
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal FRP</returns>
         public override bool Equals(object obj)
         {
             return obj is FRP material &&
@@ -555,6 +797,10 @@ namespace GPC.Model.Materials
                    _fu == material._fu;
         }
 
+        /// <summary>
+        /// The hash code of the data of <see cref="Material"/>, fyk and fu
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

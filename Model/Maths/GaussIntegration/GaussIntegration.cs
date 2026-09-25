@@ -22,7 +22,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>.
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="vertices">The vertices of the domain. Vertices must be 3</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 2</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <param name="shapeFunction">The shape function for coordinate transformation</param>
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
@@ -116,7 +116,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <param name="shapeFunction">The shape function for coordinate transformation</param>
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
-        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
         public static double IntegrationTriangular(Func<double, double, double> function, Point3d[] vertices, TriangleGaussPoints.GaussPointNumber numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
@@ -230,7 +230,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <param name="shapeFunction">The shape function for coordinate transformation</param>
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
-        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
         public static double IntegrationQuadrilateral(Func<double, double, double> function, Point3d[] vertices, QuadrangleGaussPoints.GaussPointNumber numberOfGaussPoints, Func<int, double, double, double> shapeFunction,
@@ -337,13 +337,13 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
-        /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
+        /// <param name="function">The function (with variables x, y and z) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 6</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <param name="shapeFunction">The shape function for coordinate transformation</param>
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
-        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
-        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>/param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
+        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>The vertices must be added with this order:
@@ -406,13 +406,12 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
-        /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
+        /// <param name="function">The function (with variables x, y and z) to integrate</param>
+        /// <param name="vertices">The vertices of the domain. Vertices must be 6</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
-        /// <returns>The value of the integral</returns>
         /// <remarks>The vertices must be added with this order:
-        /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
+        /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 4th, 2nd with 5th, 3rd with 6th.
         /// Linear shape functions and its derivative are used
         /// </remarks>
         public static double IntegrationPentahedronLinearShapeFunction(Func<double, double, double, double> function, Point3d[] vertices, PentahedronGaussPoints.GaussPointNumber numberOfGaussPoints)
@@ -428,13 +427,13 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
-        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="function">The function (with variables x, y and z) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <param name="shapeFunction">The shape function for coordinate transformation</param>
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
-        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>/param>
-        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>/param>
+        /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
+        /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>
         /// <param name="numberOFShapeFunction">The number of shape function</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>The vertices must be added with this order:
@@ -497,10 +496,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Calculate the integral of function <paramref name="function"/> on the domain <paramref name="vertices"/>
         /// </summary>
-        /// <param name="function">The function (with variables x and y) to integrate</param>
+        /// <param name="function">The function (with variables x, y and z) to integrate</param>
         /// <param name="vertices">The vertices of the domain. Vertices must be 8</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
-        /// <returns>The value of the integral</returns>
         /// <returns>The value of the integral</returns>
         /// <remarks>The vertices must be added with this order:
         /// Bottom, clockwise order. Top, clockwise order. The 1st must be associated with 5th, 2nd with 6th, 3rd with 7th and 4th with 8th.
@@ -520,7 +518,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="mesh"></param>
+        /// <param name="mesh">The mesh (its faces are integrated in the XY plane: the Z coordinates are ignored)</param>
         /// <param name="quadNumberOfGaussPoints">The number of Gauss points for quad face</param>
         /// <param name="triNumberOfGaussPoints">The number of Gauss points for tri face</param>
         /// <returns>The value of the integral</returns>
@@ -534,10 +532,10 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Get the mesh gauss points in global coordinate system associated with relative multiplicative factor
         /// </summary>
-        /// <param name="mesh"></param>
+        /// <param name="mesh">The mesh (its faces are integrated in the XY plane: the Z coordinates are ignored)</param>
         /// <param name="quadNumberOfGaussPoints">The number of Gauss points for quad face</param>
         /// <param name="triNumberOfGaussPoints">The number of Gauss points for tri face</param>
-        /// <returns>The value of the integral</returns>
+        /// <returns>For each face, its Gauss points in global coordinates</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
         public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(Mesh mesh,
             QuadrangleGaussPoints.GaussPointNumber quadNumberOfGaussPoints, TriangleGaussPoints.GaussPointNumber triNumberOfGaussPoints)
@@ -653,8 +651,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="mesh"/> domain
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="mesh"></param>
+        /// <param name="mesh">The mesh (its volumes; the function is evaluated at x and y of the Gauss points)</param>
         /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for hexahedro volume</param>
+        /// <param name="pentaNumberOfGaussPoints">The number of Gauss points for pentahedro volume</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, Mesh mesh, HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints,
@@ -666,10 +665,12 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Get the mesh gauss points in global coordinate system associated with relative multiplicative factor
         /// </summary>
-        /// <param name="mesh"></param>
-        /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for volume element</param>
-        /// <returns>The value of the integral</returns>
-        /// <remarks>Linear shape functions and its derivatives are used</remarks>
+        /// <param name="mesh">The mesh (its volumes)</param>
+        /// <param name="hexahedroNumberOfGaussPoints">The number of Gauss points for hexahedro volume</param>
+        /// <param name="pentaNumberOfGaussPoints">The number of Gauss points for pentahedro volume</param>
+        /// <returns>For each volume, its Gauss points in global coordinates</returns>
+        /// <remarks>Linear shape functions and its derivatives are used. The pentahedra use the shape functions and the derivatives of the hexahedron
+        /// (the pentahedron ones are not used)</remarks>
         public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(Mesh mesh,
             HexahedronGaussPoints.GaussPointNumber hexahedroNumberOfGaussPoints, PentahedronGaussPoints.GaussPointNumber pentaNumberOfGaussPoints)
         {
@@ -789,10 +790,11 @@ namespace GPC.Model.Maths.GaussIntegrations
         #region ThinWall Section
 
         /// <summary>
-        /// Calculate the integral of function <paramref name="function"/> arrays over the <paramref name="thinWallSection"/> domain
+        /// Calculate the integral of function <paramref name="function"/> arrays over the middle lines of <paramref name="breakedThinWalls"/>
         /// </summary>
         /// <param name="function">The function (with variables x and y) to integrate</param>
-        /// <param name="thinWallSection"></param>
+        /// <param name="steelSectionPosition">The position of the section (from local to global coordinates)</param>
+        /// <param name="breakedThinWalls">The thin walls (each one with a straight middle line)</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points</param>
         /// <returns>The value of the integral</returns>
         /// <remarks>Linear shape functions and its derivatives are used</remarks>
@@ -804,8 +806,11 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <summary>
         /// Get the gauss points in global coordinate system associated with relative multiplicative factor
         /// </summary>
-        /// <param name="steelSectionPosition"></param>
+        /// <param name="steelSectionPosition">The position of the section (from local to global coordinates)</param>
+        /// <param name="breakedThinWalls">The thin walls (each one with a straight middle line)</param>
         /// <param name="numberOfGaussPoints">The number of Gauss points for line</param>
+        /// <returns>For each thin wall, the Gauss points of its middle line in global coordinates</returns>
+        /// <exception cref="ArgumentException">If <paramref name="numberOfGaussPoints"/> is not supported</exception>
         public static GlobalCoordinateGaussPoint[][] GetGlobalCoordinateGaussPointsLinearShapeFunction(SteelSectionPosition steelSectionPosition, ThinWallSection.ThinWall[] breakedThinWalls, LineGaussPoints.GaussPointNumber numberOfGaussPoints)
         {
             GaussPoint[] gaussPoints;
@@ -868,6 +873,12 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         #region GlobalCoordinateGaussPoint Integration
 
+        /// <summary>
+        /// Integrates several functions f(x, y) on the Gauss points of groups of elements ([group][element][point]) (in parallel over the functions)
+        /// </summary>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
         public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][][] globalGaussPoints)
         {
             double[] res = new double[function.Length];
@@ -883,6 +894,14 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates several functions f(x, y) with values of type T on the Gauss points of groups of elements ([group][element][point]) (in parallel over the functions)
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[][][] globalGaussPoints)
         {
             T[] res = new T[function.Length];
@@ -898,6 +917,13 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) on the Gauss points of groups of elements ([group][element][point]): Σ f(x, y) × weight × det(J) × factor
+        /// </summary>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to sum in parallel</param>
+        /// <returns>The integral</returns>
         public static double IntegrationLinearShapeFunction(Func<double, double, double> function, GlobalCoordinateGaussPoint[][][] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -945,6 +971,15 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) with values of type T on the Gauss points of groups of elements ([group][element][point])
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to evaluate in parallel</param>
+        /// <returns>The integral</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[][][] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -989,6 +1024,12 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// Integrates several functions f(x, y) on the Gauss points of elements ([element][point]) (in parallel over the functions)
+        /// </summary>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
         public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
         {
             double[] res = new double[function.Length];
@@ -1004,6 +1045,14 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates several functions f(x, y) with values of type T on the Gauss points of elements ([element][point]) (in parallel over the functions)
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[][] globalGaussPoints)
         {
             T[] res = new T[function.Length];
@@ -1019,6 +1068,13 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) on the Gauss points of elements ([element][point]): Σ f(x, y) × weight × det(J) × factor
+        /// </summary>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to sum in parallel</param>
+        /// <returns>The integral</returns>
         public static double IntegrationLinearShapeFunction(Func<double, double, double> function, GlobalCoordinateGaussPoint[][] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -1060,6 +1116,15 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) with values of type T on the Gauss points of elements ([element][point])
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to evaluate in parallel</param>
+        /// <returns>The integral</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[][] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -1096,6 +1161,12 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// Integrates several functions f(x, y) on Gauss points (in parallel over the functions)
+        /// </summary>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
         public static double[] IntegrationLinearShapeFunction(Func<double, double, double>[] function, GlobalCoordinateGaussPoint[] globalGaussPoints)
         {
             double[] res = new double[function.Length];
@@ -1108,6 +1179,14 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates several functions f(x, y) with values of type T on Gauss points (in parallel over the functions)
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The functions</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <returns>The integrals, one for each function</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T[] IntegrationLinearShapeFunction<T>(Func<double, double, T>[] function, GlobalCoordinateGaussPoint[] globalGaussPoints)
         {
             T[] res = new T[function.Length];
@@ -1120,6 +1199,13 @@ namespace GPC.Model.Maths.GaussIntegrations
             return res;
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) on Gauss points: Σ f(x, y) × weight × det(J) × factor
+        /// </summary>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to sum in parallel</param>
+        /// <returns>The integral</returns>
         public static double IntegrationLinearShapeFunction(Func<double, double, double> function, GlobalCoordinateGaussPoint[] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -1145,6 +1231,15 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// Integrates a function f(x, y) with values of type T on Gauss points
+        /// </summary>
+        /// <typeparam name="T">The type of the values: double, Tuple or ValueTuple of 1 to 3 doubles</typeparam>
+        /// <param name="function">The function</param>
+        /// <param name="globalGaussPoints">The Gauss points in the global coordinates, with their weights</param>
+        /// <param name="parallelComputing">True to evaluate in parallel</param>
+        /// <returns>The integral</returns>
+        /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
         public static T IntegrationLinearShapeFunction<T>(Func<double, double, T> function, GlobalCoordinateGaussPoint[] globalGaussPoints, bool parallelComputing = false)
         {
             if (parallelComputing)
@@ -1204,6 +1299,12 @@ namespace GPC.Model.Maths.GaussIntegrations
             return Matrix<double>.Build.Dense(2, 2, new[] { j11, 0, 0, 1 });
         }
 
+        /// <summary>
+        /// The Jacobian matrix of a line element as function of csi
+        /// </summary>
+        /// <param name="dNdCsi">The derivatives of the shape functions</param>
+        /// <param name="points">The nodes</param>
+        /// <returns>J(csi)</returns>
         private static Func<double, Matrix<double>> JacobianMatrix1D(Func<int, double, double> dNdCsi, Point3d[] points)
         {
             // Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned        
@@ -1220,7 +1321,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="dNdCsi">The partial derivative of shape function respect the variable csi</param>
         /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
         /// <param name="points">The domain of integration</param>
-        /// <returns></returns>
+        /// <returns>The function of the Jacobian matrix</returns>
         private static Func<double, double, Matrix<double>> JacobianMatrix2D(Func<int, double, double, double> dNdCsi,
             Func<int, double, double, double> dNdEta, Point3d[] points)
         {
@@ -1333,7 +1434,7 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// <param name="dNdEta">The partial derivative of shape function respect the variable eta</param>
         /// <param name="dNdZeta">The partial derivative of shape function respect the variable zeta</param>
         /// <param name="points">The domain of integration</param>
-        /// <returns></returns>
+        /// <returns>The function of the Jacobian matrix</returns>
         private static Func<double, double, double, Matrix<double>> JacobianMatrix3D(Func<int, double, double, double, double> dNdCsi,
             Func<int, double, double, double, double> dNdEta, Func<int, double, double, double, double> dNdZeta, Point3d[] points)
         {
@@ -1462,6 +1563,9 @@ namespace GPC.Model.Maths.GaussIntegrations
 
         #region Nested Class GlobalCoordinateGaussPoint
 
+        /// <summary>
+        /// A Gauss point in the global coordinates with the product weight × det(J) × factor, ready to evaluate a function
+        /// </summary>
         public struct GlobalCoordinateGaussPoint
         {
             /// <summary>
@@ -1479,6 +1583,9 @@ namespace GPC.Model.Maths.GaussIntegrations
             /// </summary>
             public double GpZ { get; }
 
+            /// <summary>
+            /// The product of the determinant of the Jacobian, of the weight and of the factor
+            /// </summary>
             private readonly double _determinantWeightFactorMultiplication;
 
 
@@ -1503,6 +1610,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return CalculatorOf<T>.Get().Multiply(_determinantWeightFactorMultiplication, function(GpX));
             }
 
+            /// <summary>
+            /// The contribution of the point to the integral of a function f(x, y)
+            /// </summary>
+            /// <param name="function">The function</param>
+            /// <returns>f(x, y) × weight × det(J) × factor</returns>
             public double EvaluateFunction(Func<double, double, double> function)
             {
                 return _determinantWeightFactorMultiplication * function(GpX, GpY);
@@ -1539,8 +1651,14 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// The calculators of the supported types of values
+        /// </summary>
         protected static class GaussPointCalculator
         {
+            /// <summary>
+            /// The calculators by type
+            /// </summary>
             public static readonly Dictionary<Type, IGaussPointCalculator> Calculators = new Dictionary<Type, IGaussPointCalculator>()
             {
                 { typeof(double), new DoubleCalculator() },
@@ -1551,6 +1669,12 @@ namespace GPC.Model.Maths.GaussIntegrations
                 { typeof((double, double, double)), new ValueTupleThreeDoubleCalculator() }
             };
 
+            /// <summary>
+            /// The calculator of a type
+            /// </summary>
+            /// <typeparam name="T">The type of the values</typeparam>
+            /// <returns>The calculator</returns>
+            /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
             public static ICalculator<T> GetInstance<T>()
             {
                 return (ICalculator<T>)Calculators[typeof(T)];
@@ -1563,6 +1687,9 @@ namespace GPC.Model.Maths.GaussIntegrations
         /// </summary>
         private static class CalculatorOf<T>
         {
+            /// <summary>
+            /// The calculator of the type; null if it is not supported
+            /// </summary>
             private static readonly ICalculator<T> Instance = GaussPointCalculator.Calculators.TryGetValue(typeof(T), out IGaussPointCalculator calculator) ? (ICalculator<T>)calculator : null;
 
             /// <exception cref="KeyNotFoundException">If the type is not supported</exception>
@@ -1572,66 +1699,156 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// The operations of the integration on the values of a type: product by a scalar and sum of arrays
+        /// </summary>
+        /// <typeparam name="T">The type of the values</typeparam>
         protected interface ICalculator<T> : IGaussPointCalculator
         {
+            /// <summary>
+            /// The product of a value by a scalar
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             T Multiply(double constants, T function);
+            /// <summary>
+            /// The sum of all the values
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             T MassSum(T[][][] value);
+            /// <summary>
+            /// The sum of all the values
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             T MassSum(T[][] value);
+            /// <summary>
+            /// The sum of all the values
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             T MassSum(T[] value);
         }
 
+        /// <summary>
+        /// Marker interface of the calculators
+        /// </summary>
         protected interface IGaussPointCalculator
         {
 
         }
 
+        /// <summary>
+        /// The operations on the values of type double
+        /// </summary>
         protected class DoubleCalculator : ICalculator<double>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public double Multiply(double constants, double function) { return constants * function; }
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public double MassSum(double[][][] value)
             {
                 return value.Select(i => i.Select(j => j.Sum()).Sum()).Sum();
             }
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public double MassSum(double[][] value)
             {
                 return value.Select(i => i.Sum()).Sum();
             }
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public double MassSum(double[] value)
             {
                 return value.Sum();
             }
         }
 
+        /// <summary>
+        /// The operations on the values of type Tuple&lt;double&gt;
+        /// </summary>
         protected class TupleOneDoubleCalculator : ICalculator<Tuple<double>>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public Tuple<double> Multiply(double constants, Tuple<double> function)
             {
                 return new Tuple<double>(constants * function.Item1);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double> MassSum(Tuple<double>[][][] value)
             {
                 return new Tuple<double>(value.Select(i => i.Select(j => j.Select(k => k.Item1).Sum()).Sum()).Sum());
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double> MassSum(Tuple<double>[][] value)
             {
                 return new Tuple<double>(value.Select(i => i.Select(j => j.Item1).Sum()).Sum());
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double> MassSum(Tuple<double>[] value)
             {
                 return new Tuple<double>(value.Select(i => i.Item1).Sum());
             }
         }
 
+        /// <summary>
+        /// The operations on the values of type Tuple&lt;double, double&gt;
+        /// </summary>
         protected class TupleTwoDoubleCalculator : ICalculator<Tuple<double, double>>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public Tuple<double, double> Multiply(double constants, Tuple<double, double> function)
             {
                 return new Tuple<double, double>(constants * function.Item1, constants * function.Item2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double> MassSum(Tuple<double, double>[][][] value)
             {
                 double res1 = 0;
@@ -1651,6 +1868,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return new Tuple<double, double>(res1, res2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double> MassSum(Tuple<double, double>[][] value)
             {
                 double res1 = 0;
@@ -1667,6 +1889,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return new Tuple<double, double>(res1, res2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double> MassSum(Tuple<double, double>[] value)
             {
                 double res1 = 0;
@@ -1681,13 +1908,27 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// The operations on the values of type (double, double)
+        /// </summary>
         protected class ValueTupleTwoDoubleCalculator : ICalculator<(double, double)>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public (double, double) Multiply(double constants, (double, double) function)
             {
                 return (constants * function.Item1, constants * function.Item2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double) MassSum((double, double)[][][] value)
             {
                 double res1 = 0;
@@ -1707,6 +1948,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return (res1, res2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double) MassSum((double, double)[][] value)
             {
                 double res1 = 0;
@@ -1723,6 +1969,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return (res1, res2);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double) MassSum((double, double)[] value)
             {
                 double res1 = 0;
@@ -1737,13 +1988,27 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// The operations on the values of type Tuple&lt;double, double, double&gt;
+        /// </summary>
         protected class TupleThreeDoubleCalculator : ICalculator<Tuple<double, double, double>>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public Tuple<double, double, double> Multiply(double constants, Tuple<double, double, double> function)
             {
                 return new Tuple<double, double, double>(constants * function.Item1, constants * function.Item2, constants * function.Item3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double, double> MassSum(Tuple<double, double, double>[][][] value)
             {
                 double res1 = 0;
@@ -1766,6 +2031,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return new Tuple<double, double, double>(res1, res2, res3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double, double> MassSum(Tuple<double, double, double>[][] value)
             {
                 double res1 = 0;
@@ -1785,6 +2055,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return new Tuple<double, double, double>(res1, res2, res3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public Tuple<double, double, double> MassSum(Tuple<double, double, double>[] value)
             {
                 double res1 = 0;
@@ -1802,13 +2077,27 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
         }
 
+        /// <summary>
+        /// The operations on the values of type (double, double, double)
+        /// </summary>
         protected class ValueTupleThreeDoubleCalculator : ICalculator<(double, double, double)>
         {
+            /// <summary>
+            /// The product of a value by a scalar (component by component)
+            /// </summary>
+            /// <param name="constants">The scalar</param>
+            /// <param name="function">The value</param>
+            /// <returns>The product</returns>
             public (double, double, double) Multiply(double constants, (double, double, double) function)
             {
                 return (constants * function.Item1, constants * function.Item2, constants * function.Item3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double, double) MassSum((double, double, double)[][][] value)
             {
                 double res1 = 0;
@@ -1831,6 +2120,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return (res1, res2, res3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double, double) MassSum((double, double, double)[][] value)
             {
                 double res1 = 0;
@@ -1850,6 +2144,11 @@ namespace GPC.Model.Maths.GaussIntegrations
                 return (res1, res2, res3);
             }
 
+            /// <summary>
+            /// The sum of all the values (component by component)
+            /// </summary>
+            /// <param name="value">The values</param>
+            /// <returns>The sum</returns>
             public (double, double, double) MassSum((double, double, double)[] value)
             {
                 double res1 = 0;

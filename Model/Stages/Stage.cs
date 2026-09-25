@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Stages
 {
+    /// <summary>
+    /// A stage of the analysis (the implementation is commented out: the class has only the members of <see cref="ModelObjectId"/>)
+    /// </summary>
     [Serializable]
     public sealed class Stage : ModelObjectId, ISerializable
     {

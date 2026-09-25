@@ -2,6 +2,9 @@
 
 namespace GPC.Model.Data.Steel
 {
+	/// <summary>
+	/// Predefined structural steels of EN 1993-1-1: each property returns a new instance
+	/// </summary>
 	public class SteelMaterialEN1993Data
 	{
         #region Structural 

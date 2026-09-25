@@ -2,6 +2,9 @@
 
 namespace GPC.Model.Data.Steel
 {
+	/// <summary>
+	/// Predefined structural steels of AISC 360: each property returns a new instance
+	/// </summary>
 	public class SteelMaterialAISC360Data
 	{
         // <summary>
@@ -108,7 +111,7 @@ namespace GPC.Model.Data.Steel
         public static SteelMaterialAISC360 A572Gr65 => new SteelMaterialAISC360(name: "A572 Gr. 65", elasticModulus: 199947.9615, fyk: 448.1592, fu: 551.5806, steelType: SteelMaterial.SteelTypes.Structural);
 
         /// <summary>
-        /// A618 Gr. I & II
+        /// A618 Gr. I &amp; II
         /// F_y = 50 ksi
         /// F_u = 70 ksi
         /// </summary>

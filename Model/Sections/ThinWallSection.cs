@@ -8,11 +8,23 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// The working of the inside corners of a section
+    /// </summary>
     public enum EdgeType
     {
-        Sharp = 0, // Without working, simple corner. Default.
-        Fillet = 1, // Rounded corners with circumference arc.
-        Chamfer = 2 // Straight line.
+        /// <summary>
+        /// Without working, simple corner. Default.
+        /// </summary>
+        Sharp = 0,
+        /// <summary>
+        /// Rounded corners with circumference arc.
+        /// </summary>
+        Fillet = 1,
+        /// <summary>
+        /// Straight line.
+        /// </summary>
+        Chamfer = 2
     }
 
     /// <summary>
@@ -25,15 +37,27 @@ namespace GPC.Model.Sections
     {
         #region Variables
 
+        /// <summary>
+        /// The thin walls
+        /// </summary>
         protected ThinWall[] _thinWalls;
+        /// <summary>
+        /// The working of the inside corners
+        /// </summary>
         protected EdgeType _edgeWorking;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The overall height
+        /// </summary>
         public override double Height { get; set; }
 
+        /// <summary>
+        /// The thin walls
+        /// </summary>
         public override ThinWall[] ThinWalls => _thinWalls;
 
         /// <summary>
@@ -56,6 +80,12 @@ namespace GPC.Model.Sections
         {
         }
 
+        /// <summary>
+        /// Deserialization constructor (version 1: the thin walls and their points in two arrays; version 2: the thin walls with their points)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        /// <exception cref="ArgumentException">If the version 1 arrays have different lengths</exception>
         protected ThinWallSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -91,11 +121,20 @@ namespace GPC.Model.Sections
 
         #region Protected methods
 
+        /// <summary>
+        /// Sets the thin walls
+        /// </summary>
+        /// <param name="thinWalls">The thin walls</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="thinWalls"/> is null</exception>
         protected void SetThinWalls(ThinWall[] thinWalls)
         {
             _thinWalls = thinWalls ?? throw new ArgumentNullException(nameof(thinWalls));
         }
 
+        /// <summary>
+        /// Sets the working of the corners from the type of the section: fillet for rolled, chamfer for welded
+        /// </summary>
+        /// <param name="sectionType">The type of the section</param>
         public override void SetEdgeTypeFromSteelType(SectionTypes sectionType)
         {
             if (sectionType == SectionTypes.Rolled)
@@ -108,8 +147,16 @@ namespace GPC.Model.Sections
 
         #region Mesh
 
+        /// <summary>
+        /// The mesh of the thin walls (see <see cref="GetMesh()"/>)
+        /// </summary>
+        /// <returns>The new mesh</returns>
         protected override Mesh CreateMesh() => GetMesh();
 
+        /// <summary>
+        /// A mesh with two triangles for each thin wall; the vertices closer than 0.01 are merged
+        /// </summary>
+        /// <returns>The new mesh</returns>
         public Mesh GetMesh()
         {
             Mesh mesh = new Mesh();
@@ -155,14 +202,26 @@ namespace GPC.Model.Sections
 
         #region Public abstract method
 
+        /// <summary>
+        /// Calculate the warping constant
+        /// </summary>
+        /// <returns>The warping constant</returns>
         protected abstract override double CalculateJw();
 
+        /// <summary>
+        /// Calculate the shear center
+        /// </summary>
+        /// <returns>The shear center</returns>
         protected abstract override Point2d CalculateShearCenter();
 
         #endregion
 
         #region Public method
 
+        /// <summary>
+        /// Creates the shape of the section
+        /// </summary>
+        /// <returns>The shape</returns>
         protected override abstract Shape2d GetShape();
 
         /// <inheritdoc cref="Section.CalculateCentroid()"/>
@@ -182,6 +241,10 @@ namespace GPC.Model.Sections
             return new Point2d(xSum / area, ySum / area);
         }
 
+        /// <summary>
+        /// Calculate the torsion constant: sum of the ones of the thin walls
+        /// </summary>
+        /// <returns>The torsion constant</returns>
         protected override double CalculateJt()
         {
             double jt = 0;
@@ -195,17 +258,21 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
+        /// Calculate the moment of inertia about the principal axis 1 (the maximum one) from Jxx, Jyy and Jxy
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJ11() => SectionHelper.CalculateJ11(_jxx, _jyy, _jxy);
 
         /// <summary>
-        /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
+        /// Calculate the moment of inertia about the principal axis 2 (the minimum one) from Jxx, Jyy and Jxy
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJ22() => SectionHelper.CalculateJ22(_jxx, _jyy, _jxy);
 
+        /// <summary>
+        /// The area of the thin walls
+        /// </summary>
+        /// <returns>The sum of the areas</returns>
         private double CalculateAreaThinWallSection()
         {
             double area = 0;
@@ -216,6 +283,10 @@ namespace GPC.Model.Sections
             return area;
         }
 
+        /// <summary>
+        /// Calculate the area: sum of the areas of the thin walls
+        /// </summary>
+        /// <returns>The area</returns>
         protected override double CalculateArea()
         {
             return CalculateAreaThinWallSection();
@@ -225,7 +296,7 @@ namespace GPC.Model.Sections
         /// Moment of inertia with respect to the X axis passing through the center of gravity
         /// of the section. Contributions to the moment of inertia only thin walls.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         private double CalculateJxxThinWall()
         {
             double j = 0;
@@ -238,13 +309,17 @@ namespace GPC.Model.Sections
             return j;
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about the X axis through the centroid (thin walls)
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJxx() => CalculateJxxThinWall();
 
         /// <summary>
         /// Moment of inertia with respect to the Y axis passing through the center of gravity
         /// of the section. Contributions to the moment of inertia only thin walls.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         private double CalculateJyyThinWall()
         {
             double j = 0;
@@ -257,13 +332,17 @@ namespace GPC.Model.Sections
             return j;
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about the Y axis through the centroid (thin walls)
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJyy() => CalculateJyyThinWall();
 
         /// <summary>
         /// Product of inertia with respect to the X and Y axes passing through the center of
         /// gravity of the section. Contributions to the moment of inertia only thin walls.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The product of inertia</returns>
         protected override double CalculateJxy()
         {
             double j = 0;
@@ -334,6 +413,10 @@ namespace GPC.Model.Sections
             return S_axis * 2.0;
         }
 
+        /// <summary>
+        /// Tell if an axis divides the area of the thin walls in two equal parts (relative tolerance 1e-9)
+        /// </summary>
+        /// <param name="axis">The axis</param>
         /// <returns>True if the thin walls have the same area on the two sides of <paramref name="axis"/> (a wall on the axis is half on each side)</returns>
         private bool DividesInEqualAreas(Line2d axis)
         {
@@ -379,6 +462,9 @@ namespace GPC.Model.Sections
             return Math.Abs(left - right) <= 1e-9 * (left + right);
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to the axis 1
+        /// </summary>
         /// <returns>The plastic modulus respect to the axis 1: when X and Y are principal the one respect to X or Y (see <see cref="Section.CalculateWpl1"/>,
         /// so the sections that compute <see cref="CalculateWplX"/> and <see cref="CalculateWplY"/> get coherent principal moduli), otherwise the one of
         /// the thin walls respect to the axis 1 (<see cref="CalculateWplAngle"/>)</returns>
@@ -387,18 +473,27 @@ namespace GPC.Model.Sections
             return PrincipalFromXY() == PrincipalAxes.Rotated ? CalculateWplAngle(AngleX1) : base.CalculateWpl1();
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to the axis 2
+        /// </summary>
         /// <returns>The plastic modulus respect to the axis 2 (see <see cref="CalculateWpl1"/>)</returns>
         protected override double CalculateWpl2()
         {
             return PrincipalFromXY() == PrincipalAxes.Rotated ? CalculateWplAngle(AngleX1 + Math.PI * 0.5) : base.CalculateWpl2();
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to X
+        /// </summary>
         /// <returns>The plastic modulus of the thin walls respect to X (<see cref="CalculateWplAngle"/>)</returns>
         protected override double CalculateWplX()
         {
             return CalculateWplAngle(0);
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to Y
+        /// </summary>
         /// <returns>The plastic modulus of the thin walls respect to Y (<see cref="CalculateWplAngle"/>)</returns>
         protected override double CalculateWplY()
         {
@@ -408,6 +503,10 @@ namespace GPC.Model.Sections
         // The elastic moduli respect to the principal axes are the ones of Section: taken from the moduli respect to X and Y when X and Y are
         // principal (before, they were abstract and every section computed them assuming that the axis 1 was X)
 
+        /// <summary>
+        /// The vertices of the perimeters of the thin walls (4 for each wall, copies)
+        /// </summary>
+        /// <returns>The points</returns>
         public override Point2d[] GetSectionPoints()
         {
             List<Point2d> points = new List<Point2d>();
@@ -423,7 +522,8 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Break all thiwall in lines.
+        /// Break all the thin walls at the intersections of their middle lines with the edges (an intersection closer than 1 to an end of the
+        /// middle line is ignored: the unit is the millimetre)
         /// </summary>
         /// <param name="edges">List of perimeter sides in the local system of ThinWallSection.</param>
         /// <returns>A new list with all breaked thinwalls.</returns>
@@ -468,6 +568,11 @@ namespace GPC.Model.Sections
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Equality of the section properties and of the thin walls
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal section</returns>
         public override bool Equals(object obj)
         {
 
@@ -476,6 +581,10 @@ namespace GPC.Model.Sections
                    _thinWalls.SequenceEqual(section._thinWalls);
         }
 
+        /// <summary>
+        /// The hash code of the section and of the thin walls
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -487,16 +596,33 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are equal</returns>
         public static bool operator ==(ThinWallSection left, ThinWallSection right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are different</returns>
         public static bool operator !=(ThinWallSection left, ThinWallSection right)
         {
             return !(left == right);
         }
 
+        /// <summary>
+        /// Serializes the section (version 2)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -509,20 +635,37 @@ namespace GPC.Model.Sections
 
         #region Nested classes ThinWall
 
-        /// With _angle = 0:
+        /// <summary>
+        /// A rectangular thin wall, defined by length, thickness, angle and centre. With _angle = 0:
+        /// <code>
         ///    ┌-----------------┐
         /// _t |                 |
         ///    └-----------------┘
         ///            _l
+        /// </code>
         /// </summary>
+        /// <remarks>The class is [Serializable] but does not implement <see cref="ISerializable"/>: the formatter serializes the fields and
+        /// <see cref="GetObjectData(SerializationInfo, StreamingContext)"/> and the deserialization constructor are not used</remarks>
         [Serializable]
         public class ThinWall : ICloneable
         {
             #region Variables
 
+            /// <summary>
+            /// The thickness
+            /// </summary>
             private readonly double _t;
+            /// <summary>
+            /// The length
+            /// </summary>
             private readonly double _l;
+            /// <summary>
+            /// The angle of the wall from X (radians)
+            /// </summary>
             private readonly double _angle;
+            /// <summary>
+            /// The centre of the wall
+            /// </summary>
             private readonly Point2d _point;
 
             #endregion
@@ -530,12 +673,12 @@ namespace GPC.Model.Sections
             #region Properties
 
             /// <summary>
-            /// The _thickness of the wall
+            /// The thickness of the wall
             /// </summary>
             public double T => _t;
 
             /// <summary>
-            /// The lenght of the wall
+            /// The length of the wall
             /// </summary>
             public double L => _l;
 
@@ -551,7 +694,7 @@ namespace GPC.Model.Sections
             public Point2d Point => _point;
 
             /// <summary>
-            /// The area og the thin wal
+            /// The area of the thin wall
             /// </summary>
             public double Area => CalculateArea();
 
@@ -565,11 +708,12 @@ namespace GPC.Model.Sections
             #region Protected constructor
 
             /// <summary>
-            /// Older version of the constructor, kept for compatibility.
+            /// Older version of the constructor, kept for compatibility: the wall is centred at the origin
             /// </summary>
-            /// <param name="length"></param>
-            /// <param name="thickness"></param>
-            /// <param name="angle"></param>
+            /// <param name="length">The length</param>
+            /// <param name="thickness">The thickness</param>
+            /// <param name="angle">The angle from X (radians)</param>
+            /// <exception cref="ArgumentException">If the length or the thickness is negative</exception>
             internal ThinWall(double length, double thickness, double angle)
                 : this(length, thickness, angle, Point2d.Origin)
             {
@@ -579,9 +723,10 @@ namespace GPC.Model.Sections
             /// The default constructor of generic ThinWall
             /// </summary>
             /// <param name="length">The length of the ThinWall</param>
-            /// <param name="thickness">The _thickness of the ThinWall</param>
+            /// <param name="thickness">The thickness of the ThinWall</param>
             /// <param name="angle">The angle of the ThinWall. 0 is orizontal, Math.PI / 2.0 is vertical</param>
             /// <param name="point">Position, barycenter/centroid of rectangular.</param>
+            /// <exception cref="ArgumentException">If the length or the thickness is negative or <paramref name="point"/> is null</exception>
             internal ThinWall(double length, double thickness, double angle, Point2d point)
                 : base()
             {
@@ -594,9 +739,10 @@ namespace GPC.Model.Sections
             /// <summary>
             /// Constructor using axis end points and thickness.
             /// </summary>
-            /// <param name="startPoint"></param>
-            /// <param name="endPoint"></param>
-            /// <param name="thickness"></param>
+            /// <param name="startPoint">The start point of the middle line</param>
+            /// <param name="endPoint">The end point of the middle line</param>
+            /// <param name="thickness">The thickness</param>
+            /// <exception cref="ArgumentException">If <paramref name="thickness"/> is negative</exception>
             internal ThinWall(in Point2d startPoint, in Point2d endPoint, in double thickness)
             {
                 _t = thickness < 0 ? throw new ArgumentException($"Thickness cannot be lower than zero") : thickness;
@@ -606,6 +752,11 @@ namespace GPC.Model.Sections
                 _point = 0.5 * (startPoint + endPoint);
             }
 
+            /// <summary>
+            /// Deserialization constructor (version 1 without <see cref="IsInsideConcrete"/>; a missing point is the origin). Not used: see the class remarks
+            /// </summary>
+            /// <param name="info">The serialization data</param>
+            /// <param name="_">The serialization context</param>
             protected ThinWall(SerializationInfo info, StreamingContext _)
             {
                 int version;
@@ -640,6 +791,10 @@ namespace GPC.Model.Sections
 
             #region Internal method
 
+            /// <summary>
+            /// The perimeter of the wall (rectangle)
+            /// </summary>
+            /// <returns>A new polygon with the four vertices</returns>
             internal Polygon2d GetPerimeter()
             {
                 var sinAngle = Math.Sin(_angle);
@@ -657,6 +812,10 @@ namespace GPC.Model.Sections
                 return poly;
             }
 
+            /// <summary>
+            /// The end points of the middle line of the wall
+            /// </summary>
+            /// <returns>The two points</returns>
             public Point2d[] GetMiddleLine()
             {
                 var sinAngle = Math.Sin(_angle);
@@ -668,9 +827,11 @@ namespace GPC.Model.Sections
 
             /// <summary>
             /// Breaks at an intermediate point.
-            /// Returns two thinwalls if the point is intermediate, otherwise returns the thinwall itself.
+            /// Returns two thinwalls if the point is intermediate (on the middle line and farther than 1 from its ends: the unit is the millimetre),
+            /// otherwise returns the thinwall itself.
             /// </summary>
-            /// <returns></returns>
+            /// <param name="intermediatePoint">The point</param>
+            /// <returns>The two parts, or this wall</returns>
             public ThinWall[] BreaksAtAnIntermediatePoint(in Point2d intermediatePoint)
             {
                 var midLinePoints = GetMiddleLine();
@@ -695,18 +856,18 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Calculate the area of the wall 
+            /// Calculate the area of the wall
             /// </summary>
-            /// <returns></returns>
+            /// <returns>t l</returns>
             internal double CalculateArea()
             {
                 return _t * _l;
             }
 
             /// <summary>
-            /// Moment of inertia with respect to the X and Y axes.
+            /// Product of inertia with respect to the X and Y axes through the origin (the own product rotated plus the transport term)
             /// </summary>
-            /// <returns></returns>
+            /// <returns>The product of inertia</returns>
             internal double CalculateJxy()
             {
                 double Jxx = _l * Math.Pow(_t, 3) / 12.0;
@@ -717,9 +878,9 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Moment of inertia with respect to the Y-axis.
+            /// Moment of inertia with respect to the Y-axis through the origin (the own moment plus the transport term)
             /// </summary>
-            /// <returns></returns>
+            /// <returns>The moment of inertia</returns>
             internal double CalculateJy()
             {
                 double momentTranslation = Area * _point.X * _point.X;
@@ -739,9 +900,9 @@ namespace GPC.Model.Sections
             }
 
             /// <summary>
-            /// Moment of inertia with respect to the X-axis.
+            /// Moment of inertia with respect to the X-axis through the origin (the own moment plus the transport term)
             /// </summary>
-            /// <returns></returns>
+            /// <returns>The moment of inertia</returns>
             internal double CalculateJx()
             {
                 double momentTranslation = Area * _point.Y * _point.Y;
@@ -763,39 +924,57 @@ namespace GPC.Model.Sections
             /// <summary>
             /// Static moment with respect to X-axis.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>A y</returns>
             internal double CalculateSx() => Area * _point.Y;
 
             /// <summary>
             /// Static moment with respect to Y-axis.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>A x</returns>
             internal double CalculateSy() => Area * _point.X;
 
+            /// <summary>
+            /// The torsion constant of the wall: l t³ / (3 + 1.8 t / l)
+            /// </summary>
+            /// <returns>The torsion constant</returns>
             internal virtual double CalculateJt()
             {
                 return L * Math.Pow(T, 3) / GetAlpha();
             }
 
+            /// <summary>
+            /// The warping constant of the wall (not implemented)
+            /// </summary>
+            /// <returns>Nothing</returns>
+            /// <exception cref="NotImplementedException">Always</exception>
             internal virtual double CalculateJw()
             {
                 throw new NotImplementedException();
             }
 
             /// <summary>
-            /// Calculate the polar moment of inertia 
+            /// Calculate the polar moment of inertia respect to the origin
             /// </summary>
-            /// <returns></returns>
+            /// <returns>Jx + Jy</returns>
             internal virtual double CalculateJpolar()
             {
                 return CalculateJx() + CalculateJy();
             }
 
+            /// <summary>
+            /// The coefficient of the torsion constant: 3 + 1.8 t / l
+            /// </summary>
+            /// <returns>The coefficient</returns>
             internal double GetAlpha()
             {
                 return 3 + 1.8 * T / L;
             }
 
+            /// <summary>
+            /// Equality of thickness, length, angle and centre
+            /// </summary>
+            /// <param name="obj">The object to compare</param>
+            /// <returns>True if <paramref name="obj"/> is an equal wall</returns>
             public override bool Equals(object obj)
             {
                 return obj is ThinWall wall &&
@@ -805,6 +984,10 @@ namespace GPC.Model.Sections
                        _point == wall._point;
             }
 
+            /// <summary>
+            /// The hash code of thickness, length, angle and centre
+            /// </summary>
+            /// <returns>The hash code</returns>
             public override int GetHashCode()
             {
                 unchecked
@@ -818,6 +1001,11 @@ namespace GPC.Model.Sections
                 }
             }
 
+            /// <summary>
+            /// Serializes the wall (version 2). Not used by the formatter: see the class remarks
+            /// </summary>
+            /// <param name="info">The serialization data</param>
+            /// <param name="context">The serialization context</param>
             public void GetObjectData(SerializationInfo info, StreamingContext context)
             {
                 int version = 2;
@@ -829,6 +1017,10 @@ namespace GPC.Model.Sections
                 info.AddValue("IsInsideConcrete", IsInsideConcrete);
             }
 
+            /// <summary>
+            /// A shallow copy of the wall
+            /// </summary>
+            /// <returns>The copy</returns>
             public object Clone()
             {
                 return (ThinWall)MemberwiseClone();

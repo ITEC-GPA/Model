@@ -14,14 +14,23 @@ namespace GPC.Model.Sections.Glass
     {
         #region Variables
 
+        /// <summary>
+        /// The layers, from external to internal
+        /// </summary>
         protected List<IGlassLayer> _glassLayer;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The layers (glasses, interlayers and air chambers), from external to internal
+        /// </summary>
         public List<IGlassLayer> GlassLayers { get => _glassLayer; set => _glassLayer = value; }
 
+        /// <summary>
+        /// The total thickness of the layers
+        /// </summary>
         public double TotalThickness => _glassLayer.Select(i => i.Thickness).Sum();
 
         #endregion
@@ -29,10 +38,10 @@ namespace GPC.Model.Sections.Glass
         #region Public constructor
 
         /// <summary>
-        /// Initialize the empty insulating glass 
+        /// Initialize the empty insulating glass
         /// Used in UI to create an empty laminated that the user will interactively define.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name</param>
         /// <remarks>Order of the glass panels is from external to internal</remarks>
         public GlassPlateProperty(string name)
             : base(name)
@@ -43,10 +52,8 @@ namespace GPC.Model.Sections.Glass
         /// <summary>
         /// Create a Insulating glass
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="glassPanel"></param>
-        /// <param name="airChamber"></param>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="name">The name</param>
+        /// <param name="glassPanel">The layers (glasses, interlayers and air chambers)</param>
         /// <remarks>Order of the glass panels is from external to internal</remarks>
         public GlassPlateProperty(string name, IEnumerable<IGlassLayer> glassPanel)
             : base(name)
@@ -54,6 +61,11 @@ namespace GPC.Model.Sections.Glass
             _glassLayer = glassPanel.ToList();
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private GlassPlateProperty(SerializationInfo info, StreamingContext context)
            : base(info, context)
         {
@@ -80,12 +92,22 @@ namespace GPC.Model.Sections.Glass
 
         #region Equals - HashCode - Operators
 
+        /// <summary>
+        /// Serializes the property
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("GlassLayers", _glassLayer);
         }
 
+        /// <summary>
+        /// Equality of the layers (in the same order) and of the base
+        /// </summary>
+        /// <param name="other">The property to compare</param>
+        /// <returns>True if the propertys are equal</returns>
         public bool Equals(GlassPlateProperty other)
         {
             if (ReferenceEquals(this, other))
@@ -96,11 +118,20 @@ namespace GPC.Model.Sections.Glass
                 base.Equals(other);
         }
 
+        /// <summary>
+        /// Equality with another property (see <see cref="Equals(GlassPlateProperty)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal property</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as GlassPlateProperty);
         }
 
+        /// <summary>
+        /// The hash code of the base and of the layers
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -113,6 +144,12 @@ namespace GPC.Model.Sections.Glass
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(GlassPlateProperty)"/>)
+        /// </summary>
+        /// <param name="obj1">The first property</param>
+        /// <param name="obj2">The second property</param>
+        /// <returns>True if the propertys are equal</returns>
         public static bool operator ==(GlassPlateProperty obj1, GlassPlateProperty obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -124,6 +161,12 @@ namespace GPC.Model.Sections.Glass
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(GlassPlateProperty)"/>)
+        /// </summary>
+        /// <param name="obj1">The first property</param>
+        /// <param name="obj2">The second property</param>
+        /// <returns>True if the propertys are different</returns>
         public static bool operator !=(GlassPlateProperty obj1, GlassPlateProperty obj2)
         {
             return !(obj1 == obj2);

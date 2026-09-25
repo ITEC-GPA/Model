@@ -5,23 +5,51 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// An I/H section, symmetric respect to the vertical axis, with different flanges; the origin is the bottom left corner of the bounding box
+    /// (the flanges are centred on the wider one)
+    /// </summary>
     [Serializable]
     public class SectionH : ThinWallSection, ISerializable, IEquatable<SectionH>
     {
         #region Variables
 
+        /// <summary>
+        /// The height
+        /// </summary>
         protected double _h;
+        /// <summary>
+        /// The thickness of the web
+        /// </summary>
         protected double _tw;
+        /// <summary>
+        /// The thickness of the top flange
+        /// </summary>
         protected double _ttop;
+        /// <summary>
+        /// The thickness of the bottom flange
+        /// </summary>
         protected double _tbottom;
+        /// <summary>
+        /// The width of the top flange
+        /// </summary>
         protected double _btop;
+        /// <summary>
+        /// The width of the bottom flange
+        /// </summary>
         protected double _bbottom;
+        /// <summary>
+        /// The fillet radius or the throat of the welds
+        /// </summary>
         private readonly double _r;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The height (the setter calculates the section again)
+        /// </summary>
         public override double Height
         {
             get => _h;
@@ -35,8 +63,14 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The width of the wider flange
+        /// </summary>
         public override double Width => Math.Max(_btop, _bbottom);
 
+        /// <summary>
+        /// The width of the bottom flange (the setter calculates the section again)
+        /// </summary>
         public double LenghtBottomFlange
         {
             get => _bbottom;
@@ -50,6 +84,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The width of the top flange (the setter calculates the section again)
+        /// </summary>
         public double LenghtTopFlange
         {
             get => _btop;
@@ -64,6 +101,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The thickness of the top flange (the setter calculates the section again)
+        /// </summary>
         public double ThicknessTopFlange
         {
             get => _ttop;
@@ -77,6 +117,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The thickness of the bottom flange (the setter calculates the section again)
+        /// </summary>
         public double ThicknessBottomFlange
         {
             get => _tbottom;
@@ -90,6 +133,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The thickness of the web (the setter calculates the section again)
+        /// </summary>
         public double ThicknessWeb
         {
             get => _tw;
@@ -103,6 +149,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The height of the web between the flanges
+        /// </summary>
         public double HeightWeb => Height - ThicknessBottomFlange - ThicknessTopFlange;
 
         /// <summary>
@@ -110,12 +159,27 @@ namespace GPC.Model.Sections
         /// </summary>
         public double R => _r;
 
+        /// <summary>
+        /// The depth of the straight part of the web: height of the web minus 2 R
+        /// </summary>
         public double D => Height - ThicknessBottomFlange - ThicknessTopFlange - 2.0 * R;
 
         #endregion
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates the section and calculates its properties
+        /// </summary>
+        /// <param name="height">The height</param>
+        /// <param name="thicknessWeb">The thickness of the web</param>
+        /// <param name="topFlangeLength">The width of the top flange</param>
+        /// <param name="topFlangeThickness">The thickness of the top flange</param>
+        /// <param name="bottomFlangeLength">The width of the bottom flange</param>
+        /// <param name="bottomFlangeThickness">The thickness of the bottom flange</param>
+        /// <param name="name">The name</param>
+        /// <param name="radius">The fillet radius or the throat of the welds (negative: 0)</param>
+        /// <exception cref="ArgumentException">If a dimension is negative</exception>
         public SectionH(double height, double thicknessWeb, double topFlangeLength, double topFlangeThickness, double bottomFlangeLength,
             double bottomFlangeThickness, string name, double radius = 0)
             : base(name)
@@ -135,6 +199,11 @@ namespace GPC.Model.Sections
             CalculateSection();
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected SectionH(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -161,6 +230,11 @@ namespace GPC.Model.Sections
 
         #region Protected override method
 
+        /// <summary>
+        /// Serializes the section
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -177,6 +251,10 @@ namespace GPC.Model.Sections
             info.AddValue("R", _r);
         }
 
+        /// <summary>
+        /// The shape of the section (without fillets)
+        /// </summary>
+        /// <returns>The new shape</returns>
         protected override Shape2d GetShape()
         {
             if (_bbottom > _btop)
@@ -213,43 +291,73 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The distance of the centroid from the bottom side
+        /// </summary>
+        /// <returns>The distance</returns>
         public virtual double DistanceYCentroidFromBottom()
         {
             return CalculateCentroid().Y;
         }
 
+        /// <summary>
+        /// The distance of the centroid from the top side
+        /// </summary>
+        /// <returns>The distance</returns>
         public virtual double DistanceYCentroidFromTop()
         {
             return Height - DistanceYCentroidFromBottom();
         }
 
+        /// <summary>
+        /// The distance of the centroid from the right side
+        /// </summary>
         /// <returns>The distance of the centroid from the right end of the wider flange. Before, the distance from the left end</returns>
         public virtual double DistanceXCentroidFromRight()
         {
             return Math.Max(LenghtTopFlange, LenghtBottomFlange) - CalculateCentroid().X;
         }
 
+        /// <summary>
+        /// The distance of the centroid from the left side
+        /// </summary>
         /// <returns>The distance of the centroid from the left end of the wider flange</returns>
         public virtual double DistanceXCentroidFromLeft()
         {
             return CalculateCentroid().X;
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about X: the thin walls plus the corners
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJxx()
         {
             return base.CalculateJxx() + CalculateAdditionaJxx();
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about Y: the thin walls plus the corners
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJyy()
         {
             return base.CalculateJyy() + CalculateAdditionaJyy();
         }
 
+        /// <summary>
+        /// Calculate the product of inertia: 0 (symmetric section)
+        /// </summary>
+        /// <returns>0</returns>
         protected override double CalculateJxy()
         {
             return 0;
         }
 
+        /// <summary>
+        /// The moment of inertia about X of the four corners (welds or fillets)
+        /// </summary>
+        /// <returns>The additional moment of inertia</returns>
         private double CalculateAdditionaJxx()
         {
             if (_edgeWorking == EdgeType.Chamfer)
@@ -268,6 +376,10 @@ namespace GPC.Model.Sections
                 return 0.0;
         }
 
+        /// <summary>
+        /// The moment of inertia about Y of the four corners (welds or fillets)
+        /// </summary>
+        /// <returns>The additional moment of inertia</returns>
         private double CalculateAdditionaJyy()
         {
             if (_edgeWorking == EdgeType.Chamfer)
@@ -282,6 +394,10 @@ namespace GPC.Model.Sections
                 return 0.0;
         }
 
+        /// <summary>
+        /// The area of the four corners: the welds (chamfer, throat R) or the fillets (radius R)
+        /// </summary>
+        /// <returns>The additional area</returns>
         private double CalculateAdditionalArea()
         {
             if (_edgeWorking == EdgeType.Chamfer)
@@ -294,11 +410,18 @@ namespace GPC.Model.Sections
                 return 0.0;
         }
 
+        /// <summary>
+        /// Calculate the area: the thin walls plus the corners
+        /// </summary>
+        /// <returns>The area</returns>
         protected override double CalculateArea()
         {
             return base.CalculateArea() + CalculateAdditionalArea();
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to Y: twice the static moment of a half section (the two half flanges with the half web)
+        /// </summary>
         /// <returns>The plastic modulus respect to Y (the symmetry axis)</returns>
         protected override double CalculateWplY()
         {
@@ -314,6 +437,10 @@ namespace GPC.Model.Sections
             return 2.0 * d * _area / 2.0;
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to X: closed form with the plastic neutral axis in the web or in one flange, otherwise the one of the
+        /// base class
+        /// </summary>
         /// <returns>The plastic modulus respect to X</returns>
         protected override double CalculateWplX()
         {
@@ -355,30 +482,46 @@ namespace GPC.Model.Sections
         // the distance of the centroid from the left end: with different flanges one modulus was wrong, infinite or negative, e.g. flanges
         // 100 and 300: Wel2Max = J22 / (100 - 150) < 0, so Wel2 < 0)
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the bottom fibre
+        /// </summary>
         /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
         protected override double CalculateWelXMin()
         {
             return Jxx / DistanceYCentroidFromBottom();
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the top fibre
+        /// </summary>
         /// <returns>The elastic modulus respect to X of the top fibre</returns>
         protected override double CalculateWelXMax()
         {
             return Jxx / DistanceYCentroidFromTop();
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the left fibre
+        /// </summary>
         /// <returns>The elastic modulus respect to Y of the left fibre</returns>
         protected override double CalculateWelYMin()
         {
             return Jyy / DistanceXCentroidFromLeft();
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the right fibre
+        /// </summary>
         /// <returns>The elastic modulus respect to Y of the right fibre</returns>
         protected override double CalculateWelYMax()
         {
             return Jyy / DistanceXCentroidFromRight();
         }
 
+        /// <summary>
+        /// The section is symmetric respect to X if the flanges are equal
+        /// </summary>
+        /// <returns>True if symmetric</returns>
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {
             if (_btop == _bbottom && _tbottom == _ttop)
@@ -387,11 +530,20 @@ namespace GPC.Model.Sections
             return false;
         }
 
+        /// <summary>
+        /// The section is always symmetric respect to Y
+        /// </summary>
+        /// <returns>True</returns>
         protected override bool CalculateIsSymmetricAlongYLocalAxis()
         {
             return true;
         }
 
+        /// <summary>
+        /// Calculate the shear center (CNR DT 208/2011, to be checked): on the vertical axis, moved towards the flange with the bigger moment of
+        /// inertia
+        /// </summary>
+        /// <returns>The shear center</returns>
         protected override Point2d CalculateShearCenter()
         {
             //CNR DT208_2011 --> to be checked
@@ -404,6 +556,11 @@ namespace GPC.Model.Sections
             return new Point2d(CalculateCentroid().X, CalculateCentroid().Y - (zBottom * JFlBottom - zTop * JFlTop) / jz);
         }
 
+        /// <summary>
+        /// Calculate the torsion constant: with fillets the formula of the rolled I sections (mean flange, α1 and D1 of the fillets), otherwise
+        /// the one of the thin walls
+        /// </summary>
+        /// <returns>The torsion constant</returns>
         protected override double CalculateJt()
         {
             if (_edgeWorking == EdgeType.Fillet)
@@ -422,6 +579,10 @@ namespace GPC.Model.Sections
                 return base.CalculateJt();
         }
 
+        /// <summary>
+        /// Calculate the warping constant (CNR DT 208/2011): d² If,bottom If,top / Iz, with d the distance of the flange middle lines
+        /// </summary>
+        /// <returns>The warping constant</returns>
         protected override double CalculateJw()
         {
             double dmed = _h - ThicknessBottomFlange / 2.0 - ThicknessTopFlange / 2.0;
@@ -433,6 +594,9 @@ namespace GPC.Model.Sections
             return dmed * dmed * JFlBottom * JFlTop / jz;
         }
 
+        /// <summary>
+        /// Builds the thin walls (web between the flanges, flanges on their full width), discards the mesh and the shape and calculates the properties
+        /// </summary>
         private void CalculateSection()
         {
             ThinWall web = new ThinWall(HeightWeb, ThicknessWeb, Math.PI / 2,
@@ -451,6 +615,10 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
+        /// <summary>
+        /// The description of the section: "H h x tw x bb x tb x bt x tt"
+        /// </summary>
+        /// <returns>The description</returns>
         public override string ToString()
         {
             return $"H {_h}x{_tw}x{_bbottom}x{_tbottom}x{_btop}x{_ttop}";
@@ -460,11 +628,21 @@ namespace GPC.Model.Sections
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Equality with another H section (see <see cref="Equals(SectionH)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal section</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as SectionH);
         }
 
+        /// <summary>
+        /// Equality of the section properties and of the dimensions
+        /// </summary>
+        /// <param name="other">The section to compare</param>
+        /// <returns>True if the sections are equal</returns>
         public bool Equals(SectionH other)
         {
             return !(other is null) &&
@@ -478,6 +656,10 @@ namespace GPC.Model.Sections
                    _r == other._r;
         }
 
+        /// <summary>
+        /// The hash code of the section and of the dimensions
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -495,11 +677,23 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(SectionH)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are equal</returns>
         public static bool operator ==(SectionH left, SectionH right)
         {
             return EqualityComparer<SectionH>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(SectionH)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are different</returns>
         public static bool operator !=(SectionH left, SectionH right)
         {
             return !(left == right);

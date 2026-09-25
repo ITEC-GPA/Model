@@ -9,27 +9,59 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// The stresses of a plate at its lower, middle and upper faces
+    /// </summary>
     [Serializable]
     public sealed class ResultPlateStress : ResultType, IEquatable<ResultPlateStress>, ISerializable, IPlateResult, IResult<ResultPlateStress>
     {
         #region Variables
 
+        /// <summary>
+        /// The stresses at the lower face
+        /// </summary>
         private readonly ResultStress _lowerFace;
+        /// <summary>
+        /// The stresses at the middle face
+        /// </summary>
         private readonly ResultStress _midFace;
+        /// <summary>
+        /// The stresses at the upper face
+        /// </summary>
         private readonly ResultStress _upperFace;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The stresses at the lower face
+        /// </summary>
         public ResultStress LowerFace => _lowerFace;
+        /// <summary>
+        /// The stresses at the middle face
+        /// </summary>
         public ResultStress MidFace => _midFace;
+        /// <summary>
+        /// The stresses at the upper face
+        /// </summary>
         public ResultStress UpperFace => _upperFace;
 
         #endregion
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates the result (the faces must have the same coordinate system, not checked against <paramref name="coordinateSystem"/>)
+        /// </summary>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <param name="lowerFace">The stresses at the lower face</param>
+        /// <param name="midFace">The stresses at the middle face</param>
+        /// <param name="upperFace">The stresses at the upper face</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentException">If the faces have different coordinate systems</exception>
+        /// <exception cref="NullReferenceException">If a face is null (the coordinate systems are compared before the null checks)</exception>
         public ResultPlateStress(CoordinateSystem coordinateSystem, ResultStress lowerFace, ResultStress midFace, ResultStress upperFace, string name = "", int id = ModelObjectId.IDUNASSIGNED)
             : base(coordinateSystem, name, id)
         {
@@ -41,6 +73,11 @@ namespace GPC.Model.Results
             _upperFace = upperFace ?? throw new ArgumentNullException(nameof(upperFace));
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private ResultPlateStress(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -53,6 +90,11 @@ namespace GPC.Model.Results
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the result
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -61,7 +103,9 @@ namespace GPC.Model.Results
             info.AddValue("ResultStressUpper", _upperFace);
         }
 
-        /// <inheritdoc cref="ResultStress.CalculatePrincipalStressSimplifiedMethod"/>
+        /// <summary>
+        /// Calculates the principal stresses of the three faces with the simplified method (see <see cref="ResultStress.CalculatePrincipalStressSimplifiedMethod"/>)
+        /// </summary>
         public void CalculatePrincipalStressSimplifiedMethod()
         {
             _lowerFace.CalculatePrincipalStressSimplifiedMethod();
@@ -69,7 +113,9 @@ namespace GPC.Model.Results
             _upperFace.CalculatePrincipalStressSimplifiedMethod();
         }
 
-        /// <inheritdoc cref="ResultStress.CalculatePrincipalStressFullMethod"/>
+        /// <summary>
+        /// Calculates the principal stresses of the three faces with the eigenvalues (see <see cref="ResultStress.CalculatePrincipalStressFullMethod"/>)
+        /// </summary>
         public void CalculatePrincipalStressFullMethod()
         {
             _lowerFace.CalculatePrincipalStressFullMethod();
@@ -78,20 +124,29 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the stress of the point in global coordinate
+        /// The stresses of the faces in global coordinates (see <see cref="ResultStress.GetGlobalStress"/>)
         /// </summary>
-        /// <returns>Tuple of Array of stress</returns>
+        /// <returns>The arrays of the three faces</returns>
         public (double[] lowerFace, double[] midFace, double[] upperFace) GetGlobalStress()
         {
             return (_lowerFace.GetGlobalStress(), _midFace.GetGlobalStress(), _upperFace.GetGlobalStress());
         }
 
-        /// <returns>Return the stress tensor</returns>
+        /// <summary>
+        /// The stress tensors of the faces
+        /// </summary>
+        /// <param name="toGlobal">True for the global coordinate system, false for the local one</param>
+        /// <returns>The stress tensors of the three faces</returns>
         public (Matrix<double> lowerFace, Matrix<double> midFace, Matrix<double> upperFace) GetTensor(bool toGlobal = false)
         {
             return (_lowerFace.GetTensor(toGlobal), _midFace.GetTensor(toGlobal), _upperFace.GetTensor(toGlobal));
         }
 
+        /// <summary>
+        /// The same result in another coordinate system (the tensors are rotated)
+        /// </summary>
+        /// <param name="coordinateSystem">The new coordinate system</param>
+        /// <returns>The new result with the same name (the id is lost)</returns>
         public ResultPlateStress ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             return new ResultPlateStress(coordinateSystem, _lowerFace.ToCoordinateSystem(coordinateSystem),
@@ -99,8 +154,9 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the VonMises Stress
+        /// The Von Mises stresses of the faces (not used)
         /// </summary>
+        /// <returns>The Von Mises stresses of the three faces</returns>
         private (double lowerFace, double midFace, double upperFace) GetVMStress()
         {
             return (_lowerFace.SVM, _midFace.SVM, _upperFace.SVM);
@@ -110,6 +166,11 @@ namespace GPC.Model.Results
 
 		#region Equals, hascode, operators
 
+		/// <summary>
+		/// Equality with another result (see <see cref="Equals(ResultPlateStress)"/>)
+		/// </summary>
+		/// <param name="obj">The object to compare</param>
+		/// <returns>True if <paramref name="obj"/> is an equal result</returns>
 		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -118,6 +179,11 @@ namespace GPC.Model.Results
             return Equals(obj as ResultPlateStress);
         }
 
+        /// <summary>
+        /// Equality of the stresses of the faces and of the name
+        /// </summary>
+        /// <param name="other">The result to compare</param>
+        /// <returns>True if the results are equal</returns>
         public bool Equals(ResultPlateStress other)
         {
             if (ReferenceEquals(this, other))
@@ -129,6 +195,10 @@ namespace GPC.Model.Results
                                     && base.Equals(other);
         }
 
+        /// <summary>
+        /// The hash code of the name and of the faces
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -142,17 +212,35 @@ namespace GPC.Model.Results
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(ResultPlateStress)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="left">The first result</param>
+        /// <param name="right">The second result</param>
+        /// <returns>True if the results are equal</returns>
         public static bool operator ==(ResultPlateStress left, ResultPlateStress right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(ResultPlateStress)"/>)
+        /// </summary>
+        /// <param name="left">The first result</param>
+        /// <param name="right">The second result</param>
+        /// <returns>True if the results are different</returns>
         public static bool operator !=(ResultPlateStress left, ResultPlateStress right)
         {
             return !(left == right);
         }
 
-        /// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+        /// <summary>
+        /// The sum of the stresses face by face (see <see cref="ResultStress"/> operator +); the name joins the two names
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+        /// <exception cref="ArgumentNullException">If an operand is null</exception>
         public static ResultPlateStress operator +(ResultPlateStress obj1, ResultPlateStress obj2)
         {
             if (obj1 is null || obj2 is null)
@@ -167,6 +255,13 @@ namespace GPC.Model.Results
                                                                 );
         }
 
+        /// <summary>
+        /// The difference of the stresses face by face (see <see cref="ResultStress"/> operator -); the name joins the two names
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>The difference of the two stress tensor written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+        /// <exception cref="ArgumentNullException">If an operand is null</exception>
         public static ResultPlateStress operator -(ResultPlateStress obj1, ResultPlateStress obj2)
         {
 
@@ -182,7 +277,13 @@ namespace GPC.Model.Results
                                                                 );
         }
 
+        /// <summary>
+        /// The stresses of each face transformed by a matrix (see <see cref="ResultStress"/> operator *)
+        /// </summary>
+        /// <param name="obj1">The result</param>
+        /// <param name="matrix">The matrix</param>
         /// <returns>This will produce the multipltication of <paramref name="obj1"/> Tensor in global coordinate by <paramref name="matrix"/>. M * T * M^t</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="obj1"/> is null</exception>
         public static ResultPlateStress operator *(ResultPlateStress obj1, Matrix<double> matrix)
         {
 
@@ -197,9 +298,12 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/>
+        /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/> (the three faces
+        /// in parallel). The result has the mean of the LOWER face also as middle and upper faces
         /// </summary>
-        // statico perchè è come se fosse un operatore
+        /// <param name="values">The results</param>
+        /// <returns>The mean result, with the coordinate system and the name of the first one</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="values"/> is null</exception>
         public static async Task<ResultPlateStress> GetArithmeticMeanAsync(ResultPlateStress[] values)
         {
             if (values is null)
@@ -223,9 +327,12 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/>
+        /// Returns a <see cref="ResultPlateStress"/> that represent the arithmetic mean between the <paramref name="values"/> (see
+        /// <see cref="ResultStress.GetArithmeticMean(ResultStress[])"/>)
         /// </summary>
-        // statico perchè è come se fosse un operatore
+        /// <param name="values">The results</param>
+        /// <returns>The mean result, with the coordinate system and the name of the first one</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="values"/> is null</exception>
         public static ResultPlateStress GetArithmeticMean(ResultPlateStress[] values)
         {
             if (values is null)

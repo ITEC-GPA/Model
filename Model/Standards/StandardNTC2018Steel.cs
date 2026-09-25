@@ -41,6 +41,11 @@ namespace GPC.Model.Standards
             _lambdaLT0ForLateralTorsionalBucklingMod = 0.40;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardNTC2018Steel(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

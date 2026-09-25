@@ -7,20 +7,44 @@ using System.Threading;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// A cross-section: area, moments of inertia, elastic and plastic moduli, centroid, shear center and principal axes. The properties are
+    /// calculated from the shape (<see cref="SetMechanicalProperties"/>) or given (generic section). Axes: X and Y of the shape; the axis 1 is
+    /// the principal axis of the maximum moment of inertia (<see cref="J11"/>), with direction <see cref="AngleX1"/> from X, the axis 2 is at
+    /// +90° from it
+    /// </summary>
     [Serializable]
     public class Section : ModelObjectId, ISectionShape, ISerializable
     {
         #region Enumerator
 
+        /// <summary>
+        /// How the section is formed
+        /// </summary>
         public enum FormedTypes
         {
+            /// <summary>
+            /// Hot finished
+            /// </summary>
             HotFinished,
+            /// <summary>
+            /// Cold formed
+            /// </summary>
             ColdFormed,
         }
 
+        /// <summary>
+        /// How the section is made
+        /// </summary>
         public enum SectionTypes
         {
+            /// <summary>
+            /// Rolled
+            /// </summary>
             Rolled,
+            /// <summary>
+            /// Welded
+            /// </summary>
             Welded,
         }
 
@@ -29,46 +53,133 @@ namespace GPC.Model.Sections
         #region Variables
 
         /// <summary>
-        /// The mateerial of the section.
+        /// The material of the section.
         /// The material property should not be used, it is only for backward compatibility, to be able to read the material in serializations of old files.
         /// </summary>
         [System.ComponentModel.Browsable(false)]
         internal Material _material;
 
+        /// <summary>
+        /// The area
+        /// </summary>
         protected double _area;
+        /// <summary>
+        /// The moment of inertia about the X axis through the centroid
+        /// </summary>
         protected double _jxx;
+        /// <summary>
+        /// The moment of inertia about the Y axis through the centroid
+        /// </summary>
         protected double _jyy;
+        /// <summary>
+        /// The product of inertia (integral of x y dA, centroidal axes)
+        /// </summary>
         protected double _jxy;
+        /// <summary>
+        /// The polar moment of inertia
+        /// </summary>
         protected double _jp;
+        /// <summary>
+        /// The torsion constant
+        /// </summary>
         protected double _jt;
+        /// <summary>
+        /// The warping constant
+        /// </summary>
         protected double _jw;
+        /// <summary>
+        /// The moment of inertia about the principal axis 1 (the maximum)
+        /// </summary>
         protected double _j11;
+        /// <summary>
+        /// The moment of inertia about the principal axis 2 (the minimum)
+        /// </summary>
         protected double _j22;
 
+        /// <summary>
+        /// The plastic modulus respect to the axis 1 (NaN: calculated at the first access to <see cref="Wpl1"/>)
+        /// </summary>
         protected double _wpl1;
+        /// <summary>
+        /// The plastic modulus respect to the axis 2 (NaN: calculated at the first access to <see cref="Wpl2"/>)
+        /// </summary>
         protected double _wpl2;
+        /// <summary>
+        /// The elastic modulus respect to the axis 1 of the fibre with the maximum coordinate
+        /// </summary>
         protected double _wel1Max;
+        /// <summary>
+        /// The elastic modulus respect to the axis 1 of the fibre with the minimum coordinate
+        /// </summary>
         protected double _wel1Min;
+        /// <summary>
+        /// The elastic modulus respect to the axis 2 of the fibre with the maximum coordinate
+        /// </summary>
         protected double _wel2Max;
+        /// <summary>
+        /// The elastic modulus respect to the axis 2 of the fibre with the minimum coordinate
+        /// </summary>
         protected double _wel2Min;
 
+        /// <summary>
+        /// The plastic modulus respect to X (NaN: calculated at the first access to <see cref="WplX"/>)
+        /// </summary>
         protected double _wplX;
+        /// <summary>
+        /// The plastic modulus respect to Y (NaN: calculated at the first access to <see cref="WplY"/>)
+        /// </summary>
         protected double _wplY;
+        /// <summary>
+        /// The elastic modulus respect to X of the top fibre
+        /// </summary>
         protected double _welXMax;
+        /// <summary>
+        /// The elastic modulus respect to X of the bottom fibre
+        /// </summary>
         protected double _welXMin;
+        /// <summary>
+        /// The elastic modulus respect to Y of the right fibre
+        /// </summary>
         protected double _welYMax;
+        /// <summary>
+        /// The elastic modulus respect to Y of the left fibre
+        /// </summary>
         protected double _welYMin;
 
+        /// <summary>
+        /// The shear center
+        /// </summary>
         protected Point2d _shearCenter;
+        /// <summary>
+        /// The centroid
+        /// </summary>
         protected Point2d _centroid;
+        /// <summary>
+        /// The angle of the principal axis 1 from X (radians)
+        /// </summary>
         protected double _angleX1;
 
+        /// <summary>
+        /// True if the section is symmetric with respect to the X axis
+        /// </summary>
         protected bool _isSymmetricAlongXLocalAxis;
+        /// <summary>
+        /// True if the section is symmetric with respect to the Y axis
+        /// </summary>
         protected bool _isSymmetricAlongYLocalAxis;
 
+        /// <summary>
+        /// The mesh (null until the first access to <see cref="Mesh"/>)
+        /// </summary>
         protected Mesh _mesh;
+        /// <summary>
+        /// The shape (created by <see cref="GetShape"/> at the first access to <see cref="Shape"/>)
+        /// </summary>
         protected Shape2d _shape;
 
+        /// <summary>
+        /// The size of the mesh elements (0: the default of the mesher)
+        /// </summary>
         private double _meshSize;
 
         #endregion
@@ -81,22 +192,22 @@ namespace GPC.Model.Sections
         public double Area => _area;
 
         /// <summary>
-        /// 
+        /// The torsion constant
         /// </summary>
         public double Jt => _jt;
 
         /// <summary>
-        /// 
+        /// The warping constant
         /// </summary>
         public double Jw => _jw;
 
         /// <summary>
-        /// The first moment of inertia around the X-axis
+        /// The moment of inertia (second moment of area) about the X axis through the centroid
         /// </summary>
         public double Jxx => _jxx;
 
         /// <summary>
-        /// The first moment of inertia around the Y-axis
+        /// The moment of inertia (second moment of area) about the Y axis through the centroid
         /// </summary>
         public double Jyy => _jyy;
 
@@ -111,12 +222,12 @@ namespace GPC.Model.Sections
         public double Jp => _jp;
 
         /// <summary>
-        /// The first moment of inertia around the 1st principal axes
+        /// The moment of inertia about the principal axis 1 (the maximum one)
         /// </summary>
         public double J11 => _j11;
 
         /// <summary>
-        /// The first moment of inertia around the 2nd principal axes
+        /// The moment of inertia about the principal axis 2 (the minimum one)
         /// </summary>
         public double J22 => _j22;
 
@@ -150,7 +261,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The elastic modulus calculated respect the 2-principal axes and the maximum (with sign) distance respect the centroid
         /// </summary>
-        public double Wel2Max => _wel2Max; // it returned _wel2Min
+        public double Wel2Max => _wel2Max;
 
         /// <summary>
         /// The minimum elastic modulus calculated respect the 1-principal axes 
@@ -188,7 +299,7 @@ namespace GPC.Model.Sections
         public double WelX => Math.Min(_welXMax, _welXMin);
 
         /// <summary>
-        /// The minimum elastic modulus calculated respect the X-principal axes 
+        /// The minimum elastic modulus calculated respect the Y axis
         /// </summary>
         public double WelY => Math.Min(_welYMax, _welYMin);
 
@@ -210,12 +321,12 @@ namespace GPC.Model.Sections
         public Point2d Centroid => _centroid;
 
         /// <summary>
-        /// The shear center of the section in global coordinate system
+        /// The shear center of the section (in the coordinates of the shape)
         /// </summary>
         public Point2d ShearCenter => _shearCenter;
 
         /// <summary>
-        /// The shear center of the section in local coordinate system
+        /// The shear center of the section relative to the centroid
         /// </summary>
         public Point2d ShearCenterLocalCoord => _shearCenter - _centroid;
 
@@ -236,12 +347,14 @@ namespace GPC.Model.Sections
         public double R22 => Math.Sqrt(J11 / Area);
 
         /// <summary>
-        /// The radius of gyration respect the X-axis
+        /// The radius of gyration respect the Y axis: sqrt(Jyy / A), the one of the buckling in the direction of the X axis (the same convention
+        /// of <see cref="R11"/>)
         /// </summary>
         public double Rxx => Math.Sqrt(Jyy / Area);
 
         /// <summary>
-        /// The radius of gyration respect the Y-axis
+        /// The radius of gyration respect the X axis: sqrt(Jxx / A), the one of the buckling in the direction of the Y axis (the same convention
+        /// of <see cref="R22"/>)
         /// </summary>
         public double Ryy => Math.Sqrt(Jxx / Area);
 
@@ -256,17 +369,17 @@ namespace GPC.Model.Sections
         public double Rp => Math.Sqrt(Jp / Area);
 
         /// <summary>
-        /// Is true if the section is symmetric along Y-axis
+        /// True if the section is symmetric with respect to the X axis (the Y axis of the Eurocode)
         /// </summary>
         public bool IsSymmetricAlongXLocalAxis => _isSymmetricAlongXLocalAxis;
 
         /// <summary>
-        /// Is true if the section is symmetric along Z-axis
+        /// True if the section is symmetric with respect to the Y axis (the Z axis of the Eurocode)
         /// </summary>
         public bool IsSymmetricAlongYLocalAxis => _isSymmetricAlongYLocalAxis;
 
         /// <summary>
-        /// Is true if the section is symmetric along Z-axis and the Y-axis
+        /// True if the section is symmetric with respect to both the X and the Y axes
         /// </summary>
         public bool IsDoubleSymmetric => (IsSymmetricAlongXLocalAxis && IsSymmetricAlongYLocalAxis);
 
@@ -283,6 +396,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The shape of the section, created at the first access (see <see cref="GetShape"/>)
+        /// </summary>
         public virtual Shape2d Shape
         {
             get
@@ -293,29 +409,47 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The height of the section (not implemented in the base class: it throws <see cref="NotImplementedException"/>)
+        /// </summary>
         public virtual double Height
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// The width of the section (not implemented in the base class: it throws <see cref="NotImplementedException"/>)
+        /// </summary>
         public virtual double Width
         {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// The thin walls of the section (not implemented in the base class: it throws <see cref="NotImplementedException"/>)
+        /// </summary>
         public virtual ThinWallSection.ThinWall[] ThinWalls => throw new NotImplementedException();
 
         #endregion
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates a section without properties (the derived classes set them)
+        /// </summary>
+        /// <param name="name">The name of the section</param>
         protected Section(string name)
             : base(name)
         {
         }
 
+        /// <summary>
+        /// Creates a section of a generic shape (the properties are calculated by <see cref="SetMechanicalProperties"/>)
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="name">The name of the section</param>
         public Section(Shape2d shape, string name = "")
             : base(name)
         {
@@ -323,20 +457,21 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// The default constructor of generic section
+        /// The default constructor of generic section: Jxx, Jyy and Jxy are obtained from the principal moments and the angle
         /// </summary>
         /// <param name="area">The area</param>
         /// <param name="j11">The moment of inertia around the first principal axis</param>
         /// <param name="j22">The moment of inertia around the second principal axis</param>
-        /// <param name="jt"></param>
-        /// <param name="jw"></param>
+        /// <param name="jt">The torsion constant</param>
+        /// <param name="jw">The warping constant</param>
         /// <param name="centroid">The centroid of the section</param>
-        /// <param name="shearCenter">The shear center of the section</param>
+        /// <param name="shearCenter">The shear center of the section (Z is ignored)</param>
         /// <param name="angle">The angle of rotation of the principal axis</param>
         /// <param name="name">The name of the section</param>
-        /// <exception cref="ArgumentException">If the input data are not correct</exception>
+        /// <exception cref="ArgumentException">If the area or a moment of inertia is negative</exception>
         /// <remarks>Axis convention: X-axes is the Y-axes for Eurocode and Y-axes is the Z-axes for Eurocode
-        /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22</remarks>
+        /// If the X-axes is principal, the first moment of inertia is J11, If the Y-axes is principal, the first moment of inertia is J22.
+        /// The elastic and plastic moduli are not set (zero)</remarks>
         public Section(double area, double j11, double j22, double jt, double jw,
             Point2d centroid, Point3d shearCenter, double angle, string name)
             : base(name)
@@ -359,6 +494,11 @@ namespace GPC.Model.Sections
             _jp = j11 + j22;
         }
 
+        /// <summary>
+        /// Deserialization constructor (the shape is read from the version 3)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected Section(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -410,7 +550,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Update the mesh size and regenerate the mesh with the new size
         /// </summary>
-        /// <param name="size"></param>
+        /// <param name="size">The size of the mesh elements (not positive: the default of the mesher)</param>
         public void SetMeshSize(double size)
         {
             _meshSize = size > 0 ? size : 0;
@@ -422,8 +562,10 @@ namespace GPC.Model.Sections
         #region Protected methods
 
         /// <summary>
-        /// The mesh returned by <see cref="Mesh"/> when it is not generated yet
+        /// The mesh returned by <see cref="Mesh"/> when it is not generated yet: the size is the minimum between half the largest side and the
+        /// smallest side of the bounding box
         /// </summary>
+        /// <returns>The new mesh</returns>
         protected virtual Mesh CreateMesh()
         {
             Point2d bBox = Shape.Get2dBoundingBox().Size;
@@ -444,7 +586,8 @@ namespace GPC.Model.Sections
         #region Protected virtual methods
 
         /// <summary>
-        /// Internal method to set the mechanical properties to the section
+        /// Calculates all the properties of the section (area, centroid, moments of inertia, principal axes, shear center and moduli), in the
+        /// order needed by the calculations
         /// </summary>
         public virtual void SetMechanicalProperties()
         {
@@ -495,55 +638,80 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the first moment of inertia respect the X-axis (the Y-axis for Eurocode)
+        /// Calculate the moment of inertia about the principal axis 1 (the maximum one) from Jxx, Jyy and Jxy
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         protected virtual double CalculateJ11() => SectionHelper.CalculateJ11(_jxx, _jyy, _jxy);
 
         /// <summary>
-        /// Calculate the first moment of inertia respect the Y-axis (the Z-axis for Eurocode)
+        /// Calculate the moment of inertia about the principal axis 2 (the minimum one) from Jxx, Jyy and Jxy
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The moment of inertia</returns>
         protected virtual double CalculateJ22() => SectionHelper.CalculateJ22(_jxx, _jyy, _jxy);
 
         // The properties are integrated exactly on the boundary of the shape: the mesh is not needed
 
+        /// <summary>
+        /// Calculate the moment of inertia about the X axis through the centroid, integrated on the boundary of the shape
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected virtual double CalculateJxx()
         {
             SectionHelper.CalculateInertiaMoments(Shape, _centroid, out double Jxx, out _, out _, out _);
             return Jxx;
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about the Y axis through the centroid, integrated on the boundary of the shape
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected virtual double CalculateJyy()
         {
             SectionHelper.CalculateInertiaMoments(Shape, _centroid, out _, out double Jyy, out _, out _);
             return Jyy;
         }
 
+        /// <summary>
+        /// Calculate the product of inertia (centroidal axes), integrated on the boundary of the shape
+        /// </summary>
+        /// <returns>The product of inertia</returns>
         protected virtual double CalculateJxy()
         {
             SectionHelper.CalculateInertiaMoments(Shape, _centroid, out _, out _, out double Jxy, out _);
             return Jxy;
         }
 
+        /// <summary>
+        /// Calculate the torsion constant (0 in the base class)
+        /// </summary>
+        /// <returns>The torsion constant</returns>
         protected virtual double CalculateJt()
         {
             return 0;
         }
 
+        /// <summary>
+        /// Calculate the warping constant (0 in the base class)
+        /// </summary>
+        /// <returns>The warping constant</returns>
         protected virtual double CalculateJw()
         {
             return 0;
         }
 
+        /// <summary>
+        /// Calculate the angle of the principal axis 1 from X
+        /// </summary>
+        /// <returns>The angle (radians)</returns>
         protected virtual double CalculateAngle()
         {
             return SectionHelper.CalculateAngle(_j11, _j22, _jxx, _jyy, _jxy);
         }
 
         /// <summary>
-        /// Calculate the centroid point of the section in X-Y plane 
+        /// Calculate the centroid point of the section in X-Y plane
         /// </summary>
+        /// <returns>The centroid</returns>
         protected virtual Point2d CalculateCentroid()
         {
             SectionHelper.CalculateStaticMoments(Shape, out double Sx, out double Sy);
@@ -551,14 +719,19 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the static moment of the section in X-Y plane
+        /// Calculate the static moments of the section in X-Y plane (integrated on the mesh)
         /// </summary>
+        /// <returns>The static moments respect to X and Y</returns>
         public virtual (double Sx, double Sy) CalculateStaticMoments()
         {
             SectionHelper.CalculateStaticMoments(Mesh, out double Sx, out double Sy);
             return (Sx, Sy);
         }
 
+        /// <summary>
+        /// Calculate the shear center (the centroid in the base class)
+        /// </summary>
+        /// <returns>The shear center</returns>
         protected virtual Point2d CalculateShearCenter()
         {
             return _centroid;
@@ -590,7 +763,10 @@ namespace GPC.Model.Sections
             AlongMinusX,
         }
 
-        /// <returns>The position of the principal axes respect to X and Y, from <see cref="AngleX1"/></returns>
+        /// <summary>
+        /// The position of the principal axes respect to X and Y, from <see cref="AngleX1"/> (tolerance 1e-12 on the angle)
+        /// </summary>
+        /// <returns>The position of the principal axes</returns>
         protected PrincipalAxes PrincipalFromXY()
         {
             const double tolerance = 1e-12;
@@ -605,6 +781,9 @@ namespace GPC.Model.Sections
             return PrincipalAxes.Rotated;
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to the axis 1
+        /// </summary>
         /// <returns>The plastic modulus respect to the axis 1: <see cref="WplX"/> or <see cref="WplY"/> when X and Y are principal, otherwise
         /// <see cref="double.NaN"/> (the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl1"/>). Before, the
         /// minimum elastic modulus</returns>
@@ -623,6 +802,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to the axis 2
+        /// </summary>
         /// <returns>The plastic modulus respect to the axis 2: <see cref="WplY"/> or <see cref="WplX"/> when X and Y are principal, otherwise
         /// <see cref="double.NaN"/> (the exact plastic modulus of the shape is computed at the first access to <see cref="Wpl2"/>). Before, the
         /// minimum elastic modulus</returns>
@@ -641,6 +823,10 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The exact plastic modulus of the shape
+        /// </summary>
+        /// <param name="angle">The direction of the bending axis from X (radians)</param>
         /// <returns>The plastic modulus of the shape for the bending about the axis through the centroid with direction <paramref name="angle"/>,
         /// 0 if the section has no shape</returns>
         private double ShapePlasticModulus(double angle)
@@ -649,6 +835,11 @@ namespace GPC.Model.Sections
             return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
         }
 
+        /// <summary>
+        /// The extreme distance of the vertices of the shape from an axis through the centroid
+        /// </summary>
+        /// <param name="angle">The direction of the axis from X (radians)</param>
+        /// <param name="maximum">True for the maximum, false for the minimum</param>
         /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum coordinate y1 of the vertices of the shape, perpendicular to the
         /// axis through the centroid with direction <paramref name="angle"/>: -(x - xc) sin + (y - yc) cos (the distance with sign from the axis)</returns>
         private double ExtremeDistance(double angle, bool maximum)
@@ -667,6 +858,11 @@ namespace GPC.Model.Sections
             return extreme;
         }
 
+        /// <summary>
+        /// The extreme coordinate of the vertices of the shape along an axis through the centroid
+        /// </summary>
+        /// <param name="angle">The direction of the axis from X (radians)</param>
+        /// <param name="maximum">True for the maximum, false for the minimum</param>
         /// <returns>The minimum (<paramref name="maximum"/> false) or the maximum coordinate x1 of the vertices of the shape along the axis through
         /// the centroid with direction <paramref name="angle"/>: (x - xc) cos + (y - yc) sin (the distance with sign from the perpendicular axis)</returns>
         private double ExtremeCoordinate(double angle, bool maximum)
@@ -685,7 +881,11 @@ namespace GPC.Model.Sections
             return extreme;
         }
 
-        /// <returns>The elastic modulus respect to the axis 1 of the fibre with the minimum coordinate y1</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 1 of the fibre with the minimum coordinate y1 (from the X and Y moduli when X and Y are
+        /// principal)
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWel1Min()
         {
             switch (PrincipalFromXY())
@@ -698,7 +898,11 @@ namespace GPC.Model.Sections
             }
         }
 
-        /// <returns>The elastic modulus respect to the axis 1 of the fibre with the maximum coordinate y1</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 1 of the fibre with the maximum coordinate y1 (from the X and Y moduli when X and Y are
+        /// principal)
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWel1Max()
         {
             switch (PrincipalFromXY())
@@ -711,7 +915,11 @@ namespace GPC.Model.Sections
             }
         }
 
-        /// <returns>The elastic modulus respect to the axis 2 of the fibre with the minimum coordinate x1</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 2 of the fibre with the minimum coordinate x1 (from the X and Y moduli when X and Y are
+        /// principal)
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWel2Min()
         {
             switch (PrincipalFromXY())
@@ -724,7 +932,11 @@ namespace GPC.Model.Sections
             }
         }
 
-        /// <returns>The elastic modulus respect to the axis 2 of the fibre with the maximum coordinate x1</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 2 of the fibre with the maximum coordinate x1 (from the X and Y moduli when X and Y are
+        /// principal)
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWel2Max()
         {
             switch (PrincipalFromXY())
@@ -737,6 +949,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to Y
+        /// </summary>
         /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="WplY"/>
         /// (before, <see cref="Wel2Max"/>)</returns>
         protected virtual double CalculateWplY()
@@ -744,6 +959,9 @@ namespace GPC.Model.Sections
             return double.NaN;
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus respect to X
+        /// </summary>
         /// <returns><see cref="double.NaN"/>: the exact plastic modulus of the shape is computed at the first access to <see cref="WplX"/>
         /// (before, the minimum elastic modulus respect to the axis 1)</returns>
         protected virtual double CalculateWplX()
@@ -753,44 +971,76 @@ namespace GPC.Model.Sections
 
         // The moduli respect to X and Y use Jxx and Jyy (before, J11 and J22: wrong when the principal axes are rotated or when J11 was Jyy)
 
-        /// <returns>The elastic modulus respect to X of the top fibre</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the top fibre: Jxx / distance
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWelXMax()
         {
             return _jxx / Math.Abs(ExtremeDistance(0.0, true));
         }
 
-        /// <returns>The elastic modulus respect to X of the bottom fibre</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the bottom fibre: Jxx / distance
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWelXMin()
         {
             return _jxx / Math.Abs(ExtremeDistance(0.0, false));
         }
 
-        /// <returns>The elastic modulus respect to Y of the right fibre</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the right fibre: Jyy / distance
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWelYMax()
         {
             return _jyy / Math.Abs(ExtremeCoordinate(0.0, true));
         }
 
-        /// <returns>The elastic modulus respect to Y of the left fibre (before, of the right one)</returns>
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the left fibre (before, of the right one): Jyy / distance
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWelYMin()
         {
             return _jyy / Math.Abs(ExtremeCoordinate(0.0, false));
         }
+        /// <summary>
+        /// Tell if the section is symmetric with respect to the X axis (false in the base class)
+        /// </summary>
+        /// <returns>True if symmetric</returns>
         protected virtual bool CalculateIsSymmetricAlongXLocalAxis()
         {
             return false;
         }
 
+        /// <summary>
+        /// Tell if the section is symmetric with respect to the Y axis (false in the base class)
+        /// </summary>
+        /// <returns>True if symmetric</returns>
         protected virtual bool CalculateIsSymmetricAlongYLocalAxis()
         {
             return false;
         }
 
+        /// <summary>
+        /// Creates the shape of the section (the given one in the base class)
+        /// </summary>
+        /// <returns>The shape</returns>
         protected virtual Shape2d GetShape()
         {
             return _shape;
         }
 
+        /// <summary>
+        /// Generates a mesh of the shape; if the mesher fails, the initial mesh (without refinement) is returned
+        /// </summary>
+        /// <param name="meshSize">The size of the elements (0: the size set by <see cref="SetMeshSize(double)"/>)</param>
+        /// <param name="initialMeshOnly">True for the initial mesh only</param>
+        /// <param name="recombine">True to recombine the triangles in quadrangles</param>
+        /// <param name="refine">True to refine the mesh</param>
+        /// <returns>The new mesh</returns>
         public virtual Mesh GetMesh(double meshSize = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             if (meshSize == 0)
@@ -809,6 +1059,11 @@ namespace GPC.Model.Sections
 
         #region Public override method
 
+        /// <summary>
+        /// Serializes the section (version 3: with the shape; the lazy plastic moduli are calculated)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -846,6 +1101,11 @@ namespace GPC.Model.Sections
             info.AddValue("Shape2d", _shape);
         }
 
+        /// <summary>
+        /// Equality of the properties and of the name (the plastic moduli are compared by their properties, calculated if needed)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is a section with the same properties</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -861,14 +1121,14 @@ namespace GPC.Model.Sections
                    _jw == section._jw &&
                    _j11 == section._j11 &&
                    _j22 == section._j22 &&
-                   _wpl1 == section._wpl1 &&
-                   _wpl2 == section._wpl2 &&
+                   Wpl1 == section.Wpl1 && // the properties: the lazy NaN values are calculated (NaN != NaN)
+                   Wpl2 == section.Wpl2 &&
                    _wel1Max == section._wel1Max &&
                    _wel1Min == section._wel1Min &&
                    _wel2Max == section._wel2Max &&
                    _wel2Min == section._wel2Min &&
-                   _wplX == section._wplX &&
-                   _wplY == section._wplY &&
+                   WplX == section.WplX &&
+                   WplY == section.WplY &&
                    _welXMax == section._welXMax &&
                    _welXMin == section._welXMin &&
                    _welYMax == section._welYMax &&
@@ -881,6 +1141,10 @@ namespace GPC.Model.Sections
                    base.Equals(obj);
         }
 
+        /// <summary>
+        /// The hash code of the name and of the properties
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -896,8 +1160,7 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -23 + _jw.GetHashCode();
                 hashCode = hashCode * -23 + _j11.GetHashCode();
                 hashCode = hashCode * -23 + _j22.GetHashCode();
-                hashCode = hashCode * -23 + _wpl1.GetHashCode();
-                hashCode = hashCode * -23 + _wpl2.GetHashCode();
+                // the plastic moduli are not used: they can be not calculated yet (NaN)
                 hashCode = hashCode * -23 + _wel1Max.GetHashCode();
                 hashCode = hashCode * -23 + _wel1Min.GetHashCode();
                 hashCode = hashCode * -23 + _wel2Max.GetHashCode();
@@ -911,16 +1174,32 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The points that define the section (not implemented in the base class)
+        /// </summary>
+        /// <returns>The points</returns>
+        /// <exception cref="NotImplementedException">In the base class</exception>
         public virtual Point2d[] GetSectionPoints()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Sets the working of the corners from the type of the section (fillet for rolled, chamfer for welded; not implemented in the base class)
+        /// </summary>
+        /// <param name="sectionType">The type of the section</param>
+        /// <exception cref="NotImplementedException">In the base class</exception>
         public virtual void SetEdgeTypeFromSteelType(SectionTypes sectionType)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are equal</returns>
         public static bool operator ==(Section left, Section right)
         {
             // before, NullReferenceException when left was null
@@ -931,6 +1210,12 @@ namespace GPC.Model.Sections
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are different</returns>
         public static bool operator !=(Section left, Section right)
         {
             return !(left == right);

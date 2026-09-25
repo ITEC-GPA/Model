@@ -2,17 +2,32 @@
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
+    /// <summary>
+    /// Gauss-Legendre rules on the cube [-1, 1]^3 (the weights sum to 8)
+    /// </summary>
     public static class HexahedronGaussPoints
     {
+        /// <summary>
+        /// The available rules, by number of points
+        /// </summary>
         public enum GaussPointNumber
         {
+            /// <summary>The rule with 1 point on the cube</summary>
             Hexa1 = 1,
+            /// <summary>The rule with 8 points on the cube</summary>
             Hexa8 = 8,
+            /// <summary>The rule with 27 points on the cube</summary>
             Hexa27 = 27,
         }
 
+        /// <summary>
+        /// The rule with 1 point on the cube
+        /// </summary>
         public static readonly GaussPoint[] Hexa1 = new GaussPoint[] { new GaussPoint(0.0, 0.0, 0.0, 8.0, 1) };
 
+        /// <summary>
+        /// The rule with 8 points on the cube
+        /// </summary>
         public static readonly GaussPoint[] Hexa8 = new GaussPoint[] { new GaussPoint(-0.57735026918962576450914878050196, -0.57735026918962576450914878050196, -0.57735026918962576450914878050196, 1.0, 1),
                                                                        new GaussPoint(+0.57735026918962576450914878050196, -0.57735026918962576450914878050196, -0.57735026918962576450914878050196, 1.0, 2),
                                                                        new GaussPoint(-0.57735026918962576450914878050196, +0.57735026918962576450914878050196, -0.57735026918962576450914878050196, 1.0, 3),
@@ -22,6 +37,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(-0.57735026918962576450914878050196, +0.57735026918962576450914878050196, +0.57735026918962576450914878050196, 1.0, 7),
                                                                        new GaussPoint(+0.57735026918962576450914878050196, +0.57735026918962576450914878050196, +0.57735026918962576450914878050196, 1.0, 8) };
 
+        /// <summary>
+        /// The rule with 27 points on the cube
+        /// </summary>
         public static readonly GaussPoint[] Hexa27 = new GaussPoint[] { new GaussPoint(-0.77459666924148337703585307995648, -0.77459666924148337703585307995648, -0.77459666924148337703585307995648, 0.17146776406035665294924554183813, 1),
                                                                         new GaussPoint(+0.00000000000000000000000000000000, -0.77459666924148337703585307995648, -0.77459666924148337703585307995648, 0.27434842249657064471879286694102, 2),
                                                                         new GaussPoint(+0.77459666924148337703585307995648, -0.77459666924148337703585307995648, -0.77459666924148337703585307995648, 0.17146776406035665294924554183813, 3),
@@ -51,6 +69,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(+0.77459666924148337703585307995648, +0.77459666924148337703585307995648, +0.77459666924148337703585307995648, 0.17146776406035665294924554183813, 27) };
 
 
+        /// <summary>
+        /// The rules by number of points
+        /// </summary>
         public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
         {
             { GaussPointNumber.Hexa1, Hexa1 },

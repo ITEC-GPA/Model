@@ -13,12 +13,19 @@ namespace GPC.Model.Standards
     {
         #region Variables
 
+        /// <inheritdoc cref="PhiBending"/>
         protected double _phiBending;
+        /// <inheritdoc cref="PhiCompression"/>
         protected double _phiCompression;
+        /// <inheritdoc cref="PhiTensionYielding"/>
         protected double _phiTensionYielding;
+        /// <inheritdoc cref="PhiTensionFracture"/>
         protected double _phiTensionFracture;
+        /// <inheritdoc cref="PhiShear"/>
         protected double _phiShear;
+        /// <inheritdoc cref="PhiShearShortWeberRolledI"/>
         protected double _phiShearShortWeberRolledI;
+        /// <inheritdoc cref="PhiTorsion"/>
         protected double _phiTorsion;
 
         #endregion
@@ -60,12 +67,20 @@ namespace GPC.Model.Standards
         /// </summary>
 		public double PhiTorsion { get => _phiTorsion; set => _phiTorsion = value; }
 
+        /// <summary>
+        /// The group of the standard: American
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.American;
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardAISC(string name = "AISC", string remarks = "Specification for Structural Steel Buildings")
             : base(name, remarks)
         {
@@ -78,16 +93,28 @@ namespace GPC.Model.Standards
             _phiTorsion = 0.9;
         }
 
+        /// <summary>
+        /// Creates the standard with the default remarks
+        /// </summary>
+        /// <param name="name">The name</param>
         public StandardAISC(string name = "AISC")
             : this(name, "Specification for Structural Steel Buildings")
         {
         }
 
+        /// <summary>
+        /// Creates the standard with the default name and remarks
+        /// </summary>
         public StandardAISC()
             : this("AISC", "Specification for Structural Steel Buildings")
         {
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardAISC(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -113,11 +140,21 @@ namespace GPC.Model.Standards
 
         #region Equals - hashcode - operators
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as StandardAISC);
         }
 
+        /// <summary>
+        /// Equality of the coefficients and of the base
+        /// </summary>
+        /// <param name="other">The object to compare</param>
+        /// <returns>True if the objects are equal</returns>
         public bool Equals(StandardAISC other)
         {
             return !(other is null) &&
@@ -131,6 +168,10 @@ namespace GPC.Model.Standards
                    PhiTorsion == other.PhiTorsion;
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -148,6 +189,11 @@ namespace GPC.Model.Standards
             }
         }
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -163,11 +209,23 @@ namespace GPC.Model.Standards
             info.AddValue("PhiTorsion", PhiTorsion);
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first standard</param>
+        /// <param name="right">The second standard</param>
+        /// <returns>True if the standards are equal</returns>
         public static bool operator ==(StandardAISC left, StandardAISC right)
         {
             return EqualityComparer<StandardAISC>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first standard</param>
+        /// <param name="right">The second standard</param>
+        /// <returns>True if the standards are different</returns>
         public static bool operator !=(StandardAISC left, StandardAISC right)
         {
             return !(left == right);

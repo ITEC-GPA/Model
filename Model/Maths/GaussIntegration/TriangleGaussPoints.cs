@@ -2,33 +2,60 @@
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
+    /// <summary>
+    /// Gauss rules on the triangle (area coordinates; the weights sum to 1: the integration multiplies by the area of the reference triangle). The rules with 33 or more points are the Dunavant rules (some points are outside the triangle and some weights are negative, as in the published tables)
+    /// </summary>
     public class TriangleGaussPoints
     {
+        /// <summary>
+        /// The available rules, by number of points
+        /// </summary>
         public enum GaussPointNumber
         {
+            /// <summary>The rule with 1 point on the triangle</summary>
             Tri1 = 1,
+            /// <summary>The rule with 3 points on the triangle</summary>
             Tri3 = 3,
+            /// <summary>The rule with 4 points on the triangle</summary>
             Tri4 = 4,
+            /// <summary>The rule with 6 points on the triangle</summary>
             Tri6 = 6,
+            /// <summary>The rule with 12 points on the triangle</summary>
             Tri12 = 12,
+            /// <summary>The rule with 33 points on the triangle</summary>
             Tri33 = 33,
+            /// <summary>The rule with 48 points on the triangle</summary>
             Tri48 = 48,
+            /// <summary>The rule with 61 points on the triangle</summary>
             Tri61 = 61,
+            /// <summary>The rule with 79 points on the triangle</summary>
             Tri79 = 79,
         }
 
+        /// <summary>
+        /// The rule with 1 point on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri1 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0, 1.0, 1) };
 
         // the weights sum to 1, like the other rules (the integration multiplies by the area of the reference triangle, 1/2)
+        /// <summary>
+        /// The rule with 3 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri3 = new GaussPoint[] { new GaussPoint(0.5, 0.5, 0, 1.0 / 3.0, 1),
                                                                       new GaussPoint(0.0, 0.5, 0, 1.0 / 3.0, 2),
                                                                       new GaussPoint(0.5, 0.0, 0, 1.0 / 3.0, 3) };
 
+        /// <summary>
+        /// The rule with 4 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri4 = new GaussPoint[] { new GaussPoint(1.0 / 3.0, 1.0 / 3.0, 0.0, -0.56250, 1),
                                                                       new GaussPoint(0.2, 0.2, 0.0, +0.52083333333333333, 2),
                                                                       new GaussPoint(0.6, 0.2, 0.0, +0.52083333333333333, 3),
                                                                       new GaussPoint(0.2, 0.6, 0.0, +0.52083333333333333, 4) };
 
+        /// <summary>
+        /// The rule with 6 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri6 = new GaussPoint[] { new GaussPoint(0.108103018168070, 0.445948490915965, 0.223381589678011, 1),
                                                                       new GaussPoint(0.445948490915965, 0.108103018168070, 0.223381589678011, 2),
                                                                       new GaussPoint(0.445948490915965, 0.445948490915965, 0.223381589678011, 3),
@@ -36,6 +63,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                       new GaussPoint(0.816847572980459, 0.091576213509771, 0.109951743655322, 5),
                                                                       new GaussPoint(0.091576213509771, 0.816847572980459, 0.109951743655322, 6) };
 
+        /// <summary>
+        /// The rule with 12 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri12 = new GaussPoint[] { new GaussPoint(0.249286745170910, 0.249286745170910, 0.116786275726379, 1),
                                                                        new GaussPoint(0.249286745170910, 0.501426509658179, 0.116786275726379, 2),
                                                                        new GaussPoint(0.501426509658179, 0.249286745170910, 0.116786275726379, 3),
@@ -49,6 +79,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.310352451033784, 0.053145049844817, 0.082851075618374, 11),
                                                                        new GaussPoint(0.053145049844817, 0.636502499121399, 0.082851075618374, 12) };
 
+        /// <summary>
+        /// The rule with 33 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri33 = new GaussPoint[] { new GaussPoint(0.023565220452390, 0.488217389773805, 0.025731066440455, 1),
                                                                        new GaussPoint(0.120551215411079, 0.439724392294460, 0.043692544538038, 2),
                                                                        new GaussPoint(0.457579229975768, 0.271210385012116, 0.062858224217885, 3),
@@ -83,6 +116,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.695836086787803, 0.281325580989940, 0.022356773202303, 32),
                                                                        new GaussPoint(0.858014033544070, 0.116251915907597, 0.017316231108659, 33) };
 
+        /// <summary>
+        /// The rule with 48 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri48 = new GaussPoint[] { new GaussPoint(-0.013945833716486, 0.506972916858243, 0.001916875642849, 1),
                                                                        new GaussPoint(0.137187291433955, 0.431406354283023, 0.044249027271145, 2),
                                                                        new GaussPoint(0.444612710305711, 0.277693644847144, 0.051186548718852, 3),
@@ -132,6 +168,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.747556466051838, 0.215599664072284, 0.021505319847731, 47),
                                                                        new GaussPoint(0.883964574092416, 0.103575616576386, 0.007673942631049, 48) };
 
+        /// <summary>
+        /// The rule with 61 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri61 = new GaussPoint[] { new GaussPoint(0.333333333333333, 0.333333333333333, 0.033437199290803, 1),
                                                                        new GaussPoint(0.005658918886452, 0.497170540556774, 0.005093415440507, 2),
                                                                        new GaussPoint(0.035647354750751, 0.482176322624625, 0.014670864527638, 3),
@@ -194,6 +233,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.752351005937729, 0.180483211648746, 0.018292796770025, 60),
                                                                        new GaussPoint(0.904625504095608, 0.080711313679564, 0.006665632004165, 61) };
 
+        /// <summary>
+        /// The rule with 79 points on the triangle
+        /// </summary>
         public static readonly GaussPoint[] Tri79 = new GaussPoint[] { new GaussPoint(0.333333333333333, 0.333333333333333, 0.033057055541624, 1),
                                                                        new GaussPoint(-0.0019009287044, 0.5009504643522, 0.000867019185663, 2),
                                                                        new GaussPoint(0.023574084130543, 0.488212957934729, 0.011660052716448, 3),
@@ -274,6 +316,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(0.835586957912363, 0.137726978828923, 0.010112684927462, 78),
                                                                        new GaussPoint(0.929756171556853, 0.059696109149007, 0.00357390938595, 79) };
 
+        /// <summary>
+        /// The rules by number of points
+        /// </summary>
         public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
         {
             { GaussPointNumber.Tri1, Tri1 },

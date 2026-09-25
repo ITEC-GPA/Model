@@ -5,6 +5,9 @@
     /// </summary>
     public interface ILoadCase
     {
+        /// <summary>
+        /// The name of the load case or combination
+        /// </summary>
         string Name { get; }
     }
 }

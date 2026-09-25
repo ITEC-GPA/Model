@@ -15,22 +15,40 @@ namespace GPC.Model.Sections.Glass
     {
         #region VARIABLES
 
+        /// <summary>
+        /// The thickness
+        /// </summary>
         private double _thickness;
 
+        /// <summary>
+        /// The material
+        /// </summary>
         private InterlayerMaterial _interlayerMaterial;
 
         #endregion
 
         #region PROPERTIES
 
+        /// <summary>
+        /// The thickness
+        /// </summary>
         public double Thickness { get => _thickness; set => _thickness = value; }
 
+        /// <summary>
+        /// The material
+        /// </summary>
         public InterlayerMaterial Material { get => _interlayerMaterial; set => _interlayerMaterial = value; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates the interlayer
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="thickness">The thickness</param>
+        /// <param name="interlayerMaterial">The material</param>
         public Interlayer(string name, double thickness, InterlayerMaterial interlayerMaterial)
             : base(name)
         {
@@ -38,6 +56,11 @@ namespace GPC.Model.Sections.Glass
             _interlayerMaterial = interlayerMaterial;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private Interlayer(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -49,6 +72,11 @@ namespace GPC.Model.Sections.Glass
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the interlayer
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -56,6 +84,11 @@ namespace GPC.Model.Sections.Glass
             info.AddValue("Thickness", _thickness);
         }
 
+        /// <summary>
+        /// Equality of the thickness, of the material and of the name
+        /// </summary>
+        /// <param name="other">The interlayer to compare</param>
+        /// <returns>True if the interlayers are equal</returns>
         public bool Equals(Interlayer other)
         {
             if (ReferenceEquals(this, other))
@@ -67,11 +100,20 @@ namespace GPC.Model.Sections.Glass
                 base.Equals(other);
         }
 
+        /// <summary>
+        /// Equality with another interlayer (see <see cref="Equals(Interlayer)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal interlayer</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Interlayer);
         }
 
+        /// <summary>
+        /// The hash code of the name, of the thickness and of the material
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -84,6 +126,12 @@ namespace GPC.Model.Sections.Glass
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(Interlayer)"/>)
+        /// </summary>
+        /// <param name="obj1">The first interlayer</param>
+        /// <param name="obj2">The second interlayer</param>
+        /// <returns>True if the interlayers are equal</returns>
         public static bool operator ==(Interlayer obj1, Interlayer obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -95,6 +143,12 @@ namespace GPC.Model.Sections.Glass
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(Interlayer)"/>)
+        /// </summary>
+        /// <param name="obj1">The first interlayer</param>
+        /// <param name="obj2">The second interlayer</param>
+        /// <returns>True if the interlayers are different</returns>
         public static bool operator !=(Interlayer obj1, Interlayer obj2)
         {
             return !(obj1 == obj2);

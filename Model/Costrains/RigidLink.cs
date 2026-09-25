@@ -6,10 +6,18 @@ using System.Linq;
 
 namespace GPC.Model.Costrains
 {
+    /// <summary>
+    /// A rigid link between a master node and other nodes: 6 equations for each node (translations of a rigid body and equal rotations)
+    /// </summary>
     public class RigidLink : Costrain
     {
         #region constructor
 
+        /// <summary>
+        /// Creates the rigid link between a master node and other nodes
+        /// </summary>
+        /// <param name="node1">The master node</param>
+        /// <param name="nodes">The constrained nodes</param>
         public RigidLink(NodeElement node1, NodeElement[] nodes)
             : base(node1, nodes)
         {
@@ -27,6 +35,11 @@ namespace GPC.Model.Costrains
             _links = links.ToArray();
         }
 
+        /// <summary>
+        /// Creates the rigid link between two nodes
+        /// </summary>
+        /// <param name="node1">The master node</param>
+        /// <param name="node2">The constrained node</param>
         public RigidLink(NodeElement node1, NodeElement node2)
             : this(node1, new NodeElement[] { node2 })
         {
@@ -38,11 +51,11 @@ namespace GPC.Model.Costrains
         #region PublicFunctions
 
         /// <summary>
-        /// Ritorna le equazioni per rigid link tra 2 nodi
+        /// The equations of the rigid link between two nodes: u2 = u1 + θ1 × (P2 - P1) for the translations, θ2 = θ1 for the rotations
         /// </summary>
-        /// <param name="node1"></param>
-        /// <param name="node2"></param>
-        /// <returns></returns>
+        /// <param name="node1">The master node</param>
+        /// <param name="node2">The constrained node</param>
+        /// <returns>The 6 equations: DX, DY, DZ, RX, RY, RZ of <paramref name="node2"/></returns>
         public static MultiPointsCostrain[] GetRigidLink(NodeElement node1, NodeElement node2)
         {
             double LX = Math.Abs(node1.Position.X - node2.Position.X);

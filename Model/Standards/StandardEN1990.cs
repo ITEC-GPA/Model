@@ -23,7 +23,13 @@ namespace GPC.Model.Standards
         /// </summary>
         public enum ULSStructuralGeotechicalCombinationSets
         {
+            /// <summary>
+            /// Set B: structural (STR) and geotechnical (GEO) verifications (Table A1.2(B))
+            /// </summary>
             SetB,
+            /// <summary>
+            /// Set C: geotechnical verifications (Table A1.2(C))
+            /// </summary>
             SetC,
         }
 
@@ -32,14 +38,41 @@ namespace GPC.Model.Standards
         /// </summary>
         public enum LimitStates
         {
+            /// <summary>
+            ///
+            /// </summary>
             UltimateEquilibrium,
+            /// <summary>
+            ///
+            /// </summary>
             UltimateStructural,
+            /// <summary>
+            ///
+            /// </summary>
             UltimateGeotechnical,
+            /// <summary>
+            ///
+            /// </summary>
             UltimateFatigue,
+            /// <summary>
+            ///
+            /// </summary>
             UltimateSeismic,
+            /// <summary>
+            ///
+            /// </summary>
             UltimateAccidental,
+            /// <summary>
+            ///
+            /// </summary>
             ServiceabilityCharacteristic,
+            /// <summary>
+            ///
+            /// </summary>
             ServiceabilityFrequent,
+            /// <summary>
+            ///
+            /// </summary>
             ServiceabilityQuasiPermanent
         }
 
@@ -48,13 +81,37 @@ namespace GPC.Model.Standards
         /// </summary>
         public enum ImposedLoadCategories
         {
+            /// <summary>
+            /// Category A (domestic, residential) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category A")] CategoryA,
+            /// <summary>
+            /// Category B (office) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category B")] CategoryB,
+            /// <summary>
+            /// Category C (congregation) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category C")] CategoryC,
+            /// <summary>
+            /// Category D (shopping) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category D")] CategoryD,
+            /// <summary>
+            /// Category E (storage) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category E")] CategoryE,
+            /// <summary>
+            /// Category F (traffic, vehicle weight up to 30 kN) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category F")] CategoryF,
+            /// <summary>
+            /// Category G (traffic, vehicle weight from 30 to 160 kN) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category G")] CategoryG,
+            /// <summary>
+            /// Category H (roofs) (EN 1991-1-1 Table 6.1)
+            /// </summary>
             [Description("Category H")] CategoryH,
         }
 
@@ -137,80 +194,250 @@ namespace GPC.Model.Standards
         #region PROPERTIES
 
         // Gamma G
+        /// <summary>
+        /// The partial factor γG of the favourable permanent actions, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaGFavourableSetA { get => _gammaGFavourableSetA; set => _gammaGFavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γG of the unfavourable permanent actions, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaGUnfavourableSetA { get => _gammaGUnfavourableSetA; set => _gammaGUnfavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γG of the favourable permanent actions, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaGFavourableSetB { get => _gammaGFavourableSetB; set => _gammaGFavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γG of the unfavourable permanent actions, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaGUnfavourableSetB { get => _gammaGUnfavourableSetB; set => _gammaGUnfavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γG of the favourable permanent actions, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaGFavourableSetC { get => _gammaGFavourableSetC; set => _gammaGFavourableSetC = value; }
+        /// <summary>
+        /// The partial factor γG of the unfavourable permanent actions, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaGUnfavourableSetC { get => _gammaGUnfavourableSetC; set => _gammaGUnfavourableSetC = value; }
 
         // Gamma Q
+        /// <summary>
+        /// The partial factor γQ of the favourable variable actions, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaQFavourableSetA { get => _gammaQFavourableSetA; set => _gammaQFavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γQ of the unfavourable variable actions, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaQUnfavourableSetA { get => _gammaQUnfavourableSetA; set => _gammaQUnfavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γQ of the favourable variable actions, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaQFavourableSetB { get => _gammaQFavourableSetB; set => _gammaQFavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γQ of the unfavourable variable actions, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaQUnfavourableSetB { get => _gammaQUnfavourableSetB; set => _gammaQUnfavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γQ of the favourable variable actions, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaQFavourableSetC { get => _gammaQFavourableSetC; set => _gammaQFavourableSetC = value; }
+        /// <summary>
+        /// The partial factor γQ of the unfavourable variable actions, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaQUnfavourableSetC { get => _gammaQUnfavourableSetC; set => _gammaQUnfavourableSetC = value; }
 
         // Gamma P
+        /// <summary>
+        /// The partial factor γP of the favourable prestress, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaPFavourableSetA { get => _gammaPFavourableSetA; set => _gammaPFavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γP of the unfavourable prestress, set A (EN 1990 Table A1.2(A), EQU)
+        /// </summary>
         public double GammaPUnfavourableSetA { get => _gammaPUnfavourableSetA; set => _gammaPUnfavourableSetA = value; }
+        /// <summary>
+        /// The partial factor γP of the favourable prestress, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaPFavourableSetB { get => _gammaPFavourableSetB; set => _gammaPFavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γP of the unfavourable prestress, set B (EN 1990 Table A1.2(B), STR/GEO)
+        /// </summary>
         public double GammaPUnfavourableSetB { get => _gammaPUnfavourableSetB; set => _gammaPUnfavourableSetB = value; }
+        /// <summary>
+        /// The partial factor γP of the favourable prestress, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaPFavourableSetC { get => _gammaPFavourableSetC; set => _gammaPFavourableSetC = value; }
+        /// <summary>
+        /// The partial factor γP of the unfavourable prestress, set C (EN 1990 Table A1.2(C), GEO)
+        /// </summary>
         public double GammaPUnfavourableSetC { get => _gammaPUnfavourableSetC; set => _gammaPUnfavourableSetC = value; }
 
         // Imposed Load Psi
+        /// <summary>
+        /// ψ0 of the imposed loads of the category A (domestic, residential) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryA { get => _psi0ImposedLoadCategoryA; set => _psi0ImposedLoadCategoryA = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category B (office) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryB { get => _psi0ImposedLoadCategoryB; set => _psi0ImposedLoadCategoryB = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category C (congregation) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryC { get => _psi0ImposedLoadCategoryC; set => _psi0ImposedLoadCategoryC = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category D (shopping) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryD { get => _psi0ImposedLoadCategoryD; set => _psi0ImposedLoadCategoryD = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category E (storage) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryE { get => _psi0ImposedLoadCategoryE; set => _psi0ImposedLoadCategoryE = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category F (traffic, vehicle weight up to 30 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryF { get => _psi0ImposedLoadCategoryF; set => _psi0ImposedLoadCategoryF = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category G (traffic, vehicle weight from 30 to 160 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryG { get => _psi0ImposedLoadCategoryG; set => _psi0ImposedLoadCategoryG = value; }
+        /// <summary>
+        /// ψ0 of the imposed loads of the category H (roofs) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi0CategoryH { get => _psi0ImposedLoadCategoryH; set => _psi0ImposedLoadCategoryH = value; }
 
+        /// <summary>
+        /// ψ1 of the imposed loads of the category A (domestic, residential) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryA { get => _psi1ImposedLoadCategoryA; set => _psi1ImposedLoadCategoryA = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category B (office) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryB { get => _psi1ImposedLoadCategoryB; set => _psi1ImposedLoadCategoryB = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category C (congregation) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryC { get => _psi1ImposedLoadCategoryC; set => _psi1ImposedLoadCategoryC = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category D (shopping) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryD { get => _psi1ImposedLoadCategoryD; set => _psi1ImposedLoadCategoryD = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category E (storage) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryE { get => _psi1ImposedLoadCategoryE; set => _psi1ImposedLoadCategoryE = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category F (traffic, vehicle weight up to 30 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryF { get => _psi1ImposedLoadCategoryF; set => _psi1ImposedLoadCategoryF = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category G (traffic, vehicle weight from 30 to 160 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryG { get => _psi1ImposedLoadCategoryG; set => _psi1ImposedLoadCategoryG = value; }
+        /// <summary>
+        /// ψ1 of the imposed loads of the category H (roofs) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi1CategoryH { get => _psi1ImposedLoadCategoryH; set => _psi1ImposedLoadCategoryH = value; }
 
+        /// <summary>
+        /// ψ2 of the imposed loads of the category A (domestic, residential) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryA { get => _psi2ImposedLoadCategoryA; set => _psi2ImposedLoadCategoryA = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category B (office) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryB { get => _psi2ImposedLoadCategoryB; set => _psi2ImposedLoadCategoryB = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category C (congregation) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryC { get => _psi2ImposedLoadCategoryC; set => _psi2ImposedLoadCategoryC = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category D (shopping) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryD { get => _psi2ImposedLoadCategoryD; set => _psi2ImposedLoadCategoryD = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category E (storage) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryE { get => _psi2ImposedLoadCategoryE; set => _psi2ImposedLoadCategoryE = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category F (traffic, vehicle weight up to 30 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryF { get => _psi2ImposedLoadCategoryF; set => _psi2ImposedLoadCategoryF = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category G (traffic, vehicle weight from 30 to 160 kN) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryG { get => _psi2ImposedLoadCategoryG; set => _psi2ImposedLoadCategoryG = value; }
+        /// <summary>
+        /// ψ2 of the imposed loads of the category H (roofs) (EN 1990 Table A1.1)
+        /// </summary>
         public double ImposedLoadPsi2CategoryH { get => _psi2ImposedLoadCategoryH; set => _psi2ImposedLoadCategoryH = value; }
 
         // Snow Psi
+        /// <summary>
+        /// ψ0 of the snow loads for sites located at altitude H &gt; 1000 m a.s.l. (and Finland, Iceland, Norway, Sweden) (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi0SnowHighAltitude { get => _psi0SnowHighAltitude; set => _psi0SnowHighAltitude = value; }
+        /// <summary>
+        /// ψ0 of the snow loads for sites located at altitude H ≤ 1000 m a.s.l. (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi0SnowLowAltitude { get => _psi0SnowLowAltitude; set => _psi0SnowLowAltitude = value; }
+        /// <summary>
+        /// ψ1 of the snow loads for sites located at altitude H &gt; 1000 m a.s.l. (and Finland, Iceland, Norway, Sweden) (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi1SnowHighAltitude { get => _psi1SnowHighAltitude; set => _psi1SnowHighAltitude = value; }
+        /// <summary>
+        /// ψ1 of the snow loads for sites located at altitude H ≤ 1000 m a.s.l. (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi1SnowLowAltitude { get => _psi1SnowLowAltitude; set => _psi1SnowLowAltitude = value; }
+        /// <summary>
+        /// ψ2 of the snow loads for sites located at altitude H &gt; 1000 m a.s.l. (and Finland, Iceland, Norway, Sweden) (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi2SnowHighAltitude { get => _psi2SnowHighAltitude; set => _psi2SnowHighAltitude = value; }
+        /// <summary>
+        /// ψ2 of the snow loads for sites located at altitude H ≤ 1000 m a.s.l. (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi2SnowLowAltitude { get => _psi2SnowLowAltitude; set => _psi2SnowLowAltitude = value; }
 
         // Wind Psi
+        /// <summary>
+        /// ψ0 of the wind loads (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi0Wind { get => _psi0Wind; set => _psi0Wind = value; }
+        /// <summary>
+        /// ψ1 of the wind loads (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi1Wind { get => _psi1Wind; set => _psi1Wind = value; }
+        /// <summary>
+        /// ψ2 of the wind loads (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi2Wind { get => _psi2Wind; set => _psi2Wind = value; }
 
         // Temperature Psi
+        /// <summary>
+        /// ψ0 of the temperature (non-fire) in buildings (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi0Temperature { get => _psi0Temperature; set => _psi0Temperature = value; }
+        /// <summary>
+        /// ψ1 of the temperature (non-fire) in buildings (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi1Temperature { get => _psi1Temperature; set => _psi1Temperature = value; }
+        /// <summary>
+        /// ψ2 of the temperature (non-fire) in buildings (EN 1990 Table A1.1)
+        /// </summary>
         public double Psi2Temperature { get => _psi2Temperature; set => _psi2Temperature = value; }
 
+        /// <summary>
+        /// The group of the standard: European
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.European;
         #endregion
 
         #region PUBLIC CONSTRUCTOR
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardEN1990(string name = "EN 1990:2002/A1:2005", string remarks = "Eurocode - Basis of structural design")
             : base(name, remarks)
         {
@@ -278,6 +505,11 @@ namespace GPC.Model.Standards
             _psi2Temperature = 0.0;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardEN1990(SerializationInfo info, StreamingContext context)
         {
             _gammaGFavourableSetA = info.GetDouble("GammaGFavourableSetA");
@@ -348,6 +580,11 @@ namespace GPC.Model.Standards
 
         #region Equals - hashcode - operators
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("GammaGFavourableSetA", _gammaGFavourableSetA);
@@ -414,6 +651,11 @@ namespace GPC.Model.Standards
             info.AddValue("Psi2Temperature", _psi2Temperature);
         }
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -476,6 +718,10 @@ namespace GPC.Model.Standards
                    _psi2Temperature == eN._psi2Temperature;
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -543,21 +789,47 @@ namespace GPC.Model.Standards
 
         #region COMBINATIONS OPTIONS
 
+        /// <summary>
+        /// The options of the generation of the EN 1990 combinations
+        /// </summary>
         public class EN1990CombinationsOptions : CombinationsOptions
         {
+            /// <summary>
+            /// The limit state of the combinations
+            /// </summary>
             public LimitStates LimitState { get; set; }
 
+            /// <summary>
+            /// The category of the imposed loads (for their ψ coefficients)
+            /// </summary>
             public ImposedLoadCategories Category { get; set; } = ImposedLoadCategories.CategoryA;
 
+            /// <summary>
+            /// The set of the partial factors for the ultimate limit states
+            /// </summary>
             public ULSStructuralGeotechicalCombinationSets ULS { get; set; } = ULSStructuralGeotechicalCombinationSets.SetB;
 
+            /// <summary>
+            /// True for sites at altitude higher than 1000 m (for the ψ coefficients of the snow)
+            /// </summary>
             public bool HighAltitude { get; set; } = true;
 
+            /// <summary>
+            /// Creates the options with the default category (A), set (B) and altitude (high)
+            /// </summary>
+            /// <param name="limitState">The limit state</param>
             public EN1990CombinationsOptions(LimitStates limitState)
             {
                 LimitState = limitState;
             }
 
+            /// <summary>
+            /// Creates the options
+            /// </summary>
+            /// <param name="limitState">The limit state</param>
+            /// <param name="uLS">The set of the partial factors</param>
+            /// <param name="imposedLoadCategories">The category of the imposed loads</param>
+            /// <param name="highAltitude">True for sites at altitude higher than 1000 m</param>
             public EN1990CombinationsOptions(LimitStates limitState, ULSStructuralGeotechicalCombinationSets uLS = ULSStructuralGeotechicalCombinationSets.SetB, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
             {
                 LimitState = limitState;
@@ -566,6 +838,12 @@ namespace GPC.Model.Standards
                 HighAltitude = highAltitude;
             }
 
+            /// <summary>
+            /// Creates the options with the default set (B)
+            /// </summary>
+            /// <param name="limitState">The limit state</param>
+            /// <param name="imposedLoadCategories">The category of the imposed loads</param>
+            /// <param name="highAltitude">True for sites at altitude higher than 1000 m</param>
             public EN1990CombinationsOptions(LimitStates limitState, ImposedLoadCategories imposedLoadCategories = ImposedLoadCategories.CategoryA, bool highAltitude = true)
             {
                 LimitState = limitState;
@@ -573,6 +851,11 @@ namespace GPC.Model.Standards
                 HighAltitude = highAltitude;
             }
 
+            /// <summary>
+            /// Equality with an object of the same type
+            /// </summary>
+            /// <param name="obj">The object to compare</param>
+            /// <returns>True if <paramref name="obj"/> is equal</returns>
             public override bool Equals(object obj)
             {
                 if (obj is null)
@@ -586,6 +869,10 @@ namespace GPC.Model.Standards
                 return !(objCasted is null) && objCasted.Category.Equals(Category) && objCasted.LimitState.Equals(LimitState) && objCasted.ULS.Equals(ULS) && objCasted.HighAltitude.Equals(HighAltitude);
             }
 
+            /// <summary>
+            /// The hash code of the options
+            /// </summary>
+            /// <returns>The hash code</returns>
             public override int GetHashCode()
             {
                 unchecked

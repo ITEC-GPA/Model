@@ -10,17 +10,50 @@ namespace GPC.Model.Sections.Steel
     /// </summary>
     public enum InsertionPointType
     {
-        BottomLeft = 1, // default
+        /// <summary>
+        /// Bottom left corner of the bounding box (default)
+        /// </summary>
+        BottomLeft = 1,
+        /// <summary>
+        /// Bottom side, at the X of the middle point
+        /// </summary>
         BottomCenter = 2,
+        /// <summary>
+        /// Bottom right corner of the bounding box
+        /// </summary>
         BottomRight = 3,
+        /// <summary>
+        /// Left side, at the Y of the middle point
+        /// </summary>
         MiddleLeft = 4,
+        /// <summary>
+        /// The middle point (see <see cref="MiddleCenterType"/>)
+        /// </summary>
         MiddleCenter = 5,
+        /// <summary>
+        /// Right side, at the Y of the middle point
+        /// </summary>
         MiddleRight = 6,
+        /// <summary>
+        /// Top left corner of the bounding box
+        /// </summary>
         TopLeft = 7,
+        /// <summary>
+        /// Top side, at the X of the middle point
+        /// </summary>
         TopCenter = 8,
+        /// <summary>
+        /// Top right corner of the bounding box
+        /// </summary>
         TopRight = 9,
-        Centroid = 10, // it's like using MiddleCenter and MiddleCenterType == Centroid
-        ShearCenter = 11 // it's like using MiddleCenter and MiddleCenterType == ShearCenter
+        /// <summary>
+        /// The centroid: it's like using MiddleCenter and MiddleCenterType == Centroid
+        /// </summary>
+        Centroid = 10,
+        /// <summary>
+        /// The shear center: it's like using MiddleCenter and MiddleCenterType == ShearCenter
+        /// </summary>
+        ShearCenter = 11
     }
 
     /// <summary>
@@ -28,8 +61,17 @@ namespace GPC.Model.Sections.Steel
     /// </summary>
     public enum MiddleCenterType
     {
-        Midpoint = 0, // default
+        /// <summary>
+        /// The middle of the bounding box (default)
+        /// </summary>
+        Midpoint = 0,
+        /// <summary>
+        /// The centroid
+        /// </summary>
         Centroid = 1,
+        /// <summary>
+        /// The shear center
+        /// </summary>
         ShearCenter = 2
     }
 
@@ -45,15 +87,30 @@ namespace GPC.Model.Sections.Steel
     {
         #region Fields
 
+        /// <summary>
+        /// The rotation (radians)
+        /// </summary>
         private double _rotation;
+        /// <summary>
+        /// The insertion point type
+        /// </summary>
         private InsertionPointType _cardinalPoint;
+        /// <summary>
+        /// The type of the middle points
+        /// </summary>
         private MiddleCenterType _middleCenter;
+        /// <summary>
+        /// The insertion point (local coordinates of the section)
+        /// </summary>
         private Point2d _insertionPoint;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The steel section
+        /// </summary>
         public SteelSection Section { get; set; }
 
         /// <summary>
@@ -145,6 +202,16 @@ namespace GPC.Model.Sections.Steel
 
         #region Constructor
 
+        /// <summary>
+        /// Creates the position of a steel section
+        /// </summary>
+        /// <param name="steelSection">The steel section</param>
+        /// <param name="rotationCenter">The center of rotation (null: the origin)</param>
+        /// <param name="rotation">The rotation (radians, counterclockwise)</param>
+        /// <param name="traslation">The translation (null: none)</param>
+        /// <param name="cardinalPoint">The insertion point type</param>
+        /// <param name="middleCenter">The type of the middle points</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="steelSection"/> is null</exception>
         public SteelSectionPosition(SteelSection steelSection, Point2d rotationCenter, double rotation, Vector2d traslation, InsertionPointType cardinalPoint = InsertionPointType.BottomLeft, MiddleCenterType middleCenter = MiddleCenterType.Midpoint)
         {
             Section = steelSection ?? throw new ArgumentNullException(nameof(steelSection));
@@ -156,6 +223,11 @@ namespace GPC.Model.Sections.Steel
             IsInsideConcrete = true;
         }
 
+        /// <summary>
+        /// Deserialization constructor (version 1: insertion point bottom left)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected SteelSectionPosition(SerializationInfo info, StreamingContext context)
         {
             int version = info.GetInt32("SteelSectionPositionVersion");
@@ -181,6 +253,10 @@ namespace GPC.Model.Sections.Steel
 
         #region Methods
 
+        /// <summary>
+        /// The middle point of the section: the middle of the bounding box, the centroid or the shear center (see <see cref="MiddleCenter"/>)
+        /// </summary>
+        /// <returns>The point</returns>
         private Point2d GetMiddleCenterPoint()
         {
             switch (MiddleCenter)
@@ -195,6 +271,10 @@ namespace GPC.Model.Sections.Steel
             }
         }
 
+        /// <summary>
+        /// The insertion point from <see cref="CardinalPoint"/> and <see cref="MiddleCenter"/>
+        /// </summary>
+        /// <returns>The point</returns>
         private Point2d GetInsertionPoint()
         {
             switch (CardinalPoint)
@@ -240,10 +320,11 @@ namespace GPC.Model.Sections.Steel
         }
 
         /// <summary>
-        /// Given a point in the local system of the ThinWallSection return the point in the global system.
+        /// Given a point in the local system of the ThinWallSection return the point in the global system: moved from the insertion point to the
+        /// origin, rotated around <see cref="RotationCenter"/> and translated.
         /// </summary>
-        /// <param name="point2D"></param>
-        /// <returns></returns>
+        /// <param name="point2D">The local point</param>
+        /// <returns>A new global point</returns>
         public Point2d PositionToGlobal(in Point2d point2D)
         {
             var globPoint2d = (Point2d)point2D.Clone();
@@ -254,10 +335,10 @@ namespace GPC.Model.Sections.Steel
         }
 
         /// <summary>
-        /// Given a point in the global system return the point in the local system of the ThinWallSection.
+        /// Given a point in the global system return the point in the local system of the ThinWallSection (inverse of <see cref="PositionToGlobal"/>).
         /// </summary>
-        /// <param name="point2D"></param>
-        /// <returns></returns>
+        /// <param name="point2D">The global point</param>
+        /// <returns>A new local point</returns>
         public Point2d PositionToLocal(in Point2d point2D)
         {
             var localPoint2d = (Point2d)point2D.Clone();
@@ -267,14 +348,23 @@ namespace GPC.Model.Sections.Steel
             return localPoint2d;
         }
 
+        /// <summary>
+        /// The area of the section
+        /// </summary>
+        /// <returns>The area</returns>
         internal double CalculateArea() => Section.Area;
 
+        /// <summary>
+        /// The centroid in global coordinates
+        /// </summary>
+        /// <returns>The centroid</returns>
         internal Point2d CalculateCentroid() => PositionToGlobal(Section.Centroid);
 
         /// <summary>
         /// Calculate the moment of inertia Jxx of the section considering rotation and displacement of the steel section.
         /// Rotate-translate the inertia in the global XY reference system.
         /// </summary>
+        /// <param name="inertiaPole">The point of the axis</param>
         /// <returns>Jxx</returns>
         internal double CalculateJxx(in Point2d inertiaPole)
         {
@@ -287,6 +377,7 @@ namespace GPC.Model.Sections.Steel
         /// Calculate the moment of inertia Jyy of the section considering rotation and displacement of the steel section.
         /// Rotate-translate the inertia in the global XY reference system.
         /// </summary>
+        /// <param name="inertiaPole">The point of the axis</param>
         /// <returns>Jyy</returns>
         internal double CalculateJyy(in Point2d inertiaPole)
         {
@@ -299,6 +390,7 @@ namespace GPC.Model.Sections.Steel
         /// Calculate the product of inertia Jxy of the section considering rotation and displacement of the steel section.
         /// Rotate-translate the inertia in the global XY reference system.
         /// </summary>
+        /// <param name="inertiaPole">The point of the axes</param>
         /// <returns>Jxy</returns>
         internal double CalculateJxy(in Point2d inertiaPole)
         {
@@ -307,6 +399,11 @@ namespace GPC.Model.Sections.Steel
             return JxyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.Y - inertiaPole.Y);
         }
 
+        /// <summary>
+        /// Serializes the position (version 2)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             int version = 2;

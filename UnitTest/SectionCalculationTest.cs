@@ -5,6 +5,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Geometry;
 using GPC.Model.Data.Steel;
 using GPC.Model.Sections;
+using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -65,6 +67,47 @@ namespace UnitTest
             // respect to Y the section is symmetric: flange 2 x (20 x 100^2 / 2) + web 2 x (180 x 10^2 / 2)
             double expectedY = 2 * 20 * 100 * 100 / 2.0 + 2 * 180 * 10 * 10 / 2.0;
             Assert.AreEqual(expectedY, section.WplY, 1e-9 * expectedY);
+        }
+
+        [TestMethod]
+        public void PlasticModulusOfSectionTWithTheNeutralAxisInTheFlange()
+        {
+            // the same T of PlasticModulusOfATSection: before, the part below the neutral axis used the distances hTopPlastic instead of
+            // tf - hTopPlastic (430400 instead of 363800)
+            var sectionT = new SectionT(200, 200, 20, 20, string.Empty);
+            double expected = 200 * 19 * 9.5 + 200 * 1 * 0.5 + 20 * 180 * (181 - 90);
+            Assert.AreEqual(expected, sectionT.WplX, 1e-9 * expected);
+
+            // a T cut from an IPE 300 (flange 150 x 10.7, web 7.1): the same modulus of the exact shape
+            sectionT = new SectionT(150, 150, 7.1, 10.7, string.Empty);
+            Section shape = Generic(Q(0, 150), Q(150, 150), Q(150, 139.3), Q(78.55, 139.3), Q(78.55, 0), Q(71.45, 0), Q(71.45, 139.3), Q(0, 139.3));
+            Assert.AreEqual(shape.WplX, sectionT.WplX, 1e-9 * shape.WplX);
+        }
+
+        [TestMethod]
+        public void PrestressStrainOfARebarBeyondTheYield()
+        {
+            // before, beyond fyk the strain was the yield strain plus the interpolation at sigmaP - fyk (a jump at fyk)
+            var material = SteelMaterialEN1992Data.B450C;
+            double fyk = material.Fyk, fu = material.Fu, epsY = material.StrainYTension, epsU = material.StrainUTension;
+
+            var atYield = new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, fyk);
+            Assert.AreEqual(epsY, atYield.EpsilonP, 1e-12);
+
+            double sigma = 0.5 * (fyk + fu);
+            var beyond = new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, sigma);
+            Assert.AreEqual(0.5 * (epsY + epsU), beyond.EpsilonP, 1e-12);
+
+            var justBeyond = new ReinforcedConcreteRebar(new RebarSectionCircular("", 10, SteelMaterialEN1992Data.B450C), Point2d.Origin, fyk + 1e-6);
+            Assert.AreEqual(epsY, justBeyond.EpsilonP, 1e-6);
+        }
+        [TestMethod]
+        public void PlasticModulusOfSectionTWithTheNeutralAxisInTheWeb()
+        {
+            // flange 100 x 10, web 10 x 190: the neutral axis is in the web, 145 from the bottom
+            var sectionT = new SectionT(200, 100, 10, 10, string.Empty);
+            double expected = 100 * 10 * 50 + 10 * 45 * 22.5 + 10 * 145 * 72.5;
+            Assert.AreEqual(expected, sectionT.WplX, 1e-9 * expected);
         }
 
         [TestMethod]

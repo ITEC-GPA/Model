@@ -14,28 +14,48 @@ namespace GPC.Model.Sections.Bolt
     [Serializable]
     public partial class BoltGrid : ModelObject, ISerializable
     {
+        /// <summary>
+        /// The bolts
+        /// </summary>
         protected List<BoltPosition> _bolts;
 
         #region Properties
 
+        /// <summary>
+        /// The bolts
+        /// </summary>
         public List<BoltPosition> Bolts { get => _bolts; set => _bolts = value; }
 
         #endregion
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates the grid with the given bolts
+        /// </summary>
+        /// <param name="bolts">The bolts</param>
+        /// <param name="name">The name</param>
         public BoltGrid(IEnumerable<BoltPosition> bolts, string name = "")
             : this(name)
         {
             _bolts.AddRange(bolts);
         }
 
+        /// <summary>
+        /// Creates an empty grid
+        /// </summary>
+        /// <param name="name">The name</param>
         public BoltGrid(string name = "")
             : base(name)
         {
             _bolts = new List<BoltPosition>();
         }
 
+        /// <summary>
+        /// Deserialization constructor (with no bolts the list is null)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public BoltGrid(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
@@ -52,6 +72,11 @@ namespace GPC.Model.Sections.Bolt
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the grid (the number of bolts and each bolt)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -97,9 +122,9 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculate polar moment of the whole group of bolts
+        /// Calculate polar moment of the whole group of bolts respect to their barycenter (areas of the bolts, without their own moments)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The polar moment</returns>
         public double CalculatePolarMoment()
         {
             double Area = CalculateArea();
@@ -121,9 +146,11 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculate inertia moment of the whole group of bolts
+        /// Calculate inertia moment of the whole group of bolts respect to the axes through the origin (with the own moments of the bolts)
         /// </summary>
-        /// <returns></returns>
+        /// <param name="I_X">The moment of inertia about X</param>
+        /// <param name="I_Y">The moment of inertia about Y</param>
+        /// <param name="I_XY">The product of inertia (without the own products)</param>
         public void CalculateInertiaMoment(out double I_X, out double I_Y, out double I_XY)
         {
             I_X = 0; // Inertia moments.
@@ -141,14 +168,13 @@ namespace GPC.Model.Sections.Bolt
 
         /// <summary>
         /// Given a stress with point of application, determines a distribution of shear forces in the elastic field
-        /// from shear and torsion stresses.
+        /// from shear and torsion stresses: the force is moved to the barycenter, the shear is divided in proportion to the areas and the
+        /// torsion T in proportion to the area by the distance from the barycenter (with one bolt, only the shear).
         /// Theory in "\\studio\Software_Development\01 Theory\08 BoltSection\Shear on bolts - elastic distribution.docx".
         /// </summary>
-        /// <param name="Soll">Stresses per bolt with reference to bolt ID.</param>
-        /// <param name="ForceOnBarycenter">True if Soll is already on barycenter.
-        /// The position or reference system of the applied force will be chosen from interface by the user,
-        /// normally it will be the center of gravity.</param>
-        /// <returns></returns>
+        /// <param name="Soll">The stress, with the coordinate system of its point of application: the position or reference system of the applied
+        /// force will be chosen from interface by the user, normally it will be the center of gravity.</param>
+        /// <returns>The shear forces of the bolts, each one in a coordinate system at the bolt</returns>
         public Dictionary<BoltPosition, ResultBeamForces> CalculateShearForcesElastic(in ResultBeamForces Soll)
         {
             var retForces = new Dictionary<BoltPosition, ResultBeamForces>();
@@ -210,11 +236,24 @@ namespace GPC.Model.Sections.Bolt
             return totForce == SollG;
         }
 
+        /// <summary>
+        /// Removes the bolts with an id
+        /// </summary>
+        /// <param name="id">The id</param>
         public void RemoveBoltById(int id)
         {
             _bolts.RemoveAll(bp => bp.Id == id);
         }
 
+        /// <summary>
+        /// Adds a bolt, if it does not overlap another one (distance of the centers not bigger than the sum of the radii)
+        /// </summary>
+        /// <param name="posX">The X of the position</param>
+        /// <param name="posY">The Y of the position</param>
+        /// <param name="diameter">The diameter of the bolt</param>
+        /// <param name="mat">The material of the bolt</param>
+        /// <param name="hole">The hole (null: circular with the diameter of the bolt + 1)</param>
+        /// <returns>The new bolt position, with id the largest id + 1; null if it overlaps another bolt</returns>
         public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
         {
             // Check that it does not intersect another bolt.
@@ -238,13 +277,14 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Add a rectangular grid of bolts.
+        /// Add a rectangular grid of bolts (the overlapping bolts are skipped).
         /// </summary>
         /// <param name="stepX">Steps in X.</param>
         /// <param name="stepY">Steps in Y.</param>
-        /// <param name="diameter"></param>
-        /// <param name="mat"></param>
-        /// <param name="origin">Starting point, bottom right corner.</param>
+        /// <param name="diameter">The diameter of the bolts</param>
+        /// <param name="mat">The material of the bolts</param>
+        /// <param name="origin">Starting point, bottom left corner (null: the origin).</param>
+        /// <returns>The added bolts</returns>
         public List<BoltPosition> AddBoltsRectangularGrid(IEnumerable<double> stepX, IEnumerable<double> stepY, double diameter, SteelMaterial mat, Point2d origin = null)
         {
             var boltList = new List<BoltPosition>();

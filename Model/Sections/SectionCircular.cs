@@ -5,13 +5,19 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// A solid circular section, with the centre at (D / 2, D / 2); the properties are the exact ones of the circle
+    /// </summary>
     [Serializable]
     public class SectionCircular : Section, ISerializable
     {
+        /// <summary>
+        /// The diameter
+        /// </summary>
         protected double _diameter;
 
         /// <summary>
-        /// The diameter
+        /// The diameter (a positive new value calculates the properties again and discards the mesh; the shape is not discarded)
         /// </summary>
         public double Diameter
         {
@@ -27,16 +33,25 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The height: the diameter (the setter of the base class throws <see cref="NotImplementedException"/>)
+        /// </summary>
         public override double Height => _diameter;
 
+        /// <summary>
+        /// The width: the diameter
+        /// </summary>
         public override double Width => _diameter;
 
+        /// <summary>
+        /// The thin walls: null (the section is solid)
+        /// </summary>
         public override ThinWallSection.ThinWall[] ThinWalls => null;
 
         #region Public Constructors
 
         /// <summary>
-        /// The default constructor
+        /// The default constructor: calculates the properties
         /// </summary>
         /// <param name="diameter">The diameter</param>
         /// <param name="name">The section name</param>
@@ -47,6 +62,10 @@ namespace GPC.Model.Sections
             SetMechanicalProperties();
         }
 
+        /// <summary>
+        /// Creates a copy of a section
+        /// </summary>
+        /// <param name="sectionCircular">The section to copy</param>
         public SectionCircular(SectionCircular sectionCircular)
             : this(sectionCircular.Diameter, sectionCircular.Name)
         {
@@ -54,6 +73,11 @@ namespace GPC.Model.Sections
         }
 
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected SectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -74,6 +98,11 @@ namespace GPC.Model.Sections
 
         #region Public Methods Specific
 
+        /// <summary>
+        /// Serializes the section
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -88,16 +117,30 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
+        /// <summary>
+        /// The shape with the circle approximated by a polygon
+        /// </summary>
+        /// <param name="numberOfEdges">The number of edges of the polygon</param>
+        /// <returns>The new shape</returns>
         protected Shape2d GetShape(int numberOfEdges = 32)
         {
             return new Shape2d(new Polygon2d(_diameter, numberOfEdges, _centroid));
         }
 
+        /// <summary>
+        /// The shape of the section (a polygon of 32 edges)
+        /// </summary>
+        /// <returns>The new shape</returns>
         protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
 
+        /// <summary>
+        /// A mesh with quadrangles between the outer polygon and an inner one of diameter D / 3 and triangles from the inner polygon to the centre
+        /// </summary>
+        /// <param name="numberOfEdges">The number of edges of the polygons</param>
+        /// <returns>The new mesh</returns>
         protected Mesh GetMesh(int numberOfEdges = 32)
         {
             Point2d centroid = new Point2d(_diameter / 2.0, _diameter / 2.0);
@@ -126,8 +169,15 @@ namespace GPC.Model.Sections
             return mesh;
         }
 
+        /// <summary>
+        /// The mesh of the section (32 edges)
+        /// </summary>
+        /// <returns>The new mesh</returns>
         protected override Mesh CreateMesh() => GetMesh(numberOfEdges: 32);
 
+        /// <summary>
+        /// Calculates the properties with the closed formulas of the circle (all the axes are principal)
+        /// </summary>
         public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
@@ -163,50 +213,90 @@ namespace GPC.Model.Sections
             _isSymmetricAlongYLocalAxis = CalculateIsSymmetricAlongYLocalAxis();
         }
 
+        /// <summary>
+        /// Calculate the area: π D² / 4
+        /// </summary>
+        /// <returns>The area</returns>
         protected override double CalculateArea()
         {
             return Math.Pow(Diameter, 2.0) * Math.PI / 4.0;
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about any axis through the centre: π D⁴ / 64
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected virtual double CalculateJ()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 64.0;
         }
 
+        /// <summary>
+        /// Calculate the product of inertia: 0
+        /// </summary>
+        /// <returns>0</returns>
         protected override double CalculateJxy()
         {
             return 0.0;
         }
 
+        /// <summary>
+        /// Calculate the torsion constant: π D⁴ / 32
+        /// </summary>
+        /// <returns>The torsion constant</returns>
         protected override double CalculateJt()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / 32.0;
         }
 
+        /// <summary>
+        /// Calculate the warping constant: 0
+        /// </summary>
+        /// <returns>0</returns>
         protected override double CalculateJw()
         {
             return 0.0;
         }
 
+        /// <summary>
+        /// Calculate the centroid: the centre (D / 2, D / 2)
+        /// </summary>
+        /// <returns>The centroid</returns>
         protected override Point2d CalculateCentroid()
         {
             return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus: π D³ / 32
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected virtual double CalculateWel()
         {
             return Math.PI * Math.Pow(Diameter, 4.0) / (32.0 * Diameter);
         }
 
+        /// <summary>
+        /// Calculate the plastic modulus: D³ / 6
+        /// </summary>
+        /// <returns>The plastic modulus</returns>
         protected virtual double CalculateWpl()
         {
             return Math.Pow(Diameter, 3.0) / 6.0;
         }
+        /// <summary>
+        /// The section is symmetric respect to X
+        /// </summary>
+        /// <returns>True</returns>
         protected override bool CalculateIsSymmetricAlongXLocalAxis()
         {
             return true;
         }
 
+        /// <summary>
+        /// The section is symmetric respect to Y
+        /// </summary>
+        /// <returns>True</returns>
         protected override bool CalculateIsSymmetricAlongYLocalAxis()
         {
             return true;
@@ -216,16 +306,29 @@ namespace GPC.Model.Sections
 
         #region Public Method
 
+        /// <summary>
+        /// The description of the section: "Circular D"
+        /// </summary>
+        /// <returns>The description</returns>
         public override string ToString()
         {
             return $"Circular {_diameter}";
         }
 
+        /// <summary>
+        /// Equality of the section properties and of the diameter
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal section</returns>
         public override bool Equals(object obj)
         {
             return obj is SectionCircular circular && base.Equals(obj) && _diameter == circular._diameter;
         }
 
+        /// <summary>
+        /// The hash code of the section and of the diameter
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -237,18 +340,39 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The points of the section (not implemented)
+        /// </summary>
+        /// <returns>Nothing</returns>
+        /// <exception cref="NotImplementedException">Always</exception>
         public override Point2d[] GetSectionPoints()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Nothing: a solid circle has no corners
+        /// </summary>
+        /// <param name="sectionType">The type of the section</param>
         public override void SetEdgeTypeFromSteelType(SectionTypes sectionType) { }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are equal</returns>
         public static bool operator ==(SectionCircular left, SectionCircular right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are different</returns>
         public static bool operator !=(SectionCircular left, SectionCircular right)
         {
             return !(left == right);

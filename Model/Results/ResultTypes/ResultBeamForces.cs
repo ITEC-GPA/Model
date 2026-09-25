@@ -4,41 +4,86 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// The internal forces of a beam in a coordinate system: V1 and V2 along the first and second axes (the cross-section plane), N along the
+    /// third axis (the beam axis); M1, M2 and T around the same axes
+    /// </summary>
     [Serializable]
     public class ResultBeamForces : ResultType, ISerializable, IBeamResult, IResult<ResultBeamForces>
     {
         #region Variables
 
+        /// <summary>
+        /// The axial force
+        /// </summary>
         private double _N;
+        /// <summary>
+        /// The shear along axis 1
+        /// </summary>
         private double _V1;
+        /// <summary>
+        /// The shear along axis 2
+        /// </summary>
         private double _V2;
+        /// <summary>
+        /// The torque moment
+        /// </summary>
         private double _T;
+        /// <summary>
+        /// The bending moment around axis 1
+        /// </summary>
         private double _M1;
+        /// <summary>
+        /// The bending moment around axis 2
+        /// </summary>
         private double _M2;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The axial force (along the third axis)
+        /// </summary>
         public double N { get => _N; set => _N = value; }
+        /// <summary>
+        /// The shear along axis 1
+        /// </summary>
         public double V1 { get => _V1; set => _V1 = value; }
+        /// <summary>
+        /// The shear along axis 2
+        /// </summary>
         public double V2 { get => _V2; set => _V2 = value; }
+        /// <summary>
+        /// The torque moment (around the third axis)
+        /// </summary>
         public double T { get => _T; set => _T = value; }
+        /// <summary>
+        /// The bending moment around axis 1 (in plane 2, right hand rule)
+        /// </summary>
         public double M1 { get => _M1; set => _M1 = value; }
+        /// <summary>
+        /// The bending moment around axis 2 (in plane 1, right hand rule)
+        /// </summary>
         public double M2 { get => _M2; set => _M2 = value; }
 
         #endregion
 
         #region Public Constructors
 
-        /// <param name="N"> axial force </param>
-        /// <param name="V1"> shear along principal axis 1</param>
-        /// <param name="V2"> shear along principal axis 2</param>
-        /// <param name="T"> torque moment </param>
-        /// <param name="M1"> Bending moment around axis 1 (in plane 2, right hand rule) </param>
-        /// <param name="M2"> Bending moment around axis 2 (in plane 1, right hand rule) </param>
-        /// <param name="coordinateSystem">The beam coordinateSystem</param>
-        /// <param name="id"></param>
+        /// <summary>
+        /// Creates the forces
+        /// </summary>
+        /// <param name="N">The axial force (along the third axis)</param>
+        /// <param name="V1">The shear along axis 1</param>
+        /// <param name="V2">The shear along axis 2</param>
+        /// <param name="T">The torque moment (around the third axis)</param>
+        /// <param name="M1">The bending moment around axis 1 (in plane 2, right hand rule)</param>
+        /// <param name="M2">The bending moment around axis 2 (in plane 1, right hand rule)</param>
+        /// <param name="coordinateSystem">The beam coordinate system (its origin is the point of application)</param>
+        /// <param name="id">The id</param>
+        /// <param name="name">The name</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="coordinateSystem"/> is null</exception>
         public ResultBeamForces(double N, double V1, double V2, double T, double M1, double M2, CoordinateSystem coordinateSystem, int id = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(coordinateSystem, name, id)
         {
@@ -50,6 +95,11 @@ namespace GPC.Model.Results
             _M2 = M2;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected ResultBeamForces(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -65,6 +115,11 @@ namespace GPC.Model.Results
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the forces
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -76,6 +131,12 @@ namespace GPC.Model.Results
             info.AddValue("M2", _M2);
         }
 
+        /// <summary>
+        /// The same forces in another coordinate system: the forces and the moments are rotated, the origins are not considered (see
+        /// <see cref="ToCoordinateSystemWithEccentricity(CoordinateSystem)"/>)
+        /// </summary>
+        /// <param name="coordinateSystem">The new coordinate system</param>
+        /// <returns>New forces with the same id and name</returns>
         public ResultBeamForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             Vector3d vector3dForce = new Vector3d(V1, V2, N);
@@ -92,10 +153,11 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Similar to <see cref="ToCoordinateSystem(CoordinateSystem)"/> but with eccentricity.
+        /// The same forces in another coordinate system, moved to its origin: the moments get the transport moment of the forces
+        /// (M' = M + (O - O') x F). See <see cref="ToCoordinateSystem(CoordinateSystem)"/>
         /// </summary>
-        /// <param name="coordinateSystem"></param>
-        /// <returns></returns>
+        /// <param name="coordinateSystem">The new coordinate system</param>
+        /// <returns>New forces with the same id and name</returns>
         public ResultBeamForces ToCoordinateSystemWithEccentricity(CoordinateSystem coordinateSystem)
         {
             Vector3d vector3dForce = new Vector3d(V1, V2, N);
@@ -114,9 +176,9 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return new ResultBeamForces in global coordinate system
+        /// The same forces in the global coordinate system (rotation only, see <see cref="ToCoordinateSystem(CoordinateSystem)"/>)
         /// </summary>
-        /// <returns>New ResultBeamForces</returns>
+        /// <returns>This instance if the coordinate system is already the global one, otherwise new forces</returns>
         public ResultBeamForces ToGlobalCoordinateSystem()
         {
             if (CoordinateSystem == CoordinateSystem.Global)
@@ -126,7 +188,7 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the combined bending moment between M1 and M2
+        /// The combined bending moment: sqrt(M1² + M2²)
         /// </summary>
         /// <returns>The combined bending moment</returns>
         public double GetCombinedBendingMoment()
@@ -135,18 +197,30 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the combined bending moment between V1 and V2
+        /// The combined shear force: sqrt(V1² + V2²)
         /// </summary>
-        /// <returns>he combined shear force</returns>
+        /// <returns>The combined shear force</returns>
         public double GetCombinedShearForce()
         {
             return Math.Sqrt(Math.Pow(V1, 2) + Math.Pow(V2, 2));
         }
+        /// <summary>
+        /// Equality within <see cref="GeometryBase.Tolerance"/> (see <see cref="Equals(object, in double)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> are equal forces</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj, GeometryBase.Tolerance);
         }
 
+        /// <summary>
+        /// Equality of the forces within a tolerance: <paramref name="obj"/> is moved to this coordinate system (see
+        /// <see cref="ToCoordinateSystemWithEccentricity(CoordinateSystem)"/>) and each component is compared (absolute difference)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <param name="tollerance">The tolerance on each component</param>
+        /// <returns>True if <paramref name="obj"/> are equal forces</returns>
         public bool Equals(object obj, in double tollerance = GeometryBase.Tolerance)
         {
             var other = obj as ResultBeamForces;
@@ -163,6 +237,11 @@ namespace GPC.Model.Results
                 Math.Abs(_M2 - otherSamePos._M2) < tollerance;
         }
 
+        /// <summary>
+        /// The hash code of the name and of the exact components (forces equal within the tolerance or in another coordinate system can have
+        /// different hash codes)
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -179,6 +258,12 @@ namespace GPC.Model.Results
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first forces</param>
+        /// <param name="right">The second forces</param>
+        /// <returns>True if the forces are equal</returns>
         public static bool operator ==(ResultBeamForces left, ResultBeamForces right)
         {
             if (left is null)
@@ -191,11 +276,24 @@ namespace GPC.Model.Results
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first forces</param>
+        /// <param name="right">The second forces</param>
+        /// <returns>True if the forces are different</returns>
         public static bool operator !=(ResultBeamForces left, ResultBeamForces right)
         {
             return !(left == right);
         }
 
+        /// <summary>
+        /// The sum of the forces in the coordinate system of <paramref name="left"/> (<paramref name="right"/> is moved there, see
+        /// <see cref="ToCoordinateSystemWithEccentricity(CoordinateSystem)"/>)
+        /// </summary>
+        /// <param name="left">The first forces</param>
+        /// <param name="right">The second forces</param>
+        /// <returns>New forces with the id and the name of <paramref name="left"/></returns>
         public static ResultBeamForces operator +(ResultBeamForces left, ResultBeamForces right)
         {
             var rightInRightPos = right.ToCoordinateSystemWithEccentricity(left.CoordinateSystem);
@@ -211,6 +309,12 @@ namespace GPC.Model.Results
                 left._name);
         }
 
+        /// <summary>
+        /// The forces divided by a number
+        /// </summary>
+        /// <param name="left">The forces</param>
+        /// <param name="denom">The divisor</param>
+        /// <returns>New forces with the same coordinate system, id and name</returns>
         public static ResultBeamForces operator /(ResultBeamForces left, double denom)
         {
             return new ResultBeamForces(
@@ -225,6 +329,11 @@ namespace GPC.Model.Results
                 left._name);
         }
 
+        /// <summary>
+        /// The opposite forces
+        /// </summary>
+        /// <param name="other">The forces</param>
+        /// <returns>New forces with the same coordinate system, id and name</returns>
         public static ResultBeamForces operator -(ResultBeamForces other)
         {
             return new ResultBeamForces(

@@ -21,24 +21,41 @@ namespace GPC.Model.Standards
 			_alphaCT = 0.85;
 		}
 
+		/// <summary>
+		/// Creates the standard with the default remarks
+		/// </summary>
+		/// <param name="name">The name</param>
 		public StandardCSTR34(string name = "CS-TR34")
 			: this(name, "TR 34: Concrete Industrial Ground Floors. CS-TR34:2103")
 		{
 
 		}
 
+		/// <summary>
+		/// Creates the standard with the default name and remarks
+		/// </summary>
 		public StandardCSTR34()
 			: this("CS-TR34", "TR 34: Concrete Industrial Ground Floors. CS-TR34:2103")
 		{
 
 		}
 
+		/// <summary>
+		/// Deserialization constructor
+		/// </summary>
+		/// <param name="info">The serialization data</param>
+		/// <param name="context">The serialization context</param>
 		protected StandardCSTR34(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
 
 		}
 
+		/// <summary>
+		/// Equality with an object of the same type
+		/// </summary>
+		/// <param name="obj">The object to compare</param>
+		/// <returns>True if <paramref name="obj"/> is equal</returns>
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(this, obj))
@@ -47,6 +64,10 @@ namespace GPC.Model.Standards
 			return obj is StandardCSTR34 standard && base.Equals(standard);
 		}
 
+		/// <summary>
+		/// The hash code of the coefficients and of the base
+		/// </summary>
+		/// <returns>The hash code</returns>
 		public override int GetHashCode()
 		{
 			unchecked

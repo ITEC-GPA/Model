@@ -8,23 +8,37 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Materials
 {
-    //struct perchè è pensata per essere un value type
-
+    /// <summary>
+    /// A stress-strain curve as a table of points starting from (0, 0), with linear interpolation between them. It is a value type (struct), but
+    /// the arrays are shared by the copies until a point is added, inserted or removed
+    /// </summary>
     /// <remarks>Sign convention: Stress and strain negative if compression</remarks>
     [Serializable]
     public struct StressStrainTable
     {
         #region Variables
 
+        /// <summary>
+        /// The stresses of the points
+        /// </summary>
         private double[] _stresses;
+        /// <summary>
+        /// The strains of the points
+        /// </summary>
         private double[] _strains;
 
         #endregion
 
         #region Properties
 
-        public double[] Stresses => (double[])_stresses.Clone(); // ritoriamo il clone in quanto serve che i valori siano blindati 
+        /// <summary>
+        /// A copy of the stresses of the points (the table can not be changed through it)
+        /// </summary>
+        public double[] Stresses => (double[])_stresses.Clone();
 
+        /// <summary>
+        /// A copy of the strains of the points
+        /// </summary>
         public double[] Strains => (double[])_strains.Clone();
 
         #endregion
@@ -32,12 +46,14 @@ namespace GPC.Model.Materials
         #region Constructor
 
         /// <summary>
-        /// If stresses[0] or strains[0] are not zero this will be added automatically.
+        /// Creates a table from stresses and strains (the arrays are kept, not copied). If stresses[0] or strains[0] are not zero, the point (0, 0) is
+        /// inserted at the start; an empty table gets the point (0, 0)
         /// </summary>
-        /// <param name="stresses"></param>
-        /// <param name="strains"></param>
+        /// <param name="stresses">The stresses (null: empty)</param>
+        /// <param name="strains">The strains (null: empty)</param>
+        /// <exception cref="ArgumentException">If the arrays have different lengths</exception>
         /// <remarks>
-        /// Strain value assumed to be ordered from smaller to greatest
+        /// Strain value assumed to be ordered from smaller to greatest (in absolute value, from zero)
         /// <para>Sign convention: Stress and strain negative if compression</para>
         /// </remarks>
         public StressStrainTable(double[] stresses, double[] strains)
@@ -121,7 +137,7 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Remove the values at given position
         /// </summary>
-        /// <param name="pos"></param>
+        /// <param name="pos">The position of the point to remove</param>
         public void Remove(int pos)
         {
             double[] newStesses = new double[_stresses.Length - 1];
@@ -148,8 +164,8 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Set the value <paramref name="stress"/> at the position <paramref name="pos"/>
         /// </summary>
-        /// <param name="stress"></param>
-        /// <param name="pos"></param>
+        /// <param name="stress">The new stress</param>
+        /// <param name="pos">The position of the point</param>
         public void SetStress(double stress, int pos)
         {
             _stresses[pos] = stress;
@@ -158,18 +174,18 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Set the value <paramref name="strain"/> at the position <paramref name="pos"/>
         /// </summary>
-        /// <param name="strain"></param>
-        /// <param name="pos"></param>
+        /// <param name="strain">The new strain</param>
+        /// <param name="pos">The position of the point</param>
         public void SetStrain(double strain, int pos)
         {
             _strains[pos] = strain;
         }
 
         /// <summary>
-        /// Get stress associated to <paramref name="strain"/>
+        /// Get stress associated to <paramref name="strain"/>: linear interpolation between the points whose strains (in absolute value) contain it
         /// </summary>
-        /// <param name="strain"></param>
-        /// <returns></returns>
+        /// <param name="strain">The strain (with the sign of the table)</param>
+        /// <returns>The stress; 0 if the strain is beyond the last point</returns>
         public double GetStress(double strain)
         {
             if (strain == _strains[0])
@@ -188,10 +204,11 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Get strains associated to <paramref name="stress"/>
+        /// Get strains associated to <paramref name="stress"/>: the strains of the points with that stress and of the segments that cross it
+        /// (in absolute value)
         /// </summary>
-        /// <param name="stress"></param>
-        /// <returns></returns>
+        /// <param name="stress">The stress</param>
+        /// <returns>The strains (more than one if the curve is not monotonic; empty if the stress is never reached)</returns>
         public double[] GetStrain(double stress)
         {
             List<double> strains = new List<double>();
@@ -213,29 +230,46 @@ namespace GPC.Model.Materials
             return strains.ToArray();
         }
 
+        /// <summary>
+        /// The largest stress of the table
+        /// </summary>
         /// <returns>maximum stress</returns>
         public double GetMaximumStress()
         {
             return _stresses.Max();
         }
 
-        /// <returns>maximum stress</returns>
+        /// <summary>
+        /// The smallest stress of the table (the largest compression)
+        /// </summary>
+        /// <returns>minimum stress</returns>
         public double GetMinimumStress()
         {
             return _stresses.Min();
         }
 
+        /// <summary>
+        /// The strain of the last point
+        /// </summary>
+        /// <returns>The last strain</returns>
         public double GetLastStrain()
         {
             return _strains.Last();
         }
 
+        /// <summary>
+        /// The stress of the last point
+        /// </summary>
+        /// <returns>The last stress</returns>
         public double GetLastStress()
         {
             return _stresses.Last();
         }
 
-        /// <param name="strain">Strain associated to maximum stress</param>
+        /// <summary>
+        /// The largest stress of the table and its strain
+        /// </summary>
+        /// <param name="strain">Strain associated to maximum stress (the first one)</param>
         /// <returns>Maximum stress</returns>
         public double GetMaximumStress(out double strain)
         {
@@ -246,8 +280,11 @@ namespace GPC.Model.Materials
             return max;
         }
 
-        /// <param name="strain">Strain associated to maximum stress</param>
-        /// <returns>Maximum stress</returns>
+        /// <summary>
+        /// The smallest stress of the table and its strain
+        /// </summary>
+        /// <param name="strain">Strain associated to minimum stress (the first one)</param>
+        /// <returns>Minimum stress</returns>
         public double GetMinimumStress(out double strain)
         {
             double min = _stresses.Min();
@@ -258,7 +295,10 @@ namespace GPC.Model.Materials
             return min;
         }
 
-        /// <returns>ratio between first not null stress and strain</returns>
+        /// <summary>
+        /// The initial (secant) elastic modulus
+        /// </summary>
+        /// <returns>ratio between the stress and the strain of the first point with strain not zero (absolute value); 0 if there is none</returns>
         public double GetElasticModulus()
         {
             if (_strains[1] != 0)
@@ -276,6 +316,10 @@ namespace GPC.Model.Materials
             return 0.0;
         }
 
+        /// <summary>
+        /// Tell if the curve is monotonic: the stress never changes direction (constant parts allowed)
+        /// </summary>
+        /// <returns>True if the stresses do not decrease after increasing (or the opposite)</returns>
         public bool IsHardening()
 		{
             int sign = Math.Sign(_stresses[1] - _stresses[0]);
@@ -296,6 +340,11 @@ namespace GPC.Model.Materials
 
 		#region Equals - hashcode - operators
 
+		/// <summary>
+		/// Equality of the points (exact values)
+		/// </summary>
+		/// <param name="obj">The object to compare</param>
+		/// <returns>True if <paramref name="obj"/> is a table with the same stresses and strains</returns>
 		public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -305,6 +354,10 @@ namespace GPC.Model.Materials
                                                            objCasted.Stresses.SequenceEqual(_stresses);
         }
 
+        /// <summary>
+        /// The hash code of the points (0 for the tables starting from (0, 0), the factors are multiplied)
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -321,11 +374,23 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first table</param>
+        /// <param name="right">The second table</param>
+        /// <returns>True if the tables are equal</returns>
         public static bool operator ==(StressStrainTable left, StressStrainTable right)
         {
             return left.Equals(right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="left">The first table</param>
+        /// <param name="right">The second table</param>
+        /// <returns>True if the tables are different</returns>
         public static bool operator !=(StressStrainTable left, StressStrainTable right)
         {
             return !(left == right);

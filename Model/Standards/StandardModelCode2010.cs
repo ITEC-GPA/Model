@@ -12,25 +12,40 @@ namespace GPC.Model.Standards
     {
         #region Variables
 
+        /// <inheritdoc cref="GammaC"/>
         protected double _gammaC;
+        /// <inheritdoc cref="GammaCAccidental"/>
         protected double _gammaCAccidental;
+        /// <inheritdoc cref="GammaCE"/>
         protected double _gammaCE;
 
+        /// <inheritdoc cref="GammaS"/>
         protected double _gammaS;
+        /// <inheritdoc cref="GammaSAccidental"/>
         protected double _gammaSAccidental;
+        /// <inheritdoc cref="GammaSPrestress"/>
         protected double _gammaSPrestress;
+        /// <inheritdoc cref="GammaSPrestressAccidental"/>
         protected double _gammaSPrestressAccidental;
 
+        /// <inheritdoc cref="AlphaCC"/>
         protected double _alphaCC;
+        /// <inheritdoc cref="AlphaCT"/>
         protected double _alphaCT;
 
+        /// <inheritdoc cref="SteelCoefficientStrainTension"/>
         protected double _steelCoefficientStrainTension;
 
+        /// <inheritdoc cref="GammaF"/>
         protected double _gammaF;
 
+        /// <inheritdoc cref="ServiceabilityStressConcreteCoefficientForCharacteristicCombination"/>
         protected double _serviceabilityStressConcreteCoefficientForCharacteristicCombination;
+        /// <inheritdoc cref="ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination"/>
         protected double _serviceabilityStressConcreteCoefficientForQuasiPermanentCombination;
+        /// <inheritdoc cref="ServiceabilityStressSteelCoefficientForCharacteristicCombination"/>
         protected double _serviceabilityStressSteelCoefficientForCharacteristicCombination;
+        /// <inheritdoc cref="ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination"/>
         protected double _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination;
 
         #endregion
@@ -114,6 +129,9 @@ namespace GPC.Model.Standards
         /// </summary>
         public double ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination { get => _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination; set => _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination = value; }
 
+        /// <summary>
+        /// The group of the standard: European
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.European;
 
         #endregion
@@ -143,16 +161,28 @@ namespace GPC.Model.Standards
             _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination = 0.75;
         }
 
+        /// <summary>
+        /// Creates the standard with the default remarks
+        /// </summary>
+        /// <param name="name">The name</param>
         public StandardModelCode2010(string name = "Fib Model Code 2010")
             : this(name, "Fib Model Code 2010. March 2010")
         {
         }
 
+        /// <summary>
+        /// Creates the standard with the default name and remarks
+        /// </summary>
         public StandardModelCode2010()
             : this("Fib Model Code 2010", "Fib Model Code 2010. March 2010")
         {
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -190,6 +220,11 @@ namespace GPC.Model.Standards
 
         #region Equals - hashcode - operators
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -215,6 +250,11 @@ namespace GPC.Model.Standards
             info.AddValue("ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination", _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination);
         }
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -239,6 +279,10 @@ namespace GPC.Model.Standards
                    base.Equals(code);
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             int hashCode = 23;

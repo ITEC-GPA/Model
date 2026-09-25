@@ -3,35 +3,65 @@ using System.Collections.Generic;
 
 namespace GPC.Model.Maths.GaussIntegrations
 {
+    /// <summary>
+    /// Gauss-Legendre rules on the segment [-1, 1] (the weights sum to 2)
+    /// </summary>
     public static class LineGaussPoints
     {
+        /// <summary>
+        /// The available rules, by number of points
+        /// </summary>
         public enum GaussPointNumber
         {
+            /// <summary>The rule with 1 point</summary>
             Line1 = 1,
+            /// <summary>The rule with 2 points</summary>
             Line2 = 2,
+            /// <summary>The rule with 3 points</summary>
             Line3 = 3,
+            /// <summary>The rule with 4 points</summary>
             Line4 = 4,
+            /// <summary>The rule with 6 points</summary>
             Line6 = 6,
+            /// <summary>The rule with 9 points</summary>
             Line9 = 9,
+            /// <summary>The rule with 16 points</summary>
             Line16 = 16,
+            /// <summary>The rule with 20 points</summary>
             Line20 = 20,
+            /// <summary>The rule with 32 points</summary>
             Line32 = 32,
         }
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 1 point
+        /// </summary>
         public static readonly GaussPoint[] Line1 = new GaussPoint[] { new GaussPoint(0, 0, 0, 2.0, 1) };
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 2 points
+        /// </summary>
         public static readonly GaussPoint[] Line2 = new GaussPoint[] { new GaussPoint(-1.0 / Math.Sqrt(3.0), 1.0, 1),
                                                                        new GaussPoint(+1.0 / Math.Sqrt(3.0), 1.0, 2)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 3 points
+        /// </summary>
         public static readonly GaussPoint[] Line3 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 1),
                                                                        new GaussPoint(+Math.Sqrt(3.0 / 5.0), 5.0 / 9.0, 2),
                                                                        new GaussPoint(0.0, 8.0 / 9.0, 3)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 4 points
+        /// </summary>
         public static readonly GaussPoint[] Line4 = new GaussPoint[] { new GaussPoint(-Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30.0)) / 36.0, 1),
                                                                        new GaussPoint(+Math.Sqrt(3.0 / 7.0 - 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 + Math.Sqrt(30.0)) / 36.0, 2),
                                                                        new GaussPoint(-Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 - Math.Sqrt(30.0)) / 36.0, 3),
                                                                        new GaussPoint(+Math.Sqrt(3.0 / 7.0 + 2.0 / 7.0 * Math.Sqrt(6.0 / 5.0)), (18.0 - Math.Sqrt(30.0)) / 36.0, 4)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 6 points
+        /// </summary>
         public static readonly GaussPoint[] Line6 = new GaussPoint[] { new GaussPoint(-0.2386191860831969086305017, 0.4679139345726910473898703, 1),
                                                                        new GaussPoint(+0.2386191860831969086305017, 0.4679139345726910473898703, 2),
                                                                        new GaussPoint(-0.6612093864662645136613996, 0.3607615730481386075698335, 3),
@@ -39,6 +69,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(-0.9324695142031520278123016, 0.1713244923791703450402961, 5),
                                                                        new GaussPoint(+0.9324695142031520278123016, 0.1713244923791703450402961, 6)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 9 points
+        /// </summary>
         public static readonly GaussPoint[] Line9 = new GaussPoint[] { new GaussPoint(+0.3242534234038089290385380, 0.3123470770400028400686304, 1),
                                                                        new GaussPoint(-0.3242534234038089290385380, 0.3123470770400028400686304, 2),
                                                                        new GaussPoint(+0.6133714327005903973087020, 0.2606106964029354623187429, 3),
@@ -49,6 +82,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                        new GaussPoint(-0.9681602395076260898355762, 0.0812743883615744119718922, 8),
                                                                        new GaussPoint(-0.0000000000000000000000000, 0.3302393550012597631645251, 9)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 16 points
+        /// </summary>
         public static readonly GaussPoint[] Line16 = new GaussPoint[] { new GaussPoint(-0.0950125098376374401853193, 0.1894506104550684962853967, 1),
                                                                         new GaussPoint(+0.0950125098376374401853193, 0.1894506104550684962853967, 2),
                                                                         new GaussPoint(-0.2816035507792589132304605, 0.1826034150449235888667637, 3),
@@ -66,6 +102,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(-0.9894009349916499325961542, 0.0271524594117540948517806, 15),
                                                                         new GaussPoint(+0.9894009349916499325961542, 0.0271524594117540948517806, 16)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 20 points
+        /// </summary>
         public static readonly GaussPoint[] Line20 = new GaussPoint[] { new GaussPoint(-0.0765265211334973337546404, 0.1527533871307258506980843, 1),
                                                                         new GaussPoint(+0.0765265211334973337546404, 0.1527533871307258506980843, 2),
                                                                         new GaussPoint(-0.2277858511416450780804962, 0.1491729864726037467878287, 3),
@@ -87,6 +126,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(-0.9931285991850949247861224, 0.0176140071391521183118620, 19),
                                                                         new GaussPoint(+0.9931285991850949247861224, 0.0176140071391521183118620, 20)};
 
+        /// <summary>
+        /// The Gauss-Legendre rule with 32 points
+        /// </summary>
         public static readonly GaussPoint[] Line32 = new GaussPoint[] { new GaussPoint(-0.0483076656877383162348126, 0.0965400885147278005667648, 1),
                                                                         new GaussPoint(+0.0483076656877383162348126, 0.0965400885147278005667648, 2),
                                                                         new GaussPoint(-0.1444719615827964934851864, 0.0956387200792748594190820, 3),
@@ -123,6 +165,9 @@ namespace GPC.Model.Maths.GaussIntegrations
                                                                         new GaussPoint(-0.9972638618494815635449811, 0.0070186100094700966004071, 31),
                                                                         new GaussPoint(+0.9972638618494815635449811, 0.0070186100094700966004071, 32)};
 
+        /// <summary>
+        /// The rules by number of points
+        /// </summary>
         public static Dictionary<GaussPointNumber, GaussPoint[]> GaussPointNumberAssociation = new Dictionary<GaussPointNumber, GaussPoint[]>()
         {
             { GaussPointNumber.Line1, Line1 },

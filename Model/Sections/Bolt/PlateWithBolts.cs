@@ -9,32 +9,53 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
+    /// <summary>
+    /// A steel plate (shape with holes and material) with a grid of bolts: distances of the bolts from the edges and between them (e1, e2, p1, p2 of EN 1993-1-8) and distribution of the forces on the bolts
+    /// </summary>
     [Serializable]
     public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>, ISerializable
     {
         #region Constant
 
+        /// <summary>
+        /// The value of a spacing when there is no bolt or edge in the direction
+        /// </summary>
         public const double SPACINGMAXVALUE = double.MaxValue;
 
         #endregion
 
         #region Variables
 
+        /// <summary>
+        /// The bolts
+        /// </summary>
         protected BoltGrid _boltGrid;
+        /// <summary>
+        /// The thickness of the plate
+        /// </summary>
         protected double _thickness;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The bolts
+        /// </summary>
         public BoltGrid BoltGrid => _boltGrid;
 
+        /// <summary>
+        /// The thickness of the plate (minimum 0.01)
+        /// </summary>
         public double Thickness
         {
             get => _thickness;
             set => _thickness = value > 0.01 ? value : 0.01;
         }
 
+        /// <summary>
+        /// The material of the plate
+        /// </summary>
         public Material PlateMaterial
         {
             get => _material;
@@ -60,11 +81,21 @@ namespace GPC.Model.Sections.Bolt
             _thickness = plateThickness;
         }
 
+        /// <summary>
+        /// Define a generic plate without bolts and thickness 10
+        /// </summary>
+        /// <param name="plateShape">Plate shape.</param>
+        /// <param name="plateMaterial">Plate material.</param>
         public PlateWithBolts(in Polygon2d plateShape, in Material plateMaterial)
             : this(plateShape, plateMaterial, new BoltGrid(), 10.0)
         {
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public PlateWithBolts(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -78,6 +109,11 @@ namespace GPC.Model.Sections.Bolt
 
         #region Methods
 
+        /// <summary>
+        /// Serializes the plate
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -89,47 +125,102 @@ namespace GPC.Model.Sections.Bolt
             info.AddValue("Thickness", _thickness);
         }
 
+        /// <summary>
+        /// The end distance e1 of a bolt in the direction of the force (see <see cref="CalculateE1(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The distance</returns>
         public double CalculateE1(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
             return CalculateE1(bolt, CalculateAngle(resultBeamForces));
         }
 
+        /// <summary>
+        /// The edge distance e2 of a bolt perpendicular to the force (see <see cref="CalculateE2(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The distance</returns>
         public double CalculateE2(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
             return CalculateE2(bolt, CalculateAngle(resultBeamForces));
         }
 
+        /// <summary>
+        /// The line to the closest bolt in the direction of the force (see <see cref="CalculateP1Line(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The line; null if there is no bolt</returns>
         public Line2d CalculateP1Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
             return CalculateP1Line(bolt, CalculateAngle(resultBeamForces));
         }
 
+        /// <summary>
+        /// The line to the closest bolt perpendicular to the force (see <see cref="CalculateP2Line(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The line; null if there is no bolt</returns>
         public Line2d CalculateP2Line(BoltPosition bolt, ResultBeamForces resultBeamForces)
         {
             return CalculateP2Line(bolt, CalculateAngle(resultBeamForces));
         }
 
+        /// <summary>
+        /// The end distance e1: from the centers of the hole to the edge in the direction of the force (a null line, no edge in the direction,
+        /// throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The distance</returns>
         public double CalculateE1(BoltPosition bolt, double forceDirectionAngle)
         {
             return CalculateClosestEdgePoint(bolt, forceDirectionAngle, out Line2d _).Length;
         }
 
+        /// <summary>
+        /// The edge distance e2: the minimum distance from the centers of the hole to the edge in the two directions perpendicular to the force
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The distance</returns>
         public double CalculateE2(BoltPosition bolt, double forceDirectionAngle)
         {
             return Math.Min(CalculateClosestEdgePoint(bolt, forceDirectionAngle + Math.PI / 2.0, out Line2d _).Length,
                 CalculateClosestEdgePoint(bolt, forceDirectionAngle - Math.PI / 2.0, out Line2d _).Length);
         }
 
+        /// <summary>
+        /// The line to the closest bolt in the direction of the force (within ±45°)
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The line; null if there is no bolt</returns>
         public Line2d CalculateP1Line(BoltPosition bolt, double forceDirectionAngle)
         {
             return CalculateClosestBolt(bolt, forceDirectionAngle);
         }
 
+        /// <summary>
+        /// The spacing p1: the distance from the closest bolt in the direction of the force
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The distance; <see cref="SPACINGMAXVALUE"/> if there is no bolt</returns>
         public double CalculateP1(BoltPosition bolt, double forceDirectionAngle)
         {
             return CalculateP1Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
         }
 
+        /// <summary>
+        /// The line to the closest bolt in the two directions perpendicular to the force
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The line; null if there is no bolt</returns>
         public Line2d CalculateP2Line(BoltPosition bolt, double forceDirectionAngle)
         {
             var d1Line = CalculateClosestBolt(bolt, forceDirectionAngle + Math.PI / 2.0);
@@ -143,11 +234,22 @@ namespace GPC.Model.Sections.Bolt
                 return d2Line;
         }
 
+        /// <summary>
+        /// The spacing p2: the distance from the closest bolt perpendicular to the force
+        /// </summary>
+        /// <param name="bolt">The bolt</param>
+        /// <param name="forceDirectionAngle">The direction of the force from X (radians)</param>
+        /// <returns>The distance; <see cref="SPACINGMAXVALUE"/> if there is no bolt</returns>
         public double CalculateP2(BoltPosition bolt, double forceDirectionAngle)
         {
             return CalculateP2Line(bolt, forceDirectionAngle)?.Length ?? SPACINGMAXVALUE;
         }
 
+        /// <summary>
+        /// The minimum e1 of all the bolts (see <see cref="CalculateE1(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The minimum distance; <see cref="SPACINGMAXVALUE"/> without bolts</returns>
         public double CalculateE1Min(ResultBeamForces resultBeamForces)
         {
             double distance = SPACINGMAXVALUE;
@@ -164,6 +266,11 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
+        /// <summary>
+        /// The minimum e2 of all the bolts (see <see cref="CalculateE2(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The minimum distance; <see cref="SPACINGMAXVALUE"/> without bolts</returns>
         public double CalculateE2Min(ResultBeamForces resultBeamForces)
         {
             double distance = SPACINGMAXVALUE;
@@ -180,6 +287,11 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
+        /// <summary>
+        /// The minimum p1 of all the bolts (see <see cref="CalculateP1(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The minimum distance; <see cref="SPACINGMAXVALUE"/> without bolts</returns>
         public double CalculateP1Min(ResultBeamForces resultBeamForces)
         {
             double distance = SPACINGMAXVALUE;
@@ -196,6 +308,11 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
+        /// <summary>
+        /// The minimum p2 of all the bolts (see <see cref="CalculateP2(BoltPosition, double)"/>)
+        /// </summary>
+        /// <param name="resultBeamForces">The forces: the direction of the shear (V1, V2) is used</param>
+        /// <returns>The minimum distance; <see cref="SPACINGMAXVALUE"/> without bolts</returns>
         public double CalculateP2Min(ResultBeamForces resultBeamForces)
         {
             double distance = SPACINGMAXVALUE;
@@ -212,15 +329,20 @@ namespace GPC.Model.Sections.Bolt
             return distance;
         }
 
+        /// <summary>
+        /// The direction of the shear force: atan2(V2, V1)
+        /// </summary>
+        /// <param name="resultBeamForces">The forces</param>
+        /// <returns>The angle from X (radians)</returns>
         public virtual double CalculateAngle(ResultBeamForces resultBeamForces)
         {
             return Math.Atan2(resultBeamForces.V2, resultBeamForces.V1);
         }
 
         /// <summary>
-        /// Utility.
+        /// The sides of the outer polygon and of the holes
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The sides</returns>
         private List<Line2d> GetEdges()
         {
             var edges = Shape.Fill2d.Explode().ToList();
@@ -232,12 +354,9 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Utility.
-        /// Required area:
-        /// - positive area for outer border, point in counterclockwise order.
-        /// - negative area for inner border (holes), point in clockwise order.
+        /// The sides of the outer polygon (counterclockwise: positive area) and of the holes (clockwise: negative area)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The oriented sides</returns>
         private List<Line2d> GetEdgesBoundaryOriented()
         {
             List<Line2d> edges;
@@ -270,9 +389,10 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from the edge in a specific direction.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="bolt"></param>
-        /// <param name="angle"></param>
-        /// <returns>Point from center to point of minimum distance.</returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <param name="angle">The direction from X (radians)</param>
+        /// <param name="minEdge">The edge of the minimum distance (null if none)</param>
+        /// <returns>Line from center to point of minimum distance; null if no edge is found in the direction.</returns>
         private Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, double angle, out Line2d minEdge)
         {
             double distance = SPACINGMAXVALUE;
@@ -329,10 +449,10 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Returns the list of all bolts other than a specific id.
+        /// Returns the list of all bolts other than a specific one.
         /// </summary>
-        /// <param name="boltPosition"></param>
-        /// <returns></returns>
+        /// <param name="boltPosition">The bolt to exclude</param>
+        /// <returns>The other bolts</returns>
         private List<BoltPosition> GetOtherBolts(BoltPosition boltPosition)
         {
             var otherBolts = new List<BoltPosition>();
@@ -347,13 +467,13 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculates the minimum distance of holes around in a specific direction.
+        /// Calculates the minimum distance of holes around in a specific direction (the other centers within ±(45° + tolerance) from it).
         /// Works for normal and slotted holes.
-        /// If it finds no bolts it returns SPACINGMAXVALUE.
         /// </summary>
-        /// <param name="boltPosition"></param>
-        /// <param name="angle"></param>
-        /// <returns></returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <param name="angle">The direction from X (radians)</param>
+        /// <param name="tolerance">The angular tolerance</param>
+        /// <returns>The line to the closest center; null if it finds no bolts.</returns>
         private Line2d CalculateClosestBolt(BoltPosition boltPosition, double angle, double tolerance = AngularTolerance)
         {
             double distance = SPACINGMAXVALUE;
@@ -403,8 +523,8 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from another bolt in all directions.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="boltPosition"></param>
-        /// <returns></returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <returns>The minimum distance between the centers; <see cref="SPACINGMAXVALUE"/> if there are no other bolts</returns>
         public double CalculateClosestBolt(BoltPosition boltPosition)
         {
             double minDist = SPACINGMAXVALUE;
@@ -438,6 +558,15 @@ namespace GPC.Model.Sections.Bolt
             return minDist;
         }
 
+        /// <summary>
+        /// Adds a bolt inside the plate (see <see cref="BoltGrid.AddBolt(double, double, double, SteelMaterial, Hole)"/>)
+        /// </summary>
+        /// <param name="posX">The X of the position</param>
+        /// <param name="posY">The Y of the position</param>
+        /// <param name="diameter">The diameter of the bolt</param>
+        /// <param name="mat">The material of the bolt</param>
+        /// <param name="hole">The hole (null: circular with the diameter of the bolt + 1)</param>
+        /// <returns>The new bolt position; null if the position is outside the plate or the bolt overlaps another one</returns>
         public BoltPosition AddBolt(double posX, double posY, double diameter, SteelMaterial mat, Hole hole = null)
         {
             // Check it is inside.
@@ -451,8 +580,9 @@ namespace GPC.Model.Sections.Bolt
         /// Given a bolt find the minimum distance from the edge in all directions.
         /// Works for normal and slotted holes.
         /// </summary>
-        /// <param name="boltPosition"></param>
-        /// <returns>Point from center to point of minimum distance.</returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <param name="minEdge">The closest edge</param>
+        /// <returns>Line from center to point of minimum distance.</returns>
         public Line2d CalculateClosestEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
         {
             double minDist = SPACINGMAXVALUE;
@@ -489,10 +619,11 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// This method comes from the need to check even the farthest edge with the maximum value.
         /// Chosen to check the minimum point between all sides, and of these take the maximum value that
-        /// has no bolts in the middle.
+        /// has no bolts in the middle (only the directions orthogonal to the edges, see <see cref="CalculateSignificantAngles"/>).
         /// </summary>
-        /// <param name="boltPosition"></param>
-        /// <returns></returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <param name="minEdge">The edge of the returned distance</param>
+        /// <returns>Line from center to the edge; null if none is found</returns>
         public Line2d CalculateFurtherMinimumEdgePoint(BoltPosition boltPosition, out Line2d minEdge)
         {
             double maxDist = double.MinValue;
@@ -539,8 +670,8 @@ namespace GPC.Model.Sections.Bolt
         /// Calculate if bolt is of type outer or inner.
         /// To say whether it is outer is enough if it is on one side, but if it is not for any side then it is inner.
         /// </summary>
-        /// <param name="bolt"></param>
-        /// <returns></returns>
+        /// <param name="boltPosition">The bolt</param>
+        /// <returns>True if the bolt is outer (no other bolt between it and an edge)</returns>
         public bool IsOuuter(BoltPosition boltPosition)
         {
             // Find point on edges with minimum distance.
@@ -570,9 +701,9 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Edge list. For each edge add the orthogonal directions in degrees to reduce them in number.
+        /// Edge list. For each edge add the orthogonal directions in degrees (integers, 0 to 359) to reduce them in number.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The directions in degrees</returns>
         private HashSet<int> CalculateSignificantAngles()
         {
             var angles = new HashSet<int>();
@@ -610,15 +741,18 @@ namespace GPC.Model.Sections.Bolt
         /// - conservation of plane section.
         /// - resistance of concrete in compression only.
         /// - homogenization of the section by a parameter n (quite similar to that used in the method of allowable stresses): homogenization coefficient given by the ratio Es / Ec = n.
-        /// 
+        ///
         /// The initial shapes of the concrete and steel:
         /// - concrete, polygonal shapes.
         /// - steel, always formed by a series of circles. Assumes same material for all bolts.
+        /// The neutral axis is found iteratively; the loop condition is "not converged OR less than 30 iterations": at least 30 iterations, and
+        /// it does not end while the neutral axis moves more than 0.1.
         /// </summary>
         /// <param name="Soll">Stress on the entire section.</param>
         /// <param name="concreteElasticModulus">Elastic modulus of the material under the plate subject to contact partialization.</param>
         /// <param name="boltForces">Update axial N values with redistribuited tension.</param>
         /// <param name="concreteMinStress">Minimum stress in concrete area.</param>
+        /// <exception cref="InvalidOperationException">If the plate has no bolts (and |N| is at least 1)</exception>
         public void CalculateTensionForcesElastic(in ResultBeamForces Soll, in double concreteElasticModulus, Dictionary<BoltPosition, ResultBeamForces> boltForces, out double concreteMinStress)
         {
             // Special case, there is no axial force.
@@ -931,10 +1065,20 @@ namespace GPC.Model.Sections.Bolt
 
         #region Comparers
 
+        /// <summary>
+        /// Equality with another plate (see <see cref="Equals(PlateWithBolts)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal plate</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as PlateWithBolts);
         }
+        /// <summary>
+        /// Equality of the shape and material, of the bolt grid and of the thickness
+        /// </summary>
+        /// <param name="other">The plate to compare</param>
+        /// <returns>True if the plates are equal</returns>
         public bool Equals(PlateWithBolts other)
         {
             return !(other is null) &&
@@ -943,6 +1087,10 @@ namespace GPC.Model.Sections.Bolt
             _thickness == other._thickness;
         }
 
+        /// <summary>
+        /// The hash code of the shape, of the bolt grid and of the thickness
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -955,6 +1103,12 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(PlateWithBolts)"/>)
+        /// </summary>
+        /// <param name="left">The first plate</param>
+        /// <param name="right">The second plate</param>
+        /// <returns>True if the plates are equal</returns>
         public static bool operator ==(PlateWithBolts left, PlateWithBolts right)
         {
             if (left is null)
@@ -963,6 +1117,12 @@ namespace GPC.Model.Sections.Bolt
             return EqualityComparer<PlateWithBolts>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(PlateWithBolts)"/>)
+        /// </summary>
+        /// <param name="left">The first plate</param>
+        /// <param name="right">The second plate</param>
+        /// <returns>True if the plates are different</returns>
         public static bool operator !=(PlateWithBolts left, PlateWithBolts right)
         {
             return !(left == right);

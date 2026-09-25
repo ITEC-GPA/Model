@@ -5,34 +5,89 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Materials
 {
+    /// <summary>
+    /// A material: elastic moduli in compression and tension, yield and ultimate strains and stresses, characteristic stress-strain tables,
+    /// Poisson's ratio, thermal expansion and density. Strains and stresses are positive in tension, negative in compression
+    /// </summary>
     [Serializable]
     public class Material : ModelObject, ISerializable
     {
         #region Variables
 
+        /// <summary>
+        /// The elastic modulus in compression
+        /// </summary>
         protected double _elasticModulusCompression;
+        /// <summary>
+        /// The elastic modulus in tension
+        /// </summary>
         protected double _elasticModulusTension;
 
+        /// <summary>
+        /// The strain at the yield stress in compression
+        /// </summary>
         protected double _strainYCompression;
+        /// <summary>
+        /// The ultimate strain in compression
+        /// </summary>
         protected double _strainUCompression;
 
+        /// <summary>
+        /// The strain at the yield stress in tension
+        /// </summary>
         protected double _strainYTension;
+        /// <summary>
+        /// The ultimate strain in tension
+        /// </summary>
         protected double _strainUTension;
 
+        /// <summary>
+        /// The yield stress in compression
+        /// </summary>
         protected double _stressYCompression;
+        /// <summary>
+        /// The ultimate stress in compression
+        /// </summary>
         protected double _stressUCompression;
 
+        /// <summary>
+        /// The yield stress in tension
+        /// </summary>
         protected double _stressYTension;
+        /// <summary>
+        /// The ultimate stress in tension
+        /// </summary>
         protected double _stressUTension;
 
+        /// <summary>
+        /// The Poisson's ratio
+        /// </summary>
         protected double _ni;
+        /// <summary>
+        /// The coefficient of thermal expansion
+        /// </summary>
         protected double _alfaThermalExpansion;
+        /// <summary>
+        /// The density
+        /// </summary>
         protected double _density;
 
+        /// <summary>
+        /// The characteristic stress-strain table in compression
+        /// </summary>
         protected StressStrainTable _stressStrainTableCompression;
+        /// <summary>
+        /// The characteristic stress-strain table in tension
+        /// </summary>
         protected StressStrainTable _stressStrainTableTension;
 
+        /// <summary>
+        /// True if the properties are derived from the main characteristics according to the standard (see <see cref="AccordingToStandard"/>)
+        /// </summary>
         protected bool _accordingToStandard;
+        /// <summary>
+        /// True for the materials of the standards, not editable by the user (see <see cref="IsReadOnly"/>)
+        /// </summary>
         protected bool _isReadOnly;
 
         #endregion
@@ -49,6 +104,9 @@ namespace GPC.Model.Materials
         /// </summary>
         public double ElasticModulusTension { get => _elasticModulusTension; set => _elasticModulusTension = value; }
 
+        /// <summary>
+        /// The elastic modulus, when it is the same in compression and in tension; 0 otherwise
+        /// </summary>
         public double E
         {
             get
@@ -61,7 +119,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Strain in the material at the yelding stress 
+        /// Strain in the material at the yielding stress in compression
         /// </summary>
         public double StrainYCompression { get => _strainYCompression; set => _strainYCompression = value; }
 
@@ -71,7 +129,7 @@ namespace GPC.Model.Materials
         public double StrainUCompression { get => _strainUCompression; set => _strainUCompression = value; }
 
         /// <summary>
-        /// Strain in the material at the yelding stress
+        /// Strain in the material at the yielding stress in tension
         /// </summary>
         public double StrainYTension { get => _strainYTension; set => _strainYTension = value; }
 
@@ -81,7 +139,7 @@ namespace GPC.Model.Materials
         public double StrainUTension { get => _strainUTension; set => _strainUTension = value; }
 
         /// <summary>
-        /// Yelding stress in compression
+        /// Yielding stress in compression
         /// </summary>
         public double StressYCompression { get => _stressYCompression; set => _stressYCompression = value; }
 
@@ -91,7 +149,7 @@ namespace GPC.Model.Materials
         public double StressUCompression { get => _stressUCompression; set => _stressUCompression = value; }
 
         /// <summary>
-        /// Yelding stress in tension
+        /// Yielding stress in tension
         /// </summary>
         public double StressYTension { get => _stressYTension; set => _stressYTension = value; }
 
@@ -116,7 +174,7 @@ namespace GPC.Model.Materials
         public double Density { get => _density; set => _density = value; }
 
         /// <summary>
-        /// Characteristic Stress strain table in comrpession
+        /// Characteristic Stress strain table in compression
         /// </summary>
         public StressStrainTable StressStrainTableCompression { get => _stressStrainTableCompression; set => _stressStrainTableCompression = value; }
 
@@ -143,6 +201,18 @@ namespace GPC.Model.Materials
 
         #region Public Constructor
 
+        /// <summary>
+        /// Creates a material from its stress-strain tables and elastic constants (read only, according to the standard)
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="stressStrainTableCompression">The characteristic stress-strain table in compression</param>
+        /// <param name="stressStrainTableTension">The characteristic stress-strain table in tension</param>
+        /// <param name="elasticModulusCompression">The elastic modulus in compression</param>
+        /// <param name="elasticModulusTension">The elastic modulus in tension</param>
+        /// <param name="poisson">The Poisson's ratio, from 0 to 0.5</param>
+        /// <param name="density">The density</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
+        /// <exception cref="ArgumentException">If the Poisson's ratio is out of [0, 0.5] or a modulus, the density or the thermal coefficient is negative</exception>
         public Material(string name, StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, double elasticModulusCompression,
             double elasticModulusTension, double poisson, double density, double alfaThermalExpansion)
             : base(name)
@@ -165,19 +235,24 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// 
+        /// Creates a linear elastic material with the same modulus in compression and tension and empty stress-strain tables
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="elasticModulus"> Elastic Modulus [MPa]</param>
-        /// <param name="poisson"> Poisson modulus </param>
-        /// <param name="alfaThermalExpansion"> Thermal expansion constant</param>
-        /// <param name="density"> Density [T/mm^3]</param>
+        /// <param name="name">The name</param>
+        /// <param name="elasticModulus">Elastic Modulus [MPa]</param>
+        /// <param name="poisson">Poisson's ratio, from 0 to 0.5</param>
+        /// <param name="density">Density [T/mm^3]</param>
+        /// <param name="alfaThermalExpansion">Thermal expansion constant</param>
+        /// <exception cref="ArgumentException">If the Poisson's ratio is out of [0, 0.5] or a value is negative</exception>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
             : this(name, new StressStrainTable(null, null), new StressStrainTable(null, null), elasticModulus, elasticModulus,
                   poisson, density, alfaThermalExpansion)
         {
         }
 
+        /// <summary>
+        /// Creates a material with only the name (read only, according to the standard): the derived classes set the properties
+        /// </summary>
+        /// <param name="name">The name</param>
         protected Material(string name)
             : base(Guid.NewGuid(), name)
         {
@@ -185,6 +260,26 @@ namespace GPC.Model.Materials
             _accordingToStandard = true;
         }
 
+        /// <summary>
+        /// Creates a material from all its properties (read only, according to the standard)
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="elasticModulusCompression">The elastic modulus in compression</param>
+        /// <param name="elasticModulusTension">The elastic modulus in tension</param>
+        /// <param name="strainYCompression">The strain at the yield stress in compression</param>
+        /// <param name="strainUCompression">The ultimate strain in compression</param>
+        /// <param name="strainYTension">The strain at the yield stress in tension</param>
+        /// <param name="strainUTension">The ultimate strain in tension</param>
+        /// <param name="stressYCompression">The yield stress in compression</param>
+        /// <param name="stressUCompression">The ultimate stress in compression</param>
+        /// <param name="stressYTension">The yield stress in tension</param>
+        /// <param name="stressUTension">The ultimate stress in tension</param>
+        /// <param name="stressStrainTableCompression">The characteristic stress-strain table in compression</param>
+        /// <param name="stressStrainTableTension">The characteristic stress-strain table in tension</param>
+        /// <param name="poisson">The Poisson's ratio, from 0 to 0.5</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
+        /// <param name="density">The density</param>
+        /// <exception cref="ArgumentException">If the Poisson's ratio is out of [0, 0.5] or a modulus, the density or the thermal coefficient is negative</exception>
         protected Material(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
@@ -218,6 +313,12 @@ namespace GPC.Model.Materials
             _accordingToStandard = true;
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the data according to the version (1: only one elastic modulus; 2: moduli, strains, stresses and tables;
+        /// 3: read only flag; 4: according to standard flag)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected Material(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -273,17 +374,29 @@ namespace GPC.Model.Materials
 
         #region Public Methods
 
+        /// <summary>
+        /// The shear modulus of an isotropic material: E / (2 (1 + ν)), with the modulus in compression
+        /// </summary>
+        /// <returns>The shear modulus</returns>
         public virtual double GetShearModule()
         {
             return ElasticModulusCompression / (2.0 * (1.0 + Ni));
         }
 
+        /// <summary>
+        /// Changes the name (null is ignored)
+        /// </summary>
+        /// <param name="name">The new name</param>
         public void SetName(string name)
         {
             if (name != null)
                 _name = name;
         }
 
+        /// <summary>
+        /// The characteristic stress for a strain, from the table in tension (positive strain) or in compression
+        /// </summary>
+        /// <param name="strain">The strain (positive in tension)</param>
         /// <returns>The characteristic stress related to <paramref name="strain"/></returns>
         public double GetStress(double strain)
         {
@@ -297,6 +410,9 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <summary>
+        /// Sets the yield and ultimate stresses from the tables at the yield and ultimate strains
+        /// </summary>
         protected virtual void SetStressProperties()
         {
             _stressYCompression = _stressStrainTableCompression.GetStress(_strainYCompression);
@@ -306,8 +422,9 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Matrice stato piano di tensione da materiale elastico lineare isotropo
+        /// The elastic matrix of plane stress of a linear elastic isotropic material: E / (1 - ν²) [[1, ν, 0], [ν, 1, 0], [0, 0, (1 - ν) / 2]]
         /// </summary>
+        /// <returns>The 3x3 matrix (zero if the moduli in compression and tension are different, see <see cref="E"/>)</returns>
         public virtual Matrix<double> GetPlaneStress()
         {
             Matrix<double> D = Matrix<double>.Build.Dense(3, 3);
@@ -321,8 +438,9 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        ///
+        /// The elastic matrix of a linear elastic isotropic solid (6x6: normal and shear components)
         /// </summary>
+        /// <returns>The matrix (zero if the moduli in compression and tension are different, see <see cref="E"/>)</returns>
         /// <remarks>reference eq. 11.10 - Finite element method by Rao</remarks>
         public Matrix<double> GetBrickD()
         {
@@ -355,6 +473,11 @@ namespace GPC.Model.Materials
 
         #region Equals - HashCode - Operators
 
+        /// <summary>
+        /// Serializes the data of <see cref="ModelObject"/> and the properties (version 4)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -387,6 +510,10 @@ namespace GPC.Model.Materials
             info.AddValue("AccordingToStandard", _accordingToStandard);
         }
 
+        /// <summary>
+        /// The hash code of name, elastic moduli, Poisson's ratio, thermal coefficient, density and tables
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -404,6 +531,11 @@ namespace GPC.Model.Materials
             }
         }
 
+        /// <summary>
+        /// Equality of name and of all the properties (exact values)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal material</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -429,6 +561,12 @@ namespace GPC.Model.Materials
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>); two null materials are equal
+        /// </summary>
+        /// <param name="obj1">The first material</param>
+        /// <param name="obj2">The second material</param>
+        /// <returns>True if the materials are equal</returns>
         public static bool operator ==(Material obj1, Material obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -440,6 +578,12 @@ namespace GPC.Model.Materials
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first material</param>
+        /// <param name="obj2">The second material</param>
+        /// <returns>True if the materials are different</returns>
         public static bool operator !=(Material obj1, Material obj2)
         {
             return !(obj1 == obj2);

@@ -5,22 +5,43 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// An angle (L) section: a horizontal leg on the bottom and a vertical leg on the left; the origin is the outer corner
+    /// </summary>
     [Serializable]
     public class SectionL : ThinWallSection, ISerializable, IEquatable<SectionL>
     {
         #region Variables
 
+        /// <summary>
+        /// The length of the horizontal leg
+        /// </summary>
         private double _horizontalLegLength;
+        /// <summary>
+        /// The thickness of the horizontal leg
+        /// </summary>
         private double _horizontalLegThickness;
+        /// <summary>
+        /// The length of the vertical leg
+        /// </summary>
         private double _verticalLegLength;
+        /// <summary>
+        /// The thickness of the vertical leg
+        /// </summary>
         private double _verticalLegThickness;
 
-        private readonly double _r;                // raggio di curvatura o altezza di gola
+        /// <summary>
+        /// The fillet radius or the throat of the weld (not used in the calculations)
+        /// </summary>
+        private readonly double _r;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The length of the horizontal leg (the setter calculates the section again)
+        /// </summary>
         public double HorizontalLegLength
         {
             get => _horizontalLegLength;
@@ -34,6 +55,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The thickness of the horizontal leg (the setter calculates the section again)
+        /// </summary>
         public double HorizontalLegThickness
         {
             get => _horizontalLegThickness;
@@ -47,6 +71,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The length of the vertical leg (the setter calculates the section again)
+        /// </summary>
         public double VerticalLegLength
         {
             get => _verticalLegLength;
@@ -60,6 +87,9 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The thickness of the vertical leg (the setter calculates the section again)
+        /// </summary>
         public double VerticalLegThickness
         {
             get => _verticalLegThickness;
@@ -73,14 +103,23 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// The fillet radius or the throat of the weld (not used in the calculations)
+        /// </summary>
         public double R => _r;
 
+        /// <summary>
+        /// The height: the length of the vertical leg
+        /// </summary>
         public override double Height
         {
             get => VerticalLegLength;
             set => VerticalLegLength = value;
         }
 
+        /// <summary>
+        /// The width: the length of the horizontal leg
+        /// </summary>
         public override double Width => _horizontalLegLength;
 
         #endregion
@@ -88,9 +127,9 @@ namespace GPC.Model.Sections
         #region Constructor
 
         /// <summary>
-        /// Default constructor.
-        /// 
+        /// Default constructor: creates the section and calculates its properties.
         /// Thin walls with _angle = 0:
+        /// <code>
         ///  ▲ Y
         ///  │
         ///  │
@@ -103,12 +142,15 @@ namespace GPC.Model.Sections
         ///  ├───┴─────────────────┐
         ///  │                     │
         ///  └─────────────────────┘ ────► X
+        /// </code>
         /// </summary>
         /// <param name="horizontalLegLength">The horizontal leg length</param>
-        /// <param name="horizontalLegThickness">The horizontal leg _thickness</param>
+        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
         /// <param name="verticalLegLength">The vertical leg length</param>
-        /// <param name="verticalLegThickness">The vertical leg _thickness</param>
+        /// <param name="verticalLegThickness">The vertical leg thickness</param>
         /// <param name="name">Name of the section</param>
+        /// <param name="radius">The fillet radius or the throat of the weld (negative: 0; not used in the calculations)</param>
+        /// <exception cref="ArgumentException">If a dimension is negative</exception>
         public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness,
             string name, double radius = 0)
             : base(name)
@@ -130,6 +172,11 @@ namespace GPC.Model.Sections
             ResetMesh();
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected SectionL(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -154,6 +201,10 @@ namespace GPC.Model.Sections
 
         #region Protected method
 
+        /// <summary>
+        /// Calculates the properties: area, centroid, moments of inertia, principal axes and the elastic moduli from the five vertices of the
+        /// shape (respect to X and Y and to the principal axes)
+        /// </summary>
         public override void SetMechanicalProperties()
         {
             _area = CalculateArea();
@@ -196,46 +247,85 @@ namespace GPC.Model.Sections
             _wpl2 = CalculateWpl2();
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the top fibre
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWelXMax()
         {
             return CalculateWel(0.0, _jxx, _jyy).WelTop;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to X of the bottom fibre
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWelXMin()
         {
             return CalculateWel(0.0, _jxx, _jyy).WelBottom;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the right fibre
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWelYMax()
         {
             return CalculateWel(0.0, _jxx, _jyy).WelRight;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to Y of the left fibre
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWelYMin()
         {
             return CalculateWel(0.0, _jxx, _jyy).WelLeft;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 1 of the fibre with the maximum coordinate y1
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWel1Max()
         {
             return CalculateWel(_angleX1, _j11, _j22).WelTop;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 1 of the fibre with the minimum coordinate y1
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWel1Min()
         {
             return CalculateWel(_angleX1, _j11, _j22).WelBottom;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 2 of the fibre with the maximum coordinate x1
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWel2Max()
         {
             return CalculateWel(_angleX1, _j11, _j22).WelRight;
         }
 
+        /// <summary>
+        /// Calculate the elastic modulus respect to the axis 2 of the fibre with the minimum coordinate x1
+        /// </summary>
+        /// <returns>The elastic modulus</returns>
         protected override double CalculateWel2Min()
         {
             return CalculateWel(_angleX1, _j11, _j22).WelLeft;
         }
 
+        /// <summary>
+        /// The elastic moduli respect to the axes through the centroid rotated by an angle, from the extreme vertices
+        /// </summary>
+        /// <param name="teta">The angle of the axes from X (radians)</param>
+        /// <param name="Jxx">The moment of inertia about the rotated x axis</param>
+        /// <param name="Jyy">The moment of inertia about the rotated y axis</param>
+        /// <returns>The moduli of the top, bottom, left and right fibres</returns>
         private (double WelTop, double WelBottom, double WelLeft, double WelRight) CalculateWel(in double teta, in double Jxx, in double Jyy)
         {
             var (minX, maxX, minY, maxY) = FivePointsCheck(teta);
@@ -247,6 +337,11 @@ namespace GPC.Model.Sections
             return (WelTop, WelBottom, WelLeft, WelRight);
         }
 
+        /// <summary>
+        /// The extreme coordinates of the five outer vertices of the shape in the axes through the centroid rotated by an angle
+        /// </summary>
+        /// <param name="angle">The angle of the axes from X (radians)</param>
+        /// <returns>The minimum and maximum x and y</returns>
         private (double minX, double maxX, double minY, double maxY) FivePointsCheck(in double angle)
         {
             //check 5 points
@@ -280,18 +375,30 @@ namespace GPC.Model.Sections
             return (minX, maxX, minY, maxY);
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about X through the centroid: the one about the top side minus the transport term
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJxx()
         {
             return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) -
                 Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
         }
 
+        /// <summary>
+        /// Calculate the moment of inertia about Y through the centroid: the one about the right side minus the transport term
+        /// </summary>
+        /// <returns>The moment of inertia</returns>
         protected override double CalculateJyy()
         {
             return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
                 Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
 
+        /// <summary>
+        /// The shape of the section (without radius)
+        /// </summary>
+        /// <returns>The new shape</returns>
         protected override Shape2d GetShape()
         {
             return new Shape2d(new Polygon2d(new Point2d[] {
@@ -303,21 +410,37 @@ namespace GPC.Model.Sections
                 new Point2d(_horizontalLegLength, 0.0) }));
         }
 
+        /// <summary>
+        /// Calculate the warping constant (CNR DT 208/2011)
+        /// </summary>
+        /// <returns>The warping constant</returns>
         protected override double CalculateJw()
         {
             return (Math.Pow(_horizontalLegLength - _verticalLegThickness / 2.0, 3.0) * Math.Pow(_horizontalLegThickness, 3.0) + Math.Pow(_verticalLegLength - _horizontalLegThickness / 2.0, 3.0) * Math.Pow(_verticalLegThickness, 3.0)) / 36.0; //CNR DT 208/2011
         }
 
+        /// <summary>
+        /// Calculate the torsion constant: sum of b t³ / 3 of the legs (middle line lengths)
+        /// </summary>
+        /// <returns>The torsion constant</returns>
         protected override double CalculateJt()
         {
             return 1.0 / 3.0 * (_horizontalLegLength - _verticalLegThickness / 2.0) * Math.Pow(_horizontalLegThickness, 3.0) + 1.0 / 3.0 * (_verticalLegLength - _horizontalLegThickness / 2.0) * Math.Pow(_verticalLegThickness, 3.0);
         }
 
+        /// <summary>
+        /// Calculate the shear center: the intersection of the middle lines of the legs
+        /// </summary>
+        /// <returns>The shear center</returns>
         protected override Point2d CalculateShearCenter()
         {
             return new Point2d(_verticalLegThickness / 2.0, _horizontalLegThickness / 2.0);
         }
 
+        /// <summary>
+        /// Calculate the centroid from the static moments of the two thin walls
+        /// </summary>
+        /// <returns>The centroid</returns>
         protected override Point2d CalculateCentroid()
         {
             double xc = (_thinWalls[0].CalculateSy() + _thinWalls[1].CalculateSy()) / Area;
@@ -325,6 +448,9 @@ namespace GPC.Model.Sections
             return new Point2d(xc, yc);
         }
 
+        /// <summary>
+        /// Builds the thin walls, discards the mesh and the shape and calculates the properties
+        /// </summary>
         private void CalculateSection()
         {
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
@@ -345,11 +471,20 @@ namespace GPC.Model.Sections
 
         #region Public Methods
 
+        /// <summary>
+        /// The description of the section (the last value is the type name of the thin walls array, not the thickness of the horizontal leg)
+        /// </summary>
+        /// <returns>The description</returns>
         public override string ToString()
         {
             return $"L {_verticalLegLength}x{_verticalLegThickness}x{_horizontalLegLength}x{_thinWalls}";
         }
 
+        /// <summary>
+        /// Serializes the section
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -368,11 +503,21 @@ namespace GPC.Model.Sections
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Equality with another L section (see <see cref="Equals(SectionL)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal section</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as SectionL);
         }
 
+        /// <summary>
+        /// Equality of the section properties and of the dimensions
+        /// </summary>
+        /// <param name="other">The section to compare</param>
+        /// <returns>True if the sections are equal</returns>
         public bool Equals(SectionL other)
         {
             return !(other is null) &&
@@ -384,6 +529,10 @@ namespace GPC.Model.Sections
                    _r == other._r;
         }
 
+        /// <summary>
+        /// The hash code of the section and of the dimensions
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -399,11 +548,23 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(SectionL)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are equal</returns>
         public static bool operator ==(SectionL left, SectionL right)
         {
             return EqualityComparer<SectionL>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(SectionL)"/>)
+        /// </summary>
+        /// <param name="left">The first section</param>
+        /// <param name="right">The second section</param>
+        /// <returns>True if the sections are different</returns>
         public static bool operator !=(SectionL left, SectionL right)
         {
             return !(left == right);

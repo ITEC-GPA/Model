@@ -7,24 +7,63 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Restrains
 {
+    /// <summary>
+    /// Restrains of the degrees of freedom of a geometry (node, line), in a coordinate system
+    /// </summary>
     public abstract class GeometryRestrain : Attributes.Attribute
     {
+        /// <summary>
+        /// The degrees of freedom of a node
+        /// </summary>
         public enum DOF
         {
-            DX,   //0
-            DY,   //1
-            DZ,   //2
-            RX,   //3
-            RY,   //4
-            RZ,   //5
-            DDX,   //0
-            DDY,   //1
-            DDZ,   //2
+            /// <summary>
+            /// Translation along the first axis (0)
+            /// </summary>
+            DX,
+            /// <summary>
+            /// Translation along the second axis (1)
+            /// </summary>
+            DY,
+            /// <summary>
+            /// Translation along the third axis (2)
+            /// </summary>
+            DZ,
+            /// <summary>
+            /// Rotation around the first axis (3)
+            /// </summary>
+            RX,
+            /// <summary>
+            /// Rotation around the second axis (4)
+            /// </summary>
+            RY,
+            /// <summary>
+            /// Rotation around the third axis (5)
+            /// </summary>
+            RZ,
+            /// <summary>
+            /// Additional translation along the first axis, used by the laminated glass plate elements (6)
+            /// </summary>
+            DDX,
+            /// <summary>
+            /// Additional translation along the second axis, used by the laminated glass plate elements (7)
+            /// </summary>
+            DDY,
+            /// <summary>
+            /// Additional translation along the third axis, used by the laminated glass plate elements (8)
+            /// </summary>
+            DDZ,
         }
 
         #region Variables
 
+        /// <summary>
+        /// The coordinate system of the restrain
+        /// </summary>
         protected CoordinateSystem _coordinateSystem;
+        /// <summary>
+        /// The restrains of the degrees of freedom
+        /// </summary>
         protected List<DofRestrain> _restrains;
 
         #endregion
@@ -45,6 +84,14 @@ namespace GPC.Model.Restrains
 
         #region Constructor
 
+        /// <summary>
+        /// Creates the restrain
+        /// </summary>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <param name="restrains">The restrains of the degrees of freedom (null: an empty list)</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="coordinateSystem"/> is null</exception>
         public GeometryRestrain(CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "", int id = IDUNASSIGNED)
             : base(name, id)
         {
@@ -52,6 +99,12 @@ namespace GPC.Model.Restrains
             _restrains = restrains ?? new List<DofRestrain>();
         }
 
+        /// <summary>
+        /// Deserialization constructor (not implemented)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        /// <exception cref="NotImplementedException">Always</exception>
         protected GeometryRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -62,28 +115,63 @@ namespace GPC.Model.Restrains
 
         #region Methods
 
+        /// <summary>
+        /// Sets the coordinate system
+        /// </summary>
+        /// <param name="coordinateSystem">The coordinate system</param>
         public void SetCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             _coordinateSystem = coordinateSystem;
         }
 
+        /// <summary>
+        /// Adds the restrain of a degree of freedom (a degree of freedom already present is not replaced)
+        /// </summary>
+        /// <param name="dofRestrain">The restrain</param>
         public void AddRestain(DofRestrain dofRestrain)
         {
             _restrains.Add(dofRestrain);
         }
 
+        /// <summary>
+        /// The first axis of the coordinate system
+        /// </summary>
+        /// <returns>The axis</returns>
         public Vector3d GetV1() => _coordinateSystem.V1;
 
+        /// <summary>
+        /// The second axis of the coordinate system
+        /// </summary>
+        /// <returns>The axis</returns>
         public Vector3d GetV2() => _coordinateSystem.V2;
 
+        /// <summary>
+        /// The third axis of the coordinate system
+        /// </summary>
+        /// <returns>The axis</returns>
         public Vector3d GetV3() => _coordinateSystem.V3;
 
+        /// <summary>
+        /// The origin of the coordinate system
+        /// </summary>
+        /// <returns>The origin</returns>
         public Point3d GetCoordinateSystemOrigin() => _coordinateSystem.Origin;
 
+        /// <summary>
+        /// The restrained geometry
+        /// </summary>
+        /// <returns>The geometry</returns>
         public abstract GeometryBase GetGeometry();
 
+        /// <summary>
+        /// The restrained element
+        /// </summary>
+        /// <returns>The element</returns>
         public abstract Element GetElement();
 
+        /// <summary>
+        /// The restrained degrees of freedom
+        /// </summary>
         /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.IsRestrained"/> is <see langword="true"/></returns>
         public Dictionary<DOF, bool> GetRestrains()
         {
@@ -107,7 +195,11 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
+        /// <summary>
+        /// The stiffnesses of the degrees of freedom, summed by degree of freedom (a DOF not yet in the dictionary throws
+        /// <see cref="KeyNotFoundException"/>: it always throws if a stiffness is not zero)
+        /// </summary>
+        /// <returns>Dictionary of each DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
         public Dictionary<DOF, double> GetStiffnesses()
         {
             Dictionary<DOF, double> kvp = new Dictionary<DOF, double>();
@@ -123,7 +215,11 @@ namespace GPC.Model.Restrains
             return kvp;
         }
 
-        /// <returns>Dictionary of each restrained DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
+        /// <summary>
+        /// The imposed displacements of the degrees of freedom, summed by degree of freedom (a DOF not yet in the dictionary throws
+        /// <see cref="KeyNotFoundException"/>: it always throws if a displacement is not zero)
+        /// </summary>
+        /// <returns>Dictionary of each DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
         public Dictionary<DOF, double> GetImposedDisplacement()
         {
             Dictionary<DOF, double> kvp = new Dictionary<DOF, double>();
@@ -140,7 +236,8 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> restrained for the given line and freedomcase
+        /// Replaces the restrains with <see cref="DOF.DX"/>, <see cref="DOF.DY"/>, <see cref="DOF.DZ"/>, <see cref="DOF.RX"/>,
+        /// <see cref="DOF.RY"/> and <see cref="DOF.RZ"/> restrained
         /// </summary>
         public void FixAll()
         {
@@ -150,7 +247,8 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> restrained for the given line and freedomcase
+        /// Replaces the restrains with <see cref="DOF.DX"/>, <see cref="DOF.DY"/> and <see cref="DOF.DZ"/> restrained and <see cref="DOF.RX"/>,
+        /// <see cref="DOF.RY"/> and <see cref="DOF.RZ"/> released
         /// </summary>
         public void FixDisplacement()
         {
@@ -160,7 +258,8 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set all the <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/>, <see cref="Solver.DOF.DZ"/> and <see cref="Solver.DOF.RX"/>, <see cref="Solver.DOF.RY"/> and <see cref="Solver.DOF.RZ"/> release for the given line and freedomcase
+        /// Replaces the restrains with <see cref="DOF.DX"/>, <see cref="DOF.DY"/>, <see cref="DOF.DZ"/>, <see cref="DOF.RX"/>,
+        /// <see cref="DOF.RY"/> and <see cref="DOF.RZ"/> released
         /// </summary>
         public void ReleaseAll()
         {
@@ -173,12 +272,23 @@ namespace GPC.Model.Restrains
 
         #region Equals, HasCode and operators
 
+        /// <summary>
+        /// Serialization (not implemented)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        /// <exception cref="NotImplementedException">Always</exception>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Equality of the coordinate systems, of the restrains (in the same order) and of the name
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal restrain</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -193,6 +303,10 @@ namespace GPC.Model.Restrains
                 base.Equals(objCasted);
         }
 
+        /// <summary>
+        /// The hash code of the coordinate system and of the list of the restrains (as instance)
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

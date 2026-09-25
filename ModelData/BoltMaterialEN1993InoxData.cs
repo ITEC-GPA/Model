@@ -2,6 +2,9 @@
 
 namespace GPC.Model.Data.Steel
 {
+    /// <summary>
+    /// Predefined stainless steel bolt materials of EN 1993-1-8 / EN ISO 3506: each property returns a new instance
+    /// </summary>
     public class BoltMaterialEN1993InoxData
     {
         #region Structural

@@ -7,16 +7,25 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Restrains
 {
+    /// <summary>
+    /// Restrains of the degrees of freedom of a node
+    /// </summary>
     public class NodeRestrain : GeometryRestrain
     {
         #region Variables
 
+        /// <summary>
+        /// The restrained node
+        /// </summary>
         private NodeElement _point;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The restrained node
+        /// </summary>
         public NodeElement Point { get => _point; set => _point = value; }
 
 
@@ -24,25 +33,52 @@ namespace GPC.Model.Restrains
 
         #region Constructors
 
-        /// <remarks><see cref="GeometryRestrain.CoordinateSystem"/> set to Global</remarks>
+        /// <summary>
+        /// Creates the restrain in the global coordinate system
+        /// </summary>
+        /// <param name="point">The node</param>
+        /// <param name="restrains">The restrains of the degrees of freedom</param>
+        /// <param name="name">The name</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="point"/> is null</exception>
         public NodeRestrain(NodeElement point, List<DofRestrain> restrains, string name = "")
             : this(point, CoordinateSystem.Global, restrains, name)
         {
 
         }
 
+        /// <summary>
+        /// Creates the restrain
+        /// </summary>
+        /// <param name="point">The node</param>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <param name="restrains">The restrains of the degrees of freedom</param>
+        /// <param name="name">The name</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="point"/> or <paramref name="coordinateSystem"/> is null</exception>
         public NodeRestrain(NodeElement point, CoordinateSystem coordinateSystem, List<DofRestrain> restrains, string name = "")
             : base(coordinateSystem, restrains, name)
         {
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
+        /// <summary>
+        /// Creates the restrain without restrained degrees of freedom
+        /// </summary>
+        /// <param name="point">The node</param>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <param name="name">The name</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="point"/> or <paramref name="coordinateSystem"/> is null</exception>
         public NodeRestrain(NodeElement point, CoordinateSystem coordinateSystem, string name = "")
             : this(point, coordinateSystem, new List<DofRestrain>(), name)
         {
             _point = point ?? throw new ArgumentNullException("Base point can't be null");
         }
 
+        /// <summary>
+        /// Deserialization constructor (the base one is not implemented)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        /// <exception cref="NotImplementedException">Always</exception>
         protected NodeRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -54,8 +90,11 @@ namespace GPC.Model.Restrains
         #region Public methods
 
         /// <summary>
-        /// Set all the <see cref="Solver.DOF"/> to restrained for the given point and freedomcase
+        /// A restrain of a node with all the degrees of freedom restrained
         /// </summary>
+        /// <param name="point">The node</param>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <returns>The new restrain</returns>
         public static NodeRestrain GetAllFixed(NodeElement point, CoordinateSystem coordinateSystem)
         {
 
@@ -71,8 +110,12 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Set <see cref="Solver.DOF.DX"/>, <see cref="Solver.DOF.DY"/> and <see cref="Solver.DOF.DZ"/> to restrained for the given line and freedomcase
+        /// A restrain of a node with <see cref="GeometryRestrain.DOF.DX"/>, <see cref="GeometryRestrain.DOF.DY"/> and
+        /// <see cref="GeometryRestrain.DOF.DZ"/> restrained
         /// </summary>
+        /// <param name="point">The node</param>
+        /// <param name="coordinateSystem">The coordinate system</param>
+        /// <returns>The new restrain</returns>
         public static NodeRestrain GetAllDisplacementFixed(NodeElement point, CoordinateSystem coordinateSystem)
         {
             return new NodeRestrain(point, coordinateSystem, new List<DofRestrain>
@@ -83,9 +126,21 @@ namespace GPC.Model.Restrains
             });
         }
 
+        /// <summary>
+        /// The position of the node
+        /// </summary>
+        /// <returns>The position</returns>
         public override GeometryBase GetGeometry() => _point.Position;
+        /// <summary>
+        /// The node
+        /// </summary>
+        /// <returns>The node</returns>
         public override Element GetElement() => _point;
 
+        /// <summary>
+        /// Restrains a degree of freedom (an existing restrain loses its stiffness and imposed displacement)
+        /// </summary>
+        /// <param name="dof">The degree of freedom</param>
         public void AddExternalRestrain(DOF dof)
         {
             if (Restrains.Where(i => i.Dof == dof).Count() > 0)
@@ -94,6 +149,11 @@ namespace GPC.Model.Restrains
                 _restrains.Add(new DofRestrain(dof));
         }
 
+        /// <summary>
+        /// Sets the imposed displacement of a degree of freedom (a new one is added if not present)
+        /// </summary>
+        /// <param name="dof">The degree of freedom</param>
+        /// <param name="displacement">The imposed displacement</param>
         public void AddImposedDisplacement(DOF dof, double displacement)
         {
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
@@ -102,6 +162,12 @@ namespace GPC.Model.Restrains
                 _restrains.Add(new DofRestrain(dof) { ImposedDisplacement = displacement });
         }
 
+        /// <summary>
+        /// Sets the stiffness of a degree of freedom. If the degree of freedom is not present the new restrain gets the value as IMPOSED
+        /// DISPLACEMENT, not as stiffness
+        /// </summary>
+        /// <param name="dof">The degree of freedom</param>
+        /// <param name="stiffness">The stiffness</param>
         public void AddStiffness(DOF dof, double stiffness)
         {
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
@@ -114,12 +180,23 @@ namespace GPC.Model.Restrains
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Serializes the restrain (the base one is not implemented)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        /// <exception cref="NotImplementedException">Always</exception>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("Point", _point);
         }
 
+        /// <summary>
+        /// Equality of the nodes and of the base (see <see cref="GeometryRestrain.Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal restrain</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -131,6 +208,10 @@ namespace GPC.Model.Restrains
             return (obj is NodeRestrain objCasted) && _point.Equals(objCasted.Point) && base.Equals(objCasted);
         }
 
+        /// <summary>
+        /// The hash code of the node and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -139,6 +220,12 @@ namespace GPC.Model.Restrains
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first restrain</param>
+        /// <param name="obj2">The second restrain</param>
+        /// <returns>True if the restrains are equal</returns>
         public static bool operator ==(NodeRestrain obj1, NodeRestrain obj2)
         {
             if (obj1 is null)
@@ -149,6 +236,12 @@ namespace GPC.Model.Restrains
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first restrain</param>
+        /// <param name="obj2">The second restrain</param>
+        /// <returns>True if the restrains are different</returns>
         public static bool operator !=(NodeRestrain obj1, NodeRestrain obj2)
         {
             return !(obj1 == obj2);

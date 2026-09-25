@@ -6,20 +6,42 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
+    /// <summary>
+    /// A uniform load along a line: force and moment per unit length, with components in the coordinate system of the load
+    /// </summary>
     public class LineLoad : Load, ILineLoad, IConvertibleLoad
     {
         #region Variables
 
-        // sono forze per unità di lunghezza ( F / L )
+        /// <summary>
+        /// The force per unit length along V1 [F/L]
+        /// </summary>
         protected double _f1;
+        /// <summary>
+        /// The force per unit length along V2 [F/L]
+        /// </summary>
         protected double _f2;
+        /// <summary>
+        /// The force per unit length along V3 [F/L]
+        /// </summary>
         protected double _f3;
 
-        // sono momenti per unità di lunghezza ( F * L / L )
+        /// <summary>
+        /// The moment per unit length around V1 [FL/L]
+        /// </summary>
         protected double _m1;
+        /// <summary>
+        /// The moment per unit length around V2 [FL/L]
+        /// </summary>
         protected double _m2;
+        /// <summary>
+        /// The moment per unit length around V3 [FL/L]
+        /// </summary>
         protected double _m3;
 
+        /// <summary>
+        /// The line, in the global coordinates
+        /// </summary>
         protected Line3d _line;
 
         #endregion
@@ -65,15 +87,21 @@ namespace GPC.Model.Loads
 
         #region Constructor
 
-        /// <param name="f1">Unit measure [F/L]</param>
-        /// <param name="f2">Unit measure [F/L]</param>
-        /// <param name="f3">Unit measure [F/L]</param>
-        /// <param name="m1">Unit measure [FL/L]</param>
-        /// <param name="m2">Unit measure [FL/L]</param>
-        /// <param name="m3">Unit measure [FL/L]</param>
+        /// <summary>
+        /// Creates a line load
+        /// </summary>
+        /// <param name="f1">Force per unit length along V1 of the coordinate system [F/L]</param>
+        /// <param name="f2">Force per unit length along V2 of the coordinate system [F/L]</param>
+        /// <param name="f3">Force per unit length along V3 of the coordinate system [F/L]</param>
+        /// <param name="m1">Moment per unit length around V1 of the coordinate system [FL/L]</param>
+        /// <param name="m2">Moment per unit length around V2 of the coordinate system [FL/L]</param>
+        /// <param name="m3">Moment per unit length around V3 of the coordinate system [FL/L]</param>
         /// <param name="line">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
         /// <param name="coordinateSystem">Orientation of the load</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentNullException">If the line is null</exception>
         public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase,
             CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
             : base(loadCase, coordinateSystem, name, id)
@@ -87,14 +115,19 @@ namespace GPC.Model.Loads
             _line = line ?? throw new ArgumentNullException("Line cannot be null");
         }
 
-        /// <param name="f1">Unit measure [F/L]</param>
-        /// <param name="f2">Unit measure [F/L]</param>
-        /// <param name="f3">Unit measure [F/L]</param>
-        /// <param name="m1">Unit measure [FL/L]</param>
-        /// <param name="m2">Unit measure [FL/L]</param>
-        /// <param name="m3">Unit measure [FL/L]</param>
+        /// <summary>
+        /// Creates a line load with components in the global system
+        /// </summary>
+        /// <param name="f1">Force per unit length along V1 of the coordinate system [F/L]</param>
+        /// <param name="f2">Force per unit length along V2 of the coordinate system [F/L]</param>
+        /// <param name="f3">Force per unit length along V3 of the coordinate system [F/L]</param>
+        /// <param name="m1">Moment per unit length around V1 of the coordinate system [FL/L]</param>
+        /// <param name="m2">Moment per unit length around V2 of the coordinate system [FL/L]</param>
+        /// <param name="m3">Moment per unit length around V3 of the coordinate system [FL/L]</param>
         /// <param name="line">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
         public LineLoad(double f1, double f2, double f3, double m1, double m2, double m3, Line3d line, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
             : this(f1, f2, f3, m1, m2, m3, line, loadCase, CoordinateSystem.Global, name, id)
@@ -102,23 +135,42 @@ namespace GPC.Model.Loads
 
         }
 
-        /// <param name="force"></param>
-        /// <param name="moment"></param>
+        /// <summary>
+        /// Creates a line load from vectors
+        /// </summary>
+        /// <param name="force">The force per unit length, in the coordinate system of the load</param>
+        /// <param name="moment">The moment per unit length, in the coordinate system of the load</param>
         /// <param name="line">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
         /// <param name="coordinateSystem">Orientation of the load</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, coordinateSystem, name, id)
         {
 
         }
 
+        /// <summary>
+        /// Creates a line load from vectors in the global system
+        /// </summary>
+        /// <param name="force">The force per unit length, in the global system</param>
+        /// <param name="moment">The moment per unit length, in the global system</param>
+        /// <param name="line">In the global reference system</param>
+        /// <param name="loadCase">The load case</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         public LineLoad(Vector3d force, Vector3d moment, Line3d line, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, line, loadCase, CoordinateSystem.Global, name, id)
         {
 
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the data of <see cref="Load"/>, the components, the coordinate system and the line
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected LineLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -136,7 +188,13 @@ namespace GPC.Model.Loads
 
         #region Convert to area load
 
-        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
+        /// <summary>
+        /// Convert this load into an area load: the force is spread on a strip of width <paramref name="width"/> centered on the line, on the
+        /// reference plane (normal × line direction)
+        /// </summary>
+        /// <param name="referencePlane">The plane of the strip</param>
+        /// <param name="width">The width of the strip</param>
+        /// <returns>The area load with the same total force, components and shape in the global system</returns>
         /// <remarks>Moments will be lost. Reference system of the load is the global system</remarks>
         public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
@@ -198,8 +256,14 @@ namespace GPC.Model.Loads
         }
 
 
-        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
-        /// <remarks>Moments will be lost. Only the force normal part will be keepeed</remarks>
+        /// <summary>
+        /// Convert this load into a pressure normal to the reference plane on a strip of width <paramref name="width"/> centered on the line
+        /// </summary>
+        /// <param name="referencePlane">The plane of the strip</param>
+        /// <param name="width">The width of the strip</param>
+        /// <returns>The normal area load with the same total normal force</returns>
+        /// <remarks>Moments will be lost. Only the force normal part will be kept. The shape is in the local coordinates of the plane, while the
+        /// normal area load expects global coordinates (see the list of the defects found)</remarks>
         public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
         {
             Line3d line = (Line3d)_line.Clone();
@@ -248,10 +312,21 @@ namespace GPC.Model.Loads
 
         #region Public Methods
 
+        /// <summary>
+        /// The line of the load
+        /// </summary>
+        /// <returns>The segment, in the global coordinates</returns>
         public Line3d GetGeometry() => _line;
 
+        /// <summary>
+        /// The line of the load (see <see cref="GetGeometry"/>)
+        /// </summary>
+        /// <returns>The segment</returns>
         public override GeometryBase GetGeometryBase() => GetGeometry();
 
+        /// <summary>
+        /// The total force and moment in the coordinate system of the load
+        /// </summary>
         /// <returns>The total local load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
         public (Vector3d force, Vector3d moment) GetLocalLoadVector()
         {
@@ -259,7 +334,10 @@ namespace GPC.Model.Loads
             return (new Vector3d(_f1 * line, _f2 * line, _f3 * line), new Vector3d(_m1 * line, _m2 * line, _m3 * line));
         }
 
-        /// <returns>The total global load vector in the local system. i.e. _f1 * lenght , _f2 * lenght, _f3 * lenght</returns>
+        /// <summary>
+        /// The total force and moment in the global system
+        /// </summary>
+        /// <returns>The total load vectors rotated to the global system</returns>
         public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
         {
             if (_coordinateSystem == CoordinateSystem.Global)
@@ -270,17 +348,21 @@ namespace GPC.Model.Loads
             }
         }
 
-        /// <inheritdoc cref="GetLocalForces(CoordinateSystem)"/>
+        /// <summary>
+        /// Forces and moments per unit length in the coordinate system of the load (see <see cref="GetLocalForces(CoordinateSystem)"/>)
+        /// </summary>
+        /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces()
         {
             return GetLocalForces(_coordinateSystem);
         }
 
         /// <summary>
-        /// Return an array with forces and moments in local coordinate system 
+        /// Return an array with forces and moments per unit length in the local coordinate system <paramref name="cSys"/>
         /// </summary>
-        /// <param name="cSys"></param>
+        /// <param name="cSys">The coordinate system</param>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
+        /// <remarks>The components are rotated as if they were in the global system, not in the coordinate system of the load (see the list of the defects found)</remarks>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
             // Crea un array di double in le 3 componenti di forza e di momento
@@ -311,6 +393,7 @@ namespace GPC.Model.Loads
         /// <summary>
         /// Return the lineload in a global coordinate system
         /// </summary>
+        /// <returns>A new load with the components in the global system (same line and load case, without name and id)</returns>
         public LineLoad ToGlobal()
         {
             // Cambia le proprietà del LineLoad passando da un sistema di riferimento globale
@@ -323,6 +406,8 @@ namespace GPC.Model.Loads
         /// <summary>
         /// Return the lineload in a local coordinate system
         /// </summary>
+        /// <param name="cSys">The coordinate system</param>
+        /// <returns>A new load with the components in <paramref name="cSys"/> (same line and load case, without name and id)</returns>
         public LineLoad ToLocal(CoordinateSystem cSys)
         {
             Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
@@ -333,9 +418,11 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
-        /// Return an array with forces and moments in global coordinate system 
+        /// Return an array with forces and moments per unit length in global coordinate system
         /// </summary>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
+        /// <remarks>The origin of the coordinate system is subtracted from the rotated vectors: the result is wrong if the origin is not at
+        /// the origin of the axes (see the list of the defects found)</remarks>
         public double[] GetGlobalForces()
         {
             // Crea un array di double in le 3 componenti di forza e di momento nelle 3 direzioni del sistema di coordinate globali
@@ -366,6 +453,11 @@ namespace GPC.Model.Loads
 
         #region Equals, HasCode and operators
 
+        /// <summary>
+        /// Serializes the data of <see cref="Load"/>, the components and the line
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -378,6 +470,11 @@ namespace GPC.Model.Loads
             info.AddValue("Line3d", _line);
         }
 
+        /// <summary>
+        /// Equality of name, load case, coordinate system, line and components (exact)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal line load</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
@@ -394,6 +491,10 @@ namespace GPC.Model.Loads
                 base.Equals(objCasted);
         }
 
+        /// <summary>
+        /// The hash code of name, load case, coordinate system, components and line
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -411,6 +512,12 @@ namespace GPC.Model.Loads
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>); two null loads are equal
+        /// </summary>
+        /// <param name="obj1">The first load</param>
+        /// <param name="obj2">The second load</param>
+        /// <returns>True if the loads are equal</returns>
         public static bool operator ==(LineLoad obj1, LineLoad obj2)
         {
             if (obj1 is null)
@@ -424,6 +531,12 @@ namespace GPC.Model.Loads
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first load</param>
+        /// <param name="obj2">The second load</param>
+        /// <returns>True if the loads are different</returns>
         public static bool operator !=(LineLoad obj1, LineLoad obj2)
         {
             return !(obj1 == obj2);

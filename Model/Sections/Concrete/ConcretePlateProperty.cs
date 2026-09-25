@@ -7,26 +7,50 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Concrete
 {
+    /// <summary>
+    /// The property of a concrete plate: material and thicknesses for bending and membrane behaviour
+    /// </summary>
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     [Serializable]
     public class ConcretePlateProperty : PlateProperty, ISerializable, IFemPlateProperty
     {
         #region Variables
 
+        /// <summary>
+        /// The concrete
+        /// </summary>
         protected ConcreteMaterial _material;
+        /// <summary>
+        /// The thickness for the bending stiffness
+        /// </summary>
         protected double _bendingThickness;
+        /// <summary>
+        /// The thickness for the membrane stiffness
+        /// </summary>
         protected double _membraneThickness;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The thickness for the bending stiffness
+        /// </summary>
         public double BendingThickness { get => _bendingThickness; set => _bendingThickness = value; }
 
+        /// <summary>
+        /// The thickness for the membrane stiffness
+        /// </summary>
         public double MembraneThickness { get => _membraneThickness; set => _membraneThickness = value; }
 
+        /// <summary>
+        /// The concrete
+        /// </summary>
         public ConcreteMaterial ConcreteMaterial { get => _material; set => _material = value; }
 
+        /// <summary>
+        /// The concrete (as material)
+        /// </summary>
         public Material Material { get => _material; }
 
         #endregion
@@ -34,11 +58,13 @@ namespace GPC.Model.Sections.Concrete
         #region Public Constructors
 
         /// <summary>
-        /// <param name="material"></param>
-        /// <param name="bendingThickness"> Bending _thickness</param>
-        /// <param name="membraneThickness"> Membranal _thickness</param>
-        /// <param name="name"></param>
+        /// Creates the property
         /// </summary>
+        /// <param name="material">The concrete</param>
+        /// <param name="bendingThickness">Bending thickness</param>
+        /// <param name="membraneThickness">Membranal thickness</param>
+        /// <param name="name">The name</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="material"/> is null</exception>
         public ConcretePlateProperty(ConcreteMaterial material, double bendingThickness, double membraneThickness, string name = "")
             : base(name)
         {
@@ -47,6 +73,11 @@ namespace GPC.Model.Sections.Concrete
             _material = material ?? throw new ArgumentNullException("Material cannot be null");
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected ConcretePlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -59,6 +90,11 @@ namespace GPC.Model.Sections.Concrete
 
         #region Equals, HasCode and operators
 
+        /// <summary>
+        /// Serializes the property
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -67,6 +103,11 @@ namespace GPC.Model.Sections.Concrete
             info.AddValue("Material", _material, typeof(ConcreteMaterial));
         }
 
+        /// <summary>
+        /// Equality of the thicknesses, of the material and of the base
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal property</returns>
         public override bool Equals(object obj)
         {
             return obj is ConcretePlateProperty objCasted &&
@@ -76,6 +117,10 @@ namespace GPC.Model.Sections.Concrete
                 base.Equals(objCasted);
         }
 
+        /// <summary>
+        /// The hash code of the base, of the thicknesses and of the material
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -89,16 +134,32 @@ namespace GPC.Model.Sections.Concrete
             }
         }
 
+        /// <summary>
+        /// The text shown by the debugger (it says "SteelPlateProperty")
+        /// </summary>
+        /// <returns>The text</returns>
         private string GetDebuggerDisplay()
         {
             return $"SteelPlateProperty: {_name}";
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>; a null <paramref name="obj1"/> throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="obj1">The first property</param>
+        /// <param name="obj2">The second property</param>
+        /// <returns>True if the properties are equal</returns>
         public static bool operator ==(ConcretePlateProperty obj1, ConcretePlateProperty obj2)
         {
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first property</param>
+        /// <param name="obj2">The second property</param>
+        /// <returns>True if the properties are different</returns>
         public static bool operator !=(ConcretePlateProperty obj1, ConcretePlateProperty obj2)
         {
             return !(obj1 == obj2);

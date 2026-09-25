@@ -5,41 +5,84 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+    /// <summary>
+    /// The displacements and rotations in a coordinate system
+    /// </summary>
     [Serializable]
     public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
     {
         #region Variables
 
+        /// <summary>
+        /// Displacement along the first axis
+        /// </summary>
         private double _d1;
+        /// <summary>
+        /// Displacement along the second axis
+        /// </summary>
         private double _d2;
+        /// <summary>
+        /// Displacement along the third axis
+        /// </summary>
         private double _d3;
+        /// <summary>
+        /// Rotation around the first axis
+        /// </summary>
         private double _r1;
+        /// <summary>
+        /// Rotation around the second axis
+        /// </summary>
         private double _r2;
+        /// <summary>
+        /// Rotation around the third axis
+        /// </summary>
         private double _r3;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Displacement along <see cref="CoordinateSystem.V1"/>
+        /// </summary>
         public double D1 { get => _d1; set => _d1 = value; }
+        /// <summary>
+        /// Displacement along <see cref="CoordinateSystem.V2"/>
+        /// </summary>
         public double D2 { get => _d2; set => _d2 = value; }
+        /// <summary>
+        /// Displacement along <see cref="CoordinateSystem.V3"/>
+        /// </summary>
         public double D3 { get => _d3; set => _d3 = value; }
+        /// <summary>
+        /// Rotation around <see cref="CoordinateSystem.V1"/>
+        /// </summary>
         public double R1 { get => _r1; set => _r1 = value; }
+        /// <summary>
+        /// Rotation around <see cref="CoordinateSystem.V2"/>
+        /// </summary>
         public double R2 { get => _r2; set => _r2 = value; }
+        /// <summary>
+        /// Rotation around <see cref="CoordinateSystem.V3"/>
+        /// </summary>
         public double R3 { get => _r3; set => _r3 = value; }
 
         #endregion
 
         #region Public Constructors
 
-        /// <param name="coordinateSystem">Coordinate system where these result are provided </param>
-        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
-        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
-        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
-        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
-        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
-        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-        /// <param name="id"></param>
+        /// <summary>
+        /// Creates the result
+        /// </summary>
+        /// <param name="coordinateSystem">Coordinate system where these result are provided</param>
+        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction</param>
+        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction</param>
+        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction</param>
+        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction</param>
+        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction</param>
+        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="coordinateSystem"/> is null</exception>
         public ResultDisplacement(CoordinateSystem coordinateSystem, double d1, double d2, double d3, double r1, double r2, double r3, int id = ModelObjectId.IDUNASSIGNED)
             : base(coordinateSystem, string.Empty, id)
         {
@@ -51,13 +94,16 @@ namespace GPC.Model.Results
             _r3 = r3;
         }
 
-        /// <param name="d1">Displacement along <see cref="CoordinateSystem.V1"/> direction </param>
-        /// <param name="d2">Displacement along <see cref="CoordinateSystem.V2"/> direction </param>
-        /// <param name="d3">Displacement along <see cref="CoordinateSystem.V3"/> direction </param>
-        /// <param name="r1">Rotation around <see cref="CoordinateSystem.V1"/> direction </param>
-        /// <param name="r2">Rotation around <see cref="CoordinateSystem.V2"/> direction </param>
-        /// <param name="r3">Rotation around <see cref="CoordinateSystem.V3"/> direction </param>
-        /// <remarks>Set the <see cref="CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/></remarks>
+        /// <summary>
+        /// Creates the result in the global coordinate system
+        /// </summary>
+        /// <param name="d1">Displacement along X</param>
+        /// <param name="d2">Displacement along Y</param>
+        /// <param name="d3">Displacement along Z</param>
+        /// <param name="r1">Rotation around X</param>
+        /// <param name="r2">Rotation around Y</param>
+        /// <param name="r3">Rotation around Z</param>
+        /// <remarks>Set the <see cref="ResultType.CoordinateSystem"/> to <see cref="CoordinateSystem.Global"/></remarks>
         public ResultDisplacement(double d1, double d2, double d3, double r1, double r2, double r3)
             : base(CoordinateSystem.Global)
         {
@@ -69,6 +115,11 @@ namespace GPC.Model.Results
             _r3 = r3;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private ResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -85,41 +136,45 @@ namespace GPC.Model.Results
         #region Public Methods - Get displacement
 
         /// <summary>
-        /// Return the resulting displacement 
+        /// The magnitude of the displacement
         /// </summary>
+        /// <returns>sqrt(d1² + d2² + d3²)</returns>
         public double GetResultingDisplacement()
         {
             return Math.Sqrt(Math.Pow(_d1, 2) + Math.Pow(_d2, 2) + Math.Pow(_d3, 2));
         }
 
         /// <summary>
-        /// Return the resulting vector displacement 
+        /// The displacement vector (local components)
         /// </summary>
+        /// <returns>(d1, d2, d3)</returns>
         public Vector3d GetResultingVectorDisplacement()
         {
             return new Vector3d(_d1, _d2, _d3);
         }
 
         /// <summary>
-        /// Return the resulting Rotation 
+        /// The magnitude of the rotation
         /// </summary>
+        /// <returns>sqrt(r1² + r2² + r3²)</returns>
         public double GetResultingRotation()
         {
             return Math.Sqrt(Math.Pow(_r1, 2) + Math.Pow(_r2, 2) + Math.Pow(_r3, 2));
         }
 
         /// <summary>
-        /// Return the resulting vector rotation 
+        /// The rotation vector (local components)
         /// </summary>
+        /// <returns>(r1, r2, r3)</returns>
         public Vector3d GetResultingVectorRotation()
         {
             return new Vector3d(_r1, _r2, _r3);
         }
 
         /// <summary>
-        /// Return the global displacements
+        /// The displacements and rotations in the global coordinate system
         /// </summary>
-        /// <returns>Array of displacements in global coordinate</returns>
+        /// <returns>Array with the global displacements X, Y, Z and the global rotations X, Y, Z</returns>
         public double[] GetGlobalDisplacements()
         {
             Vector3d GlobalDisplResult = _coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3));
@@ -138,18 +193,18 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the global displacements tuple
+        /// The displacements and rotations in the global coordinate system
         /// </summary>
-        /// <returns>Tuple of displacements in global coordinate</returns>
+        /// <returns>The global displacement and rotation vectors</returns>
         public (Vector3d displacements, Vector3d rotations) GetGlobalDisplacementsTuple()
         {
             return (_coordinateSystem.ToGlobal(new Vector3d(_d1, _d2, _d3)), _coordinateSystem.ToGlobal(new Vector3d(_r1, _r2, _r3)));
         }
 
         /// <summary>
-        /// Return the local displacements vector
+        /// The displacements and rotations in the coordinate system of the result
         /// </summary>
-        /// <returns>Array of displacements in local coordinate</returns>
+        /// <returns>Array with d1, d2, d3, r1, r2, r3</returns>
         public double[] GetLocalDisplacements()
         {
             double[] localDisplacements = new double[6];
@@ -165,14 +220,20 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Return the local displacements tuple
+        /// The displacements and rotations in the coordinate system of the result
         /// </summary>
-        /// <returns>Tuple of displacements in local coordinate</returns>
+        /// <returns>The local displacement and rotation vectors</returns>
         public (Vector3d displacements, Vector3d rotations) GetLocalDisplacementsTuple()
         {
             return (new Vector3d(_d1, _d2, _d3), new Vector3d(_r1, _r2, _r3));
         }
 
+        /// <summary>
+        /// The same result in another coordinate system. The components are returned PERMUTED (d1 = local Z, d2 = local X, d3 = local Y, the same
+        /// for the rotations: copied from <see cref="ResultBeamForces.ToCoordinateSystem(CoordinateSystem)"/>); the id is lost
+        /// </summary>
+        /// <param name="coordinateSystem">The new coordinate system</param>
+        /// <returns>The new result</returns>
         public ResultDisplacement ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
             Vector3d vector3dDisplacement = new Vector3d(_d1, _d2, _d3);
@@ -188,6 +249,12 @@ namespace GPC.Model.Results
                 rotationNewCoordinate.Z, rotationNewCoordinate.X, rotationNewCoordinate.Y);
         }
 
+        /// <summary>
+        /// The arithmetic mean of the components, in the coordinate system of the first result. The components are averaged as they are, also
+        /// if the coordinate systems are different (the check on the coordinate systems is always true)
+        /// </summary>
+        /// <param name="values">The results (not empty)</param>
+        /// <returns>The mean result</returns>
         public static ResultDisplacement GetArithmeticMean(ResultDisplacement[] values)
         {
             if (values.Select(i => i._coordinateSystem).Distinct().Count() > 0)
@@ -211,6 +278,11 @@ namespace GPC.Model.Results
 
         #region Equals, hashcode, operators
 
+        /// <summary>
+        /// Serializes the result
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -222,6 +294,11 @@ namespace GPC.Model.Results
             info.AddValue("R3", _r3, typeof(double));
         }
 
+        /// <summary>
+        /// Equality with another result (an object of another type throws <see cref="InvalidCastException"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal result</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -233,6 +310,11 @@ namespace GPC.Model.Results
             return Equals((ResultDisplacement)obj);
         }
 
+        /// <summary>
+        /// Exact equality of the components and of the name (the coordinate system is not compared)
+        /// </summary>
+        /// <param name="other">The result to compare</param>
+        /// <returns>True if the results are equal</returns>
         public bool Equals(ResultDisplacement other)
         {
             return !(other is null) &&
@@ -241,6 +323,10 @@ namespace GPC.Model.Results
                 base.Equals(other);
         }
 
+        /// <summary>
+        /// The hash code of the name and of the components
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -257,6 +343,12 @@ namespace GPC.Model.Results
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(ResultDisplacement)"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>True if the results are equal</returns>
         public static bool operator ==(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             if (obj1 is null)
@@ -270,12 +362,24 @@ namespace GPC.Model.Results
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(ResultDisplacement)"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>True if the results are different</returns>
         public static bool operator !=(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             return !(obj1 == obj2);
         }
 
-        /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+        /// <summary>
+        /// The sum of the displacements (<paramref name="obj2"/> is rotated to the coordinate system of <paramref name="obj1"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+        /// <exception cref="ArgumentNullException">If an operand is null</exception>
         public static ResultDisplacement operator +(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             if (obj1 is null || obj2 is null)
@@ -314,7 +418,13 @@ namespace GPC.Model.Results
             }
         }
 
-        /// <returns>The sum of the displacements written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+        /// <summary>
+        /// The difference of the displacements (<paramref name="obj2"/> is rotated to the coordinate system of <paramref name="obj1"/>)
+        /// </summary>
+        /// <param name="obj1">The first result</param>
+        /// <param name="obj2">The second result</param>
+        /// <returns>The difference of the displacements written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+        /// <exception cref="ArgumentNullException">If an operand is null</exception>
         public static ResultDisplacement operator -(ResultDisplacement obj1, ResultDisplacement obj2)
         {
             if (obj1 is null || obj2 is null)
@@ -353,7 +463,13 @@ namespace GPC.Model.Results
             }
         }
 
-        /// <returns>Multiply the displacements for a given factor</returns>
+        /// <summary>
+        /// The displacements multiplied by a factor
+        /// </summary>
+        /// <param name="obj1">The result</param>
+        /// <param name="factor">The factor</param>
+        /// <returns>The new result, in the same coordinate system</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="obj1"/> is null</exception>
         public static ResultDisplacement operator *(ResultDisplacement obj1, double factor)
         {
             if (obj1 is null)
@@ -369,7 +485,13 @@ namespace GPC.Model.Results
                 obj1._r3 * factor);
         }
 
-        /// <returns>Multiply the displacements for a given factor</returns>
+        /// <summary>
+        /// The displacements multiplied by a factor
+        /// </summary>
+        /// <param name="obj1">The result</param>
+        /// <param name="factor">The factor</param>
+        /// <returns>The new result, in the same coordinate system</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="obj1"/> is null</exception>
         public static ResultDisplacement operator *(ResultDisplacement obj1, int factor)
         {
             return obj1 * (double)factor;

@@ -11,33 +11,57 @@ namespace GPC.Model.Standards
     {
         #region Variables
 
+        /// <inheritdoc cref="GammaM0"/>
         protected double _gammaM0;
+        /// <inheritdoc cref="GammaM1"/>
         protected double _gammaM1;
+        /// <inheritdoc cref="GammaM2"/>
         protected double _gammaM2;
+        /// <inheritdoc cref="GammaM3"/>
         protected double _gammaM3; // EN1993-1-8
+        /// <inheritdoc cref="GammaM3Ser"/>
         protected double _gammaM3Ser;
+        /// <inheritdoc cref="GammaM4"/>
         protected double _gammaM4;
+        /// <inheritdoc cref="GammaM5"/>
         protected double _gammaM5;
+        /// <inheritdoc cref="GammaM6Ser"/>
         protected double _gammaM6Ser;
+        /// <inheritdoc cref="GammaM7"/>
         protected double _gammaM7;
 
+        /// <inheritdoc cref="NShearBucklingLowGradeOfSteel"/>
         protected double _nShearBucklingLowGradeOfSteel;
+        /// <inheritdoc cref="NShearBucklingHighGradeOfSteel"/>
         protected double _nShearBucklingHighGradeOfSteel;
 
+        /// <inheritdoc cref="AlphaImperfectionFactorForCurveA0"/>
         protected double _alphaImperfectionFactorForCurveA0;
+        /// <inheritdoc cref="AlphaImperfectionFactorForCurveA"/>
         protected double _alphaImperfectionFactorForCurveA;
+        /// <inheritdoc cref="AlphaImperfectionFactorForCurveB"/>
         protected double _alphaImperfectionFactorForCurveB;
+        /// <inheritdoc cref="AlphaImperfectionFactorForCurveC"/>
         protected double _alphaImperfectionFactorForCurveC;
+        /// <inheritdoc cref="AlphaImperfectionFactorForCurveD"/>
         protected double _alphaImperfectionFactorForCurveD;
 
+        /// <inheritdoc cref="AlphaLTImperfectionFactorForCurveA"/>
         protected double _alphaLTImperfectionFactorForCurveA;
+        /// <inheritdoc cref="AlphaLTImperfectionFactorForCurveB"/>
         protected double _alphaLTImperfectionFactorForCurveB;
+        /// <inheritdoc cref="AlphaLTImperfectionFactorForCurveC"/>
         protected double _alphaLTImperfectionFactorForCurveC;
+        /// <inheritdoc cref="AlphaLTImperfectionFactorForCurveD"/>
         protected double _alphaLTImperfectionFactorForCurveD;
 
+        /// <inheritdoc cref="BetaForLateralTorsionalBuckling"/>
         protected double _betaForLateralTorsionalBuckling;
+        /// <inheritdoc cref="LambdaLT0ForLateralTorsionalBuckling"/>
         protected double _lambdaLT0ForLateralTorsionalBuckling;
+        /// <inheritdoc cref="BetaForLateralTorsionalBucklingMod"/>
         protected double _betaForLateralTorsionalBucklingMod;
+        /// <inheritdoc cref="LambdaLT0ForLateralTorsionalBucklingMod"/>
         protected double _lambdaLT0ForLateralTorsionalBucklingMod;
 
         #endregion
@@ -89,44 +113,86 @@ namespace GPC.Model.Standards
         /// </summary>
         public double GammaM7 { get => _gammaM7; set => _gammaM7 = value; }
 
+        /// <summary>
+        /// η of the shear buckling (EN 1993-1-5 5.1) for steel grades up to S460 (1.20)
+        /// </summary>
         public double NShearBucklingLowGradeOfSteel { get => _nShearBucklingLowGradeOfSteel; set => _nShearBucklingLowGradeOfSteel = value; }
+        /// <summary>
+        /// η of the shear buckling (EN 1993-1-5 5.1) for steel grades higher than S460 (1.00)
+        /// </summary>
         public double NShearBucklingHighGradeOfSteel { get => _nShearBucklingHighGradeOfSteel; set => _nShearBucklingHighGradeOfSteel = value; }
 
         /// <summary>
-        /// Parameters from "Table 6.1: Imperfection factors for buckling curves" in EN 1993-1-1:2005.
+        /// Imperfection factor α of the buckling curve a0 ("Table 6.1: Imperfection factors for buckling curves" in EN 1993-1-1:2005).
         /// </summary>
         public double AlphaImperfectionFactorForCurveA0 { get => _alphaImperfectionFactorForCurveA0; set => _alphaImperfectionFactorForCurveA0 = value; }
+        /// <summary>
+        /// Imperfection factor α of the buckling curve a (EN 1993-1-1:2005 Table 6.1).
+        /// </summary>
         public double AlphaImperfectionFactorForCurveA { get => _alphaImperfectionFactorForCurveA; set => _alphaImperfectionFactorForCurveA = value; }
+        /// <summary>
+        /// Imperfection factor α of the buckling curve b (EN 1993-1-1:2005 Table 6.1).
+        /// </summary>
         public double AlphaImperfectionFactorForCurveB { get => _alphaImperfectionFactorForCurveB; set => _alphaImperfectionFactorForCurveB = value; }
+        /// <summary>
+        /// Imperfection factor α of the buckling curve c (EN 1993-1-1:2005 Table 6.1).
+        /// </summary>
         public double AlphaImperfectionFactorForCurveC { get => _alphaImperfectionFactorForCurveC; set => _alphaImperfectionFactorForCurveC = value; }
+        /// <summary>
+        /// Imperfection factor α of the buckling curve d (EN 1993-1-1:2005 Table 6.1).
+        /// </summary>
         public double AlphaImperfectionFactorForCurveD { get => _alphaImperfectionFactorForCurveD; set => _alphaImperfectionFactorForCurveD = value; }
 
         /// <summary>
-        /// Parameters from "Table 6.3: Recommended values for imperfection factors for lateral torsional buckling curves" in EN 1993-1-1:2005.
+        /// Imperfection factor αLT of the lateral torsional buckling curve a ("Table 6.3: Recommended values for imperfection factors for lateral
+        /// torsional buckling curves" in EN 1993-1-1:2005).
         /// </summary>
         public double AlphaLTImperfectionFactorForCurveA { get => _alphaLTImperfectionFactorForCurveA; set => _alphaLTImperfectionFactorForCurveA = value; }
+        /// <summary>
+        /// Imperfection factor αLT of the lateral torsional buckling curve b (EN 1993-1-1:2005 Table 6.3).
+        /// </summary>
         public double AlphaLTImperfectionFactorForCurveB { get => _alphaLTImperfectionFactorForCurveB; set => _alphaLTImperfectionFactorForCurveB = value; }
+        /// <summary>
+        /// Imperfection factor αLT of the lateral torsional buckling curve c (EN 1993-1-1:2005 Table 6.3).
+        /// </summary>
         public double AlphaLTImperfectionFactorForCurveC { get => _alphaLTImperfectionFactorForCurveC; set => _alphaLTImperfectionFactorForCurveC = value; }
+        /// <summary>
+        /// Imperfection factor αLT of the lateral torsional buckling curve d (EN 1993-1-1:2005 Table 6.3).
+        /// </summary>
         public double AlphaLTImperfectionFactorForCurveD { get => _alphaLTImperfectionFactorForCurveD; set => _alphaLTImperfectionFactorForCurveD = value; }
 
         /// <summary>
-        /// Parameters in Φ_LT, from "6.3.2.2 Lateral torsional buckling curves General case" in EN 1993-1-1:2005.
+        /// β in Φ_LT for "6.3.2.2 Lateral torsional buckling curves General case" in EN 1993-1-1:2005 (1.0: the general formula).
         /// </summary>
         public double BetaForLateralTorsionalBuckling { get => _betaForLateralTorsionalBuckling; set => _betaForLateralTorsionalBuckling = value; }
+        /// <summary>
+        /// λ̄LT,0 in Φ_LT for "6.3.2.2 Lateral torsional buckling curves General case" in EN 1993-1-1:2005 (0.2: the general formula).
+        /// </summary>
         public double LambdaLT0ForLateralTorsionalBuckling { get => _lambdaLT0ForLateralTorsionalBuckling; set => _lambdaLT0ForLateralTorsionalBuckling = value; }
 
         /// <summary>
-        /// Parameters in Φ_LT, from "6.3.2.3 Lateral torsional buckling curves for rolled sections or equivalent welded sections".
+        /// β in Φ_LT, from "6.3.2.3 Lateral torsional buckling curves for rolled sections or equivalent welded sections" (0.75).
         /// </summary>
         public double BetaForLateralTorsionalBucklingMod { get => _betaForLateralTorsionalBucklingMod; set => _betaForLateralTorsionalBucklingMod = value; }
+        /// <summary>
+        /// λ̄LT,0 in Φ_LT, from "6.3.2.3 Lateral torsional buckling curves for rolled sections or equivalent welded sections" (0.4).
+        /// </summary>
         public double LambdaLT0ForLateralTorsionalBucklingMod { get => _lambdaLT0ForLateralTorsionalBucklingMod; set => _lambdaLT0ForLateralTorsionalBucklingMod = value; }
 
+        /// <summary>
+        /// The group of the standard: European
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.European;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardEN1993p11(string name = "EN 1993:2005", string remarks = "Eurocode 3")
             : base(name, remarks)
         {
@@ -160,6 +226,11 @@ namespace GPC.Model.Standards
             _lambdaLT0ForLateralTorsionalBucklingMod = 0.40; // EN 1993-1-1:2005, BS EN 1993-1-1:2005
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected StandardEN1993p11(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -194,6 +265,11 @@ namespace GPC.Model.Standards
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the object
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -223,6 +299,11 @@ namespace GPC.Model.Standards
             info.AddValue("LambdaLT0ForLateralTorsionalBucklingMod", _lambdaLT0ForLateralTorsionalBucklingMod);
         }
 
+        /// <summary>
+        /// Equality with an object of the same type
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is equal</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -255,6 +336,10 @@ namespace GPC.Model.Standards
                    _lambdaLT0ForLateralTorsionalBucklingMod == p._lambdaLT0ForLateralTorsionalBucklingMod;
         }
 
+        /// <summary>
+        /// The hash code of the coefficients and of the base
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked

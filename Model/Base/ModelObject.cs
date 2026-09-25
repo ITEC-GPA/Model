@@ -4,15 +4,27 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model
 {
+    /// <summary>
+    /// Base of the objects of the model: a <see cref="Guid"/> and a <see cref="Name"/>. Two objects are equal if they have the same name
+    /// </summary>
     [Serializable]
     public abstract class ModelObject : ISerializable
     {
         #region Variables
 
+        /// <summary>
+        /// The unique identifier
+        /// </summary>
         protected Guid _guid;
 
+        /// <summary>
+        /// The name
+        /// </summary>
         protected string _name;
 
+        /// <summary>
+        /// The version of the serialized data (see <see cref="SerializationVersion"/>)
+        /// </summary>
         private int _serializationVersion;
 
         #endregion
@@ -25,27 +37,42 @@ namespace GPC.Model
         /// </summary>
         protected int SerializationVersion { get => _serializationVersion; set => _serializationVersion = value; }
 
+        /// <summary>
+        /// The unique identifier (assigned at the creation or read from the serialized data)
+        /// </summary>
         public Guid Guid => _guid;
 
-        public string Name { get => _name; set => _name = value; } // Setter non disponibile in quanto il nome deve essere una variabile non mutabile in modo da poter avere la ModelObjectNameEqualityComparer
+        /// <summary>
+        /// The name. It is the key of the equality (see <see cref="Equals(object)"/> and <see cref="ModelObjectNameEqualityComparer"/>): do not change it
+        /// while the object is in a hash set or in a dictionary
+        /// </summary>
+        public string Name { get => _name; set => _name = value; }
 
         #endregion
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates an object with a new Guid and no name
+        /// </summary>
         public ModelObject()
         {
             _guid = Guid.NewGuid();
         }
 
         /// <summary>
-        /// <param name="guid"> Object GUID</param>
+        /// Creates an object with a given Guid and no name
         /// </summary>
+        /// <param name="guid">Object GUID</param>
         public ModelObject(Guid guid)
         {
             _guid = guid;
         }
 
+        /// <summary>
+        /// Creates an object with a new Guid
+        /// </summary>
+        /// <param name="name">Object name</param>
         public ModelObject(string name)
         {
             _name = name;
@@ -53,15 +80,21 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// <param name="guid"> Object GUID</param>
-        /// <param name="name"> Object name</param>
+        /// Creates an object with a given Guid
         /// </summary>
+        /// <param name="guid">Object GUID</param>
+        /// <param name="name">Object name</param>
         public ModelObject(Guid guid, string name)
             : this(guid)
         {
             _name = name;
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the serialization version (0 if it is missing), the Guid and the name
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected ModelObject(SerializationInfo info, StreamingContext context)
         {
             try
@@ -81,7 +114,11 @@ namespace GPC.Model
 
         #endregion 
 
-        /// <returns> <see langword="true"/> if <paramref name="guid"/> match the object <see cref="Guid"/> </returns>
+        /// <summary>
+        /// Compares the Guid of the object with a given one
+        /// </summary>
+        /// <param name="guid">The Guid to compare</param>
+        /// <returns><see langword="true"/> if <paramref name="guid"/> match the object <see cref="Guid"/></returns>
         public bool CompareGuid(Guid guid)
         {
             return _guid.Equals(guid);
@@ -89,6 +126,11 @@ namespace GPC.Model
 
         #region Equals - HashCode - Operators
 
+        /// <summary>
+        /// Serializes the serialization version, the Guid and the name
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("SerializationVersion", _serializationVersion);
@@ -96,7 +138,11 @@ namespace GPC.Model
             info.AddValue("Name", _name);
         }
 
-        /// <returns><see langword="True"/> if <paramref name="obj"/> have the same <see cref="Name"/> of this object </returns>
+        /// <summary>
+        /// Equality of the names
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="ModelObject"/> with the same <see cref="Name"/> of this object</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -105,6 +151,10 @@ namespace GPC.Model
             return (obj is ModelObject objCasted) && objCasted._name == _name;
         }
 
+        /// <summary>
+        /// The hash code of the name
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -113,6 +163,12 @@ namespace GPC.Model
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>); two null objects are equal
+        /// </summary>
+        /// <param name="obj1">The first object</param>
+        /// <param name="obj2">The second object</param>
+        /// <returns>True if the objects have the same name</returns>
         public static bool operator ==(ModelObject obj1, ModelObject obj2)
         {
             if (obj1 is null)
@@ -124,6 +180,12 @@ namespace GPC.Model
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first object</param>
+        /// <param name="obj2">The second object</param>
+        /// <returns>True if the objects have different names</returns>
         public static bool operator !=(ModelObject obj1, ModelObject obj2)
         {
             return !(obj1 == obj2);
@@ -139,10 +201,13 @@ namespace GPC.Model
         [Serializable]
         public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
         {
-            /// <returns> <inheritdoc/>
-            /// <para> true if both <paramref name="x"/> and <paramref name="y"/> are null </para>
-            /// </returns>
-            /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
+            /// <summary>
+            /// Equality of the names
+            /// </summary>
+            /// <param name="x">The first object</param>
+            /// <param name="y">The second object</param>
+            /// <returns>True if the objects have the same name, or if both <paramref name="x"/> and <paramref name="y"/> are null</returns>
+            /// <remarks>Only <see cref="ModelObject.Name"/> is used as equality parameter</remarks>
             bool IEqualityComparer<ModelObject>.Equals(ModelObject x, ModelObject y)
             {
                 if (x == null && y == null)
@@ -161,7 +226,12 @@ namespace GPC.Model
             }
 
 
-            /// <remarks> Only <see cref="ModelObject.Name"/> is used as equality parameter </remarks>
+            /// <summary>
+            /// The hash code of the name
+            /// </summary>
+            /// <param name="obj">The object (with a name not null)</param>
+            /// <returns>The hash code</returns>
+            /// <remarks>Only <see cref="ModelObject.Name"/> is used as equality parameter</remarks>
             int IEqualityComparer<ModelObject>.GetHashCode(ModelObject obj)
             {
                 return -17 * obj.Name.GetHashCode();

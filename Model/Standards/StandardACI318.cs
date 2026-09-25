@@ -11,16 +11,27 @@ namespace GPC.Model.Standards
 	{
 		#region Variables
 
+		/// <inheritdoc cref="PhiCSpiral"/>
 		protected double _phiCSpiral;
+		/// <inheritdoc cref="PhiCTied"/>
 		protected double _phiCTied;
+		/// <inheritdoc cref="PhiMaximumCompressiveAxialLoadSpiral"/>
 		protected double _phiMaximumCompressiveAxialLoadSpiral;
+		/// <inheritdoc cref="PhiMaximumCompressiveAxialLoadTied"/>
 		protected double _phiMaximumCompressiveAxialLoadTied;
+        /// <inheritdoc cref="PhiMaximumCompressiveAxialLoadComposite"/>
         protected double _phiMaximumCompressiveAxialLoadComposite;
+        /// <inheritdoc cref="PhiT"/>
         protected double _phiT;
+		/// <inheritdoc cref="PhiTP"/>
 		protected double _phiTP;
+		/// <inheritdoc cref="PhiDeformationTransitionIncrement"/>
 		protected double _phiDeformationTransitionIncrement;
+		/// <inheritdoc cref="PhiDeformationTransitionIncrementPrestress"/>
 		protected double _phiDeformationTransitionIncrementPrestress;
+		/// <inheritdoc cref="ConcreteStrengthReductionFactor"/>
 		protected double _concreteStrengthReductionFactor;
+		/// <inheritdoc cref="PhiDeformationTransitionMaxLimit"/>
 		protected double _phiDeformationTransitionMaxLimit;
 
 		#endregion
@@ -82,12 +93,20 @@ namespace GPC.Model.Standards
 		/// </summary>
 		public double PhiDeformationTransitionMaxLimit { get => _phiDeformationTransitionMaxLimit; set => _phiDeformationTransitionMaxLimit = value; }
 
+        /// <summary>
+        /// The group of the standard: American
+        /// </summary>
         public override StandardGroupType StandardGroup => StandardGroupType.American;
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates the standard
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="remarks">The remarks</param>
         public StandardACI318(string name = "ACI 318", string remarks = "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
 			: base(name, remarks)
 		{
@@ -104,16 +123,28 @@ namespace GPC.Model.Standards
 			_phiDeformationTransitionMaxLimit = 0.005;
 		}
 
+		/// <summary>
+		/// Creates the standard with the default remarks
+		/// </summary>
+		/// <param name="name">The name</param>
 		public StandardACI318(string name = "ACI 318")
 			: this(name, "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
 		{
 		}
 
+		/// <summary>
+		/// Creates the standard with the default name and remarks
+		/// </summary>
 		public StandardACI318()
 			: this("ACI 318", "Building Code Requirements for Structural Concrete: ACI Standard ACI 318")
 		{
 		}
 
+		/// <summary>
+		/// Deserialization constructor
+		/// </summary>
+		/// <param name="info">The serialization data</param>
+		/// <param name="context">The serialization context</param>
 		protected StandardACI318(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
@@ -160,11 +191,21 @@ namespace GPC.Model.Standards
 
 		#region Equals - hashcode - operators
 
+		/// <summary>
+		/// Equality with an object of the same type
+		/// </summary>
+		/// <param name="obj">The object to compare</param>
+		/// <returns>True if <paramref name="obj"/> is equal</returns>
 		public override bool Equals(object obj)
 		{
 			return Equals(obj as StandardACI318);
 		}
 
+		/// <summary>
+		/// Equality of the coefficients and of the base
+		/// </summary>
+		/// <param name="other">The object to compare</param>
+		/// <returns>True if the objects are equal</returns>
 		public bool Equals(StandardACI318 other)
 		{
 			return other != null &&
@@ -178,6 +219,10 @@ namespace GPC.Model.Standards
                    _phiDeformationTransitionIncrement == other._phiDeformationTransitionIncrement;
 		}
 
+		/// <summary>
+		/// The hash code of the coefficients and of the base
+		/// </summary>
+		/// <returns>The hash code</returns>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -198,6 +243,11 @@ namespace GPC.Model.Standards
 			}
 		}
 
+		/// <summary>
+		/// Serializes the object
+		/// </summary>
+		/// <param name="info">The serialization data</param>
+		/// <param name="context">The serialization context</param>
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);

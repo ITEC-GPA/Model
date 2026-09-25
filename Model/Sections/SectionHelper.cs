@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace GPC.Model.Sections
 {
+    /// <summary>
+    /// Calculations of the section properties: mesh, centroid, moments of inertia, principal axes and plastic modulus
+    /// </summary>
     internal static class SectionHelper
     {
         /// <summary>
@@ -19,8 +22,9 @@ namespace GPC.Model.Sections
         /// <param name="initialMeshOnly">If true, use only shape vertices for meshing</param>
         /// <param name="recombine">If true, quadrilaterals as square as possible (see <see cref="DelaunayMesh"/>); false (default): triangles,
         /// the mesh used by the checks until September 2026 (Recombine was not implemented)</param>
-        /// <param name="refine"></param>
-        /// <returns></returns>
+        /// <param name="refine">If true, the mesh is refined</param>
+        /// <returns>The mesh; null if <paramref name="shape"/> is null</returns>
+        /// <exception cref="ArgumentException">If the mesher fails</exception>
         internal static Mesh GenerateMesh(Shape2d shape, double size = 0, bool initialMeshOnly = false, bool recombine = false, bool refine = false)
         {
             if (shape is null)
@@ -46,6 +50,14 @@ namespace GPC.Model.Sections
                 throw new ArgumentException($"Fail to create mesh. {meshStatus.GetLastCustomErrorMessage()}");
         }
 
+        /// <summary>
+        /// The centroid from the static moments
+        /// </summary>
+        /// <param name="Sx">The static moment respect to X (integral of y dA)</param>
+        /// <param name="Sy">The static moment respect to Y (integral of x dA)</param>
+        /// <param name="area">The area</param>
+        /// <returns>(Sy / A, Sx / A)</returns>
+        /// <exception cref="ArgumentException">If <paramref name="area"/> is zero</exception>
         internal static Point2d CalculateCentroid(double Sx, double Sy, double area)
         {
             if (area == 0)
@@ -54,6 +66,14 @@ namespace GPC.Model.Sections
             return new Point2d(Sy / area, Sx / area);
         }
 
+        /// <summary>
+        /// The angle of a principal axis from X: -atan2(2 Jxy, Jxx - Jyy) / 2 (0 for equal moments without product of inertia, -45° or +45° for
+        /// equal moments with product of inertia); angles within the angular tolerance from 0 or pi are 0
+        /// </summary>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
+        /// <returns>The angle (radians)</returns>
         internal static double CalculateAngle(double Jxx, double Jyy, double Jxy)
         {
             // Change due to .NET Core, change in (Jxx - Jyy) that is not zero if two double are equals.
@@ -93,6 +113,11 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The angle of the principal axis 1, the one of the maximum moment of inertia <paramref name="J11"/>, from the X axis
         /// </summary>
+        /// <param name="J11">The maximum principal moment of inertia</param>
+        /// <param name="J22">The minimum principal moment of inertia</param>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
         /// <returns>0 if the X axis is the axis 1; -pi/2 if X and Y are principal and Jyy is bigger than Jxx (the axis 1 is the Y axis, directed
         /// towards the negative Y, as the angle given by <see cref="CalculateAngle(double, double, double)"/>); otherwise the angle of the axis 1</returns>
         /// <remarks>The comparisons are relative (before, absolute with the geometric tolerance 1e-4: for a section in metres, with moments of
@@ -113,22 +138,38 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The product of inertia is zero (the X and Y axes are principal) if it is negligible respect to the moments of inertia
         /// </summary>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
+        /// <returns>True if |Jxy| &lt;= 1e-10 (|Jxx| + |Jyy|)</returns>
         internal static bool IsProductOfInertiaZero(double Jxx, double Jyy, double Jxy)
         {
             return Math.Abs(Jxy) <= ProductOfInertiaZero * (Math.Abs(Jxx) + Math.Abs(Jyy));
         }
 
+        /// <summary>
+        /// The relative tolerance on the product of inertia and on the moments of inertia
+        /// </summary>
         private const double ProductOfInertiaZero = 1e-10;
 
         /// <summary>
         /// With X and Y principal: true if the axis 1 is X, that is if Jxx is the bigger moment or if the two moments are equal but for the rounding
         /// errors (all the axes are principal, e.g. a circle or a square); false if the axis 1 is Y
         /// </summary>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <returns>True if the axis 1 is X</returns>
         private static bool XIsAxisOne(double Jxx, double Jyy)
         {
             return Jxx >= Jyy - ProductOfInertiaZero * (Math.Abs(Jxx) + Math.Abs(Jyy));
         }
 
+        /// <summary>
+        /// The maximum principal moment of inertia
+        /// </summary>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
         /// <returns>The maximum principal moment of inertia (the moment respect to the axis 1)</returns>
         /// <remarks>The axis 1 is always the principal axis of the maximum moment, also when X and Y are principal (e.g. for a wide rectangle
         /// J11 = Jyy and the axis 1 is the Y axis): see <see cref="CalculateAngle(double, double, double, double, double)"/></remarks>
@@ -140,6 +181,12 @@ namespace GPC.Model.Sections
             return (Jxx + Jyy) / 2.0 + 0.5 * Math.Sqrt(Math.Pow(Jxx - Jyy, 2.0) + 4.0 * Math.Pow(Jxy, 2));
         }
 
+        /// <summary>
+        /// The minimum principal moment of inertia
+        /// </summary>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
         /// <returns>The minimum principal moment of inertia (the moment respect to the axis 2)</returns>
         internal static double CalculateJ22(double Jxx, double Jyy, double Jxy)
         {
@@ -160,7 +207,7 @@ namespace GPC.Model.Sections
         /// <param name="Jyy">Moment of inertia with respect to the Y axis.</param>
         /// <param name="Jxy">Product of inertia with respect to the X and Y axes.</param>
         /// <param name="alpha">Angle of the axis with respect to which to calculate the moment of inertia.</param>
-        /// <returns></returns>
+        /// <returns>Jxx cos² + Jyy sin² - 2 Jxy sin cos</returns>
         internal static double CalculateJAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
         {
             double cosAlpha = Math.Cos(alpha);
@@ -170,16 +217,16 @@ namespace GPC.Model.Sections
 
         /// <summary>
         /// Calculate product of inertia in alpha direction, counterclockwise rotation, zero for positive X axis.
-        /// Given the moments of inertia with respect to the x and y axes determine the moment of inertia with respect
-        /// to an axis rotated by alpha passing through the origin.
+        /// Given the moments of inertia with respect to the x and y axes determine the product of inertia with respect
+        /// to the axes rotated by alpha passing through the origin.
         /// It corresponds to rotating the section by an angle equal to -alpha and determining the product of inertia
         /// with respect to the x and y axes.
         /// </summary>
         /// <param name="Jxx">Moment of inertia with respect to the X axis.</param>
         /// <param name="Jyy">Moment of inertia with respect to the Y axis.</param>
         /// <param name="Jxy">Product of inertia with respect to the X and Y axes.</param>
-        /// <param name="alpha">Angle of the axis with respect to which to calculate the moment of inertia.</param>
-        /// <returns></returns>
+        /// <param name="alpha">Angle of the axes with respect to which to calculate the product of inertia.</param>
+        /// <returns>(Jxx - Jyy) sin cos + Jxy (cos² - sin²)</returns>
         internal static double CalculateJxyAlpha(in double Jxx, in double Jyy, in double Jxy, in double alpha)
         {
             double cosAlpha = Math.Cos(alpha);
@@ -187,6 +234,17 @@ namespace GPC.Model.Sections
             return (Jxx - Jyy) * sinAlpha * cosAlpha + Jxy * (cosAlpha * cosAlpha - sinAlpha * sinAlpha);
         }
 
+        /// <summary>
+        /// The moments of inertia of a mesh face respect to the axes through a point (Gauss integration: 33 points for the triangles, 49 for
+        /// the quadrangles)
+        /// </summary>
+        /// <param name="mesh">The mesh</param>
+        /// <param name="face">The face</param>
+        /// <param name="centroid">The origin of the axes</param>
+        /// <param name="jxx">The moment of inertia about X</param>
+        /// <param name="jyy">The moment of inertia about Y</param>
+        /// <param name="jxy">The product of inertia</param>
+        /// <exception cref="ArgumentException">If the face is neither a triangle nor a quadrangle</exception>
         internal static void CalculateIntegralInertiaMoment(Mesh mesh, MeshFace face, Point2d centroid, out double jxx, out double jyy, out double jxy)
         {
             Point3d[] points = mesh.GetFacePoints(face);
@@ -207,6 +265,17 @@ namespace GPC.Model.Sections
                 throw new ArgumentException();
         }
 
+        /// <summary>
+        /// The moments of inertia of the mesh respect to the axes through a point (sum of the faces, see
+        /// <see cref="CalculateIntegralInertiaMoment(Mesh, MeshFace, Point2d, out double, out double, out double)"/>); a negligible product of
+        /// inertia is set to zero
+        /// </summary>
+        /// <param name="mesh">The mesh</param>
+        /// <param name="centroid">The origin of the axes</param>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
+        /// <param name="Jp">The polar moment of inertia</param>
         internal static void CalculateInertiaMoments(Mesh mesh, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
         {
             double[] JxxArray = new double[mesh.FacesCount];
@@ -240,6 +309,9 @@ namespace GPC.Model.Sections
         /// Static moments of the mesh faces in the X-Y plane: sum of the face area (absolute value) by the face centroid.
         /// The quads are divided in two triangles from the first vertex, as in <see cref="Polygon3d.GetCentroid"/>
         /// </summary>
+        /// <param name="mesh">The mesh</param>
+        /// <param name="Sx">The static moment respect to X (integral of y dA)</param>
+        /// <param name="Sy">The static moment respect to Y (integral of x dA)</param>
         internal static void CalculateStaticMoments(Mesh mesh, out double Sx, out double Sy)
         {
             Sx = 0;
@@ -276,6 +348,9 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Static moments of the shape (fill minus holes plus childs, the region meshed by <see cref="GenerateMesh"/>), exact
         /// </summary>
+        /// <param name="shape">The shape (null or empty: 0)</param>
+        /// <param name="Sx">The static moment respect to X (integral of y dA)</param>
+        /// <param name="Sy">The static moment respect to Y (integral of x dA)</param>
         internal static void CalculateStaticMoments(Shape2d shape, out double Sx, out double Sy)
         {
             if (shape is null || shape.Fill.Count == 0)
@@ -294,8 +369,15 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Moments of inertia of the shape (fill minus holes plus childs, the region meshed by <see cref="GenerateMesh"/>) respect to the axes through <paramref name="centroid"/>, exact
+        /// Moments of inertia of the shape (fill minus holes plus childs, the region meshed by <see cref="GenerateMesh"/>) respect to the axes through <paramref name="centroid"/>, exact.
+        /// A negligible product of inertia is set to zero
         /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="centroid">The origin of the axes</param>
+        /// <param name="Jxx">The moment of inertia about X</param>
+        /// <param name="Jyy">The moment of inertia about Y</param>
+        /// <param name="Jxy">The product of inertia</param>
+        /// <param name="Jp">The polar moment of inertia</param>
         internal static void CalculateInertiaMoments(Shape2d shape, Point2d centroid, out double Jxx, out double Jyy, out double Jxy, out double Jp)
         {
             IntegrateShape(shape, centroid.X, centroid.Y, out _, out _, out _, out Jxx, out Jyy, out Jxy);
@@ -309,6 +391,9 @@ namespace GPC.Model.Sections
         /// Integrals on the shape region (fill minus holes, plus childs) computed on the boundary with the Green's theorem: exact for polygons.
         /// The coordinates are relative to (<paramref name="originX"/>, <paramref name="originY"/>)
         /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="originX">The X of the origin</param>
+        /// <param name="originY">The Y of the origin</param>
         /// <param name="area">Integral of dA</param>
         /// <param name="sx">Integral of y dA</param>
         /// <param name="sy">Integral of x dA</param>
@@ -322,6 +407,18 @@ namespace GPC.Model.Sections
             AddShapeIntegrals(shape, originX, originY, ref area, ref sx, ref sy, ref ixx, ref iyy, ref ixy);
         }
 
+        /// <summary>
+        /// Adds the integrals of a shape: the fill, minus the holes, plus the childs (recursively)
+        /// </summary>
+        /// <param name="shape">The shape (null: nothing)</param>
+        /// <param name="originX">The X of the origin</param>
+        /// <param name="originY">The Y of the origin</param>
+        /// <param name="area">Integral of dA</param>
+        /// <param name="sx">Integral of y dA</param>
+        /// <param name="sy">Integral of x dA</param>
+        /// <param name="ixx">Integral of y^2 dA</param>
+        /// <param name="iyy">Integral of x^2 dA</param>
+        /// <param name="ixy">Integral of x y dA</param>
         private static void AddShapeIntegrals(Shape shape, double originX, double originY,
             ref double area, ref double sx, ref double sy, ref double ixx, ref double iyy, ref double ixy)
         {
@@ -347,8 +444,12 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Plastic modulus of the shape (fill minus holes plus childs) for the bending about an axis with direction <paramref name="angle"/>:
         /// the integral of the distance from the plastic neutral axis, the parallel axis that divides the area in two halves. Exact for polygons
+        /// (the neutral axis is found by bisection)
         /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="centroid">The centroid (origin of the local coordinates)</param>
         /// <param name="angle">The direction of the axis (0: X axis, <see cref="Math.PI"/> / 2: Y axis), as the angle of the elastic moduli</param>
+        /// <returns>The plastic modulus; 0 for a shape without area</returns>
         internal static double CalculatePlasticModulus(Shape shape, Point2d centroid, double angle)
         {
             if (shape is null || shape.Fill is null || shape.Fill.Count < 3)
@@ -393,7 +494,15 @@ namespace GPC.Model.Sections
             return (qAbove - neutralAxis * aAbove) + (neutralAxis * aBelow - qBelow);
         }
 
+        /// <summary>
+        /// Adds the rings of a shape in the coordinates of the bending axis: the fill, the holes (opposite sign) and the childs (recursively)
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="centroid">The centroid</param>
+        /// <param name="cos">The cosine of the angle of the axis</param>
+        /// <param name="sin">The sine of the angle of the axis</param>
         /// <param name="sign">1 for a region to add, -1 for a region to subtract</param>
+        /// <param name="rings">The list of the rings</param>
         private static void AddPlasticRings(Shape shape, Point2d centroid, double cos, double sin, double sign, List<(double[] u, double[] w, double factor)> rings)
         {
             AddPlasticRing(shape.Fill, centroid, cos, sin, sign, rings);
@@ -412,6 +521,16 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Adds a polygon as a ring in the coordinates of the bending axis: u along the axis, w the distance from it; the factor makes the
+        /// integrals positive for a region to add, whatever the orientation
+        /// </summary>
+        /// <param name="polygon">The polygon (less than 3 points: ignored)</param>
+        /// <param name="centroid">The centroid</param>
+        /// <param name="cos">The cosine of the angle of the axis</param>
+        /// <param name="sin">The sine of the angle of the axis</param>
+        /// <param name="sign">1 for a region to add, -1 for a region to subtract</param>
+        /// <param name="rings">The list of the rings</param>
         private static void AddPlasticRing(Polygon3d polygon, Point2d centroid, double cos, double sin, double sign, List<(double[] u, double[] w, double factor)> rings)
         {
             int count = polygon.Count;
@@ -441,6 +560,10 @@ namespace GPC.Model.Sections
         /// Area and first moment (integral of w dA) of the part of the rings with w >= <paramref name="c"/>: every ring is clipped by the half-plane
         /// (Sutherland-Hodgman) and integrated with the Green's theorem; the sides added along w = c do not change the integrals of the other rings
         /// </summary>
+        /// <param name="rings">The rings</param>
+        /// <param name="c">The distance of the clipping line</param>
+        /// <param name="area">The area above the line</param>
+        /// <param name="firstMoment">The first moment of the area above the line</param>
         private static void ClippedIntegrals(List<(double[] u, double[] w, double factor)> rings, double c, out double area, out double firstMoment)
         {
             area = 0;
@@ -495,7 +618,19 @@ namespace GPC.Model.Sections
             }
         }
 
+        /// <summary>
+        /// Adds the integrals of a polygon (Green's theorem), relative to an origin
+        /// </summary>
+        /// <param name="polygon">The polygon</param>
         /// <param name="sign">1 to add the polygon region, -1 to subtract it. The orientation of the polygon does not matter</param>
+        /// <param name="originX">The X of the origin</param>
+        /// <param name="originY">The Y of the origin</param>
+        /// <param name="area">Integral of dA</param>
+        /// <param name="sx">Integral of y dA</param>
+        /// <param name="sy">Integral of x dA</param>
+        /// <param name="ixx">Integral of y^2 dA</param>
+        /// <param name="iyy">Integral of x^2 dA</param>
+        /// <param name="ixy">Integral of x y dA</param>
         private static void AddPolygonIntegrals(Polygon3d polygon, double sign, double originX, double originY,
             ref double area, ref double sx, ref double sy, ref double ixx, ref double iyy, ref double ixy)
         {

@@ -2,6 +2,9 @@
 
 namespace GPC.Model.Data.Aluminium
 {
+    /// <summary>
+    /// Predefined aluminium alloys of EN 1999-1-1: each property returns a new instance
+    /// </summary>
     public class AluminiumMaterialEN1999Data
     {
         // Set strainU as 0.5*ε_u=0.5*A_50

@@ -15,28 +15,46 @@ namespace GPC.Model.Sections.Glass
     {
         #region Variables
 
+        /// <summary>
+        /// The material
+        /// </summary>
         private GlassMaterial _material;
 
+        /// <summary>
+        /// The thickness
+        /// </summary>
         private double _thickness;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The thickness (the one used for calculation)
+        /// </summary>
         public double Thickness { get => _thickness; set => _thickness = value; }
 
+        /// <summary>
+        /// The material
+        /// </summary>
         public GlassMaterial Material { get => _material; set => _material = value; }
 
+        /// <summary>
+        /// The thickness (the same of <see cref="Thickness"/>)
+        /// </summary>
         public double TotalThickness { get => _thickness; set => _thickness = value; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Creates the glass
+        /// </summary>
         /// <param name="name">Name of the glass</param>
-        /// <param name="guid">The guid of the glass</param>
-        /// <param name="thickness">The minimum _thickness of the panel (the one used for calculation)</param>
-        /// <param name="glassMaterial"></param>
+        /// <param name="thickness">The minimum thickness of the panel (the one used for calculation)</param>
+        /// <param name="glassMaterial">The material</param>
+        /// <exception cref="ArgumentException">If <paramref name="thickness"/> is not bigger than 0.001</exception>
         public MonolithicGlass(string name, double thickness, GlassMaterial glassMaterial)
             : base(name)
         {
@@ -44,6 +62,11 @@ namespace GPC.Model.Sections.Glass
             _material = glassMaterial;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private MonolithicGlass(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -53,26 +76,38 @@ namespace GPC.Model.Sections.Glass
 
         #endregion
 
-        /// <inheritdoc cref="IGlassPanel.GetElasticModulus()"/>
+        /// <summary>
+        /// The elastic modulus of the glass
+        /// </summary>
+        /// <returns>E of the material</returns>
         public double GetElasticModulus()
         {
             return _material.E;
         }
 
-        /// <inheritdoc cref="IGlassPanel.GetPoissonRatios()"/>
+        /// <summary>
+        /// The Poisson ratio of the glass
+        /// </summary>
+        /// <returns>ν of the material</returns>
         public double GetPoissonRatios()
         {
             return _material.Ni;
         }
 
-        /// <inheritdoc cref="IGlassPanel.GetSelfWeightPerUnitArea()"/>
+        /// <summary>
+        /// The self weight per unit area: thickness by density
+        /// </summary>
+        /// <returns>The weight per unit area (e.g. T/mm² with mm and T/mm³)</returns>
         public double GetSelfWeightPerUnitArea()
         {
             // mm * T/mm3 => T / mm2
             return _thickness * _material.Density;
         }
 
-        /// <inheritdoc cref="IGlassPanel.GetDensity()"/>
+        /// <summary>
+        /// The density of the glass
+        /// </summary>
+        /// <returns>The density of the material</returns>
         public double GetDensity()
         {
             return _material.Density;
@@ -80,6 +115,11 @@ namespace GPC.Model.Sections.Glass
 
         #region Equals - HashCode - Operators
 
+        /// <summary>
+        /// Serializes the glass
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -87,6 +127,11 @@ namespace GPC.Model.Sections.Glass
             info.AddValue("Material", _material);
         }
 
+        /// <summary>
+        /// Equality of the name, of the thickness and of the material
+        /// </summary>
+        /// <param name="other">The glass to compare</param>
+        /// <returns>True if the glasss are equal</returns>
         public bool Equals(MonolithicGlass other)
         {
             if (ReferenceEquals(this, other))
@@ -98,6 +143,11 @@ namespace GPC.Model.Sections.Glass
                 other._material.Equals(_material);
         }
 
+        /// <summary>
+        /// Equality with another glass (see <see cref="Equals(MonolithicGlass)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal glass</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -106,6 +156,10 @@ namespace GPC.Model.Sections.Glass
             return Equals(obj as MonolithicGlass);
         }
 
+        /// <summary>
+        /// The hash code of the name, of the material and of the thickness
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -118,6 +172,12 @@ namespace GPC.Model.Sections.Glass
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(MonolithicGlass)"/>)
+        /// </summary>
+        /// <param name="obj1">The first glass</param>
+        /// <param name="obj2">The second glass</param>
+        /// <returns>True if the glasss are equal</returns>
         public static bool operator ==(MonolithicGlass obj1, MonolithicGlass obj2)
         {
             if (ReferenceEquals(obj1, obj2))
@@ -129,6 +189,12 @@ namespace GPC.Model.Sections.Glass
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(MonolithicGlass)"/>)
+        /// </summary>
+        /// <param name="obj1">The first glass</param>
+        /// <param name="obj2">The second glass</param>
+        /// <returns>True if the glasss are different</returns>
         public static bool operator !=(MonolithicGlass obj1, MonolithicGlass obj2)
         {
             return !(obj1 == obj2);

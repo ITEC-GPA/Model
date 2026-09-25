@@ -7,47 +7,99 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Results
 {
+	/// <summary>
+	/// The stress tensor at a point in a coordinate system, with the principal and Von Mises stresses (calculated on demand)
+	/// </summary>
 	[Serializable]
 	public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult, IResult<ResultStress>
 	{
 		#region Variables
 
 		/// <summary>
-		/// Local Stresses
+		/// Normal stress xx (local)
 		/// </summary>
 		private readonly double _sxx;
+		/// <summary>
+		/// Normal stress yy (local)
+		/// </summary>
 		private readonly double _syy;
+		/// <summary>
+		/// Normal stress zz (local)
+		/// </summary>
 		private readonly double _szz;
+		/// <summary>
+		/// Shear stress xy (local)
+		/// </summary>
 		private readonly double _sxy;
+		/// <summary>
+		/// Shear stress xz (local)
+		/// </summary>
 		private readonly double _sxz;
+		/// <summary>
+		/// Shear stress yz (local)
+		/// </summary>
 		private readonly double _syz;
 
 		/// <summary>
-		/// Principal Stresses
+		/// True if the principal stresses have been calculated, to avoid calculating them twice (the values cannot be used: they could be zero).
+		/// It does not tell if they have been calculated with the full or the simplified method
 		/// </summary>
-
-		// questa variabile serve per sapere se gli stress principali sono stati calcolati, in modo da evitare di calcolari due volte. 
-		// Confrotando i valori non è giusto perchè potrebbero essere zero. Lo svantaggio è che non so se sono stati calcolati con il metodo preciso o approssimato.
 		private bool _principalStressCalculated;
 
+		/// <summary>
+		/// The first (largest) principal stress
+		/// </summary>
 		private double _s11;
+		/// <summary>
+		/// The second principal stress
+		/// </summary>
 		private double _s22;
+		/// <summary>
+		/// The third (smallest) principal stress
+		/// </summary>
 		private double _s33;
 
+		/// <summary>
+		/// True if the Von Mises stress has been calculated
+		/// </summary>
 		private bool _vonMisesStressCalculated;
+		/// <summary>
+		/// The Von Mises stress
+		/// </summary>
 		private double _vM;
 
 		#endregion
 
 		#region Properties
 
+		/// <summary>
+		/// Normal stress xx (local)
+		/// </summary>
 		public double Sxx => _sxx;
+		/// <summary>
+		/// Normal stress yy (local)
+		/// </summary>
 		public double Syy => _syy;
+		/// <summary>
+		/// Normal stress zz (local)
+		/// </summary>
 		public double Szz => _szz;
+		/// <summary>
+		/// Shear stress xy (local)
+		/// </summary>
 		public double Sxy => _sxy;
+		/// <summary>
+		/// Shear stress xz (local)
+		/// </summary>
 		public double Sxz => _sxz;
+		/// <summary>
+		/// Shear stress yz (local)
+		/// </summary>
 		public double Syz => _syz;
 
+		/// <summary>
+		/// The first (largest) principal stress (calculated with <see cref="CalculatePrincipalStressFullMethod"/> if not yet calculated)
+		/// </summary>
 		public double S11
 		{
 			get
@@ -59,6 +111,9 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// The second principal stress (calculated with <see cref="CalculatePrincipalStressFullMethod"/> if not yet calculated)
+		/// </summary>
 		public double S22
 		{
 			get
@@ -70,6 +125,9 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// The third (smallest) principal stress (calculated with <see cref="CalculatePrincipalStressFullMethod"/> if not yet calculated)
+		/// </summary>
 		public double S33
 		{
 			get
@@ -81,6 +139,9 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// The Von Mises stress, from the principal stresses (calculated once)
+		/// </summary>
 		public double SVM
 		{
 			get
@@ -96,16 +157,19 @@ namespace GPC.Model.Results
 
 		#region Public Constructors
 
-		/// <param name="coordinateSystem"></param>
-		/// <param name="sxx">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V1"/> direction</param>
-		/// <param name="syy">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
-		/// <param name="szz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
-		/// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V2"/> direction</param>
-		/// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
-		/// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side of the plate along <see cref="CoordinateSystem.V3"/> direction</param>
-		/// <param name="name"></param>
-		/// <param name="id"></param>
-		/// <remarks> _szz is set to zero by default </remarks>
+		/// <summary>
+		/// Creates the stresses
+		/// </summary>
+		/// <param name="coordinateSystem">The coordinate system of the components</param>
+		/// <param name="sxx">Stress on <see cref="CoordinateSystem.V1"/> side along <see cref="CoordinateSystem.V1"/> direction</param>
+		/// <param name="syy">Stress on <see cref="CoordinateSystem.V2"/> side along <see cref="CoordinateSystem.V2"/> direction</param>
+		/// <param name="szz">Stress on <see cref="CoordinateSystem.V3"/> side along <see cref="CoordinateSystem.V3"/> direction</param>
+		/// <param name="sxy">Stress on <see cref="CoordinateSystem.V1"/> side along <see cref="CoordinateSystem.V2"/> direction</param>
+		/// <param name="sxz">Stress on <see cref="CoordinateSystem.V1"/> side along <see cref="CoordinateSystem.V3"/> direction</param>
+		/// <param name="syz">Stress on <see cref="CoordinateSystem.V2"/> side along <see cref="CoordinateSystem.V3"/> direction</param>
+		/// <param name="name">The name</param>
+		/// <param name="id">The id</param>
+		/// <exception cref="ArgumentNullException">If <paramref name="coordinateSystem"/> is null</exception>
 		public ResultStress(CoordinateSystem coordinateSystem, double sxx, double syy, double szz, double sxy, double sxz, double syz, string name = "", int id = ModelObjectId.IDUNASSIGNED)
 			: base(coordinateSystem, name, id)
 		{
@@ -117,6 +181,11 @@ namespace GPC.Model.Results
 			_syz = syz;
 		}
 
+		/// <summary>
+		/// Deserialization constructor (the principal stresses are calculated again on demand)
+		/// </summary>
+		/// <param name="info">The serialization data</param>
+		/// <param name="context">The serialization context</param>
 		private ResultStress(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
@@ -132,6 +201,11 @@ namespace GPC.Model.Results
 
 		#region Public Methods  
 
+		/// <summary>
+		/// Serializes the stresses (the six components)
+		/// </summary>
+		/// <param name="info">The serialization data</param>
+		/// <param name="context">The serialization context</param>
 		public override void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData(info, context);
@@ -148,11 +222,11 @@ namespace GPC.Model.Results
 		#region Public method - Stresses
 
 		/// <summary>
-		/// Calculate the Principal stresses
+		/// Calculate the Principal stresses in the plane xy (<see cref="S33"/> = 0)
 		/// <para>This method use an approximate solution.</para>
-		/// <para>If <see cref="Sxx"/>, <see cref="Sxx"/>, <see cref="Sxz"/> and <see cref="Syz"/> are relavant then the 
+		/// <para>If <see cref="Szz"/>, <see cref="Sxz"/> and <see cref="Syz"/> are relevant then the
 		/// <seealso cref="CalculatePrincipalStressFullMethod"/> must be used</para>
-		/// <para>If <see cref="Sxz"/> and <see cref="Syz"/> are 0. This method gives the exact solution</para>
+		/// <para>If <see cref="Szz"/>, <see cref="Sxz"/> and <see cref="Syz"/> are 0 this method gives the exact solution</para>
 		/// </summary>
 		internal void CalculatePrincipalStressSimplifiedMethod()
 		{
@@ -164,7 +238,8 @@ namespace GPC.Model.Results
 		}
 
 		/// <summary>
-		/// Calculated the principal stress by means of an enginevalue evaluation
+		/// Calculates the principal stresses as the eigenvalues of the tensor (the simplified method if <see cref="Szz"/>, <see cref="Sxz"/> and
+		/// <see cref="Syz"/> are 0)
 		/// </summary>
 		public void CalculatePrincipalStressFullMethod()
 		{
@@ -201,8 +276,9 @@ namespace GPC.Model.Results
 		}
 
 		/// <summary>
-		/// Return the VonMises Stress
+		/// Calculates the Von Mises stress from the principal stresses
 		/// </summary>
+		/// <returns>The Von Mises stress</returns>
 		private double GetVMStress()
 		{
 			double svm;
@@ -217,9 +293,10 @@ namespace GPC.Model.Results
 		}
 
 		/// <summary>
-		/// Return the stress of the point in global coordinate
+		/// The stresses in global coordinates. The normal stresses (sxx, syy, 0) and the shear (0, 0, sxy) are rotated as VECTORS, not as a tensor
+		/// (see <see cref="GetTensor(bool)"/> for the correct transformation): the result is wrong for a rotated coordinate system
 		/// </summary>
-		/// <returns>Array of stress</returns>
+		/// <returns>Array with the rotated normal stresses X, Y, Z and the rotated shear X, Y, Z</returns>
 		public double[] GetGlobalStress()
 		{
 			Vector3d SigmaResult = new Vector3d(_sxx, _syy, 0);
@@ -240,6 +317,10 @@ namespace GPC.Model.Results
 			return globalstress;
 		}
 
+		/// <summary>
+		/// The stress tensor (3 x 3, symmetric)
+		/// </summary>
+		/// <param name="toGlobal">True for the global coordinate system (R T R^t), false for the local one</param>
 		/// <returns>Return the stress tensor</returns>
 		public Matrix<double> GetTensor(bool toGlobal = false)
 		{
@@ -275,6 +356,11 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// The same stresses in another coordinate system (the tensor is rotated)
+		/// </summary>
+		/// <param name="coordinateSystem">The new coordinate system</param>
+		/// <returns>The new stresses (the name and the id are lost)</returns>
 		public ResultStress ToCoordinateSystem(CoordinateSystem coordinateSystem)
 		{
 			var globalTensor = GetTensor(true);
@@ -288,6 +374,11 @@ namespace GPC.Model.Results
 
 		#region Equals, hashcode, operators
 
+		/// <summary>
+		/// Equality with another result (see <see cref="Equals(ResultStress)"/>)
+		/// </summary>
+		/// <param name="obj">The object to compare</param>
+		/// <returns>True if <paramref name="obj"/> are equal stresses</returns>
 		public override bool Equals(object obj)
 		{
 			if (obj is null)
@@ -299,6 +390,11 @@ namespace GPC.Model.Results
 			return Equals(obj as ResultStress);
 		}
 
+		/// <summary>
+		/// Exact equality of the six components and of the name (the coordinate system is not compared)
+		/// </summary>
+		/// <param name="other">The stresses to compare</param>
+		/// <returns>True if the stresses are equal</returns>
 		public bool Equals(ResultStress other)
 		{
 			if (other is null)
@@ -313,6 +409,10 @@ namespace GPC.Model.Results
 									&& base.Equals(other);
 		}
 
+		/// <summary>
+		/// The hash code of the name and of the six components
+		/// </summary>
+		/// <returns>The hash code</returns>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -329,6 +429,12 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// Equality operator (see <see cref="Equals(ResultStress)"/>)
+		/// </summary>
+		/// <param name="obj1">The first stresses</param>
+		/// <param name="obj2">The second stresses</param>
+		/// <returns>True if the stresses are equal</returns>
 		public static bool operator ==(ResultStress obj1, ResultStress obj2)
 		{
 			if (obj1 is null)
@@ -342,10 +448,13 @@ namespace GPC.Model.Results
 			return obj1.Equals(obj2);
 		}
 
-		// statico perchè è come se fosse un operatore
 		/// <summary>
-		/// Returns a <see cref="ResultStress"/> that represent the arithmetic mean between the <paramref name="values"/>
+		/// Returns a <see cref="ResultStress"/> that represent the arithmetic mean between the <paramref name="values"/>, in the coordinate system
+		/// of the first one. The components are averaged as they are, also if the coordinate systems are different (the check on the coordinate
+		/// systems is always true: the branch that rotates the tensors is never used, and it would throw <see cref="ArgumentOutOfRangeException"/>)
 		/// </summary>
+		/// <param name="values">The stresses (not empty)</param>
+		/// <returns>The mean stresses; the name joins the distinct names</returns>
 		public static ResultStress GetArithmeticMean(ResultStress[] values)
 		{
 			IEnumerable<string> sss = values.Select(i => i.Name);
@@ -385,12 +494,25 @@ namespace GPC.Model.Results
 		}
 
 
+		/// <summary>
+		/// Inequality operator (see <see cref="Equals(ResultStress)"/>)
+		/// </summary>
+		/// <param name="obj1">The first stresses</param>
+		/// <param name="obj2">The second stresses</param>
+		/// <returns>True if the stresses are different</returns>
 		public static bool operator !=(ResultStress obj1, ResultStress obj2)
 		{
 			return !(obj1 == obj2);
 		}
 
-		/// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="CoordinateSystem"/></returns>
+		/// <summary>
+		/// The sum of the stresses (the tensor of <paramref name="obj2"/> is rotated to the coordinate system of <paramref name="obj1"/>); the name
+		/// joins the two names
+		/// </summary>
+		/// <param name="obj1">The first stresses</param>
+		/// <param name="obj2">The second stresses</param>
+		/// <returns>The sum of the two stress tensor written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+		/// <exception cref="ArgumentNullException">If an operand is null</exception>
 		public static ResultStress operator +(ResultStress obj1, ResultStress obj2)
 		{
 			if (obj1 is null || obj2 is null)
@@ -430,6 +552,14 @@ namespace GPC.Model.Results
 			}
 		}
 
+		/// <summary>
+		/// The difference of the stresses (the tensor of <paramref name="obj2"/> is rotated to the coordinate system of <paramref name="obj1"/>);
+		/// the name joins the two names
+		/// </summary>
+		/// <param name="obj1">The first stresses</param>
+		/// <param name="obj2">The second stresses</param>
+		/// <returns>The difference of the two stress tensor written in the <paramref name="obj1"/> <see cref="ResultType.CoordinateSystem"/></returns>
+		/// <exception cref="ArgumentNullException">If an operand is null</exception>
 		public static ResultStress operator -(ResultStress obj1, ResultStress obj2)
 		{
 			if (obj1 is null || obj2 is null)
@@ -469,7 +599,14 @@ namespace GPC.Model.Results
 		}
 
 
+		/// <summary>
+		/// The global tensor transformed by a matrix, M T M^t; the result keeps the coordinate system of <paramref name="obj1"/>
+		/// </summary>
+		/// <param name="obj1">The stresses</param>
+		/// <param name="matrix">The matrix (of rank 3)</param>
 		/// <returns>This will produce the multipltication of <paramref name="obj1"/> Tensor in global coordinate by <paramref name="matrix"/>. M * T * M^t</returns>
+		/// <exception cref="ArgumentNullException">If an operand is null</exception>
+		/// <exception cref="NotSupportedException">If the rank of <paramref name="matrix"/> is not 3</exception>
 		public static ResultStress operator *(ResultStress obj1, Matrix<double> matrix)
 		{
 			if (obj1 is null || matrix is null)

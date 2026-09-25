@@ -5,13 +5,33 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
+    /// <summary>
+    /// A bolt of a grid: position, bolt and hole
+    /// </summary>
     [Serializable]
     public class BoltPosition : ModelObjectId, ISerializable
     {
+        /// <summary>
+        /// The position of the bolt (the insertion point of the hole)
+        /// </summary>
         public Point2d Position { get; set; }
+        /// <summary>
+        /// The bolt
+        /// </summary>
         public BoltSection BoltDef { get; set; }
+        /// <summary>
+        /// The hole
+        /// </summary>
         public Hole Hole { get; set; }
 
+        /// <summary>
+        /// Creates the bolt position
+        /// </summary>
+        /// <param name="_pos">The position</param>
+        /// <param name="_bol">The bolt</param>
+        /// <param name="hole">The hole</param>
+        /// <param name="id">The id</param>
+        /// <param name="name">The name</param>
         public BoltPosition(Point2d _pos, BoltSection _bol, Hole hole, int id = IDUNASSIGNED, string name = "")
             : base(id, name)
         {
@@ -20,6 +40,11 @@ namespace GPC.Model.Sections.Bolt
             Hole = hole;
         }
 
+        /// <summary>
+        /// Equality of position, hole and bolt (the id and the name are not compared)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal bolt position</returns>
         public override bool Equals(object obj)
         {
             return obj is BoltPosition other &&
@@ -28,6 +53,10 @@ namespace GPC.Model.Sections.Bolt
                    EqualityComparer<BoltSection>.Default.Equals(BoltDef, other.BoltDef);
         }
 
+        /// <summary>
+        /// The hash code of position, hole and bolt
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -40,6 +69,11 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
+        /// <summary>
+        /// Serializes the bolt position
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -52,6 +86,11 @@ namespace GPC.Model.Sections.Bolt
             info.AddValue("Hole", Hole, typeof(Hole));
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected BoltPosition(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -63,9 +102,10 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculate the centers in the case of slotted hole.
+        /// Calculate the centers in the case of slotted hole: at SlotLength (1 + PosBolt) before and SlotLength (1 - PosBolt) after the
+        /// position along the slot (their distance is 2 SlotLength, while <see cref="Hole.SlotLength"/> is the distance between the centers)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The two centers</returns>
         public Point2d[] CalculateSlottedCenters()
         {
             double d1 = Hole.SlotLength * (1.0 + Hole.PosBolt); // Distance of the first center from the insertion point.
@@ -81,7 +121,7 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// Calculate the centers, two in the case of slotted hole, one for normal holes.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The centers</returns>
         public Point2d[] CalculateCenters()
         {
             Point2d[] centers;

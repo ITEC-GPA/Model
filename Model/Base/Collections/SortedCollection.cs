@@ -5,22 +5,37 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Collections
 {
+    /// <summary>
+    /// A collection of model objects sorted by id: the objects without id get the last id + 1
+    /// </summary>
+    /// <typeparam name="T">The type of the objects</typeparam>
     [Serializable]
     public class SortedCollection<T> : SortedDictionary<int, T>, ISerializable where T : ModelObjectId
     {
         #region Variables
 
+        /// <summary>
+        /// The largest id assigned or added
+        /// </summary>
         protected int _lastId;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Creates an empty collection
+        /// </summary>
         public SortedCollection()
         {
             _lastId = 0;
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads only the last id (the items are not serialized by <see cref="GetObjectData"/>)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected SortedCollection(SerializationInfo info, StreamingContext context)
         {
             _lastId = info.GetInt32("LastId");
@@ -30,13 +45,18 @@ namespace GPC.Model.Collections
 
         #region Methos
 
+        /// <summary>
+        /// Serializes the last id (the items are not serialized)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("LastId", _lastId);
         }
 
         /// <summary>
-        /// Tell if an item exists or not (the id is not considered)
+        /// Tell if an item exists or not (the id is not considered: the items are compared with their Equals, i.e. by name). O(n)
         /// </summary>
         /// <param name="item">The item to check</param>
         /// <returns>True if the collection contains the given item</returns>
@@ -46,7 +66,7 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Remove all the items from the collection
+        /// Remove all the items from the collection and resets the last id (the method calls itself: it throws <see cref="StackOverflowException"/>)
         /// </summary>
         public new void Clear()
         {
@@ -55,9 +75,10 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Adds a new item and returns the new Id. If the item already exists return his Id
+        /// Adds an item and returns its Id. An item without id (<see cref="ModelObjectId.IDUNASSIGNED"/>) gets the last id + 1; an item with the id
+        /// of an existing one replaces it
         /// </summary>
-        /// <param name="item">The item to add</param>
+        /// <param name="item">The item to add (its id can be changed)</param>
         /// <returns>The item Id</returns>
         public int Add(T item)
         {
@@ -84,11 +105,11 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Replace an item with another and reposition it basing on its value
+        /// Replace the item with a given id (the key does not change, also if the new item has another id)
         /// </summary>
         /// <param name="id">The id of the node to replace</param>
         /// <param name="item">The new item</param>
-        /// <returns>The new item index</returns>
+        /// <returns>The id of the new item; <see cref="ModelObjectId.IDUNASSIGNED"/> if no item has the id</returns>
         public int Replace(int id, T item)
         {
             if (ContainsKey(id))
@@ -103,10 +124,10 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Remove the given item from the collection
+        /// Remove the given item (all the items equal to it) from the collection
         /// </summary>
         /// <param name="item">The item to remove</param>
-        /// <returns>True id success</returns>
+        /// <returns>True if the items were removed, false if there were none</returns>
         public bool Remove(T item)
         {
             if (ContainsValue(item))
@@ -127,7 +148,7 @@ namespace GPC.Model.Collections
         /// Remove an item by its id
         /// </summary>
         /// <param name="id">The id of the item to remove</param>
-        /// <returns>True id success</returns>
+        /// <returns>True if the item was removed, false if no item has the id</returns>
         public bool RemoveById(int id)
         {
             return Remove(id);

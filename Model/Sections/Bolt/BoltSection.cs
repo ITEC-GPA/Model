@@ -6,13 +6,16 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
+    /// <summary>
+    /// A bolt: a circular section of the nominal diameter with the material of the bolt and the tables of the thread pitch and of the washer face diameter
+    /// </summary>
     [Serializable]
     public class BoltSection : SectionCircular, ISerializable
     {
         /// <summary>
         /// Coarse pitch.
-        /// ISO 261 & 262:1998(E) & ISO 724:2009(E).
-        /// With a nominal diameter of 20 mm --> use the value of the previous row with 20<24, so {18m, 2.5} --> pitch=2.5 mm.
+        /// ISO 261 &amp; 262:1998(E) &amp; ISO 724:2009(E).
+        /// With a nominal diameter of 20 mm --> use the value of the previous row with 20&lt;24, so {18m, 2.5} --> pitch=2.5 mm.
         /// </summary>
         public static readonly Dictionary<decimal, double> PitchPerNominalDiameter = new Dictionary<decimal, double>()
         {
@@ -39,7 +42,7 @@ namespace GPC.Model.Sections.Bolt
         };
 
         /// <summary>
-        /// d_w from ISO 4014 & 4017:2022.
+        /// d_w from ISO 4014 &amp; 4017:2022.
         /// </summary>
         public static readonly Dictionary<double, double> DwPerNominalDiameter = new Dictionary<double, double>()
         {
@@ -77,12 +80,18 @@ namespace GPC.Model.Sections.Bolt
 
         #region Fields
 
+        /// <summary>
+        /// The material of the bolt
+        /// </summary>
         protected SteelMaterial _boltMaterial;
 
         #endregion
 
         #region Public Property
 
+        /// <summary>
+        /// The material of the bolt (a null value is ignored)
+        /// </summary>
         public SteelMaterial BoltMaterial
         {
             get => _boltMaterial;
@@ -97,11 +106,22 @@ namespace GPC.Model.Sections.Bolt
 
         #region Public Constructors
 
+        /// <summary>
+        /// Creates the bolt
+        /// </summary>
+        /// <param name="diameter">The nominal diameter</param>
+        /// <param name="material">The material of the bolt</param>
+        /// <param name="name">The name</param>
         public BoltSection(double diameter, SteelMaterial material, string name = "") : base(diameter, name)
         {
             _boltMaterial = material;
         }
 
+        /// <summary>
+        /// Deserialization constructor (version 1: the material was saved as "Material")
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public BoltSection(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             int version;
@@ -126,6 +146,11 @@ namespace GPC.Model.Sections.Bolt
 
         #region Public Methods
 
+        /// <summary>
+        /// Serializes the bolt (version 2)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -136,6 +161,10 @@ namespace GPC.Model.Sections.Bolt
             info.AddValue("BoltMaterial", _boltMaterial);
         }
 
+        /// <summary>
+        /// The diameter as decimal, rounded to 2 digits
+        /// </summary>
+        /// <returns>The diameter</returns>
         protected decimal CalculateDiameterDecimal()
         {
             var DiaDec = Convert.ToDecimal(Diameter);
@@ -143,11 +172,12 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Calculate dw using PitchPerNominalDiameter.
-        /// ISO 261 & 262:1998(E) & ISO 724:2009(E).
+        /// Calculate the thread pitch from the nominal diameter using PitchPerNominalDiameter (for an intermediate diameter, the row of the
+        /// previous diameter).
+        /// ISO 261 &amp; 262:1998(E) &amp; ISO 724:2009(E).
         /// Used to calculate the net resistant area.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The pitch</returns>
         public double CalculatePitchFromNominalDiameter()
         {
             var DiaDec = CalculateDiameterDecimal();
@@ -182,9 +212,10 @@ namespace GPC.Model.Sections.Bolt
         }
 
         /// <summary>
-        /// Uses a linear interpolation on DwPerNominalDiameter.
+        /// The diameter of the washer face d_w: the value of DwPerNominalDiameter, with a linear interpolation between the rows (proportional below
+        /// the first row, an approximating parabola above 64)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>d_w</returns>
         public double CalculateDwFromNominalDiameter()
         {
             // Try first with exact value.
@@ -238,6 +269,11 @@ namespace GPC.Model.Sections.Bolt
         /// <returns>Fourth of d_w.</returns>
         public double CalculateFourthOfDw() => CalculateDwFromNominalDiameter() * 0.25;
 
+        /// <summary>
+        /// Equality of the section properties (see <see cref="SectionCircular.Equals(object)"/>; the material is not compared)
+        /// </summary>
+        /// <param name="other">The bolt to compare</param>
+        /// <returns>True if the bolts are equal</returns>
         public bool Equals(BoltSection other)
         {
             if (other is null)
@@ -249,8 +285,17 @@ namespace GPC.Model.Sections.Bolt
             return base.Equals(other);
         }
 
+        /// <summary>
+        /// Equality with another bolt (see <see cref="Equals(BoltSection)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal bolt</returns>
         public override bool Equals(object obj) => Equals(obj as BoltSection);
 
+        /// <summary>
+        /// The hash code of the section
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             return base.GetHashCode() * 103;
@@ -260,8 +305,20 @@ namespace GPC.Model.Sections.Bolt
 
         #region Operators overrides
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(BoltSection)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// </summary>
+        /// <param name="left">The first bolt</param>
+        /// <param name="right">The second bolt</param>
+        /// <returns>True if the bolts are equal</returns>
         public static bool operator ==(BoltSection left, BoltSection right) => left.Equals(right);
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(BoltSection)"/>)
+        /// </summary>
+        /// <param name="left">The first bolt</param>
+        /// <param name="right">The second bolt</param>
+        /// <returns>True if the bolts are different</returns>
         public static bool operator !=(BoltSection left, BoltSection right) => !(left == right);
 
         #endregion

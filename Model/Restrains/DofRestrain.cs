@@ -12,20 +12,35 @@ namespace GPC.Model.Restrains
     {
         #region Variables
 
+        /// <summary>
+        /// The degree of freedom
+        /// </summary>
         private readonly GeometryRestrain.DOF _dof;
+        /// <summary>
+        /// True if the degree of freedom is restrained
+        /// </summary>
         private bool _restrained;
+        /// <summary>
+        /// The imposed displacement (0 if none)
+        /// </summary>
         private double _imposedDisplacement;
+        /// <summary>
+        /// The stiffness of the elastic restrain (0 if none)
+        /// </summary>
         private double _stiffness;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The degree of freedom
+        /// </summary>
         public GeometryRestrain.DOF Dof => _dof;
 
         /// <summary>
-        /// <see langword="True"/> if the <see cref="_dof"/> is restrained. 
-        /// <see langword="False"/> if there is a stiffness or imposed displacement
+        /// <see langword="true"/> if the <see cref="Dof"/> is restrained (setting it to true resets the stiffness and the imposed displacement to
+        /// zero). <see langword="false"/> if it is released or there is a stiffness or an imposed displacement
         /// </summary>
         public bool IsRestrained
         {
@@ -41,10 +56,20 @@ namespace GPC.Model.Restrains
             }
         }
 
+        /// <summary>
+        /// True if the stiffness is not zero
+        /// </summary>
         public bool HasStiffness => _stiffness != 0;
 
+        /// <summary>
+        /// True if the imposed displacement is not zero
+        /// </summary>
         public bool HasImposedDisplacement => _imposedDisplacement != 0;
 
+        /// <summary>
+        /// The stiffness of the elastic restrain (a value different from zero sets <see cref="IsRestrained"/> to false; the setter does not check
+        /// the sign)
+        /// </summary>
         public double Stiffness
         {
             get => _stiffness;
@@ -56,6 +81,9 @@ namespace GPC.Model.Restrains
             }
         }
 
+        /// <summary>
+        /// The imposed displacement (a value different from zero sets <see cref="IsRestrained"/> to false)
+        /// </summary>
         public double ImposedDisplacement
         {
             get => _imposedDisplacement;
@@ -74,6 +102,8 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set the <paramref name="dof"/> as restrained or released
         /// </summary>
+        /// <param name="dof">The degree of freedom</param>
+        /// <param name="restrained">True if restrained, false if released</param>
         public DofRestrain(GeometryRestrain.DOF dof, bool restrained = true)
             : this(dof, restrained, 0, 0)
         {
@@ -83,13 +113,24 @@ namespace GPC.Model.Restrains
         /// <summary>
         /// Set the stiffness associated to <paramref name="dof"/>
         /// </summary>
-        /// <remarks>If <paramref name="stiffness"/> is equal to zero then <see cref="DofRestrain.IsRestrained"/> is true</remarks>
+        /// <param name="dof">The degree of freedom</param>
+        /// <param name="stiffness">The stiffness (not negative)</param>
+        /// <remarks>If <paramref name="stiffness"/> is equal to zero then <see cref="IsRestrained"/> is true</remarks>
+        /// <exception cref="ArgumentException">If <paramref name="stiffness"/> is negative</exception>
         public DofRestrain(GeometryRestrain.DOF dof, double stiffness)
             : this(dof, stiffness == 0, 0, stiffness)
         {
 
         }
 
+        /// <summary>
+        /// Creates a restrain of a degree of freedom (the values are not made consistent: see <see cref="IsRestrained"/>)
+        /// </summary>
+        /// <param name="dof">The degree of freedom</param>
+        /// <param name="restrained">True if restrained</param>
+        /// <param name="imposedDisplacement">The imposed displacement</param>
+        /// <param name="stiffness">The stiffness (not negative)</param>
+        /// <exception cref="ArgumentException">If <paramref name="stiffness"/> is negative</exception>
         public DofRestrain(GeometryRestrain.DOF dof, bool restrained, double imposedDisplacement, double stiffness)
             : base(Guid.NewGuid(), "")
         {
@@ -99,6 +140,11 @@ namespace GPC.Model.Restrains
             _stiffness = stiffness < 0 ? throw new ArgumentException($"Stiffness is lower than zero: {stiffness}") : stiffness;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         private DofRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -112,6 +158,11 @@ namespace GPC.Model.Restrains
 
         #region Equals, hascode, operators
 
+        /// <summary>
+        /// Serializes the restrain
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -121,6 +172,11 @@ namespace GPC.Model.Restrains
             info.AddValue("ImposedDisplacement", _imposedDisplacement);
         }
 
+        /// <summary>
+        /// Equality of the degree of freedom, of the values and of the name
+        /// </summary>
+        /// <param name="other">The restrain to compare</param>
+        /// <returns>True if the restrains are equal</returns>
         public bool Equals(DofRestrain other)
         {
             if (other is null)
@@ -135,6 +191,11 @@ namespace GPC.Model.Restrains
                                           && base.Equals(other);
         }
 
+        /// <summary>
+        /// Equality with another restrain (the method calls itself with a <see cref="DofRestrain"/>: it throws <see cref="StackOverflowException"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>False if <paramref name="obj"/> is not a <see cref="DofRestrain"/></returns>
         public override bool Equals(object obj)
         {
             if (obj is DofRestrain)
@@ -143,6 +204,10 @@ namespace GPC.Model.Restrains
             return false;
         }
 
+        /// <summary>
+        /// The hash code of the name, of the degree of freedom and of the values
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -157,6 +222,12 @@ namespace GPC.Model.Restrains
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(DofRestrain)"/>)
+        /// </summary>
+        /// <param name="obj1">The first restrain</param>
+        /// <param name="obj2">The second restrain</param>
+        /// <returns>True if the restrains are equal</returns>
         public static bool operator ==(DofRestrain obj1, DofRestrain obj2)
         {
             if (obj1 is null)
@@ -167,6 +238,12 @@ namespace GPC.Model.Restrains
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(DofRestrain)"/>)
+        /// </summary>
+        /// <param name="obj1">The first restrain</param>
+        /// <param name="obj2">The second restrain</param>
+        /// <returns>True if the restrains are different</returns>
         public static bool operator !=(DofRestrain obj1, DofRestrain obj2)
         {
             return !(obj1 == obj2);

@@ -21,27 +21,73 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Models
 {
+    /// <summary>
+    /// A finite element model: nodes, beam, area and volume elements, costrains, element properties, load cases, freedom cases, combinations,
+    /// groups and stages
+    /// </summary>
     [Serializable]
     public class Model : ModelObject, ISerializable
     {
         #region Variables
 
+        /// <summary>
+        /// The nodes by id
+        /// </summary>
         protected SortedCollection<NodeElement> _nodesElements;
+        /// <summary>
+        /// The beam elements by id
+        /// </summary>
         protected SortedCollection<BeamElement> _beamElements;
+        /// <summary>
+        /// The area elements by id
+        /// </summary>
         protected SortedCollection<AreaElement> _areaElements;
+        /// <summary>
+        /// The volume elements by id (not created by <see cref="Model(string)"/>: it is null)
+        /// </summary>
         protected SortedCollection<VolumeElement> _volumeElements;
+        /// <summary>
+        /// The costrains by id
+        /// </summary>
         protected UniqueIdCollection<Costrain> _costrains;
 
+        /// <summary>
+        /// The beam properties by name
+        /// </summary>
         protected UniqueNameCollection<BeamProperty> _beamProperties;
+        /// <summary>
+        /// The plate properties by name
+        /// </summary>
         protected UniqueNameCollection<PlateProperty> _areaProperties;
+        /// <summary>
+        /// The brick properties by name
+        /// </summary>
         protected UniqueNameCollection<BrickProperty> _volumeProperties;
 
+        /// <summary>
+        /// The load cases by name
+        /// </summary>
         protected UniqueNameCollection<LoadCaseBase> _loadCases;
+        /// <summary>
+        /// The freedom cases by name
+        /// </summary>
         protected UniqueNameCollection<FreedomCase> _freedomCases;
+        /// <summary>
+        /// The combinations by name
+        /// </summary>
         protected UniqueNameCollection<Combination> _combinations;
+        /// <summary>
+        /// The names of the combinations of each stage, by stage id
+        /// </summary>
         protected Dictionary<int, HashSet<string>> _stageCombinationsMap;
 
+        /// <summary>
+        /// The groups by name
+        /// </summary>
         protected UniqueNameCollection<Group> _groups;
+        /// <summary>
+        /// The stages by id
+        /// </summary>
         protected UniqueIdCollection<Stage> _stages;
 
         #endregion
@@ -127,6 +173,10 @@ namespace GPC.Model.Models
 
         #region Constructors
 
+        /// <summary>
+        /// Creates an empty model (the collection of the volume elements is not created)
+        /// </summary>
+        /// <param name="name">The name of the model</param>
         public Model(string name = "")
             : base(name)
         {
@@ -150,6 +200,11 @@ namespace GPC.Model.Models
             _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
         }
 
+        /// <summary>
+        /// Deserialization constructor (it reads keys that <see cref="GetObjectData"/> does not write: "Beams", "BeamProperties", "Groups")
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected Model(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -180,8 +235,12 @@ namespace GPC.Model.Models
 
         #region Element Properties
 
-        /// <returns><see langword="true"/> if the property has been added. 
-        /// <para><see langword="false"/> if a property with the same name is already present</para> 
+        /// <summary>
+        /// Adds a beam, plate or brick property
+        /// </summary>
+        /// <param name="elementProperty">The property</param>
+        /// <returns><see langword="true"/> if the property has been added.
+        /// <para><see langword="false"/> if the property is null, of another type or a property of the same type with the same name is already present</para>
         /// </returns>
         public virtual bool AddProperty(ElementProperty elementProperty)
         {
@@ -219,31 +278,58 @@ namespace GPC.Model.Models
             }
         }
 
+        /// <summary>
+        /// The plate property with a name
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <returns>The property; null if no plate property has the name</returns>
         public virtual PlateProperty GetPlateProperty(string name)
         {
             return _areaProperties.GetElementByName(name);
         }
 
+        /// <summary>
+        /// The beam property with a name
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <returns>The property; null if no beam property has the name</returns>
         public virtual BeamProperty GetBeamProperty(string name)
         {
             return _beamProperties.GetElementByName(name);
         }
 
+        /// <summary>
+        /// The brick property with a name
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <returns>The property; null if no brick property has the name</returns>
         public virtual BrickProperty GetBrickProperty(string name)
         {
             return _volumeProperties.GetElementByName(name);
         }
 
+        /// <summary>
+        /// The names of the beam properties
+        /// </summary>
+        /// <returns>A new list with the names</returns>
         public List<string> GetBeamPropertyNames()
         {
             return _beamProperties.GetNames();
         }
 
+        /// <summary>
+        /// The names of the plate properties
+        /// </summary>
+        /// <returns>A new list with the names</returns>
         public List<string> GetPlatePropertyNames()
         {
             return _areaProperties.GetNames();
         }
 
+        /// <summary>
+        /// The names of the brick properties
+        /// </summary>
+        /// <returns>A new list with the names</returns>
         public List<string> GetBrickPropertyNames()
         {
             return _volumeProperties.GetNames();
@@ -253,50 +339,92 @@ namespace GPC.Model.Models
 
         #region LoadCase / FredomCase
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.Add(T)"/>
+        /// <summary>
+        /// Adds a load case
+        /// </summary>
+        /// <param name="loadCase">The load case</param>
+        /// <returns>Always true</returns>
+        /// <exception cref="ArgumentException">If a load case with the same name exists</exception>
         public bool AddLoadCase(LoadCaseBase loadCase)
         {
             _loadCases.Add(loadCase.Name, loadCase);
             return true;
         }
 
+        /// <summary>
+        /// Adds load cases
+        /// </summary>
+        /// <param name="loadCaseBases">The load cases</param>
+        /// <returns>False if <paramref name="loadCaseBases"/> is null</returns>
+        /// <exception cref="ArgumentException">If a load case with the same name exists</exception>
         public bool AddLoadCases(IEnumerable<LoadCaseBase> loadCaseBases)
         {
             return _loadCases.AddRange(loadCaseBases);
         }
 
-        /// <inheritdoc cref="UniqueNameCollection{T}.GetElementByName(string)"/>
+        /// <summary>
+        /// The load case with a name
+        /// </summary>
+        /// <param name="loadCaseName">The name</param>
+        /// <returns>The load case; null if no load case has the name</returns>
         public LoadCaseBase GetLoadCaseByName(string loadCaseName)
         {
             return _loadCases.GetElementByName(loadCaseName);
         }
 
+        /// <summary>
+        /// Adds a freedom case
+        /// </summary>
+        /// <param name="fredomCases">The freedom case</param>
+        /// <returns>Always true</returns>
+        /// <exception cref="ArgumentException">If a freedom case with the same name exists</exception>
         public bool AddFreedomCase(FreedomCase fredomCases)
         {
             _freedomCases.Add(fredomCases.Name, fredomCases);
             return true;
         }
 
+        /// <summary>
+        /// The freedom case with a name
+        /// </summary>
+        /// <param name="freedomCaseName">The name</param>
+        /// <returns>The freedom case; null if no freedom case has the name</returns>
         public FreedomCase GetFreedomCaseByName(string freedomCaseName)
         {
             return _freedomCases.GetElementByName(freedomCaseName);
         }
 
+        /// <summary>
+        /// The load cases
+        /// </summary>
+        /// <returns>A new array with the load cases</returns>
         public LoadCaseBase[] GetLoadCases()
         {
             return _loadCases.Values.ToArray();
         }
 
+        /// <summary>
+        /// The names of the load cases
+        /// </summary>
+        /// <returns>A new array with the names</returns>
         public string[] GetLoadCaseNames()
         {
             return _loadCases.GetNames().ToArray();
         }
 
+        /// <summary>
+        /// The freedom cases
+        /// </summary>
+        /// <returns>A new array with the freedom cases</returns>
         public FreedomCase[] GetFreedomCases()
         {
             return _freedomCases.Values.ToArray();
         }
 
+        /// <summary>
+        /// The names of the freedom cases
+        /// </summary>
+        /// <returns>A new array with the names</returns>
         public string[] GetFreedomCaseNames()
         {
             return _freedomCases.GetNames().ToArray();
@@ -306,17 +434,35 @@ namespace GPC.Model.Models
 
         #region Combinations
 
+        /// <summary>
+        /// Adds a combination
+        /// </summary>
+        /// <param name="combination">The combination</param>
+        /// <returns>Always true</returns>
+        /// <exception cref="ArgumentException">If a combination with the same name exists</exception>
         public virtual bool AddCombination(Combination combination)
         {
             _combinations.Add(combination.Name, combination);
             return true;
         }
 
+        /// <summary>
+        /// Adds combinations
+        /// </summary>
+        /// <param name="combinations">The combinations</param>
+        /// <returns>False if <paramref name="combinations"/> is null</returns>
+        /// <exception cref="ArgumentException">If a combination with the same name exists</exception>
         public virtual bool AddCombinations(IEnumerable<Combination> combinations)
         {
             return _combinations.AddRange(combinations);
         }
 
+        /// <summary>
+        /// Adds a combination to a stage (see <see cref="StageCombinationsMap"/>)
+        /// </summary>
+        /// <param name="stageId">The id of the stage</param>
+        /// <param name="combinationName">The name of the combination</param>
+        /// <returns>False if the stage already has the combination</returns>
         internal bool AddStageCombinationMap(int stageId, string combinationName)
         {
             if (!_stageCombinationsMap.ContainsKey(stageId))
@@ -325,11 +471,22 @@ namespace GPC.Model.Models
             return _stageCombinationsMap[stageId].Add(combinationName);
         }
 
+        /// <summary>
+        /// Removes a combination from a stage (see <see cref="StageCombinationsMap"/>)
+        /// </summary>
+        /// <param name="stageId">The id of the stage</param>
+        /// <param name="combinationName">The name of the combination</param>
+        /// <returns>False if the stage does not have the combination</returns>
+        /// <exception cref="KeyNotFoundException">If the stage has no combinations</exception>
         internal bool RemoveStageCombinationMap(int stageId, string combinationName)
         {
             return _stageCombinationsMap[stageId].Remove(combinationName);
         }
 
+        /// <summary>
+        /// The combinations
+        /// </summary>
+        /// <returns>A new array with the combinations</returns>
         public Combination[] GetCombinations()
         {
             return _combinations.Values.ToArray();
@@ -339,6 +496,13 @@ namespace GPC.Model.Models
 
         #region Groups
 
+        /// <summary>
+        /// Creates a group and adds it to the model
+        /// </summary>
+        /// <param name="name">The name of the group</param>
+        /// <param name="partent">The parent group (optional)</param>
+        /// <returns>The new group</returns>
+        /// <exception cref="ArgumentException">If <paramref name="name"/> is null or white space or a group with the same name exists</exception>
         public Group AddGroup(string name, Group partent = null)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
@@ -349,6 +513,14 @@ namespace GPC.Model.Models
             return group;
         }
 
+        /// <summary>
+        /// Assigns an existing group to elements
+        /// </summary>
+        /// <param name="elements">The elements</param>
+        /// <param name="groupName">The name of the group</param>
+        /// <returns>False if the group does not exist, an element is null or already has the group (the following elements are not changed)</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="elements"/> is null</exception>
+        /// <exception cref="ArgumentException">If <paramref name="groupName"/> is null or empty</exception>
         public bool SetGroup(IEnumerable<Element> elements, string groupName)
         {
             if (elements is null)
@@ -374,6 +546,15 @@ namespace GPC.Model.Models
             return true;
         }
 
+        /// <summary>
+        /// Assigns existing groups to elements
+        /// </summary>
+        /// <param name="elements">The elements</param>
+        /// <param name="groupNames">The names of the groups</param>
+        /// <returns>False if an element is null or already has a group (the following assignments are not done)</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="elements"/> or <paramref name="groupNames"/> is null</exception>
+        /// <exception cref="ArgumentException">If a name is null or empty</exception>
+        /// <exception cref="KeyNotFoundException">If a group does not exist</exception>
         public bool SetGroupRange(IEnumerable<Element> elements, IEnumerable<string> groupNames)
         {
             if (elements is null)
@@ -402,6 +583,10 @@ namespace GPC.Model.Models
             return true;
         }
 
+        /// <summary>
+        /// The groups
+        /// </summary>
+        /// <returns>A new array with the groups</returns>
         public Group[] GetGroups()
         {
             return _groups.Values.ToArray();
@@ -412,10 +597,10 @@ namespace GPC.Model.Models
 
         #region Stages
 
-        /// <summary>
-        /// Add a stage the to the stage list. This stage will the clone of stage with <see cref="ModelObjectId.Id"/> equal to <paramref name="stageId"/>"/>
-        /// </summary>
-        /// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
+        //// <summary>
+        //// Add a stage the to the stage list. This stage will the clone of stage with <see cref="ModelObjectId.Id"/> equal to <paramref name="stageId"/>"/>
+        //// </summary>
+        //// <exception cref="ArgumentException">If stage with id equals to <paramref name="stageId"/> does not exist</exception>
         //public virtual Stage AddStage(int stageId)
         //{
         //    Stage stage = _stages.GetById(stageId);
@@ -425,16 +610,30 @@ namespace GPC.Model.Models
         //    return stageCloned;
         //}
 
+        /// <summary>
+        /// The stages
+        /// </summary>
+        /// <returns>A new array with the stages</returns>
         public Stage[] GetStages()
         {
             return _stages.Values.ToArray();
         }
 
+        /// <summary>
+        /// The stage with an id
+        /// </summary>
+        /// <param name="stageId">The id</param>
+        /// <returns>The stage; null if no stage has the id</returns>
         public Stage GetStageById(int stageId)
         {
             return _stages.GetById(stageId);
         }
 
+        /// <summary>
+        /// Tell if a stage has the id
+        /// </summary>
+        /// <param name="stageId">The id</param>
+        /// <returns>True if the id is present</returns>
         public bool ContainsStageId(int stageId)
         {
             return _stages.Contains(stageId);
@@ -453,13 +652,16 @@ namespace GPC.Model.Models
 
         #region FiniteElements
 
-        /// <summary> Add a <paramref name="finiteElement"/> and its <see cref="Node"/> to the FemModel</summary>
-        /// <param name="finiteElement"></param>
-        /// <param name="propertyName">The name of the property that will be assigned to the <paramref name="finiteElement"/></param>
-        /// <remarks>This is a O(2n) Operation</remarks>
-        /// <inheritdoc cref="GetPlateProperty(string)"/>
-        /// <exception cref="ArgumentNullException">If the property list does not contain a property with a name equal to <paramref name="propertyName"/></exception>
-        /// <exception cref="ArgumentNullException">If the nodes inside the <paramref name="finiteElement"/> are null</exception>
+        /// <summary>
+        /// Adds a beam or area element, new nodes at its points (also if the model has nodes there) and its property (a property with the same name is
+        /// replaced)
+        /// </summary>
+        /// <param name="finiteElement">The element</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="finiteElement"/> is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="finiteElement"/> is a <see cref="VolumeElement"/></exception>
+        /// <exception cref="NotSupportedException">If <paramref name="finiteElement"/> is of another type</exception>
+        /// <exception cref="InvalidOperationException">If the name of an attribute of the element is not the name of a load case (the element
+        /// has already been added)</exception>
         public virtual void AddFiniteElement(Element finiteElement)
         {
             if (finiteElement is null)
@@ -501,6 +703,10 @@ namespace GPC.Model.Models
             }
         }
 
+        /// <summary>
+        /// Adds beam or area elements (see <see cref="AddFiniteElement(Element)"/>)
+        /// </summary>
+        /// <param name="finiteElements">The elements</param>
         public virtual void AddFiniteElements(Element[] finiteElements)
         {
             foreach (var element in finiteElements)
@@ -509,31 +715,64 @@ namespace GPC.Model.Models
             }
         }
 
+        /// <summary>
+        /// The beam element with an id
+        /// </summary>
+        /// <param name="id">The id</param>
+        /// <returns>The element</returns>
+        /// <exception cref="KeyNotFoundException">If no beam element has the id</exception>
         public BeamElement GetBeamElement(int id)
         {
             return _beamElements[id];
         }
 
+        /// <summary>
+        /// The node with an id
+        /// </summary>
+        /// <param name="id">The id</param>
+        /// <returns>The node</returns>
+        /// <exception cref="KeyNotFoundException">If no node has the id</exception>
         public NodeElement GetNodeElement(int id)
         {
             return _nodesElements[id];
         }
 
+        /// <summary>
+        /// The area element with an id
+        /// </summary>
+        /// <param name="id">The id</param>
+        /// <returns>The element</returns>
+        /// <exception cref="KeyNotFoundException">If no area element has the id</exception>
         public AreaElement GetAreaElement(int id)
         {
             return _areaElements[id];
         }
 
+        /// <summary>
+        /// Tell if a beam property has the name
+        /// </summary>
+        /// <param name="propertyName">The name</param>
+        /// <returns>True if the name is present</returns>
         public virtual bool ContainsBeamProperty(string propertyName)
         {
             return _beamProperties.ContainsKey(propertyName);
         }
 
+        /// <summary>
+        /// Tell if a plate property has the name
+        /// </summary>
+        /// <param name="propertyName">The name</param>
+        /// <returns>True if the name is present</returns>
         public virtual bool ContainsAreaProperty(string propertyName)
         {
             return _areaProperties.ContainsKey(propertyName);
         }
 
+        /// <summary>
+        /// Tell if a brick property has the name
+        /// </summary>
+        /// <param name="propertyName">The name</param>
+        /// <returns>True if the name is present</returns>
         public virtual bool ContainsVolumeProperty(string propertyName)
         {
             return _volumeProperties.ContainsKey(propertyName);
@@ -543,6 +782,13 @@ namespace GPC.Model.Models
 
         #region Nodes
 
+        /// <summary>
+        /// Adds a node (see <see cref="SortedCollection{T}.Add(T)"/>)
+        /// </summary>
+        /// <param name="node">The node</param>
+        /// <returns>The id of the node</returns>
+        /// <exception cref="NullReferenceException">If <paramref name="node"/> is null</exception>
+        /// <exception cref="InvalidOperationException">If the name of an attribute of the node is not the name of a load case</exception>
         protected virtual int AddNode(NodeElement node)
         {
             foreach (var attribute in node.Attributes)
@@ -554,7 +800,13 @@ namespace GPC.Model.Models
             return _nodesElements.Add(node); // l'Add lancia un ArgumentNullException se gli si passa null
         }
 
-        /// <inheritdoc cref="AddNode(Node)"/>
+        /// <summary>
+        /// Adds nodes (see <see cref="AddNode(NodeElement)"/>)
+        /// </summary>
+        /// <param name="nodes">The nodes</param>
+        /// <returns>The ids of the nodes</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="nodes"/> is null</exception>
+        /// <exception cref="InvalidOperationException">If the name of an attribute of a node is not the name of a load case</exception>
         protected virtual int[] AddNodes(NodeElement[] nodes)
         {
             if (nodes != null)
@@ -576,17 +828,30 @@ namespace GPC.Model.Models
             throw new ArgumentNullException();
         }
 
-        /// <inheritdoc cref="SortedCollection{T}.GetById(int)"/>
+        /// <summary>
+        /// The node with an id
+        /// </summary>
+        /// <param name="id">The id</param>
+        /// <returns>The node</returns>
+        /// <exception cref="KeyNotFoundException">If no node has the id</exception>
         public virtual NodeElement GetNode(int id)
         {
             return _nodesElements[id];
         }
 
+        /// <summary>
+        /// An enumerator of the nodes (sorted by id)
+        /// </summary>
+        /// <returns>The enumerator</returns>
         public virtual IEnumerator<NodeElement> GetNodesEnumerator()
         {
             return _nodesElements.Values.GetEnumerator();
         }
 
+        /// <summary>
+        /// The nodes (sorted by id)
+        /// </summary>
+        /// <returns>A new array with the nodes</returns>
         public NodeElement[] GetNodes()
         {
             return _nodesElements.Values.ToArray();
@@ -597,11 +862,12 @@ namespace GPC.Model.Models
 
         #region Costrain
 
-        /// <summary> Add a <paramref name="costrain"/> and its <see cref="Node"/> to the FemModel</summary>
-        /// <param name="costrain"></param>
-        /// <remarks>This is a O(2n) Operation</remarks>
-        /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        /// <summary>
+        /// Adds a costrain and its nodes (see <see cref="AddNode(NodeElement)"/> and <see cref="UniqueIdCollection{T}.Add(T)"/>)
+        /// </summary>
+        /// <param name="costrain">The costrain</param>
+        /// <returns>The id of the costrain</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="costrain"/> is null</exception>
         public virtual int AddCostrain(Costrain costrain)
         {
             if (costrain is null)
@@ -614,11 +880,10 @@ namespace GPC.Model.Models
             return costrain.Id;
         }
 
-        /// <summary> Add a <paramref name="costrains"/> and its <see cref="Node"/> to the FemModel</summary>
-        /// <param name="costrains"></param>
-        /// <remarks>This is a O(2n) Operation</remarks>
-        /// <inheritdoc cref="AddNode(Node)"/>
-        /// <inheritdoc cref="FemObjectCollection{T}.AddUnique(T)"/>
+        /// <summary>
+        /// Adds costrains and their nodes (see <see cref="AddCostrain(Costrain)"/>)
+        /// </summary>
+        /// <param name="costrains">The costrains</param>
         public virtual void AddCostrains(IEnumerable<Costrain> costrains)
         {
             foreach (var costrain in costrains)
@@ -627,28 +892,42 @@ namespace GPC.Model.Models
             }
         }
 
-        /// <returns>True if <paramref name="costrain"/> is contained in the <see cref="Model._costrains"/> collections </returns>
-        /// <inheritdoc cref="FemObjectCollection{T}.Contains(T)"/>
+        /// <summary>
+        /// Tell if a costrain has the id of the given one
+        /// </summary>
+        /// <param name="costrain">The costrain</param>
+        /// <returns>True if the id of <paramref name="costrain"/> is present</returns>
         public virtual bool ContainsCostrains(Costrain costrain)
         {
             return _costrains.ContainsKey(costrain.Id);
         }
 
 
-        /// <param name="index"></param>
-        /// <inheritdoc cref="FemObjectCollection{T}.GetElementById(int)"/>
+        /// <summary>
+        /// The costrain with an id
+        /// </summary>
+        /// <param name="index">The id</param>
+        /// <returns>The costrain</returns>
+        /// <exception cref="KeyNotFoundException">If no costrain has the id</exception>
         public virtual Costrain GetCostrain(int index)
         {
             return _costrains[index];
         }
 
+        /// <summary>
+        /// The costrains
+        /// </summary>
+        /// <returns>A new array with the costrains</returns>
         public virtual Costrain[] GetCostrains()
         {
             return _costrains.Values.ToArray();
         }
 
 
-        /// <inheritdoc cref="FemObjectCollection{T}.GetEnumerator()"/>
+        /// <summary>
+        /// An enumerator of the costrains
+        /// </summary>
+        /// <returns>The enumerator</returns>
         public virtual IEnumerator<Costrain> GetCostrainEnumerator()
         {
             return _costrains.Values.GetEnumerator();
@@ -660,19 +939,24 @@ namespace GPC.Model.Models
         #region Mesh
 
         /// <summary>
-        /// 
+        /// Adds meshes (see <see cref="AddMesh(Mesh, string, string, Dictionary{IPointLoad, int[]}, Dictionary{ILineLoad, int[]}, Dictionary{IAreaLoad, int[]}, Dictionary{GeometryRestrain, int[]}, out Dictionary{int, int}, out Dictionary{int, int}, out Dictionary{int, int}, string)"/>):
+        /// the lists have one item for each mesh. Currently the meshes are never added: a non empty property name throws
+        /// <see cref="ArgumentNullException"/> (the check is inverted) and <see cref="AddMesh(Mesh, string, string, Dictionary{IPointLoad, int[]}, Dictionary{ILineLoad, int[]}, Dictionary{IAreaLoad, int[]}, Dictionary{GeometryRestrain, int[]}, out Dictionary{int, int}, out Dictionary{int, int}, out Dictionary{int, int}, string)"/>
+        /// is not called (the status starts false)
         /// </summary>
-        /// <param name="meshes"></param>
-        /// <param name="platePropertyNames"></param>
-        /// <param name="brickPropertyName"></param>
-        /// <param name="vertexLoadMeshEntityMap"></param>
-        /// <param name="vertexLineLoadMeshEntityMap"></param>
-        /// <param name="plateLoadMeshEntityMap"></param>
-        /// <param name="restrainMeshEntityMap"></param>
+        /// <param name="meshes">The meshes</param>
+        /// <param name="platePropertyNames">The names of the plate properties of the faces</param>
+        /// <param name="brickPropertyName">The names of the brick properties of the volumes</param>
+        /// <param name="vertexLoadMeshEntityMap">The maps between point loads and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="vertexLineLoadMeshEntityMap">The maps between line loads and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="plateLoadMeshEntityMap">The maps between area loads and <see cref="MeshFace"/>.Id</param>
+        /// <param name="restrainMeshEntityMap">The maps between restrains and <see cref="MeshVertex"/>.Id</param>
         /// <param name="nodesNewIndexMap">A map between the <see cref="MeshVertex"/>.Id of <paramref name="meshes"/> and the id of the same nodes in the femModel</param>
         /// <param name="platesNewIndexMap">A map between the <see cref="MeshFace"/>.Id of <paramref name="meshes"/> and the id of the same plate in the femModel</param>
         /// <param name="brickNewIndexMap">A map between the <see cref="MeshVolume"/>.Id of <paramref name="meshes"/> and the id of the same brick in the femModel</param>
-        /// <exception cref="ArgumentException">If list of argument does not match</exception>
+        /// <returns>True if all the meshes have been added</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="meshes"/> or one of the meshes or maps is null</exception>
+        /// <exception cref="ArgumentException">If the sizes of the lists do not match</exception>
         public virtual bool AddMeshes(List<Mesh> meshes, List<string> platePropertyNames, List<string> brickPropertyName, List<Dictionary<IPointLoad, int[]>> vertexLoadMeshEntityMap,
                                       List<Dictionary<ILineLoad, int[]>> vertexLineLoadMeshEntityMap, List<Dictionary<IAreaLoad, int[]>> plateLoadMeshEntityMap, List<Dictionary<GeometryRestrain, int[]>> restrainMeshEntityMap,
                                       out List<Dictionary<int, int>> nodesNewIndexMap, out List<Dictionary<int, int>> platesNewIndexMap, out List<Dictionary<int, int>> brickNewIndexMap)
@@ -740,18 +1024,17 @@ namespace GPC.Model.Models
         }
 
         /// <summary>
-        /// Add a mesh to the Fem model
+        /// Adds a mesh to the model (see <see cref="AddMesh(Mesh, string, string, Dictionary{IPointLoad, int[]}, Dictionary{ILineLoad, int[]}, Dictionary{IAreaLoad, int[]}, Dictionary{GeometryRestrain, int[]}, out Dictionary{int, int}, out Dictionary{int, int}, out Dictionary{int, int}, string)"/>)
         /// </summary>
-        /// <param name="mesh"></param> 
-        /// <param name="platePropertyName"></param>
-        /// <param name="brickPropertyName"></param>
+        /// <param name="mesh">The mesh</param>
+        /// <param name="platePropertyName">The name of the plate property of the faces</param>
+        /// <param name="brickPropertyName">The name of the brick property of the volumes</param>
         /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex"/>.Id</param>
         /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id</param>
         /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
-        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
-        /// <param name="groupName"></param>
-        /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="Model._loadCases"/> and <see cref="Model._freedomCases"/>  </remarks>
+        /// <param name="restrainMeshEntityMap">Map between <see cref="GeometryRestrain"/> and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="groupName">The name of a new group assigned to the new nodes and elements (optional)</param>
+        /// <returns>Always true</returns>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
             Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap, string groupName = "")
         {
@@ -760,21 +1043,32 @@ namespace GPC.Model.Models
         }
 
         /// <summary>
-        /// Add a mesh to the Fem model
+        /// Adds a mesh to the model: a new node for each vertex (also if the model has a node there), an area element for each face, a volume
+        /// element for each volume, the restrains and the loads. The load cases not in the model are added
         /// </summary>
-        /// <param name="mesh"></param> 
-        /// <param name="platePropertyName"></param>
-        /// <param name="brickPropertyName"></param>
-        /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex"/>.Id</param>
-        /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id</param>
-        /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id</param>
-        /// <param name="restrainMeshEntityMap">Map between IGeometryRestrain and <see cref="MeshVertex"/>.Id</param>
+        /// <param name="mesh">The mesh</param>
+        /// <param name="platePropertyName">The name of the plate property of the faces (it must exist if the mesh has faces)</param>
+        /// <param name="brickPropertyName">The name of the brick property of the volumes (it must exist if the mesh has volumes)</param>
+        /// <param name="vertexLoadMeshEntityMap">Map between <see cref="IPointLoad"/> and <see cref="MeshVertex"/>.Id: a <see cref="PointLoad"/> is
+        /// added to each node</param>
+        /// <param name="vertexLineLoadMeshEntityMap">Map between <see cref="ILineLoad"/> and <see cref="MeshVertex"/>.Id: the load of a
+        /// <see cref="LineLoad"/> is lumped on the nodes (length / (nodes - 1), halved at the ends of the line)</param>
+        /// <param name="plateLoadMeshEntityMap">Map between <see cref="IAreaLoad"/> and <see cref="MeshFace"/>.Id: the load is added to each area
+        /// element</param>
+        /// <param name="restrainMeshEntityMap">Map between <see cref="GeometryRestrain"/> and <see cref="MeshVertex"/>.Id: the restrains and the
+        /// stiffnesses are added to each node</param>
         /// <param name="nodesNewIndexMap">A map between the <see cref="MeshVertex"/>.Id of <paramref name="mesh"/> and the id of the same nodes in the femModel</param>
         /// <param name="platesNewIndexMap">A map between the <see cref="MeshFace"/>.Id of <paramref name="mesh"/> and the id of the same plate in the femModel</param>
         /// <param name="brickNewIndexMap">A map between the <see cref="MeshVolume"/>.Id of <paramref name="mesh"/> and the id of the same brick in the femModel</param>
-        /// <param name="groupName"></param>
-        /// <exception cref="KeyNotFoundException">If a <see cref="MeshVertex"/>.Id of <paramref name="restrainMeshEntityMap"/> is not found in the <paramref name="mesh"/> vertices ids</exception>
-        /// <remarks>The instances of <see cref="LoadCaseBase"/> and <see cref="FreedomCase"/> will be replaced with the one in the <see cref="Model._loadCases"/> and <see cref="Model._freedomCases"/>  </remarks>
+        /// <param name="groupName">The name of a new group assigned to the new nodes and elements (optional)</param>
+        /// <returns>Always true</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="mesh"/> is null</exception>
+        /// <exception cref="ArgumentException">If a group named <paramref name="groupName"/> exists or a load case of a load has the name of a
+        /// different load case of the model</exception>
+        /// <exception cref="NotImplementedException">If the property of the faces or of the volumes does not exist or a load is of another type</exception>
+        /// <exception cref="KeyNotFoundException">If an id of the maps is neither a vertex of <paramref name="mesh"/> nor a node or area element of the model</exception>
+        /// <remarks>The ids of the maps not found in <paramref name="mesh"/> are used as ids of nodes (or area elements) of the model. The point
+        /// loads get the instance of the load case of the model; the line and area loads keep their instance</remarks>
         public virtual bool AddMesh(Mesh mesh, string platePropertyName, string brickPropertyName, Dictionary<IPointLoad, int[]> vertexLoadMeshEntityMap,
             Dictionary<ILineLoad, int[]> vertexLineLoadMeshEntityMap, Dictionary<IAreaLoad, int[]> plateLoadMeshEntityMap, Dictionary<GeometryRestrain, int[]> restrainMeshEntityMap,
             out Dictionary<int, int> nodesNewIndexMap, out Dictionary<int, int> platesNewIndexMap, out Dictionary<int, int> brickNewIndexMap, string groupName = "")
@@ -1113,6 +1407,11 @@ namespace GPC.Model.Models
             return true;
         }
 
+        /// <summary>
+        /// A mesh with a face for each area and volume element (it throws <see cref="NullReferenceException"/> if the volume elements are null, see
+        /// <see cref="Model(string)"/>)
+        /// </summary>
+        /// <returns>The new mesh</returns>
         public virtual Mesh GetMesh()
         {
             Mesh mesh = new Mesh();
@@ -1136,7 +1435,13 @@ namespace GPC.Model.Models
 
         #region Results
 
+        /// <summary>
+        /// The results of the nodes for a combination
+        /// </summary>
+        /// <param name="combination">The combination</param>
+        /// <param name="group">If not null, only the nodes of this group</param>
         /// <returns>The results related to <paramref name="combination"/></returns>
+        /// <remarks>The nodes are read by id from 0 to count - 1</remarks>
         public ResultLocation[] GetCombinationNodeResults(Combination combination, Group group = null)
         {
             List<ResultLocation> results = new List<ResultLocation>();
@@ -1187,6 +1492,13 @@ namespace GPC.Model.Models
             return results.ToArray();
         }
 
+        /// <summary>
+        /// The results of the beam elements for a combination
+        /// </summary>
+        /// <param name="combination">The combination</param>
+        /// <param name="group">If not null, only the elements of this group</param>
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        /// <remarks>The elements are read by id from 0 to count - 1</remarks>
         public ResultLocation[] GetCombinationBeamResults(Combination combination, Group group = null)
         {
             List<ResultLocation> results = new List<ResultLocation>();
@@ -1237,6 +1549,13 @@ namespace GPC.Model.Models
             return results.ToArray();
         }
 
+        /// <summary>
+        /// The results of the area elements for a combination
+        /// </summary>
+        /// <param name="combination">The combination</param>
+        /// <param name="group">If not null, only the elements of this group</param>
+        /// <returns>The results related to <paramref name="combination"/></returns>
+        /// <remarks>The elements are read by id from 0 to count - 1</remarks>
         public ResultLocation[] GetCombinationAreaResults(Combination combination, Group group = null)
         {
             List<ResultLocation> results = new List<ResultLocation>();
@@ -1293,6 +1612,10 @@ namespace GPC.Model.Models
 
         #region Edits
 
+        /// <summary>
+        /// Merges the coincident nodes (not implemented)
+        /// </summary>
+        /// <exception cref="NotImplementedException">Always</exception>
         public void CleanMesh()
         {
             // Fare in modo che chiamando questo metodo i nodi uguali ma che avranno ID diverso vengano tolti dalla collection <see cref="FemModel._nodes"/> 
@@ -1301,21 +1624,37 @@ namespace GPC.Model.Models
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Removes a beam element (all the elements equal to it; its nodes are not removed)
+        /// </summary>
+        /// <param name="finiteElement">The element</param>
         public void RemoveElement(BeamElement finiteElement)
         {
             _beamElements.Remove(finiteElement);
         }
 
+        /// <summary>
+        /// Removes an area element (all the elements equal to it; its nodes are not removed)
+        /// </summary>
+        /// <param name="finiteElement">The element</param>
         public void RemoveElement(AreaElement finiteElement)
         {
             _areaElements.Remove(finiteElement);
         }
 
+        /// <summary>
+        /// Removes a volume element (all the elements equal to it; its nodes are not removed)
+        /// </summary>
+        /// <param name="finiteElement">The element</param>
         public void RemoveElement(VolumeElement finiteElement)
         {
             _volumeElements.Remove(finiteElement);
         }
 
+        /// <summary>
+        /// Removes a node (all the nodes equal to it; the elements are not changed)
+        /// </summary>
+        /// <param name="finiteElement">The node</param>
         public void RemoveElement(NodeElement finiteElement)
         {
             _nodesElements.Remove(finiteElement);
@@ -1325,16 +1664,31 @@ namespace GPC.Model.Models
 
         #region Attribute Checks
 
+        /// <summary>
+        /// Tell if a load case has the name
+        /// </summary>
+        /// <param name="loadCaseName">The name</param>
+        /// <returns>True if the name is present</returns>
         public bool LoadCaseExist(string loadCaseName)
         {
             return _loadCases.ContainsKey(loadCaseName);
         }
 
+        /// <summary>
+        /// Tell if a freedom case has the name
+        /// </summary>
+        /// <param name="freedomCaseName">The name</param>
+        /// <returns>True if the name is present</returns>
         public bool FreedomCaseExist(string freedomCaseName)
         {
             return _freedomCases.ContainsKey(freedomCaseName);
         }
 
+        /// <summary>
+        /// Tell if a group has the name
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <returns>True if the name is present</returns>
         public bool GroupExist(string name)
         {
             return _groups.ContainsKey(name);
@@ -1344,6 +1698,11 @@ namespace GPC.Model.Models
 
         #region Equals - HashCode - Operators
 
+        /// <summary>
+        /// Serializes the model (the key "PlateProperties" and "Stages" are added twice: it throws <see cref="SerializationException"/>)
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
@@ -1367,6 +1726,11 @@ namespace GPC.Model.Models
             info.AddValue("Stages", _groups, typeof(UniqueNameCollection<Group>));
         }
 
+        /// <summary>
+        /// The hash code of the collections (as instances) and of the base (it throws <see cref="NullReferenceException"/> if the volume
+        /// elements are null, see <see cref="Model(string)"/>)
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -1392,6 +1756,12 @@ namespace GPC.Model.Models
             }
         }
 
+        /// <summary>
+        /// Equality of the collections (as instances) and of the base (it throws <see cref="NullReferenceException"/> if the volume elements
+        /// are null, see <see cref="Model(string)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal model</returns>
         public override bool Equals(object obj)
         {
             return obj is Model model &&
@@ -1412,6 +1782,12 @@ namespace GPC.Model.Models
                 base.Equals(obj);
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first model</param>
+        /// <param name="obj2">The second model</param>
+        /// <returns>True if the models are equal</returns>
         public static bool operator ==(Model obj1, Model obj2)
         {
             if (obj1 is null)
@@ -1425,6 +1801,12 @@ namespace GPC.Model.Models
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first model</param>
+        /// <param name="obj2">The second model</param>
+        /// <returns>True if the models are different</returns>
         public static bool operator !=(Model obj1, Model obj2)
         {
             return !(obj1 == obj2);

@@ -4,11 +4,17 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Sections.Bolt
 {
+    /// <summary>
+    /// A hole for a bolt, circular or slotted
+    /// </summary>
     [Serializable]
     public class Hole : IEquatable<Hole>, ISerializable
     {
         #region Properties
 
+        /// <summary>
+        /// The diameter
+        /// </summary>
         public double Diameter { get; set; }
 
         /// <summary>
@@ -26,6 +32,9 @@ namespace GPC.Model.Sections.Bolt
         /// </summary>
         public double PosBolt { get; set; }
 
+        /// <summary>
+        /// The overall length: diameter plus slot length
+        /// </summary>
         public double MaxLength => Diameter + SlotLength;
 
         /// <summary>
@@ -37,6 +46,10 @@ namespace GPC.Model.Sections.Bolt
 
         #region Constructor
 
+        /// <summary>
+        /// Creates a circular hole
+        /// </summary>
+        /// <param name="diameter">The diameter</param>
         public Hole(in double diameter)
         {
             Diameter = diameter;
@@ -45,6 +58,11 @@ namespace GPC.Model.Sections.Bolt
             PosBolt = 0;
         }
 
+        /// <summary>
+        /// Deserialization constructor
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public Hole(SerializationInfo info, StreamingContext context)
         {
             double version;
@@ -59,6 +77,11 @@ namespace GPC.Model.Sections.Bolt
 
         #region Method
 
+        /// <summary>
+        /// Serializes the hole
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             int version = 1;
@@ -73,13 +96,29 @@ namespace GPC.Model.Sections.Bolt
 
         #region Comparer
 
+        /// <summary>
+        /// Equality with another hole (see <see cref="Equals(Hole, double)"/>)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal hole</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Hole);
         }
 
+        /// <summary>
+        /// Equality with tolerance 0.01 (see <see cref="Equals(Hole, double)"/>)
+        /// </summary>
+        /// <param name="other">The hole to compare</param>
+        /// <returns>True if the holes are equal</returns>
         public bool Equals(Hole other) => Equals(other, 0.01);
 
+        /// <summary>
+        /// Equality of diameter, rotation, slot length and bolt position within a tolerance
+        /// </summary>
+        /// <param name="other">The hole to compare</param>
+        /// <param name="tolerance">The tolerance</param>
+        /// <returns>True if the holes are equal</returns>
         public bool Equals(Hole other, double tolerance = 0.01)
         {
             return !(other is null) &&
@@ -89,6 +128,10 @@ namespace GPC.Model.Sections.Bolt
                    Math.Abs(PosBolt - other.PosBolt) < tolerance;
         }
 
+        /// <summary>
+        /// The hash code of the exact values (holes equal within the tolerance can have different hash codes)
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -102,11 +145,23 @@ namespace GPC.Model.Sections.Bolt
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(Hole)"/>)
+        /// </summary>
+        /// <param name="left">The first hole</param>
+        /// <param name="right">The second hole</param>
+        /// <returns>True if the holes are equal</returns>
         public static bool operator ==(Hole left, Hole right)
         {
             return EqualityComparer<Hole>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(Hole)"/>)
+        /// </summary>
+        /// <param name="left">The first hole</param>
+        /// <param name="right">The second hole</param>
+        /// <returns>True if the holes are different</returns>
         public static bool operator !=(Hole left, Hole right)
         {
             return !(left == right);

@@ -6,17 +6,41 @@ using System.Runtime.Serialization;
 
 namespace GPC.Model.Loads
 {
+    /// <summary>
+    /// A concentrated load: force and moment in a point, with components in the coordinate system of the load
+    /// </summary>
     public class PointLoad : Load, IPointLoad, IConvertibleLoad
     {
         #region Variables
 
+        /// <summary>
+        /// The force along V1
+        /// </summary>
         protected double _f1;
+        /// <summary>
+        /// The force along V2
+        /// </summary>
         protected double _f2;
+        /// <summary>
+        /// The force along V3
+        /// </summary>
         protected double _f3;
+        /// <summary>
+        /// The moment around V1
+        /// </summary>
         protected double _m1;
+        /// <summary>
+        /// The moment around V2
+        /// </summary>
         protected double _m2;
+        /// <summary>
+        /// The moment around V3
+        /// </summary>
         protected double _m3;
 
+        /// <summary>
+        /// The point, in the global coordinates
+        /// </summary>
         protected Point3d _point;
 
         #endregion
@@ -62,15 +86,21 @@ namespace GPC.Model.Loads
 
         #region Public Constructors
 
-        /// <param name="f1"></param>
-        /// <param name="f2"></param>
-        /// <param name="f3"></param>
-        /// <param name="m1"></param>
-        /// <param name="m2"></param>
-        /// <param name="m3"></param>
+        /// <summary>
+        /// Creates a point load
+        /// </summary>
+        /// <param name="f1">The force along V1 of the coordinate system</param>
+        /// <param name="f2">The force along V2 of the coordinate system</param>
+        /// <param name="f3">The force along V3 of the coordinate system</param>
+        /// <param name="m1">The moment around V1 of the coordinate system</param>
+        /// <param name="m2">The moment around V2 of the coordinate system</param>
+        /// <param name="m3">The moment around V3 of the coordinate system</param>
         /// <param name="point">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
         /// <param name="coordinateSystem">Reference system of the load</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
+        /// <exception cref="ArgumentNullException">If the coordinate system or the point is null</exception>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase,
             CoordinateSystem coordinateSystem, string name = "", int id = IDUNASSIGNED)
             : base(loadCase, coordinateSystem, name, id)
@@ -85,14 +115,19 @@ namespace GPC.Model.Loads
             _point = point ?? throw new ArgumentNullException("Point cannot be null");
         }
 
-        /// <param name="f1"></param>
-        /// <param name="f2"></param>
-        /// <param name="f3"></param>
-        /// <param name="m1"></param>
-        /// <param name="m2"></param>
-        /// <param name="m3"></param>
+        /// <summary>
+        /// Creates a point load with components in the global system
+        /// </summary>
+        /// <param name="f1">The force along V1 of the coordinate system</param>
+        /// <param name="f2">The force along V2 of the coordinate system</param>
+        /// <param name="f3">The force along V3 of the coordinate system</param>
+        /// <param name="m1">The moment around V1 of the coordinate system</param>
+        /// <param name="m2">The moment around V2 of the coordinate system</param>
+        /// <param name="m3">The moment around V3 of the coordinate system</param>
         /// <param name="point">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         /// <remarks> <see cref="CoordinateSystem"/> set to Global </remarks>
         public PointLoad(double f1, double f2, double f3, double m1, double m2, double m3, Point3d point, LoadCaseBase loadCase,
             string name = "", int id = IDUNASSIGNED)
@@ -101,11 +136,16 @@ namespace GPC.Model.Loads
 
         }
 
-        /// <param name="force"></param>
-        /// <param name="moment"></param>
+        /// <summary>
+        /// Creates a point load from vectors
+        /// </summary>
+        /// <param name="force">The force, in the coordinate system of the load</param>
+        /// <param name="moment">The moment, in the coordinate system of the load</param>
         /// <param name="point">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
         /// <param name="coordinateSystem">Reference system of the load</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, CoordinateSystem coordinateSystem,
             string name = "", int id = IDUNASSIGNED)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, coordinateSystem, name, id)
@@ -113,16 +153,26 @@ namespace GPC.Model.Loads
 
         }
 
-        /// <param name="force"></param>
-        /// <param name="moment"></param>
+        /// <summary>
+        /// Creates a point load from vectors in the global system
+        /// </summary>
+        /// <param name="force">The force, in the global system</param>
+        /// <param name="moment">The moment, in the global system</param>
         /// <param name="point">In the global reference system</param>
-        /// <param name="loadCase"></param>
+        /// <param name="loadCase">The load case</param>
+        /// <param name="name">The name</param>
+        /// <param name="id">The id</param>
         public PointLoad(Vector3d force, Vector3d moment, Point3d point, LoadCaseBase loadCase, string name = "", int id = IDUNASSIGNED)
             : this(force.X, force.Y, force.Z, moment.X, moment.Y, moment.Z, point, loadCase, CoordinateSystem.Global, name, id)
         {
 
         }
 
+        /// <summary>
+        /// Deserialization constructor: reads the data of <see cref="Load"/>, the components and the point
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         protected PointLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -139,17 +189,31 @@ namespace GPC.Model.Loads
 
         #region Public Methods Specific
 
+        /// <summary>
+        /// The point of the load
+        /// </summary>
+        /// <returns>The point, in the global coordinates</returns>
         public Point3d GetGeometry() => _point;
 
+        /// <summary>
+        /// The point of the load (see <see cref="GetGeometry"/>)
+        /// </summary>
+        /// <returns>The point</returns>
         public override GeometryBase GetGeometryBase() => GetGeometry();
 
-        /// <returns>The total local load vector in the local system. i.e. _f1 , _f2 , _f3 </returns>
+        /// <summary>
+        /// The force and the moment in the coordinate system of the load
+        /// </summary>
+        /// <returns>The vectors (F1, F2, F3) and (M1, M2, M3)</returns>
         public (Vector3d force, Vector3d moment) GetLocalLoadVector()
         {
             return (new Vector3d(_f1, _f2, _f3), new Vector3d(_m1, _m2, _m3));
         }
 
-        /// <returns>The total global load vector in the local system. i.e. _f1  , _f2 , _f3 </returns>
+        /// <summary>
+        /// The force and the moment in the global system
+        /// </summary>
+        /// <returns>The vectors of the force and of the moment in the global system</returns>
         public (Vector3d force, Vector3d moment) GetGlobalLoadVector()
         {
             if (_coordinateSystem == CoordinateSystem.Global)
@@ -161,7 +225,7 @@ namespace GPC.Model.Loads
         /// <summary>
         /// Return an array with forces and moments in local coordinate system <paramref name="cSys"/>
         /// </summary>
-        /// <param name="cSys"></param>
+        /// <param name="cSys">The coordinate system</param>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
@@ -184,6 +248,7 @@ namespace GPC.Model.Loads
         /// <summary>
         /// Return the PointLoad in a global coordinate system
         /// </summary>
+        /// <returns>A new load with the components in the global system (same point and load case, without name and id)</returns>
         public PointLoad ToGlobal()
         {
             Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
@@ -198,6 +263,8 @@ namespace GPC.Model.Loads
         /// <summary>
         /// Return the PointLoad in a local coordinate system
         /// </summary>
+        /// <param name="cSys">The coordinate system</param>
+        /// <returns>A new load with the components in <paramref name="cSys"/> (same point and load case, without name and id)</returns>
         public PointLoad ToLocal(CoordinateSystem cSys)
         {
             Vector3d forceLocal = cSys.ToLocal(_coordinateSystem.ToGlobal(new Vector3d(_f1, _f2, _f3)));
@@ -207,7 +274,7 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
-        /// Return an array with forces and moments in global coordinate system 
+        /// Return an array with forces and moments in global coordinate system
         /// </summary>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
         public double[] GetGlobalForces()
@@ -237,8 +304,15 @@ namespace GPC.Model.Loads
             return pointLoad;
         }
 
-        /// <inheritdoc cref="IConvertibleLoad.ConvertToAreaLoad(Plane, double)"/>
-        /// <remarks>Moments will be lost. Reference system of the load is the global system</remarks>
+        /// <summary>
+        /// Convert this load into an area load: the force is spread on a square of side <paramref name="width"/> centered in the point, on the
+        /// reference plane
+        /// </summary>
+        /// <param name="referencePlane">The plane where the square is built</param>
+        /// <param name="width">The side of the square</param>
+        /// <returns>The area load with the same total force, components in the global system</returns>
+        /// <remarks>Moments will be lost. The shape of the area load is in the local coordinates of the plane, while the area load expects
+        /// global coordinates (see the list of the defects found)</remarks>
         public virtual AreaLoad ConvertToAreaLoad(Plane referencePlane, double width)
         {
             Point3d point = (Point3d)_point.Clone();
@@ -286,6 +360,14 @@ namespace GPC.Model.Loads
             return new AreaLoad(loadVectorGlobal.X / loadArea, loadVectorGlobal.Y / loadArea, loadVectorGlobal.Z / loadArea, loadShape, LoadCase, CoordinateSystem.Global);
         }
 
+        /// <summary>
+        /// Convert this load into a pressure normal to the reference plane on a square of side <paramref name="width"/> centered in the point
+        /// </summary>
+        /// <param name="referencePlane">The plane where the square is built</param>
+        /// <param name="width">The side of the square</param>
+        /// <returns>The normal area load with the same total normal force</returns>
+        /// <remarks>Moments and the force parallel to the plane are lost. The point is moved as if it were in the coordinate system of the load
+        /// (it is in the global one) and the shape is in the local coordinates of the plane (see the list of the defects found)</remarks>
         public virtual NormalAreaLoad ConvertToNormalAreaLoad(Plane referencePlane, double width)
         {
             Point3d point = (Point3d)_point.Clone();
@@ -336,6 +418,11 @@ namespace GPC.Model.Loads
 
         #region Equals, HasCode and operators
 
+        /// <summary>
+        /// Equality of name, load case, coordinate system, point and components (exact)
+        /// </summary>
+        /// <param name="obj">The object to compare</param>
+        /// <returns>True if <paramref name="obj"/> is an equal point load</returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, this))
@@ -353,6 +440,10 @@ namespace GPC.Model.Loads
                 base.Equals(objCasted);
         }
 
+        /// <summary>
+        /// The hash code of name, load case, coordinate system, components and point
+        /// </summary>
+        /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
@@ -370,6 +461,12 @@ namespace GPC.Model.Loads
             }
         }
 
+        /// <summary>
+        /// Equality operator (see <see cref="Equals(object)"/>); two null loads are equal
+        /// </summary>
+        /// <param name="obj1">The first load</param>
+        /// <param name="obj2">The second load</param>
+        /// <returns>True if the loads are equal</returns>
         public static bool operator ==(PointLoad obj1, PointLoad obj2)
         {
             if (obj1 is null)
@@ -383,11 +480,23 @@ namespace GPC.Model.Loads
             return obj1.Equals(obj2);
         }
 
+        /// <summary>
+        /// Inequality operator (see <see cref="Equals(object)"/>)
+        /// </summary>
+        /// <param name="obj1">The first load</param>
+        /// <param name="obj2">The second load</param>
+        /// <returns>True if the loads are different</returns>
         public static bool operator !=(PointLoad obj1, PointLoad obj2)
         {
             return !(obj1 == obj2);
         }
 
+        /// <summary>
+        /// Serializes the data of <see cref="Load"/>, the components, the coordinate system (a second time: duplicated name, the serialization
+        /// throws) and the point
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
