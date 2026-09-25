@@ -224,11 +224,46 @@ namespace GPC.Model.Sections
         /// <returns>The shape</returns>
         protected override abstract Shape2d GetShape();
 
-        /// <inheritdoc cref="Section.CalculateCentroid()"/>
-        protected override Point2d CalculateCentroid() => CalculateThinWallsCentroid();
+        /// <summary>
+        /// The corners added to the thin walls or removed from them (fillets and welds between the walls, fillets at the tips of the
+        /// flanges), included in the area, in the centroid and in the moments of inertia: none in the base class
+        /// </summary>
+        /// <returns>The corners</returns>
+        private protected virtual SectionCorner[] GetCorners() => new SectionCorner[0];
 
         /// <summary>
-        /// The centroid of the thin walls only (a derived class can add the corners to the centroid of the section)
+        /// Calculate the centroid: the thin walls plus the corners (see <see cref="GetCorners"/>)
+        /// </summary>
+        /// <returns>The centroid</returns>
+        protected override Point2d CalculateCentroid()
+        {
+            SectionCorner[] corners = GetCorners();
+            if (corners.Length == 0)
+                return CalculateThinWallsCentroid();
+
+            double xSum = 0;
+            double ySum = 0;
+            double area = 0;
+
+            for (int i = 0; i < _thinWalls.Length; i++)
+            {
+                xSum += _thinWalls[i].CalculateSy();
+                ySum += _thinWalls[i].CalculateSx();
+                area += _thinWalls[i].Area;
+            }
+
+            foreach (SectionCorner corner in corners)
+            {
+                xSum += corner.Sign * corner.Area * corner.X;
+                ySum += corner.Sign * corner.Area * corner.Y;
+                area += corner.Sign * corner.Area;
+            }
+
+            return new Point2d(xSum / area, ySum / area);
+        }
+
+        /// <summary>
+        /// The centroid of the thin walls only
         /// </summary>
         /// <returns>The centroid of the thin walls</returns>
         private Point2d CalculateThinWallsCentroid()
@@ -290,12 +325,17 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the area: sum of the areas of the thin walls
+        /// Calculate the area: sum of the areas of the thin walls plus the corners (see <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The area</returns>
         protected override double CalculateArea()
         {
-            return CalculateAreaThinWallSection();
+            double area = CalculateAreaThinWallSection();
+
+            foreach (SectionCorner corner in GetCorners())
+                area += corner.Sign * corner.Area;
+
+            return area;
         }
 
         /// <summary>
@@ -304,8 +344,8 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <remarks>
         /// The moment about the origin is moved to the centroid of the thin walls and then to the one of the section, which is different when
-        /// the derived class adds the corners (<see cref="SectionC"/>). Before, the area of the thin walls was moved directly from the origin
-        /// to the centroid of the section, as if it were the centroid of the thin walls: in a UPN 300 Jyy was 3.6% greater and Jxy was not 0
+        /// the section has corners. Before, the area of the thin walls was moved directly from the origin to the centroid of the section, as if
+        /// it were the centroid of the thin walls: in a UPN 300 Jyy was 3.6% greater and Jxy was not 0
         /// </remarks>
         /// <returns>The moment of inertia</returns>
         private double CalculateJxxThinWall()
@@ -324,10 +364,19 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about the X axis through the centroid (thin walls)
+        /// Calculate the moment of inertia about the X axis through the centroid: the thin walls plus the corners (own moment and transport
+        /// term; see <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The moment of inertia</returns>
-        protected override double CalculateJxx() => CalculateJxxThinWall();
+        protected override double CalculateJxx()
+        {
+            double j = CalculateJxxThinWall();
+
+            foreach (SectionCorner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJ + corner.Area * (corner.Y - _centroid.Y) * (corner.Y - _centroid.Y));
+
+            return j;
+        }
 
         /// <summary>
         /// Moment of inertia with respect to the Y axis passing through the center of gravity
@@ -351,14 +400,23 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about the Y axis through the centroid (thin walls)
+        /// Calculate the moment of inertia about the Y axis through the centroid: the thin walls plus the corners (own moment and transport
+        /// term; see <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The moment of inertia</returns>
-        protected override double CalculateJyy() => CalculateJyyThinWall();
+        protected override double CalculateJyy()
+        {
+            double j = CalculateJyyThinWall();
+
+            foreach (SectionCorner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJ + corner.Area * (corner.X - _centroid.X) * (corner.X - _centroid.X));
+
+            return j;
+        }
 
         /// <summary>
-        /// Product of inertia with respect to the X and Y axes passing through the center of
-        /// gravity of the section. Contributions to the moment of inertia only thin walls.
+        /// Product of inertia with respect to the X and Y axes passing through the center of gravity of the section: the thin walls plus the
+        /// corners (see <see cref="GetCorners"/>)
         /// </summary>
         /// <remarks>The transport terms are the ones of <see cref="CalculateJxxThinWall"/></remarks>
         /// <returns>The product of inertia</returns>
@@ -373,6 +431,9 @@ namespace GPC.Model.Sections
             Point2d centroid = CalculateThinWallsCentroid();
             j -= area * centroid.X * centroid.Y;
             j += area * (_centroid.X - centroid.X) * (_centroid.Y - centroid.Y);
+
+            foreach (SectionCorner corner in GetCorners())
+                j += corner.Sign * (corner.OwnJxy + corner.Area * (corner.X - _centroid.X) * (corner.Y - _centroid.Y));
 
             return j;
         }

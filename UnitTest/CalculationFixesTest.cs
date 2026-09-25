@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GPC.Geometry;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
@@ -87,7 +88,7 @@ namespace UnitTest
             // their centroid, the outside fillets R2 were subtracted from the area and from the centroid but not from the moments of inertia,
             // and the wrong transport term of the fillets (R1² - R1² d²) partly compensated the two errors
             CompareWithTheExactShape(300, 10, 100, 16, 100, 16, 16, 8);
-            SteelSection upn = Rolled(300, 10, 100, 16, 100, 16, 16, 8);
+            SteelSection upn = C(300, 10, 100, 16, 100, 16, 16, 8);
             Assert.AreEqual(5539278.83, upn.Jyy, 1e-6 * 5539278.83);
             Assert.AreEqual(81997310.3, upn.Jxx, 1e-6 * 81997310.3);
             Assert.AreEqual(0, upn.Jxy, 1e-9 * upn.Jxx);
@@ -101,19 +102,41 @@ namespace UnitTest
             CompareWithTheExactShape(300, 10, 120, 18, 90, 14, 6, 0, true);
         }
 
-        private static SteelSection Rolled(double h, double tw, double lengthTop, double tTop, double lengthBottom, double tBottom, double r1, double r2,
+        [TestMethod]
+        public void HSectionsAgainstTheExactShape()
+        {
+            // HEB 300 (ArcelorMittal: A = 149.1 cm², Iy = 25170 cm⁴, Iz = 8563 cm⁴). Before, Jyy was 0.25% greater: the own moment of the
+            // fillets was the one about the far side and their centroids were on the axis of the web and R / 6 from the flanges
+            CompareHWithTheExactShape(300, 11, 300, 19, 300, 19, 27);
+            SteelSection heb = H(300, 11, 300, 19, 300, 19, 27);
+            Assert.AreEqual(14910, heb.Area, 0.0005 * 14910);
+            Assert.AreEqual(251.7e6, heb.Jxx, 0.0005 * 251.7e6);
+            Assert.AreEqual(85.63e6, heb.Jyy, 0.0005 * 85.63e6);
+
+            // different flanges: before, the corners were not in the centroid
+            CompareHWithTheExactShape(400, 10, 200, 16, 300, 20, 21);
+            CompareHWithTheExactShape(400, 10, 300, 20, 200, 16, 21);
+
+            // welded: right triangles with legs 1.41 a (before, own moment a⁴ / 24 and centroid a / 8.5 from the flange and on the axis of the web)
+            CompareHWithTheExactShape(600, 12, 250, 20, 350, 25, 7, true);
+        }
+
+        private static SteelSection C(double h, double tw, double lengthTop, double tTop, double lengthBottom, double tBottom, double r1, double r2,
             bool welded = false) =>
             new SteelSection(new SectionC(h, tw, lengthTop, tTop, lengthBottom, tBottom, string.Empty, r1, r2), SteelMaterialEN1993Data.S355,
                 welded ? Section.SectionTypes.Welded : Section.SectionTypes.Rolled);
 
+        private static SteelSection H(double h, double tw, double widthTop, double tTop, double widthBottom, double tBottom, double r, bool welded = false) =>
+            new SteelSection(new SectionH(h, tw, widthTop, tTop, widthBottom, tBottom, string.Empty, r), SteelMaterialEN1993Data.S355,
+                welded ? Section.SectionTypes.Welded : Section.SectionTypes.Rolled);
+
         /// <summary>
-        /// Compares the properties of the rolled C section with the ones of its polygon with the arcs of the fillets (or the
-        /// welds)
+        /// Compares the properties of the C section with the ones of its polygon with the arcs of the fillets (or the welds)
         /// </summary>
         private static void CompareWithTheExactShape(double h, double tw, double lengthTop, double tTop, double lengthBottom, double tBottom, double r1, double r2,
             bool welded = false)
         {
-            var points = new System.Collections.Generic.List<(double X, double Y)> { (0, 0), (lengthBottom, 0) };
+            var points = new List<(double X, double Y)> { (0, 0), (lengthBottom, 0) };
             Arc(points, lengthBottom - r2, tBottom - r2, r2, 0, 90);
             if (welded)
             {
@@ -129,6 +152,42 @@ namespace UnitTest
             points.Add((lengthTop, h));
             points.Add((0, h));
 
+            Compare(C(h, tw, lengthTop, tTop, lengthBottom, tBottom, r1, r2, welded), points, h);
+        }
+
+        /// <summary>
+        /// Compares the properties of the H section with the ones of its polygon with the arcs of the fillets (or the welds)
+        /// </summary>
+        private static void CompareHWithTheExactShape(double h, double tw, double widthTop, double tTop, double widthBottom, double tBottom, double r,
+            bool welded = false)
+        {
+            double xWeb = Math.Max(widthTop, widthBottom) / 2, left = xWeb - tw / 2, right = xWeb + tw / 2, leg = 1.41 * r;
+            var points = new List<(double X, double Y)> { (xWeb - widthBottom / 2, 0), (xWeb + widthBottom / 2, 0), (xWeb + widthBottom / 2, tBottom) };
+            if (welded)
+                points.AddRange(new[] { (right + leg, tBottom), (right, tBottom + leg), (right, h - tTop - leg), (right + leg, h - tTop) });
+            else
+            {
+                Arc(points, right + r, tBottom + r, r, 270, 180);
+                Arc(points, right + r, h - tTop - r, r, 180, 90);
+            }
+            points.AddRange(new[] { (xWeb + widthTop / 2, h - tTop), (xWeb + widthTop / 2, h), (xWeb - widthTop / 2, h), (xWeb - widthTop / 2, h - tTop) });
+            if (welded)
+                points.AddRange(new[] { (left - leg, h - tTop), (left, h - tTop - leg), (left, tBottom + leg), (left - leg, tBottom) });
+            else
+            {
+                Arc(points, left - r, h - tTop - r, r, 90, 0);
+                Arc(points, left - r, tBottom + r, r, 0, -90);
+            }
+            points.Add((xWeb - widthBottom / 2, tBottom));
+
+            Compare(H(h, tw, widthTop, tTop, widthBottom, tBottom, r, welded), points, h);
+        }
+
+        /// <summary>
+        /// Compares the area, the centroid and the moments of inertia of the section with the ones of the polygon (counterclockwise)
+        /// </summary>
+        private static void Compare(SteelSection section, List<(double X, double Y)> points, double size)
+        {
             double a = 0, sx = 0, sy = 0, ixx = 0, iyy = 0, ixy = 0;
             for (int i = 0; i < points.Count; i++)
             {
@@ -145,12 +204,11 @@ namespace UnitTest
             double cx = sy / a, cy = sx / a;
             double jxx = ixx - a * cy * cy, jyy = iyy - a * cx * cx, jxy = ixy - a * cx * cy;
 
-            SteelSection section = Rolled(h, tw, lengthTop, tTop, lengthBottom, tBottom, r1, r2, welded);
             string values = $"A {section.Area} {a}, C ({section.Centroid.X}, {section.Centroid.Y}) ({cx}, {cy}), Jxx {section.Jxx} {jxx}, " +
                 $"Jyy {section.Jyy} {jyy}, Jxy {section.Jxy} {jxy}";
             Assert.AreEqual(a, section.Area, 1e-6 * a, values);
-            Assert.AreEqual(cx, section.Centroid.X, 1e-6 * h, values);
-            Assert.AreEqual(cy, section.Centroid.Y, 1e-6 * h, values);
+            Assert.AreEqual(cx, section.Centroid.X, 1e-6 * size, values);
+            Assert.AreEqual(cy, section.Centroid.Y, 1e-6 * size, values);
             Assert.AreEqual(jxx, section.Jxx, 1e-6 * jxx, values);
             Assert.AreEqual(jyy, section.Jyy, 1e-6 * jyy, values);
             Assert.AreEqual(jxy, section.Jxy, 1e-6 * Math.Sqrt(jxx * jyy), values);
@@ -159,7 +217,7 @@ namespace UnitTest
         /// <summary>
         /// Adds the points of an arc from the angle start to the angle end (degrees, in the direction of the sign of end - start)
         /// </summary>
-        private static void Arc(System.Collections.Generic.List<(double X, double Y)> points, double xCenter, double yCenter, double radius, double start, double end)
+        private static void Arc(List<(double X, double Y)> points, double xCenter, double yCenter, double radius, double start, double end)
         {
             const int segments = 2000;
             for (int i = 0; i <= segments; i++)

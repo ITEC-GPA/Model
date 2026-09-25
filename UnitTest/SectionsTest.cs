@@ -657,7 +657,9 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Jyy / sec.J22) - 1, 0, 0.0015);
             Assert.AreEqual(Math.Abs(Jxx / sec.J11) - 1, 0, 0.015);
             Assert.AreEqual(Math.Abs(Wely / sec.Wel2) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.0121);
+            // Jxx and Welx of the reference are the ones of the section without the welds (3.193e8 is the one of the thin walls): the welds
+            // increase Jxx by 1.2% and move the centroid 0.56 up, so Wel1 is 1.4% greater (1.2% before, when the welds were not in the centroid)
+            Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.015);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.015);
             Assert.AreEqual(JtSAP / sec.Jt - 1.0, 0, 0.005);

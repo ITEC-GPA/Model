@@ -328,24 +328,6 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about X: the thin walls plus the corners
-        /// </summary>
-        /// <returns>The moment of inertia</returns>
-        protected override double CalculateJxx()
-        {
-            return base.CalculateJxx() + CalculateAdditionaJxx();
-        }
-
-        /// <summary>
-        /// Calculate the moment of inertia about Y: the thin walls plus the corners
-        /// </summary>
-        /// <returns>The moment of inertia</returns>
-        protected override double CalculateJyy()
-        {
-            return base.CalculateJyy() + CalculateAdditionaJyy();
-        }
-
-        /// <summary>
         /// Calculate the product of inertia: 0 (symmetric section)
         /// </summary>
         /// <returns>0</returns>
@@ -355,68 +337,36 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// The moment of inertia about X of the four corners (welds or fillets)
+        /// The four corners between the web and the flanges, welds (chamfer, right triangles with legs 1.41 R) or fillets (radius R), included
+        /// by <see cref="ThinWallSection"/> in the area, in the centroid and in the moments of inertia with their exact centroids and own moments;
+        /// nothing for the sharp corners
         /// </summary>
-        /// <returns>The additional moment of inertia</returns>
-        private double CalculateAdditionaJxx()
+        /// <remarks>
+        /// Before: the corners were not in the centroid (with different flanges they move it), their centroids were R / 6 from the flanges and
+        /// on the axis of the web for Jyy (instead of 0.2234 R, or a / 3 for the welds, from the flange and from the face of the web), and the
+        /// own moment of a fillet was (1 / 3 - π / 16) R⁴ (the one about the side far from it; exact 0.0075 R⁴) and of a weld a⁴ / 24 (exact
+        /// a⁴ / 36): Jyy of a HEB 300 was 0.25% greater
+        /// </remarks>
+        /// <returns>The corners</returns>
+        private protected override SectionCorner[] GetCorners()
         {
-            if (_edgeWorking == EdgeType.Chamfer)
+            if (_edgeWorking == EdgeType.Sharp)
+                return new SectionCorner[0];
+
+            SectionCorner.Profile profile = SectionCorner.Inside(_edgeWorking, R);
+            double xWeb = Math.Max(LenghtTopFlange, LenghtBottomFlange) / 2.0;
+            double xLeft = xWeb - ThicknessWeb / 2.0;
+            double xRight = xWeb + ThicknessWeb / 2.0;
+            double yBottom = ThicknessBottomFlange;
+            double yTop = Height - ThicknessTopFlange;
+
+            return new SectionCorner[]
             {
-                return 4 * (Math.Pow((1.41 * _r), 4) / 24.0) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
-            }
-            else if (_edgeWorking == EdgeType.Fillet)
-            {
-                return 4.0 * ((1.0 / 3.0) * Math.Pow(_r, 4.0) - (Math.PI / 16.0) * Math.Pow(_r, 4.0)) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Height - Centroid.Y - ThicknessTopFlange - R / 6.0, 2) +
-                    CalculateAdditionalArea() / 2 * Math.Pow(Centroid.Y - ThicknessBottomFlange - R / 6.0, 2);
-            }
-            else
-                return 0.0;
-        }
-
-        /// <summary>
-        /// The moment of inertia about Y of the four corners (welds or fillets)
-        /// </summary>
-        /// <returns>The additional moment of inertia</returns>
-        private double CalculateAdditionaJyy()
-        {
-            if (_edgeWorking == EdgeType.Chamfer)
-            {
-                return 4 * (Math.Pow((1.41 * R), 4) / 24.0) + CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2, 2);
-            }
-            else if (_edgeWorking == EdgeType.Fillet)
-            {
-                return 4.0 * ((1.0 / 3.0) * Math.Pow(R, 4.0) - (Math.PI / 16.0) * Math.Pow(R, 4.0)) + CalculateAdditionalArea() * Math.Pow(ThicknessWeb / 2.0, 2);
-            }
-            else
-                return 0.0;
-        }
-
-        /// <summary>
-        /// The area of the four corners: the welds (chamfer, throat R) or the fillets (radius R)
-        /// </summary>
-        /// <returns>The additional area</returns>
-        private double CalculateAdditionalArea()
-        {
-            if (_edgeWorking == EdgeType.Chamfer)
-                return 4 * Math.Pow((1.41 * R), 2) / 2.0;
-
-            else if (_edgeWorking == EdgeType.Fillet)
-                return 4 * (Math.Pow(R, 2) - Math.Pow(R, 2) * Math.PI / 4.0);
-
-            else
-                return 0.0;
-        }
-
-        /// <summary>
-        /// Calculate the area: the thin walls plus the corners
-        /// </summary>
-        /// <returns>The area</returns>
-        protected override double CalculateArea()
-        {
-            return base.CalculateArea() + CalculateAdditionalArea();
+                new SectionCorner(1, profile, xLeft, yBottom, -1, 1),
+                new SectionCorner(1, profile, xRight, yBottom, 1, 1),
+                new SectionCorner(1, profile, xLeft, yTop, -1, -1),
+                new SectionCorner(1, profile, xRight, yTop, 1, -1),
+            };
         }
 
         /// <summary>
