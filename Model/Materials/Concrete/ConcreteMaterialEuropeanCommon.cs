@@ -104,8 +104,8 @@ namespace GPC.Model.Materials
         public double Ec => 1.05 * ElasticModulusCompression;
 
         /// <summary>
-        /// Characteristic compressive cubic strength of concrete at 28 days (table of the strength classes; 1 / 0.83 fck for the other values). With the
-        /// negative fck of the class the table is never used
+        /// Characteristic compressive cubic strength of concrete at 28 days (table of the strength classes; 1 / 0.83 fck for the other values), with
+        /// the sign of fck (negative, as <see cref="Fcm"/>)
         /// </summary>
         public double Rck => GetFckCube(Fck);
 
@@ -125,7 +125,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (the default 1E-6 is ten times smaller than the 1E-5 of EN 1992-1-1 3.1.3)</param>
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -160,7 +160,7 @@ namespace GPC.Model.Materials
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6, CementTypes cementType = CementTypes.ClassN)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -193,7 +193,7 @@ namespace GPC.Model.Materials
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double strainYTension, double strainYCompression,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6,
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6,
             CementTypes cementType = CementTypes.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension, stressStrainTableCompression.GetElasticModulus(),
                   stressStrainTableTension.GetElasticModulus(), poisson, density, alfaThermalExpansion)
@@ -1002,9 +1002,20 @@ namespace GPC.Model.Materials
         /// <summary>
         /// The cubic strength of a strength class (C8/10 ... C100/115)
         /// </summary>
-        /// <param name="fck">The cylinder strength</param>
-        /// <returns>Rck of the class; fck / 0.83 for the other values</returns>
+        /// <param name="fck">The cylinder strength (with its sign)</param>
+        /// <returns>Rck of the class; fck / 0.83 for the other values (with the sign of <paramref name="fck"/>)</returns>
         protected virtual double GetFckCube(double fck)
+        {
+            // the classes are tabulated with positive values, while the fck of the material is negative
+            return Math.Sign(fck) * GetFckCubeOfClass(Math.Abs(fck));
+        }
+
+        /// <summary>
+        /// The cubic strength of a strength class from the positive cylinder strength
+        /// </summary>
+        /// <param name="fck">The cylinder strength (positive)</param>
+        /// <returns>Rck of the class; fck / 0.83 for the other values</returns>
+        private static double GetFckCubeOfClass(double fck)
         {
             switch (fck)
             {
