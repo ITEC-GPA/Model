@@ -419,6 +419,44 @@ namespace GPC.Model.Sections.Concrete
             IRebarSection rebarsSectionTop, double rebarsPitchTop, double rebarsCoverTop,
             IRebarSection rebarsSectionBottom, double rebarsPitchBottom,
             SectionH steelShapeH, SteelMaterial steelMaterial, double rebarsCoverBottom = 0.0, double steelEccentricity = 0.0, string name = "")
+            : this(concreteWidth, concreteHeight, concreteMaterial, rebarsSectionTop, rebarsPitchTop, rebarsCoverTop, rebarsSectionBottom,
+                  rebarsPitchBottom, steelShapeH, steelMaterial, rebarsCoverBottom, steelEccentricity, name, true)
+        {
+        }
+
+        /// <summary>
+        /// A typical mixed section for bridges with any steel section below the slab (e.g. <see cref="SectionHDoubleBottomFlange"/>): the
+        /// same as the constructor with a <see cref="SectionH"/>. The steel is centred on its widest part, with its top at the bottom of
+        /// the slab
+        /// </summary>
+        /// <param name="concreteWidth">Concrete base width.</param>
+        /// <param name="concreteHeight">Height of concrete rectangle.</param>
+        /// <param name="concreteMaterial">Concrete material.</param>
+        /// <param name="rebarsSectionTop">Cross section of the upper reinforcing bars. Null value for not inserting bars.</param>
+        /// <param name="rebarsPitchTop">The pitch of the upper reinforcing bars.</param>
+        /// <param name="rebarsCoverTop">Upper reinforcement bar covers (to the center of the bars).</param>
+        /// <param name="rebarsSectionBottom">Cross section of the lower reinforcing bars. Null value for not inserting bars.</param>
+        /// <param name="rebarsPitchBottom">The pitch of the lower reinforcing bars.</param>
+        /// <param name="steelShape">Steel section, with the origin at the bottom left corner of its bounding box. Null value for not
+        /// inserting steel profile.</param>
+        /// <param name="steelMaterial">Steel material.</param>
+        /// <param name="rebarsCoverBottom">Lower reinforcement bar covers (0: the upper one).</param>
+        /// <param name="steelEccentricity">Horizontal eccentricity (in the X direction) of the steel section with respect to the barycenter of
+        /// the concrete part.</param>
+        /// <param name="name">The name</param>
+        /// <returns>The new section</returns>
+        /// <exception cref="ArgumentNullException">If <paramref name="concreteMaterial"/> is null</exception>
+        public static ReinforcedConcreteSection CreateBridgeSection(double concreteWidth, double concreteHeight, ConcreteMaterial concreteMaterial,
+            IRebarSection rebarsSectionTop, double rebarsPitchTop, double rebarsCoverTop,
+            IRebarSection rebarsSectionBottom, double rebarsPitchBottom,
+            Section steelShape, SteelMaterial steelMaterial, double rebarsCoverBottom = 0.0, double steelEccentricity = 0.0, string name = "") =>
+            new ReinforcedConcreteSection(concreteWidth, concreteHeight, concreteMaterial, rebarsSectionTop, rebarsPitchTop, rebarsCoverTop,
+                rebarsSectionBottom, rebarsPitchBottom, steelShape, steelMaterial, rebarsCoverBottom, steelEccentricity, name, true);
+
+        private ReinforcedConcreteSection(double concreteWidth, double concreteHeight, ConcreteMaterial concreteMaterial,
+            IRebarSection rebarsSectionTop, double rebarsPitchTop, double rebarsCoverTop,
+            IRebarSection rebarsSectionBottom, double rebarsPitchBottom,
+            Section steelShapeH, SteelMaterial steelMaterial, double rebarsCoverBottom, double steelEccentricity, string name, bool bridge)
             : base(name)
         {
             if (rebarsCoverBottom == 0)
@@ -456,7 +494,7 @@ namespace GPC.Model.Sections.Concrete
             if (steelShapeH != null && steelMaterial != null)
                 _steelSections.Add(new SteelSectionPosition(new SteelSection(steelShapeH, steelMaterial),
                     Point2d.Origin, 0.0,
-                    new Point2d(0.5 * concreteWidth - 0.5 * Math.Max(steelShapeH.LenghtBottomFlange, steelShapeH.LenghtTopFlange) + steelEccentricity, -steelShapeH.Height))
+                    new Point2d(0.5 * concreteWidth - 0.5 * steelShapeH.Width + steelEccentricity, -steelShapeH.Height))
                 { IsInsideConcrete = false });
         }
 
