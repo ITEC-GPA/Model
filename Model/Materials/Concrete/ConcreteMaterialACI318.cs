@@ -90,7 +90,7 @@ namespace GPC.Model.Materials
         /// <param name="density">The density</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public ConcreteMaterialACI318(string name, double fc, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _concreteStrengthReduction = 0.85;
@@ -119,7 +119,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public ConcreteMaterialACI318(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 1e-6)
+            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _concreteStrengthReduction = 0.85;
