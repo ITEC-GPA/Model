@@ -136,6 +136,21 @@ namespace GPC.Model.Standards
 
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// The limit stress of the prestressing steel for the characteristic combination: k5 fpk, on the tensile strength (EN 1992-1-1 §7.2(5))
+        /// </summary>
+        /// <param name="tensileStrength">The characteristic tensile strength fpk</param>
+        /// <param name="yieldStrength">The characteristic 0.1% proof stress fp0,1k</param>
+        /// <returns>The limit stress</returns>
+        public virtual double GetServiceabilityPrestressLimitStress(double tensileStrength, double yieldStrength)
+        {
+            return _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination * tensileStrength;
+        }
+
+        #endregion
+
         #region Public Constructor
 
         /// <summary>
