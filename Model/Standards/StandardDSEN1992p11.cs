@@ -7,7 +7,12 @@ namespace GPC.Model.Standards
 	/// This class collects all the coefficient of the DS EN 1992-1-1
 	/// "Generelle regler samt regler for bygningskonstruktioner"
 	/// </summary>
-	/// <remarks>Reference: DS EN 1992-1-1:2004.AC: 2021</remarks>
+	/// <remarks>
+	/// Reference: DS EN 1992-1-1:2004.AC: 2021 with the Danish National Annex DS/EN 1992-1-1 DK NA:2024, table 2.1Na NA for structures
+	/// in general (cast in place), consequence class CC2 (γ0 = 1.0) and normal inspection (γ3 = 1.0): γc = 1.45 for the compressive strength
+	/// and the modulus of reinforced concrete, γs = 1.20 for reinforcement and prestressing steel, γcE = γc (§5.8.6(3)), γM = 1.0 in accidental
+	/// situations, αcc unchanged (1.0). Precast elements (γc = 1.40), unreinforced concrete (γc = 1.60) and the other γ0, γ3 are set by the user
+	/// </remarks>
 	[Serializable]
 	public class StandardDSEN1992p11 : StandardEN1992p11, ISerializable
 	{
@@ -17,8 +22,11 @@ namespace GPC.Model.Standards
 		public StandardDSEN1992p11(string name = "DS EN 1992-1-1", string remarks = "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. DS EN 1992-1-1:2005")
 			: base(name, remarks)
 		{
-			_gammaC = 1.4;
+			_gammaC = 1.45;
+			_gammaCE = 1.45;
+			_gammaCAccidental = 1.0;
 			_gammaS = 1.2;
+			_gammaSPrestress = 1.2;
 		}
 
 		/// <summary>

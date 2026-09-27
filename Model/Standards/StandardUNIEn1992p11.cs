@@ -7,7 +7,11 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the UNI EN 1992-1-1
     /// "Progettazione delle strutture di calcestruzzo"
     /// </summary>
-    /// <remarks>Reference: UNI EN 1992-1-1:2005</remarks>
+    /// <remarks>
+    /// Reference: UNI EN 1992-1-1:2005 with the Italian National Annex (DM 31 July 2012, GU n. 73 of 27 March 2013):
+    /// αcc = 0.85 (§3.1.6(1)P), γc = γs = γp = 1.0 in accidental situations (Table 2.1N), k5 = 0.70 (§7.2(5)).
+    /// Not modelled: γc = 1.875 (and k1, k2 reduced by 20%) for slabs and walls cast in place thinner than 50 mm
+    /// </remarks>
     [Serializable]
     public class StandardUNIEN1992p11 : StandardEN1992p11, ISerializable
     {
@@ -17,7 +21,9 @@ namespace GPC.Model.Standards
         public StandardUNIEN1992p11(string name = "UNI EN 1992-1-1", string remarks = "Eurocode 2: Design of concrete structures - Part 1-1: General rules and rules for buildings. UNI EN 1992-1-1:2005")
             : base(name, remarks)
         {
-
+            _alphaCC = 0.85;
+            _gammaCAccidental = 1.0;
+            _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination = 0.70;
         }
 
         /// <summary>

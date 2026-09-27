@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Data.Concrete;
@@ -382,12 +382,45 @@ namespace UnitTest
             Rel(0.85 * 30 / 1.5, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardNTC2018Concrete())));
             Rel(0.85 * 30 / 1.5, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardDINEN1992p11())));
             Rel(0.85 * 30 / 1.5, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardNSEN1992p11())));
-            Rel(30 / 1.4, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardDSEN1992p11())));
+            // Italian National Annex (DM 31/7/2012): αcc = 0.85
+            Rel(0.85 * 30 / 1.5, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardUNIEN1992p11())));
+            // DK NA:2024 table 2.1Na NA: γc = 1.45 (cast in place, CC2, normal inspection), αcc = 1
+            Rel(30 / 1.45, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardDSEN1992p11())));
             Rel(30 / 1.5, Math.Abs(c.CalculateDesignCompressiveStrength(new StandardModelCode2010())));
             // fctd = αct fctk,0.05 / γc
             Rel(0.7 * 0.3 * Math.Pow(30, 2.0 / 3) / 1.5, c.CalculateDesignTensileStrength(new StandardEN1992p11()));
-            // accidental situation: γc = 1.2
+            // accidental situation: γc = 1.2 recommended, 1.0 for NTC 2018 §4.1.4, the Italian and the Danish annexes, 1.3 for the German annex
             Rel(30 / 1.2, Math.Abs(c.CalculateFcdAccidental(new StandardEN1992p11())));
+            Rel(0.85 * 30 / 1.0, Math.Abs(c.CalculateFcdAccidental(new StandardNTC2018Concrete())));
+            Rel(0.85 * 30 / 1.0, Math.Abs(c.CalculateFcdAccidental(new StandardUNIEN1992p11())));
+            Rel(30 / 1.0, Math.Abs(c.CalculateFcdAccidental(new StandardDSEN1992p11())));
+            Rel(0.85 * 30 / 1.3, Math.Abs(c.CalculateFcdAccidental(new StandardDINEN1992p11())));
+        }
+
+        [TestMethod]
+        public void PartialFactorsOfTheSteelForEveryNationalAnnex()
+        {
+            var rebar = SteelMaterialEN1992Data.B450C;
+            Rel(450 / 1.15, rebar.CalculateDesignYieldingStressTension(new StandardUNIEN1992p11()));
+            Rel(450 / 1.2, rebar.CalculateDesignYieldingStressTension(new StandardDSEN1992p11()));
+            var strand = SteelMaterialEN1992Data.Y1860C;
+            Rel(strand.Fyk / 1.15, strand.CalculateDesignYieldingStressTension(new StandardEN1992p11()));
+            Rel(strand.Fyk / 1.2, strand.CalculateDesignYieldingStressTension(new StandardDSEN1992p11()));
+            Assert.AreEqual(1.45, new StandardDSEN1992p11().GammaCE, 1e-12);
+            Assert.AreEqual(1.2, new StandardUNIEN1992p11().GammaCE, 1e-12);
+        }
+
+        [TestMethod]
+        public void ServiceabilityLimitOfThePrestressingSteel()
+        {
+            var strand = SteelMaterialEN1992Data.Y1860C;
+            // EN 1992-1-1 §7.2(5): σp ≤ k5 fpk, on the tensile strength (k5 = 0.75; 0.70 in the Italian annex)
+            Rel(0.75 * 1860, strand.GetServiceabilityCharacteristicStressPrestress(new StandardEN1992p11()));
+            Rel(0.70 * 1860, strand.GetServiceabilityCharacteristicStressPrestress(new StandardUNIEN1992p11()));
+            // NTC 2018 §4.1.8.1.5: σp < 0.8 fp(0,1)k, on the yield strength
+            Rel(0.8 * strand.Fyk, strand.GetServiceabilityCharacteristicStressPrestress(new StandardNTC2018Concrete()));
+            // ordinary reinforcement: k3 fyk
+            Rel(0.8 * 450, SteelMaterialEN1992Data.B450C.GetServiceabilityCharacteristicStress(new StandardNTC2018Concrete()));
         }
 
         [TestMethod]

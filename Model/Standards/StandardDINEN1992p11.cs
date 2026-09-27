@@ -7,7 +7,7 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the DIN EN 1992-1-1
     /// "Bemessung und Konstruktion von Stahlbeton- und Spannbetontragwerken"
     /// </summary>
-    /// <remarks>Reference: DIN EN 1992-1-1:2004.AC: 2010</remarks>
+    /// <remarks>Reference: DIN EN 1992-1-1:2004.AC: 2010 with the German National Annex DIN EN 1992-1-1/NA:2013-04: αcc = 0.85, γc = 1.3 in accidental situations (table 2.1DE)</remarks>
     [Serializable]
     public class StandardDINEN1992p11 : StandardEN1992p11, ISerializable
     {
@@ -18,6 +18,7 @@ namespace GPC.Model.Standards
             : base(name, remarks)
         {
             _alphaCC = 0.85;
+            _gammaCAccidental = 1.3;
         }
 
         /// <summary>

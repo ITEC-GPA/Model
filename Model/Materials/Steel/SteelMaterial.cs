@@ -602,13 +602,14 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The limit stress of the prestressing steel for the characteristic combination (serviceability): fyk × the coefficient of the standard
+        /// The limit stress of the prestressing steel for the characteristic combination (serviceability): k5 fpk for EN 1992-1-1, 0.8 fp(0,1)k
+        /// for NTC 2018 (see <see cref="StandardModelCode2010.GetServiceabilityPrestressLimitStress(double, double)"/>)
         /// </summary>
         /// <param name="standardModelCode2010">The standard (Model Code 2010)</param>
         /// <returns>The limit stress</returns>
         public virtual double GetServiceabilityCharacteristicStressPrestress(StandardModelCode2010 standardModelCode2010)
         {
-            return Fyk * standardModelCode2010.ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination;
+            return standardModelCode2010.GetServiceabilityPrestressLimitStress(Fu, Fyk);
         }
 
         #endregion

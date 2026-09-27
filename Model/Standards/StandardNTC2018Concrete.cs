@@ -11,7 +11,11 @@ namespace GPC.Model.Standards
 	/// This class collects all the coefficient of the NTC2018 for concrete design
 	/// "Norme tecniche per	le costruzioni"
 	/// </summary>
-	/// <remarks>Reference: NTC2018. 17 January 2018</remarks>
+	/// <remarks>
+	/// Reference: NTC2018. 17 January 2018: αcc = 0.85 (§4.1.2.1.1.1), γc = γs = 1.0 in accidental situations (§4.1.4), prestressing steel in
+	/// service σp &lt; 0.8 fp(0,1)k (§4.1.8.1.5 and §4.1.2.2.5.2, on the yield strength instead of the tensile strength of EN 1992-1-1).
+	/// Not modelled: fcd reduced to 0.80 fcd and service limits reduced by 20% for slabs and walls cast in place thinner than 50 mm
+	/// </remarks>
 	[Serializable]
 	public class StandardNTC2018Concrete : StandardEN1992p11, ISerializable
 	{
@@ -23,6 +27,19 @@ namespace GPC.Model.Standards
 			: base(name, remarks)
 		{
 			_alphaCC = 0.85;
+			_gammaCAccidental = 1.0;
+			_serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination = 0.8;
+		}
+
+		/// <summary>
+		/// The limit stress of the prestressing steel for the characteristic combination: 0.8 fp(0,1)k, on the yield strength (§4.1.8.1.5)
+		/// </summary>
+		/// <param name="tensileStrength">The characteristic tensile strength fptk</param>
+		/// <param name="yieldStrength">The characteristic 0.1% proof stress fp(0,1)k</param>
+		/// <returns>The limit stress</returns>
+		public override double GetServiceabilityPrestressLimitStress(double tensileStrength, double yieldStrength)
+		{
+			return _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination * yieldStrength;
 		}
 
 		/// <summary>
