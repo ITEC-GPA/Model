@@ -12,6 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- the geometry of the sections (centroids) in the map of the catalogs -->
+    <Reference Include="GPCGeometry">
+      <HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- catalogs of commercial sections, extracted by tools/section-catalogs -->
     <EmbeddedResource Include="Sections\Catalogs\*.csv" />
   </ItemGroup>

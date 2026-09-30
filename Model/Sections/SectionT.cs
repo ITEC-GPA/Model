@@ -30,7 +30,7 @@ namespace GPC.Model.Sections
         /// </summary>
         protected double _b;
         /// <summary>
-        /// The fillet radius or the throat of the welds (not used in the calculations)
+        /// The fillet radius or the throat of the welds, in the calculations when the working of the corners is set (before, never used)
         /// </summary>
         private readonly double _r;
 
@@ -206,11 +206,62 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the plastic modulus respect to X: closed form with the plastic neutral axis in the web or in the flange
+        /// True if the section has fillets or welds between the web and the flange (see <see cref="GetCorners"/>)
+        /// </summary>
+        private bool HasWorkedCorners => _edgeWorking != EdgeType.Sharp && _r > 0.0;
+
+        /// <summary>
+        /// The two inside corners between the web and the flange, fillets (radius R) or welds (throat R), included by
+        /// <see cref="ThinWallSection"/> in the area, in the centroid and in the moments of inertia; nothing for the sharp corners (before,
+        /// the radius was not used)
+        /// </summary>
+        /// <returns>The corners</returns>
+        private protected override SectionCorner[] GetCorners()
+        {
+            if (!HasWorkedCorners)
+                return new SectionCorner[0];
+
+            SectionCorner.Profile profile = SectionCorner.Inside(_edgeWorking, _r);
+            return new[]
+            {
+                new SectionCorner(1, profile, LenghtFlange / 2.0 - ThicknessWeb / 2.0, HeightWeb, -1, -1),
+                new SectionCorner(1, profile, LenghtFlange / 2.0 + ThicknessWeb / 2.0, HeightWeb, 1, -1),
+            };
+        }
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape with the corners of <see cref="GetCorners"/>
+        /// </summary>
+        /// <returns>The outline</returns>
+        internal override Shape2d GetPlasticShape()
+        {
+            if (!HasWorkedCorners)
+                return Shape;
+
+            double b = LenghtFlange, tw = ThicknessWeb, hw = HeightWeb;
+            return SectionOutline.Create(new[]
+            {
+                new SectionOutline.Vertex(0.0, Height),
+                new SectionOutline.Vertex(b, Height),
+                new SectionOutline.Vertex(b, hw),
+                SectionOutline.Inside(b / 2.0 + tw / 2.0, hw, _edgeWorking, _r),
+                new SectionOutline.Vertex(b / 2.0 + tw / 2.0, 0.0),
+                new SectionOutline.Vertex(b / 2.0 - tw / 2.0, 0.0),
+                SectionOutline.Inside(b / 2.0 - tw / 2.0, hw, _edgeWorking, _r),
+                new SectionOutline.Vertex(0.0, hw),
+            });
+        }
+
+        /// <summary>
+        /// Calculate the plastic modulus respect to X: closed form with the plastic neutral axis in the web or in the flange; with fillets or
+        /// welds <see cref="double.NaN"/>, the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is computed at the first access
         /// </summary>
         /// <returns>The plastic modulus respect to X</returns>
         protected override double CalculateWplX()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             if (_area / 2.0 >= _b * _tf)
             {
                 double yPlastic = _area / 2.0 / _tw;
@@ -236,6 +287,9 @@ namespace GPC.Model.Sections
         /// <returns>The plastic modulus respect to Y (the symmetry axis)</returns>
         protected override double CalculateWplY()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             return 1.0 / 4.0 * _tf * Math.Pow(_b, 2.0) + 1.0 / 4.0 * (Height - _tf) * Math.Pow(_tw, 2.0);
         }
 
@@ -360,6 +414,15 @@ namespace GPC.Model.Sections
         /// <returns>The torsion constant</returns>
         protected override double CalculateJt()
         {
+            if (_edgeWorking == EdgeType.Fillet && _r > 0.0)
+            {
+                // half of the formula of the rolled I sections with fillets (SectionH): one flange, the web from the flange, one pair of
+                // fillets (α1, D1 of the web-flange junction). Before, the fillets were not in the torsion constant: -18% for a WT20X74.5
+                double alpha1 = -0.042 + 0.2204 * _tw / _tf + 0.1355 * _r / _tf - 0.0865 * _r * _tw / Math.Pow(_tf, 2) -
+                    0.0725 * Math.Pow(_tw, 2) / Math.Pow(_tf, 2);
+                double d1 = (Math.Pow(_tf + _r, 2.0) + (_r + 0.25 * _tw) * _tw) / (2.0 * _r + _tf);
+                return _b * Math.Pow(_tf, 3) / 3.0 + (Height - _tf) * Math.Pow(_tw, 3) / 3.0 + alpha1 * Math.Pow(d1, 4) - 0.210 * Math.Pow(_tf, 4);
+            }
             return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
         }
 

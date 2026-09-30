@@ -133,7 +133,7 @@ namespace GPC.Model.Sections
         /// The region of the plastic moduli: the exact outline
         /// </summary>
         /// <returns>The shape</returns>
-        private protected override Shape2d GetPlasticShape() => Shape;
+        internal override Shape2d GetPlasticShape() => Shape;
 
         /// <summary>
         /// The plastic modulus respect to X: the exact one of the outline, computed at the first access

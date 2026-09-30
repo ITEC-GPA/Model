@@ -309,7 +309,7 @@ namespace GPC.Model.Sections
         /// The region of the exact plastic moduli: the shape with the fillets or the welds of the four inside corners
         /// </summary>
         /// <returns>The outline</returns>
-        private protected override Shape2d GetPlasticShape()
+        internal override Shape2d GetPlasticShape()
         {
             if (!HasWorkedCorners)
                 return Shape;

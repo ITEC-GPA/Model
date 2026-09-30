@@ -62,6 +62,12 @@ namespace GPC.Model.Data.Sections
         public IReadOnlyList<CatalogProfile> Profiles { get; private set; }
 
         /// <summary>
+        /// The aliases not searched because equal to the designation or to the alias of another section of the catalog (the section is found
+        /// with its designation)
+        /// </summary>
+        public IReadOnlyList<string> AmbiguousAliases { get; private set; } = new string[0];
+
+        /// <summary>
         /// The section with a designation (see <see cref="SectionCatalogs.Normalize"/> for the accepted spellings)
         /// </summary>
         /// <param name="designation">The designation (e.g. "HEB 300", "HE 300 B", "HE300B")</param>
@@ -123,6 +129,9 @@ namespace GPC.Model.Data.Sections
             if (header is null || header.Length < 3 || header[0] != "Designation" || header[1] != "Series" || header[2] != "InStandard")
                 throw new InvalidDataException($"{id}: the header must start with Designation,Series,InStandard");
 
+            // the optional text column Alias: another designation of the section (e.g. the metric one of the AISC shapes)
+            int alias = Array.IndexOf(header, "Alias");
+
             var catalog = new SectionCatalog(id, metadata);
             var profiles = new List<CatalogProfile>(rows.Count);
             foreach (string[] cells in rows)
@@ -132,19 +141,42 @@ namespace GPC.Model.Data.Sections
                 var values = new Dictionary<string, double>();
                 for (int c = 3; c < cells.Length; c++)
                 {
-                    if (cells[c].Length == 0)
+                    if (cells[c].Length == 0 || c == alias)
                         continue;
                     if (!double.TryParse(cells[c], NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                         throw new InvalidDataException($"{id}: {header[c]} of {cells[0]} is not a number: {cells[c]}");
                     values[header[c]] = value;
                 }
-                var profile = new CatalogProfile(catalog, cells[0], cells[1], family, cells[2] == "1", values);
+                string aliasText = alias >= 0 && cells[alias].Length > 0 ? cells[alias] : null;
+                var profile = new CatalogProfile(catalog, cells[0], cells[1], family, cells[2] == "1", values, aliasText);
                 profiles.Add(profile);
                 string key = SectionCatalogs.Normalize(profile.Designation);
                 if (catalog._byKey.ContainsKey(key))
                     throw new InvalidDataException($"{id}: {profile.Designation} is repeated");
                 catalog._byKey[key] = profile;
             }
+
+            // the aliases after all the designations: an alias equal to the designation (or to the alias) of another section is ambiguous and
+            // is not searched (e.g. the metric Pipe20STD, DN 20, of the AISC Pipe3/4STD is the designation of the NPS 20 pipe)
+            var ambiguous = new List<string>();
+            var aliasOwners = new Dictionary<string, CatalogProfile>();
+            foreach (CatalogProfile profile in profiles.Where(p => p.Alias != null))
+            {
+                string key = SectionCatalogs.Normalize(profile.Alias);
+                if (catalog._byKey.TryGetValue(key, out CatalogProfile other) && other != profile && !aliasOwners.ContainsKey(key))
+                    ambiguous.Add($"{profile.Alias} ({profile.Designation}; designation of {other.Designation})");
+                else if (aliasOwners.TryGetValue(key, out other) && other != profile)
+                {
+                    ambiguous.Add($"{profile.Alias} ({profile.Designation}; alias of {other.Designation})");
+                    catalog._byKey.Remove(key);
+                }
+                else if (!catalog._byKey.ContainsKey(key))
+                {
+                    catalog._byKey[key] = profile;
+                    aliasOwners[key] = profile;
+                }
+            }
+            catalog.AmbiguousAliases = ambiguous.AsReadOnly();
             catalog.Profiles = profiles.AsReadOnly();
             return catalog;
         }

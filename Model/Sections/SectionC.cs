@@ -261,7 +261,7 @@ namespace GPC.Model.Sections
         /// the flanges (the corners of <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The outline</returns>
-        private protected override Shape2d GetPlasticShape()
+        internal override Shape2d GetPlasticShape()
         {
             if (!HasWorkedCorners)
                 return Shape;

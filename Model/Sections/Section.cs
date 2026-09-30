@@ -235,13 +235,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the 1-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = ShapePlasticModulus(_angleX1)) : _wpl1;
+        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = PlasticModulus(_angleX1)) : _wpl1;
 
         /// <summary>
         /// The plastic modulus calculated respect the 2-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = ShapePlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
+        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = PlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
 
         /// <summary>
         /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid
@@ -307,13 +307,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the X axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double WplX => double.IsNaN(_wplX) ? (_wplX = ShapePlasticModulus(0.0)) : _wplX;
+        public double WplX => double.IsNaN(_wplX) ? (_wplX = PlasticModulus(0.0)) : _wplX;
 
         /// <summary>
         /// The plastic modulus calculated respect the Y axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, <see cref="Wel2Max"/>)</remarks>
-        public double WplY => double.IsNaN(_wplY) ? (_wplY = ShapePlasticModulus(Math.PI / 2.0)) : _wplY;
+        public double WplY => double.IsNaN(_wplY) ? (_wplY = PlasticModulus(Math.PI / 2.0)) : _wplY;
 
         /// <summary>
         /// The centroid of the section
@@ -829,7 +829,7 @@ namespace GPC.Model.Sections
         /// <param name="angle">The direction of the bending axis from X (radians)</param>
         /// <returns>The plastic modulus of the shape for the bending about the axis through the centroid with direction <paramref name="angle"/>,
         /// 0 if the section has no shape</returns>
-        private double ShapePlasticModulus(double angle)
+        private protected virtual double PlasticModulus(double angle)
         {
             Shape2d shape = GetPlasticShape();
             return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
@@ -840,7 +840,7 @@ namespace GPC.Model.Sections
         /// the fillets and the welds that their shape (used for the meshes) does not have
         /// </summary>
         /// <returns>The region</returns>
-        private protected virtual Shape2d GetPlasticShape() => Shape;
+        internal virtual Shape2d GetPlasticShape() => Shape;
 
         /// <summary>
         /// The extreme distance of the vertices of the shape from an axis through the centroid

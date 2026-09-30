@@ -35,6 +35,29 @@ namespace GPC.Model.Data.Sections
         private static readonly Lazy<SectionCatalog> _en10219CircularHollow = Catalog("EN10219_CircularHollow",
             series => series == "CHS" ? SectionFamily.CircularHollow : (SectionFamily?)null);
 
+        private static readonly Lazy<SectionCatalog> _aiscShapesV16 = Catalog(AiscId, AiscFamily);
+
+        /// <summary>
+        /// The identifier of the catalog of the AISC shapes
+        /// </summary>
+        internal const string AiscId = "AISC_ShapesV16";
+
+        private static SectionFamily? AiscFamily(string series)
+        {
+            switch (series)
+            {
+                case "W": case "M": case "HP": return SectionFamily.ParallelFlangeIH;
+                case "S": return SectionFamily.TaperFlangeI;
+                case "C": case "MC": return SectionFamily.TaperFlangeChannel;
+                case "L": return SectionFamily.Angle;
+                case "WT": case "MT": case "ST": return SectionFamily.Tee;
+                case "2L": return SectionFamily.DoubleAngle;
+                case "HSS": return SectionFamily.RectangularHollow;
+                case "HSS round": case "PIPE": return SectionFamily.CircularHollow;
+                default: return null;
+            }
+        }
+
         /// <summary>
         /// Parallel flange I and H sections of EN 10365:2017 (IPE, HE, HL, HLZ, HD, HP, UBP, UB, UC) and producer sizes (see
         /// <see cref="CatalogProfile.IsInStandard"/>); source: ArcelorMittal sales programme
@@ -72,12 +95,20 @@ namespace GPC.Model.Data.Sections
         public static SectionCatalog EN10219CircularHollow => _en10219CircularHollow.Value;
 
         /// <summary>
-        /// All the catalogs (the hot finished hollow sections before the cold formed ones with the same designation)
+        /// American shapes of the AISC Steel Construction Manual, 16th Edition (W, M, S, HP, C, MC, L, WT, MT, ST, 2L, HSS, PIPE); source:
+        /// AISC Shapes Database v16.0. Designations of the Manual (W44X408) and metric ones (W1100X607, see <see cref="CatalogProfile.Alias"/>)
+        /// </summary>
+        public static SectionCatalog AISCShapesV16 => _aiscShapesV16.Value;
+
+        /// <summary>
+        /// All the catalogs: the European ones before the American ones (the metric designations of some AISC shapes are the same of
+        /// European ones, e.g. HP 360 x 174: <see cref="Find"/> returns the European one), the hot finished hollow sections before the cold
+        /// formed ones with the same designation
         /// </summary>
         public static IReadOnlyList<SectionCatalog> All => new[]
         {
             EN10365ParallelFlangeIH, EN10365TaperFlangeI, EN10365Channels, EN10056Angles, EN10210CircularHollow, EN10210RectangularHollow,
-            EN10219CircularHollow,
+            EN10219CircularHollow, AISCShapesV16,
         };
 
         /// <summary>

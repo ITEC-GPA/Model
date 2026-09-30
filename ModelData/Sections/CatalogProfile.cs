@@ -12,7 +12,7 @@ namespace GPC.Model.Data.Sections
         private readonly Dictionary<string, double> _values;
 
         internal CatalogProfile(SectionCatalog catalog, string designation, string series, SectionFamily family, bool isInStandard,
-            Dictionary<string, double> values)
+            Dictionary<string, double> values, string alias = null)
         {
             Catalog = catalog;
             Designation = designation;
@@ -20,7 +20,14 @@ namespace GPC.Model.Data.Sections
             Family = family;
             IsInStandard = isInStandard;
             _values = values;
+            Alias = alias;
         }
+
+        /// <summary>
+        /// Another designation of the section, also accepted by the search (e.g. the metric one of the AISC shapes: W1100X607 for W44X408);
+        /// null if none
+        /// </summary>
+        public string Alias { get; }
 
         /// <summary>
         /// The catalog of the section

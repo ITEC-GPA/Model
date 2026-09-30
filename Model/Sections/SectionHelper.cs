@@ -452,13 +452,32 @@ namespace GPC.Model.Sections
         /// <returns>The plastic modulus; 0 for a shape without area</returns>
         internal static double CalculatePlasticModulus(Shape shape, Point2d centroid, double angle)
         {
-            if (shape is null || shape.Fill is null || shape.Fill.Count < 3)
+            return CalculatePlasticModulus(new[] { shape }, centroid, angle);
+        }
+
+        /// <summary>
+        /// Plastic modulus of a region made of separate shapes (e.g. the parts of a built-up section, that must not overlap), see
+        /// <see cref="CalculatePlasticModulus(Shape, Point2d, double)"/>
+        /// </summary>
+        /// <param name="shapes">The shapes (the null or empty ones are ignored)</param>
+        /// <param name="centroid">The centroid of the region (origin of the local coordinates)</param>
+        /// <param name="angle">The direction of the axis</param>
+        /// <returns>The plastic modulus; 0 for a region without area</returns>
+        internal static double CalculatePlasticModulus(IReadOnlyList<Shape> shapes, Point2d centroid, double angle)
+        {
+            if (shapes is null)
                 return 0.0;
 
             // the rings in the coordinates (u, w): u along the axis, w = (y - yc) cos - (x - xc) sin the distance from it
             double cos = Math.Cos(angle), sin = Math.Sin(angle);
             var rings = new List<(double[] u, double[] w, double factor)>();
-            AddPlasticRings(shape, centroid, cos, sin, 1.0, rings);
+            foreach (Shape shape in shapes)
+            {
+                if (!(shape is null || shape.Fill is null || shape.Fill.Count < 3))
+                    AddPlasticRings(shape, centroid, cos, sin, 1.0, rings);
+            }
+            if (rings.Count == 0)
+                return 0.0;
 
             double wMin = double.MaxValue, wMax = double.MinValue;
             foreach (var ring in rings)
