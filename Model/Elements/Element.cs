@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Attributes;
 using GPC.Model.Collections;
 using GPC.Model.Loads;
@@ -20,6 +20,7 @@ namespace GPC.Model.Elements
         /// The local coordinate system
         /// </summary>
         protected CoordinateSystem _coordinateSystem;
+        public GPC.Model.PostProcessing.SourceIdentity Source { get; set; }
         /// <summary>
         /// The groups of the element, by name
         /// </summary>
@@ -97,16 +98,19 @@ namespace GPC.Model.Elements
         }
 
         /// <summary>
-        /// Deserialization constructor: reads the data of <see cref="ModelObjectId"/>, the coordinate system and the groups (attributes, loads and
-        /// results are not serialized: they are null)
+        /// Reads identity, coordinate system, groups, assignments and results. Missing legacy collections are initialized empty.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            Source = SerializationFields.Read<GPC.Model.PostProcessing.SourceIdentity>(info, "Source");
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));
+            _attributes = SerializationFields.Read(info, "Attributes", new UniqueIdCollection<Attributes.Attribute>());
+            _loads = SerializationFields.Read(info, "Loads", new UniqueIdCollection<Load>());
+            _results = SerializationFields.Read(info, "Results", new List<ElementResult>());
         }
 
         #region Methods
@@ -202,6 +206,11 @@ namespace GPC.Model.Elements
             base.GetObjectData(info, context);
             info.AddValue("CoordinateSystem", _coordinateSystem);
             info.AddValue("Groups", _groups);
+            info.AddValue("Source", Source);
+            info.AddValue("ElementVersion", 1);
+            info.AddValue("Attributes", _attributes);
+            info.AddValue("Loads", _loads);
+            info.AddValue("Results", _results);
         }
 
         /// <summary>
@@ -209,36 +218,31 @@ namespace GPC.Model.Elements
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>True if <paramref name="obj"/> is an equal element</returns>
-        /// <remarks>It calls <c>Equals(obj as Element)</c>, that is this same method (the implementation of the interface is explicit): infinite recursion
-        /// (see the list of the defects found)</remarks>
+        /// <remarks>FEM identity is independent of geometry and registry position.</remarks>
         public override bool Equals(object obj)
         {
-            return Equals(obj as Element);
+            return obj is Element other && GetType() == other.GetType() && Guid == other.Guid;
         }
 
         /// <summary>
-        /// Equality of the coordinate systems
+        /// Equality of FEM identity and concrete type.
         /// </summary>
         /// <param name="other">The element to compare</param>
-        /// <returns>True if the elements have the same coordinate system</returns>
+        /// <returns>True if the elements represent the same FEM identity.</returns>
         bool IEquatable<Element>.Equals(Element other)
         {
-            return !(other is null) &&
-                _coordinateSystem == other.CoordinateSystem;
+            return Equals((object)other);
         }
 
         /// <summary>
-        /// The hash code of the name and of the coordinate system
+        /// The identity hash, unaffected by geometric edits.
         /// </summary>
         /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
             {
-                int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _coordinateSystem.GetHashCode();
-                return hashCode;
+                return Guid.GetHashCode();
             }
         }
 
@@ -250,7 +254,7 @@ namespace GPC.Model.Elements
         /// <returns>True if the elements are equal</returns>
         public static bool operator ==(Element obj1, Element obj2)
         {
-            return obj1.Equals(obj2);
+            return ReferenceEquals(obj1, obj2) || (!(obj1 is null) && obj1.Equals(obj2));
         }
 
         /// <summary>

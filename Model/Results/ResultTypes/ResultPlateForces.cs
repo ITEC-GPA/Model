@@ -139,14 +139,26 @@ namespace GPC.Model.Results
         #region Public Methods
 
         /// <summary>
-        /// The same result in another coordinate system (not implemented)
+        /// Rotates the shell resultants in the same plane, at the same point and with the same normal.
         /// </summary>
         /// <param name="coordinateSystem">The new coordinate system</param>
         /// <returns>Nothing</returns>
-        /// <exception cref="NotImplementedException">Always</exception>
         public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
-            throw new NotImplementedException();
+            PostProcessing.Axes.Validate(CoordinateSystem);
+            PostProcessing.Axes.Validate(coordinateSystem);
+            // Same physical point and normal. A normal reversal requires explicit face/sign mapping.
+            if (PostProcessing.Axes.Length(CoordinateSystem.Origin - coordinateSystem.Origin) > 1e-8 ||
+                PostProcessing.Axes.Dot(CoordinateSystem.V3, coordinateSystem.V3) < 1 - 1e-10)
+                throw new NotSupportedException("ShellPlaneChange: only in-plane rotation at the same point with the same normal is supported.");
+            double c = PostProcessing.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V1);
+            double s = PostProcessing.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V2);
+            double cc = c * c, ss = s * s, cs = c * s;
+            return new ResultPlateForces(coordinateSystem,
+                cc * Fxx + ss * Fyy + 2 * cs * Fxy, ss * Fxx + cc * Fyy - 2 * cs * Fxy,
+                cs * (Fyy - Fxx) + (cc - ss) * Fxy, c * Fxz + s * Fyz, -s * Fxz + c * Fyz,
+                cc * Mxx + ss * Myy + 2 * cs * Mxy, ss * Mxx + cc * Myy - 2 * cs * Mxy,
+                cs * (Myy - Mxx) + (cc - ss) * Mxy, Id);
         }
 
         #endregion

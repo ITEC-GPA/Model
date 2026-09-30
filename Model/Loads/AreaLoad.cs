@@ -100,15 +100,15 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
-        /// Deserialization constructor: not implemented
+        /// Reads the base load, intensity components and loaded shape.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         protected AreaLoad(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _p1 = info.GetDouble("P1"); _p2 = info.GetDouble("P2"); _p3 = info.GetDouble("P3");
+            _shape = (Shape)info.GetValue("Shape", typeof(Shape));
         }
 
         #endregion
@@ -169,15 +169,14 @@ namespace GPC.Model.Loads
         #region Equals, HasCode and operators
 
         /// <summary>
-        /// Serialization: not implemented
+        /// Serializes the base load, intensity components and loaded shape.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("P1", _p1); info.AddValue("P2", _p2); info.AddValue("P3", _p3); info.AddValue("Shape", _shape);
         }
 
         /// <summary>

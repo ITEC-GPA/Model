@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
@@ -30,11 +30,17 @@ namespace GPC.Model.Results.ResultLocations
         /// <summary>
         /// The result as <see cref="ResultPlateStress"/> (the constructor takes a <see cref="ResultStress"/>: the getter throws <see cref="InvalidCastException"/>)
         /// </summary>
-        public ResultPlateStress ResultBeamForces { get => (ResultPlateStress)_resultTypes; set => _resultTypes = value; }
+        public ResultPlateStress ResultBeamForces { get => _resultTypes as ResultPlateStress; set => _resultTypes = value; }
+        public ResultPlateStress ResultPlateStress { get => _resultTypes as ResultPlateStress; set => _resultTypes = value; }
+        /// <summary>The legacy constructor supplied one unlocated stress tensor. Faces cannot be inferred.</summary>
+        public ResultStress LegacyUnlocatedStress => _resultTypes as ResultStress;
 
         #endregion
 
         #region Public Constructors
+
+        public PointResultPlateStress(ILoadCase loadCase, ResultPlateStress result, Point2d location, int id = ModelObjectId.IDUNASSIGNED, string name = "")
+            : base(loadCase, result, id, name) { _location = location; }
 
         /// <summary>
         /// Creates the result
@@ -87,7 +93,7 @@ namespace GPC.Model.Results.ResultLocations
         }
 
         /// <summary>
-        /// Equality of the result values and of the name and of the point (the load case is not compared, see <see cref="ResultLocation.Equals(object)"/>)
+        /// Equality of the result values and of the name and of the point (including the load case and analysis state)
         /// </summary>
         /// <param name="other">The result to compare</param>
         /// <returns>True if the results are equal</returns>

@@ -9,6 +9,19 @@ namespace GPC.Model.Stages
     [Serializable]
     public sealed class Stage : ModelObjectId, ISerializable
     {
+        public bool? IsCumulative { get; set; }
+        public string SourceStep { get; set; }
+        public Stage() : base() { }
+        public Stage(int id, string name) : base(id, name) { }
+        private Stage(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            IsCumulative = SerializationFields.Read<bool?>(info, "IsCumulative");
+            SourceStep = SerializationFields.Read<string>(info, "SourceStep");
+        }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context); info.AddValue("IsCumulative", IsCumulative); info.AddValue("SourceStep", SourceStep);
+        }
         //private static int _maxId = 0;
 
         //private readonly UniqueNameCollection<Combination> _combinations;

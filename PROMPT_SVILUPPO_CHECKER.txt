@@ -1,0 +1,113 @@
+PROMPT DI RIPRESA — SVILUPPO CHECKER E MODELCHECKER
+Preparato il 30 settembre 2026.
+
+Agisci come sviluppatore senior C#/.NET con esperienza in software di calcolo strutturale. Lavora per passi, aggiornandomi al termine di ogni passo con modifiche, validazioni, limiti e attività successiva. Questo documento prepara il lavoro futuro: la sua redazione non autorizza ad avviare ora l'implementazione né a pianificare esecuzioni automatiche. Quando ti chiederò di eseguirlo, riparti dall'inventario del codice corrente.
+
+CONTESTO E OBIETTIVO
+
+Il repository Model si trova in C:\Users\g.pacini\Documents\Repository\Model. Il repository Checker si trova in C:\Users\g.pacini\Documents\Repository\Checker. Individua il repository e i sorgenti del motore Anthea; il percorso non è ancora indicato. Se non accessibili, chiedimi soltanto l'informazione necessaria e continua le attività indipendenti.
+
+Checker comprende già tre progetti funzionali da preservare e valorizzare:
+- GPCChecker.Concrete;
+- GPCChecker.Steel;
+- GPCChecker.CompositeBridge.
+
+I progetti di test sono separati. Il vetro è escluso dal lavoro. Non creare automaticamente nuovi progetti per materiale o un quarto progetto comune: prima valuta l'organizzazione e i contratti già disponibili.
+
+L'obiettivo è preparare una catena completa: Model -> preparazione degli input -> ModelChecker -> uno o più Checker -> risultati di verifica strutturati -> resoconti. L'interfaccia di gestione verrà sviluppata successivamente.
+
+Model conserva geometria, materiali, assegnazioni, gruppi, risultati FEM, provenienza, unità e assi. I converter restano nel progetto separato GPC Converter. Checker contiene gli algoritmi di verifica; ModelChecker seleziona gli elementi e gli stati, prepara gli input, sceglie e istanzia i motori, esegue le verifiche e raccoglie i risultati. Model non deve dipendere da Checker e non devono nascere dipendenze circolari.
+
+VINCOLI TRASVERSALI
+
+- Mantieni l'approccio multinormativa. La normativa e la sua edizione, eventuale appendice nazionale, coefficienti e opzioni devono essere espliciti, tracciabili e parte dell'identità della verifica. Non concentrare tutte le regole in una classe monolitica né replicare i solutori numerici per ogni norma.
+- Usa GPC.Geometry.CoordinateSystem e le convenzioni già definite in Model. Non introdurre sistemi di assi paralleli. Ogni input deve dichiarare riferimento, unità e natura delle azioni. Evita doppie rotazioni e trasporti delle sollecitazioni.
+- Conserva la concomitanza degli stati: non comporre una verifica con massimi indipendenti di N, tagli, torsione e momenti. Mantieni casi, combinazioni, fasi, posizioni e provenienza.
+- Non trasformare dati mancanti, verifiche non supportate, errori o mancata convergenza in esiti soddisfatti. Non inventare armature, lunghezze efficaci o condizioni al contorno.
+- Riutilizza il codice esistente dopo averne verificato il funzionamento. Una classe presente o un metodo commentato non sono prova di una funzionalità disponibile.
+- Leggi le istruzioni dei repository, preserva le modifiche già presenti e mantieni i target framework e le convenzioni esistenti salvo necessità motivata e concordata.
+- Non sviluppare la UI in questa fase. Le classi dei risultati devono essere utilizzabili da codice, persistenza, esportazione e futura interfaccia.
+
+PASSO 1 — INVENTARIO DI CHECKER, MODELCHECKER E ANTHEA
+
+Esamina i tre progetti Checker, i test, i contratti di Model e l'adattatore ModelChecker. Verifica nuovamente lo stato corrente: al momento della preparazione del prompt il collegamento operativo è centrato sulla pressoflessione deviata sezionale del c.a.; parti dei checker concreti per beam e plate risultano commentate. Non assumere che questo stato sia rimasto invariato.
+
+Produci una matrice delle capacità: materiale, normativa/edizione, verifica, livello sezione/elemento, geometrie supportate, input richiesti, implementazione effettiva, test e limitazioni. Distingui codice eseguibile, incompleto, commentato e non collegato.
+
+In Anthea individua le verifiche del calcestruzzo da trasferire, con percorsi e metodi sorgente, dipendenze, convenzioni, coefficienti, gestione degli errori ed esempi disponibili. Non presumere quali verifiche esistano prima della lettura. Separa il calcolo strutturale dalla UI, dalle strutture interne dell'applicazione e dall'accesso ai dati.
+
+Consegna l'inventario e una sequenza di migrazione basata sul codice realmente trovato.
+
+PASSO 2 — CLASSI DI RISULTATO E RESOCONTO DI VERIFICA
+
+Progetta prima il modello degli output, riutilizzando o estendendo i contratti esistenti senza introdurre gerarchie concorrenti. Distingui i risultati FEM di Model dai risultati delle verifiche prodotte da Checker.
+
+Prevedi concettualmente:
+- risultato della singola verifica, con dettagli tipizzati specifici del meccanismo;
+- raccolta dei risultati per elemento 1D o 2D;
+- resoconto di un lavoro e dell'intera esecuzione, con riepiloghi per gruppo, normativa e verifica.
+
+I nomi e la collocazione delle classi vanno definiti sul codice esistente. Il risultato elementare deve poter conservare identificazione dell'elemento, posizione/stazione/faccia/strato quando applicabili, stato concomitante, normativa e configurazione, versione del motore, input utilizzati o loro riferimento immutabile, domanda/capacità e indici quando significativi, esito, diagnostica e riferimenti al metodo adottato. Prevedi dettagli come tensioni, deformazioni, punti determinanti e convergenza senza obbligare ogni verifica a produrre lo stesso schema numerico.
+
+Separa stato di esecuzione, completezza dei dati ed esito ingegneristico. Definisci esplicitamente non applicabilità, esclusione, non supporto, dati mancanti, annullamento ed errore. Una verifica richiesta e non eseguita deve restare visibile e impedire un esito complessivo pienamente soddisfatto. I riepiloghi devono conservare il risultato governante completo, senza confrontare metriche incompatibili.
+
+Prevedi persistenza con schema versionato, lettura dei risultati storici e controllo di validità rispetto a modifiche di modello, materiali, armature, risultati sorgente e configurazione. Evita che un risultato salvato dipenda da oggetti vivi del solver. Considera il costo di archiviare risultati dettagliati su modelli estesi.
+
+Consegna una proposta concreta con esempi di risultato e resoconto e implementa i contratti compatibili nell'ambito concordato.
+
+PASSO 3 — DAL CONTROLLO SEZIONALE ALL'ELEMENTO 1D/2D
+
+Questo passaggio va studiato con attenzione. Mantieni i solutori sezionali come componenti riutilizzabili; valuta un livello di verifica dell'elemento che li utilizzi sulle posizioni richieste e gestisca le verifiche che dipendono dall'intera asta o da una regione 2D.
+
+Per gli elementi 1D distingui sezione locale, elemento FEM e asta fisica eventualmente costituita da più elementi. Considera sezioni variabili, orientamenti, offset, tratti rigidi, armature, estremi, discontinuità, vincoli, controventi e lunghezze pertinenti. Non assegnare automaticamente la lunghezza del singolo elemento FEM alle verifiche di stabilità. Dichiara la copertura delle stazioni: controllare i punti disponibili non prova automaticamente la sicurezza di ogni punto intermedio.
+
+Per gli elementi 2D distingui campione locale, elemento FEM e regione fisica di verifica. Non forzare un plate dentro l'interfaccia delle travi e non scegliere ancora un metodo resistente.
+
+Presentami le alternative architetturali, una proposta motivata e un esempio di flusso completo prima di introdurre modifiche pubbliche incompatibili o fissare decisioni strutturali difficili da cambiare. Prosegui nel frattempo con inventario, test e attività sul cls che non dipendono da quelle decisioni.
+
+PASSO 4 — COMPLETARE IL CALCESTRUZZO E TRASFERIRE LE VERIFICHE DA ANTHEA
+
+Usa l'inventario per definire il perimetro concreto di completamento. Valuta pressoflessione, taglio nelle direzioni pertinenti, torsione e interazioni, verifiche di esercizio e fessurazione, e gli ulteriori ambiti realmente presenti o richiesti. Tratta precompressione, stabilità e altri ambiti specialistici con input e limiti espliciti, senza promettere coperture non implementate.
+
+Per ogni verifica:
+1. Documenta il comportamento attuale in Anthea, il metodo e la normativa.
+2. Acquisisci casi di riferimento prima del trasferimento.
+3. Porta il calcolo nel progetto Checker appropriato eliminando le dipendenze applicative.
+4. Integra input, configurazione multinormativa e classi di risultato/resoconto.
+5. Confronta Anthea e Checker sugli stessi casi; aggiungi confronti numerici indipendenti appropriati.
+6. Registra eventuali correzioni come cambiamenti espliciti: non trasferire silenziosamente errori per ottenere uguaglianza col legacy.
+
+Verifica i riferimenti tecnici con fonti primarie pertinenti; rendi espliciti i limiti quando una norma o una sua parte non è disponibile. Il confronto col vecchio motore dimostra compatibilità, non da solo correttezza ingegneristica.
+
+Non cancellare il motore originale di Anthea né cambiare automaticamente il percorso di esecuzione dell'applicazione: il trasferimento in Checker e l'eventuale sostituzione dei chiamanti sono attività distinte, da rendere reviewabili.
+
+PASSO 5 — MODEL CHECKER MULTINORMATIVA E MULTIMATERIALE
+
+Generalizza l'orchestrazione già esistente. Una richiesta deve poter scegliere gruppi o elementi, stati e verifiche e usare uno o più checker con configurazioni diverse. Collega i moduli Steel e CompositeBridge secondo le capacità effettive censite, senza riscriverli né estenderne implicitamente la copertura.
+
+Definisci risoluzione delle configurazioni e conflitti fra gruppi, requisiti degli input, riuso dei motori e invalidazione delle cache. Conserva avanzamento, annullamento e tutti gli esiti richiesti. Introduci parallelismo soltanto dopo aver verificato la sicurezza concorrente dei solver. Non confondere gli esiti di analisi dei moduli composti con certificati di capacità o verifiche normative.
+
+Consegna un esempio riproducibile: un Model con più gruppi viene preparato, verificato da motori appropriati e produce un'unica raccolta consultabile di risultati e resoconti.
+
+PASSO 6 — PLATE: ANALISI CONDIVISA PRIMA DELL'IMPLEMENTAZIONE
+
+Questo è un punto di arresto esplicito sulla parte plate. Studia e presenta la proposta, poi attendi il mio confronto e accordo prima di implementare il motore resistente dei plate o consolidarne i contratti specifici. Il lavoro indipendente sulle travi può proseguire.
+
+La proposta deve trattare almeno:
+- membrana e flessione combinate: Nxx, Nyy, Nxy, Mxx, Myy, Mxy;
+- taglio trasversale Qx e Qy;
+- convenzioni dei segni, normale, facce fisiche, spessori, direzioni e quote delle armature;
+- scelta del metodo di progetto e suoi limiti, senza assumere automaticamente un metodo equivalente a quello delle travi;
+- punti di integrazione, valori ai nodi, estrapolazioni e medie, con regole esplicite di ammissibilità;
+- differenza tra controllo locale, controllo di una regione e punzonamento;
+- risultati da restituire e casi numerici necessari per validarli.
+
+Consegna alternative confrontabili, dati richiesti e almeno un esempio illustrativo prima della decisione. Non dichiarare verificati gli shell mentre manca il relativo motore.
+
+PASSO 7 — VALIDAZIONE E CONSEGNA PROGRESSIVA
+
+Esegui test pertinenti sui motori reali, regressioni dei moduli esistenti, casi indipendenti e prove dell'intero percorso Model -> ModelChecker -> Checker -> resoconto. Copri assi, segni, stati concomitanti, limiti di dominio, dati insufficienti, non convergenza, modifiche degli input e persistenza. Non limitarti a test con motori simulati.
+
+A ogni passo aggiorna una matrice delle capacità e un registro di avanzamento con lavoro completato, evidenze di verifica, limiti, decisioni pendenti e prossimo passo. Non dichiarare completato il cls o l'intero Checker senza confrontare quanto implementato con il perimetro concordato e le capacità ancora mancanti.
+
+Alla prima ripresa inizia dal PASSO 1. Non saltare alla riscrittura dei tre progetti, non iniziare la UI e rispetta il confronto preventivo sul passaggio a elemento e, in modo vincolante, sul checker dei plate.

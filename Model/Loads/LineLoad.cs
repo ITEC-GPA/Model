@@ -9,6 +9,7 @@ namespace GPC.Model.Loads
     /// <summary>
     /// A uniform load along a line: force and moment per unit length, with components in the coordinate system of the load
     /// </summary>
+    [Serializable]
     public class LineLoad : Load, ILineLoad, IConvertibleLoad
     {
         #region Variables

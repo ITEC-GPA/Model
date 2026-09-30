@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Results.ElementResults;
 using System;
 using System.Runtime.Serialization;
@@ -11,6 +11,7 @@ namespace GPC.Model.Elements
     [Serializable]
     public class NodeElement : Element, ISerializable, IEquatable<NodeElement>
     {
+        public GPC.Model.PostProcessing.NodeAssignments Assignments { get; private set; } = new GPC.Model.PostProcessing.NodeAssignments();
         #region Variables
 
         /// <summary>
@@ -52,7 +53,8 @@ namespace GPC.Model.Elements
         protected NodeElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version = info.GetInt32("NodeElementVersion");
+            Assignments = SerializationFields.Read(info, "NodeAssignments", new GPC.Model.PostProcessing.NodeAssignments());
+            int version = info.GetInt32(SerializationFields.Has(info, "NodeElementVersion") ? "NodeElementVersion" : "BeamVersion");
             _position = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 
@@ -76,49 +78,46 @@ namespace GPC.Model.Elements
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>True if <paramref name="obj"/> is an equal node</returns>
-        /// <remarks>It calls this same method (the implementation of the interface is explicit): infinite recursion (see the list of the defects found)</remarks>
+        /// <remarks>Coincident nodes remain distinct FEM identities.</remarks>
         public override bool Equals(object obj)
         {
-            return Equals(obj as NodeElement);
+            return obj is NodeElement && base.Equals(obj);
         }
 
         /// <summary>
-        /// Equality of the positions (within the tolerance of <see cref="Point3d"/>)
+        /// Equality of FEM identities.
         /// </summary>
         /// <param name="other">The node to compare</param>
-        /// <returns>True if the nodes have the same position</returns>
+        /// <returns>True if the nodes have the same identity.</returns>
         bool IEquatable<NodeElement>.Equals(NodeElement other)
         {
-            return !(other is null) &&
-                _position.Equals(other.Position);
+            return Equals((object)other);
         }
 
         /// <summary>
-        /// Serializes the data of <see cref="Element"/>, a version "BeamVersion" (the constructor reads "NodeElementVersion") and the point
+        /// Serializes base data, NodeElementVersion, nodal assignments and the point.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("NodeAssignments", Assignments);
 
             double version = 0;
-            info.AddValue("BeamVersion", version);
+            info.AddValue("NodeElementVersion", version);
             info.AddValue("Point", _position);
         }
 
         /// <summary>
-        /// The hash code of the name, of the coordinate system and of the exact position
+        /// The identity hash, unaffected by geometric edits.
         /// </summary>
         /// <returns>The hash code</returns>
         public override int GetHashCode()
         {
             unchecked
             {
-                int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _position.GetHashCode();
-                return hashCode;
+                return base.GetHashCode();
             }
         }
 

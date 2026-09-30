@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
@@ -87,7 +87,7 @@ namespace GPC.Model.Results.ResultLocations
         }
 
         /// <summary>
-        /// Equality of the result values and of the name and of the point (the load case is not compared, see <see cref="ResultLocation.Equals(object)"/>)
+        /// Equality of the result values and of the name and of the point (including the load case and analysis state)
         /// </summary>
         /// <param name="other">The result to compare</param>
         /// <returns>True if the results are equal</returns>

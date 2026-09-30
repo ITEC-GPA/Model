@@ -26,8 +26,10 @@ namespace GPC.Model.Models
     /// groups and stages
     /// </summary>
     [Serializable]
-    public class Model : ModelObject, ISerializable
+    public partial class Model : ModelObject, ISerializable
     {
+        public Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset> Datasets { get; private set; } = new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>();
+        public GPC.Model.PostProcessing.AnalysisSource AnalysisSource { get; set; }
         #region Variables
 
         /// <summary>
@@ -190,6 +192,7 @@ namespace GPC.Model.Models
             _nodesElements = new SortedCollection<NodeElement>();
             _beamElements = new SortedCollection<BeamElement>();
             _areaElements = new SortedCollection<AreaElement>();
+            _volumeElements = new SortedCollection<VolumeElement>();
 
             _stages = new UniqueIdCollection<Stage>(); // solo id come equality comparer
 
@@ -201,17 +204,23 @@ namespace GPC.Model.Models
         }
 
         /// <summary>
-        /// Deserialization constructor (it reads keys that <see cref="GetObjectData"/> does not write: "Beams", "BeamProperties", "Groups")
+        /// Reads versioned model data and optional post-processing records.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
         protected Model(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
+            if (schemaVersion < 0 || schemaVersion > 1) throw new SerializationException("Unsupported Model schema version.");
+            Datasets = SerializationFields.Read(info, "Datasets", new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>());
+            AnalysisSource = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSource>(info, "AnalysisSource");
+            CheckReports = SerializationFields.Read(info, "CheckReports", new GPC.Model.PostProcessing.CheckReport[0]).ToList();
+            PreservedSourceData = SerializationFields.Read(info, "PreservedSourceData", new GPC.Model.PostProcessing.PreservedAssignment[0]).ToList();
             _nodesElements = (SortedCollection<NodeElement>)info.GetValue("Nodes", typeof(SortedCollection<NodeElement>));
             _beamElements = (SortedCollection<BeamElement>)info.GetValue("Beams", typeof(SortedCollection<BeamElement>));
             _areaElements = (SortedCollection<AreaElement>)info.GetValue("Areas", typeof(SortedCollection<AreaElement>));
-            _volumeElements = (SortedCollection<VolumeElement>)info.GetValue("Volumes", typeof(SortedCollection<VolumeElement>));
+            _volumeElements = (SortedCollection<VolumeElement>)info.GetValue("Volumes", typeof(SortedCollection<VolumeElement>)) ?? new SortedCollection<VolumeElement>();
             _costrains = (UniqueIdCollection<Costrain>)info.GetValue("Costrains", typeof(UniqueIdCollection<Costrain>));
 
             _beamProperties = (UniqueNameCollection<BeamProperty>)info.GetValue("BeamProperties", typeof(UniqueNameCollection<BeamProperty>));
@@ -508,7 +517,11 @@ namespace GPC.Model.Models
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrEmpty(name))
                 throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
 
-            Group group = new Group(name, partent);
+            if (partent != null && (!Groups.TryGetValue(partent.Name, out var registeredParent) || !ReferenceEquals(registeredParent, partent)))
+                throw new InvalidOperationException("UnregisteredParentGroup");
+            if (Groups.ContainsKey(name)) throw new ArgumentException("Group already exists: " + name);
+            Group group = new Group(name);
+            partent?.AddChild(group);
             _groups.Add(group.Name, group);
             return group;
         }
@@ -518,7 +531,7 @@ namespace GPC.Model.Models
         /// </summary>
         /// <param name="elements">The elements</param>
         /// <param name="groupName">The name of the group</param>
-        /// <returns>False if the group does not exist, an element is null or already has the group (the following elements are not changed)</returns>
+        /// <returns>False for a missing group or null element. Existing memberships are idempotent; validation precedes changes.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="elements"/> is null</exception>
         /// <exception cref="ArgumentException">If <paramref name="groupName"/> is null or empty</exception>
         public bool SetGroup(IEnumerable<Element> elements, string groupName)
@@ -534,15 +547,9 @@ namespace GPC.Model.Models
             if (group == null)
                 return false;
 
-            foreach (Element element in elements)
-            {
-                if (element is null)
-                    return false;
-
-                if (!element.AddGroup(group))
-                    return false;
-            }
-
+            var members = elements.ToArray();
+            if (members.Any(element => element is null)) return false;
+            AssignGroup(groupName, members);
             return true;
         }
 
@@ -551,7 +558,7 @@ namespace GPC.Model.Models
         /// </summary>
         /// <param name="elements">The elements</param>
         /// <param name="groupNames">The names of the groups</param>
-        /// <returns>False if an element is null or already has a group (the following assignments are not done)</returns>
+        /// <returns>False if an element is null. All groups and members are validated before changing memberships.</returns>
         /// <exception cref="ArgumentNullException">If <paramref name="elements"/> or <paramref name="groupNames"/> is null</exception>
         /// <exception cref="ArgumentException">If a name is null or empty</exception>
         /// <exception cref="KeyNotFoundException">If a group does not exist</exception>
@@ -563,23 +570,24 @@ namespace GPC.Model.Models
             if (groupNames is null)
                 throw new ArgumentNullException(nameof(groupNames));
 
-            foreach (var name in groupNames)
+            var names = groupNames.Distinct().ToArray();
+            var members = elements.ToArray();
+            if (members.Any(element => element is null)) return false;
+            RegisteredElements(members);
+            foreach (var name in names)
             {
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(name))
                     throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
 
                 Group group = _groups[name];
 
-                foreach (var element in elements)
+                foreach (var element in members)
                 {
-                    if (element is null)
-                        return false;
-
-                    if (!element.AddGroup(group))
-                        return false;
+                    if (element.Groups.TryGetValue(name, out var existing) && !ReferenceEquals(existing, group))
+                        throw new InvalidOperationException("GroupIdentityConflict");
                 }
             }
-
+            foreach (var name in names) AssignGroup(name, members);
             return true;
         }
 
@@ -1132,6 +1140,8 @@ namespace GPC.Model.Models
                                 _nodesElements[nodesMap[faces[i].B]].Position,
                                 _nodesElements[nodesMap[faces[i].C]].Position,
                                 _nodesElements[nodesMap[faces[i].D]].Position}), plateProperty);
+                        plate.ConnectNodes(_nodesElements[nodesMap[faces[i].A]], _nodesElements[nodesMap[faces[i].B]],
+                            _nodesElements[nodesMap[faces[i].C]], _nodesElements[nodesMap[faces[i].D]]);
                         if (group != null)
                             plate.AddGroup(group);
 
@@ -1143,6 +1153,8 @@ namespace GPC.Model.Models
                                 _nodesElements[nodesMap[faces[i].A]].Position,
                                 _nodesElements[nodesMap[faces[i].B]].Position,
                                 _nodesElements[nodesMap[faces[i].C]].Position}), plateProperty);
+                        plate.ConnectNodes(_nodesElements[nodesMap[faces[i].A]], _nodesElements[nodesMap[faces[i].B]],
+                            _nodesElements[nodesMap[faces[i].C]]);
                         if (group != null)
                             plate.AddGroup(group);
 
@@ -1561,9 +1573,8 @@ namespace GPC.Model.Models
             List<ResultLocation> results = new List<ResultLocation>();
             if (group != null)
             {
-                for (int i = 0; i < _areaElements.Count; i++)
+                foreach (AreaElement element in _areaElements.Values)
                 {
-                    AreaElement element = _areaElements[i];
 
                     if (element.ContainsGroup(group))
                     {
@@ -1584,9 +1595,8 @@ namespace GPC.Model.Models
             }
             else
             {
-                for (int i = 0; i < _areaElements.Count; i++)
+                foreach (AreaElement element in _areaElements.Values)
                 {
-                    AreaElement element = _areaElements[i];
 
                     for (int j = 0; j < element.Results.Count; j++)
                     {
@@ -1657,7 +1667,7 @@ namespace GPC.Model.Models
         /// <param name="finiteElement">The node</param>
         public void RemoveElement(NodeElement finiteElement)
         {
-            _nodesElements.Remove(finiteElement);
+            RemoveNodeChecked(finiteElement.Id);
         }
 
         #endregion
@@ -1699,7 +1709,7 @@ namespace GPC.Model.Models
         #region Equals - HashCode - Operators
 
         /// <summary>
-        /// Serializes the model (the key "PlateProperties" and "Stages" are added twice: it throws <see cref="SerializationException"/>)
+        /// Serializes versioned model data with shared references.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -1707,13 +1717,18 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
+            info.AddValue("ModelSchemaVersion", 1);
+            info.AddValue("CheckReports", CheckReports.ToArray());
+            info.AddValue("PreservedSourceData", PreservedSourceData.ToArray());
+            info.AddValue("Datasets", Datasets);
+            info.AddValue("AnalysisSource", AnalysisSource);
             info.AddValue("Nodes", _nodesElements, typeof(SortedCollection<NodeElement>));
-            info.AddValue("Elements", _beamElements, typeof(SortedCollection<BeamElement>));
+            info.AddValue("Beams", _beamElements, typeof(SortedCollection<BeamElement>));
             info.AddValue("Areas", _areaElements, typeof(SortedCollection<AreaElement>));
             info.AddValue("Volumes", _volumeElements, typeof(SortedCollection<VolumeElement>));
             info.AddValue("Costrains", _costrains, typeof(UniqueIdCollection<Costrain>));
 
-            info.AddValue("PlateProperties", _beamProperties, typeof(UniqueNameCollection<BeamProperty>));
+            info.AddValue("BeamProperties", _beamProperties, typeof(UniqueNameCollection<BeamProperty>));
             info.AddValue("PlateProperties", _areaProperties, typeof(UniqueNameCollection<PlateProperty>));
             info.AddValue("BrickProperties", _volumeProperties, typeof(UniqueNameCollection<BrickProperty>));
 
@@ -1723,7 +1738,7 @@ namespace GPC.Model.Models
 
             info.AddValue("StageCombinationsMap", _stageCombinationsMap, typeof(Dictionary<int, HashSet<string>>));
             info.AddValue("Stages", _stages, typeof(UniqueIdCollection<Stage>));
-            info.AddValue("Stages", _groups, typeof(UniqueNameCollection<Group>));
+            info.AddValue("Groups", _groups, typeof(UniqueNameCollection<Group>));
         }
 
         /// <summary>

@@ -24,6 +24,7 @@ namespace GPC.Model.Restrains
         /// The imposed displacement (0 if none)
         /// </summary>
         private double _imposedDisplacement;
+        private bool _explicitImposedDisplacement;
         /// <summary>
         /// The stiffness of the elastic restrain (0 if none)
         /// </summary>
@@ -51,6 +52,7 @@ namespace GPC.Model.Restrains
                 if (value)
                 {
                     _imposedDisplacement = 0;
+                    _explicitImposedDisplacement = false;
                     _stiffness = 0;
                 }
             }
@@ -62,9 +64,19 @@ namespace GPC.Model.Restrains
         public bool HasStiffness => _stiffness != 0;
 
         /// <summary>
-        /// True if the imposed displacement is not zero
+        /// True for a nonzero legacy value or an explicitly prescribed value, including zero.
         /// </summary>
-        public bool HasImposedDisplacement => _imposedDisplacement != 0;
+        public bool HasImposedDisplacement => _imposedDisplacement != 0 || _explicitImposedDisplacement;
+
+        /// <summary>Prescribes a displacement without removing the spring. The enclosing assignment must supply a case.</summary>
+        public void Prescribe(double value)
+        {
+            _imposedDisplacement = NumericGuard.Finite(value, nameof(value));
+            _explicitImposedDisplacement = true;
+            _restrained = false;
+        }
+
+        public void ClearPrescription() { _imposedDisplacement = 0; _explicitImposedDisplacement = false; }
 
         /// <summary>
         /// The stiffness of the elastic restrain (a value different from zero sets <see cref="IsRestrained"/> to false; the setter does not check
@@ -75,7 +87,7 @@ namespace GPC.Model.Restrains
             get => _stiffness;
             set
             {
-                _stiffness = value;
+                _stiffness = NumericGuard.Finite(value, nameof(value));
                 if (value != 0)
                     _restrained = false;
             }
@@ -89,7 +101,7 @@ namespace GPC.Model.Restrains
             get => _imposedDisplacement;
             set
             {
-                _imposedDisplacement = value;
+                _imposedDisplacement = NumericGuard.Finite(value, nameof(value));
                 if (value != 0)
                     _restrained = false;
             }
@@ -152,6 +164,7 @@ namespace GPC.Model.Restrains
             _restrained = info.GetBoolean("Restrained");
             _stiffness = info.GetDouble("Stiffness");
             _imposedDisplacement = info.GetDouble("ImposedDisplacement");
+            _explicitImposedDisplacement = SerializationFields.Read(info, "ExplicitImposedDisplacement", false);
         }
 
         #endregion
@@ -170,6 +183,7 @@ namespace GPC.Model.Restrains
             info.AddValue("Restrained", _restrained);
             info.AddValue("Stiffness", _stiffness);
             info.AddValue("ImposedDisplacement", _imposedDisplacement);
+            info.AddValue("ExplicitImposedDisplacement", _explicitImposedDisplacement);
         }
 
         /// <summary>
@@ -188,18 +202,19 @@ namespace GPC.Model.Restrains
             return _dof.Equals(other.Dof) && _restrained.Equals(other.IsRestrained)
                                           && _stiffness.Equals(other.Stiffness)
                                           && _imposedDisplacement.Equals(other.ImposedDisplacement)
+                                          && HasImposedDisplacement == other.HasImposedDisplacement
                                           && base.Equals(other);
         }
 
         /// <summary>
-        /// Equality with another restrain (the method calls itself with a <see cref="DofRestrain"/>: it throws <see cref="StackOverflowException"/>)
+        /// Value equality with another restrain.
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>False if <paramref name="obj"/> is not a <see cref="DofRestrain"/></returns>
         public override bool Equals(object obj)
         {
-            if (obj is DofRestrain)
-                return Equals(obj);
+            if (obj is DofRestrain other)
+                return Equals(other);
 
             return false;
         }
@@ -217,6 +232,7 @@ namespace GPC.Model.Restrains
                 hashCode = hashCode * -19 + EqualityComparer<bool>.Default.GetHashCode(_restrained);
                 hashCode = hashCode * -19 + EqualityComparer<double>.Default.GetHashCode(_stiffness);
                 hashCode = hashCode * -19 + EqualityComparer<double>.Default.GetHashCode(_imposedDisplacement);
+                hashCode = hashCode * -19 + HasImposedDisplacement.GetHashCode();
 
                 return hashCode;
             }

@@ -10,7 +10,7 @@ namespace GPC.Model.Collections
     /// </summary>
     /// <typeparam name="T">The type of the objects</typeparam>
     [Serializable]
-    public class SortedCollection<T> : SortedDictionary<int, T>, ISerializable where T : ModelObjectId
+    public class SortedCollection<T> : SortedDictionary<int, T>, ISerializable, IDeserializationCallback where T : ModelObjectId
     {
         #region Variables
 
@@ -18,6 +18,9 @@ namespace GPC.Model.Collections
         /// The largest id assigned or added
         /// </summary>
         protected int _lastId;
+        [NonSerialized] private KeyValuePair<int, T>[] _pendingItems;
+        /// <summary>Legacy v0 stored no collection entries. Restore these from an authoritative source.</summary>
+        public bool MissingLegacyPayload { get; private set; }
 
         #endregion
 
@@ -32,13 +35,15 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Deserialization constructor: reads only the last id (the items are not serialized by <see cref="GetObjectData"/>)
+        /// Reads the items and last id; records unrecoverable omissions in legacy archives.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
         protected SortedCollection(SerializationInfo info, StreamingContext context)
         {
             _lastId = info.GetInt32("LastId");
+            _pendingItems = SerializationFields.Read<KeyValuePair<int, T>[]>(info, "Items");
+            MissingLegacyPayload = SerializationFields.Read(info, "MissingLegacyPayload", _pendingItems == null);
         }
 
         #endregion
@@ -46,13 +51,16 @@ namespace GPC.Model.Collections
         #region Methos
 
         /// <summary>
-        /// Serializes the last id (the items are not serialized)
+        /// Serializes all entries and the last assigned id.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("LastId", _lastId);
+            info.AddValue("CollectionVersion", 1);
+            info.AddValue("Items", this.ToArray());
+            info.AddValue("MissingLegacyPayload", MissingLegacyPayload);
         }
 
         /// <summary>
@@ -66,11 +74,11 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Remove all the items from the collection and resets the last id (the method calls itself: it throws <see cref="StackOverflowException"/>)
+        /// Removes all items and resets the last id.
         /// </summary>
         public new void Clear()
         {
-            Clear();
+            base.Clear();
             _lastId = 0;
         }
 
@@ -82,6 +90,8 @@ namespace GPC.Model.Collections
         /// <returns>The item Id</returns>
         public int Add(T item)
         {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (Count > 0) _lastId = Math.Max(_lastId, Keys.Max());
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
                 item.Id = ++_lastId;
@@ -105,13 +115,14 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Replace the item with a given id (the key does not change, also if the new item has another id)
+        /// Replaces an item while preserving its registry id.
         /// </summary>
         /// <param name="id">The id of the node to replace</param>
         /// <param name="item">The new item</param>
         /// <returns>The id of the new item; <see cref="ModelObjectId.IDUNASSIGNED"/> if no item has the id</returns>
         public int Replace(int id, T item)
         {
+            if (item == null || item.Id != id) throw new ArgumentException("Replacement must retain the registry ID.", nameof(item));
             if (ContainsKey(id))
             {
                 this[id] = item;
@@ -152,6 +163,14 @@ namespace GPC.Model.Collections
         public bool RemoveById(int id)
         {
             return Remove(id);
+        }
+
+        public void OnDeserialization(object sender)
+        {
+            if (_pendingItems == null) return; // v0 wrote no items; they cannot be recovered.
+            foreach (var pair in _pendingItems) base.Add(pair.Key, pair.Value);
+            _pendingItems = null;
+            if (Count > 0) _lastId = Math.Max(_lastId, Keys.Max());
         }
 
         #endregion

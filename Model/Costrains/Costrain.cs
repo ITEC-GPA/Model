@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Costrains
 {
     /// <summary>
     /// A constraint between a node and other nodes, expressed by linear equations between their degrees of freedom (see <see cref="MultiPointsCostrain"/>)
     /// </summary>
+    [Serializable]
     public abstract class Costrain : ModelObjectId
     {
 
@@ -73,6 +75,21 @@ namespace GPC.Model.Costrains
         {
             _startNode = nodo1;
             _endNodes = nodes;
+        }
+
+        protected Costrain(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _startNode = (NodeElement)info.GetValue("StartNode", typeof(NodeElement));
+            _endNodes = (NodeElement[])info.GetValue("EndNodes", typeof(NodeElement[]));
+            _links = (MultiPointsCostrain[])info.GetValue("Links", typeof(MultiPointsCostrain[]));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("StartNode", _startNode);
+            info.AddValue("EndNodes", _endNodes);
+            info.AddValue("Links", _links);
         }
 
         /// <summary>

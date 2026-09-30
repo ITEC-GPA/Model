@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ namespace GPC.Model.Restrains
     /// <summary>
     /// Restrains of the degrees of freedom of a node
     /// </summary>
+    [Serializable]
     public class NodeRestrain : GeometryRestrain
     {
         #region Variables
@@ -74,11 +75,10 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Deserialization constructor (the base one is not implemented)
+        /// Deserialization constructor
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         protected NodeRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
@@ -157,14 +157,17 @@ namespace GPC.Model.Restrains
         public void AddImposedDisplacement(DOF dof, double displacement)
         {
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
-                _restrains.Where(i => i.Dof == dof).FirstOrDefault().ImposedDisplacement = displacement;
+                _restrains.Where(i => i.Dof == dof).FirstOrDefault().Prescribe(displacement);
             else
-                _restrains.Add(new DofRestrain(dof) { ImposedDisplacement = displacement });
+            {
+                var prescription = new DofRestrain(dof, false);
+                prescription.Prescribe(displacement);
+                _restrains.Add(prescription);
+            }
         }
 
         /// <summary>
-        /// Sets the stiffness of a degree of freedom. If the degree of freedom is not present the new restrain gets the value as IMPOSED
-        /// DISPLACEMENT, not as stiffness
+        /// Sets the stiffness of a degree of freedom, adding the DOF when absent.
         /// </summary>
         /// <param name="dof">The degree of freedom</param>
         /// <param name="stiffness">The stiffness</param>
@@ -173,7 +176,7 @@ namespace GPC.Model.Restrains
             if (_restrains.Where(i => i.Dof == dof).Count() > 0)
                 _restrains.Where(i => i.Dof == dof).FirstOrDefault().Stiffness = stiffness;
             else
-                _restrains.Add(new DofRestrain(dof) { ImposedDisplacement = stiffness });
+                _restrains.Add(new DofRestrain(dof, false) { Stiffness = stiffness });
         }
 
         #endregion
@@ -181,11 +184,10 @@ namespace GPC.Model.Restrains
         #region Equals, hashcode, operators
 
         /// <summary>
-        /// Serializes the restrain (the base one is not implemented)
+        /// Serializes the restrain
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);

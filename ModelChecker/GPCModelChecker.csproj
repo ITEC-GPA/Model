@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>GPC.Model.Checker</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Model\GPCModel.csproj" />
+    <Reference Include="GPCChecker.Concrete"><HintPath>..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll</HintPath></Reference>
+    <Reference Include="GPCGeometry"><HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>
