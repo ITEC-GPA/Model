@@ -720,7 +720,6 @@ namespace ModelObjectTest
             double Jyy = 439238667;
             double WelxMin = 2162952;
             double WelyMin = 1756955;
-            double Wplx = 2879887;
             double Wplxsap = 2912720;
             double Wply = 2741200;
             double Jt = 11040267;
@@ -736,12 +735,26 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(WelxMin / sec.Wel1) - 1, 0, 0.012);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
-            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.018);
-            Assert.AreEqual(Math.Abs(Wplxsap / sec.Wpl1) - 1, 0, 0.007);
+            AssertExactPlasticModuliOfTheWeldedH(sec, new SectionH(h, tw, bt, tt, bb, tb, string.Empty, radius), 2936234, 2742030, Wplxsap, Wply);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1, 0, 0.05);
+        }
+
+        /// <summary>
+        /// The plastic moduli of a welded H with the welds (right triangles with legs 1.41 a) are the exact ones of the outline with the welds,
+        /// checked with an independent integration by strips (wpl_check.py of the review of 2026-09-30); without the welds the ones of SAP.
+        /// Before, Wpl,y was a closed form that used the area with the welds on the geometry without them (2879887 instead of 2936234 for
+        /// the section of Test3)
+        /// </summary>
+        private static void AssertExactPlasticModuliOfTheWeldedH(SteelSection welded, SectionH sharp, double wplyWelds, double wplzWelds,
+            double wplySap, double wplzSap)
+        {
+            Assert.AreEqual(wplyWelds, welded.Wpl1, 1e-5 * wplyWelds);
+            Assert.AreEqual(wplzWelds, welded.Wpl2, 1e-5 * wplzWelds);
+            Assert.AreEqual(wplySap, sharp.Wpl1, 1e-6 * wplySap);
+            Assert.AreEqual(wplzSap, sharp.Wpl2, 1e-6 * wplzSap);
         }
 
         [TestMethod]
@@ -761,7 +774,6 @@ namespace ModelObjectTest
             double Jyy = 439238667;
             double WelxMin = 2162952;
             double WelyMin = 1756955;
-            double Wplx = 2879887;
             double WplxSap = 2912720;
             double Wply = 2741200;
             double Jt = 11040267;
@@ -777,8 +789,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.01);
             Assert.AreEqual(Math.Abs(WelxMin / sec.Wel1) - 1, 0, 0.012);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
-            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.018);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.007);
+            AssertExactPlasticModuliOfTheWeldedH(sec, new SectionH(h, tw, bt, tt, bb, tb, string.Empty, radius), 2936234, 2742030, WplxSap, Wply);
             Assert.AreEqual(jtStraus / sec.Jt - 1.0, 0, 0.001);
             Assert.AreEqual(jtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
@@ -802,7 +813,6 @@ namespace ModelObjectTest
             double Jyy = 450474267;
             double WelxMin = 2070723;
             double WelyMin = 1801897;
-            double Wplx = 2604387;
             double WplxSap = 2635875;
             double Wply = 2849920;
             double JtSSRC = 11218727;
@@ -817,8 +827,7 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelyMin / sec.Wel2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(WelxMin / sec.Wel1) - 1, 0, 0.012);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.008);
-            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.0185);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.0065);
+            AssertExactPlasticModuliOfTheWeldedH(sec, new SectionH(h, tw, bt, tt, bb, tb, string.Empty, radius), 2654147, 2850750, WplxSap, Wply);
             Assert.AreEqual(JtSap / sec.Jt - 1.0, 0, 0.005);
             Assert.AreEqual(Jw / sec.Jw - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(JtSSRC / sec.Jt) - 1, 0, 0.05);
@@ -1007,9 +1016,11 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(WelxMinSap / sec.Wel1) - 1, 0, 0.034);
             Assert.AreEqual(Math.Abs(WelyMinSap / sec.Wel2) - 1, 0, 0.015);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.028);
-            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.01);
+            // the plastic moduli of the rolled section are the exact ones with the fillets: Wpl,y within 0.03% of the catalog; SAP does not
+            // have the fillets (3.1% less). Before, 1% and 2.4% from them
+            Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(WplySap / sec.Wpl2) - 1, 0, 0.038);
-            Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.024);
+            Assert.AreEqual(Math.Abs(WplxSap / sec.Wpl1) - 1, 0, 0.035);
             Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.35);
             Assert.AreEqual(Math.Abs(jtSap / sec.Jt - 1.0), 0, 0.3);
             Assert.AreEqual(Math.Abs(Jw / sec.Jw) - 1, 0, 0.025);

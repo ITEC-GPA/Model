@@ -31,9 +31,13 @@ namespace GPC.Model.Sections
         private double _verticalLegThickness;
 
         /// <summary>
-        /// The fillet radius or the throat of the weld (not used in the calculations)
+        /// The root fillet radius (rolled) or the throat of the weld (welded) of the inside corner
         /// </summary>
         private readonly double _r;
+        /// <summary>
+        /// The toe radius of the ends of the legs, on the inner side (rolled)
+        /// </summary>
+        private readonly double _r2;
 
         #endregion
 
@@ -104,9 +108,15 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// The fillet radius or the throat of the weld (not used in the calculations)
+        /// The root fillet radius (rolled) or the throat of the weld (welded) of the inside corner: in the calculations when the working of the
+        /// corners is set (see <see cref="ThinWallSection.SetEdgeTypeFromSteelType"/>)
         /// </summary>
         public double R => _r;
+
+        /// <summary>
+        /// The toe radius of the ends of the legs, on the inner side: in the calculations of the rolled sections (fillet working)
+        /// </summary>
+        public double R2 => _r2;
 
         /// <summary>
         /// The height: the length of the vertical leg
@@ -149,10 +159,29 @@ namespace GPC.Model.Sections
         /// <param name="verticalLegLength">The vertical leg length</param>
         /// <param name="verticalLegThickness">The vertical leg thickness</param>
         /// <param name="name">Name of the section</param>
-        /// <param name="radius">The fillet radius or the throat of the weld (negative: 0; not used in the calculations)</param>
+        /// <param name="radius">The root fillet radius or the throat of the weld (negative: 0), in the calculations when the working of the
+        /// corners is set (before, never used)</param>
         /// <exception cref="ArgumentException">If a dimension is negative</exception>
         public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness,
             string name, double radius = 0)
+            : this(horizontalLegLength, horizontalLegThickness, verticalLegLength, verticalLegThickness, name, radius, 0)
+        {
+        }
+
+        /// <summary>
+        /// Creates the section with the root fillet and the toe radii of a rolled angle and calculates its properties (the radii are in the
+        /// calculations when the working of the corners is set, see <see cref="ThinWallSection.SetEdgeTypeFromSteelType"/>)
+        /// </summary>
+        /// <param name="horizontalLegLength">The horizontal leg length</param>
+        /// <param name="horizontalLegThickness">The horizontal leg thickness</param>
+        /// <param name="verticalLegLength">The vertical leg length</param>
+        /// <param name="verticalLegThickness">The vertical leg thickness</param>
+        /// <param name="name">Name of the section</param>
+        /// <param name="radius">The root fillet radius or the throat of the weld (negative: 0)</param>
+        /// <param name="toeRadius">The toe radius of the ends of the legs, on the inner side (negative: 0)</param>
+        /// <exception cref="ArgumentException">If a dimension is negative</exception>
+        public SectionL(double horizontalLegLength, double horizontalLegThickness, double verticalLegLength, double verticalLegThickness,
+            string name, double radius, double toeRadius)
             : base(name)
         {
             _horizontalLegLength = horizontalLegLength < 0 ? throw new ArgumentException($"Horizzontal plate lenght cannot be lower than zero") : horizontalLegLength;
@@ -160,6 +189,7 @@ namespace GPC.Model.Sections
             _verticalLegLength = verticalLegLength < 0 ? throw new ArgumentException($"Vertical plate lenght cannot be lower than zero") : verticalLegLength;
             _verticalLegThickness = verticalLegThickness < 0 ? throw new ArgumentException($"Vertical plate _thickness cannot be lower than zero") : verticalLegThickness;
             _r = radius < 0 ? 0 : radius;        // raggio di curvatura o altezza di gola
+            _r2 = toeRadius < 0 ? 0 : toeRadius;
 
             ThinWall thinWall1 = new ThinWall(HorizontalLegLength, HorizontalLegThickness, 0,
                 new Point2d(HorizontalLegLength / 2, HorizontalLegThickness / 2));
@@ -195,6 +225,8 @@ namespace GPC.Model.Sections
             _verticalLegLength = info.GetDouble("VerticalLegLength");
             _verticalLegThickness = info.GetDouble("VerticalLegThickness");
             _r = info.GetDouble("R");
+            if (version >= 3)
+                _r2 = info.GetDouble("R2");
         }
 
         #endregion
@@ -376,21 +408,74 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about X through the centroid: the one about the top side minus the transport term
+        /// The corners of the rolled or welded angle, included by <see cref="ThinWallSection"/> in the area, in the centroid and in the moments
+        /// of inertia: the root fillet (radius R) or weld (throat R) of the inside corner and, for the rolled angle, the toe radii R2 of the ends
+        /// of the legs, on their inner side; nothing for the sharp corners
+        /// </summary>
+        /// <returns>The corners</returns>
+        private protected override SectionCorner[] GetCorners()
+        {
+            if (_edgeWorking == EdgeType.Sharp)
+                return new SectionCorner[0];
+
+            var corners = new List<SectionCorner>
+            {
+                new SectionCorner(1, SectionCorner.Inside(_edgeWorking, _r), _verticalLegThickness, _horizontalLegThickness, 1, 1),
+            };
+            if (_edgeWorking == EdgeType.Fillet && _r2 > 0.0)
+            {
+                SectionCorner.Profile toe = SectionCorner.Fillet(_r2);
+                corners.Add(new SectionCorner(-1, toe, _horizontalLegLength, _horizontalLegThickness, -1, -1));
+                corners.Add(new SectionCorner(-1, toe, _verticalLegThickness, _verticalLegLength, -1, -1));
+            }
+            return corners.ToArray();
+        }
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape with the corners of <see cref="GetCorners"/>
+        /// </summary>
+        /// <returns>The outline</returns>
+        private protected override Shape2d GetPlasticShape()
+        {
+            if (_edgeWorking == EdgeType.Sharp)
+                return Shape;
+
+            double toe = _edgeWorking == EdgeType.Fillet ? _r2 : 0.0;
+            return SectionOutline.Create(new[]
+            {
+                new SectionOutline.Vertex(0.0, 0.0),
+                new SectionOutline.Vertex(0.0, _verticalLegLength),
+                new SectionOutline.Vertex(_verticalLegThickness, _verticalLegLength, toe),
+                SectionOutline.Inside(_verticalLegThickness, _horizontalLegThickness, _edgeWorking, _r),
+                new SectionOutline.Vertex(_horizontalLegLength, _horizontalLegThickness, toe),
+                new SectionOutline.Vertex(_horizontalLegLength, 0.0),
+            });
+        }
+
+        /// <summary>
+        /// Calculate the moment of inertia about X through the centroid: the one about the top side minus the transport term; with the
+        /// corners (rolled or welded angle) the thin walls plus the corners of <see cref="ThinWallSection"/>
         /// </summary>
         /// <returns>The moment of inertia</returns>
         protected override double CalculateJxx()
         {
+            if (_edgeWorking != EdgeType.Sharp)
+                return base.CalculateJxx();
+
             return (1.0 / 3.0) * (HorizontalLegLength * Math.Pow(VerticalLegLength, 3) - (HorizontalLegLength - VerticalLegThickness) * Math.Pow(VerticalLegLength - HorizontalLegThickness, 3)) -
                 Area * Math.Pow(VerticalLegLength - Centroid.Y, 2);
         }
 
         /// <summary>
-        /// Calculate the moment of inertia about Y through the centroid: the one about the right side minus the transport term
+        /// Calculate the moment of inertia about Y through the centroid: the one about the right side minus the transport term; with the
+        /// corners the thin walls plus the corners of <see cref="ThinWallSection"/>
         /// </summary>
         /// <returns>The moment of inertia</returns>
         protected override double CalculateJyy()
         {
+            if (_edgeWorking != EdgeType.Sharp)
+                return base.CalculateJyy();
+
             return (1.0 / 3.0) * (VerticalLegLength * Math.Pow(HorizontalLegLength, 3) - (VerticalLegLength - HorizontalLegThickness) * Math.Pow(HorizontalLegLength - VerticalLegThickness, 3)) -
                 Area * Math.Pow(HorizontalLegLength - Centroid.X, 2);
         }
@@ -438,11 +523,14 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the centroid from the static moments of the two thin walls
+        /// Calculate the centroid from the static moments of the two thin walls (with the corners, the one of <see cref="ThinWallSection"/>)
         /// </summary>
         /// <returns>The centroid</returns>
         protected override Point2d CalculateCentroid()
         {
+            if (_edgeWorking != EdgeType.Sharp)
+                return base.CalculateCentroid();
+
             double xc = (_thinWalls[0].CalculateSy() + _thinWalls[1].CalculateSy()) / Area;
             double yc = (_thinWalls[0].CalculateSx() + _thinWalls[1].CalculateSx()) / Area;
             return new Point2d(xc, yc);
@@ -489,7 +577,7 @@ namespace GPC.Model.Sections
         {
             base.GetObjectData(info, context);
 
-            double version = 2;
+            double version = 3; // 3: the toe radius R2
             info.AddValue("SectionLVersion", version);
 
             info.AddValue("HorizontalLegLength", _horizontalLegLength);
@@ -497,6 +585,7 @@ namespace GPC.Model.Sections
             info.AddValue("VerticalLegLength", _verticalLegLength);
             info.AddValue("VerticalLegThickness", _verticalLegThickness);
             info.AddValue("R", _r);
+            info.AddValue("R2", _r2);
         }
 
         #endregion
@@ -526,7 +615,8 @@ namespace GPC.Model.Sections
                    _horizontalLegThickness == other._horizontalLegThickness &&
                    _verticalLegLength == other._verticalLegLength &&
                    _verticalLegThickness == other._verticalLegThickness &&
-                   _r == other._r;
+                   _r == other._r &&
+                   _r2 == other._r2;
         }
 
         /// <summary>
@@ -544,6 +634,7 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -1521134295 + _verticalLegLength.GetHashCode();
                 hashCode = hashCode * -1521134295 + _verticalLegThickness.GetHashCode();
                 hashCode = hashCode * -1521134295 + _r.GetHashCode();
+                hashCode = hashCode * -1521134295 + _r2.GetHashCode();
                 return hashCode;
             }
         }

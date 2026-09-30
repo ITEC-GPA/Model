@@ -257,9 +257,18 @@ namespace GPC.Model.Sections
         /// <returns>The new shape</returns>
         protected override Shape2d GetShape()
         {
+            return new Shape2d(new Polygon2d(OutlinePoints()));
+        }
+
+        /// <summary>
+        /// The twelve vertices of the shape; the inside corners between the web and the flanges are the vertices 2, 3, 8 and 9
+        /// </summary>
+        /// <returns>The vertices</returns>
+        private Point2d[] OutlinePoints()
+        {
             if (_bbottom > _btop)
             {
-                return new Shape2d(new Polygon2d(new Point2d[] {
+                return new Point2d[] {
                     new Point2d(0.0, 0.0),
                     new Point2d(0.0, _tbottom),
                     new Point2d(0.5 * (_bbottom - _tw), _tbottom),
@@ -271,11 +280,11 @@ namespace GPC.Model.Sections
                     new Point2d(0.5 * (_bbottom + _tw), _h - _ttop),
                     new Point2d(0.5 * (_bbottom + _tw), _tbottom),
                     new Point2d(_bbottom, _tbottom),
-                    new Point2d(_bbottom, 0.0) }));
+                    new Point2d(_bbottom, 0.0) };
             }
             else
             {
-                return new Shape2d(new Polygon2d(new Point2d[] {
+                return new Point2d[] {
                     new Point2d(0.5 * (_btop - _bbottom), 0.0),
                     new Point2d(0.5 * (_btop - _bbottom), _tbottom),
                     new Point2d(0.5 * (_btop - _tw), _tbottom),
@@ -287,8 +296,33 @@ namespace GPC.Model.Sections
                     new Point2d(0.5 * (_btop + _tw), _h - _ttop),
                     new Point2d(0.5 * (_btop + _tw), _tbottom),
                     new Point2d(0.5 * (_btop + _bbottom), _tbottom),
-                    new Point2d(0.5 * (_btop + _bbottom), 0.0) }));
+                    new Point2d(0.5 * (_btop + _bbottom), 0.0) };
             }
+        }
+
+        /// <summary>
+        /// True if the section has fillets or welds in the inside corners (see <see cref="GetCorners"/>)
+        /// </summary>
+        private bool HasWorkedCorners => _edgeWorking != EdgeType.Sharp && R > 0.0;
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape with the fillets or the welds of the four inside corners
+        /// </summary>
+        /// <returns>The outline</returns>
+        private protected override Shape2d GetPlasticShape()
+        {
+            if (!HasWorkedCorners)
+                return Shape;
+
+            Point2d[] points = OutlinePoints();
+            var vertices = new SectionOutline.Vertex[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                vertices[i] = i == 2 || i == 3 || i == 8 || i == 9
+                    ? SectionOutline.Inside(points[i].X, points[i].Y, _edgeWorking, R)
+                    : new SectionOutline.Vertex(points[i].X, points[i].Y);
+            }
+            return SectionOutline.Create(vertices);
         }
 
         /// <summary>
@@ -370,11 +404,18 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the plastic modulus respect to Y: twice the static moment of a half section (the two half flanges with the half web)
+        /// Calculate the plastic modulus respect to Y: twice the static moment of a half section (the two half flanges with the half web); with
+        /// fillets or welds <see cref="double.NaN"/>, the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is computed at the
+        /// first access
         /// </summary>
+        /// <remarks>Before, with fillets the half area with the fillets was multiplied by the arm of the halves without them: Wpl,z of a
+        /// HE 100 AA was 6.4% greater than the published one</remarks>
         /// <returns>The plastic modulus respect to Y (the symmetry axis)</returns>
         protected override double CalculateWplY()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             SectionT halfSectionTop = new SectionT(LenghtTopFlange / 2.0, Height / 2.0, ThicknessTopFlange,
                 ThicknessWeb / 2.0, string.Empty);
             SectionT halfSectionBottom = new SectionT(LenghtBottomFlange / 2.0, Height / 2.0, ThicknessBottomFlange,
@@ -389,11 +430,17 @@ namespace GPC.Model.Sections
 
         /// <summary>
         /// Calculate the plastic modulus respect to X: closed form with the plastic neutral axis in the web or in one flange, otherwise the one of the
-        /// base class
+        /// base class; with fillets or welds <see cref="double.NaN"/>, the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is
+        /// computed at the first access
         /// </summary>
+        /// <remarks>Before, with fillets the closed form used the area with the fillets on the geometry without them (Wpl,y up to 1.3% different
+        /// from the published values)</remarks>
         /// <returns>The plastic modulus respect to X</returns>
         protected override double CalculateWplX()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             if (_area / 2.0 >= LenghtTopFlange * ThicknessTopFlange && _area / 2.0 >= LenghtBottomFlange * ThicknessBottomFlange)
             {
                 double hw = (_area / 2.0 - LenghtTopFlange * ThicknessTopFlange) / ThicknessWeb;

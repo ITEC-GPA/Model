@@ -252,6 +252,34 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// True if the section has fillets or welds in the corners (see <see cref="GetCorners"/>)
+        /// </summary>
+        private bool HasWorkedCorners => _edgeWorking != EdgeType.Sharp && (R1 > 0.0 || R2 > 0.0);
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape with the fillets or the welds R1 of the inside corners and the toe radii R2 of
+        /// the flanges (the corners of <see cref="GetCorners"/>)
+        /// </summary>
+        /// <returns>The outline</returns>
+        private protected override Shape2d GetPlasticShape()
+        {
+            if (!HasWorkedCorners)
+                return Shape;
+
+            return SectionOutline.Create(new[]
+            {
+                new SectionOutline.Vertex(0.0, 0.0),
+                new SectionOutline.Vertex(0.0, _h),
+                new SectionOutline.Vertex(_lengthTop, _h),
+                new SectionOutline.Vertex(_lengthTop, _h - _tTop, R2),
+                SectionOutline.Inside(_tw, _h - _tTop, _edgeWorking, R1),
+                SectionOutline.Inside(_tw, _tBottom, _edgeWorking, R1),
+                new SectionOutline.Vertex(_lengthBottom, _tBottom, R2),
+                new SectionOutline.Vertex(_lengthBottom, 0.0),
+            });
+        }
+
+        /// <summary>
         /// Calculate the warping constant (CNR DT 208/2001, with the bottom flange)
         /// </summary>
         /// <returns>The warping constant</returns>
@@ -289,9 +317,15 @@ namespace GPC.Model.Sections
         /// <summary>
         /// Calculate the plastic modulus respect to Y: closed form for the section symmetric respect to X, otherwise the one of the base class
         /// </summary>
+        /// <remarks>With fillets or welds <see cref="double.NaN"/>: the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is
+        /// computed at the first access. Before, the closed form used the area with the corners on the geometry without them: Wpl,z of a
+        /// UPE 330 was 14% greater than the published one and the UPN 120 and 160 threw an exception (a T with a negative web)</remarks>
         /// <returns>The plastic modulus respect to Y</returns>
         protected override double CalculateWplY()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             if (IsSymmetricAlongXLocalAxis)
             {
                 if (_area / 2.0 >= _h * _tw)
@@ -315,9 +349,14 @@ namespace GPC.Model.Sections
         /// Calculate the plastic modulus respect to X: closed form for the section symmetric respect to X with the neutral axis in the web,
         /// otherwise the one of the base class
         /// </summary>
+        /// <remarks>With fillets or welds <see cref="double.NaN"/>: the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is
+        /// computed at the first access</remarks>
         /// <returns>The plastic modulus respect to X</returns>
         protected override double CalculateWplX()
         {
+            if (HasWorkedCorners)
+                return double.NaN;
+
             if (IsSymmetricAlongXLocalAxis)
             {
                 if (_area / 2.0 >= _tTop * _lengthTop)

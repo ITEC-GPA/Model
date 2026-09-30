@@ -7,8 +7,13 @@
     <Configurations>Debug;Release;DebugLocalLibs</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <ProjectReference Include="..\Model\GPCModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- catalogs of commercial sections, extracted by tools/section-catalogs -->
+    <EmbeddedResource Include="Sections\Catalogs\*.csv" />
   </ItemGroup>
 
 </Project>

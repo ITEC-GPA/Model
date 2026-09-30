@@ -831,9 +831,16 @@ namespace GPC.Model.Sections
         /// 0 if the section has no shape</returns>
         private double ShapePlasticModulus(double angle)
         {
-            Shape2d shape = Shape;
+            Shape2d shape = GetPlasticShape();
             return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
         }
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape of the section. The rolled and welded sections return their exact outline, with
+        /// the fillets and the welds that their shape (used for the meshes) does not have
+        /// </summary>
+        /// <returns>The region</returns>
+        private protected virtual Shape2d GetPlasticShape() => Shape;
 
         /// <summary>
         /// The extreme distance of the vertices of the shape from an axis through the centroid
