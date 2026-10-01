@@ -117,8 +117,8 @@ namespace GPC.Model.PostProcessing
             {
                 if (!(bar.RebarSection is RebarSectionCircular circular)) { issues.Add(ModelDiagnostic.Error("UnsupportedRebarGeometry", owner)); continue; }
                 double radius = circular.Diameter / 2;
-                bool invalid = !section.Shape.IsPointInside(bar.Position);
-                foreach (var polygon in new[] { section.Shape.Fill }.Concat(section.Shape.Holes ?? new Polygon3d[0]))
+                bool invalid = !section.ConcreteShape.IsPointInside(bar.Position);
+                foreach (var polygon in new[] { section.ConcreteShape.Fill }.Concat(section.ConcreteShape.Holes ?? new Polygon3d[0]))
                 {
                     var points = polygon.Points;
                     for (int i = 0; i < points.Length; i++) if (new Line2d(points[i], points[(i + 1) % points.Length]).SquareDistanceTo(bar.Position) < radius * radius - 1e-10) invalid = true;

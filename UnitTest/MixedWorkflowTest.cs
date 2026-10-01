@@ -98,7 +98,7 @@ namespace UnitTest
         public void SectionTransitionsUseSideAndDoNotSwapRebarsWithMomentSign()
         {
             var m = MixedModelFactory.Create(); var b = m.BeamElements[250]; var first = b.Assignments.Sections[0].Section;
-            var second = new ReinforcedConcreteSection(first.Shape, first.ConcreteMaterial, "Second section"); second.AddRebars(first.Rebars.Take(2));
+            var second = new ReinforcedConcreteSection(first.ConcreteShape, first.ConcreteMaterial, "Second section"); second.AddRebars(first.Rebars.Take(2));
             b.Assignments.Sections.Clear(); b.Assignments.Sections.Add(new BeamSectionAssignment { Start = 0, End = .5, Section = first });
             b.Assignments.Sections.Add(new BeamSectionAssignment { Start = .5, End = 1, Section = second });
             Assert.AreSame(first, b.Assignments.SectionAt(.5, SectionSide.Left)); Assert.AreSame(second, b.Assignments.SectionAt(.5, SectionSide.Right));
