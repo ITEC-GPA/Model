@@ -1,0 +1,144 @@
+PROMPT — MIGRAZIONE DELLE LIBRERIE DI CALCOLO DI ANTHEA IN CHECKER
+Preparato il 1 ottobre 2026.
+
+Questo documento descrive il lavoro futuro. La sua redazione non avvia l'implementazione, non programma attività automatiche e non dichiara nuove capacità disponibili. Quando l'utente chiederà di eseguirlo, parti da M0 e procedi nell'ordine, aggiornandolo al termine di ogni fase. Non chiedere di nuovo l'approvazione del lavoro già autorizzato; chiedi soltanto dati o decisioni realmente mancanti e intanto continua le attività indipendenti. Rispetta i punti di arresto indicati.
+
+RUOLO E OBIETTIVO
+
+Agisci come sviluppatore senior C#/.NET con esperienza in software di calcolo strutturale e geotecnico. Porta i motori di calcolo di ANTHEA nelle librerie Checker, in modo che ANTHEA, ModelChecker e altri programmi usino gli stessi algoritmi validati. Le librerie risultanti devono essere indipendenti da ANTHEA, multinormativa in modo esplicito, coerenti con l'organizzazione, le convenzioni e le classi di normativa già esistenti. ANTHEA conserva interfaccia, fogli JSON, archivi, report e gli adattatori verso le librerie.
+
+Relazione con gli altri prompt (nel repository Model):
+- PROMPT_SVILUPPO_CHECKER.txt: vincoli generali e registro della catena Model -> ModelChecker -> Checker -> resoconti. Restano validi.
+- PROMPT_SVILUPPO_CHECKER_PASSO_4.txt: migrazione delle verifiche del calcestruzzo (sottofasi 4A-4G). Per le famiglie del c.a. segui quel documento: questo prompt non lo duplica, lo inserisce nel perimetro complessivo.
+- Questo prompt estende il perimetro a tutte le librerie di calcolo di ANTHEA (materiali e durabilità, pali e micropali, geotecnica, muri di sostegno, componenti residue del ponte) e definisce organizzazione, normative e collegamento ad ANTHEA.
+
+REPOSITORY E STATO DI PARTENZA (da verificare, non da assumere)
+
+- Utilities, Geometry, Model, Checker, ANTHEA: C:\Users\g.pacini\Documents\Repository\<nome>. Git non è nel PATH: usa C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\cmd\git.exe.
+- Le librerie si referenziano per HintPath ai bin\Release\netstandard2.0 dei progetti fratelli: ordine di build Utilities -> Geometry -> Model -> Checker -> ModelChecker. In Geometry bin/obj sono versionati; in Model e Checker no.
+- ANTHEA non compila Checker: usa uno snapshot di DLL in ANTHEA/lib/Checker con manifest.json (versioni e SHA-256) e README.md (storico degli snapshot e procedura di aggiornamento). Anche Checker/GPCChecker.Test.BridgeAudit usa quelle copie.
+- Altre sessioni lavorano in parallelo su questi repository: preserva le modifiche presenti, committa solo percorsi espliciti, non pushare senza richiesta.
+
+ANTHEA (X.Calculations, assembly ANTHEA.Calculations, 99 file .cs e circa 9000 righe al 1/10/2026; namespace Anthea.Calculations, Anthea.Calculations.Geotechnics, Materiali). Contiene motori e adattatori senza UI; X.Core i report; X.Materiali e X.Desktop le applicazioni WPF. Prima classificazione, da confermare in M0:
+
+| Famiglia | File principali in X.Calculations | Destinazione da valutare |
+| --- | --- | --- |
+| Sezione c.a.: domini, tensioni, taglio, torsione, fessurazione, aderenza, dettagli, M-curvatura | CheckerSection, SezioneCA, SezioneElastica, ConcreteAnalysis*, ConcreteCodeChecks, Ntc2018Checks, ConcreteShear*, ConcreteTorsion, Concrete*Cracking, CrackCalculationDetail, Section*, TensionBarSpacing, ConcreteBond, ConcreteDetailing*, ConcreteCoverAnalysis, MomentCurvature, ConcreteCurvatureAnalysis, HorizontalConcreteSection | GPCChecker.Concrete, secondo il PASSO 4 |
+| Progetto automatico delle armature | ConcreteReinforcementDesign* | resta in ANTHEA e consuma le API (PASSO 4F) |
+| Materiali, durabilità, copriferro | Materials/Durability, NtcCover, MaterialCover, MinimumConcrete, MixAutomation; RebarMaterial; ConcreteMaterials, ConcreteMaterialCatalog | dati in ModelData, regole per norma in Checker; composizione delle miscele da valutare |
+| Ponte | BridgeSection* (adattatori del motore già in GPCChecker.CompositeBridge); BridgeConcept* (predimensionamento, ottimizzazione, costi, CO2: non è verifica normativa) | adattatori in ANTHEA; BridgeConcept resta in ANTHEA salvo decisione diversa |
+| Pali e micropali | PaloOrizzontale(.Diagnostics, .Stratified), MicropaloOrizzontale, Micropali, Nq | da decidere in M1 |
+| Geotecnica generale | Geotechnics/BishopSolver, SlopeStability(.Models), SlopeGeometry, FoundationSettlement, NewmarkSliding, ShallowFoundationSeismic | da decidere in M1 |
+| Muri di sostegno | RetainingWall.* (azioni, terreni, equilibrio, gravità, sismica EN 1998-5, stabilità globale, armature, esercizio, strutture, esportazione della sezione) | geotecnica + verifiche c.a.; da decidere in M1 |
+| Applicazione e fogli | Calcolo, CalculationService, ModuleCatalog, CalculationDefaults, CalculationHelp, CalculationCoefficients, JsonData, SectionWorkspace, ConcreteAnalysisSession, ConcreteCalculationSettings, ConcreteStandards (mappatura nomi -> classi), VerificationSummary, MaterialDiagram | restano in ANTHEA come adattatori |
+
+Precedente da seguire: il motore ponte è già stato migrato in GPCChecker.CompositeBridge il 25/9/2026 (ANTHEA/supporto/docs/migrazione-composite-bridge.md): istantanee di regressione acquisite PRIMA dello spostamento e confrontate su tutti i campi esportati; in ANTHEA sono rimasti cataloghi, predefiniti, archivi, conversione verso l'input della libreria, esportazione e deleghe; la libreria non dipende da ANTHEA, JSON, WPF o CheckerUI e usa geometrie e materiali di Model.
+
+Checker oggi: librerie netstandard2.0 (namespace GPC.Checkers.*) GPCChecker.Concrete (Checkers con specializzazioni per norma per derivazione: SectionChecker, SectionCheckerACI318, SectionCheckerModelCode2010, Beam/Plate checkers; SectionSolvers; Results), GPCChecker.Steel (un checker per norma: EN1993p11Checker, Cop2011Checker, AISC360_16Checker, bulloni EN 1993/1999, stabilità dei pannelli), GPCChecker.CompositeBridge (Analysis, History, Box, Checks, HSections, Viviani). Test: Test.Concrete e Test.Steel net472 non SDK (MSBuild + vstest, adattatore MSTest copiato da packages), Test.CompositeBridge e Test.BridgeAudit SDK net8.0. Versioni: AssemblyInfo per Concrete e Steel, <Version> nel csproj per CompositeBridge. README e documenti in italiano.
+
+Normative: le classi di Model (GPC.Model.Standards) sono l'unica sorgente dei coefficienti. Gerarchia: Standard -> StandardModelCode2010 -> StandardEN1992p11 -> NTC2018Concrete, UNI, DIN, DS, NS EN 1992-1-1 (e CNR-DT 204, CS-TR34 da MC2010); EN 1990 e UNI EN 1990 per le combinazioni; EN 1993-1-1, UNI e NTC2018Steel; EN 1999-1-1; AISC 360-05/10/16; ACI 318-08/14/19 e AASHTO; CopSuos2011, ASCE16, EN 16612. ANTHEA (ConcreteStandards) mappa nomi testuali su queste classi, permette override dei coefficienti per foglio e documenta per ogni norma il campo effettivamente implementato. Non esistono classi per la geotecnica (EN 1997-1, EN 1998-5, NTC 2018 cap. 6-7: approcci e combinazioni A1+M1+R3 ecc.).
+
+Riferimenti di ANTHEA da usare come casi: supporto/test/X.Verifiche (suite --checker, --bridge, --software, --micropalo, --horizontal, --coesione, --gamma-sat, --ca-module, --ca-data, --project-audit, --project-calculations, --ca-benchmark, --audit-benchmark e la regressione su casi_confronto.json), ConcreteCode.Checks, ConcreteDesign.Checks, RetainingWall.Checks, GlobalStability.Checks, MaxRetainingWall.Cases/Compare, BridgeDesign.Checks/IndependentChecks, CalculationLibrary.Checks e le prove WPF di X.Desktop (--smoke-*). Stato al 1/10/2026 (ANTHEA fe4652c, snapshot GPCModel 1.5.0.0 / Checker.Concrete 0.0.13.1), identico con lo snapshot precedente: --project-calculations termina con codice 1 (default di geo_muri_sostegno diversi tra progetto e foglio); sei prove WPF falliscono (--smoke, --smoke-bridge, --smoke-ca-extensions, --smoke-global-stability, --smoke-project-workspace, --smoke-retaining-wall); in Checker, GPCChecker.Test.BridgeAudit ha 8 casi MigrationPreservesEveryResult non superati solo per tre nuove chiavi di ingresso del ponte (predalle, h_predalle, rif_ferri_inf), con valori identici. --audit-benchmark vuole il percorso del file di uscita e BridgeDesign.IndependentChecks la cartella di esportazione come argomento. Ricontrolla e classifica questi esiti in M2, non correggerli implicitamente.
+
+VINCOLI TRASVERSALI
+
+Multinormativa
+- Ogni algoritmo riceve la normativa come oggetto tipizzato (classe Standard di Model o profilo tipizzato che la contiene), mai come nome testuale. Edizione, appendice nazionale, coefficienti effettivi, override, opzioni e metodo fanno parte della configurazione, dell'identità della verifica, delle cache e del risultato.
+- La mappatura nome -> classe e gli override del foglio restano in ANTHEA; le librerie espongono override espliciti e tracciati, non riflessione su nomi di proprietà.
+- Capacità per abbinamento (meccanismo, norma, edizione, geometria): una classe Standard non abilita automaticamente tutte le verifiche della norma. Le note di ConcreteStandards.Note descrivono il campo legacy: verificale e riportale nella matrice delle capacità e nella documentazione, non come attestazione normativa.
+- Nessun ripiego silenzioso su NTC 2018 o su un altro annesso. Una combinazione non implementata restituisce NotSupported con il motivo.
+- Le classi Standard di Model non vanno modificate né estese senza accordo: l'utente prevede di riorganizzare Standards/Options. Le nuove famiglie normative (geotecnica, sismica dei terreni) sono parte della proposta di M1.
+- Specializzazioni per norma secondo il modello esistente (derivazione o strategia per norma attorno a un nucleo meccanico comune): non replicare i solutori numerici per ogni norma e non concentrare tutte le regole in una classe monolitica.
+
+Organizzazione
+- Nessun nuovo progetto senza la proposta di M1 e l'accordo dell'utente. La geotecnica non è un materiale: un eventuale GPCChecker.Geotechnics (netstandard2.0, con test SDK net8.0) va motivato rispetto alle alternative.
+- Model contiene dati e contratti condivisi (sezioni, materiali, terreni se diventano dati di modello, normative, contratti di risultato del PostProcessing); Checker contiene gli algoritmi; ModelChecker orchestra. Model non dipende da Checker; nessuna dipendenza circolare; Checker non referenzia ANTHEA (X.Calculations, X.Core, WPF, JsonObject dei fogli, generatori di documenti).
+- Riusa i tipi esistenti: sezioni di Model (anche i cataloghi e le sezioni parametriche di GPC.Model.Data.Sections e GPC.Model.Sections), materiali di ModelData (ConcreteMaterialEN1992Data, SteelMaterialEN1992Data ecc.), GPC.Geometry.CoordinateSystem, i contratti di risultato del PostProcessing (CheckResult, dettagli tipizzati, CheckReport). Sostituisci SezioneCA/Barra e strutture analoghe con i tipi di Model; non duplicare Model dentro Checker.
+- Non duplicare quanto già in GPCChecker.CompositeBridge. Non trasferire codice di presentazione (testi dei report, impaginazione, grafici).
+
+Unità, assi, stati
+- Le librerie Checker lavorano in N, mm, MPa; dove un'API esistente usa kN/kNm (CompositeBridge) lo dichiara. La geotecnica di ANTHEA usa kN, m, kPa: scegli in M1 la convenzione delle nuove API e dichiarala in ogni firma e risultato. Nessun fattore 1000/1e6 copiato senza analisi.
+- Assi solo con GPC.Geometry.CoordinateSystem e le convenzioni di Model; nessuna doppia rotazione o doppio trasporto.
+- Conserva la concomitanza degli stati e le combinazioni come sono: non costruire verifiche con massimi indipendenti.
+- Dati mancanti, combinazioni non supportate, errori e mancata convergenza non diventano mai esiti soddisfatti. Non inventare armature, parametri del terreno, lunghezze o vincoli.
+
+Codice, qualità, rilascio
+- Librerie netstandard2.0, C# compatibile con quel target; adatta consapevolmente i costrutti di .NET 8 usati in ANTHEA senza cambiare il comportamento numerico.
+- Elimina lo stato statico mutabile (per esempio Ntc2018Checks.SpacingCalculator) e i lock condivisi impliciti: dipendenze esplicite per istanza. Esecuzione sequenziale finché la sicurezza concorrente non è dimostrata.
+- Commenti XML in inglese come nel resto delle librerie; README e documentazione in italiano.
+- Ogni rilascio di una libreria modificata aumenta la sua versione (AssemblyInfo o <Version>, secondo il progetto) e, a valle, quelle che la ricompilano.
+- Aggiornamento di ANTHEA/lib/Checker solo con un insieme coerente di DLL della stessa build, manifest.json con versioni e SHA-256, voce nel README; poi build di ANTHEA e tutte le suite, prove WPF comprese, confrontate con il riferimento. Verifica sempre quali DLL sono state effettivamente caricate nei test.
+- In ANTHEA rispetta AGENTS.md: test in supporto/test, output in supporto/artefatti/<attività>, documenti con PDF accanto al sorgente, documenti superati in supporto/SUPERATI.
+- Non cancellare i motori di ANTHEA e non sostituire automaticamente i chiamanti: trasferimento in Checker e collegamento di ANTHEA sono attività distinte e reviewabili.
+
+FASI
+
+M0 — INVENTARIO E CLASSIFICAZIONE
+
+- Verifica e completa la tabella delle famiglie leggendo i sorgenti correnti. Per ogni file: nucleo di calcolo, adattatore del foglio, presentazione o UI; dipendenze (JsonObject, stato statico, X.Core, lib/Checker), unità, normative ed edizioni citate, metodi (per esempio Bishop, Broms, Bustamante), casi di riferimento esistenti.
+- Produci la matrice delle capacità per famiglia, meccanismo, norma/edizione, geometria e livello (sezione, elemento, opera), distinguendo codice eseguibile, parziale, commentato e non collegato. Riusa l'inventario del PASSO 1 per il c.a. aggiornandolo solo per le differenze.
+- Censisci in Model e Checker ciò che esiste già per ogni famiglia (sezioni, materiali, normative, contratti, solver) per evitare duplicati.
+Consegna M0: inventario, matrice, dipendenze da rimuovere, sequenza di migrazione proposta.
+
+M1 — PROPOSTA DI ORGANIZZAZIONE (PUNTO DI ARRESTO)
+
+Presenta alternative confrontabili e una proposta motivata per:
+- la collocazione di ogni famiglia nei progetti esistenti o in nuovi progetti (in particolare geotecnica, pali, muri: un progetto geotecnico, la geotecnica dentro Concrete o un'altra soluzione), i namespace e i progetti di test;
+- i dati da aggiungere a Model o ModelData (terreni e stratigrafie, classi di esposizione e tabelle di copriferro, parametri sismici) distinguendo dati fisici e scelte di metodo;
+- la rappresentazione delle normative geotecniche e sismiche (approcci, fattori parziali, combinazioni, edizioni) coerente con GPC.Model.Standards e con la riorganizzazione prevista dall'utente;
+- le convenzioni di unità e assi delle nuove API;
+- i contratti di risultato: riuso del PostProcessing di Model, dettagli tipizzati per i nuovi meccanismi;
+- l'interfaccia verso ANTHEA (adattatori, aggiornamento di lib/Checker) e verso ModelChecker.
+Fornisci per una famiglia un esempio completo di flusso: input tipizzati, chiamata, risultato, adattatore ANTHEA.
+Attendi l'accordo dell'utente prima di creare progetti, aggiungere classi Standard o cambiare API pubbliche. Nel frattempo prosegui con M2 e con le famiglie del c.a. del PASSO 4, che non dipendono da questa decisione.
+
+M2 — RIFERIMENTI CONGELATI
+
+- Prima di spostare una famiglia, esegui le suite ANTHEA pertinenti e salva input, output, versioni e hash delle DLL, commit di ANTHEA, tolleranze. Usa casi esistenti e aggiungine dove la copertura manca (geometrie, norme, casi limite, errori e dati mancanti).
+- Classifica gli esiti già non nulli del riferimento (vedi stato di partenza): difetto dell'harness, difetto legacy o regressione.
+- Cerca riferimenti indipendenti con provenienza verificata (testi normativi, esempi pubblicati, software con modelli documentati); non generare gli attesi con il nuovo codice e non rigenerare riferimenti per eliminare differenze.
+Consegna M2: casi riproducibili per ogni famiglia, con metadati.
+
+M3 — MIGRAZIONE PER FAMIGLIA
+
+Ordine proposto, da confermare in M1: c.a. (PASSO 4: 4A-4G), materiali e durabilità, pali e micropali, geotecnica generale, muri di sostegno, altre famiglie emerse in M0. Per ogni famiglia:
+1. documenta comportamento, metodo, normativa e limiti attuali in ANTHEA;
+2. porta il nucleo nel progetto concordato, con input tipizzati (sezioni, materiali, normative di Model), unità dichiarate, nessuna dipendenza da ANTHEA;
+3. separa meccanica, politiche normative e adattamento dei dati;
+4. restituisci risultati autonomi con domanda/capacità o criterio, dettagli, stato, diagnostica, normativa e provenienza;
+5. test nel progetto di test pertinente: casi legacy, casi indipendenti, limiti, dati mancanti, non convergenza;
+6. confronta con ANTHEA e registra ogni differenza come errore di migrazione, convenzione/unità, differenza intenzionale o difetto legacy, con prima/dopo e fonte; le correzioni sono cambiamenti espliciti, non allineamenti silenziosi al legacy;
+7. versione della libreria, README in italiano, matrice e registro aggiornati.
+
+M4 — COLLEGAMENTO DI ANTHEA (PER FAMIGLIA, REVIEWABILE)
+
+- Aggiorna lib/Checker (insieme coerente di DLL, manifest, README) secondo la procedura del README.
+- Sostituisci in ANTHEA il calcolo con la chiamata alla libreria, lasciando negli adattatori la lettura del foglio, la mappatura normativa e la presentazione. Mantieni il motore legacy disponibile per il confronto finché l'equivalenza non è provata; la sua rimozione richiede l'accordo dell'utente.
+- Esegui tutte le suite e le prove WPF di ANTHEA e confrontale con M2; aggiorna la documentazione utente e i PDF secondo AGENTS.md; documenta la migrazione in supporto/docs come per il ponte.
+
+M5 — MODELCHECKER
+
+Esponi a ModelChecker le famiglie che hanno senso sul modello strutturale (verifiche di sezione e di elemento), secondo i passi 3 e 5 del PROMPT_SVILUPPO_CHECKER. Non forzare pali, muri o pendii nel campionamento delle travi: proponi i contratti adatti all'opera geotecnica prima di implementarli. Il gate sui plate (passo 6) resta vincolante.
+
+M6 — VALIDAZIONE E CONSEGNA
+
+Regressioni complete: Model, ModelChecker, Checker (Concrete, Steel con i 17 fallimenti storici separati, CompositeBridge, BridgeAudit con lo snapshot aggiornato, nuovi progetti), ANTHEA (tutte le suite e prove WPF). Matrice delle capacità finale, registro, limiti aperti.
+
+CRITERI DI COMPLETAMENTO DI UNA FAMIGLIA
+
+1. Il nucleo compila in Checker senza dipendenze da ANTHEA.
+2. Input, unità, assi, normativa (edizione, annesso, coefficienti, override) e campo di applicazione sono espliciti.
+3. I risultati sono autonomi, tracciabili e distinguono stato di esecuzione, completezza dei dati ed esito ingegneristico.
+4. Casi legacy e riferimenti indipendenti superati, oppure differenze spiegate e validate.
+5. ANTHEA usa la libreria tramite lib/Checker con suite e prove WPF equivalenti al riferimento.
+6. La matrice distingue capacità complete, parziali, non collegate e non supportate, senza estendere un'intera norma a partire da un meccanismo.
+
+ARTEFATTI
+
+- Registro e matrice: Checker/docs/migrazione-anthea/MIGRAZIONE_ANTHEA.txt e MIGRAZIONE_ANTHEA_EVIDENZE.json (comandi, commit e hash, esiti dei test, fonti, divergenze); per il c.a. continua CHECKER_PASSO_4.txt in Model.
+- In ANTHEA: supporto/docs/migrazione-<famiglia>.md (con PDF), output in supporto/artefatti/<attività>.
+- Al termine di ogni fase comunica in italiano: cosa è disponibile, dove, per quali norme e geometrie, quali prove sono state eseguite, limiti, fase successiva.
+
+PRIMA AZIONE QUANDO QUESTO PROMPT VIENE ESEGUITO
+
+Avvia M0 sul codice corrente, poi presenta M1 e fermati in attesa dell'accordo sull'organizzazione; nel frattempo esegui M2 e le sottofasi del c.a. del PASSO 4 che non dipendono da M1.
