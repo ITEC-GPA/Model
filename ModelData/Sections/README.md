@@ -74,7 +74,9 @@ quelli delle parti trasportate; i moduli elastici vengono dai vertici dei contor
 sull'unione dei contorni; la costante di torsione è la somma delle parti; la costante d'ingobbamento non è
 disponibile (NaN) perché dipende dal collegamento delle parti. Una sezione composta non ha una forma unica né una
 mesh (`GetMesh` segnala l'errore): si usano le parti. Verificata con due angolari accostati (= T) e due C punta
-contro punta (= tubo rettangolare).
+contro punta (= tubo rettangolare). Le parti saldate lungo i lati (H con piatti, due C saldati punta contro punta,
+cruciformi di piatti) sono `SectionWelded`: torsione, ingobbamento e centro di taglio dell'insieme con gli
+elementi finiti. Tutte le tipologie di Model sono descritte in [Model/Sections/README.md](../../Model/Sections/README.md).
 
 ## Fedeltà misurata
 
@@ -101,6 +103,45 @@ al 01/10/2026:
 | AISC HSS rettangolari | 0,39% | 0,93% | 0,74% | 0,52% | 4,5% | — |
 | AISC HSS tondi, PIPE (33 coerenti) | 0,52% | 2,1% (Pipe1/2XS) | 1,0% | 1,0% | 2,1% | — |
 
+## Torsione numerica
+
+`Section.CalculateTorsionProperties` risolve torsione e ingobbamento con gli elementi finiti sul contorno esatto
+della sezione mappata (raccordi e ali rastremate comprese). Scarti medi / massimi dai valori pubblicati, per ogni
+profilo dei cataloghi con It o Iw pubblicati (01/10/2026; tempo medio 3-74 ms per profilo):
+
+| Gruppo | It formula della classe | It numerica | Iw formula della classe | Iw numerica |
+| --- | --- | --- | --- | --- |
+| EN I/H ad ali parallele | 0,0% / 0,3% | 0,1-1,8% / 9,1% (HE AA, HD) | 0,1-0,5% / 1,6% | 0,7-2,6% / 5,3% |
+| EN IPN | 9,8% / 10,9% | 5,3% / 6,9% | 14,2% / 16,1% | 6,2% / 9,7% |
+| EN J | 12,0% / 20,3% | 5,8% / 11,9% | 15,0% / 17,6% | 12,4% / 15,8% |
+| EN UPE, PFC | 4,7-9,4% / 16,2% | 0,1-0,2% / 0,5% | 4,5-5,2% / 7,8% | 7,1-8,0% / 13,1% |
+| EN UPN | 8,1% / 11,6% | 1,4% / 4,4% | 12,8% / 17,1% | 1,6% / 6,0% |
+| EN CHS (EN 10210, EN 10219) | 0,0% / 0,3% | 1,4-1,5% / 1,8% | — | — |
+| EN SHS, RHS | 0,0-0,1% / 0,3% | 2,0-2,1% / 4,6% | — | — |
+| AISC W | 0,2% / 1,1% | 0,3% / 1,2% | 0,7% / 3,4% | 1,1% / 5,7% |
+| AISC M, HP | 0,7-0,8% / 2,8% | 0,8-1,6% / 9,4% | 0,5-0,7% / 1,8% | 1,3-1,8% / 3,7% |
+| AISC S | 14,6% / 21,0% | 2,5% / 6,6% | 18,2% / 22,8% | 3,6% / 10,1% |
+| AISC C, MC | 9,9-13,9% / 19,5% | 1,0-1,2% / 2,8% | 0,8-1,2% / 2,8% | 11,6-20,6% / 23,7% |
+| AISC WT, MT | 0,5-1,3% / 3,7% | 0,3-1,4% / 3,1% | 0,2-0,3% / 1,4% | 1,4-4,3% / 33% |
+| AISC ST | 13,7% / 19,0% | 2,4% / 4,6% | 0,2% / 1,2% | 18,4% / 35,6% |
+| AISC L | 4,1% / 13,9% | 6,3% / 14,9% | 0,2% / 1,4% | 2,8% / 9,9% |
+| AISC HSS rettangolari | 0,5% / 4,5% | 0,7% / 4,3% | — | — |
+| AISC HSS tondi, PIPE | 0,1-0,6% / 3,2% | 1,4-1,5% / 4,2% | — | — |
+
+Lettura:
+- It: il calcolo numerico ritrova i valori pubblicati dei canali (UPE, PFC entro 0,5%, UPN e AISC C, MC entro 3-4%)
+  e riduce gli scarti di IPN, J, S, ST, che le formule della classe sottostimano fino al 21%. Dove la formula della
+  classe è quella del produttore (I/H, tubi) coincide con il pubblicato e il calcolo numerico se ne discosta di
+  poco: per i tubi rettangolari la formula di EN 10210-2 è approssimata per le pareti spesse; per i CHS lo scarto
+  dell'1,4% viene dal poligono di 32 lati con cui `SectionCHS` disegna il tubo.
+- Iw: i valori pubblicati sono della teoria a parete sottile con lo spessore medio delle ali e senza raccordi. Il
+  calcolo numerico converge (canale a spigoli vivi: 0,01% dalla teoria per t = b/100, 2,6% per le pareti di un
+  C15x50, invariato raffinando la mesh) e gli scarti vengono dalla geometria reale: le ali rastremate sono più sottili
+  alle punte, dove la coordinata settoriale è massima (AISC C, MC, S, ST: Iw fino al 20% minore), i raccordi
+  aggiungono materiale (UPE, PFC: 7-8% maggiore).
+- Le formule delle classi non sono cambiate (i risultati del Checker restano quelli): sostituire It e Iw dei canali,
+  di IPN, J, S e ST con i valori numerici è una decisione da prendere.
+
 ## Incoerenze della fonte
 
 - ArcelorMittal, 127 profili I/H (UB, UC, UBP, HP, HD, HL, HLZ, alcuni IPE): l'area pubblicata non corrisponde alle
@@ -120,13 +161,13 @@ I dati non sono corretti: il test li elenca e ne controlla il numero.
 
 ## Limiti noti
 
-- Costante di torsione, d'ingobbamento e centro di taglio di canali, T, IPN, J, S e UPN: formule a parete sottile
-  (It fino al 21% in meno, Iw fino al 23% in più dei valori pubblicati, centro di taglio degli UPN al 9%).
-  I valori pubblicati sono in `CatalogProfile`. Correzione prevista: calcolo numerico della torsione e
-  dell'ingobbamento sulla sezione reale, utile anche alle sezioni generiche.
+- Costante di torsione, d'ingobbamento e centro di taglio di canali, T, IPN, J, S e UPN: le proprietà della classe
+  restano le formule a parete sottile (It fino al 21% in meno, Iw fino al 23% in più dei valori pubblicati, centro
+  di taglio degli UPN al 9%); i valori numerici sulla sezione reale sono dati da `CalculateTorsionProperties` (vedi
+  [Torsione numerica](#torsione-numerica)). I valori pubblicati sono in `CatalogProfile`.
 - Iz di S, ST, C, MC dell'AISC: circa 2% sistematico (geometria delle ali dell'ASTM A6 non pubblicata).
 - EN 10219-2: mancano SHS e RHS a freddo (raggi esterni 2t, 2,5t, 3t); EN 10055 (T laminati) non è coperta.
-- Sezioni composte: nessuna mesh unica e nessuna costante d'ingobbamento.
+- Sezioni composte collegate per punti (`SectionBuiltUp`): nessuna mesh unica e nessuna costante d'ingobbamento.
 
 ## Rigenerare i cataloghi
 
