@@ -1,4 +1,4 @@
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Collections;
 using GPC.Model.ElementProperties;
@@ -298,7 +298,7 @@ namespace GPC.Model.Sections.Concrete
                     double size = _configuredMeshSize;
                     if (size <= 0)
                     {
-                        Point2d bBox = Shape.Get2dBoundingBox().Size;
+                        Point2d bBox = ConcreteShape.Get2dBoundingBox().Size;
                         size = Math.Min(Math.Max(bBox.X, bBox.Y) / 5.0, Math.Min(bBox.X, bBox.Y));
                     }
 
@@ -327,9 +327,16 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        ///
+        /// The shape of the concrete: the region of the concrete shape, including the area of the steel sections inside it (the homogenized
+        /// properties subtract it)
         /// </summary>
-        public Shape2d Shape => _sectionShape.Shape;
+        public Shape2d ConcreteShape => _sectionShape.Shape;
+
+        /// <summary>
+        /// The shape of the concrete, the member of <see cref="ISectionShape"/>: the same as <see cref="ConcreteShape"/>, the name to use in this
+        /// class (Shape is also the name of the type <see cref="GPC.Geometry.Shape"/>)
+        /// </summary>
+        public Shape2d Shape => ConcreteShape;
 
         /// <summary>
         ///
@@ -740,7 +747,7 @@ namespace GPC.Model.Sections.Concrete
 
             for (int i = 0; i < rebarsArray.Length; i++)
             {
-                if (Shape.IsPointInside(rebarsArray[i].Value.Position))
+                if (ConcreteShape.IsPointInside(rebarsArray[i].Value.Position))
                     kvp.Add(i, true);
                 else
                     kvp.Add(i, false);
@@ -833,21 +840,39 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// For all steel sections, save whether it is inside or outside the concrete section.
-        /// Even if only one thinwall is internal to the concrete section, it means that the whole
-        /// steel section is internal.
+        /// For all steel sections, save whether it is entirely inside the concrete section (<see cref="SteelSectionPosition.IsInsideConcrete"/>),
+        /// from the exact overlap of its outline with the concrete (see <see cref="SteelSectionPosition.ConcreteOverlapArea"/>). Before, the whole
+        /// section was inside when the middle line of its first thin wall was inside, and the sections without thin walls (e.g.
+        /// <see cref="SectionBuiltUp"/>) threw <see cref="NotImplementedException"/>. If the overlap can not be computed, the old rule
         /// </summary>
         public void SetSteelSectionIsInside()
         {
             foreach (var steelSection in _steelSections)
             {
-                if (steelSection.Section.ThinWalls != null && steelSection.Section.ThinWalls.Length > 0)
+                ConcreteOverlap overlap = steelSection.UpdateConcreteOverlap(ConcreteShape);
+                if (overlap != null)
                 {
-                    var thinwall = steelSection.Section.ThinWalls[0];
+                    steelSection.IsInsideConcrete = overlap.IsInside;
+                    continue;
+                }
+
+                ThinWallSection.ThinWall[] thinWalls;
+                try
+                {
+                    thinWalls = steelSection.Section.ThinWalls;
+                }
+                catch (NotImplementedException)
+                {
+                    thinWalls = null;
+                }
+
+                if (thinWalls != null && thinWalls.Length > 0)
+                {
+                    var thinwall = thinWalls[0];
                     var midLine = thinwall.GetMiddleLine();
                     var globStartPoint = steelSection.PositionToGlobal(midLine[0]);
                     var globEndPoint = steelSection.PositionToGlobal(midLine[1]);
-                    steelSection.IsInsideConcrete = Shape.IsLineInside(new Line2d(globStartPoint, globEndPoint));
+                    steelSection.IsInsideConcrete = ConcreteShape.IsLineInside(new Line2d(globStartPoint, globEndPoint));
                 }
                 else
                 {
@@ -855,9 +880,65 @@ namespace GPC.Model.Sections.Concrete
                     // Use centerid.
                     var centroidPoint = steelSection.Section.Centroid;
                     var globCentroidPoint = steelSection.PositionToGlobal(centroidPoint);
-                    steelSection.IsInsideConcrete = Shape.IsPointInside(globCentroidPoint);
+                    steelSection.IsInsideConcrete = ConcreteShape.IsPointInside(globCentroidPoint);
                 }
             }
+        }
+
+        /// <summary>
+        /// Computes the overlap of each steel section with the concrete, for the homogenized properties (reused while the positions do not change)
+        /// </summary>
+        private void UpdateSteelOverlaps()
+        {
+            foreach (SteelSectionPosition steelSection in _steelSections)
+                steelSection.UpdateConcreteOverlap(ConcreteShape);
+        }
+
+        /// <summary>
+        /// The torsion of the composite section solved with the finite elements (see <see cref="Section.CalculateTorsionProperties"/>): the concrete
+        /// without the area of the steel sections inside it and the exact outlines of the steel sections, homogenized to the concrete with the
+        /// ratios of the shear moduli Gs / Gc (torsion constant: Gc It is the torsional stiffness) and of the elastic moduli Es / Ec (shear centre
+        /// and warping constant). The closed cells made by the concrete and the steel (e.g. an open steel box closed by the slab) are solved as
+        /// such. The rebars are not considered. The <see cref="Jt"/> of the section is the one of the concrete only
+        /// </summary>
+        /// <param name="phi">The creep coefficient of the concrete: Ec / (1 + phi)</param>
+        /// <param name="meshSize">The size of the elements (not positive: the default, see <see cref="SectionTorsionProperties.MeshSize"/>)</param>
+        /// <returns>The torsion properties in the concrete; not solved if the concrete without the steel can not be computed or the solver fails</returns>
+        public SectionTorsionProperties CalculateHomogenizedTorsionProperties(double phi = 0.0, double meshSize = 0)
+        {
+            double ec = ConcreteMaterial.ElasticModulusCompression / (1.0 + phi);
+            double gc = ec / (2.0 * (1.0 + ConcreteMaterial.Ni));
+            if (!(ec > 0))
+                return new SectionTorsionProperties("the elastic modulus of the concrete is not positive");
+
+            var regions = new List<TorsionRegion>();
+            var steelOutlines = new List<Shape2d>();
+            foreach (SteelSectionPosition steelSection in _steelSections)
+            {
+                SteelMaterial steel = steelSection.Section.SteelMaterial;
+                double es = steel.ElasticModulusTension, gs = es / (2.0 * (1.0 + steel.Ni));
+                foreach (Shape2d outline in steelSection.GetGlobalOutlines())
+                {
+                    regions.Add(new TorsionRegion(outline, gs / gc, es / ec));
+                    steelOutlines.Add(outline);
+                }
+            }
+
+            UpdateSteelOverlaps();
+            bool overlaps = _steelSections.Any(s => s.ConcreteOverlap is null ? s.IsInsideConcrete : !s.ConcreteOverlap.IsOutside);
+            if (!overlaps)
+            {
+                regions.Insert(0, new TorsionRegion(ConcreteShape));
+            }
+            else
+            {
+                if (!GPC.Geometry.Shape.Difference(ConcreteOverlap.Flatten(ConcreteShape).ToArray(), steelOutlines.Cast<GPC.Geometry.Shape>().ToArray(),
+                    out GPC.Geometry.Shape[] concrete) || concrete is null)
+                    return new SectionTorsionProperties("the concrete without the steel sections can not be computed");
+                regions.InsertRange(0, concrete.Select(c => new TorsionRegion(ConcreteOverlap.ToShape2d(c))));
+            }
+
+            return SectionTorsion.Calculate(regions, meshSize);
         }
 
         #endregion
@@ -883,6 +964,7 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties()
         {
+            UpdateSteelOverlaps();
             var centroidH = GetHomogenizedCentroid(out var SxH, out var SyH);
 
             // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
@@ -904,6 +986,7 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The centroid</returns>
         public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog, _steelSections);
         }
@@ -914,27 +997,32 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The homogenized area</returns>
         public double GetHomogenizedArea()
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogenizedArea(_rebars.Values.ToArray(), ConcreteMaterial, Area, _steelSections);
         }
 
         /// <summary>
-        /// The homogenized moment of inertia about the principal axis 1 (n = Es / Ec; the steel sections are not considered)
+        /// The homogenized moment of inertia about the principal axis 1 (n = Es / Ec), the same of <see cref="GetHomogeneizedMechanicalProperties()"/>
+        /// (before, without the steel sections)
         /// </summary>
         /// <returns>The moment of inertia</returns>
         public double GetHomogeneizedJ11()
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
-                Area, Jxx, Jyy, Jxy);
+                Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
         /// <summary>
-        /// The homogenized moment of inertia about the principal axis 2 (n = Es / Ec; the steel sections are not considered)
+        /// The homogenized moment of inertia about the principal axis 2 (n = Es / Ec), the same of <see cref="GetHomogeneizedMechanicalProperties()"/>
+        /// (before, without the steel sections)
         /// </summary>
         /// <returns>The moment of inertia</returns>
         public double GetHomogeneizedJ22()
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
-                Area, Jxx, Jyy, Jxy);
+                Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
         /// <summary>
@@ -970,6 +1058,7 @@ namespace GPC.Model.Sections.Concrete
         public (double areaH, double SxH, double SyH, Point2d centroidH, double JxxH, double JyyH, double JxyH, double JpH, double J11H, double J22H, double angleX)
             GetHomogeneizedMechanicalProperties(double phi)
         {
+            UpdateSteelOverlaps();
             if (_rebars.Count > 0 || _steelSections.Count > 0)
             {
                 Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
@@ -999,6 +1088,7 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The centroid</returns>
         public Point2d GetHomogenizedCentroid(double phi, out double SxHomog, out double SyHomog)
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog, _steelSections);
         }
@@ -1010,29 +1100,34 @@ namespace GPC.Model.Sections.Concrete
         /// <returns>The homogenized area</returns>
         public double GetHomogenizedArea(double phi)
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogenizedArea(phi, _rebars.Values.ToArray(), ConcreteMaterial, Area, _steelSections);
         }
 
         /// <summary>
-        /// The homogenized moment of inertia about the principal axis 1 with the creep coefficient (the steel sections are not considered)
+        /// The homogenized moment of inertia about the principal axis 1 with the creep coefficient, the same of
+        /// <see cref="GetHomogeneizedMechanicalProperties(double)"/> (before, without the steel sections)
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
         /// <returns>The moment of inertia</returns>
         public double GetHomogeneizedJ11(double phi)
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
-                Area, Jxx, Jyy, Jxy);
+                Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
         /// <summary>
-        /// The homogenized moment of inertia about the principal axis 2 with the creep coefficient (the steel sections are not considered)
+        /// The homogenized moment of inertia about the principal axis 2 with the creep coefficient, the same of
+        /// <see cref="GetHomogeneizedMechanicalProperties(double)"/> (before, without the steel sections)
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
         /// <returns>The moment of inertia</returns>
         public double GetHomogeneizedJ22(double phi)
         {
+            UpdateSteelOverlaps();
             return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
-                Area, Jxx, Jyy, Jxy);
+                Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
         #endregion

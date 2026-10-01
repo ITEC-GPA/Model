@@ -75,7 +75,9 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Adds the static moments of the steel sections, n A y and n A x (n - 1 inside the concrete)
+        /// Adds the static moments of the steel sections, n A y and n A x, minus the ones of the concrete they replace (see
+        /// <see cref="SteelSectionPosition.ReplacedConcrete"/>: the whole section inside the concrete, n - 1; nothing outside, n; the overlap for
+        /// a section partly inside. Before, n - 1 or n for the whole section, from the first thin wall)
         /// </summary>
         /// <param name="steelSections">The steel sections</param>
         /// <param name="concreteMaterial">The concrete</param>
@@ -91,13 +93,15 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
 
                     var centroid = steelSection.CalculateCentroid();
                     SxHomog += nSteelSection * steelSection.CalculateArea() * centroid.Y;
                     SyHomog += nSteelSection * steelSection.CalculateArea() * centroid.X;
+
+                    // the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out _, out double sx, out double sy, out _, out _, out _);
+                    SxHomog -= sx;
+                    SyHomog -= sy;
                 }
             }
         }
@@ -126,7 +130,8 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Adds the moments of inertia of the steel sections about the axes through a point, n J (n - 1 inside the concrete)
+        /// Adds the moments of inertia of the steel sections about the axes through a point, n J, minus the ones of the concrete they replace
+        /// (see <see cref="AddSteelSectionStaticMoments"/>)
         /// </summary>
         /// <param name="steelSections">The steel sections</param>
         /// <param name="centroid">The origin of the axes</param>
@@ -145,13 +150,16 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double n = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        n -= 1.0;
 
                     JxxHomogenized += n * steelSection.CalculateJxx(centroid);
                     JyyHomogenized += n * steelSection.CalculateJyy(centroid);
                     JxyHomogenized += n * steelSection.CalculateJxy(centroid);
+
+                    // the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(centroid, out _, out _, out _, out double ixx, out double iyy, out double ixy);
+                    JxxHomogenized -= ixx;
+                    JyyHomogenized -= iyy;
+                    JxyHomogenized -= ixy;
                 }
             }
         }
@@ -368,11 +376,9 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
-
-                    areaH += nSteelSection * steelSection.CalculateArea();
+                    // minus the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out double replaced, out _, out _, out _, out _, out _);
+                    areaH += nSteelSection * steelSection.CalculateArea() - replaced;
                 }
             }
 
@@ -402,11 +408,9 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = CalculateHomogenizedFactorN(phi, steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
-
-                    areaH += nSteelSection * steelSection.CalculateArea();
+                    // minus the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out double replaced, out _, out _, out _, out _, out _);
+                    areaH += nSteelSection * steelSection.CalculateArea() - replaced;
                 }
             }
 

@@ -191,6 +191,34 @@ namespace GPC.Model.Sections
         public IReadOnlyList<Shape2d> GetOutlines() => _parts.Select(p => p.PlacedOutline()).ToArray();
 
         /// <summary>
+        /// The thin walls of the parts placed in the section (the parts without thin walls, e.g. circular bars, have none); before, not
+        /// implemented (<see cref="NotImplementedException"/>)
+        /// </summary>
+        public override ThinWallSection.ThinWall[] ThinWalls => _parts.SelectMany(PlacedThinWalls).ToArray();
+
+        private static IEnumerable<ThinWallSection.ThinWall> PlacedThinWalls(Part part)
+        {
+            ThinWallSection.ThinWall[] walls;
+            try
+            {
+                walls = part.Section.ThinWalls;
+            }
+            catch (NotImplementedException)
+            {
+                walls = null;
+            }
+
+            if (walls is null)
+                yield break;
+
+            foreach (ThinWallSection.ThinWall wall in walls)
+            {
+                Point2d[] middle = wall.GetMiddleLine();
+                yield return new ThinWallSection.ThinWall(part.Place(middle[0].X, middle[0].Y), part.Place(middle[1].X, middle[1].Y), wall.T);
+            }
+        }
+
+        /// <summary>
         /// A built-up section has no single shape: null (see <see cref="GetOutlines"/>)
         /// </summary>
         /// <returns>null</returns>
@@ -224,6 +252,32 @@ namespace GPC.Model.Sections
         /// <returns>Not solved</returns>
         public override SectionTorsionProperties CalculateTorsionProperties(double meshSize = 0) =>
             new SectionTorsionProperties("the parts of a built-up section are connected at discrete points: solve the parts");
+
+        /// <summary>
+        /// Sets the working of the corners of the parts from the type of the section (each part once; the parts without corners, e.g. circular,
+        /// are not changed) and calculates their properties again. Before, <see cref="NotImplementedException"/>: a <see cref="Steel.SteelSection"/>
+        /// of a built-up section could not be created
+        /// </summary>
+        /// <param name="sectionType">The type of the section</param>
+        public override void SetEdgeTypeFromSteelType(SectionTypes sectionType)
+        {
+            var done = new List<Section>();
+            foreach (Part part in _parts)
+            {
+                if (done.Any(s => ReferenceEquals(s, part.Section)))
+                    continue;
+                done.Add(part.Section);
+                try
+                {
+                    part.Section.SetEdgeTypeFromSteelType(sectionType);
+                }
+                catch (NotImplementedException)
+                {
+                    continue;
+                }
+                part.Section.SetMechanicalProperties();
+            }
+        }
 
         /// <summary>
         /// The warping constant not available is NaN: it is not computed with the finite elements
