@@ -334,7 +334,22 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
         /// before, the centroid)</remarks>
-        public Point2d ShearCenter => _shearCenter is null && SolvesTorsionNumerically ? (_shearCenter = NumericalTorsion.ShearCenter) : _shearCenter;
+        public Point2d ShearCenter => _shearCenter is null && SolvesTorsionNumerically ? (_shearCenter = OnTheAxesOfSymmetry(NumericalTorsion.ShearCenter)) : _shearCenter;
+
+        /// <summary>
+        /// The shear centre solved with the finite elements, on the axes of symmetry of the section (the mesh is not symmetric: the coordinate
+        /// along an axis of symmetry differs from the one of the centroid by about 1e-5 of the size)
+        /// </summary>
+        /// <param name="point">The shear centre of the finite elements</param>
+        /// <returns>The shear centre with the coordinates of the centroid along the axes of symmetry</returns>
+        private Point2d OnTheAxesOfSymmetry(Point2d point)
+        {
+            if (point is null || _centroid is null)
+                return point;
+            double x = _isSymmetricAlongYLocalAxis && !double.IsNaN(point.X) ? _centroid.X : point.X;
+            double y = _isSymmetricAlongXLocalAxis && !double.IsNaN(point.Y) ? _centroid.Y : point.Y;
+            return new Point2d(x, y);
+        }
 
         /// <summary>
         /// The shear center of the section relative to the centroid
