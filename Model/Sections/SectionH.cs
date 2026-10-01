@@ -554,6 +554,16 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Torsion and warping constants from formulas (rolled I sections, thin-walled theory): approximate; shear centre: exact with the double
+        /// symmetry (the centroid), otherwise approximate
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.Approximate,
+                IsDoubleSymmetric ? PropertyAvailability.Exact : PropertyAvailability.Approximate);
+
+        /// <summary>
         /// Calculate the torsion constant: with fillets the formula of the rolled I sections (mean flange, α1 and D1 of the fillets), otherwise
         /// the one of the thin walls
         /// </summary>

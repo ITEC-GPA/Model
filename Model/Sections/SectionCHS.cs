@@ -357,6 +357,14 @@ namespace GPC.Model.Sections
         protected override Point2d CalculateShearCenter() => _shearCenter;
 
         /// <summary>
+        /// All the properties are exact (closed formulas of the circular tube)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Exact, PropertyAvailability.Exact, PropertyAvailability.Exact);
+
+        /// <summary>
         /// The plastic modulus respect to the axis 1 (already set)
         /// </summary>
         /// <returns>The plastic modulus</returns>

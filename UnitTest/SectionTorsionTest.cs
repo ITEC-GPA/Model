@@ -127,6 +127,99 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void GenericSectionsSolveTheTorsionAtTheFirstAccess()
+        {
+            // before, a generic shape had Jt = Jw = 0 and the shear centre in the centroid (placeholders): now the finite elements
+            double t = 2, h = 200, b = 100;
+            var channel = Generic(new[]
+            {
+                new Point2d(0, 0), new Point2d(b + t / 2, 0), new Point2d(b + t / 2, t), new Point2d(t, t), new Point2d(t, h), new Point2d(b + t / 2, h),
+                new Point2d(b + t / 2, h + t), new Point2d(0, h + t),
+            });
+            SectionTorsionProperties torsion = channel.CalculateTorsionProperties();
+            Assert.AreEqual(torsion.TorsionConstant, channel.Jt, 1e-12 * torsion.TorsionConstant);
+            Assert.AreEqual(torsion.WarpingConstant, channel.Jw, 1e-12 * torsion.WarpingConstant);
+            Assert.AreEqual(torsion.ShearCenter.X, channel.ShearCenter.X, 1e-9);
+            Assert.AreEqual(torsion.ShearCenter.Y, channel.ShearCenter.Y, 1e-9);
+            Assert.AreEqual(torsion.ShearCenter.X - channel.Centroid.X, channel.ShearCenterLocalCoord.X, 1e-9);
+            Assert.AreEqual(PropertyAvailability.Numerical, channel.GetAvailability(SectionProperty.TorsionConstant));
+            Assert.AreEqual(PropertyAvailability.Numerical, channel.GetAvailability(SectionProperty.ShearCenter));
+            Assert.AreEqual(PropertyAvailability.Exact, channel.GetAvailability(SectionProperty.Area));
+            Assert.AreEqual(PropertyAvailability.Exact, channel.GetAvailability(SectionProperty.PlasticModuli));
+
+            // separate parts: torsion constant numerical, warping constant and shear centre not available
+            var parts = new Section(new Shape2d(new Polygon2d(Rectangle(0, 0, 300, 300)), new[] { new Polygon2d(Rectangle(50, 50, 200, 200)) },
+                new[] { new Shape2d(new Polygon2d(Rectangle(100, 100, 100, 50))) }), "parts");
+            parts.SetMechanicalProperties();
+            Assert.AreEqual(PropertyAvailability.Numerical, parts.GetAvailability(SectionProperty.TorsionConstant));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, parts.GetAvailability(SectionProperty.WarpingConstant));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, parts.GetAvailability(SectionProperty.ShearCenter));
+
+            // equal generic sections are equal before and after the computation, with the same hash code
+            Section first = Generic(Rectangle(0, 0, 200, 100)), second = Generic(Rectangle(0, 0, 200, 100));
+            int hash = first.GetHashCode();
+            Assert.AreEqual(hash, second.GetHashCode());
+            Assert.IsTrue(first.Equals(second));
+            Assert.AreEqual(hash, first.GetHashCode());
+            Assert.AreEqual(RectangleTorsion(200, 100), first.Jt, 1e-3 * first.Jt);
+        }
+
+        [TestMethod]
+        public void SerializedGenericSectionsKeepTheTorsionToCompute()
+        {
+#pragma warning disable SYSLIB0011
+            var section = Generic(Rectangle(0, 0, 200, 100));
+            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (var stream = new System.IO.MemoryStream())
+            {
+                formatter.Serialize(stream, section);
+                stream.Position = 0;
+                var copy = (Section)formatter.Deserialize(stream);
+                Assert.AreEqual(RectangleTorsion(200, 100), copy.Jt, 1e-3 * copy.Jt);
+                Assert.AreEqual(100, copy.ShearCenter.X, 1e-4);
+                Assert.IsTrue(section.Equals(copy));
+            }
+#pragma warning restore SYSLIB0011
+        }
+
+        [TestMethod]
+        public void AvailabilityOfTheSections()
+        {
+            // given by the values: the moduli are not set
+            var given = new Section(1000, 2e6, 1e6, 3e5, 0, new Point2d(0, 0), new Point3d(0, 0, 0), 0, "given");
+            Assert.AreEqual(PropertyAvailability.Given, given.GetAvailability(SectionProperty.Area));
+            Assert.AreEqual(PropertyAvailability.Given, given.GetAvailability(SectionProperty.TorsionConstant));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, given.GetAvailability(SectionProperty.ElasticModuli));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, given.GetAvailability(SectionProperty.PlasticModuli));
+
+            // closed formulas, thin-walled formulas, placeholders
+            var circle = new SectionCircular(100);
+            Assert.AreEqual(PropertyAvailability.Exact, circle.GetAvailability(SectionProperty.ShearCenter));
+            Assert.AreEqual(50, circle.ShearCenter.X, 1e-12);
+
+            var beam = new SectionH(300, 7.1, 150, 10.7, 150, 10.7, "IPE 300", 15);
+            beam.SetEdgeTypeFromSteelType(Section.SectionTypes.Rolled);
+            beam.SetMechanicalProperties();
+            Assert.AreEqual(PropertyAvailability.Exact, beam.GetAvailability(SectionProperty.MomentsOfInertia));
+            Assert.AreEqual(PropertyAvailability.Approximate, beam.GetAvailability(SectionProperty.TorsionConstant));
+            Assert.AreEqual(PropertyAvailability.Exact, beam.GetAvailability(SectionProperty.ShearCenter));
+            // the published It of the IPE 300 (EN 10365): 201000 mm4; the formula and the finite elements on the outline with the fillets
+            Assert.AreEqual(201000, beam.Jt, 0.01 * 201000);
+            Assert.AreEqual(201000, beam.CalculateTorsionProperties().TorsionConstant, 0.02 * 201000);
+
+            var box = new SectionSteelBox(1000, 12, 300, 20, 800, 25, 900, 700);
+            Assert.AreEqual(PropertyAvailability.Approximate, box.GetAvailability(SectionProperty.TorsionConstant));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, box.GetAvailability(SectionProperty.WarpingConstant));
+            Assert.AreEqual(PropertyAvailability.NotAvailable, box.GetAvailability(SectionProperty.ShearCenter));
+
+            var angle = new SectionL(100, 10, 100, 10, "L 100 x 10");
+            var doubleAngle = SectionBuiltUp.DoubleAngle(angle, 10, "2L");
+            Assert.AreEqual(PropertyAvailability.NotAvailable, doubleAngle.GetAvailability(SectionProperty.WarpingConstant));
+            Assert.IsTrue(double.IsNaN(doubleAngle.Jw));
+            Assert.AreEqual(PropertyAvailability.Approximate, doubleAngle.GetAvailability(SectionProperty.TorsionConstant));
+        }
+
+        [TestMethod]
         public void SeparateParts()
         {
             // two separate rectangles: the torsion constant is the sum, warping constant and shear centre are not defined

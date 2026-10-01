@@ -225,6 +225,20 @@ namespace GPC.Model.Sections
         public override SectionTorsionProperties CalculateTorsionProperties(double meshSize = 0) =>
             new SectionTorsionProperties("the parts of a built-up section are connected at discrete points: solve the parts");
 
+        /// <summary>
+        /// The warping constant not available is NaN: it is not computed with the finite elements
+        /// </summary>
+        private protected override bool SolvesTorsionNumerically => false;
+
+        /// <summary>
+        /// Geometric properties exact (the parts); torsion constant (sum of the parts) and shear centre (see the class): approximate; warping
+        /// constant: not available
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.NotAvailable, PropertyAvailability.Approximate);
+
         /// <summary>The area: the sum of the areas of the parts</summary>
         /// <returns>The area</returns>
         protected override double CalculateArea() => _parts.Sum(p => p.Section.Area);

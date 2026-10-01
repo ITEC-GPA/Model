@@ -322,6 +322,16 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Torsion constant of the closed section (Bredt or EN 10210-2): approximate; warping constant 0 of the thin-walled theory of the
+        /// closed sections: approximate; shear centre in the centroid: exact with the double symmetry, otherwise not available (placeholder)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.Approximate,
+                IsDoubleSymmetric ? PropertyAvailability.Exact : PropertyAvailability.NotAvailable);
+
+        /// <summary>
         /// Calculate the torsion constant of the closed section (Bredt): 4 Am² / Σ(l / t), on the middle lines
         /// </summary>
         /// <returns>The torsion constant</returns>

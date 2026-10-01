@@ -268,6 +268,20 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Calculate the shear centre: the centre (before, the same value from the base class)
+        /// </summary>
+        /// <returns>The shear centre</returns>
+        protected override Point2d CalculateShearCenter() => CalculateCentroid();
+
+        /// <summary>
+        /// All the properties are exact (closed formulas of the circle)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Exact, PropertyAvailability.Exact, PropertyAvailability.Exact);
+
+        /// <summary>
         /// Calculate the elastic modulus: π D³ / 32
         /// </summary>
         /// <returns>The elastic modulus</returns>

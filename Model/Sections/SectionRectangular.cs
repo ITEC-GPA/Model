@@ -206,6 +206,15 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Torsion constant from the formula of <see cref="GetAlpha"/> (deviation from the exact series under 0.5%): approximate; warping
+        /// constant 0 of the thin-walled theory: approximate; shear centre in the centroid: exact
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.Approximate, PropertyAvailability.Exact);
+
+        /// <summary>
         /// The coefficient of the torsion constant: 1/3 - 0.21 b / a (1 - (b / a)⁴ / 12)
         /// </summary>
         /// <returns>The coefficient</returns>

@@ -232,6 +232,16 @@ namespace GPC.Model.Sections
         private protected virtual SectionCorner[] GetCorners() => new SectionCorner[0];
 
         /// <summary>
+        /// The geometric properties are exact (thin walls plus corners, or the outline); torsion constant, warping constant and shear centre
+        /// come from the formulas of the thin-walled theory: approximate (see <see cref="Section.CalculateTorsionProperties"/> for the values
+        /// solved on the region)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.Approximate, PropertyAvailability.Approximate);
+
+        /// <summary>
         /// Calculate the centroid: the thin walls plus the corners (see <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The centroid</returns>
