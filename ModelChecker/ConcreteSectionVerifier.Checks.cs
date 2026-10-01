@@ -39,8 +39,14 @@ namespace GPC.Model.Checker
             }
         }
 
+        /// <summary>The standard does not define the task: not applicable, with the reason, never evaluated through another standard.</summary>
+        private CheckResult NotApplicable(string reason) => WithEdition(new CheckResult { Applicability = CheckApplicability.NotApplicable, ApplicabilityReason = reason,
+            Execution = ExecutionStatus.NotExecuted, Data = DataStatus.Ready, Outcome = EngineeringOutcome.NotEvaluated, EngineVersion = Version, Standard = StandardContext });
+
         private CheckResult StressLimits(BeamCheckInput input, CombinationCategory category, CancellationToken cancellationToken)
         {
+            var notApplicable = StressLimitCheck.NotApplicableReason(_standard);
+            if (notApplicable != null) return NotApplicable(notApplicable);
             var combination = category == CombinationCategory.Characteristic ? ServiceabilityCombination.Characteristic : ServiceabilityCombination.QuasiPermanent;
             var forces = SectionForces(input, out var reference);
             lock (Sync)

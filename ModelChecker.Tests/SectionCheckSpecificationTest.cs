@@ -4,6 +4,7 @@ using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Shear;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Results.ResultLocations;
 using GPC.Geometry;
 using GPC.Model.Checker;
 using GPC.Model.Materials;
@@ -151,10 +152,97 @@ public class SectionCheckSpecificationTest
         Assert.IsFalse(verifier.Supports(new SectionCheckSpecification(CheckMechanism.UlsBiaxialSection, CombinationCategory.UltimateSeismic)));
     }
 
-    // Fixture section RC 300x500, 4Ø16 at 50 mm from the edges. V1 along x: bw = 500, d = 250; V2 along y: bw = 300, d = 450.
-    private static ConcreteShearData ShearData(ReinforcedConcreteSection section, bool anchored = true) => new(
-        new ConcreteShearReinforcement(8, 200, section.Rebars.First().RebarMaterial),
-        new ConcreteShearDirection(500, 250, 402, anchored, 2), new ConcreteShearDirection(300, 450, 402, anchored, 2), "fixture drawings", 20);
+    // Fixture section RC 300x500, 4Ø16 at 50 mm from the edges. V1 along x: bw = 500, d = 250; V2 along y: bw = 300, d = 450; cv = 42 mm.
+    private static ConcreteShearData ShearData(ReinforcedConcreteSection section, bool anchored = true, bool stirrups = true) => new(
+        stirrups ? new ConcreteShearReinforcement(8, 200, section.Rebars.First().RebarMaterial) : null,
+        new ConcreteShearDirection(500, 250, 402, anchored, stirrups ? 2 : 0, longitudinalCover: 42),
+        new ConcreteShearDirection(300, 450, 402, anchored, stirrups ? 2 : 0, longitudinalCover: 42), "fixture drawings", 20);
+
+    public static IEnumerable<object[]> NonAmericanStandards() => new[] { "NTC 2018", "Model Code 2010", "EN 1992-1-1", "UNI EN 1992-1-1",
+        "DIN EN 1992-1-1", "DS EN 1992-1-1", "NS EN 1992-1-1", "CNR-DT 204/2006", "CS-TR34", "CNR-DT 200 R1/2013" }.Select(n => new object[] { n });
+    private static StandardModelCode2010 Standard(string name) => name switch
+    {
+        "NTC 2018" => new StandardNTC2018Concrete(), "Model Code 2010" => new StandardModelCode2010(), "EN 1992-1-1" => new StandardEN1992p11(),
+        "UNI EN 1992-1-1" => new StandardUNIEN1992p11(), "DIN EN 1992-1-1" => new StandardDINEN1992p11(), "DS EN 1992-1-1" => new StandardDSEN1992p11(),
+        "NS EN 1992-1-1" => new StandardNSEN1992p11(), "CNR-DT 204/2006" => new StandardCNR204(), "CS-TR34" => new StandardCSTR34(),
+        "CNR-DT 200 R1/2013" => new StandardCNR200(), _ => throw new ArgumentException(name)
+    };
+
+    /// <summary>Every non-American standard answers every implemented check explicitly: evaluated, not applicable with the reason, or not supported with the reason.</summary>
+    [DataTestMethod, DynamicData(nameof(NonAmericanStandards), DynamicDataSourceType.Method)]
+    public void EveryNonAmericanStandardAnswersEveryCheck(string name)
+    {
+        var m = Model(); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section);
+        var request = Request(Plan(new SectionCheckSpecification(CheckMechanism.UlsBiaxialSection, CombinationCategory.Ultimate), SectionCheckSpecification.ShearAxis1(),
+            SectionCheckSpecification.ShearAxis2(), SectionCheckSpecification.StressLimits(CombinationCategory.Characteristic), SectionCheckSpecification.StressLimits(CombinationCategory.QuasiPermanent)));
+        request.Jobs[0].Options = Options(Standard(name));
+        var results = new Service().Verify(m, request).Jobs[0].Results;
+        Assert.AreEqual(40, results.Count);
+        string Describe(CheckResult r) => r.Check!.Key + " " + r.Applicability + " " + r.Data + " " + r.Outcome + " " + string.Join(",", r.Diagnostics.Select(d => d.Code + ":" + d.Message));
+        foreach (var r in results)
+        {
+            var check = r.Check!;
+            bool notApplicable = name == "CS-TR34" && check.Mechanism != CheckMechanism.UlsBiaxialSection;
+            bool notSupported = name == "CNR-DT 204/2006" && check.Mechanism == CheckMechanism.Shear; // fibres with stirrups
+            if (notApplicable)
+            {
+                Assert.AreEqual(CheckApplicability.NotApplicable, r.Applicability, Describe(r)); StringAssert.Contains(r.ApplicabilityReason, "CS-TR34");
+            }
+            else if (notSupported)
+            {
+                Assert.AreEqual(DataStatus.NotSupported, r.Data, Describe(r)); Assert.IsTrue(r.Diagnostics.Any(d => d.Code == "ShearMethodNotImplemented"), Describe(r));
+            }
+            else
+            {
+                Assert.AreEqual(ExecutionStatus.Completed, r.Execution, Describe(r)); Assert.AreEqual(EngineeringOutcome.Satisfied, r.Outcome, Describe(r));
+                Assert.AreEqual(Standard(name).Name, r.Standard!.Code, Describe(r));
+            }
+        }
+        if (name == "CNR-DT 200 R1/2013") Assert.IsTrue(results.Where(r => r.Check!.Mechanism == CheckMechanism.Shear).All(r => r.Diagnostics.Any(d => d.Code == "NoFrpStrengthening")));
+    }
+
+    /// <summary>The ULS domain uses the partial factors of each standard: DS (γc 1.45, γs 1.20) differs from EN; the result equals a direct native call.</summary>
+    [TestMethod]
+    public void UltimateDomainUsesThePartialFactorsOfEachStandard()
+    {
+        var m = Model(); var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", 0, SectionSide.Unspecified);
+        var prepared = Verification.PrepareBeam(m, 250, sample, "uls");
+        var uls = new SectionCheckSpecification(CheckMechanism.UlsBiaxialSection, CombinationCategory.Ultimate);
+        var ratios = NonAmericanStandards().Select(o => (string)o[0]).ToDictionary(n => n, n => Verification.Run(prepared, uls, Options(Standard(n)).CreateVerifier()).Utilization!.Value);
+        foreach (var name in ratios.Keys)
+        {
+            var section = prepared.Input!.Section; var f = prepared.Input.Forces;
+            var reference = new CoordinateSystem(section.Centroid, new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
+            var forces = new ResultBeamForces(f.N, f.V1, f.V2, f.T, f.M1, f.M2, reference);
+            var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, SectionSolver.FailureAnalysisTypes.ConstantEccentricity,
+                SectionSolver.FailureDomainTypes.Plastic, SectionSolver.StressAnalysisTypes.NonLinear, 2, 0, false, 64);
+            var point = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, Standard(name), false).CalculateFailureDomainPoint(forces);
+            Assert.AreEqual(point.CalculateWorkingRatio(SectionSolver.FailureAnalysisTypes.ConstantEccentricity, forces, 1e6, 1000), ratios[name], 1e-12, name);
+        }
+        Assert.AreNotEqual(ratios["EN 1992-1-1"], ratios["DS EN 1992-1-1"]);
+        Assert.IsTrue(ratios["NTC 2018"] > ratios["Model Code 2010"], "αcc = 0.85 (NTC) reduces the capacity with respect to αcc = 1 (MC2010)");
+    }
+
+    /// <summary>CNR-DT 204 without shear reinforcement: plain concrete gives the EC2 value, FRC adds the residual strength.</summary>
+    [TestMethod]
+    public void FibreReinforcedShearUsesTheResidualStrengthOfTheMaterial()
+    {
+        var m = Model(); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section, stirrups: false);
+        var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", .5, SectionSide.Unspecified);
+        double Capacity(StandardModelCode2010 standard) => Verification.Run(Verification.PrepareBeam(m, 250, sample, "frc"), SectionCheckSpecification.ShearAxis2(),
+            Options(standard).CreateVerifier()).Details!.Metrics.Single().Capacity!.Value;
+        double plain = Capacity(new StandardCNR204()), ec2 = Capacity(new StandardEN1992p11());
+        Assert.AreEqual(ec2, plain, 1e-9 * ec2);
+        section.ConcreteMaterial = new ConcreteMaterialModelCode2010("FRC C25/30", 25, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
+            2.0, 1.5, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC, 0.2, 0.0025, 10e-6, ConcreteMaterial.CementTypes.ClassN);
+        // The material enters the analysis revision. The cantilever is statically determinate: the analytical forces stay valid.
+        var fingerprint = m.AnalysisFingerprint(); m.Datasets["synthetic-member"].InputFingerprint = fingerprint;
+        foreach (var state in m.BeamElements.Values.SelectMany(b => b.Results).SelectMany(r => r.Results).OfType<StationResultBeamForces>()) state.State.InputFingerprint = fingerprint;
+        double frc = Capacity(new StandardCNR204());
+        Assert.IsTrue(frc > 1.5 * plain, frc + " vs " + plain);
+        var warned = Verification.Run(Verification.PrepareBeam(m, 250, sample, "frc"), SectionCheckSpecification.ShearAxis2(), Options(new StandardEN1992p11()).CreateVerifier());
+        Assert.IsTrue(warned.Diagnostics.Any(d => d.Code == "FibreContributionNotUsed"));
+    }
 
     [TestMethod]
     public void ShearRunsInBothDirectionsFromTheSectionData_AndMatchesTheCore()
@@ -201,10 +289,13 @@ public class SectionCheckSpecificationTest
         Assert.IsFalse(plan.IsCurrent);
     }
 
+    /// <summary>A user-derived class of an implemented standard does not inherit its profile.</summary>
+    private sealed class CustomAnnex : StandardEN1992p11 { }
+
     [TestMethod]
     public void ShearIsNotSupportedForStandardsWithoutAnImplementedProfile()
     {
-        var verifier = Options(new StandardCNR200()).CreateVerifier();
+        var verifier = Options(new CustomAnnex()).CreateVerifier();
         Assert.IsFalse(verifier.Supports(SectionCheckSpecification.ShearAxis1()));
         Assert.IsFalse(Options().CreateVerifier().Supports(new SectionCheckSpecification(CheckMechanism.Shear, CombinationCategory.UltimateSeismic, SectionCheckDirection.Axis1)));
         Assert.IsTrue(Options(new StandardDINEN1992p11()).CreateVerifier().Supports(SectionCheckSpecification.ShearAxis2()));

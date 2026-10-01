@@ -5,10 +5,12 @@ Registro generale della migrazione: Checker/docs/migrazione-anthea/MIGRAZIONE_AN
 
 STATO DELLE SOTTOFASI
 
-4A  Perimetro, requisiti tipizzati, casi congelati          AVVIATA. Fatte: specifiche e categorie nel piano;
-                                                             casi del taglio. Da fare: casi SLE e fessurazione.
+4A  Perimetro, requisiti tipizzati, casi congelati          COMPLETATA. Specifiche e categorie nel piano; casi
+                                                             congelati del taglio e delle tensioni SLE; tutte le norme
+                                                             non americane per ogni verifica (vedi matrice). I casi
+                                                             della fessurazione si congelano con 4E.
 4B  Tensioni SLE con il solver esistente                     COLLEGATA (limiti tensionali; fessurazione in 4E)
-4C  Taglio nelle due direzioni                               TRASFERITO E COLLEGATO (c.a. ordinario)
+4C  Taglio nelle due direzioni                               TRASFERITO E COLLEGATO (tutte le norme non americane)
 4D  Torsione e interazione taglio-torsione                   DA FARE
 4E  Fessurazione e regioni efficaci                          DA FARE
 4F  Aderenza, ancoraggi, dettagli, M-curvatura               DA FARE
@@ -113,20 +115,35 @@ DATI FISICI DEL TAGLIO (Model, GPC.Model.Sections.Concrete)
 - Torsione concomitante non nulla: avviso ConcomitantTorsionNotChecked. Il taglio da solo non è presentato come
   verifica completa con torsione.
 
-MATRICE DELLE CAPACITÀ (dopo questo intervento)
+MATRICE DELLE CAPACITÀ (dopo 4A-4C)
 
-Meccanismo / criterio        Norme (tipo esatto)                         Geometria / armatura            Stato
----------------------------  ------------------------------------------  ------------------------------  ---------------------------
-Pressoflessione SLU          classi MC2010 del solver (come al passo 3)  sezione Model, barre e trefoli  disponibile, categoria
-                                                                                                         Ultimate; sismica ed
-                                                                                                         eccezionale non supportate
-Tensioni SLE caratteristica  classi MC2010 (coefficienti della norma)    sezione Model; trefoli con εp   disponibile
-Tensioni SLE quasi perm.     come sopra                                  come sopra                      disponibile
-Tensioni SLE frequente       nessun limite                               —                               non supportato
-Taglio V1 / V2               NTC, MC2010, EN e UNI/DIN/DS/NS 1992-1-1    dati espliciti; c.a. ordinario  disponibile (SLU fondamentale)
-Torsione                     —                                           —                               4D
-Fessurazione                 —                                           —                               4E
-Aderenza / dettagli / M-χ    —                                           —                               4F
+Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):
+NTC 2018, Model Code 2010, EN 1992-1-1, UNI / DIN / DS / NS EN 1992-1-1, CNR-DT 204/2006, CS-TR34, CNR-DT 200 R1/2013.
+ACI 318-08/14/19 e AASHTO: implementazione futura, per ora non configurabili nel verificatore c.a. (accetta solo le classi MC2010).
+
+Verifica                       NTC MC EN UNI DIN DS NS  CNR204  CS-TR34  CNR200   Note
+-----------------------------  --- -- -- --- --- -- --  ------  -------  ------   -----------------------------------------
+Pressoflessione SLU (Ultimate)  ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓        ✓       ✓     fattori parziali della classe; sismica ed
+                                                                                  eccezionale: non supportate
+Tensioni SLE caratteristica     ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓       n.a.     ✓     k1 fck, k3 fyk, trefoli: coefficienti della classe
+Tensioni SLE quasi permanente   ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓       n.a.     ✓     k2 fck
+Tensioni SLE frequente          —  —  —   —   —  —  —    —        —       —     nessun limite tensionale: non supportata
+Taglio V1 / V2 (Ultimate)       ✓  ✓  ✓   ✓   ✓  ✓  ✓   ✓ (1)    n.a.    ✓ (2)  dati espliciti della sezione
+Torsione                        4D
+Fessurazione                    4E
+Aderenza / dettagli / M-χ       4F
+
+✓ disponibile e provato; n.a. = non applicabile, con il motivo (CS-TR34 riguarda le pavimentazioni su terreno e non
+definisce né il taglio di trave né i limiti tensionali della sezione).
+(1) CNR-DT 204: elementi senza armatura a taglio. VRd,F = [0,18/γc k (100 ρl (1 + 7,5 fFtuk/fctk) fck)^(1/3) + 0,15 σcp] bw d,
+    con minimo (vmin + 0,15 σcp) bw d; fFtuk = Fctu del materiale FRC, fctk = 0,7 fctm della matrice. Fibre più staffe:
+    non supportato (combinazione da definire). Senza fibre coincide con EC2.
+(2) CNR-DT 200: VRd = min(VRd,s + VRd,f; VRd,c) con le formule NTC. Le sezioni di Model non hanno dati FRP: VRd,f = 0 e
+    avviso NoFrpStrengthening.
+Il materiale FRC con le altre norme: avviso FibreContributionNotUsed (resistenza del calcestruzzo semplice).
+Coefficienti delle tensioni SLE: quelli delle classi di Model (unica sorgente; gli annessi che non li ridefiniscono usano
+i valori MC2010 0,60 / 0,45 / 0,80 / 0,75). Formule di CNR-DT 204 e CNR-DT 200: da riscontrare sul testo (non disponibile
+qui), come i coefficienti degli annessi.
 
 CASI CONGELATI E CONFRONTI
 
@@ -155,6 +172,20 @@ CASI CONGELATI E CONFRONTI
   - dati obbligatori e invalidazione del piano alla modifica delle staffe;
   - norma non supportata;
   - archivi con sezione e report.
+- Tensioni SLE: la stessa harness congela CheckerSection.Stress su 2016 stati.
+  - Copertura: 4 sezioni (rettangolare, a T, circolare, rettangolare con foro), salvate in
+    stress-sections.xml con l'archivio di Model 1.5.0.0.
+  - Norme e opzioni: 9 norme (ANTHEA non ha CNR-DT 200); analisi lineare e non lineare, φ, cls teso, getti sottili NTC;
+    azioni già negli assi locali.
+  - Esito: ServiceabilityMigrationTests riproduce tensioni minime del cls, tensioni massime delle barre, rapporti e limiti
+    (tolleranza 1e-9), compresi i rapporti nulli della combinazione frequente. Le sezioni sono rilette da Model 1.6.0.0.
+- Tutte le norme non americane:
+  - ServiceabilityMigrationTests.LimitsFollowTheCoefficientsOfEveryStandard;
+  - ShearMigrationTests: profili per tipo esatto, CNR-DT 204 a mano (154,8 kN con fFtuk 1,5 MPa), CNR-DT 200 = NTC con
+    VRd,f = 0;
+  - SectionCheckSpecificationTest.EveryNonAmericanStandardAnswersEveryCheck: 10 norme × 5 verifiche su motore reale;
+  - UltimateDomainUsesThePartialFactorsOfEachStandard: confronto con chiamata nativa per norma;
+  - FibreReinforcedShearUsesTheResidualStrengthOfTheMaterial.
 - Fonti indipendenti: per ora solo i calcoli a mano sopra. Riscontro su testi normativi e esempi pubblicati
   da fare in 4G; nessuna norma è dichiarata validata integralmente.
 
@@ -166,8 +197,9 @@ le nuove API (collegamento in M4, attività separata).
 
 LIMITI APERTI E PROSSIMI PASSI
 
-- 4A: casi congelati per tensioni SLE e fessurazione; associazione del progetto alle categorie per i percorsi
-  legacy (Preparation).
+- Casi congelati della fessurazione (con 4E); categorie per il percorso legacy Preparation (non usato dai nuovi controlli).
+- Norme americane (ACI 318, AASHTO): implementazione futura per tutte le verifiche.
+- Taglio CNR-DT 204 con fibre e staffe insieme; contributo FRP di CNR-DT 200 quando le sezioni avranno dati FRP.
 - Derivazione automatica e tracciata di bw, d e Asl dalle forme rettangolare, circolare e a T (in ANTHEA è un
   suggerimento geometrico): da proporre come aiuto, mai come conferma.
 - 4D torsione NTC con interazione sullo stesso cot θ.

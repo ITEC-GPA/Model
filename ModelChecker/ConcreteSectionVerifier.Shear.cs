@@ -19,7 +19,7 @@ namespace GPC.Model.Checker
         private readonly double? _shearCotTheta;
 
         private bool SupportsShear(SectionCheckSpecification check)
-            => check.Category == CombinationCategory.Ultimate && ShearProfiles.TryResolve(_standard, out _);
+            => check.Category == CombinationCategory.Ultimate && (ShearProfiles.TryResolve(_standard, out _) || ShearProfiles.NotApplicableReason(_standard) != null);
 
         partial void AddShearConfiguration(SortedDictionary<string, string> entries)
         {
@@ -32,6 +32,8 @@ namespace GPC.Model.Checker
 
         private CheckResult Shear(BeamCheckInput input, SectionCheckSpecification check, CancellationToken cancellationToken)
         {
+            var notApplicable = ShearProfiles.NotApplicableReason(_standard);
+            if (notApplicable != null) return NotApplicable(notApplicable);
             var section = input.Section; var data = section.ShearData; bool axis1 = check.Direction == SectionCheckDirection.Axis1;
             var direction = data == null ? null : axis1 ? data.Axis1 : data.Axis2;
             if (direction == null) return Unavailable(DataStatus.Insufficient, "MissingShearData", "Shear data of the section for " + check.Direction);
@@ -63,6 +65,7 @@ namespace GPC.Model.Checker
             bool needsAggregate = profile == ShearProfile.ModelCode2010 || profile == ShearProfile.NsEN1992p11;
             if (needsAggregate && !data.AggregateSize.HasValue) return Unavailable(DataStatus.Insufficient, "MissingAggregateSize", "dg is required by " + profile + ".");
 
+            bool fibres = concrete.ConcreteType == ConcreteMaterial.ConcreteTypes.FRC;
             var f = input.Forces;
             double v = axis1 ? f.V1 : f.V2;
             double m = profile == ShearProfile.ModelCode2010 ? (axis1 ? f.M2 : f.M1) : 0; // moment about the axis normal to V
@@ -70,11 +73,14 @@ namespace GPC.Model.Checker
                 Math.Abs(concrete.Fck), Math.Abs(concrete.CalculateFcd(_standard)), Math.Abs(stirrupMaterial.CalculateFyd(_standard)), _standard.GammaC,
                 bars[0].RebarMaterial.E, stirrups ? direction.Legs * data.Reinforcement.BarArea : 0, stirrups ? data.Reinforcement.Spacing : 1,
                 stirrups ? data.Reinforcement.AngleDegrees : 90, _shearCotTheta, lever, needsAggregate ? data.AggregateSize.Value : 20,
-                profile == ShearProfile.ModelCode2010 ? direction.AxialEccentricity : 0);
+                profile == ShearProfile.ModelCode2010 ? direction.AxialEccentricity : 0,
+                // FRC: Fctu is the characteristic ultimate residual strength; the matrix fctk is the 5% fractile from fck.
+                fibres ? Math.Abs(concrete.Fctu) : 0, Math.Abs(concrete.Fctk05));
             cancellationToken.ThrowIfCancellationRequested();
             SectionShearResult shear;
             try { shear = SectionShearCalculator.Calculate(shearInput); }
             catch (ArgumentException ex) { return Unavailable(DataStatus.Insufficient, "ShearOutsideMethodRange", ex.Message); }
+            catch (NotSupportedException ex) { return Unavailable(DataStatus.NotSupported, "ShearMethodNotImplemented", ex.Message); }
 
             var trace = new List<CheckCalculationValue>
             {
@@ -85,6 +91,12 @@ namespace GPC.Model.Checker
             };
             trace.AddRange(shear.Details.Select(d => new CheckCalculationValue(d.Symbol, d.Value, d.Unit, d.Expression)));
             var result = new CheckResult { EngineVersion = Version, Standard = StandardContext };
+            if (fibres && profile != ShearProfile.CnrDT204)
+                result.Diagnostics.Add(new ModelDiagnostic { Code = "FibreContributionNotUsed", Severity = DiagnosticSeverity.Warning,
+                    Message = profile + " does not include the residual strength of the fibres: plain-concrete resistance." });
+            if (profile == ShearProfile.CnrDT200)
+                result.Diagnostics.Add(new ModelDiagnostic { Code = "NoFrpStrengthening", Severity = DiagnosticSeverity.Warning,
+                    Message = "The section has no FRP data: VRd,f = 0, resistance of the reinforced concrete member." });
             if (Math.Abs(f.T) > 1e-6 * Math.Max(1, Math.Abs(v) * direction.EffectiveDepth))
                 result.Diagnostics.Add(new ModelDiagnostic { Code = "ConcomitantTorsionNotChecked", Severity = DiagnosticSeverity.Warning,
                     Message = "Shear only: the interaction with the concomitant torsion is not part of this task." });
