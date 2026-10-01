@@ -217,6 +217,14 @@ namespace GPC.Model.Sections
         /// <returns>null: the plastic moduli use <see cref="GetOutlines"/></returns>
         internal override Shape2d GetPlasticShape() => null;
 
+        /// <summary>
+        /// The parts are connected at discrete points: the torsion of the built-up section is not solved (solve the parts)
+        /// </summary>
+        /// <param name="meshSize">Not used</param>
+        /// <returns>Not solved</returns>
+        public override SectionTorsionProperties CalculateTorsionProperties(double meshSize = 0) =>
+            new SectionTorsionProperties("the parts of a built-up section are connected at discrete points: solve the parts");
+
         /// <summary>The area: the sum of the areas of the parts</summary>
         /// <returns>The area</returns>
         protected override double CalculateArea() => _parts.Sum(p => p.Section.Area);

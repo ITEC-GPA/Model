@@ -557,6 +557,15 @@ namespace GPC.Model.Sections
             _mesh = GetMesh();
         }
 
+        /// <summary>
+        /// The torsion properties computed with the finite elements on the exact region of the section (with the fillets and the welds of the
+        /// rolled and welded sections): Saint-Venant torsion constant, warping constant and shear centre, see <see cref="SectionTorsionProperties"/>.
+        /// The properties <see cref="Jt"/>, <see cref="Jw"/> and <see cref="ShearCenter"/> of the sections with formulas are not changed
+        /// </summary>
+        /// <param name="meshSize">The size of the elements (not positive: half the minimum thickness, see <see cref="SectionTorsionProperties.MeshSize"/>)</param>
+        /// <returns>The properties; not solved (<see cref="SectionTorsionProperties.Error"/>) for a section without region</returns>
+        public virtual SectionTorsionProperties CalculateTorsionProperties(double meshSize = 0) => SectionTorsion.Calculate(GetPlasticShape(), meshSize);
+
         #endregion
 
         #region Protected methods
