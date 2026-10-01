@@ -276,6 +276,59 @@ PARTI SALTATE PERCHÉ TROPPO COMPLESSE (richiesta dell'utente del 1/10/2026: «s
   - M-curvatura: risposta numerica senza criterio di verifica;
   - copriferro di durabilità (cmin,dur): calcolo della famiglia M (materiali e durabilità); qui è un dato.
 
+4G.1 — RISCONTRO SULLE FONTI PRIMARIE (1 ottobre 2026)
+
+Testi disponibili, estratti dai PDF con la procedura di estrazione del testo (scratchpad della sessione):
+- D.M. 14/01/2008, capitolo 4 (NTC 2008). Numerazione 4.1.2.1.x per gli SLU; in NTC 2018 è 4.1.2.3.x. Il testo
+  di NTC 2018 e della Circolare 2019 non è disponibile qui.
+- D.M. 31/07/2012, appendice nazionale UNI EN 1992-1-1.
+- DS/EN 1992-1-1 DK NA:2024. Alcune formule sono immagini non estraibili.
+Non disponibili: EN 1992-1-1:2004 (testo base), DIN EN 1992-1-1/NA, NS-EN 1992-1-1 NA, fib MC2010, CNR-DT 200, CNR-DT 204,
+CS-TR34.
+
+Riscontrato e coerente con l'implementazione:
+- NTC (testo 2008; le corrispondenti clausole 2018 sono da ripetere sul testo 2018):
+  - taglio senza armatura (4.1.14): 0,18/γc, k = 1 + (200/d)^½ ≤ 2, ρ ≤ 0,02, σcp ≤ 0,2 fcd, vmin = 0,035 k^1,5 fck^½;
+    con trazione significativa la resistenza del cls è nulla, e il percorso NTC non valuta la trazione senza staffe;
+  - taglio con armatura (4.1.16-4.1.20): 1 ≤ cot θ ≤ 2,5, VRsd e VRcd con 0,9 d, f'cd = 0,5 fcd, αc a tratti;
+  - torsione (4.1.27-4.1.32): TRcd, TRsd, TRld, interazione delle bielle, θ unico per taglio e torsione,
+    spessore delle sezioni cave e piene;
+  - fessurazione: Tab. 4.1.III (gruppi di esposizione), Tab. 4.1.IV (criteri), w1/w2/w3 = 0,2/0,3/0,4 mm,
+    sensibilità (sensibili solo gli acciai da precompressione), decompressione e formazione sulla sezione
+    omogeneizzata non fessurata, wd = 1,7 wm;
+  - tensioni (4.1.40-4.1.42): 0,60 / 0,45 fck, riduzione del 20% per elementi piani gettati in opera con spessore
+    < 50 mm (fattore esplicito delle opzioni), 0,80 fyk;
+  - dettagli 4.1.6.1.1-2: As,min (4.1.43), As,max 0,04 Ac, staffe 1,5 b mm²/m, 3 staffe/m, passo ≤ 0,8 d, ancoraggio
+    agli appoggi di estremità (conferma); pilastri Ø ≥ 12, interasse ≤ 300, As,min (4.1.44), passo ≤ min(12 Ømin;
+    250), Østaffa ≥ max(6; Ømax/4), As,max 0,04 Ac;
+  - sovrapposizioni 4.1.6.1.4: lunghezza ≥ 20Ø, interferro ≤ 4Ø.
+- DM 31/07/2012 (UNI):
+  - 3.1.6: αcc 0,85, αct 1,0;
+  - 6.2.2(1): CRd,c, vmin e k1 raccomandati;
+  - 6.2.2(6): ν = 0,5 fino a C70/85;
+  - 6.2.3(2): 1 ≤ cot θ ≤ 2,5;
+  - 7.2: k1 0,60 e k2 0,45 (−20% getti sottili), k3 0,80, k4 0,90, k5 0,70 (uguale alla classe StandardUNIEN1992p11);
+  - 7.3.1(5): w1/w2/w3 con le condizioni ambientali NTC, quindi la tabella NTC usata per UNI è corretta;
+  - 7.3.4(3): k3 3,4, k4 0,425;
+  - 9.2.1.1, 9.2.2(5)-(8) (st,max ≤ 300), 9.5.2(1)-(3) (Ø 12, 0,003 Ac), 9.5.3(3) (12Ø; b; 250).
+- DK NA:2024:
+  - 6.2.3(2): cot θ ≤ 2,5 con acciaio B/C, 2,0 con armatura interrotta (implementato 2, cautelativo);
+  - 6.3.2(6): regola V, T, N, M (non applicata, dichiarata);
+  - 7.3.1(5) Tabel 7.1 NA: 0,2 / 0,3 / 0,4 mm;
+  - 8.4.2(2) e 8.7.3: barre lisce escluse;
+  - capitolo 9 "Uændret" tranne 9.2.1.1(1) e 9.2.2(5).
+Non leggibili nel testo DK (formule in immagine), quindi da riscontrare: vmin di 6.2.2(1), ν di 5.6.1(3)P, valori
+di 9.2.1.1(1) e 9.2.2(5).
+
+Regole di ANTHEA non trovate nel testo NTC disponibile (mantenute, classificate "da riscontrare", nessuna modifica):
+- passo delle staffe ≤ 15Ø delle barre compresse nelle travi (non presente in 4.1.6.1.1 del testo 2008);
+- minimi di 150 mm per l'ancoraggio e 200 mm per la sovrapposizione (il testo fissa solo 20Ø).
+Non implementata: "almeno il 50% dell'armatura a taglio costituito da staffe" (4.1.6.1.1), che richiede la
+ripartizione staffe/sagomati.
+Nessuna divergenza fra implementazione e testi riscontrati. Le parti basate su EN 1992-1-1, DIN, NS, MC2010, CNR-DT
+200/204 e sulla formula dell'apertura della Circolare restano compatibili con ANTHEA o con i calcoli a mano, ma non sono
+dichiarate validate.
+
 MATRICE DELLE CAPACITÀ (dopo 4A-4F)
 
 Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):
