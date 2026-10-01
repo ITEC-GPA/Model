@@ -360,6 +360,13 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         public ConcreteShearData ShearData { get => _shearData; set => _shearData = value; }
 
+        private ConcreteTorsionData _torsionData;
+        /// <summary>
+        /// Torsion-resisting profile and longitudinal bars for torsion, with provenance (null: not given). The links are those of
+        /// <see cref="ShearData"/>. Part of the section revision like the shear data.
+        /// </summary>
+        public ConcreteTorsionData TorsionData { get => _torsionData; set => _torsionData = value; }
+
         /// <summary>
         ///
         /// </summary>
@@ -552,7 +559,10 @@ namespace GPC.Model.Sections.Concrete
             }
             if (version > 3)
                 foreach (SerializationEntry entry in info)
+                {
                     if (entry.Name == "ShearData") _shearData = (ConcreteShearData)info.GetValue("ShearData", typeof(ConcreteShearData));
+                    else if (entry.Name == "TorsionData") _torsionData = (ConcreteTorsionData)info.GetValue("TorsionData", typeof(ConcreteTorsionData));
+                }
         }
 
         #endregion
@@ -1214,6 +1224,8 @@ namespace GPC.Model.Sections.Concrete
             info.AddValue("ReinforcedConcreteSectionVersion", version);
             // Written only when present: sections without shear data keep the version-3 content and revision.
             if (_shearData != null) info.AddValue("ShearData", _shearData, typeof(ConcreteShearData));
+            // Same rule for the torsion data (read by the version-4 loop on the entries).
+            if (_torsionData != null) info.AddValue("TorsionData", _torsionData, typeof(ConcreteTorsionData));
 
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
@@ -1261,7 +1273,8 @@ namespace GPC.Model.Sections.Concrete
             return _sectionShape.Equals(other._sectionShape) &&
                 _rebars.ScrambledEquals(other._rebars) &&
                 _steelSections.SequenceEqual(other._steelSections) &&
-                Equals(_shearData, other._shearData);
+                Equals(_shearData, other._shearData) &&
+                Equals(_torsionData, other._torsionData);
         }
 
         /// <summary>

@@ -6,13 +6,15 @@ using System.Threading;
 using GPC.Checkers.Concrete.Shear;
 using GPC.Model.Materials;
 using GPC.Model.PostProcessing;
+using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.Checker
 {
     /// <summary>
     /// Shear in the two section directions through <see cref="SectionShearCalculator"/>. Geometry and reinforcement come from the
     /// explicit <see cref="Sections.Concrete.ConcreteShearData"/> of the section; nothing is derived from the outline here.
-    /// Not implemented: prestress, composite steel–concrete sections, seismic/accidental combinations, torsion interaction.
+    /// Not implemented: prestress, composite steel–concrete sections, seismic/accidental combinations. The interaction with the
+    /// concomitant torsion is the Torsion task (same cot θ when ShearCotTheta is assigned).
     /// </summary>
     public sealed partial class ConcreteSectionVerifier
     {
@@ -30,40 +32,47 @@ namespace GPC.Model.Checker
         private static CheckResult Unavailable(DataStatus data, string code, string message)
             => new CheckResult { Data = data, Outcome = EngineeringOutcome.NotEvaluated, Diagnostics = new List<ModelDiagnostic> { ModelDiagnostic.Error(code, message: message) } };
 
-        private CheckResult Shear(BeamCheckInput input, SectionCheckSpecification check, CancellationToken cancellationToken)
+        /// <summary>Data of one shear direction ready for the core, or the reason why the task cannot run.</summary>
+        private sealed class ShearPreparation
         {
-            var notApplicable = ShearProfiles.NotApplicableReason(_standard);
-            if (notApplicable != null) return NotApplicable(notApplicable);
-            var section = input.Section; var data = section.ShearData; bool axis1 = check.Direction == SectionCheckDirection.Axis1;
+            public SectionShearInput Input; public ConcreteShearData Data; public ConcreteShearDirection Direction;
+            public ShearProfile Profile; public double Lever; public bool Stirrups, Fibres;
+        }
+
+        /// <summary>Checks the data of one direction and builds the input of the shear core (used by the shear and torsion tasks).</summary>
+        private ShearPreparation PrepareShear(BeamCheckInput input, bool axis1, out CheckResult failure)
+        {
+            failure = null;
+            var section = input.Section; var data = section.ShearData;
             var direction = data == null ? null : axis1 ? data.Axis1 : data.Axis2;
-            if (direction == null) return Unavailable(DataStatus.Insufficient, "MissingShearData", "Shear data of the section for " + check.Direction);
-            if (section.SteelSections.Count > 0) return Unavailable(DataStatus.NotSupported, "CompositeShearNotImplemented", "Steel sections inside the concrete.");
+            if (direction == null) { failure = Unavailable(DataStatus.Insufficient, "MissingShearData", "Shear data of the section for " + (axis1 ? "Axis1" : "Axis2")); return null; }
+            if (section.SteelSections.Count > 0) { failure = Unavailable(DataStatus.NotSupported, "CompositeShearNotImplemented", "Steel sections inside the concrete."); return null; }
             if (section.Rebars.Any(r => r.EpsilonP != 0 || r.RebarMaterial.SteelType == SteelMaterial.SteelTypes.Tendon))
-                return Unavailable(DataStatus.NotSupported, "PrestressedShearNotImplemented", "Prestress components are not included in the shear methods.");
-            if (!(section.ConcreteMaterial is ConcreteMaterialEuropeanCommon concrete)) return Unavailable(DataStatus.NotSupported, "UnsupportedConcreteMaterial", null);
+            { failure = Unavailable(DataStatus.NotSupported, "PrestressedShearNotImplemented", "Prestress components are not included in the shear methods."); return null; }
+            if (!(section.ConcreteMaterial is ConcreteMaterialEuropeanCommon concrete)) { failure = Unavailable(DataStatus.NotSupported, "UnsupportedConcreteMaterial", null); return null; }
             var profile = ShearProfiles.Resolve(_standard);
             var bars = section.Rebars.ToArray();
-            if (bars.Length == 0) return Unavailable(DataStatus.Insufficient, "MissingReinforcement", null);
+            if (bars.Length == 0) { failure = Unavailable(DataStatus.Insufficient, "MissingReinforcement", null); return null; }
 
             bool stirrups = data.Reinforcement != null && direction.Legs > 0;
             bool usesAsl = !stirrups || profile == ShearProfile.ModelCode2010;
             double asl = usesAsl ? direction.TensionReinforcementArea : 0;
             if (usesAsl && !direction.TensionReinforcementAnchored)
-                return Unavailable(DataStatus.Insufficient, "TensionReinforcementAnchorageNotConfirmed", "Asl enters the method: confirm its anchorage.");
-            if (asl > section.AreaRebars) return Unavailable(DataStatus.Insufficient, "ShearDataExceedsReinforcement", "Asl exceeds the section reinforcement.");
+            { failure = Unavailable(DataStatus.Insufficient, "TensionReinforcementAnchorageNotConfirmed", "Asl enters the method: confirm its anchorage."); return null; }
+            if (asl > section.AreaRebars) { failure = Unavailable(DataStatus.Insufficient, "ShearDataExceedsReinforcement", "Asl exceeds the section reinforcement."); return null; }
             var stirrupMaterial = stirrups ? data.Reinforcement.Material : bars[0].RebarMaterial;
             if (stirrups && profile == ShearProfile.DsEN1992p11 && (stirrupMaterial.StrainUTension < .05 || stirrupMaterial.Fu < 1.08 * stirrupMaterial.Fyk))
-                return Unavailable(DataStatus.NotSupported, "DuctilityClassBRequired", "DS: shear reinforcement of ductility class B or C required (εuk ≥ 5%, fu/fyk ≥ 1.08).");
+            { failure = Unavailable(DataStatus.NotSupported, "DuctilityClassBRequired", "DS: shear reinforcement of ductility class B or C required (εuk ≥ 5%, fu/fyk ≥ 1.08)."); return null; }
             double lever = direction.LeverFactor;
             if (profile == ShearProfile.DinEN1992p11)
             {
-                if (!direction.LongitudinalCover.HasValue) return Unavailable(DataStatus.Insufficient, "MissingLongitudinalCover", "DIN: cv is required for the lever arm limit.");
+                if (!direction.LongitudinalCover.HasValue) { failure = Unavailable(DataStatus.Insufficient, "MissingLongitudinalCover", "DIN: cv is required for the lever arm limit."); return null; }
                 double cv = direction.LongitudinalCover.Value, d = direction.EffectiveDepth;
                 lever = Math.Min(lever, Math.Max(d - cv - 30, d - 2 * cv) / d);
-                if (lever <= 0) return Unavailable(DataStatus.Insufficient, "InvalidLeverArm", "DIN: z ≤ 0 with the given d and cv.");
+                if (lever <= 0) { failure = Unavailable(DataStatus.Insufficient, "InvalidLeverArm", "DIN: z ≤ 0 with the given d and cv."); return null; }
             }
             bool needsAggregate = profile == ShearProfile.ModelCode2010 || profile == ShearProfile.NsEN1992p11;
-            if (needsAggregate && !data.AggregateSize.HasValue) return Unavailable(DataStatus.Insufficient, "MissingAggregateSize", "dg is required by " + profile + ".");
+            if (needsAggregate && !data.AggregateSize.HasValue) { failure = Unavailable(DataStatus.Insufficient, "MissingAggregateSize", "dg is required by " + profile + "."); return null; }
 
             bool fibres = concrete.ConcreteType == ConcreteMaterial.ConcreteTypes.FRC;
             var f = input.Forces;
@@ -76,6 +85,17 @@ namespace GPC.Model.Checker
                 profile == ShearProfile.ModelCode2010 ? direction.AxialEccentricity : 0,
                 // FRC: Fctu is the characteristic ultimate residual strength; the matrix fctk is the 5% fractile from fck.
                 fibres ? Math.Abs(concrete.Fctu) : 0, Math.Abs(concrete.Fctk05));
+            return new ShearPreparation { Input = shearInput, Data = data, Direction = direction, Profile = profile, Lever = lever, Stirrups = stirrups, Fibres = fibres };
+        }
+
+        private CheckResult Shear(BeamCheckInput input, SectionCheckSpecification check, CancellationToken cancellationToken)
+        {
+            var notApplicable = ShearProfiles.NotApplicableReason(_standard);
+            if (notApplicable != null) return NotApplicable(notApplicable);
+            bool axis1 = check.Direction == SectionCheckDirection.Axis1;
+            var prepared = PrepareShear(input, axis1, out var failure);
+            if (failure != null) return failure;
+            var shearInput = prepared.Input; var direction = prepared.Direction; var data = prepared.Data; var profile = prepared.Profile;
             cancellationToken.ThrowIfCancellationRequested();
             SectionShearResult shear;
             try { shear = SectionShearCalculator.Calculate(shearInput); }
@@ -85,21 +105,22 @@ namespace GPC.Model.Checker
             var trace = new List<CheckCalculationValue>
             {
                 new CheckCalculationValue("VRsd", shear.VRsd, "N", "shear reinforcement"), new CheckCalculationValue("VRcd", shear.VRcd, "N", "concrete"),
-                new CheckCalculationValue("Asw", shearInput.Asw, "mm2", stirrups ? direction.Legs + " legs" : "no shear reinforcement"),
+                new CheckCalculationValue("Asw", shearInput.Asw, "mm2", prepared.Stirrups ? direction.Legs + " legs" : "no shear reinforcement"),
                 new CheckCalculationValue("bw", direction.WebWidth, "mm", data.Source), new CheckCalculationValue("d", direction.EffectiveDepth, "mm", data.Source),
-                new CheckCalculationValue("z/d", lever, "1", profile == ShearProfile.DinEN1992p11 ? "min(z/d; max(d − cv − 30; d − 2cv)/d)" : "given")
+                new CheckCalculationValue("z/d", prepared.Lever, "1", profile == ShearProfile.DinEN1992p11 ? "min(z/d; max(d − cv − 30; d − 2cv)/d)" : "given")
             };
             trace.AddRange(shear.Details.Select(d => new CheckCalculationValue(d.Symbol, d.Value, d.Unit, d.Expression)));
             var result = new CheckResult { EngineVersion = Version, Standard = StandardContext };
-            if (fibres && profile != ShearProfile.CnrDT204)
+            if (prepared.Fibres && profile != ShearProfile.CnrDT204)
                 result.Diagnostics.Add(new ModelDiagnostic { Code = "FibreContributionNotUsed", Severity = DiagnosticSeverity.Warning,
                     Message = profile + " does not include the residual strength of the fibres: plain-concrete resistance." });
             if (profile == ShearProfile.CnrDT200)
                 result.Diagnostics.Add(new ModelDiagnostic { Code = "NoFrpStrengthening", Severity = DiagnosticSeverity.Warning,
                     Message = "The section has no FRP data: VRd,f = 0, resistance of the reinforced concrete member." });
-            if (Math.Abs(f.T) > 1e-6 * Math.Max(1, Math.Abs(v) * direction.EffectiveDepth))
+            var f = input.Forces;
+            if (Math.Abs(f.T) > 1e-6 * Math.Max(1, Math.Abs(shearInput.V) * direction.EffectiveDepth))
                 result.Diagnostics.Add(new ModelDiagnostic { Code = "ConcomitantTorsionNotChecked", Severity = DiagnosticSeverity.Warning,
-                    Message = "Shear only: the interaction with the concomitant torsion is not part of this task." });
+                    Message = "Shear only: the interaction with the concomitant torsion is the Torsion task (same cot θ when ShearCotTheta is assigned)." });
             if (shear.Verdict == ShearVerdict.NotEvaluated)
             {
                 result.Data = DataStatus.NotSupported; result.Outcome = EngineeringOutcome.NotEvaluated;

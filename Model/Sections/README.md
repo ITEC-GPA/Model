@@ -140,6 +140,22 @@ Nessun valore è ricavato dal contorno. Una derivazione dalle forme tipiche, com
 confermare. I dati fanno parte della revisione di verifica, non di quella di analisi. Serializzazione versione 4: la voce
 è scritta solo se presente, quindi le sezioni senza dati del taglio mantengono contenuto e revisione.
 
+### Dati della torsione
+
+`ReinforcedConcreteSection.TorsionData` (`ConcreteTorsionData`, facoltativo) descrive il profilo resistente a parete
+sottile:
+
+- Ak, area racchiusa dalla linea media delle pareti (fori compresi), e uk, il suo perimetro;
+- tef, spessore delle pareti;
+- ΣAsl, barre longitudinali disponibili per la torsione in aggiunta alla flessione;
+- la conferma di staffe chiuse e ancorate, con le barre longitudinali nello spessore e una barra in ogni spigolo (una spirale
+  non equivale a staffe chiuse);
+- l'indicazione di sezione cava con armatura su entrambe le facce delle pareti;
+- la provenienza.
+
+Le staffe sono quelle di `ShearData`. Come per il taglio, i dati sono espliciti: `TorsionGeometry.Rectangle` e `Circle` di
+GPCChecker.Concrete propongono Ak, uk e tef dal contorno, da confermare. La voce è scritta solo se presente.
+
 ## Sezioni variabili
 
 `SectionVariation(start, end, law)` restituisce la sezione in un punto dell'elemento interpolando i vertici dei

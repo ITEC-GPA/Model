@@ -34,6 +34,8 @@ namespace GPC.Model.PostProcessing
 
         public static SectionCheckSpecification ShearAxis1() => new SectionCheckSpecification(CheckMechanism.Shear, CombinationCategory.Ultimate, SectionCheckDirection.Axis1);
         public static SectionCheckSpecification ShearAxis2() => new SectionCheckSpecification(CheckMechanism.Shear, CombinationCategory.Ultimate, SectionCheckDirection.Axis2);
+        /// <summary>Torsion with the interaction of the shear of both directions (one task, no direction).</summary>
+        public static SectionCheckSpecification Torsion() => new SectionCheckSpecification(CheckMechanism.Torsion, CombinationCategory.Ultimate);
         public static SectionCheckSpecification StressLimits(CombinationCategory category)
             => new SectionCheckSpecification(CheckMechanism.Serviceability, category, criterion: SectionCheckCriterion.StressLimits);
 

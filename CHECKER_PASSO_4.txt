@@ -11,7 +11,8 @@ STATO DELLE SOTTOFASI
                                                              della fessurazione si congelano con 4E.
 4B  Tensioni SLE con il solver esistente                     COLLEGATA (limiti tensionali; fessurazione in 4E)
 4C  Taglio nelle due direzioni                               TRASFERITO E COLLEGATO (tutte le norme non americane)
-4D  Torsione e interazione taglio-torsione                   DA FARE
+4D  Torsione e interazione taglio-torsione                   TRASFERITA E COLLEGATA (tutte le norme non americane; vedi
+                                                             matrice e parti non applicate)
 4E  Fessurazione e regioni efficaci                          DA FARE
 4F  Aderenza, ancoraggi, dettagli, M-curvatura               DA FARE
 4G  Regressione completa e consegna                          DA FARE (regressioni eseguite per 4A-4C, vedi prove)
@@ -115,7 +116,77 @@ DATI FISICI DEL TAGLIO (Model, GPC.Model.Sections.Concrete)
 - Torsione concomitante non nulla: avviso ConcomitantTorsionNotChecked. Il taglio da solo non è presentato come
   verifica completa con torsione.
 
-MATRICE DELLE CAPACITÀ (dopo 4A-4C)
+4D — TORSIONE E INTERAZIONE CON IL TAGLIO
+
+- Model (GPC.Model.Sections.Concrete):
+  - ReinforcedConcreteSection.TorsionData (ConcreteTorsionData, null = non assegnato), con:
+    - Ak, uk e tef del profilo resistente;
+    - ΣAsl disponibile per la torsione in aggiunta alla flessione;
+    - conferma di staffe chiuse e barre d'angolo (la spirale non è equivalente);
+    - indicazione di sezione cava armata sulle due facce;
+    - provenienza obbligatoria.
+  - Le staffe sono quelle di ShearData.
+  - Voce scritta solo se presente (stesso ciclo di lettura della versione 4). Entra nella revisione di verifica, non
+    in quella di analisi (provato).
+  - SectionCheckSpecification.Torsion(): un'attività senza direzione.
+- Checker (GPC.Checkers.Concrete.Torsion), trasferito da ANTHEA ConcreteTorsionCalculator e ConcreteShearAnalysis.Torsion:
+  - TorsionProfiles per tipo esatto;
+  - TorsionGeometry con i suggerimenti dal contorno (Rectangle, Circle), mai usati come conferma;
+  - SectionTorsionCalculator:
+    - Calculate ricalcola il taglio delle due direzioni con SectionShearCalculator e lo stesso cot θ, quindi angoli
+      coerenti per costruzione;
+    - Evaluate valuta torsione e interazioni con componenti di taglio date.
+  - Calcolo:
+    - resistenze TRcd, TRsd, TRld e TRd = min;
+    - interazione delle bielle T/TRcd + ΣV/VRcd (NTC 4.1.32, EN 6.29); quadratica per DIN e MC2010 a sezione piena;
+    - interazione delle staffe T/TRsd + max(V/VRsd), cioè somma su ogni lato come in NTC e in ANTHEA;
+    - ΣAsl e Ast/s richiesti.
+  - Unità: N, Nmm, mm, MPa.
+  - SectionShearResult.LongitudinalStrain (εx di MC2010) e SectionShearCalculator.StrutEfficiency (ν del taglio,
+    stessa aritmetica) sono condivisi.
+- Resistenza delle bielle per norma:
+  - NTC 2018: f'cd = 0,5 fcd;
+  - EN 1992-1-1 e NS: ν = 0,6 (1 − fck/250); NS con fck limitato a 60;
+  - UNI: ν = 0,5 fino a C70/85 (DM 31/07/2012 6.2.2(6));
+  - DS: ν = 0,7 − fck/200 ≥ 0,45 (DK NA 5.6.1(3)P);
+  - DIN: ν = 0,525 ν2, oppure 0,75 ν2 per sezioni cave armate sulle due facce (DIN NA);
+  - MC2010: kc = min(0,65; 1/(1,2 + 55 ε1)) ηfc, con il maggiore εx delle due direzioni;
+  - CNR-DT 200: NTC con TRd,f = 0.
+- Campo di cot θ per norma:
+  - base: [1; 2,5];
+  - MC2010: fino a cot 20°;
+  - DS: [1; 2] (6.7a NA, cautelativo);
+  - DIN: fino a 3, con il campo di ogni direzione calcolato con VEd,T+V = |V| + |T| z bw/(2 Ak tef). L'altezza delle
+    pareti è presa uguale a z (approssimazione). In torsione pura senza dati del taglio solo cot θ = 1.
+- ModelChecker: attività Torsion/None/Default/Ultimate.
+  - Il cot θ comune è ShearCotTheta, obbligatorio per la torsione: senza è CotThetaRequired, dati insufficienti.
+    Le attività di taglio con lo stesso ShearCotTheta usano lo stesso angolo.
+  - Con torsione trascurabile nello stato concomitante (|T| ≤ 1e-6 della scala di M e V): esito soddisfatto con
+    rapporto 0 e NoTorsionDemand; nessun dato richiesto.
+  - Dati insufficienti: MissingTorsionData, MissingShearData (staffe, o direzione con V ≠ 0), ClosedLinksNotConfirmed,
+    ClosedLinksWithoutLegs, TorsionDataExceedsReinforcement, TorsionOutsideMethodRange.
+  - Non supportati: precompressione, sezioni composte, staffe inclinate, CNR-DT 204, combinazioni sismiche ed
+    eccezionali.
+  - Elemento esplicitamente senza staffe (ShearData.Reinforcement = null): resistenza nulla, esito non soddisfatto
+    senza rapporto, NoClosedLinks.
+  - Risultato TorsionCheckDetails con:
+    - metriche T (TRd, rapporto), ConcreteStrutInteraction e LinkInteraction;
+    - ΣAsl richiesta;
+    - traccia di Ak, uk, tef, staffe, resistenze e VRcd/VRsd delle due direzioni.
+- Avvisi: FibreContributionNotUsed (FRC), NoFrpStrengthening (CNR-DT 200), TorsionRuleNotApplied (DS).
+
+PARTI SALTATE PERCHÉ TROPPO COMPLESSE (richiesta dell'utente del 1/10/2026: «se diventa troppo complessa salta e metti nota»)
+- DS/EN 1992-1-1 DK NA 6.3.2(6): per V, T, N e M combinati l'annesso danese chiede Σ SEd/SRd ≤ 1, con le resistenze
+  delle singole azioni da sole (M e V separati se c'è l'armatura longitudinale aggiuntiva del taglio), oppure la
+  sezione efficace con il metodo dell'Annesso F.
+  - Richiederebbe le resistenze NRd e MRd isolate dal dominio e una conferma sull'armatura del taglio.
+  - Non applicata: la verifica DS controlla l'interazione delle bielle (6.29, che l'annesso conferma per V e T) e
+    l'armatura del traliccio, e lo dichiara con l'avviso TorsionRuleNotApplied in ogni risultato.
+- EC2 6.3.2(5), sola armatura minima se TEd/TRd,c + VEd/VRd,c ≤ 1: è un'agevolazione costruttiva e non è usata
+  (la verifica richiede sempre staffe chiuse).
+- NTC: cot θ = (al/as)^½ in torsione pura (facoltativo): non usato, il cot θ è assegnato.
+
+MATRICE DELLE CAPACITÀ (dopo 4A-4D)
 
 Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):
 NTC 2018, Model Code 2010, EN 1992-1-1, UNI / DIN / DS / NS EN 1992-1-1, CNR-DT 204/2006, CS-TR34, CNR-DT 200 R1/2013.
@@ -129,7 +200,7 @@ Tensioni SLE caratteristica     ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓      
 Tensioni SLE quasi permanente   ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓       n.a.     ✓     k2 fck
 Tensioni SLE frequente          —  —  —   —   —  —  —    —        —       —     nessun limite tensionale: non supportata
 Taglio V1 / V2 (Ultimate)       ✓  ✓  ✓   ✓   ✓  ✓  ✓   ✓ (1)    n.a.    ✓ (2)  dati espliciti della sezione
-Torsione                        4D
+Torsione + taglio (Ultimate)    ✓  ✓  ✓   ✓   ✓ ✓(3) ✓  n.s.(4)  n.a.    ✓ (2)  staffe chiuse a 90°, cot θ comune assegnato
 Fessurazione                    4E
 Aderenza / dettagli / M-χ       4F
 
@@ -140,6 +211,10 @@ definisce né il taglio di trave né i limiti tensionali della sezione).
     non supportato (combinazione da definire). Senza fibre coincide con EC2.
 (2) CNR-DT 200: VRd = min(VRd,s + VRd,f; VRd,c) con le formule NTC. Le sezioni di Model non hanno dati FRP: VRd,f = 0 e
     avviso NoFrpStrengthening.
+    In torsione TRd,f = 0 con lo stesso avviso.
+(3) DS: senza la regola DK NA 6.3.2(6) per V, T, N, M combinati (avviso TorsionRuleNotApplied; vedi parti saltate).
+(4) CNR-DT 204: la torsione richiede staffe chiuse e la combinazione fibre più staffe non è implementata (stesso limite
+    del taglio); risultato non supportato con il motivo.
 Il materiale FRC con le altre norme: avviso FibreContributionNotUsed (resistenza del calcestruzzo semplice).
 Coefficienti delle tensioni SLE: quelli delle classi di Model (unica sorgente; gli annessi che non li ridefiniscono usano
 i valori MC2010 0,60 / 0,45 / 0,80 / 0,75). Formule di CNR-DT 204 e CNR-DT 200: da riscontrare sul testo (non disponibile
@@ -186,6 +261,37 @@ CASI CONGELATI E CONFRONTI
   - SectionCheckSpecificationTest.EveryNonAmericanStandardAnswersEveryCheck: 10 norme × 5 verifiche su motore reale;
   - UltimateDomainUsesThePartialFactorsOfEachStandard: confronto con chiamata nativa per norma;
   - FibreReinforcedShearUsesTheResidualStrengthOfTheMaterial.
+- Torsione (4D): la harness congela anche ConcreteTorsionCalculator (commit b5f2222, sorgenti di calcolo invariati da
+  fe4652c; SHA-256 della DLL nell'intestazione).
+  - torsion-legacy.csv: 986 casi NTC:
+    - griglia di 576 casi (3 profili, segno di T, staffe, passo, ΣAsl, cot θ, taglio concomitante);
+    - 10 limiti;
+    - 400 casi casuali con seme 20261002;
+    - 936 con esito e 50 rifiutati.
+  - torsion-geometry-legacy.csv: 10 contorni (rettangoli pieni e cavi, cerchi pieni e cavi, sezione a T rifiutata).
+  - TorsionMigrationTests riproduce resistenze, rapporti, ΣAsl richiesta ed esito con tolleranza relativa 1e-9, e i 49
+    rifiuti. Il caso senza staffe è la differenza intenzionale: non soddisfatto con resistenza nulla, invece di un
+    errore di input.
+  - Calcoli a mano:
+    - EN 1992-1-1 (77,12 / 36,03 / 31,59 kNm);
+    - NTC e UNI (73,03 kNm), DS (80,34 kNm);
+    - DIN 0,525 ν2 e 0,75 ν2 con interazione quadratica e lineare;
+    - MC2010 kc = 0,65 (94,94 kNm);
+    - campo DIN con VEd,T+V;
+    - NS limitata a C60.
+  - SectionCheckSpecificationTest:
+    - matrice 10 norme × 6 verifiche con T = 8 kNm;
+    - torsione NTC attraverso ModelChecker uguale al nucleo (TRld governante verificato a mano);
+    - dati obbligatori, conferme e invalidazione del piano alla modifica di TorsionData;
+    - archivio.
+- Fonti primarie consultate per 4D (testi estratti in sessioni precedenti):
+  - NTC 2018 §4.1.2.3.6, formule 4.1.26-4.1.32: TRcd, TRsd, TRld, 0,4 ≤ cot θ ≤ 2,5, interazione delle bielle,
+    stesso θ per taglio e torsione, spessore delle sezioni cave;
+  - DM 31/07/2012 (annesso italiano) 6.2.2(6): ν = 0,5 fino a C70/85;
+  - DK NA 5.6.1(3)P, 6.2.3(2) e 6.3.2(6).
+  Non consultabili qui: testo di DIN EN 1992-1-1/NA, NS-EN NA ed fib MC2010 §7.3.4. I valori adottati (DIN 0,525 ν2 e
+  0,75 ν2 con interazione quadratica per le sezioni piene; MC2010 kc del taglio e interazione quadratica) sono da
+  riscontrare.
 - Fonti indipendenti: per ora solo i calcoli a mano sopra. Riscontro su testi normativi e esempi pubblicati
   da fare in 4G; nessuna norma è dichiarata validata integralmente.
 
@@ -202,7 +308,8 @@ LIMITI APERTI E PROSSIMI PASSI
 - Taglio CNR-DT 204 con fibre e staffe insieme; contributo FRP di CNR-DT 200 quando le sezioni avranno dati FRP.
 - Derivazione automatica e tracciata di bw, d e Asl dalle forme rettangolare, circolare e a T (in ANTHEA è un
   suggerimento geometrico): da proporre come aiuto, mai come conferma.
-- 4D torsione NTC con interazione sullo stesso cot θ.
+- Torsione: regola DS 6.3.2(6) per V, T, N e M combinati; staffe inclinate; scelta automatica del cot θ comune;
+  riscontro delle formule DIN, NS e MC2010 sul testo.
 - 4E fessurazione.
 - 4F dettagli e M-curvatura.
 - 4G regressione e fonti primarie.

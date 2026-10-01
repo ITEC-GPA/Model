@@ -99,6 +99,7 @@ namespace GPC.Model.Checker
                 entries["ServiceabilityStressAnalysis"] = _serviceabilityAnalysis.ToString();
                 entries["ServiceabilityConcreteLimitFactor"] = _concreteStressLimitFactor.ToString("R", CultureInfo.InvariantCulture);
                 AddShearConfiguration(entries);
+                AddTorsionConfiguration(entries);
                 return string.Join("\n",entries.Select(p=>p.Key+"="+p.Value));
             }
         }
@@ -161,5 +162,6 @@ namespace GPC.Model.Checker
         }
 
         partial void AddShearConfiguration(SortedDictionary<string, string> entries);
+        partial void AddTorsionConfiguration(SortedDictionary<string, string> entries);
     }
 }

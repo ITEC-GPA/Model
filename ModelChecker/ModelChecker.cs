@@ -22,7 +22,10 @@ namespace GPC.Model.Checker
         public SectionSolver.StressAnalysisTypes ServiceabilityAnalysis { get; set; } = SectionSolver.StressAnalysisTypes.NonLinear;
         /// <summary>Explicit factor on the concrete stress limits, 1 = none (for example 0.8 for thin castings when the standard requires it).</summary>
         public double ConcreteStressLimitFactor { get; set; } = 1;
-        /// <summary>Assigned cot θ of the shear checks (SectionChecks Shear/Axis1-2); null = chosen by the method within its range.</summary>
+        /// <summary>
+        /// Assigned cot θ of the shear checks (SectionChecks Shear/Axis1-2); null = chosen by the method within its range.
+        /// It is also the strut inclination shared by torsion and shear in the Torsion task, which requires it.
+        /// </summary>
         public double? ShearCotTheta { get; set; }
         public ConcreteSectionVerifier CreateVerifier() => new ConcreteSectionVerifier(Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon,
             StandardEdition, NationalAnnex, ServiceabilityAnalysis, ConcreteStressLimitFactor, ShearCotTheta);

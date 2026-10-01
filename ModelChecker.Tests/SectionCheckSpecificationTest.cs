@@ -3,6 +3,7 @@ using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Shear;
+using GPC.Checkers.Concrete.Torsion;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Results.ResultLocations;
 using GPC.Geometry;
@@ -29,17 +30,17 @@ public class SectionCheckSpecificationTest
         Results = new[] { Selection(CombinationCategory.Ultimate), Selection(CombinationCategory.Characteristic), Selection(CombinationCategory.QuasiPermanent) }
     };
 
-    private static GPC.Model.Models.Model Model()
+    private static GPC.Model.Models.Model Model(double torque = 0)
     {
-        var m = ElementScopeCharacterizationTest.Model();
+        var m = ElementScopeCharacterizationTest.Model(torque);
         m.PhysicalMembers.Add("T1", new PhysicalMemberDefinition("T1", new[] { new BeamMemberPart(250, true), new BeamMemberPart(251, false) }, "NodeToNode", source: "fixture"));
         return m;
     }
 
-    private static ConcreteVerificationOptions Options(StandardModelCode2010? standard = null) => new()
+    private static ConcreteVerificationOptions Options(StandardModelCode2010? standard = null, double? cotTheta = null) => new()
     {
         Standard = standard ?? new StandardNTC2018Concrete(), Criterion = SectionSolver.FailureAnalysisTypes.ConstantEccentricity,
-        ServiceabilityAnalysis = SectionSolver.StressAnalysisTypes.Linear, PsiRebar = 2
+        ServiceabilityAnalysis = SectionSolver.StressAnalysisTypes.Linear, PsiRebar = 2, ShearCotTheta = cotTheta
     };
 
     private static ModelCheckRequest Request(BeamCheckPlanRequest plan)
@@ -168,37 +169,56 @@ public class SectionCheckSpecificationTest
         "CNR-DT 200 R1/2013" => new StandardCNR200(), _ => throw new ArgumentException(name)
     };
 
-    /// <summary>Every non-American standard answers every implemented check explicitly: evaluated, not applicable with the reason, or not supported with the reason.</summary>
+    // Torsion profile of the 300x500 fixture with bars at 50 mm: tef = max(Ac/u; 2·50) = 100, Ak = 200·400, uk = 1200; 2Ø16 for torsion.
+    private static ConcreteTorsionData TorsionData(bool confirmed = true, double longitudinal = 402) => new(80000, 1200, 100, longitudinal, confirmed, "fixture drawings");
+
+    /// <summary>
+    /// Every non-American standard answers every implemented check explicitly: evaluated, not applicable with the reason, or not supported with the reason.
+    /// The member carries an 8 kNm torque, so the torsion task runs with the shear of both directions on cot θ = 1.5.
+    /// </summary>
     [DataTestMethod, DynamicData(nameof(NonAmericanStandards), DynamicDataSourceType.Method)]
     public void EveryNonAmericanStandardAnswersEveryCheck(string name)
     {
-        var m = Model(); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section);
+        var m = Model(8e6); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section); section.TorsionData = TorsionData();
         var request = Request(Plan(new SectionCheckSpecification(CheckMechanism.UlsBiaxialSection, CombinationCategory.Ultimate), SectionCheckSpecification.ShearAxis1(),
-            SectionCheckSpecification.ShearAxis2(), SectionCheckSpecification.StressLimits(CombinationCategory.Characteristic), SectionCheckSpecification.StressLimits(CombinationCategory.QuasiPermanent)));
-        request.Jobs[0].Options = Options(Standard(name));
+            SectionCheckSpecification.ShearAxis2(), SectionCheckSpecification.Torsion(), SectionCheckSpecification.StressLimits(CombinationCategory.Characteristic),
+            SectionCheckSpecification.StressLimits(CombinationCategory.QuasiPermanent)));
+        request.Jobs[0].Options = Options(Standard(name), 1.5);
         var results = new Service().Verify(m, request).Jobs[0].Results;
-        Assert.AreEqual(40, results.Count);
+        Assert.AreEqual(48, results.Count);
         string Describe(CheckResult r) => r.Check!.Key + " " + r.Applicability + " " + r.Data + " " + r.Outcome + " " + string.Join(",", r.Diagnostics.Select(d => d.Code + ":" + d.Message));
         foreach (var r in results)
         {
             var check = r.Check!;
             bool notApplicable = name == "CS-TR34" && check.Mechanism != CheckMechanism.UlsBiaxialSection;
-            bool notSupported = name == "CNR-DT 204/2006" && check.Mechanism == CheckMechanism.Shear; // fibres with stirrups
+            bool notSupported = name == "CNR-DT 204/2006" && (check.Mechanism == CheckMechanism.Shear || check.Mechanism == CheckMechanism.Torsion); // fibres with stirrups
             if (notApplicable)
             {
                 Assert.AreEqual(CheckApplicability.NotApplicable, r.Applicability, Describe(r)); StringAssert.Contains(r.ApplicabilityReason, "CS-TR34");
             }
             else if (notSupported)
             {
-                Assert.AreEqual(DataStatus.NotSupported, r.Data, Describe(r)); Assert.IsTrue(r.Diagnostics.Any(d => d.Code == "ShearMethodNotImplemented"), Describe(r));
+                Assert.AreEqual(DataStatus.NotSupported, r.Data, Describe(r));
+                Assert.IsTrue(r.Diagnostics.Any(d => d.Code == (check.Mechanism == CheckMechanism.Shear ? "ShearMethodNotImplemented" : "TorsionMethodNotImplemented")), Describe(r));
             }
             else
             {
                 Assert.AreEqual(ExecutionStatus.Completed, r.Execution, Describe(r)); Assert.AreEqual(EngineeringOutcome.Satisfied, r.Outcome, Describe(r));
                 Assert.AreEqual(Standard(name).Name, r.Standard!.Code, Describe(r));
+                if (check.Mechanism == CheckMechanism.Torsion)
+                {
+                    var details = (TorsionCheckDetails)r.Details!;
+                    Assert.AreEqual(3, details.Metrics.Count, Describe(r)); Assert.IsTrue(r.Utilization > .1, Describe(r));
+                    Assert.IsTrue(details.MethodId.StartsWith(SectionTorsionCalculator.MethodId + "."), details.MethodId);
+                }
             }
         }
-        if (name == "CNR-DT 200 R1/2013") Assert.IsTrue(results.Where(r => r.Check!.Mechanism == CheckMechanism.Shear).All(r => r.Diagnostics.Any(d => d.Code == "NoFrpStrengthening")));
+        var torsion = results.Where(r => r.Check!.Mechanism == CheckMechanism.Torsion).ToArray();
+        if (name == "CNR-DT 200 R1/2013") Assert.IsTrue(results.Where(r => r.Check!.Mechanism == CheckMechanism.Shear || r.Check!.Mechanism == CheckMechanism.Torsion)
+            .All(r => r.Diagnostics.Any(d => d.Code == "NoFrpStrengthening")));
+        if (name == "DS EN 1992-1-1") Assert.IsTrue(torsion.All(r => r.Diagnostics.Any(d => d.Code == "TorsionRuleNotApplied" && d.Message!.Contains("6.3.2(6)"))));
+        if (name == "DIN EN 1992-1-1" || name == "Model Code 2010")
+            Assert.IsTrue(torsion.All(r => r.Details!.Trace.Any(t => t.Key == "interaction" && t.Value == 2)), "quadratic strut interaction of solid sections");
     }
 
     /// <summary>The ULS domain uses the partial factors of each standard: DS (γc 1.45, γs 1.20) differs from EN; the result equals a direct native call.</summary>
@@ -315,6 +335,80 @@ public class SectionCheckSpecificationTest
         var copy = restored.BeamElements[250].Assignments.Sections[0].Section;
         Assert.AreEqual(section.ShearData, copy.ShearData); Assert.AreEqual(8, copy.ShearData!.Reinforcement.Diameter);
         Assert.AreEqual(m.VerificationFingerprint("x"), restored.VerificationFingerprint("x"));
+    }
+
+    /// <summary>NTC 2018 torsion through the verifier equals the core called with the same section data, forces and cot θ.</summary>
+    [TestMethod]
+    public void TorsionRunsOnTheSectionDataAndMatchesTheCore()
+    {
+        var m = Model(8e6); var section = m.BeamElements[250].Assignments.Sections[0].Section;
+        section.ShearData = ShearData(section); section.TorsionData = TorsionData();
+        var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", .5, SectionSide.Unspecified);
+        var prepared = Verification.PrepareBeam(m, 250, sample, "torsion");
+        var through = Verification.Run(prepared, SectionCheckSpecification.Torsion(), Options(cotTheta: 1.5).CreateVerifier());
+        Assert.AreEqual("Torsion/None/Default/Ultimate", through.Check!.Key);
+        Assert.AreEqual(ExecutionStatus.Completed, through.Execution, string.Join(";", through.Diagnostics.Select(d => d.Code + " " + d.Message)));
+        var f = prepared.Input!.Forces;
+        Assert.AreEqual(8e6, Math.Abs(f.T), 1e-6);
+
+        // Core: fck 25, fcd = 0.85·25/1.5, fyd = 450/1.15, Ø8/200 closed links (2 legs per direction), shear data of the fixture.
+        var standard = new StandardNTC2018Concrete(); double fcd = .85 * 25 / 1.5, fyd = 450 / 1.15, asw = 2 * Math.PI * 16;
+        var core = SectionTorsionCalculator.Calculate(new SectionTorsionInput(standard, f.T, new TorsionGeometry(80000, 1200, 100), 25, fcd, 1.5, fyd, fyd, Math.PI * 16, 200, 402, 1.5),
+            new SectionShearInput(standard, f.N, f.V1, 0, 150000, 500, 250, 0, 25, fcd, fyd, 1.5, 200000, asw, 200),
+            new SectionShearInput(standard, f.N, f.V2, 0, 150000, 300, 450, 0, 25, fcd, fyd, 1.5, 200000, asw, 200));
+        Assert.AreEqual(core.Ratio!.Value, through.Utilization!.Value, 1e-9);
+        var details = (TorsionCheckDetails)through.Details!;
+        Assert.AreEqual(core.RequiredLongitudinalArea, details.RequiredLongitudinalArea, 1e-9);
+        Assert.AreEqual(core.TRd, details.Metrics.Single(x => x.Key == "T").Capacity!.Value, 1e-6);
+        // Hand check of the governing resistance: TRld = 2 Ak (ΣAsl/uk) fyd / cot θ = 2·80000·(402/1200)·391.3/1.5.
+        Assert.AreEqual(2 * 80000 * 402.0 / 1200 * fyd / 1.5, core.TRld, 1e-6); Assert.AreEqual(core.TRld, core.TRd);
+        Assert.AreEqual(1.5, core.Axis2Shear!.CotTheta, 1e-12);
+    }
+
+    [TestMethod]
+    public void TorsionDataAreRequiredConfirmedAndInvalidateThePlan()
+    {
+        TorsionCheckResult(Model(), _ => { }, null, out var none);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, none.Outcome); Assert.AreEqual(0, none.Utilization);
+        Assert.IsTrue(none.Diagnostics.Any(d => d.Code == "NoTorsionDemand"), "no torque: no data required");
+
+        string Code(Action<ReinforcedConcreteSection> edit, double? cot = 1.5) { TorsionCheckResult(Model(8e6), edit, cot, out var r); return string.Join(",", r.Diagnostics.Select(d => d.Code)) + "|" + r.Data + "|" + r.Outcome; }
+        StringAssert.Contains(Code(s => s.ShearData = ShearData(s)), "MissingTorsionData|Insufficient");
+        StringAssert.Contains(Code(s => s.TorsionData = TorsionData()), "MissingShearData|Insufficient");
+        StringAssert.Contains(Code(s => { s.ShearData = ShearData(s); s.TorsionData = TorsionData(confirmed: false); }), "ClosedLinksNotConfirmed|Insufficient");
+        StringAssert.Contains(Code(s => { s.ShearData = ShearData(s); s.TorsionData = TorsionData(longitudinal: 2000); }), "TorsionDataExceedsReinforcement|Insufficient");
+        StringAssert.Contains(Code(s => { s.ShearData = ShearData(s); s.TorsionData = TorsionData(); }, null), "CotThetaRequired|Insufficient");
+        StringAssert.Contains(Code(s => { s.ShearData = ShearData(s); s.TorsionData = TorsionData(); }, 2.6), "TorsionOutsideMethodRange|Insufficient");
+        // A member explicitly without links has no torsional resistance: a failure, not missing data.
+        var noLinks = Code(s => { s.ShearData = ShearData(s, stirrups: false); s.TorsionData = TorsionData(); });
+        StringAssert.Contains(noLinks, "NoClosedLinks"); StringAssert.EndsWith(noLinks, "|Ready|NotSatisfied");
+
+        var m = Model(8e6); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section); section.TorsionData = TorsionData();
+        string analysis = m.AnalysisFingerprint();
+        var plan = BeamCheckPlan.Prepare(m, Plan(SectionCheckSpecification.Torsion()));
+        Assert.IsTrue(plan.IsCurrent); Assert.AreEqual(8, plan.WorkItems.Count);
+        section.TorsionData = TorsionData(longitudinal: 603);
+        Assert.IsFalse(plan.IsCurrent, "the torsion data enter the verification revision");
+        Assert.AreEqual(analysis, m.AnalysisFingerprint(), "torsion data do not change the FEM analysis");
+        using var stream = new MemoryStream(); ModelArchive.Save(m, stream); stream.Position = 0;
+        var copy = ModelArchive.Load(stream).BeamElements[250].Assignments.Sections[0].Section;
+        Assert.AreEqual(section.TorsionData, copy.TorsionData); Assert.AreEqual(603, copy.TorsionData!.LongitudinalArea);
+    }
+
+    private static void TorsionCheckResult(GPC.Model.Models.Model m, Action<ReinforcedConcreteSection> edit, double? cot, out CheckResult result)
+    {
+        edit(m.BeamElements[250].Assignments.Sections[0].Section);
+        var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", .5, SectionSide.Unspecified);
+        result = Verification.Run(Verification.PrepareBeam(m, 250, sample, "torsion"), SectionCheckSpecification.Torsion(), Options(cotTheta: cot).CreateVerifier());
+    }
+
+    [TestMethod]
+    public void TorsionIsNotSupportedForStandardsWithoutAnImplementedProfile()
+    {
+        Assert.IsFalse(Options(new CustomAnnex()).CreateVerifier().Supports(SectionCheckSpecification.Torsion()));
+        Assert.IsFalse(Options().CreateVerifier().Supports(new SectionCheckSpecification(CheckMechanism.Torsion, CombinationCategory.UltimateSeismic)));
+        Assert.IsTrue(Options(new StandardCNR204()).CreateVerifier().Supports(SectionCheckSpecification.Torsion()), "known standard: a result with the reason");
+        StringAssert.Contains(Options().CreateVerifier().Configuration, "TorsionProfile=Ntc2018");
     }
 
     [TestMethod]

@@ -21,6 +21,7 @@ namespace GPC.Model.Checker
                 case CheckMechanism.Serviceability: return check.Criterion == SectionCheckCriterion.StressLimits
                     && (check.Category == CombinationCategory.Characteristic || check.Category == CombinationCategory.QuasiPermanent);
                 case CheckMechanism.Shear: return SupportsShear(check);
+                case CheckMechanism.Torsion: return SupportsTorsion(check);
                 default: return false;
             }
         }
@@ -35,6 +36,7 @@ namespace GPC.Model.Checker
             {
                 case CheckMechanism.UlsBiaxialSection: return Verify(input, CheckMechanism.UlsBiaxialSection, cancellationToken);
                 case CheckMechanism.Serviceability: return StressLimits(input, check.Category, cancellationToken);
+                case CheckMechanism.Torsion: return Torsion(input, cancellationToken);
                 default: return Shear(input, check, cancellationToken);
             }
         }
