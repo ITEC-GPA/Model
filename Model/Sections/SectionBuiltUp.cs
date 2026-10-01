@@ -154,6 +154,45 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Four angles back to back in a cruciform (star battened): one in each quadrant with its corner towards the centre, the legs of two
+        /// angles back to back at the distance <paramref name="gap"/> (the battens), centred at the origin
+        /// </summary>
+        /// <param name="angle">The angle (see <see cref="SectionL"/>), with the working of its corners set</param>
+        /// <param name="gap">The distance between the backs of the legs</param>
+        /// <param name="name">The name</param>
+        /// <returns>The section</returns>
+        /// <exception cref="ArgumentException">If the gap is negative</exception>
+        public static SectionBuiltUp Cruciform(SectionL angle, double gap, string name)
+        {
+            if (gap < 0)
+                throw new ArgumentException("The gap cannot be negative");
+            double g = gap / 2.0;
+            return new SectionBuiltUp(new[]
+            {
+                new Part(angle, g, g), new Part(angle, -g, g, mirrorX: true), new Part(angle, -g, -g, mirrorX: true, mirrorY: true),
+                new Part(angle, g, -g, mirrorY: true),
+            }, name);
+        }
+
+        /// <summary>
+        /// A generic section made of separate regions (e.g. regions outside one another, that a single shape cannot hold): each region is a
+        /// generic <see cref="Section"/>. The torsion constant is the sum of the ones of the regions (computed with the finite elements)
+        /// </summary>
+        /// <param name="regions">The regions, in the coordinates of the section</param>
+        /// <param name="name">The name</param>
+        /// <returns>The section</returns>
+        public static SectionBuiltUp FromRegions(IEnumerable<Shape2d> regions, string name)
+        {
+            var parts = (regions ?? throw new ArgumentNullException(nameof(regions))).Select((shape, i) =>
+            {
+                var region = new Section(shape, $"{name} {i + 1}");
+                region.SetMechanicalProperties();
+                return new Part(region, 0, 0);
+            }).ToArray();
+            return new SectionBuiltUp(parts, name);
+        }
+
+        /// <summary>
         /// The parts
         /// </summary>
         public IReadOnlyList<Part> Parts => _parts;
