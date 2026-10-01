@@ -17,13 +17,16 @@ namespace GPC.Model.Checker
         public ConcreteMaterialChecker(ConcreteVerificationOptions options) { Options = options ?? throw new ArgumentNullException(nameof(options)); }
         public bool Accepts(BeamElement element) => element.BeamProperty is ReinforcedConcreteSection rc && rc.SteelSections.Count == 0;
         public IMaterialCheckSession CreateSession() => new Session(Options.CreateVerifier());
-        private sealed class Session : IMaterialCheckSession
+        private sealed class Session : ISectionCheckSession
         {
             private readonly ConcreteSectionVerifier _verifier;
             internal Session(ConcreteSectionVerifier verifier) { _verifier = verifier; }
             public int CreatedCheckers => _verifier.CreatedCheckers;
             public CheckResult Verify(BeamActionInput input, CheckMechanism mechanism, CancellationToken token)
                 => Verification.Run(Verification.PrepareBeam(input.Model, input.Element.Id, input.Sample, input.Settings), mechanism, _verifier, token);
+            public bool Supports(SectionCheckSpecification check) => _verifier.Supports(check);
+            public CheckResult Verify(BeamActionInput input, SectionCheckSpecification check, CancellationToken token)
+                => Verification.Run(Verification.PrepareBeam(input.Model, input.Element.Id, input.Sample, input.Settings), check, _verifier, token);
         }
     }
 }

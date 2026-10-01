@@ -23,6 +23,12 @@ namespace GPC.Model.Checker
         int CreatedCheckers { get; }
         CheckResult Verify(BeamActionInput input, CheckMechanism mechanism, CancellationToken token);
     }
+    /// <summary>Session able to run tasks with direction, sub-check and combination category.</summary>
+    public interface ISectionCheckSession : IMaterialCheckSession
+    {
+        bool Supports(SectionCheckSpecification check);
+        CheckResult Verify(BeamActionInput input, SectionCheckSpecification check, CancellationToken token);
+    }
     public sealed class MaterialCheckerAssignment
     {
         /// <summary>Null matches the job's full selection, still filtered by the checker's material capability.</summary>
@@ -114,7 +120,11 @@ namespace GPC.Model.Checker
                                 try { sessions[key] = engine.CreateSession() ?? throw new InvalidOperationException("NullCheckerSession"); }
                                 catch (Exception ex) { sessionErrors[key] = ex; }
                             if (sessionErrors.TryGetValue(key, out var error)) throw new InvalidOperationException("CheckerCreationFailed", error);
-                            result = sessions[key].Verify(item.Actions.Input, item.Mechanism, token) ?? throw new InvalidOperationException("NullCheckerOutcome");
+                            var session = sessions[key];
+                            if (item.Check == null) result = session.Verify(item.Actions.Input, item.Mechanism, token) ?? throw new InvalidOperationException("NullCheckerOutcome");
+                            else if (session is ISectionCheckSession specific && specific.Supports(item.Check))
+                                result = specific.Verify(item.Actions.Input, item.Check.Copy(), token) ?? throw new InvalidOperationException("NullCheckerOutcome");
+                            else result = NativeResults.Unavailable("UnsupportedSectionCheck", item.Check.Key);
                             token.ThrowIfCancellationRequested();
                             if (EngineKey(engine) != key || !Current(model, plan)) result = new CheckResult { Data = DataStatus.Stale };
                         }
@@ -128,7 +138,7 @@ namespace GPC.Model.Checker
                     if (item.Actions != null) result.Diagnostics.AddRange(item.Actions.Diagnostics);
                     result.SchemaVersion = 2; result.Target = item.Target; result.Scope = item.Scope; result.PlanItemId = item.Id;
                     result.MethodId = result.Details?.MethodId ?? item.MethodId ?? engine?.Id ?? "unresolved";
-                    result.Job = plan.Job.Name; result.Mechanism = item.Mechanism; result.Settings = plan.Settings;
+                    result.Job = plan.Job.Name; result.Mechanism = item.Mechanism; result.Check = item.Check?.Copy(); result.Settings = plan.Settings;
                     result.ElementId = item.Target.BeamId ?? 0; result.Family = EntityFamily.Beam;
                     result.MemberLocation = item.MemberLocation; result.MemberInput = item.Member?.Snapshot; result.CoverageAssessment = item.Coverage;
                     result.Coverage = item.Coverage.Limitation; result.Station = item.Station; result.Side = item.Side;

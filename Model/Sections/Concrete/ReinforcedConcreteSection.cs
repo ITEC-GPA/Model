@@ -353,6 +353,13 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         public IList<SteelSectionPosition> SteelSections => _steelSections;
 
+        private ConcreteShearData _shearData;
+        /// <summary>
+        /// Shear reinforcement and explicit shear-resisting data per direction, with provenance (null: not given).
+        /// Physical data of the section: they enter its revision, so a change invalidates the checks that use them.
+        /// </summary>
+        public ConcreteShearData ShearData { get => _shearData; set => _shearData = value; }
+
         /// <summary>
         ///
         /// </summary>
@@ -543,6 +550,9 @@ namespace GPC.Model.Sections.Concrete
                 if (shapeAsSection != null)
                     _concreteMaterial = shapeAsSection._material as ConcreteMaterial ?? throw new ArgumentNullException(nameof(_concreteMaterial));
             }
+            if (version > 3)
+                foreach (SerializationEntry entry in info)
+                    if (entry.Name == "ShearData") _shearData = (ConcreteShearData)info.GetValue("ShearData", typeof(ConcreteShearData));
         }
 
         #endregion
@@ -1192,7 +1202,7 @@ namespace GPC.Model.Sections.Concrete
         #region Equals, hascode, operators
 
         /// <summary>
-        /// Serializes the section (version 3)
+        /// Serializes the section (version 4: optional shear data)
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -1200,8 +1210,10 @@ namespace GPC.Model.Sections.Concrete
         {
             base.GetObjectData(info, context);
 
-            double version = 3;
+            double version = 4;
             info.AddValue("ReinforcedConcreteSectionVersion", version);
+            // Written only when present: sections without shear data keep the version-3 content and revision.
+            if (_shearData != null) info.AddValue("ShearData", _shearData, typeof(ConcreteShearData));
 
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
@@ -1238,7 +1250,7 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Equality of the shape, of the rebars (in any order) and of the steel sections (the material and the name are not compared)
+        /// Equality of the shape, of the rebars (in any order), of the steel sections and of the shear data (the material and the name are not compared)
         /// </summary>
         /// <param name="other">The section to compare</param>
         /// <returns>True if the sections are equal</returns>
@@ -1248,7 +1260,8 @@ namespace GPC.Model.Sections.Concrete
 
             return _sectionShape.Equals(other._sectionShape) &&
                 _rebars.ScrambledEquals(other._rebars) &&
-                _steelSections.SequenceEqual(other._steelSections);
+                _steelSections.SequenceEqual(other._steelSections) &&
+                Equals(_shearData, other._shearData);
         }
 
         /// <summary>

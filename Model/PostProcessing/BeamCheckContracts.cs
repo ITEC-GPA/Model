@@ -50,13 +50,19 @@ namespace GPC.Model.PostProcessing
         public ElementSelection Elements { get; set; }
         public string[] MemberIds { get; set; } = new string[0];
         public ResultSelection[] Results { get; set; } = new ResultSelection[0];
+        /// <summary>Legacy local mechanisms: one task per sample and mechanism, for every result selection.</summary>
         public CheckMechanism[] SectionMechanisms { get; set; } = new[] { CheckMechanism.UlsBiaxialSection };
+        /// <summary>Local tasks with direction, sub-check and combination category. A specification with a category is planned only
+        /// for the result selections declared with that category. Null keeps the historical scope fingerprint.</summary>
+        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet] public SectionCheckSpecification[] SectionChecks { get; set; }
         public MemberCheckSpecification[] MemberChecks { get; set; } = new MemberCheckSpecification[0];
         public BeamCoveragePolicy CoveragePolicy { get; set; }
         public RequiredBeamLocation[] Locations { get; set; } = new RequiredBeamLocation[0];
         public string Settings { get; set; }
+        internal bool HasSectionChecks => SectionMechanisms.Length != 0 || (SectionChecks?.Length ?? 0) != 0;
         public BeamCheckPlanRequest Copy() => new BeamCheckPlanRequest { Elements = Elements?.Copy(), MemberIds = (string[])MemberIds.Clone(),
             Results = Results.Select(r => r.Copy()).ToArray(), SectionMechanisms = (CheckMechanism[])SectionMechanisms.Clone(),
+            SectionChecks = SectionChecks?.Select(s => s?.Copy()).ToArray(),
             MemberChecks = MemberChecks.Select(s => s.Copy()).ToArray(), CoveragePolicy = CoveragePolicy,
             Locations = Locations.Select(l => l.Copy()).ToArray(), Settings = Settings };
     }

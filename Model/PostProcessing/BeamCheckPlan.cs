@@ -14,6 +14,8 @@ namespace GPC.Model.PostProcessing
         public CheckScope Scope { get; internal set; }
         public CheckTargetReference Target { get; internal set; }
         public CheckMechanism Mechanism { get; internal set; }
+        /// <summary>Discriminators of a task requested through SectionChecks; null for the legacy SectionMechanisms.</summary>
+        public SectionCheckSpecification Check { get; internal set; }
         public string MethodId { get; internal set; }
         public ResultSelection Selection { get; internal set; }
         public MemberLocation MemberLocation { get; internal set; }
@@ -48,7 +50,8 @@ namespace GPC.Model.PostProcessing
             }
         }
         private string PreparedFingerprint() => ModelArchive.Fingerprint(WorkItems.SelectMany(w => new object[] { w.Id, w.Target, w.Scope, w.Mechanism,
-            w.MethodId, w.Selection, w.MemberLocation, w.Station, w.StationDomain, w.Side, w.Data, w.Coverage, w.Member?.Snapshot }));
+            w.MethodId, w.Selection, w.MemberLocation, w.Station, w.StationDomain, w.Side, w.Data, w.Coverage, w.Member?.Snapshot }
+            .Concat(w.Check == null ? new object[0] : new object[] { w.Check })));
 
         private sealed class Scope
         {
@@ -64,7 +67,19 @@ namespace GPC.Model.PostProcessing
                 || r.SectionMechanisms.Any(m => !Enum.IsDefined(typeof(CheckMechanism), m)) || r.SectionMechanisms.Distinct().Count() != r.SectionMechanisms.Length
                 || !Enum.IsDefined(typeof(BeamCoveragePolicy), r.CoveragePolicy) || r.Locations.Any(l => l == null) || r.MemberChecks.Any(s => s == null))
                 throw new ArgumentException("InvalidBeamCheckPlanRequest");
-            if (r.SectionMechanisms.Length == 0 && r.MemberChecks.Length == 0) throw new ArgumentException("NoRequestedChecks");
+            if (!r.HasSectionChecks && r.MemberChecks.Length == 0) throw new ArgumentException("NoRequestedChecks");
+            if (r.SectionChecks != null)
+            {
+                if (r.SectionChecks.Any(c => c == null)) throw new ArgumentException("InvalidBeamCheckPlanRequest");
+                foreach (var check in r.SectionChecks) check.Validate();
+                if (r.SectionChecks.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() != r.SectionChecks.Length)
+                    throw new ArgumentException("DuplicateSectionCheckSpecification");
+                // A mechanism is requested either with the legacy semantics or with explicit discriminators, never both.
+                if (r.SectionChecks.Any(c => r.SectionMechanisms.Contains(c.Mechanism))) throw new ArgumentException("MechanismRequestedTwice: remove it from SectionMechanisms");
+                var missing = r.SectionChecks.Where(c => c.Category != CombinationCategory.Unspecified && !r.Results.Any(s => s.Category == c.Category)).ToArray();
+                if (missing.Length != 0) throw new ArgumentException("NoResultSelectionForCategory: " + string.Join(", ", missing.Select(c => c.Key)));
+            }
+            if (r.Results.Any(s => s.Category.HasValue && !Enum.IsDefined(typeof(CombinationCategory), s.Category.Value))) throw new ArgumentException("InvalidResultSelectionCategory");
             var scope = new Scope();
             foreach (var id in r.MemberIds)
             {
@@ -124,7 +139,7 @@ namespace GPC.Model.PostProcessing
             var requested = ResolveLocations(scope, r);
             foreach (var selection in selections)
             {
-                if (r.SectionMechanisms.Length != 0)
+                if (r.HasSectionChecks)
                 {
                     if (r.CoveragePolicy == BeamCoveragePolicy.ExportedSamples)
                         foreach (var beam in scope.Beams.Values.OrderBy(b => b.Id))
@@ -134,7 +149,7 @@ namespace GPC.Model.PostProcessing
                             foreach (var group in samples.GroupBy(s => ModelArchive.Fingerprint(new object[] { State(s), s.ParametricDistance, s.StationDomain, s.Side })))
                             {
                                 var sample = group.First();
-                                AddSection(rows, model, scope, r, group.Count() == 1 ? selection : State(sample), beam.Id,
+                                AddSection(rows, model, scope, r, group.Count() == 1 ? selection : State(sample, selection.Category), beam.Id,
                                     group.Count() == 1 ? sample : null, sample.ParametricDistance, sample.StationDomain, sample.Side, token, actionsOnly, "AmbiguousExportedLocationState");
                             }
                         }
@@ -178,7 +193,7 @@ namespace GPC.Model.PostProcessing
                     locations.Add(new MemberLocation(null, beam.Id, 0, p.Station.Value, p.StationDomain, p.Side));
                 }
             }
-            if (r.CoveragePolicy == BeamCoveragePolicy.RequiredLocations && r.SectionMechanisms.Length != 0
+            if (r.CoveragePolicy == BeamCoveragePolicy.RequiredLocations && r.HasSectionChecks
                 && scope.Beams.Keys.Any(id => !locations.Any(l => l.BeamId == id))) throw new ArgumentException("EverySelectedBeamNeedsRequiredLocations");
             return locations;
         }
@@ -208,9 +223,23 @@ namespace GPC.Model.PostProcessing
                     Diagnostics = diagnostics.AsReadOnly() };
                 item.Id = ModelArchive.Fingerprint(new object[] { item.Scope, item.Target, mechanism, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
             }
+            // Explicit tasks: only for the selections declared with the requested category (Unspecified: every selection).
+            foreach (var check in r.SectionChecks ?? new SectionCheckSpecification[0])
+            {
+                if (check.Category != CombinationCategory.Unspecified && selection.Category != check.Category) continue;
+                var actualState = sample == null ? selection.Copy() : State(sample);
+                actualState.Category = selection.Category;
+                var item = new CheckWorkItem { Scope = CheckScope.SectionSample, Target = new CheckTargetReference(beamId, member?.Definition.Id),
+                    Selection = actualState, Mechanism = check.Mechanism, Check = check.Copy(), Section = prepared, Actions = actions, MemberLocation = location,
+                    Station = sample?.ParametricDistance ?? station, StationDomain = sample?.StationDomain ?? domain, Side = sample?.Side ?? side,
+                    Data = prepared?.Status ?? actions?.Status ?? DataStatus.Insufficient, Coverage = new CoverageAssessment(r.CoveragePolicy, 1, sample == null ? 0 : 1),
+                    Diagnostics = diagnostics.AsReadOnly() };
+                item.Id = ModelArchive.Fingerprint(new object[] { item.Scope, item.Target, "SectionCheck", check, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
+            }
         }
         internal static ResultSelection State(StationResultBeamForces sample) => new ResultSelection { Dataset = sample.State?.DatasetId, Case = sample.Case?.Name,
             Phase = sample.State?.Phase, Step = sample.State?.Step, ConcomitantState = sample.State?.ConcomitantStateId, Mode = sample.State?.Mode, MovingLoadPosition = sample.State?.MovingLoadPosition };
+        private static ResultSelection State(StationResultBeamForces sample, CombinationCategory? category) { var state = State(sample); state.Category = category; return state; }
 
         private static void AddMember(List<CheckWorkItem> rows, Models.Model model, PhysicalMemberGeometry geometry, BeamCheckPlanRequest r,
             MemberCheckSpecification spec, ResultSelection selection, CancellationToken token)

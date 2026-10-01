@@ -122,6 +122,24 @@ costruiscono, non classi derivate.
 Non coperte: calcestruzzi diversi nella stessa sezione (trave prefabbricata più getto), guaine e cavi aderenti o
 no, fasi costruttive. Richiedono una classe nuova (non derivata) e un'interfaccia da concordare con il Checker.
 
+### Dati del taglio
+
+`ReinforcedConcreteSection.ShearData` (`ConcreteShearData`, facoltativo) contiene le staffe (`ConcreteShearReinforcement`:
+diametro, passo, inclinazione 45–90°, materiale) e, per ciascuna direzione del taglio (`Axis1` per V1, `Axis2` per V2),
+i dati resistenti espliciti (`ConcreteShearDirection`):
+
+- bw e d;
+- Asl, con la conferma del suo ancoraggio;
+- bracci efficaci e z/d;
+- cv, per il limite DIN del braccio;
+- Δe, per Model Code 2010.
+
+Contiene anche il diametro massimo dell'aggregato e la provenienza.
+
+Nessun valore è ricavato dal contorno. Una derivazione dalle forme tipiche, come fa ANTHEA, sarebbe un suggerimento da
+confermare. I dati fanno parte della revisione di verifica, non di quella di analisi. Serializzazione versione 4: la voce
+è scritta solo se presente, quindi le sezioni senza dati del taglio mantengono contenuto e revisione.
+
 ## Sezioni variabili
 
 `SectionVariation(start, end, law)` restituisce la sezione in un punto dell'elemento interpolando i vertici dei

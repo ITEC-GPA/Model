@@ -120,7 +120,8 @@ namespace GPC.Model.PostProcessing
         public static IReadOnlyList<GoverningCheck> Governing(IEnumerable<CheckResult> results) => Array.AsReadOnly(results
             .Where(r => CheckResultRules.Evaluated(r) && r.Utilization.HasValue)
             .GroupBy(r => Persistence.ModelArchive.Fingerprint(new object[] { r.Mechanism, StandardKey(r), r.Details?.MethodId,
-                r.Details?.UtilizationDefinition, r.EngineVersion, r.EngineConfiguration, r.Settings, r.Scope, r.MethodId }))
+                r.Details?.UtilizationDefinition, r.EngineVersion, r.EngineConfiguration, r.Settings, r.Scope, r.MethodId }
+                .Concat(r.Check == null ? new object[0] : new object[] { r.Check.Key })))
             .Select(g => new GoverningCheck(g.Key, g.OrderByDescending(r => r.Utilization).First())).ToArray());
         public static IReadOnlyList<ElementCheckReport> ByElement(IEnumerable<CheckResult> results) => Array.AsReadOnly(results
             .Where(r => r != null && r.Target?.Kind != CheckTargetKind.PhysicalMember).GroupBy(r => new { r.Family, r.ElementId })

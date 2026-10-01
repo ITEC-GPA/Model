@@ -13,6 +13,11 @@ using GPC.Model.Elements;
 
 namespace GPC.Model.Persistence
 {
+    /// <summary>A field added after fingerprints were archived: it enters the fingerprint only when not null,
+    /// so requests and selections that do not use it keep their historical identity.</summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    internal sealed class FingerprintWhenSetAttribute : Attribute { }
+
     /// <summary>Value canonicalization for revision comparison, independent of XML object-reference numbering and geometric GUIDs.</summary>
     internal static class InputFingerprint
     {
@@ -75,7 +80,11 @@ namespace GPC.Model.Persistence
                 // Only input data records reach this branch; no computed property getters are invoked.
                 for (Type current = type; current != null; current = current.BaseType)
                     foreach (var field in current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(f => !f.IsNotSerialized).OrderBy(f => f.Name, StringComparer.Ordinal))
-                    { w.Write(field.Name); Write(w, field.GetValue(value), path); }
+                    {
+                        var fieldValue = field.GetValue(value);
+                        if (fieldValue == null && field.IsDefined(typeof(FingerprintWhenSetAttribute), false)) continue;
+                        w.Write(field.Name); Write(w, fieldValue, path);
+                    }
             }
             finally { path.Remove(value); }
         }

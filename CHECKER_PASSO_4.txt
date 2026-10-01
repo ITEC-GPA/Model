@@ -1,0 +1,176 @@
+CHECKER — PASSO 4: COMPLETAMENTO CLS E MIGRAZIONE DA ANTHEA (REGISTRO E MATRICE)
+Avvio: 1 ottobre 2026, richiesta dell'utente «continua lo spostamento» dopo il prompt di migrazione
+(PROMPT_MIGRAZIONE_ANTHEA_CHECKER.txt) e il prompt operativo PROMPT_SVILUPPO_CHECKER_PASSO_4.txt.
+Registro generale della migrazione: Checker/docs/migrazione-anthea/MIGRAZIONE_ANTHEA.txt.
+
+STATO DELLE SOTTOFASI
+
+4A  Perimetro, requisiti tipizzati, casi congelati          AVVIATA. Fatte: specifiche e categorie nel piano;
+                                                             casi del taglio. Da fare: casi SLE e fessurazione.
+4B  Tensioni SLE con il solver esistente                     COLLEGATA (limiti tensionali; fessurazione in 4E)
+4C  Taglio nelle due direzioni                               TRASFERITO E COLLEGATO (c.a. ordinario)
+4D  Torsione e interazione taglio-torsione                   DA FARE
+4E  Fessurazione e regioni efficaci                          DA FARE
+4F  Aderenza, ancoraggi, dettagli, M-curvatura               DA FARE
+4G  Regressione completa e consegna                          DA FARE (regressioni eseguite per 4A-4C, vedi prove)
+
+4A — DISCRIMINATORI DEL PIANO (Model, GPC.Model.PostProcessing)
+
+- Nuovi enum:
+  - CombinationCategory: Unspecified, Ultimate, UltimateSeismic, UltimateAccidental, Characteristic, Frequent,
+    QuasiPermanent;
+  - SectionCheckDirection: None, Axis1, Axis2;
+  - SectionCheckCriterion: Default, StressLimits, CrackWidth.
+  Classe SectionCheckSpecification (Mechanism, Direction, Criterion, Category, Key) con validazione di coerenza:
+  - il taglio richiede la direzione;
+  - Serviceability richiede un criterio e una categoria SLE;
+  - SLU, taglio e torsione richiedono una categoria SLU.
+- ResultSelection.Category (nullable): la categoria della combinazione è dichiarata dal progettista e non si
+  deduce dal nome del caso; non partecipa alla ricerca dei campioni.
+- BeamCheckPlanRequest.SectionChecks (nullable): attività locali con discriminatori. Regole:
+  - una specifica con categoria si applica solo alle selezioni con la stessa categoria; se non ce n'è nessuna
+    la richiesta è rifiutata (NoResultSelectionForCategory);
+  - specifiche duplicate sono rifiutate;
+  - un meccanismo presente sia in SectionMechanisms sia in SectionChecks è rifiutato (MechanismRequestedTwice).
+- SectionMechanisms resta con la semantica storica (un'attività per campione e meccanismo, per tutte le
+  selezioni) e con la stessa formula d'identità.
+- CheckWorkItem.Check e CheckResult.Check portano la specifica, che entra in:
+  - Id dell'attività;
+  - impronta preparata;
+  - sigillo dell'evidenza;
+  - chiave dei governanti (GoverningByConfiguration).
+  Due direzioni o due categorie SLE non sono mai fuse dalla deduplicazione.
+- Compatibilità delle impronte storiche: InputFingerprint ignora i nuovi campi marcati FingerprintWhenSet
+  quando sono null. Il sigillo dell'evidenza e la chiave dei governanti aggiungono Check solo se presente.
+  Verificato con la DLL precedente (GPCModel 1.5.0.0 di ANTHEA/lib/Checker): impronte di ResultSelection e
+  BeamCheckPlanRequest storiche identiche (19103B79… e C1A2659D…).
+- Interfacce:
+  - ISectionCheckVerifier (Supports, Verify con specifica) per il percorso BeamPlan;
+  - ISectionCheckSession per il percorso multimateriale.
+  Una specifica non supportata dà NotSupported (UnsupportedSectionCheck): nessun ripiego su un controllo vicino.
+- Archivi: SectionChecks, Category e Check sono OptionalField; round-trip provato con evidenza sigillata.
+
+DATI FISICI DEL TAGLIO (Model, GPC.Model.Sections.Concrete)
+
+- ReinforcedConcreteSection.ShearData (ConcreteShearData, null = non assegnato), versione di serializzazione 4.
+  La voce è scritta solo se presente, quindi le sezioni senza dati hanno contenuto e revisione invariati.
+  Equals confronta anche i dati del taglio.
+- ConcreteShearReinforcement: diametro, passo, inclinazione 45-90°, materiale.
+- ConcreteShearDirection (per V1 e V2), dati espliciti senza derivazione dal contorno:
+  - bw, d e Asl, con la conferma esplicita dell'ancoraggio di Asl;
+  - bracci efficaci e z/d;
+  - cv (DIN) ed eccentricità Δe (MC2010).
+- ConcreteShearData: armatura, Axis1 e Axis2, dg, provenienza obbligatoria.
+- I dati entrano nella revisione di verifica, non in quella di analisi: le staffe non cambiano il FEM (provato).
+
+4B — LIMITI TENSIONALI SLE
+
+- Checker: GPC.Checkers.Concrete.Serviceability.StressLimitCheck.Evaluate(StressAnalysisResult, combinazione,
+  fattore cls). Valuta uno stato tensionale già calcolato dal solver, senza ripetere l'equilibrio:
+  - caratteristica: σc ≤ k1 fck ai vertici compressi (fori compresi), barre ≤ k3 fyk, trefoli ≤ limite di
+    precompressione;
+  - quasi permanente: σc ≤ k2 fck;
+  - frequente: nessun limite (rapporti nulli).
+  Coefficienti dalla classe Standard. Il fattore cls (per esempio 0,8 per getti sottili) è esplicito.
+  Restituisce punti governanti, limiti e rapporti, analisi lineare o non lineare e φ.
+  Trefoli con predeformazione nulla: NotSupported (stessa regola di ANTHEA).
+- ModelChecker: ConcreteSectionVerifier supporta Serviceability/StressLimits per Characteristic e
+  QuasiPermanent. Opzioni ServiceabilityAnalysis (Linear/NonLinear) e ConcreteStressLimitFactor.
+  Risultato con ServiceabilityCheckDetails: metriche ConcreteCompression ed eventuale SteelTension, traccia,
+  punti nel piano della sezione.
+- Frequent con StressLimits: non supportato (nessun limite in questa implementazione).
+
+4C — TAGLIO
+
+- Checker: GPC.Checkers.Concrete.Shear, trasferito da ANTHEA ConcreteCodeChecks.Shear e Ntc2018Checks.Shear
+  (commit fe4652c):
+  - SectionShearInput: unità N, Nmm, mm, MPa; resistenze di progetto e γc espliciti;
+  - SectionShearCalculator: aritmetica identica, unità convertite (kN → N); Math.Cbrt sostituito da
+    Math.Pow(x, 1/3) per netstandard2.0;
+  - ShearProfiles: norma per tipo esatto.
+- Profili: NTC 2018, Model Code 2010 livello II, EN 1992-1-1 e annessi UNI, DIN, DS, NS (prima generazione).
+  - CNR-DT 204, CS-TR34, StandardCNR200 (derivata da NTC ma non NTC), ACI e le altre classi: NotSupported.
+  - Senza ripiego su NTC.
+- Esiti:
+  - una resistenza nulla con domanda non nulla è NotSatisfied, senza rapporto;
+  - NTC con trazione e senza staffe: non valutato, come in ANTHEA.
+- ModelChecker, specifiche Shear/Axis1 e Shear/Axis2 con categoria Ultimate:
+  - dati dalla sezione;
+  - fck, fcd, fyd e γc dalla classe Standard e dai materiali;
+  - M concomitante (MC2010): M2 per V1, M1 per V2;
+  - cot θ facoltativo (ShearCotTheta), altrimenti scelto dal metodo.
+  Restituisce ShearCheckDetails con direzione, cot θ, metrica V e traccia.
+- Dati insufficienti, senza alcun valore assunto:
+  - dati mancanti per la direzione;
+  - ancoraggio di Asl non confermato (quando Asl entra nel metodo);
+  - dg mancante (MC2010, NS) o cv mancante (DIN);
+  - Asl maggiore dell'armatura della sezione.
+- Non supportati:
+  - precompressione;
+  - sezioni composte acciaio-cls;
+  - combinazioni sismiche o eccezionali;
+  - staffe di classe A con DS.
+- Torsione concomitante non nulla: avviso ConcomitantTorsionNotChecked. Il taglio da solo non è presentato come
+  verifica completa con torsione.
+
+MATRICE DELLE CAPACITÀ (dopo questo intervento)
+
+Meccanismo / criterio        Norme (tipo esatto)                         Geometria / armatura            Stato
+---------------------------  ------------------------------------------  ------------------------------  ---------------------------
+Pressoflessione SLU          classi MC2010 del solver (come al passo 3)  sezione Model, barre e trefoli  disponibile, categoria
+                                                                                                         Ultimate; sismica ed
+                                                                                                         eccezionale non supportate
+Tensioni SLE caratteristica  classi MC2010 (coefficienti della norma)    sezione Model; trefoli con εp   disponibile
+Tensioni SLE quasi perm.     come sopra                                  come sopra                      disponibile
+Tensioni SLE frequente       nessun limite                               —                               non supportato
+Taglio V1 / V2               NTC, MC2010, EN e UNI/DIN/DS/NS 1992-1-1    dati espliciti; c.a. ordinario  disponibile (SLU fondamentale)
+Torsione                     —                                           —                               4D
+Fessurazione                 —                                           —                               4E
+Aderenza / dettagli / M-χ    —                                           —                               4F
+
+CASI CONGELATI E CONFRONTI
+
+- ANTHEA/supporto/test/CheckerMigration.Capture (nuovo harness) congela ConcreteCodeChecks.Shear su
+  2016 casi:
+  - 7 norme;
+  - griglia senza e con staffe, casi limite e 700 casi casuali con seme 20261001;
+  - 1840 con esito e 176 rifiutati.
+  Metadati nell'intestazione: commit fe4652c, SHA-256 di ANTHEA.Calculations.dll. Copia congelata in
+  Checker/GPCChecker.Test.Concrete/Fixtures/shear-legacy.csv.
+- ShearMigrationTests:
+  - tutti i casi riprodotti (resistenze, rapporto, cot θ, esito e più di 5000 valori intermedi; tolleranza
+    relativa 1e-9);
+  - rifiuti ancora ArgumentException;
+  - calcoli a mano EC2 senza staffe (82,76 / 56,55 kN), EC2 e NTC a traliccio (271,4 / 384,4 / 364,0 kN);
+  - risoluzione per tipo esatto;
+  - resistenza nulla, trazione senza staffe, segno di V.
+- SectionCheckSpecificationTest (ModelChecker.Tests, motore reale):
+  - cardinalità delle attività per direzione e categoria;
+  - rifiuti delle specifiche incoerenti;
+  - impronte storiche invariate;
+  - tensioni SLE confrontate con la chiamata nativa diretta e con i coefficienti NTC 0,60 / 0,45 fck e
+    0,80 fyk;
+  - fattore getti sottili;
+  - taglio nelle due direzioni confrontato con il nucleo;
+  - dati obbligatori e invalidazione del piano alla modifica delle staffe;
+  - norma non supportata;
+  - archivi con sezione e report.
+- Fonti indipendenti: per ora solo i calcoli a mano sopra. Riscontro su testi normativi e esempi pubblicati
+  da fare in 4G; nessuna norma è dichiarata validata integralmente.
+
+VERSIONI
+
+GPCModel 1.6.0.0, GPCModelData 0.0.2.1 (ricompilata), GPCChecker.Concrete 0.0.14.0, GPCChecker.Steel 1.1.0.5
+e GPCChecker.CompositeBridge 1.4.0.2 (ricompilate). ANTHEA/lib/Checker non è aggiornato: ANTHEA non usa ancora
+le nuove API (collegamento in M4, attività separata).
+
+LIMITI APERTI E PROSSIMI PASSI
+
+- 4A: casi congelati per tensioni SLE e fessurazione; associazione del progetto alle categorie per i percorsi
+  legacy (Preparation).
+- Derivazione automatica e tracciata di bw, d e Asl dalle forme rettangolare, circolare e a T (in ANTHEA è un
+  suggerimento geometrico): da proporre come aiuto, mai come conferma.
+- 4D torsione NTC con interazione sullo stesso cot θ.
+- 4E fessurazione.
+- 4F dettagli e M-curvatura.
+- 4G regressione e fonti primarie.

@@ -76,6 +76,8 @@ namespace GPC.Model.PostProcessing
         [field: System.Runtime.Serialization.OptionalField] public MemberLocation MemberLocation { get; set; }
         [field: System.Runtime.Serialization.OptionalField] public MemberInputSnapshot MemberInput { get; set; }
         [field: System.Runtime.Serialization.OptionalField] public CoverageAssessment CoverageAssessment { get; set; }
+        /// <summary>Direction, sub-check and combination category of a task planned through SectionChecks; null otherwise.</summary>
+        [field: System.Runtime.Serialization.OptionalField] public SectionCheckSpecification Check { get; set; }
 
         /// <summary>Detects subsequent edits to stored evidence; it is not a digital signature. Legacy results have no seal.</summary>
         public bool HasUnchangedEvidence => EvidenceFingerprint == null || EvidenceFingerprint == Evidence();
@@ -86,8 +88,9 @@ namespace GPC.Model.PostProcessing
             Utilization, EngineVersion, EngineConfiguration, Settings, SampleRevision, VerificationRevision, Family, ElementId,
             Source, Job, Dataset, Case, Station, Side, Phase, Step, Coverage, ConcomitantStateId, MovingLoadPosition, Mode,
                 ShellPoint, ShellPointKind, ShellCoordinateKind, Face, Layer, GroupNames, Applicability, ApplicabilityReason, Standard, Input, Details, Diagnostics };
+            // The specification enters only when present, so seals written before it existed remain valid.
             return Persistence.ModelArchive.Fingerprint(SchemaVersion < 2 ? fields : fields.Concat(new object[] {
-                Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }));
+                Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }).Concat(Check == null ? new object[0] : new object[] { Check }));
         }
     }
 
@@ -102,6 +105,14 @@ namespace GPC.Model.PostProcessing
     {
         /// <summary>Stable, complete configuration snapshot, including material safety factors and numerical options.</summary>
         string Configuration { get; }
+    }
+
+    /// <summary>Section engine for tasks with direction, sub-check and combination category. Supports states the actual
+    /// implemented combinations; an unsupported specification is never evaluated through a nearby one.</summary>
+    public interface ISectionCheckVerifier : IConfiguredSectionVerifier
+    {
+        bool Supports(SectionCheckSpecification check);
+        CheckResult Verify(BeamCheckInput input, SectionCheckSpecification check, CancellationToken cancellationToken);
     }
 
     public sealed class BeamPreparation
@@ -202,8 +213,19 @@ namespace GPC.Model.PostProcessing
         }
 
         public static CheckResult Run(BeamPreparation preparation, CheckMechanism mechanism, IConcreteSectionVerifier verifier, CancellationToken cancellationToken = default(CancellationToken))
+            => Run(preparation, mechanism, null, verifier, cancellationToken);
+
+        /// <summary>Task with explicit discriminators. Only an <see cref="ISectionCheckVerifier"/> that supports it is invoked.</summary>
+        public static CheckResult Run(BeamPreparation preparation, SectionCheckSpecification check, IConcreteSectionVerifier verifier, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = new CheckResult { Mechanism = mechanism, Execution = ExecutionStatus.NotExecuted, Data = preparation.Status, Outcome = EngineeringOutcome.NotEvaluated };
+            if (check == null) throw new ArgumentNullException(nameof(check));
+            check.Validate();
+            return Run(preparation, check.Mechanism, check.Copy(), verifier, cancellationToken);
+        }
+
+        private static CheckResult Run(BeamPreparation preparation, CheckMechanism mechanism, SectionCheckSpecification check, IConcreteSectionVerifier verifier, CancellationToken cancellationToken)
+        {
+            var result = new CheckResult { Mechanism = mechanism, Check = check, Execution = ExecutionStatus.NotExecuted, Data = preparation.Status, Outcome = EngineeringOutcome.NotEvaluated };
             result.ElementId = preparation.BeamId; result.Case = preparation.Sample?.Case?.Name;
             result.Dataset = preparation.Sample?.State?.DatasetId; result.Station = preparation.Sample?.ParametricDistance;
             result.Side = preparation.Sample?.Side ?? SectionSide.Unspecified;
@@ -233,8 +255,13 @@ namespace GPC.Model.PostProcessing
             {
                 var configuration = (verifier as IConfiguredSectionVerifier)?.Configuration;
                 result.EngineVersion = verifier.Version; result.EngineConfiguration = configuration;
-                if (!verifier.Capabilities.Contains(mechanism)) { result.Data = DataStatus.NotSupported; result.Diagnostics.Add(ModelDiagnostic.Error("UnsupportedMechanism")); return result; }
-                var evaluated = verifier.Verify(input, mechanism, cancellationToken);
+                var specific = verifier as ISectionCheckVerifier;
+                if (check == null ? !verifier.Capabilities.Contains(mechanism) : specific == null || !specific.Supports(check))
+                {
+                    result.Data = DataStatus.NotSupported;
+                    result.Diagnostics.Add(ModelDiagnostic.Error(check == null ? "UnsupportedMechanism" : "UnsupportedSectionCheck", message: check?.Key)); return result;
+                }
+                var evaluated = check == null ? verifier.Verify(input, mechanism, cancellationToken) : specific.Verify(input, check.Copy(), cancellationToken);
                 if (cancellationToken.IsCancellationRequested) throw new OperationCanceledException(cancellationToken);
                 if (evaluated == null) throw new InvalidOperationException("Verifier returned no result.");
                 if (!IsCurrent(input) || configuration != (verifier as IConfiguredSectionVerifier)?.Configuration)
@@ -243,6 +270,7 @@ namespace GPC.Model.PostProcessing
                     throw new InvalidOperationException("Invalid evaluated outcome or utilization returned by verifier.");
                 evaluated.ElementId = result.ElementId; evaluated.Station = result.Station; evaluated.Side = result.Side; evaluated.Case = result.Case;
                 evaluated.Dataset = result.Dataset; evaluated.VerificationRevision = result.VerificationRevision; evaluated.EngineVersion = verifier.Version; evaluated.Mechanism = mechanism;
+                evaluated.Check = check;
                 evaluated.EngineConfiguration = configuration; evaluated.Settings = input.Settings; evaluated.SampleRevision = result.SampleRevision;
                 evaluated.Phase = result.Phase; evaluated.Step = result.Step; evaluated.Coverage = result.Coverage; evaluated.ConcomitantStateId = result.ConcomitantStateId;
                 evaluated.MovingLoadPosition = result.MovingLoadPosition; evaluated.Mode = result.Mode; evaluated.Family = EntityFamily.Beam;

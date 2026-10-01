@@ -28,14 +28,15 @@ namespace GPC.Model.Checker
                 if (token.IsCancellationRequested) result = new CheckResult { Execution = ExecutionStatus.Cancelled, Data = DataStatus.Insufficient };
                 else if (!plan.IsCurrent) result = new CheckResult { Data = DataStatus.Stale, Diagnostics = new List<ModelDiagnostic> { ModelDiagnostic.Error("StaleBeamPlan") } };
                 else if (item.Scope == CheckScope.PhysicalMember) result = MemberVerification.Run(plan, item, memberEngine, token);
-                else result = Verification.Run(item.Section, item.Mechanism, sectionEngine, token);
+                else result = item.Check == null ? Verification.Run(item.Section, item.Mechanism, sectionEngine, token)
+                    : Verification.Run(item.Section, item.Check, sectionEngine, token);
                 var error = item.Scope == CheckScope.PhysicalMember ? memberError : sectionError;
                 if (error != null && result.Execution != ExecutionStatus.Cancelled)
                 { result.Execution = ExecutionStatus.Error; result.Outcome = EngineeringOutcome.NotEvaluated; result.Diagnostics.Add(ModelDiagnostic.Error("CheckerCreationFailed", message: error.Message)); }
                 result.Diagnostics.AddRange(item.Diagnostics.Where(d => !result.Diagnostics.Any(existing => existing.Code == d.Code && existing.ElementId == d.ElementId)));
                 result.SchemaVersion = 2; result.Scope = item.Scope; result.Target = item.Target; result.PlanItemId = item.Id; result.MethodId = item.MethodId;
                 result.MemberLocation = item.MemberLocation; result.MemberInput = item.Member?.Snapshot; result.CoverageAssessment = item.Coverage;
-                result.Job = job.Name; result.Settings = plan.Request.Settings; result.Mechanism = item.Mechanism;
+                result.Job = job.Name; result.Settings = plan.Request.Settings; result.Mechanism = item.Mechanism; result.Check = item.Check?.Copy();
                 result.Dataset = item.Selection.Dataset; result.Case = item.Selection.Case; result.Phase = item.Selection.Phase; result.Step = item.Selection.Step;
                 result.ConcomitantStateId = item.Selection.ConcomitantState; result.Mode = item.Selection.Mode; result.MovingLoadPosition = item.Selection.MovingLoadPosition;
                 result.Station = item.Station; result.Side = item.Side; result.Coverage = item.Coverage.Limitation;

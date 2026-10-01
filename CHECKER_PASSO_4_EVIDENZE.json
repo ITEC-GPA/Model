@@ -1,0 +1,78 @@
+{
+    "step":  "PASSO 4 (4A avviata, 4B, 4C)",
+    "date":  "2026-10-01",
+    "baseRevisions":  {
+                          "model":  "435ca8bf",
+                          "checker":  "63a3d05b",
+                          "anthea":  "fe4652c"
+                      },
+    "buildOrder":  [
+                       "GPCModel",
+                       "GPCModelData",
+                       "GPCChecker.Concrete",
+                       "GPCChecker.Steel",
+                       "GPCChecker.CompositeBridge",
+                       "GPCModelChecker"
+                   ],
+    "binaries":  {
+                     "Model/Model/bin/Release/netstandard2.0/GPCModel.dll":  {
+                                                                                 "version":  "1.6.0.0",
+                                                                                 "sha256":  "3854BC4523486482EE72AA02F9383F37B2C4810B709BCA7FB9564F78F639BE2E"
+                                                                             },
+                     "Model/ModelData/bin/Release/netstandard2.0/GPCModelData.dll":  {
+                                                                                         "version":  "0.0.2.1",
+                                                                                         "sha256":  "DF6F04C53F28322F212BC5F55527193D2AF72EA64B5ACEA5B8AF0CE54CE61188"
+                                                                                     },
+                     "Model/ModelChecker/bin/Release/netstandard2.0/GPCModelChecker.dll":  {
+                                                                                               "version":  "1.0.0.0",
+                                                                                               "sha256":  "664DF6654E647270390A2E616724775370E51E29813C071BDA4BE6E68823382D"
+                                                                                           },
+                     "Checker/GPCChecker.Concrete/bin/Release/netstandard2.0/GPCChecker.Concrete.dll":  {
+                                                                                                            "version":  "0.0.14.0",
+                                                                                                            "sha256":  "3DCEC17DC28B73C5297611F398B8E3F38FC4AF7774DCAB04D9F290F3F8C4843A"
+                                                                                                        },
+                     "Checker/GPCChecker.Steel/bin/Release/netstandard2.0/GPCChecker.Steel.dll":  {
+                                                                                                      "version":  "1.1.0.5",
+                                                                                                      "sha256":  "8D476AD2CCA567E8AF390F68B1C497077CE616AFF2C88A8116C8E794352E9CD5"
+                                                                                                  },
+                     "Checker/GPCChecker.CompositeBridge/bin/Release/netstandard2.0/GPCChecker.CompositeBridge.dll":  {
+                                                                                                                          "version":  "1.4.0.2",
+                                                                                                                          "sha256":  "C04E998F2DE4FC0EB7E38864B1157DEA461EB5853A3736C27D50B1934A9EF8EE"
+                                                                                                                      }
+                 },
+    "legacyCapture":  {
+                          "harness":  "ANTHEA/supporto/test/CheckerMigration.Capture",
+                          "anthea":  "fe4652c",
+                          "antheaCalculationsSha256":  "C4D6F8C24C7372B5A900E485BF6C2E712D0B81E40F931DAFF4C04C07F80F8C35",
+                          "cases":  2016,
+                          "evaluated":  1840,
+                          "rejected":  176,
+                          "seed":  20261001,
+                          "fixture":  "Checker/GPCChecker.Test.Concrete/Fixtures/shear-legacy.csv",
+                          "fixtureSha256":  "F31C5F4DB72A95D068D0C20B989E3C81E593BD6DF6D5CEBF0DFC2B612DFE3FFC",
+                          "tolerance":  "relative 1e-9 (kN after conversion)"
+                      },
+    "fingerprintCompatibility":  {
+                                     "method":  "reflection probe on GPCModel 1.5.0.0 (ANTHEA/lib/Checker) vs build with SectionChecks/Category",
+                                     "resultSelection":  "19103B7999B47EB0294A00D0F51FC7D25BEC332B3BB3F6687036FB9AA6C91EB5",
+                                     "beamCheckPlanRequest":  "C1A2659D8CB90012F2F38E8DFD9EC437AF33D77E0AEE18F370B2B78149FE37B3",
+                                     "identical":  true
+                                 },
+    "tests":  {
+                  "Model UnitTest":  "811 passed, 1 ignored, 0 failed (dotnet test -c Release)",
+                  "ModelChecker.Tests":  "65/65 (10 new in SectionCheckSpecificationTest)",
+                  "GPCChecker.Test.Concrete":  "456/456 (5 new in ShearMigrationTests; MSBuild Release + vstest x64)",
+                  "GPCChecker.Test.Steel":  "77/94: the 17 historical failures, same tests as the reference run",
+                  "GPCChecker.Test.CompositeBridge":  "254/254",
+                  "comparison":  "per-test outcomes identical to the reference (cm1) except the 5 new tests; NonfiniteTargetsAreRejected (8)/(∞) is a name-encoding artifact"
+              },
+    "sources":  [
+                    "ANTHEA X.Calculations/ConcreteCodeChecks.cs, Ntc2018Checks.cs, CheckerSection.cs (fe4652c)",
+                    "hand calculations EC2 6.2.2/6.2.3 and NTC 2018 4.1.2.3.5 written in ShearMigrationTests",
+                    "NTC 2018 4.1.2.2.5 stress-limit coefficients 0.60/0.45 fck and 0.80 fyk asserted in SectionCheckSpecificationTest"
+                ],
+    "divergences":  [
+                        "Math.Cbrt (net8) replaced by Math.Pow(x, 1/3) in netstandard2.0: differences below 1e-15 relative, within the fixture tolerance",
+                        "NTC path now reports intermediate values (legacy had none); numeric results unchanged"
+                    ]
+}

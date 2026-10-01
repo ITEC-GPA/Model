@@ -17,7 +17,7 @@ using GPC.Model.Standards;
 namespace GPC.Model.Checker
 {
     /// <summary>Optional headless adapter to the installed Checker. No FEM solving or resistance formula is implemented here.</summary>
-    public sealed class ConcreteSectionVerifier : IConfiguredSectionVerifier
+    public sealed partial class ConcreteSectionVerifier : ISectionCheckVerifier
     {
         private static readonly object Sync = new object();
         private readonly StandardModelCode2010 _standard;
@@ -26,6 +26,8 @@ namespace GPC.Model.Checker
         private readonly int _angularDivisions;
         private readonly double _psiRebar, _psiTendon;
         private readonly string _edition, _nationalAnnex;
+        private readonly SectionSolver.StressAnalysisTypes _serviceabilityAnalysis;
+        private readonly double _concreteStressLimitFactor;
         private CheckStandardContext _standardSnapshot;
         private readonly Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>> _checkers = new Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>>();
         private int _createdCheckers;
@@ -38,13 +40,28 @@ namespace GPC.Model.Checker
 
         public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
             int angularDivisions, double psiRebar, double psiTendon, string standardEdition, string nationalAnnex)
+            : this(standard, criterion, considerTension, angularDivisions, psiRebar, psiTendon, standardEdition, nationalAnnex,
+                SectionSolver.StressAnalysisTypes.NonLinear, 1) { }
+
+        /// <param name="serviceabilityAnalysis">Stress analysis used for the serviceability stress limits.</param>
+        /// <param name="concreteStressLimitFactor">Explicit factor on the concrete stress limits (1 = none), for example 0.8 for thin castings.</param>
+        /// <param name="shearCotTheta">Assigned cot θ for the shear checks; null lets each method choose it within its range.</param>
+        public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
+            int angularDivisions, double psiRebar, double psiTendon, string standardEdition, string nationalAnnex,
+            SectionSolver.StressAnalysisTypes serviceabilityAnalysis, double concreteStressLimitFactor, double? shearCotTheta = null)
         {
+            if (shearCotTheta.HasValue && (double.IsNaN(shearCotTheta.Value) || double.IsInfinity(shearCotTheta.Value) || shearCotTheta <= 0))
+                throw new ArgumentOutOfRangeException(nameof(shearCotTheta));
+            _shearCotTheta = shearCotTheta;
             _standard=standard ?? throw new ArgumentNullException(nameof(standard));_criterion=criterion;_considerTension=considerTension;
             _edition = standardEdition ?? DeclaredEdition(standard.GetType()); _nationalAnnex = nationalAnnex;
             if (!Enum.IsDefined(typeof(SectionSolver.FailureAnalysisTypes), criterion)) throw new ArgumentOutOfRangeException(nameof(criterion));
+            if (!Enum.IsDefined(typeof(SectionSolver.StressAnalysisTypes), serviceabilityAnalysis)) throw new ArgumentOutOfRangeException(nameof(serviceabilityAnalysis));
+            if (double.IsNaN(concreteStressLimitFactor) || concreteStressLimitFactor <= 0 || concreteStressLimitFactor > 1) throw new ArgumentOutOfRangeException(nameof(concreteStressLimitFactor));
             if(angularDivisions<4) throw new ArgumentOutOfRangeException(nameof(angularDivisions));
             if(double.IsNaN(psiRebar)||double.IsInfinity(psiRebar)||double.IsNaN(psiTendon)||double.IsInfinity(psiTendon)) throw new ArgumentException("Finite psi values required.");
             _angularDivisions=angularDivisions;_psiRebar=psiRebar;_psiTendon=psiTendon;
+            _serviceabilityAnalysis = serviceabilityAnalysis; _concreteStressLimitFactor = concreteStressLimitFactor;
         }
 
         // Only editions explicitly documented by these concrete source types are inferred. Subclasses may differ.
@@ -79,6 +96,9 @@ namespace GPC.Model.Checker
                 entries["PsiRebar"]=_psiRebar.ToString("R",CultureInfo.InvariantCulture);entries["PsiTendon"]=_psiTendon.ToString("R",CultureInfo.InvariantCulture);
                 entries["FailureDomain"]="Plastic";entries["StressAnalysis"]="NonLinear";entries["WorkingRatioForceScaleN"]="1000000";entries["WorkingRatioLengthScaleMm"]="1000";
                 entries["StandardEdition"] = _edition ?? "undeclared"; entries["NationalAnnex"] = _nationalAnnex ?? "undeclared";
+                entries["ServiceabilityStressAnalysis"] = _serviceabilityAnalysis.ToString();
+                entries["ServiceabilityConcreteLimitFactor"] = _concreteStressLimitFactor.ToString("R", CultureInfo.InvariantCulture);
+                AddShearConfiguration(entries);
                 return string.Join("\n",entries.Select(p=>p.Key+"="+p.Value));
             }
         }
@@ -87,22 +107,11 @@ namespace GPC.Model.Checker
         {
             if(mechanism!=CheckMechanism.UlsBiaxialSection) return new CheckResult {Data=DataStatus.NotSupported,Outcome=EngineeringOutcome.NotEvaluated};
             cancellationToken.ThrowIfCancellationRequested();
-            // Section geometry is expressed in its 2D coordinates; input already contains components in those section axes.
-            // The section force reduction point must be explicitly the section centroid for this adapter.
-            var reference=new CoordinateSystem(input.Section.Centroid,new Vector3d(1,0,0),new Vector3d(0,1,0));
-            var f=input.Forces;
-            var forces=new ResultBeamForces(f.N,f.V1,f.V2,f.T,f.M1,f.M2,reference);
+            var forces = SectionForces(input, out var reference);
             lock(Sync)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var key = ModelArchive.Fingerprint(new object[] { input.Section, Configuration });
-                if (!_checkers.TryGetValue(key, out var entry) || ModelArchive.Fingerprint(new object[] { entry.Item1, Configuration }) != key)
-                {
-                    var options=new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference,_criterion,
-                        SectionSolver.FailureDomainTypes.Plastic,SectionSolver.StressAnalysisTypes.NonLinear,_psiRebar,_psiTendon,_considerTension,_angularDivisions);
-                    var created=new SectionCheckerModelCode2010(new SectionCheckerAttribute(input.Section),options,_standard,_considerTension);
-                    entry = Tuple.Create(input.Section, created); _checkers[key] = entry; _createdCheckers++;
-                }
+                var entry = Checker(input.Section, reference, SectionSolver.StressAnalysisTypes.NonLinear);
                 var point=entry.Item2.CalculateFailureDomainPoint(forces);
                 cancellationToken.ThrowIfCancellationRequested();
                 if(point==null) return Failure("CheckerDomainPointMissing");
@@ -116,12 +125,41 @@ namespace GPC.Model.Checker
                     Details = new SectionResistanceDetails("Concrete.PlasticSectionDomain", _criterion.ToString(), new BeamForceSnapshot(forces),
                         point.NRd, point.MxRd, point.MyRd, ratio, point.FailureIndex.ToString(),
                         strain.ReferencePoint.X, strain.ReferencePoint.Y, strain.StrainReferencePoint, strain.ChiX, strain.ChiY) };
-                if (!result.Standard.HasDeclaredEdition) result.Diagnostics.Add(new ModelDiagnostic { Code = "StandardEditionUndeclared",
-                    Severity = DiagnosticSeverity.Warning, Message = "Specify the edition for this standard implementation before normative reporting." });
-                return result;
+                return WithEdition(result);
             }
+        }
+        private CheckResult WithEdition(CheckResult result)
+        {
+            if (!result.Standard.HasDeclaredEdition) result.Diagnostics.Add(new ModelDiagnostic { Code = "StandardEditionUndeclared",
+                Severity = DiagnosticSeverity.Warning, Message = "Specify the edition for this standard implementation before normative reporting." });
+            return result;
         }
         private static CheckResult Failure(string code) => new CheckResult {Execution=ExecutionStatus.Error,Data=DataStatus.Insufficient,
             Outcome=EngineeringOutcome.NotEvaluated,Diagnostics=new List<ModelDiagnostic>{ModelDiagnostic.Error(code)}};
+
+        // Section geometry is expressed in its 2D coordinates; input already contains components in those section axes.
+        // The section force reduction point must be explicitly the section centroid for this adapter.
+        private static ResultBeamForces SectionForces(BeamCheckInput input, out CoordinateSystem reference)
+        {
+            reference = new CoordinateSystem(input.Section.Centroid, new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
+            var f = input.Forces;
+            return new ResultBeamForces(f.N, f.V1, f.V2, f.T, f.M1, f.M2, reference);
+        }
+
+        /// <summary>Cached native checker per section, configuration and stress analysis type. Call under <see cref="Sync"/>.</summary>
+        private Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010> Checker(ReinforcedConcreteSection section, CoordinateSystem reference, SectionSolver.StressAnalysisTypes stress)
+        {
+            var key = ModelArchive.Fingerprint(new object[] { section, Configuration, stress });
+            if (!_checkers.TryGetValue(key, out var entry) || ModelArchive.Fingerprint(new object[] { entry.Item1, Configuration, stress }) != key)
+            {
+                var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, _criterion,
+                    SectionSolver.FailureDomainTypes.Plastic, stress, _psiRebar, _psiTendon, _considerTension, _angularDivisions);
+                var created = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, _standard, _considerTension);
+                entry = Tuple.Create(section, created); _checkers[key] = entry; _createdCheckers++;
+            }
+            return entry;
+        }
+
+        partial void AddShearConfiguration(SortedDictionary<string, string> entries);
     }
 }
