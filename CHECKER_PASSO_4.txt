@@ -329,6 +329,35 @@ Nessuna divergenza fra implementazione e testi riscontrati. Le parti basate su E
 200/204 e sulla formula dell'apertura della Circolare restano compatibili con ANTHEA o con i calcoli a mano, ma non sono
 dichiarate validate.
 
+4G.2 — CASI DI COPERTURA DELLE NUOVE VERIFICHE
+
+Step4CoverageTest (ModelChecker.Tests, motore reale), sull'asta T1 di prova. T1 è composta da FEM 250 (I→J) e FEM 251
+(invertito), è una mensola di 5 m con una barra spostata di 40 mm e ha tutti i dati del passo 4. Step4Fixture la
+costruisce con taglio, N e torsione assegnati.
+1. Inversione I-J e lati della discontinuità: al nodo comune ognuna delle 8 verifiche di sezione è eseguita da
+   entrambi gli elementi, con lo stesso esito e lo stesso rapporto (1e-9).
+2. Armatura asimmetrica: con flessione positiva e negativa le tensioni SLE cambiano; il taglio (|V|) no.
+3. Stazione richiesta mancante: torsione e fessurazione restano nel denominatore come dati insufficienti
+   (MissingRequiredLocation).
+4. Categoria frequente:
+   - NTC richiede la fessurazione con w3 = 0,4 mm;
+   - EN 1992-1-1 la dichiara non applicabile (richiesta nella quasi permanente).
+5. Non convergenza: 2 MN di trazione su 4Ø16 con analisi SLE non lineare. Ogni campione è un errore di esecuzione con
+   dati insufficienti, senza rapporto (CheckerStressAnalysisNotConverged): mai un successo.
+6. Cache:
+   - lavori con le stesse opzioni riusano i solutori;
+   - φ diverso o norma diversa creano solutori distinti e configurazioni distinte.
+7. Invalidazione: spostare una barra rende il piano non corrente e l'esito corrente di un resoconto salvato «non
+   valutato». Per staffe, dati della torsione, della fessurazione e dei dettagli c'erano già i test di 4C-4F.
+8. Archivio: un resoconto con dettagli di taglio, torsione, fessurazione e dettagli costruttivi d'asta si rilegge con
+   l'evidenza sigillata intatta, e il suo esito corrente coincide con quello salvato.
+9. Annullamento: con un token già annullato restano tutte le 67 attività (64 di sezione e 3 d'asta), annullate.
+Erano già coperti dai passi 2-3 per la pressoflessione, e restano validi:
+- trasformazioni degli assi;
+- annullamento a metà con avanzamento;
+- archivi di schema 1 e 2;
+- rifiuto dei piani incoerenti.
+
 MATRICE DELLE CAPACITÀ (dopo 4A-4F)
 
 Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):

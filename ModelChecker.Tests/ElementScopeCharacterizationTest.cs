@@ -24,7 +24,9 @@ public class ElementScopeCharacterizationTest
     // Two FEM elements of 2 m and 3 m; the second has reversed connectivity.
     // The asymmetric reinforcement stays in the same physical section frame.
     /// <param name="torque">Constant torque about the member axis in the analytical results, Nmm (0 = the historical fixture).</param>
-    internal static GPC.Model.Models.Model Model(double torque = 0)
+    /// <param name="axial">Constant axial force, N (compression negative; 0 = the historical fixture).</param>
+    /// <param name="shear">Tip load along global Y, N: V2 and M1 = −shear·(5000 − z) (1000 = the historical fixture).</param>
+    internal static GPC.Model.Models.Model Model(double torque = 0, double axial = 0, double shear = 1000)
     {
         var model = new GPC.Model.Models.Model("Step 3: two FEM elements, proposed physical member T1");
         foreach (var entry in new[] { (Id: 10, Z: 0.0), (Id: 20, Z: 2000.0), (Id: 30, Z: 5000.0) })
@@ -59,7 +61,7 @@ public class ElementScopeCharacterizationTest
             {
                 var point = new BeamReferenceGeometry(beam).PointAt(xi, "NodeToNode");
                 var source = new StationResultBeamForces(loadCase,
-                    new ResultBeamForces(0, 0, 1000, torque, -1000 * (5000 - point.Z), 0, ResultTransformations.AtPoint(CoordinateSystem.Global, point)), xi)
+                    new ResultBeamForces(axial, 0, shear, torque, -shear * (5000 - point.Z), 0, ResultTransformations.AtPoint(CoordinateSystem.Global, point)), xi)
                 {
                     StationDomain = "NodeToNode", PhysicalDistance = xi * beam.Length, Body = ActionBody.PositiveSectionFace,
                     State = new ResultState { DatasetId = "synthetic-member", ModelRevision = "r1", InputFingerprint = fingerprint,
