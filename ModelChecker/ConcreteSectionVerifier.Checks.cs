@@ -17,9 +17,12 @@ namespace GPC.Model.Checker
             {
                 // The plastic domain uses the fundamental partial factors: seismic and accidental combinations are not implied.
                 case CheckMechanism.UlsBiaxialSection: return check.Category == CombinationCategory.Ultimate;
-                // Frequent combination: no stress limit in this implementation.
-                case CheckMechanism.Serviceability: return check.Criterion == SectionCheckCriterion.StressLimits
-                    && (check.Category == CombinationCategory.Characteristic || check.Category == CombinationCategory.QuasiPermanent);
+                // Frequent combination: no stress limit in this implementation. Crack control: every serviceability category, the standard
+                // states where it is not required.
+                case CheckMechanism.Serviceability:
+                    if (check.Criterion == SectionCheckCriterion.CrackWidth) return SupportsCracking(check);
+                    return check.Criterion == SectionCheckCriterion.StressLimits
+                        && (check.Category == CombinationCategory.Characteristic || check.Category == CombinationCategory.QuasiPermanent);
                 case CheckMechanism.Shear: return SupportsShear(check);
                 case CheckMechanism.Torsion: return SupportsTorsion(check);
                 default: return false;
@@ -35,7 +38,8 @@ namespace GPC.Model.Checker
             switch (check.Mechanism)
             {
                 case CheckMechanism.UlsBiaxialSection: return Verify(input, CheckMechanism.UlsBiaxialSection, cancellationToken);
-                case CheckMechanism.Serviceability: return StressLimits(input, check.Category, cancellationToken);
+                case CheckMechanism.Serviceability: return check.Criterion == SectionCheckCriterion.CrackWidth
+                    ? Cracking(input, check.Category, cancellationToken) : StressLimits(input, check.Category, cancellationToken);
                 case CheckMechanism.Torsion: return Torsion(input, cancellationToken);
                 default: return Shear(input, check, cancellationToken);
             }

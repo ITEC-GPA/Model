@@ -46,13 +46,19 @@ namespace GPC.Model.Checker
         /// <param name="serviceabilityAnalysis">Stress analysis used for the serviceability stress limits.</param>
         /// <param name="concreteStressLimitFactor">Explicit factor on the concrete stress limits (1 = none), for example 0.8 for thin castings.</param>
         /// <param name="shearCotTheta">Assigned cot θ for the shear checks; null lets each method choose it within its range.</param>
+        /// <param name="crackLoadDuration">Load duration of the crack checks.</param>
+        /// <param name="crackDesignLimit">Design wlim of the crack checks, mm, where the standard admits it; null = limit of the standard.</param>
         public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
             int angularDivisions, double psiRebar, double psiTendon, string standardEdition, string nationalAnnex,
-            SectionSolver.StressAnalysisTypes serviceabilityAnalysis, double concreteStressLimitFactor, double? shearCotTheta = null)
+            SectionSolver.StressAnalysisTypes serviceabilityAnalysis, double concreteStressLimitFactor, double? shearCotTheta = null,
+            CrackLoadDuration crackLoadDuration = CrackLoadDuration.LongTerm, double? crackDesignLimit = null)
         {
             if (shearCotTheta.HasValue && (double.IsNaN(shearCotTheta.Value) || double.IsInfinity(shearCotTheta.Value) || shearCotTheta <= 0))
                 throw new ArgumentOutOfRangeException(nameof(shearCotTheta));
-            _shearCotTheta = shearCotTheta;
+            if (!Enum.IsDefined(typeof(CrackLoadDuration), crackLoadDuration)) throw new ArgumentOutOfRangeException(nameof(crackLoadDuration));
+            if (crackDesignLimit.HasValue && (double.IsNaN(crackDesignLimit.Value) || double.IsInfinity(crackDesignLimit.Value) || crackDesignLimit <= 0))
+                throw new ArgumentOutOfRangeException(nameof(crackDesignLimit));
+            _shearCotTheta = shearCotTheta; _crackLoadDuration = crackLoadDuration; _crackDesignLimit = crackDesignLimit;
             _standard=standard ?? throw new ArgumentNullException(nameof(standard));_criterion=criterion;_considerTension=considerTension;
             _edition = standardEdition ?? DeclaredEdition(standard.GetType()); _nationalAnnex = nationalAnnex;
             if (!Enum.IsDefined(typeof(SectionSolver.FailureAnalysisTypes), criterion)) throw new ArgumentOutOfRangeException(nameof(criterion));
@@ -100,6 +106,7 @@ namespace GPC.Model.Checker
                 entries["ServiceabilityConcreteLimitFactor"] = _concreteStressLimitFactor.ToString("R", CultureInfo.InvariantCulture);
                 AddShearConfiguration(entries);
                 AddTorsionConfiguration(entries);
+                AddCrackConfiguration(entries);
                 return string.Join("\n",entries.Select(p=>p.Key+"="+p.Value));
             }
         }
@@ -163,5 +170,6 @@ namespace GPC.Model.Checker
 
         partial void AddShearConfiguration(SortedDictionary<string, string> entries);
         partial void AddTorsionConfiguration(SortedDictionary<string, string> entries);
+        partial void AddCrackConfiguration(SortedDictionary<string, string> entries);
     }
 }

@@ -367,6 +367,10 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         public ConcreteTorsionData TorsionData { get => _torsionData; set => _torsionData = value; }
 
+        private ConcreteCrackData _crackData;
+        /// <summary>Crack-control data (exposure, sensitivity, cover, bond, bar layout), with provenance (null: not given). Part of the section revision.</summary>
+        public ConcreteCrackData CrackData { get => _crackData; set => _crackData = value; }
+
         /// <summary>
         ///
         /// </summary>
@@ -562,6 +566,7 @@ namespace GPC.Model.Sections.Concrete
                 {
                     if (entry.Name == "ShearData") _shearData = (ConcreteShearData)info.GetValue("ShearData", typeof(ConcreteShearData));
                     else if (entry.Name == "TorsionData") _torsionData = (ConcreteTorsionData)info.GetValue("TorsionData", typeof(ConcreteTorsionData));
+                    else if (entry.Name == "CrackData") _crackData = (ConcreteCrackData)info.GetValue("CrackData", typeof(ConcreteCrackData));
                 }
         }
 
@@ -1226,6 +1231,7 @@ namespace GPC.Model.Sections.Concrete
             if (_shearData != null) info.AddValue("ShearData", _shearData, typeof(ConcreteShearData));
             // Same rule for the torsion data (read by the version-4 loop on the entries).
             if (_torsionData != null) info.AddValue("TorsionData", _torsionData, typeof(ConcreteTorsionData));
+            if (_crackData != null) info.AddValue("CrackData", _crackData, typeof(ConcreteCrackData));
 
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
@@ -1274,7 +1280,8 @@ namespace GPC.Model.Sections.Concrete
                 _rebars.ScrambledEquals(other._rebars) &&
                 _steelSections.SequenceEqual(other._steelSections) &&
                 Equals(_shearData, other._shearData) &&
-                Equals(_torsionData, other._torsionData);
+                Equals(_torsionData, other._torsionData) &&
+                Equals(_crackData, other._crackData);
         }
 
         /// <summary>

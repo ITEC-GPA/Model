@@ -13,7 +13,8 @@ STATO DELLE SOTTOFASI
 4C  Taglio nelle due direzioni                               TRASFERITO E COLLEGATO (tutte le norme non americane)
 4D  Torsione e interazione taglio-torsione                   TRASFERITA E COLLEGATA (tutte le norme non americane; vedi
                                                              matrice e parti non applicate)
-4E  Fessurazione e regioni efficaci                          DA FARE
+4E  Fessurazione e regioni efficaci                          TRASFERITA E COLLEGATA (tutte le norme non americane; vedi
+                                                             matrice e limiti)
 4F  Aderenza, ancoraggi, dettagli, M-curvatura               DA FARE
 4G  Regressione completa e consegna                          DA FARE (regressioni eseguite per 4A-4C, vedi prove)
 
@@ -186,7 +187,53 @@ PARTI SALTATE PERCHÉ TROPPO COMPLESSE (richiesta dell'utente del 1/10/2026: «s
   (la verifica richiede sempre staffe chiuse).
 - NTC: cot θ = (al/as)^½ in torsione pura (facoltativo): non usato, il cot θ è assegnato.
 
-MATRICE DELLE CAPACITÀ (dopo 4A-4D)
+4E — FESSURAZIONE E REGIONI EFFICACI
+
+- Model (GPC.Model.Sections.Concrete):
+  - ReinforcedConcreteSection.CrackData (ConcreteCrackData, null = non assegnato), con:
+    - classe di esposizione (null = non indicata);
+    - sensibilità delle armature;
+    - copriferro c alla superficie delle barre;
+    - aderenza;
+    - conferma degli anelli concentrici;
+    - interasse massimo da disegno facoltativo;
+    - provenienza.
+  - Voce scritta solo se presente; entra nella revisione di verifica (provato).
+  - SectionCheckSpecification.CrackWidth(categoria): sottocontrollo SLE distinto dalle tensioni.
+- Checker (GPC.Checkers.Concrete.Cracking): trasferita l'intera catena di ANTHEA (commit fe4652c), senza la
+  dipendenza globale Ntc2018Checks.SpacingCalculator, sostituita da un metodo d'istanza della geometria:
+  - CrackRequirements: Ntc2018Checks.CrackRequirement e ConcreteCodeChecks.CrackRequirement;
+  - CrackWidthCalculator: wk di NTC e della famiglia Eurocodice (DS, DIN, MC2010) e k2;
+  - CrackSectionGeometry: geometria della sezione, ritaglio delle regioni, interasse massimo (TensionBarSpacing),
+    hc,eff (EffectiveCrackDepth) e copriferro delle barre;
+  - SectionCrackCheck: sezione parzialmente compressa, interamente tesa (facce indipendenti, sistema grossolano DS) e
+    superfici interne delle sezioni cave.
+  - Restituisce il criterio, wk/wlim o la tensione della sezione non fessurata, l'area efficace, l'interasse, tutte
+    le regioni e la governante.
+- ModelChecker: attività Serviceability/None/CrackWidth/<categoria> per caratteristica, frequente e quasi permanente.
+  - Analisi lineare senza cls teso con φ delle opzioni; per decompressione e formazione analisi lineare con cls teso.
+  - Opzioni CrackLoadDuration (lunga durata salvo indicazione) e CrackDesignLimit (wlim di progetto dove la norma lo
+    ammette).
+  - Esiti:
+    - combinazione in cui la norma non richiede il controllo: non applicabile, con il motivo e la combinazione
+      richiesta;
+    - dati insufficienti: MissingCrackData, CrackMissingExposure, CrackMissingDesignLimit, CrackSpacingUndetermined;
+    - non supportati: precompressione, sezioni composte, CNR-DT 204, e i casi senza esito della verifica (asse neutro
+      indeterminato, nessuna armatura tesa o area efficace nulla, superficie interna tesa senza armatura).
+  - Metriche:
+    - CrackWidth (wk/wlim, mm);
+    - UncrackedConcreteTension (σct,max e limite, MPa; rapporto nullo se il limite è 0).
+  - Traccia: regioni, Ac,eff, As,eff, interasse e calcolo.
+- Differenze rispetto ad ANTHEA:
+  - Ac,eff si ottiene ritagliando il poligono invece che tagliando la mesh: risultato uguale entro 1e-9.
+  - Nella sezione interamente tesa con NTC l'interasse governante è riportato (ANTHEA lo perdeva).
+  - Superfici interne: implementate per un foro rettangolare allineato agli assi o per l'anello circolare (gli unici
+    casi di ANTHEA); altri fori danno InnerSurfaceNotSupported, senza esito.
+- Saltati, con nota:
+  - CNR-DT 204: apertura delle fessure dei calcestruzzi fibrorinforzati (resistenza residua nel tension stiffening).
+  - Apertura delle fessure dei c.a.p. (anche in ANTHEA era "da definire").
+
+MATRICE DELLE CAPACITÀ (dopo 4A-4E)
 
 Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):
 NTC 2018, Model Code 2010, EN 1992-1-1, UNI / DIN / DS / NS EN 1992-1-1, CNR-DT 204/2006, CS-TR34, CNR-DT 200 R1/2013.
@@ -201,7 +248,7 @@ Tensioni SLE quasi permanente   ✓  ✓  ✓   ✓   ✓  ✓  ✓    ✓      
 Tensioni SLE frequente          —  —  —   —   —  —  —    —        —       —     nessun limite tensionale: non supportata
 Taglio V1 / V2 (Ultimate)       ✓  ✓  ✓   ✓   ✓  ✓  ✓   ✓ (1)    n.a.    ✓ (2)  dati espliciti della sezione
 Torsione + taglio (Ultimate)    ✓  ✓  ✓   ✓   ✓ ✓(3) ✓  n.s.(4)  n.a.    ✓ (2)  staffe chiuse a 90°, cot θ comune assegnato
-Fessurazione                    4E
+Fessurazione SLE (5)            ✓  ✓  ✓   ✓   ✓  ✓  ✓  n.s.(6)  n.a.    ✓ (7)  dati di fessurazione della sezione
 Aderenza / dettagli / M-χ       4F
 
 ✓ disponibile e provato; n.a. = non applicabile, con il motivo (CS-TR34 riguarda le pavimentazioni su terreno e non
@@ -215,6 +262,13 @@ definisce né il taglio di trave né i limiti tensionali della sezione).
 (3) DS: senza la regola DK NA 6.3.2(6) per V, T, N, M combinati (avviso TorsionRuleNotApplied; vedi parti saltate).
 (4) CNR-DT 204: la torsione richiede staffe chiuse e la combinazione fibre più staffe non è implementata (stesso limite
     del taglio); risultato non supportato con il motivo.
+(5) Combinazioni richieste dalla norma:
+    - NTC e UNI: frequente e quasi permanente;
+    - famiglia Eurocodice e MC2010: quasi permanente (NS: frequente per XD3/XS3);
+    - MC2010: wlim di progetto obbligatorio.
+    Le altre combinazioni sono non applicabili, con il motivo. Decompressione e formazione delle fessure secondo NTC.
+(6) CNR-DT 204: modello di fessurazione FRC non implementato.
+(7) CNR-DT 200: membratura c.a. secondo NTC (nessun dato FRP).
 Il materiale FRC con le altre norme: avviso FibreContributionNotUsed (resistenza del calcestruzzo semplice).
 Coefficienti delle tensioni SLE: quelli delle classi di Model (unica sorgente; gli annessi che non li ridefiniscono usano
 i valori MC2010 0,60 / 0,45 / 0,80 / 0,75). Formule di CNR-DT 204 e CNR-DT 200: da riscontrare sul testo (non disponibile
@@ -292,6 +346,34 @@ CASI CONGELATI E CONFRONTI
   Non consultabili qui: testo di DIN EN 1992-1-1/NA, NS-EN NA ed fib MC2010 §7.3.4. I valori adottati (DIN 0,525 ν2 e
   0,75 ν2 con interazione quadratica per le sezioni piene; MC2010 kc del taglio e interazione quadratica) sono da
   riscontrare.
+- Fessurazione (4E): la harness congela Ntc2018Checks.Cracking (commit 4bb8815, sorgenti di calcolo invariati da fe4652c).
+  - crack-legacy.csv: 936 stati SLE su 6 sezioni salvate in crack-sections.xml:
+    - rettangolare, a T, circolare;
+    - rettangolare cava, circolare cava con due anelli;
+    - quadrata con barre di lato.
+  - Variabili:
+    - 7 norme, 13 azioni (anche trazione e sezioni interamente tese), combinazioni rara, frequente e quasi permanente;
+    - a rotazione: esposizione, sensibilità, durata, aderenza, copriferro e interasse assegnati, wlim di progetto.
+    Si tiene una sola combinazione non richiesta ogni quattro.
+  - crack-scalar-legacy.csv: 1400 aperture con seme 20261003 e l'intera tabella dei requisiti (1596 combinazioni).
+  - CrackMigrationTests ricostruisce lo stato tensionale nativo sulle sezioni archiviate e riproduce, con tolleranza 1e-9:
+    - wk, wlim, rapporto ed esito;
+    - Ac,eff, As,eff e interasse;
+    - le 1104 regioni (chiave, area, armatura, apertura, barre);
+    - l'esito senza apertura, mappato sul motivo di ANTHEA;
+    - i 10 errori.
+  - Calcoli indipendenti:
+    - EN 1992-1-1 7.3.4 a mano (wk = 0,258 mm), con barre distanziate, DS k3, DIN e NTC per CNR-DT 200;
+    - NTC Tab. 4.1.IV;
+    - ritaglio, interassi, hc,eff (EN, DIN, DS).
+  - Tabella DK riscontrata sul testo: DK NA Tabel 7.1 NA, 0,2 / 0,3 / 0,4 mm.
+  - SectionCheckSpecificationTest:
+    - matrice di 10 norme × 8 verifiche;
+    - fessurazione NTC attraverso ModelChecker uguale al nucleo;
+    - combinazione caratteristica non applicabile;
+    - dati obbligatori (esposizione, interasse, wlim di MC2010);
+    - decompressione non soddisfatta con le armature sensibili in XD1;
+    - invalidazione del piano e archivio.
 - Fonti indipendenti: per ora solo i calcoli a mano sopra. Riscontro su testi normativi e esempi pubblicati
   da fare in 4G; nessuna norma è dichiarata validata integralmente.
 
@@ -303,13 +385,14 @@ le nuove API (collegamento in M4, attività separata).
 
 LIMITI APERTI E PROSSIMI PASSI
 
-- Casi congelati della fessurazione (con 4E); categorie per il percorso legacy Preparation (non usato dai nuovi controlli).
+- Categorie per il percorso legacy Preparation (non usato dai nuovi controlli).
+- Fessurazione: FRC (CNR-DT 204), c.a.p., superfici interne di fori generici, riscontro delle tabelle EN, DIN, NS e
+  delle formule DIN e MC2010 sul testo.
 - Norme americane (ACI 318, AASHTO): implementazione futura per tutte le verifiche.
 - Taglio CNR-DT 204 con fibre e staffe insieme; contributo FRP di CNR-DT 200 quando le sezioni avranno dati FRP.
 - Derivazione automatica e tracciata di bw, d e Asl dalle forme rettangolare, circolare e a T (in ANTHEA è un
   suggerimento geometrico): da proporre come aiuto, mai come conferma.
 - Torsione: regola DS 6.3.2(6) per V, T, N e M combinati; staffe inclinate; scelta automatica del cot θ comune;
   riscontro delle formule DIN, NS e MC2010 sul testo.
-- 4E fessurazione.
 - 4F dettagli e M-curvatura.
 - 4G regressione e fonti primarie.

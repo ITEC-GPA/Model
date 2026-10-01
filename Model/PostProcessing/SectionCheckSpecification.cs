@@ -38,6 +38,9 @@ namespace GPC.Model.PostProcessing
         public static SectionCheckSpecification Torsion() => new SectionCheckSpecification(CheckMechanism.Torsion, CombinationCategory.Ultimate);
         public static SectionCheckSpecification StressLimits(CombinationCategory category)
             => new SectionCheckSpecification(CheckMechanism.Serviceability, category, criterion: SectionCheckCriterion.StressLimits);
+        /// <summary>Crack control (width, decompression or crack formation as the standard requires) for a serviceability category.</summary>
+        public static SectionCheckSpecification CrackWidth(CombinationCategory category)
+            => new SectionCheckSpecification(CheckMechanism.Serviceability, category, criterion: SectionCheckCriterion.CrackWidth);
 
         public SectionCheckSpecification Copy() => (SectionCheckSpecification)MemberwiseClone();
 

@@ -1,5 +1,6 @@
 using GPC.Checkers.Concrete.Attributes;
 using GPC.Checkers.Concrete.Checkers;
+using GPC.Checkers.Concrete.Cracking;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Shear;
@@ -172,6 +173,11 @@ public class SectionCheckSpecificationTest
     // Torsion profile of the 300x500 fixture with bars at 50 mm: tef = max(Ac/u; 2·50) = 100, Ak = 200·400, uk = 1200; 2Ø16 for torsion.
     private static ConcreteTorsionData TorsionData(bool confirmed = true, double longitudinal = 402) => new(80000, 1200, 100, longitudinal, confirmed, "fixture drawings");
 
+    // Crack data of the fixture: XC3, ordinary bars, c = 42 mm to the bar surface (bars Ø16 at 50 mm from the edges), ribbed bars. One bottom bar
+    // is moved by 40 mm in the fixture, so the tensile bars are not in a row: the maximum spacing (200 mm) comes from the drawings.
+    private static ConcreteCrackData CrackData(string? exposure = "XC3", bool sensitive = false, double? spacing = 200)
+        => new(exposure, sensitive, 42, "fixture drawings", maximumBarSpacing: spacing);
+
     /// <summary>
     /// Every non-American standard answers every implemented check explicitly: evaluated, not applicable with the reason, or not supported with the reason.
     /// The member carries an 8 kNm torque, so the torsion task runs with the shear of both directions on cot θ = 1.5.
@@ -180,18 +186,23 @@ public class SectionCheckSpecificationTest
     public void EveryNonAmericanStandardAnswersEveryCheck(string name)
     {
         var m = Model(8e6); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.ShearData = ShearData(section); section.TorsionData = TorsionData();
+        section.CrackData = CrackData();
         var request = Request(Plan(new SectionCheckSpecification(CheckMechanism.UlsBiaxialSection, CombinationCategory.Ultimate), SectionCheckSpecification.ShearAxis1(),
             SectionCheckSpecification.ShearAxis2(), SectionCheckSpecification.Torsion(), SectionCheckSpecification.StressLimits(CombinationCategory.Characteristic),
-            SectionCheckSpecification.StressLimits(CombinationCategory.QuasiPermanent)));
+            SectionCheckSpecification.StressLimits(CombinationCategory.QuasiPermanent), SectionCheckSpecification.CrackWidth(CombinationCategory.Characteristic),
+            SectionCheckSpecification.CrackWidth(CombinationCategory.QuasiPermanent)));
         request.Jobs[0].Options = Options(Standard(name), 1.5);
+        if (name == "Model Code 2010") request.Jobs[0].Options.CrackDesignLimit = .3; // MC2010 has no default wlim
         var results = new Service().Verify(m, request).Jobs[0].Results;
-        Assert.AreEqual(48, results.Count);
+        Assert.AreEqual(64, results.Count);
         string Describe(CheckResult r) => r.Check!.Key + " " + r.Applicability + " " + r.Data + " " + r.Outcome + " " + string.Join(",", r.Diagnostics.Select(d => d.Code + ":" + d.Message));
         foreach (var r in results)
         {
             var check = r.Check!;
             bool notApplicable = name == "CS-TR34" && check.Mechanism != CheckMechanism.UlsBiaxialSection;
-            bool notSupported = name == "CNR-DT 204/2006" && (check.Mechanism == CheckMechanism.Shear || check.Mechanism == CheckMechanism.Torsion); // fibres with stirrups
+            bool notSupported = name == "CNR-DT 204/2006" && (check.Mechanism == CheckMechanism.Shear || check.Mechanism == CheckMechanism.Torsion
+                || check.Criterion == SectionCheckCriterion.CrackWidth); // fibres with stirrups; FRC crack model
+            bool notRequired = check.Criterion == SectionCheckCriterion.CrackWidth && check.Category == CombinationCategory.Characteristic;
             if (notApplicable)
             {
                 Assert.AreEqual(CheckApplicability.NotApplicable, r.Applicability, Describe(r)); StringAssert.Contains(r.ApplicabilityReason, "CS-TR34");
@@ -199,7 +210,12 @@ public class SectionCheckSpecificationTest
             else if (notSupported)
             {
                 Assert.AreEqual(DataStatus.NotSupported, r.Data, Describe(r));
-                Assert.IsTrue(r.Diagnostics.Any(d => d.Code == (check.Mechanism == CheckMechanism.Shear ? "ShearMethodNotImplemented" : "TorsionMethodNotImplemented")), Describe(r));
+                Assert.IsTrue(r.Diagnostics.Any(d => d.Code == (check.Mechanism == CheckMechanism.Shear ? "ShearMethodNotImplemented"
+                    : check.Mechanism == CheckMechanism.Torsion ? "TorsionMethodNotImplemented" : "CrackMethodNotImplemented")), Describe(r));
+            }
+            else if (notRequired)
+            {
+                Assert.AreEqual(CheckApplicability.NotApplicable, r.Applicability, Describe(r)); StringAssert.Contains(r.ApplicabilityReason, "not required");
             }
             else
             {
@@ -210,6 +226,12 @@ public class SectionCheckSpecificationTest
                     var details = (TorsionCheckDetails)r.Details!;
                     Assert.AreEqual(3, details.Metrics.Count, Describe(r)); Assert.IsTrue(r.Utilization > .1, Describe(r));
                     Assert.IsTrue(details.MethodId.StartsWith(SectionTorsionCalculator.MethodId + "."), details.MethodId);
+                }
+                if (check.Criterion == SectionCheckCriterion.CrackWidth)
+                {
+                    var metric = r.Details!.Metrics.Single();
+                    Assert.AreEqual("CrackWidth", metric.Key, Describe(r)); Assert.IsTrue(metric.Capacity >= .3, Describe(r));
+                    Assert.IsTrue(r.Details.MethodId.StartsWith(SectionCrackCheck.MethodId + "."), r.Details.MethodId);
                 }
             }
         }
@@ -409,6 +431,76 @@ public class SectionCheckSpecificationTest
         Assert.IsFalse(Options().CreateVerifier().Supports(new SectionCheckSpecification(CheckMechanism.Torsion, CombinationCategory.UltimateSeismic)));
         Assert.IsTrue(Options(new StandardCNR204()).CreateVerifier().Supports(SectionCheckSpecification.Torsion()), "known standard: a result with the reason");
         StringAssert.Contains(Options().CreateVerifier().Configuration, "TorsionProfile=Ntc2018");
+    }
+
+    /// <summary>NTC 2018 crack width through the verifier equals the core on the linear cracked analysis of the same section and forces.</summary>
+    [TestMethod]
+    public void CrackWidthRunsOnTheRealEngineAndMatchesTheCore()
+    {
+        var m = Model(); var section = m.BeamElements[250].Assignments.Sections[0].Section; section.CrackData = CrackData();
+        var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", 0, SectionSide.Unspecified);
+        var prepared = Verification.PrepareBeam(m, 250, sample, "crack");
+        var through = Verification.Run(prepared, SectionCheckSpecification.CrackWidth(CombinationCategory.QuasiPermanent), Options().CreateVerifier());
+        Assert.AreEqual("Serviceability/None/CrackWidth/QuasiPermanent", through.Check!.Key);
+        Assert.AreEqual(ExecutionStatus.Completed, through.Execution, string.Join(";", through.Diagnostics.Select(d => d.Code + " " + d.Message)));
+        var metric = through.Details!.Metrics.Single();
+        Assert.AreEqual(.3, metric.Capacity!.Value, 1e-12, "NTC Tab. 4.1.IV: ordinary environment, little sensitive bars, quasi-permanent: w2 = 0.3 mm");
+        Assert.IsTrue(metric.Demand > 0, "the bending moment at the fixed end cracks the section");
+
+        // Core: linear analysis without tensile concrete, φ = 2 as the options.
+        var f = prepared.Input!.Forces; var standard = new StandardNTC2018Concrete();
+        var reference = new CoordinateSystem(section.Centroid, new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
+        var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, SectionSolver.FailureAnalysisTypes.ConstantEccentricity,
+            SectionSolver.FailureDomainTypes.Plastic, SectionSolver.StressAnalysisTypes.Linear, 2, 0, false, 64);
+        var stress = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, standard, false)
+            .GetTensionAnalysisResult(new ResultBeamForces(f.N, f.V1, f.V2, f.T, f.M1, f.M2, reference));
+        var concrete = (ConcreteMaterialEuropeanCommon)section.ConcreteMaterial;
+        var core = SectionCrackCheck.Evaluate(new SectionCrackInput(standard, ServiceabilityCombination.QuasiPermanent, "XC3", false, null, CrackSectionGeometry.From(section),
+            stress.StrainPlane, SectionCrackInput.OrdinaryBarStresses(stress, section), true, false, false, section.Rebars.First().RebarMaterial.E, concrete.Ecm, concrete.Fctm,
+            false, true, 42, spacingOverride: 200));
+        Assert.AreEqual(core.Width!.Value, metric.Demand!.Value, 1e-12); Assert.AreEqual(core.Ratio!.Value, through.Utilization!.Value, 1e-12);
+        Assert.AreEqual("TensileZone", core.GoverningRegion);
+        // The characteristic combination does not require crack control in NTC 2018: not applicable, with the reason.
+        var characteristic = Verification.Run(prepared, SectionCheckSpecification.CrackWidth(CombinationCategory.Characteristic), Options().CreateVerifier());
+        Assert.AreEqual(CheckApplicability.NotApplicable, characteristic.Applicability); StringAssert.Contains(characteristic.ApplicabilityReason, "not required");
+    }
+
+    [TestMethod]
+    public void CrackDataAreRequiredAndDecompressionIsChecked()
+    {
+        CheckResult Run(Action<ReinforcedConcreteSection> edit, StandardModelCode2010? standard = null, double? designLimit = null)
+        {
+            var m = Model(); edit(m.BeamElements[250].Assignments.Sections[0].Section);
+            var sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", 0, SectionSide.Unspecified);
+            var options = Options(standard); options.CrackDesignLimit = designLimit;
+            return Verification.Run(Verification.PrepareBeam(m, 250, sample, "crack"), SectionCheckSpecification.CrackWidth(CombinationCategory.QuasiPermanent), options.CreateVerifier());
+        }
+        string Codes(CheckResult r) => string.Join(",", r.Diagnostics.Select(d => d.Code)) + "|" + r.Data;
+        StringAssert.Contains(Codes(Run(_ => { })), "MissingCrackData|Insufficient");
+        StringAssert.Contains(Codes(Run(s => s.CrackData = CrackData(null))), "CrackMissingExposure|Insufficient");
+        StringAssert.Contains(Codes(Run(s => s.CrackData = CrackData(spacing: null))), "CrackSpacingUndetermined|Insufficient");
+        StringAssert.Contains(Codes(Run(s => s.CrackData = CrackData(), new StandardModelCode2010())), "CrackMissingDesignLimit|Insufficient");
+        var mc = Run(s => s.CrackData = CrackData(), new StandardModelCode2010(), .2);
+        Assert.AreEqual(.2, mc.Details!.Metrics.Single().Capacity!.Value, 1e-12, "design wlim of Model Code 2010");
+        // NTC, sensitive reinforcement in an aggressive environment, quasi-permanent: decompression of the uncracked section. Bending puts the
+        // bottom fibre in tension: not satisfied, with the stress and the zero limit, no ratio.
+        var decompression = Run(s => s.CrackData = CrackData("XD1", true));
+        Assert.AreEqual(EngineeringOutcome.NotSatisfied, decompression.Outcome, Codes(decompression));
+        var tension = decompression.Details!.Metrics.Single();
+        Assert.AreEqual("UncrackedConcreteTension", tension.Key); Assert.AreEqual(0, tension.Capacity); Assert.IsTrue(tension.Demand > 0); Assert.IsNull(decompression.Utilization);
+        Assert.AreEqual("decompression", decompression.Details.UtilizationDefinition);
+
+        var model = Model(); var section = model.BeamElements[250].Assignments.Sections[0].Section; section.CrackData = CrackData();
+        string analysis = model.AnalysisFingerprint();
+        var plan = BeamCheckPlan.Prepare(model, Plan(SectionCheckSpecification.CrackWidth(CombinationCategory.QuasiPermanent)));
+        Assert.IsTrue(plan.IsCurrent); Assert.AreEqual(8, plan.WorkItems.Count);
+        section.CrackData = CrackData("XD1");
+        Assert.IsFalse(plan.IsCurrent, "the crack data enter the verification revision");
+        Assert.AreEqual(analysis, model.AnalysisFingerprint());
+        using var stream = new MemoryStream(); ModelArchive.Save(model, stream); stream.Position = 0;
+        Assert.AreEqual(section.CrackData, ModelArchive.Load(stream).BeamElements[250].Assignments.Sections[0].Section.CrackData);
+        var configuration = Options().CreateVerifier().Configuration;
+        StringAssert.Contains(configuration, "CrackProfile=Ntc2018"); StringAssert.Contains(configuration, "CrackLoadDuration=LongTerm");
     }
 
     [TestMethod]

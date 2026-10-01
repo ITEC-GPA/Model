@@ -27,9 +27,16 @@ namespace GPC.Model.Checker
         /// It is also the strut inclination shared by torsion and shear in the Torsion task, which requires it.
         /// </summary>
         public double? ShearCotTheta { get; set; }
+        /// <summary>Duration of the load in the crack checks (kt): long term unless stated.</summary>
+        public CrackLoadDuration CrackLoadDuration { get; set; } = CrackLoadDuration.LongTerm;
+        /// <summary>Design wlim, mm, of the crack checks where the standard admits it (Eurocode family, Model Code 2010); null = limit of the standard.</summary>
+        public double? CrackDesignLimit { get; set; }
         public ConcreteSectionVerifier CreateVerifier() => new ConcreteSectionVerifier(Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon,
-            StandardEdition, NationalAnnex, ServiceabilityAnalysis, ConcreteStressLimitFactor, ShearCotTheta);
+            StandardEdition, NationalAnnex, ServiceabilityAnalysis, ConcreteStressLimitFactor, ShearCotTheta, CrackLoadDuration, CrackDesignLimit);
     }
+
+    /// <summary>Duration of the load for the tension stiffening of the crack width (kt 0.4 long term, 0.6 short term).</summary>
+    public enum CrackLoadDuration { LongTerm, ShortTerm }
     public sealed class ModelCheckJob
     {
         public string Name { get; set; }

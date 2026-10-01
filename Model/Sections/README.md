@@ -156,6 +156,21 @@ sottile:
 Le staffe sono quelle di `ShearData`. Come per il taglio, i dati sono espliciti: `TorsionGeometry.Rectangle` e `Circle` di
 GPCChecker.Concrete propongono Ak, uk e tef dal contorno, da confermare. La voce è scritta solo se presente.
 
+### Dati della fessurazione
+
+`ReinforcedConcreteSection.CrackData` (`ConcreteCrackData`, facoltativo) contiene:
+
+- la classe di esposizione (null se non indicata);
+- la sensibilità delle armature alla corrosione;
+- il copriferro c fino alla superficie delle barre longitudinali (copriferro nominale più diametro della staffa);
+- l'aderenza (barre ad aderenza migliorata o lisce);
+- la conferma degli anelli concentrici nelle sezioni circolari;
+- l'interasse massimo delle barre tese da disegno (null = misurato sulla sezione);
+- la provenienza.
+
+La durata del carico e il wlim di progetto sono opzioni della verifica. La voce è scritta solo se presente e fa parte
+della revisione di verifica.
+
 ## Sezioni variabili
 
 `SectionVariation(start, end, law)` restituisce la sezione in un punto dell'elemento interpolando i vertici dei
