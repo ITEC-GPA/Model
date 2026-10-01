@@ -10,7 +10,7 @@ using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.PostProcessing
 {
-    public enum CheckMechanism { UlsBiaxialSection, Shear, Torsion, Serviceability, Stability }
+    public enum CheckMechanism { UlsBiaxialSection, Shear, Torsion, Serviceability, Stability, Detailing }
 
     public sealed class BeamCheckInput
     {
@@ -24,6 +24,7 @@ namespace GPC.Model.PostProcessing
         public ResultBeamForces Forces { get; internal set; }
         public string VerificationRevision { get; internal set; }
         public string Settings { get; internal set; }
+        public bool IsCurrent => Verification.IsCurrent(this);
     }
 
     [Serializable]
@@ -57,6 +58,37 @@ namespace GPC.Model.PostProcessing
         public double? Station { get; set; }
         public SectionSide Side { get; set; }
         public List<ModelDiagnostic> Diagnostics { get; set; } = new List<ModelDiagnostic>();
+        // Optional fields retain compatibility with archives written before the report contracts.
+        [field: System.Runtime.Serialization.OptionalField] public int SchemaVersion { get; set; } = 1;
+        [field: System.Runtime.Serialization.OptionalField] public CheckApplicability Applicability { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string ApplicabilityReason { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public CheckStandardContext Standard { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public CheckInputSnapshot Input { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public CheckDetails Details { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string Face { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string Layer { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string[] GroupNames { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string EvidenceFingerprint { get; private set; }
+        [field: System.Runtime.Serialization.OptionalField] public CheckTargetReference Target { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public CheckScope Scope { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string PlanItemId { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public string MethodId { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public MemberLocation MemberLocation { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public MemberInputSnapshot MemberInput { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public CoverageAssessment CoverageAssessment { get; set; }
+
+        /// <summary>Detects subsequent edits to stored evidence; it is not a digital signature. Legacy results have no seal.</summary>
+        public bool HasUnchangedEvidence => EvidenceFingerprint == null || EvidenceFingerprint == Evidence();
+        public void SealEvidence() { EvidenceFingerprint = Evidence(); }
+        private string Evidence()
+        {
+            var fields = new object[] { SchemaVersion, Execution, Data, Outcome, Mechanism,
+            Utilization, EngineVersion, EngineConfiguration, Settings, SampleRevision, VerificationRevision, Family, ElementId,
+            Source, Job, Dataset, Case, Station, Side, Phase, Step, Coverage, ConcomitantStateId, MovingLoadPosition, Mode,
+                ShellPoint, ShellPointKind, ShellCoordinateKind, Face, Layer, GroupNames, Applicability, ApplicabilityReason, Standard, Input, Details, Diagnostics };
+            return Persistence.ModelArchive.Fingerprint(SchemaVersion < 2 ? fields : fields.Concat(new object[] {
+                Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }));
+        }
     }
 
     public interface IConcreteSectionVerifier
@@ -187,31 +219,35 @@ namespace GPC.Model.PostProcessing
                 return result;
             }
             var input = preparation.Input;
-            if (!Current(input))
+            if (!IsCurrent(input))
             { result.Data = DataStatus.Stale; result.Diagnostics.Add(ModelDiagnostic.Error("StalePreparation")); return result; }
             result.ElementId = input.BeamId; result.Station = input.Sample.ParametricDistance; result.Side = input.Sample.Side;
             result.Case = input.Sample.Case.Name; result.Dataset = input.Sample.State.DatasetId; result.VerificationRevision = input.VerificationRevision;
             result.Settings = input.Settings; result.SampleRevision = input.SampleFingerprint;
             result.Phase = input.Sample.State.Phase; result.Step = input.Sample.State.Step; result.Coverage = input.Sample.State.Coverage;
             result.ConcomitantStateId = input.Sample.State.ConcomitantStateId;
+            result.Input = new CheckInputSnapshot(input.PreparedSectionFingerprint, input.SampleFingerprint,
+                input.PreparedForcesFingerprint, new BeamForceSnapshot(input.Forces));
             if (verifier == null) { result.Data = DataStatus.MissingDependency; result.Diagnostics.Add(ModelDiagnostic.Error("MissingDependency")); return result; }
-            if (!verifier.Capabilities.Contains(mechanism)) { result.Data = DataStatus.NotSupported; result.Diagnostics.Add(ModelDiagnostic.Error("UnsupportedMechanism")); return result; }
             try
             {
                 var configuration = (verifier as IConfiguredSectionVerifier)?.Configuration;
+                result.EngineVersion = verifier.Version; result.EngineConfiguration = configuration;
+                if (!verifier.Capabilities.Contains(mechanism)) { result.Data = DataStatus.NotSupported; result.Diagnostics.Add(ModelDiagnostic.Error("UnsupportedMechanism")); return result; }
                 var evaluated = verifier.Verify(input, mechanism, cancellationToken);
                 if (cancellationToken.IsCancellationRequested) throw new OperationCanceledException(cancellationToken);
                 if (evaluated == null) throw new InvalidOperationException("Verifier returned no result.");
-                if (!Current(input) || configuration != (verifier as IConfiguredSectionVerifier)?.Configuration)
+                if (!IsCurrent(input) || configuration != (verifier as IConfiguredSectionVerifier)?.Configuration)
                 { result.Data = DataStatus.Stale; result.Diagnostics.Add(ModelDiagnostic.Error("InputsChangedDuringVerification")); return result; }
-                if (evaluated.Outcome != EngineeringOutcome.NotEvaluated && (evaluated.Execution != ExecutionStatus.Completed || evaluated.Data != DataStatus.Ready
-                    || !evaluated.Utilization.HasValue || double.IsNaN(evaluated.Utilization.Value) || double.IsInfinity(evaluated.Utilization.Value) || evaluated.Utilization < 0))
+                if (!CheckResultRules.ValidDecision(evaluated))
                     throw new InvalidOperationException("Invalid evaluated outcome or utilization returned by verifier.");
                 evaluated.ElementId = result.ElementId; evaluated.Station = result.Station; evaluated.Side = result.Side; evaluated.Case = result.Case;
                 evaluated.Dataset = result.Dataset; evaluated.VerificationRevision = result.VerificationRevision; evaluated.EngineVersion = verifier.Version; evaluated.Mechanism = mechanism;
                 evaluated.EngineConfiguration = configuration; evaluated.Settings = input.Settings; evaluated.SampleRevision = result.SampleRevision;
                 evaluated.Phase = result.Phase; evaluated.Step = result.Step; evaluated.Coverage = result.Coverage; evaluated.ConcomitantStateId = result.ConcomitantStateId;
                 evaluated.MovingLoadPosition = result.MovingLoadPosition; evaluated.Mode = result.Mode; evaluated.Family = EntityFamily.Beam;
+                evaluated.Input = result.Input;
+                evaluated.SealEvidence();
                 return evaluated;
             }
             catch (OperationCanceledException) { result.Execution = ExecutionStatus.Cancelled; }
@@ -219,7 +255,7 @@ namespace GPC.Model.PostProcessing
             return result;
         }
 
-        private static bool Current(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
+        internal static bool IsCurrent(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
             && ResultAlgebra.HasCurrentDerivation(input.Model, input.Model.BeamElements[input.BeamId], input.Sample.State)
             && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })
             && input.SampleFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Sample })

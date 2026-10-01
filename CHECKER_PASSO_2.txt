@@ -1,0 +1,145 @@
+CHECKER — PASSO 2: RISULTATI E RESOCONTI
+Data: 30 settembre 2026
+
+STATO
+
+Passo 2 completato nel perimetro dei contratti compatibili e dell'adattatore Concrete già operativo.
+Corretto anche R01 dell'inventario: l'overload collettivo asincrono Concrete ora seleziona il solver corrispondente a StressAnalysisTypes.Linear/NonLinear.
+Inventario e baseline precedenti restano in CHECKER_PASSO_1.txt e CHECKER_PASSO_1_EVIDENZE.json; non sono stati riscritti come se il difetto non fosse esistito.
+
+1. ORGANIZZAZIONE E COMPATIBILITÀ
+
+I contratti condivisi restano in GPC.Model.PostProcessing, accanto a CheckResult e CheckReport: Model non referenzia Checker. Nessun nuovo progetto comune; converter ancora separati. I calcoli resistenti rimangono in Checker e la traduzione dei risultati nativi avviene in ModelChecker.
+
+Estesi CheckResult, CheckReport e ModelCheckReport; preservati i tipi e i membri pubblici esistenti. Le aggiunte ai record serializzabili esistenti sono OptionalField. Il costruttore a sei argomenti di ConcreteSectionVerifier rimane disponibile; quello esteso accetta edizione e appendice nazionale.
+
+CheckMechanism.Detailing è aggiunto in coda all'enumerazione. Non abilita automaticamente alcun solver.
+Governing(mechanism) conserva il comportamento precedente per metriche confrontabili. Se esistono più contesti incompatibili genera un'eccezione esplicita: il chiamante deve usare GoverningByConfiguration. Questa restrizione evita un massimo privo di significato tra norme/metodi differenti.
+
+2. RISULTATO ELEMENTARE
+
+CheckResult conserva identità FEM, famiglia, sorgente, lavoro, dataset/caso/stato concomitante, fase/step, stazione/lato o punto shell, copertura, versione/configurazione motore e diagnostica.
+Aggiunti:
+- SchemaVersion: 1 per i nuovi risultati, 0 quando manca negli archivi precedenti;
+- Standard: CheckStandardContext con codice/nome, edizione, appendice, tipo di implementazione e snapshot dei coefficienti e delle opzioni realmente usati;
+- Input: CheckInputSnapshot con impronte di sezione, campione e forze preparate, più BeamForceSnapshot;
+- Details: dettaglio tipizzato del meccanismo;
+- Applicability e ApplicabilityReason;
+- Face e Layer come etichette opzionali di localizzazione, senza fissare un metodo plate;
+- GroupNames: appartenenze dirette rilevate all'esecuzione;
+- EvidenceFingerprint: controllo di modifica successiva dell'evidenza, non firma digitale.
+
+BeamForceSnapshot conserva tutte le sei componenti concomitanti N,V1,V2,T,M1,M2 in N/Nmm e un CoordinateSystem copiato. Anche la lettura degli assi restituisce una copia. Modificare forze o geometria del solver dopo il calcolo non modifica il risultato storico.
+Lo snapshot include il riferimento immutabile alla sezione tramite impronta; per ricostruire integralmente la geometria/materiali/armature occorre conservare il Model corrispondente. Il solo archivio dei resoconti consente consultazione e confronto di validità, non la ricostruzione di ogni input dal suo hash.
+
+3. DETTAGLI NUMERICI
+
+CheckMetric registra domanda, capacità, unità, indice normalizzato con limite 1 quando significativo, eventuale giudizio esplicito e riferimento. Le quantità con segno restano con segno; non si deduce automaticamente un rapporto dalla coppia domanda/capacità.
+CheckCalculationValue conserva valori intermedi ed espressioni/riferimenti. CheckPointValue conserva quantità ai punti con coordinate in mm e identificazione del riferimento. CheckConvergence conserva giudizio, iterazioni/residuo/tolleranza e criterio quando il motore li fornisce. Convergenza assente significa non riportata; convergenza negativa impedisce un esito valutato.
+
+Dettagli disponibili:
+- SectionResistanceDetails: domanda concomitante, punto resistente NRd/M1Rd/M2Rd, criterio dell'indice, campo di rottura, punto e deformazione di riferimento, curvature ChiX/ChiY;
+- ShearCheckDetails: direzione, cot(theta), metriche e traccia;
+- TorsionCheckDetails: area longitudinale richiesta, metriche di torsione/interazione e traccia;
+- ServiceabilityCheckDetails: tipo di combinazione, metriche, traccia, punti e convergenza opzionali;
+- DetailingCheckDetails: metriche e giudizi espliciti anche senza indice numerico.
+
+Il punto resistente N-M1-M2 non viene presentato come tre capacità indipendenti. Il piano di deformazione archiviato è quello del punto di resistenza, non una soluzione di esercizio sotto la domanda.
+Il solver nativo attuale non restituisce in questo percorso un record di convergenza: il dettaglio lascia Convergence nullo.
+V1,V2,T sono conservati nella domanda ma la verifica operativa resta la pressoflessione N-M1-M2: conservarli non equivale a verificarli.
+
+4. SEMANTICA DEGLI ESITI
+
+ExecutionStatus, DataStatus ed EngineeringOutcome rimangono distinti.
+Required indica ancora il numero di campioni/meccanismi richiesti, per compatibilità.
+
+Applicability.Required: il controllo deve produrre un esito valido. Per considerarlo eseguito servono Completed, Ready, esito valutato e indice coerente oppure metriche con giudizi espliciti completi.
+Applicability.NotApplicable: richiede motivazione, Ready, NotExecuted e NotEvaluated. Risolve la posizione richiesta senza contare come calcolo eseguito. Un lavoro interamente non applicabile ha copertura completa ma esito NotEvaluated.
+Applicability.Excluded: richiede motivazione, NotExecuted e NotEvaluated; resta nella richiesta e impedisce un esito complessivo soddisfatto.
+NotSupported, Insufficient, MissingDependency, Stale, Cancelled, Error e righe assenti non sono assimilati a non applicabilità.
+
+CheckSummary espone Requested, Recorded, Applicable, Completed, NotApplicable, Excluded, Unsupported, MissingData, Stale, Cancelled, Errors, Invalid, MissingRows, Outstanding, HasFailures e IsComplete.
+Applicable = Requested - NotApplicable: le esclusioni non riducono la domanda di verifica.
+Con risultati mancanti Outcome rimane NotEvaluated; HasFailures mantiene visibile un eventuale fallimento già accertato.
+I contatori per stato/dati possono sovrapporsi (esempio: Error e Insufficient) e non vanno sommati come categorie disgiunte.
+La proprietà legacy CheckReport.Excluded continua a rappresentare Required-Executed; usare Summary.Excluded per le esclusioni esplicite.
+Il controllo del perimetro registrato rileva anche la sostituzione di una stazione richiesta con un duplicato lasciando invariato il conteggio.
+
+5. RACCOLTE E GOVERNANTI
+
+ElementCheckReport raggruppa per famiglia FEM + id: un beam e uno shell con uguale intero restano distinti.
+CheckReport rappresenta il lavoro. ModelCheckReport rappresenta l'esecuzione con Jobs, Elements, Groups, Standards, Mechanisms e Summary.
+CheckReportViews permette le stesse viste su insiemi di CheckResult, anche ripristinati da archivio.
+
+Ogni governante conserva l'intero CheckResult originale. La chiave di confronto comprende meccanismo, identità normativa e coefficienti, metodo/definizione dell'indice, versione/configurazione motore e impostazioni. Norme, metodi o configurazioni diverse generano governanti distinti. I giudizi solo booleani restano consultabili nei risultati e nei riepiloghi, senza un falso massimo numerico.
+Per i risultati legacy privi di Standard non si inventa una normativa: restano separati secondo versione/configurazione disponibili.
+
+Le viste per gruppo usano le appartenenze dirette fotografate nel risultato, senza espandere automaticamente gli antenati. Un elemento in due gruppi compare in entrambi; i totali globali si calcolano dai lavori, mai sommando i gruppi. I risultati privi di gruppi restano nei lavori e nelle viste per elemento.
+Queste raccolte descrivono elementi FEM e campioni. Asta fisica, regione 2D e copertura continua sono ancora decisioni del passo 3.
+
+6. PERSISTENZA, VALIDITÀ E DIMENSIONI
+
+CheckReportArchive.Save/Load conserva uno o più CheckReport in XML con radice GpcCheckReports, versione 1. L'archivio completo ModelArchive continua a contenere Model.CheckReports.
+Si usa lo stesso serializzatore con tipi ammessi compilati localmente; il file non risolve tipi CLR arbitrari. DTD disabilitati, limite 256 MiB in lettura e 2 milioni di oggetti. La serializzazione viene completata in memoria prima di scrivere sulla destinazione, così gli errori di serializzazione non lasciano un archivio parziale. Errori del flusso di destinazione restano responsabilità del chiamante.
+Versioni radice o risultato sconosciute sono rifiutate dall'archivio dei resoconti. Gli esiti storici incompleti o modificati vengono conservati e restano non validi, senza riscriverli come successi.
+
+CurrentOutcome continua a controllare modello/materiali/armature, campione sorgente, scope, impostazioni e versione/configurazione. Ora controlla anche evidenze e campioni richiesti alterati. Outcome descrive la registrazione storica; per presentarla come valida sul modello corrente usare CurrentOutcome.
+Gli archivi precedenti senza i nuovi campi sono leggibili; mancano naturalmente snapshot, normativa esplicita e sigilli mai registrati. La nuova configurazione dell'adattatore include edizione/appendice: i vecchi risultati possono richiedere un ricalcolo per essere dichiarati correnti.
+
+I dettagli non contengono solver, riferimenti al Model, mesh del dominio o oggetti di UI. Tracce/punti restano opzionali e il contesto normativo immutabile viene riutilizzato per configurazione. Le viste sono calcolate a richiesta; una sintesi calcola una sola impronta per risultato. L'archivio indipendente consente di salvare lotti di lavori; lo streaming illimitato, la compressione e un database per milioni di campioni non sono implementati. I limiti dimensionali sopra restano espliciti.
+
+7. COLLEGAMENTO MULTINORMATIVA
+
+ConcreteVerificationOptions accetta StandardEdition e NationalAnnex; entrano nella configurazione e nell'identità del motore.
+Per i tipi esatti già documentati nei sorgenti si usa l'edizione dichiarata: StandardNTC2018Concrete -> 2018; StandardEN1992p11 -> 2004/AC:2010; StandardModelCode2010 -> 2010. Per sottoclassi/altre norme non si deduce l'edizione: se omessa resta sconosciuta con diagnostica StandardEditionUndeclared. L'appendice omessa resta non dichiarata.
+Queste etichette descrivono l'implementazione/configurazione corrente; scrivere una diversa edizione nelle opzioni non aggiunge le sue formule.
+
+8. ESEMPIO CONCRETO RIPRODUCIBILE
+
+ModelChecker.Tests/CheckReportIntegrationTest.cs contiene un modello sintetico beam/plate con cinque stazioni beam concomitanti, due lavori NTC/EC2 e due gruppi diretti sovrapposti. Il test verifica:
+- Required=10, Executed=10, CreatedCheckers=2;
+- un ElementCheckReport beam con due governanti normativi separati;
+- due viste normative e due gruppi con dieci risultati ciascuno, ma totale globale sempre dieci;
+- salvataggio/rilettura indipendente e nel Model completo;
+- invalidazione al cambio di armature, coefficienti, risultati sorgente o evidenza salvata.
+
+Uso da codice (tipi negli spazi dei nomi GPC.Model.Checker, PostProcessing e Persistence):
+
+    var report = new ModelChecker().Verify(model, request);
+    var summary = report.Summary;
+    foreach (var element in report.Elements)
+        foreach (var governing in element.Governing)
+        {
+            CheckResult result = governing.Result;
+            var details = result.Details as SectionResistanceDetails;
+            // result conserva caso, stazione, norma e domanda concomitante.
+        }
+    CheckReportArchive.Save(report.Jobs, outputStream);
+    var historicalJobs = CheckReportArchive.Load(inputStream);
+    var views = CheckReportViews.ByElement(historicalJobs.SelectMany(j => j.Results));
+    // Per l'uso corrente: historicalJob.CurrentOutcome(model, verifierCorrispondente).
+
+Il confronto numerico con la chiamata diretta a SectionCheckerModelCode2010 controlla NRd, MxRd, MyRd, piano deformativo, indice e assi dei due riferimenti: input preparato nel modello e sezione locale nel solver.
+
+9. VALIDAZIONE E MATRICE AGGIORNATA
+
+Concrete R01: i due nuovi casi Linear/NonLinear fallivano prima della correzione. Dopo la correzione passano tutti i 45 ConcreteControlTests. Il caso lineare controlla anche N/(Ac+n*As) con l'area omogeneizzata effettiva, oltre al confronto con il percorso singolo.
+Model: 35/35 nei gruppi CheckReportContractsTest, AssignmentWorkflowTest e MixedWorkflowTest; dieci test nuovi sui contratti.
+ModelChecker: 13/13; cinque test nuovi con dettagli reali, due norme, archiviazione, invalidazione, copertura e giudizi booleani.
+Totale selezioni pertinenti: 93/93. TRX in TestResults/CheckerStep2. Evidenze e hash in CHECKER_PASSO_2_EVIDENZE.json.
+Durante la preparazione della fixture XML è stato corretto il modo di leggere il BOM UTF-8 nel test; il lettore d'archivio di produzione passava i round-trip.
+Rimane l'avviso MSB3270 del riferimento GMsh.Net AMD64 nel progetto UnitTest MSIL, estraneo alle modifiche dei resoconti.
+
+Capacità dopo il passo 2:
+- Concrete: pressoflessione sezionale MC2010/famiglia EC2/NTC tramite adattatore, ora con risultati strutturati; asincrono tensioni corretto.
+- Taglio/torsione/SLE/dettagli: contratti disponibili, nuovi motori e trasferimento Anthea ancora passo 4.
+- Steel e CompositeBridge: motori e risultati nativi preservati; adattatori comuni ancora passo 5.
+- Plate: input/localizzazione e diagnostica restano disponibili; nessun nuovo motore resistente e nessun esito shell soddisfatto simulato.
+- Vetro: escluso.
+- UI: non avviata.
+
+I 17 fallimenti Steel EN1993p11Test rilevati al passo 1 restano fuori da questa correzione. Le suite CompositeBridge e Anthea non sono state ripetute né modificate in questo passo; valgono soltanto le evidenze storiche distinte del passo 1.
+
+PROSSIMA RIPRESA
+
+Passo 3: presentare alternative per sezione, elemento FEM e asta fisica/regione, con flusso completo e proposta motivata prima di modifiche pubbliche incompatibili. Il trasferimento cls da Anthea rimane passo 4. Il motore plate e i suoi contratti resistenti specifici richiedono il confronto esplicito del passo 6.

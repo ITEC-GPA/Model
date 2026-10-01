@@ -30,6 +30,7 @@ namespace GPC.Model.Models
     {
         public Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset> Datasets { get; private set; } = new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>();
         public GPC.Model.PostProcessing.AnalysisSource AnalysisSource { get; set; }
+        public Dictionary<string, GPC.Model.PostProcessing.PhysicalMemberDefinition> PhysicalMembers { get; private set; } = new Dictionary<string, GPC.Model.PostProcessing.PhysicalMemberDefinition>(StringComparer.Ordinal);
         #region Variables
 
         /// <summary>
@@ -216,6 +217,7 @@ namespace GPC.Model.Models
             Datasets = SerializationFields.Read(info, "Datasets", new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>());
             AnalysisSource = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSource>(info, "AnalysisSource");
             CheckReports = SerializationFields.Read(info, "CheckReports", new GPC.Model.PostProcessing.CheckReport[0]).ToList();
+            PhysicalMembers = SerializationFields.Read(info, "PhysicalMembers", new GPC.Model.PostProcessing.PhysicalMemberDefinition[0]).ToDictionary(m => m.Id, StringComparer.Ordinal);
             PreservedSourceData = SerializationFields.Read(info, "PreservedSourceData", new GPC.Model.PostProcessing.PreservedAssignment[0]).ToList();
             _nodesElements = (SortedCollection<NodeElement>)info.GetValue("Nodes", typeof(SortedCollection<NodeElement>));
             _beamElements = (SortedCollection<BeamElement>)info.GetValue("Beams", typeof(SortedCollection<BeamElement>));
@@ -1719,6 +1721,7 @@ namespace GPC.Model.Models
 
             info.AddValue("ModelSchemaVersion", 1);
             info.AddValue("CheckReports", CheckReports.ToArray());
+            if (PhysicalMembers.Count != 0) info.AddValue("PhysicalMembers", PhysicalMembers.Values.ToArray());
             info.AddValue("PreservedSourceData", PreservedSourceData.ToArray());
             info.AddValue("Datasets", Datasets);
             info.AddValue("AnalysisSource", AnalysisSource);

@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <RootNamespace>GPC.Model.Checker</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Model\GPCModel.csproj" />
     <Reference Include="GPCChecker.Concrete"><HintPath>..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.Steel"><HintPath>..\..\Checker\GPCChecker.Steel\bin\Release\netstandard2.0\GPCChecker.Steel.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.CompositeBridge"><HintPath>..\..\Checker\GPCChecker.CompositeBridge\bin\Release\netstandard2.0\GPCChecker.CompositeBridge.dll</HintPath></Reference>
     <Reference Include="GPCGeometry"><HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
   </ItemGroup>
 </Project>

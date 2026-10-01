@@ -16,12 +16,15 @@ namespace GPC.Model.Checker
         public int AngularDivisions { get; set; } = 64;
         public double PsiRebar { get; set; }
         public double PsiTendon { get; set; }
-        public ConcreteSectionVerifier CreateVerifier() => new ConcreteSectionVerifier(Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon);
+        public string StandardEdition { get; set; }
+        public string NationalAnnex { get; set; }
+        public ConcreteSectionVerifier CreateVerifier() => new ConcreteSectionVerifier(Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon, StandardEdition, NationalAnnex);
     }
     public sealed class ModelCheckJob
     {
         public string Name { get; set; }
         public PreparationRequest Preparation { get; set; }
+        public BeamCheckPlanRequest BeamPlan { get; set; }
         public ConcreteVerificationOptions Options { get; set; }
     }
     public sealed class ModelCheckRequest
@@ -35,58 +38,83 @@ namespace GPC.Model.Checker
         public string Job { get; internal set; }
         public EntityFamily Family { get; internal set; }
         public int ElementId { get; internal set; }
+        public CheckTargetReference Target { get; internal set; }
     }
     public sealed class ModelCheckReport
     {
-        public IReadOnlyList<CheckReport> Jobs { get; internal set; }
+        public IReadOnlyList<CheckReport> Jobs { get; internal set; } = new CheckReport[0];
         public int CreatedCheckers { get; internal set; }
         public int Required => Jobs.Sum(j => j.Required);
         public int Executed => Jobs.Sum(j => j.Executed);
-        public EngineeringOutcome Outcome => Required == 0 || Executed != Required ? EngineeringOutcome.NotEvaluated
-            : Jobs.Any(j => j.Outcome == EngineeringOutcome.NotSatisfied) ? EngineeringOutcome.NotSatisfied : EngineeringOutcome.Satisfied;
+        public CheckSummary Summary => new CheckSummary(Required, Jobs.SelectMany(j => j.Results), Jobs.All(j => j.HasUnchangedScope && j.Results.Count == j.Required));
+        public IReadOnlyList<ElementCheckReport> Elements => CheckReportViews.ByElement(Jobs.SelectMany(j => j.Results));
+        public IReadOnlyList<CheckResultGroup> Members => CheckReportViews.ByMember(Jobs.SelectMany(j => j.Results));
+        public IReadOnlyList<CheckResultGroup> Groups => CheckReportViews.ByGroup(Jobs.SelectMany(j => j.Results));
+        public IReadOnlyList<CheckResultGroup> Standards => CheckReportViews.ByStandard(Jobs.SelectMany(j => j.Results));
+        public IReadOnlyList<CheckResultGroup> Mechanisms => CheckReportViews.ByMechanism(Jobs.SelectMany(j => j.Results));
+        public EngineeringOutcome Outcome => Jobs.Any(j => !j.Summary.IsComplete) ? EngineeringOutcome.NotEvaluated : Summary.Outcome;
 
         public EngineeringOutcome CurrentOutcome(Models.Model model, Func<string, IConcreteSectionVerifier> verifierForJob)
+            => CurrentOutcome(model, verifierForJob, null);
+        public EngineeringOutcome CurrentOutcome(Models.Model model, Func<string, IConcreteSectionVerifier> verifierForJob, Func<string, IPhysicalMemberVerifier> memberVerifierForJob)
+            => CurrentOutcome(model, verifierForJob, memberVerifierForJob, null);
+        public EngineeringOutcome CurrentOutcome(Models.Model model, Func<string, IConcreteSectionVerifier> verifierForJob, Func<string, IPhysicalMemberVerifier> memberVerifierForJob,
+            Func<string, BeamCheckPlanRequest> currentPlanForJob)
         {
-            if (verifierForJob == null || Jobs.Any(j => j.CurrentOutcome(model, verifierForJob(j.Job)) == EngineeringOutcome.NotEvaluated)) return EngineeringOutcome.NotEvaluated;
+            if (Jobs.Any(j => j.CurrentOutcome(model, verifierForJob?.Invoke(j.Job), memberVerifierForJob?.Invoke(j.Job), currentPlanForJob?.Invoke(j.Job)) == EngineeringOutcome.NotEvaluated)) return EngineeringOutcome.NotEvaluated;
             return Outcome;
         }
     }
 
     /// <summary>Headless orchestration over the shared Model. Real section Checkers are created lazily and reused within this run.</summary>
-    public sealed class ModelChecker
+    public sealed partial class ModelChecker
     {
         private readonly Func<ModelCheckJob, IConcreteSectionVerifier> _factory;
+        private readonly Func<ModelCheckJob, IPhysicalMemberVerifier> _memberFactory;
         public ModelChecker() : this(job => job.Options?.CreateVerifier()) { }
         public ModelChecker(Func<ModelCheckJob, IConcreteSectionVerifier> factory) { _factory = factory ?? throw new ArgumentNullException(nameof(factory)); }
+        public ModelChecker(Func<ModelCheckJob, IConcreteSectionVerifier> sectionFactory, Func<ModelCheckJob, IPhysicalMemberVerifier> memberFactory) : this(sectionFactory)
+        { _memberFactory = memberFactory ?? throw new ArgumentNullException(nameof(memberFactory)); }
+
+        private IConcreteSectionVerifier ResolveSectionEngine(ModelCheckJob job, Dictionary<string, IConcreteSectionVerifier> engines)
+        {
+            var verifier = _factory(job);
+            if (verifier == null) return null;
+            var key = verifier.GetType().AssemblyQualifiedName + "\n" + verifier.Version + "\n" + (verifier as IConfiguredSectionVerifier)?.Configuration;
+            if (verifier is ConcreteSectionVerifier && engines.TryGetValue(key, out var existing)) return existing;
+            engines[job.Name] = verifier;
+            if (verifier is ConcreteSectionVerifier) engines[key] = verifier;
+            return verifier;
+        }
 
         public ModelCheckReport Verify(Models.Model model, ModelCheckRequest request, CancellationToken cancellationToken = default,
             IProgress<VerificationProgress> progress = null)
         {
             if (model == null || request == null) throw new ArgumentNullException();
             var jobs = request.Jobs.ToArray();
-            if (jobs.Length == 0 || jobs.Any(j => j == null || string.IsNullOrWhiteSpace(j.Name) || j.Preparation == null)
+            if (jobs.Length == 0 || jobs.Any(j => j == null || string.IsNullOrWhiteSpace(j.Name) || (j.Preparation == null) == (j.BeamPlan == null))
                 || jobs.Select(j => j.Name).Distinct(StringComparer.Ordinal).Count() != jobs.Length) throw new ArgumentException("Unique named check jobs are required.");
             // Validate all selections before invoking an engine. No partial reports are attached to Model by this service.
-            var plans = jobs.Select(j => ModelPreparation.Prepare(model, j.Preparation, cancellationToken)).ToArray();
-            int total = plans.Sum(p => p.Samples.Count * p.Request.Mechanisms.Length), completed = 0;
+            var plans = jobs.Select(j => j.Preparation == null ? null : ModelPreparation.Prepare(model, j.Preparation, cancellationToken)).ToArray();
+            var beamPlans = jobs.Select(j => j.BeamPlan == null ? null : BeamCheckPlan.Prepare(model, j.BeamPlan, cancellationToken)).ToArray();
+            int total = plans.Sum(p => p == null ? 0 : p.Samples.Count * p.Request.Mechanisms.Length) + beamPlans.Sum(p => p?.WorkItems.Count ?? 0), completed = 0;
             var reports = new List<CheckReport>(); var engines = new Dictionary<string, IConcreteSectionVerifier>(StringComparer.Ordinal);
             for (int i = 0; i < jobs.Length; i++)
             {
                 var job = jobs[i]; var plan = plans[i]; var results = new List<CheckResult>();
+                if (beamPlans[i] != null)
+                {
+                    reports.Add(PlannedBeamChecking.Run(model, job, beamPlans[i], j => ResolveSectionEngine(j, engines), _memberFactory, cancellationToken, item => {
+                        completed++; progress?.Report(new VerificationProgress { Completed = completed, Total = total, Job = job.Name,
+                            Family = EntityFamily.Beam, ElementId = item.Target.BeamId ?? default(int), Target = item.Target }); }));
+                    continue;
+                }
                 IConcreteSectionVerifier verifier = null; Exception factoryError = null;
                 if (!cancellationToken.IsCancellationRequested && plan.Samples.Any(s => s.Beam?.Status == DataStatus.Ready))
                 {
                     try
                     {
-                        verifier = _factory(job);
-                        if (verifier != null)
-                        {
-                            var key = verifier.GetType().AssemblyQualifiedName + "\n" + verifier.Version + "\n" + (verifier as IConfiguredSectionVerifier)?.Configuration;
-                            // Reuse only the known adapter; unknown third-party factories may have additional private configuration.
-                            if (verifier is ConcreteSectionVerifier && engines.TryGetValue(key, out var existing)) verifier = existing;
-                            else engines[job.Name] = verifier;
-                            if (verifier is ConcreteSectionVerifier) engines[key] = verifier;
-                        }
+                        verifier = ResolveSectionEngine(job, engines);
                     }
                     catch (Exception ex) { factoryError = ex; }
                 }
@@ -117,7 +145,10 @@ namespace GPC.Model.Checker
                         }
                         result.Job = job.Name; result.Family = row.Element.Family; result.ElementId = row.Element.Id; result.Mechanism = mechanism;
                         result.Settings = plan.Request.Settings;
-                        result.Source = (row.Element.Family == EntityFamily.Beam ? (Elements.Element)model.BeamElements[row.Element.Id] : model.AreaElements[row.Element.Id]).Source;
+                        var element = row.Element.Family == EntityFamily.Beam ? (Elements.Element)model.BeamElements[row.Element.Id] : model.AreaElements[row.Element.Id];
+                        result.Source = element.Source;
+                        result.GroupNames = element.Groups.Keys.OrderBy(n => n, StringComparer.Ordinal).ToArray();
+                        if (result.Standard == null && verifier is ConcreteSectionVerifier concrete) result.Standard = concrete.StandardContext;
                         result.Dataset = row.Sample?.State?.DatasetId ?? row.Selection.Dataset; result.Case = row.Sample?.Case?.Name ?? row.Selection.Case;
                         result.Phase = row.Sample?.State?.Phase ?? row.Selection.Phase; result.Step = row.Sample?.State?.Step ?? row.Selection.Step;
                         result.ConcomitantStateId = row.Sample?.State?.ConcomitantStateId ?? row.Selection.ConcomitantState;
@@ -128,6 +159,7 @@ namespace GPC.Model.Checker
                         { result.ShellPoint = shell.Location; result.ShellPointKind = shell.PointKind; result.ShellCoordinateKind = shell.CoordinateKind; }
                         foreach (var diagnostic in result.Diagnostics) { diagnostic.Family = result.Family; diagnostic.ElementId = result.ElementId;
                             diagnostic.Dataset = result.Dataset; diagnostic.Case = result.Case; diagnostic.Station = result.Station; }
+                        result.SealEvidence();
                         results.Add(result); completed++;
                         progress?.Report(new VerificationProgress { Completed = completed, Total = total, Job = job.Name, Family = row.Element.Family, ElementId = row.Element.Id });
                     }

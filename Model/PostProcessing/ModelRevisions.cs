@@ -35,7 +35,11 @@ namespace GPC.Model.PostProcessing
                 if (e is BeamElement b)
                 {
                     yield return b.StartPoint; yield return b.EndPoint; yield return b.NodeI?.Guid; yield return b.NodeJ?.Guid;
-                    if (b.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc) { yield return rc.SectionShape; yield return rc.ConcreteMaterial; }
+                    if (b.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc) {
+                        yield return rc.SectionShape; yield return rc.ConcreteMaterial;
+                        // Embedded structural steel participates in the physical composite section, unlike an RC-only design rebar update.
+                        if (rc.SteelSections.Count > 0) yield return rc.SteelSections.ToArray();
+                    }
                     else yield return b.BeamProperty;
                     yield return b.RotationAroundFirstAxis;
                     yield return b.Assignments.Formulation; yield return b.Assignments.SectionAxes;

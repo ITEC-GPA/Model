@@ -14,6 +14,9 @@
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
     <Reference Include="GPCGeometry"><HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
     <Reference Include="GPCChecker.Concrete"><HintPath>..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.Steel"><HintPath>..\..\Checker\GPCChecker.Steel\bin\Release\netstandard2.0\GPCChecker.Steel.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.CompositeBridge"><HintPath>..\..\Checker\GPCChecker.CompositeBridge\bin\Release\netstandard2.0\GPCChecker.CompositeBridge.dll</HintPath></Reference>
     <Compile Include="..\Examples\MixedModelFactory.cs" Link="MixedModelFactory.cs" />
+    <Compile Include="..\Examples\MultiMaterialWorkflow.cs" Link="MultiMaterialWorkflow.cs" />
   </ItemGroup>
 </Project>

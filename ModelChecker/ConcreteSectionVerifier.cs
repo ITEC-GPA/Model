@@ -25,6 +25,8 @@ namespace GPC.Model.Checker
         private readonly bool _considerTension;
         private readonly int _angularDivisions;
         private readonly double _psiRebar, _psiTendon;
+        private readonly string _edition, _nationalAnnex;
+        private CheckStandardContext _standardSnapshot;
         private readonly Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>> _checkers = new Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>>();
         private int _createdCheckers;
         public int CreatedCheckers { get { lock (Sync) return _createdCheckers; } }
@@ -32,12 +34,34 @@ namespace GPC.Model.Checker
         public IReadOnlyCollection<CheckMechanism> Capabilities { get; } = Array.AsReadOnly(new[] {CheckMechanism.UlsBiaxialSection});
         public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
             int angularDivisions, double psiRebar, double psiTendon)
+            : this(standard, criterion, considerTension, angularDivisions, psiRebar, psiTendon, null, null) { }
+
+        public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
+            int angularDivisions, double psiRebar, double psiTendon, string standardEdition, string nationalAnnex)
         {
             _standard=standard ?? throw new ArgumentNullException(nameof(standard));_criterion=criterion;_considerTension=considerTension;
+            _edition = standardEdition ?? DeclaredEdition(standard.GetType()); _nationalAnnex = nationalAnnex;
             if (!Enum.IsDefined(typeof(SectionSolver.FailureAnalysisTypes), criterion)) throw new ArgumentOutOfRangeException(nameof(criterion));
             if(angularDivisions<4) throw new ArgumentOutOfRangeException(nameof(angularDivisions));
             if(double.IsNaN(psiRebar)||double.IsInfinity(psiRebar)||double.IsNaN(psiTendon)||double.IsInfinity(psiTendon)) throw new ArgumentException("Finite psi values required.");
             _angularDivisions=angularDivisions;_psiRebar=psiRebar;_psiTendon=psiTendon;
+        }
+
+        // Only editions explicitly documented by these concrete source types are inferred. Subclasses may differ.
+        private static string DeclaredEdition(Type type) => type == typeof(StandardNTC2018Concrete) ? "2018"
+            : type == typeof(StandardEN1992p11) ? "2004/AC:2010" : type == typeof(StandardModelCode2010) ? "2010" : null;
+        public CheckStandardContext StandardContext
+        {
+            get
+            {
+                lock (Sync)
+                {
+                    var configuration = Configuration;
+                    if (_standardSnapshot == null || _standardSnapshot.Parameters != configuration)
+                        _standardSnapshot = new CheckStandardContext(_standard.Name, _edition, _nationalAnnex, _standard.GetType().FullName, configuration);
+                    return _standardSnapshot;
+                }
+            }
         }
 
         public string Configuration
@@ -54,6 +78,7 @@ namespace GPC.Model.Checker
                 entries["ConsiderTensileConcrete"]=_considerTension.ToString();entries["AngularDivisions"]=_angularDivisions.ToString(CultureInfo.InvariantCulture);
                 entries["PsiRebar"]=_psiRebar.ToString("R",CultureInfo.InvariantCulture);entries["PsiTendon"]=_psiTendon.ToString("R",CultureInfo.InvariantCulture);
                 entries["FailureDomain"]="Plastic";entries["StressAnalysis"]="NonLinear";entries["WorkingRatioForceScaleN"]="1000000";entries["WorkingRatioLengthScaleMm"]="1000";
+                entries["StandardEdition"] = _edition ?? "undeclared"; entries["NationalAnnex"] = _nationalAnnex ?? "undeclared";
                 return string.Join("\n",entries.Select(p=>p.Key+"="+p.Value));
             }
         }
@@ -83,8 +108,17 @@ namespace GPC.Model.Checker
                 if(point==null) return Failure("CheckerDomainPointMissing");
                 double ratio=point.CalculateWorkingRatio(_criterion,forces,1e6,1000);
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
-                return new CheckResult {Execution=ExecutionStatus.Completed,Data=DataStatus.Ready,
-                    Outcome=ratio<=1 ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotSatisfied,Utilization=ratio,EngineVersion=Version};
+                var strain = point.StrainPlane;
+                if (strain?.ReferencePoint == null) return Failure("CheckerStrainPlaneMissing");
+                var result = new CheckResult {Execution=ExecutionStatus.Completed,Data=DataStatus.Ready,
+                    Outcome=ratio<=1 ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotSatisfied,Utilization=ratio,EngineVersion=Version,
+                    Standard = StandardContext,
+                    Details = new SectionResistanceDetails("Concrete.PlasticSectionDomain", _criterion.ToString(), new BeamForceSnapshot(forces),
+                        point.NRd, point.MxRd, point.MyRd, ratio, point.FailureIndex.ToString(),
+                        strain.ReferencePoint.X, strain.ReferencePoint.Y, strain.StrainReferencePoint, strain.ChiX, strain.ChiY) };
+                if (!result.Standard.HasDeclaredEdition) result.Diagnostics.Add(new ModelDiagnostic { Code = "StandardEditionUndeclared",
+                    Severity = DiagnosticSeverity.Warning, Message = "Specify the edition for this standard implementation before normative reporting." });
+                return result;
             }
         }
         private static CheckResult Failure(string code) => new CheckResult {Execution=ExecutionStatus.Error,Data=DataStatus.Insufficient,

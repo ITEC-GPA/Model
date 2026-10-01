@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-30T20:29:19.1883199+02:00",
+  "step": 2,
+  "modelHead": "6cca8a01e91b918051849a7813f2011ba125e196",
+  "checkerHead": "09ec5eb90f059468f8c300b0d30c34c353259eb2",
+  "state": "Uncommitted source changes in Model and Checker; prior step-1 artifacts preserved.",
+  "concreteCorrection": "Bulk async Linear now calls GetLinearStressAnalysisResults; NonLinear calls GetStressAnalysisResults. Both new regression cases failed before and passed after.",
+  "tests": [
+    {
+      "file": "TestResults/CheckerStep2/async-before.trx",
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "notExecuted": 0,
+      "outcome": "Failed",
+      "sha256": "12933F9DC66456F561479B161BDC2CA5DF28890501163FBBEA81688CCE397565"
+    },
+    {
+      "file": "TestResults/CheckerStep2/async-after.trx",
+      "total": 45,
+      "passed": 45,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "A168ED05E484C00D7894F7AF5307439FCC7927FDD0435F401C4EED63E68AEA01"
+    },
+    {
+      "file": "TestResults/CheckerStep2/step2-model.trx",
+      "total": 35,
+      "passed": 35,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "4E93A4077CC381942624490310C42E434468EFE41763BA8657EFF04C51C35940"
+    },
+    {
+      "file": "TestResults/CheckerStep2/step2-integration.trx",
+      "total": 13,
+      "passed": 13,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "82EDF3767EF5B4EDAE78CD5FC57A7315897B3134007F28F9279566E0F333A7F8"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\Verification.cs",
+      "sha256": "4EC6CEB2B2F9FAE7B1AB44AA9840AE270012950B6BEC4E38317D6735EC5775B2"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\CheckDetails.cs",
+      "sha256": "44C6A5C98B5CD467D9905F3E08E4511C99CF047ECF09BF0C00A55D5B41E5DBC6"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\CheckSummary.cs",
+      "sha256": "A7455640214D710FCB181D3F6662A8603AC16AF980FFE9A6C1DDB3C58E4BDF87"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\CheckReport.cs",
+      "sha256": "A8A6560E83791D491DCA8D0AD94A17C2C298E48E64CA2D83EECF0ADBBDA2F08C"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\Persistence\\CheckReportArchive.cs",
+      "sha256": "1BC24CEFD0F5F64DC3251D177F5FB1EE4D6BD45DBF49CC3CF65F7D47FB82854C"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\Persistence\\ModelArchive.cs",
+      "sha256": "DCCDC3D0436CD2C6586922716195A1A7F4365C06B9B0987A36E4BA82DBDBAD3C"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker\\ConcreteSectionVerifier.cs",
+      "sha256": "BED88985F60899F44CD51723BAFE99CB1597034F8F73B4C0E8158F88F97A616B"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker\\ModelChecker.cs",
+      "sha256": "974DC5A54C74BEA04E745ECAEB97E953EDF99F9A62E8AD48266EB53B990D4B25"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests\\CheckReportIntegrationTest.cs",
+      "sha256": "E60863D3F6E5C38169008ED5AAE2DC0631CC490D3101939237C7C6D8BBA98DD3"
+    },
+    {
+      "repository": "Model",
+      "path": "UnitTest\\CheckReportContractsTest.cs",
+      "sha256": "41A362273C0D02C9DC48D7205B077D0C899683A17625CD8128E2600A919DDEF2"
+    },
+    {
+      "repository": "Model",
+      "path": "CHECKER_PASSO_2.txt",
+      "sha256": "275F5C8013383E0E1A9ADBF7C3E738B2EB46309A80D75480937105E927C7C6D9"
+    },
+    {
+      "repository": "Model",
+      "path": "PROMPT_SVILUPPO_CHECKER.txt",
+      "sha256": "A1766AA408AB618DB16C05114419C1AE01E989EEF6B597320B985CD4D4FCD7EF"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Concrete\\Checkers\\SectionChecker.cs",
+      "sha256": "71D213C381B5294A93C308BA2B64EF14A8834227A7BD3047724B2BF784C2314D"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Test.Concrete\\ConcreteControlTests.cs",
+      "sha256": "8B2A1E401A9AF915F4148E484DBAB9F65B7160576345F79C0D6D872E1F6FF8C2"
+    }
+  ],
+  "limits": [
+    "No new shear/torsion/SLS/plate solver implemented.",
+    "Physical member/region architecture still requires step 3 discussion.",
+    "Steel 17 baseline failures remain outside this change; Steel, CompositeBridge and Anthea suites not rerun in step 2.",
+    "Historical archive compatibility tested by omitting all new optional fields.",
+    "Existing MSB3270 warning for GMsh.Net AMD64 reference in UnitTest MSIL."
+  ]
+}

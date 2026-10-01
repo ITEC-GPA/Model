@@ -111,3 +111,50 @@ Esegui test pertinenti sui motori reali, regressioni dei moduli esistenti, casi 
 A ogni passo aggiorna una matrice delle capacità e un registro di avanzamento con lavoro completato, evidenze di verifica, limiti, decisioni pendenti e prossimo passo. Non dichiarare completato il cls o l'intero Checker senza confrontare quanto implementato con il perimetro concordato e le capacità ancora mancanti.
 
 Alla prima ripresa inizia dal PASSO 1. Non saltare alla riscrittura dei tre progetti, non iniziare la UI e rispetta il confronto preventivo sul passaggio a elemento e, in modo vincolante, sul checker dei plate.
+
+REGISTRO DI RIPRESA — 30 SETTEMBRE 2026
+
+PASSO 1 completato. Leggere CHECKER_PASSO_1.txt e CHECKER_PASSO_1_EVIDENZE.json prima di proseguire: contengono inventario, percorsi Anthea, capacità/limiti, risultati esistenti, test e sequenza di migrazione. Anthea è in C:\Users\g.pacini\Documents\Repository\ANTHEA; le verifiche cls da trasferire sono in X.Calculations.
+
+Baseline misurata: ModelChecker 8/8; controlli Concrete selezionati 43/43; CompositeBridge 254/254; Steel 77/94 con 17 fallimenti in EN1993p11Test; Anthea 434 asserzioni multinormativa e 78 del modulo cls superate. Le suite Anthea usano DLL distribuite, distinte dalle build correnti. Non sono state modificate formule, motori o API. Il rilievo sull'overload asincrono collettivo Concrete e i fallimenti Steel restano da trattare esplicitamente, senza cambiare tolleranze per nasconderli.
+
+Prossima ripresa: PASSO 2, classi di risultato/resoconto e mappatura ai tipi esistenti. Verificare lo stato corrente dei file e ripetere soltanto le verifiche rese necessarie da cambiamenti successivi; non rifare automaticamente tutto l'inventario. Restano da discutere l'architettura a elemento e il metodo plate prima delle relative implementazioni vincolanti.
+
+AGGIORNAMENTO SUCCESSIVO — PASSO 2 COMPLETATO, 30 SETTEMBRE 2026
+
+Su richiesta esplicita è stato corretto R01 in Checker: l'overload asincrono collettivo Concrete seleziona ora correttamente i rami lineare/non lineare. Due regressioni dimostrate fallite prima e superate dopo; controlli Concrete 45/45.
+
+Implementati i contratti compatibili di risultato/resoconto, dettagli tipizzati, contesto multinormativa, snapshot degli input/assi, riepiloghi per elemento/gruppo/norma/meccanismo, governanti separati per metriche compatibili, persistenza versionata e controlli di modifica/copertura. Collegato il dettaglio reale della pressoflessione Concrete. Validazione: Model 35/35 nelle selezioni pertinenti, ModelChecker 13/13. Leggere CHECKER_PASSO_2.txt e CHECKER_PASSO_2_EVIDENZE.json per esempi, semantica, limiti e prove.
+
+Prossima ripresa: PASSO 3, proposta del passaggio da sezione a elemento FEM/asta fisica/regione. Non avviare modifiche pubbliche incompatibili prima del confronto previsto. Taglio/torsione/SLE sono predisposti come output, non nuovi motori completati; la migrazione Anthea resta il PASSO 4. Confermato il punto di arresto sul motore plate. I 17 fallimenti Steel del PASSO 1 restano aperti e separati.
+
+AGGIORNAMENTO SUCCESSIVO — PASSO 3, PROPOSTA E PROVE COMPLETATE
+
+Leggere CHECKER_PASSO_3.txt e CHECKER_PASSO_3_EVIDENZE.json. Presentate tre alternative; raccomandate definizioni esplicite di asta fisica sopra il FEM, gruppi come selezione, solver sezionali riutilizzati, piano per ambiti/stati e copertura dichiarata. Esempio concreto: asta di 5 m in due elementi di 2 m e 3 m, il secondo orientato al contrario, armatura asimmetrica e solver Concrete reale.
+
+Validazione del passo 3: quattro nuovi test di caratterizzazione 4/4, più geometria/preparazione 17/17. Confermati due limiti del percorso attuale: LogicalMember è soltanto un'etichetta; la completezza dei campioni esportati non prova copertura continua né verifica globale dell'asta. Nessuna nuova API strutturale, formula o implementazione plate introdotta.
+
+Stato della decisione: proposta pronta per il confronto richiesto dal PASSO 3; implementazione delle nuove definizioni/piano ancora da avviare dopo quel confronto. Sequenza proposta: 3A definizioni/mappe/revisioni, 3B piano/copertura/facade beam, 3C contesto dei controlli globali. Non interpretare questo aggiornamento come completamento del verificatore d'asta o come accordo sul metodo plate.
+
+AGGIORNAMENTO SUCCESSIVO — PASSO 3 IMPLEMENTATO SU RICHIESTA ESPLICITA
+
+L'utente ha richiesto «implementa il passo 3»: adottata l'alternativa C nel perimetro proposto delle aste rette composte da elementi FEM interi a due nodi. Il precedente stato di attesa del confronto è superato per 3A/3B/3C. Leggere CHECKER_PASSO_3_IMPLEMENTAZIONE.txt e CHECKER_PASSO_3_IMPLEMENTAZIONE_EVIDENZE.json.
+
+3A: PhysicalMembers espliciti e ordinati, verso per componente, CoordinateSystem, mappa delle distanze/stazioni/lati, domini e tratti rigidi, validazione e persistenza. 3B: BeamCheckPlan opzionale, campioni esportati o posizioni obbligatorie, attività locali/globali distinte, collegamento a ModelChecker, resoconti per elemento e asta, schema 2 compatibile in lettura con lo schema 1. 3C: contesto esplicito di ritegni/lunghezze/stato globale e IPhysicalMemberVerifier; nessuna lunghezza efficace dedotta dalla mesh e nessun nuovo algoritmo di stabilità.
+
+Validazione finale: ModelChecker 37/37 (20 nuovi test del flusso d'asta, 4 di caratterizzazione e 13 precedenti); regressioni Model pertinenti 68/68. Totale delle due selezioni finali disgiunte: 105/105, nessun test ignorato. Pressoflessione locale provata con Concrete reale; il motore globale usato in alcuni test è soltanto una fixture del protocollo. Senza motore effettivo il controllo d'asta richiesto resta NotSupported e l'esito complessivo NotEvaluated. Il warning GMsh.Net MSB3270 preesistente è ancora presente nella build UnitTest.
+
+Prossima ripresa: PASSO 4, completamento cls e trasferimento ragionato da ANTHEA/X.Calculations nei progetti Checker, con benchmark e contratti del passo 2/3. Il resolver multimateriale e gli adattatori Steel/CompositeBridge restano al PASSO 5. Metodo e contratti resistenti plate richiedono ancora il confronto dedicato del PASSO 6. Non dichiarare completate la stabilità d'asta o tutte le verifiche cls; i 17 fallimenti Steel storici restano separati. Per presentare un report come corrente usare CurrentOutcome e passare anche il piano corrente quando sono cambiati parametri del job esterni a Model.
+
+AGGIORNAMENTO SUCCESSIVO — PASSO 5, NUCLEO MULTIMATERIALE E PRIMI ADATTATORI
+
+Su richiesta esplicita «prosegui con passo 5» implementati MultiMaterialCheckRequest, selezioni/assegnazioni dei motori, conflitti prima dell'esecuzione, sessioni riusate per configurazione, preparazione neutra delle azioni e raccolta comune dei resoconti. Collegati Concrete ULS esistente, primitive Steel EN1993 di taglio per H simmetriche nel campo ristretto documentato, e CompositeBridge NTC/EC4 per limiti tensionali SLE e resistenza dell'anima SLU con storia delle fasi esplicita. Leggere CHECKER_PASSO_5.txt e CHECKER_PASSO_5_EVIDENZE.json; esempio eseguibile in Examples/MultiMaterialWorkflow.cs.
+
+Test finali: ModelChecker 55/55, comprese 18 nuove regressioni; Model selezionati 84/84. Totale disgiunto 139/139. Il passo 4 è stato soltanto descritto nel file PROMPT_SVILUPPO_CHECKER_PASSO_4.txt, NON implementato. La copertura dei motori Steel e CompositeBridge resta parziale rispetto a tutte le loro API: il resoconto dichiara esattamente il metodo svolto. Nessuna verifica globale implicita e nessun nuovo motore plate.
+
+Triage Steel: R02 (17 fallimenti storici) aperto; R03 indicizzazione index/j confermata nel vecchio ciclo; R04 riscontrata differenza GammaM0 fra CalculateShear1Capacity e CalculateVcRd1. Il percorso collegato usa le primitive qualificate, senza correggere o dichiarare completa la suite Steel. Per i report multimateriale usare ModelChecker.CurrentOutcome(report oppure savedCheckReports, model, currentRequest), che controlla anche i contesti esterni dei moduli. Restano da ampliare gli adattatori secondo la matrice del passo 5, eseguire il passo 4 e concordare il metodo plate prima del passo 6.
+AGGIORNAMENTO SUCCESSIVO — COMPATIBILITA' E PREPARAZIONE PUSH, 1 OTTOBRE 2026
+
+Su richiesta dell'utente eseguito audit Model/Checker/Anthea prima del push. Model completo: 758 superati e 1 benchmark Straus7 ignorato; ModelChecker 55/55; Concrete selezionati 45/45; CompositeBridge 254/254. Steel 77/94, con gli stessi 17 fallimenti e messaggi della baseline: nessuna nuova regressione. Anthea, sia con DLL distribuite sia con le build aggiornate isolate: 434 controlli normativi cls, 78 modulo cls, 3509 Bridge superati. Verificati i riferimenti di compilazione e gli hash delle DLL effettivamente usate. Leggere CHECKER_COMPATIBILITA_20261001.txt e CHECKER_COMPATIBILITA_20261001_EVIDENZE.json.
+
+Autorizzato push del lavoro di questa attivita' in Model/fix/review-bugs e Checker/develop. Nessuna modifica delle DLL distribuite o push Anthea. Il passo 4 e le successive proposte di riassetto architetturale restano da implementare; confermato il confronto plate del passo 6.

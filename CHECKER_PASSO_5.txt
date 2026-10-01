@@ -1,0 +1,138 @@
+CHECKER — PASSO 5: ORCHESTRAZIONE MULTIMATERIALE E MULTINORMATIVA
+Data: 30 settembre 2026
+
+STATO
+
+Implementati il percorso di orchestrazione multimateriale, le assegnazioni dei motori per gruppi/elementi, risoluzione dei conflitti, riuso per configurazione, invalidazione, raccolta comune dei risultati e un esempio riproducibile con tre materiali. Collegati i motori reali nel perimetro limitato descritto dalla matrice seguente. L'integrazione di tutte le capacità native di Steel e CompositeBridge rimane parziale: le API qui collegate non equivalgono a una verifica completa di un'asta o di un ponte.
+
+L'utente ha richiesto direttamente il passo 5 dopo la preparazione del prompt del passo 4. Il passo 4 NON è stato eseguito: il collegamento cls resta quello operativo del passo 3. Il gate sul metodo resistente plate del passo 6 rimane invariato.
+
+Il lavoro è nel checkout Model sul branch preesistente fix/review-bugs, senza nuovi commit/push. Checker è su develop; questo intervento non ne modifica i sorgenti. Le due modifiche Concrete in quel repository appartengono al passo 2.
+
+1. ARCHITETTURA E API
+
+Model/PostProcessing/BeamActionPreparation.cs:
+- BeamActionInput e BeamActionPreparation preparano azioni concomitanti senza presumere una sezione c.a. Controllano dataset, unità, revisione, stato, dominio, faccia, riduzione e assi.
+- Le unità restano N, Nmm, mm. Riusati ResultOrientation, BeamReferenceGeometry e GPC.Geometry.CoordinateSystem; nessun nuovo sistema di assi o formula resistente.
+- Gli input preparati rilevano modifica/rimozione dei campioni, dati del dataset, geometria/materiali/sezioni e azioni preparate.
+- NativeMethodDetails conserva metriche, tracce, avvertenze, convergenza, identificatore del metodo, impronta dell'input nativo e descrizione del campo effettivo. Nessun solver nativo viene serializzato.
+
+BeamCheckPlan.PrepareActions riusa selezioni, aste fisiche, domini, stazioni obbligatorie, doppie sezioni al nodo comune e conteggio delle attività del passo 3. Il digest del percorso neutro include anche l'intera BeamProperty, per rilevare armature e carpenteria delle sezioni composte. Il digest del precedente Prepare resta invariato.
+
+ModelRevisions include ora la carpenteria strutturale contenuta in ReinforcedConcreteSection nell'impronta di analisi. Una sua modifica fisica rende obsoleti i risultati FEM del composto. I modelli c.a. senza carpenteria mantengono il comportamento precedente: un aggiornamento di sola armatura di progetto invalida le verifiche senza invalidare automaticamente l'analisi.
+
+ModelChecker/MultiMaterialChecking.cs aggiunge un overload:
+  ModelCheckReport ModelChecker.Verify(Model model, MultiMaterialCheckRequest request, ...)
+
+Tipi principali:
+- MultiMaterialCheckRequest: raccolta di job;
+- MultiMaterialCheckJob: Name, BeamCheckPlanRequest Plan, MaterialCheckerAssignment[] Assignments;
+- MaterialCheckerAssignment: selezione facoltativa per gruppi/elementi e IMaterialChecker;
+- IMaterialChecker: identità, versione, configurazione, norma, riconoscimento del materiale e factory;
+- IMaterialCheckSession: esecuzione e conteggio dei contesti nativi creati.
+
+Le tre factory sono ConcreteMaterialChecker, SteelMaterialChecker e CompositeBridgeMaterialChecker. Materiale e configurazione provengono da assegnazioni esplicite; non viene scelta una normativa in base al solo materiale. L'interfaccia permette adattatori ulteriori, senza aggiungere dipendenze Checker a Model.
+
+Il percorso precedente Verify(Model, ModelCheckRequest, ...) e le sue factory Concrete/globali restano disponibili. Il nuovo percorso non abilita automaticamente quelle factory globali: una attività PhysicalMember richiesta produce MaterialGlobalCheckerUnavailable e rimane nel denominatore. Non viene assegnata una lunghezza FEM a una verifica di stabilità.
+
+2. ASSEGNAZIONI, CONFLITTI E CACHE
+
+- La selezione del job determina il perimetro; la selezione dell'assegnazione restringe gli elementi a cui applicare quel motore. Accepts filtra per materiale. Nessuna assegnazione applicabile produce una riga NotSupported.
+- Nello stesso job, assegnazioni sovrapposte con identità/configurazione equivalente sono deduplicate. Due configurazioni diverse applicabili allo stesso FEM producono un errore prima di invocare qualsiasi motore. Non esiste una precedenza implicita fra gruppi.
+- Confronti fra norme o configurazioni diverse usano job distinti nella stessa richiesta. I governanti restano separati per norma, motore, metodo, meccanismo e definizione della metrica.
+- I metadati di instradamento entrano nell'impronta del piano. I parametri ingegneristici Settings restano separati da tale impronta per non dividere arbitrariamente i governanti di verifiche equivalenti svolte attraverso gruppi diversi.
+- Ogni Verify crea sessioni nuove; nell'esecuzione si riusano quelle con lo stesso tipo/Id/versione/configurazione/norma. Il costo del checker Concrete è riusato per sezione; Steel riusa il contesto nativo di sezione; CompositeBridge riusa analisi con identico HBridgeInput.
+- La versione comprende MVID del modulo nativo e dell'adattatore. Parametri, edizione, annesso e casi specialistici sono inclusi nella configurazione. I cambiamenti durante il run invalidano anche risultati già eseguiti.
+- Esecuzione sequenziale. Annullamento, creazione fallita del motore, dati mancanti e metodo non disponibile mantengono tutte le attività. Un errore della factory viene registrato per ciascuna attività interessata senza riprovare la stessa factory a ogni stazione.
+- CreatedCheckers conta contesti/analisi nativi effettivamente creati dalle sessioni; non coincide con il numero dei materiali né con il numero delle righe.
+
+3. MATRICE DELLE CAPACITA' COLLEGATE
+
+ConcreteMaterialChecker
+  Materiale: ReinforcedConcreteSection senza carpenteria strutturale.
+  Collegato: UlsBiaxialSection tramite ConcreteSectionVerifier e solver esistente.
+  Norme: quelle effettivamente ammesse dall'adattatore Concrete corrente; nessuna nuova norma introdotta.
+  Non aggiunti: taglio/torsione/SLE/fessurazione del passo 4, ACI nel resolver, nuovi motori globali.
+
+SteelMaterialChecker
+  Materiale: SteelSection; campo eseguibile limitato a SectionH costante e simmetrica, classificata in compressione 1/2 dal codice nativo, senza attivare riduzioni per instabilità a taglio e con T=0.
+  Collegato: resistenze plastiche sezionali V1 e V2 del nucleo EN1993, edizione identificata 2005, tramite CalculateVcRd1 e CalculateVcRd2. Metriche distinte nella stessa attività Shear.
+  Parametri: StandardEN1993p11 esplicito, incluso GammaM0. Altre classi derivate o edizioni non qualificate sono rifiutate. L'eventuale stringa NationalAnnex è metadato della configurazione dichiarata e non carica un nuovo algoritmo nazionale.
+  Non collegati: CoP 2011, AISC, altre forme, classificazione come verifica autonoma, pressoflessione/interazioni, torsione, stabilità/svergolamento, bulloni e pannelli. I relativi controlli richiesti non diventano esiti soddisfatti.
+  Ambito dell'esito: taglio locale nelle due direzioni; non è una verifica completa N-M-V dell'elemento.
+
+CompositeBridgeMaterialChecker
+  Materiale: ReinforcedConcreteSection con carpenteria; prima mappatura limitata alla geometria H nativa. I metodi nativi per H inclinata/cassoncino esistono ma non sono esposti da questa prima mappatura FEM.
+  Norme collegate: profilo NTC 2018 del modulo (con riferimenti EC4) e profilo EN1994-2:2005; edizioni diverse rifiutate.
+  Collegato: Serviceability = limiti tensionali dei punti di materiale attivi dello stato finale SLE; Shear = controllo dedicato di resistenza dell'anima nello stato finale SLU.
+  Non collegati: verifica globale dell'asta/ponte, capacità generica N-M, tutti i dettagli, pioli, fatica, torsione del cassone, verifiche delle situazioni intermedie e ulteriori metodi nativi.
+  Ambito dell'esito: esattamente il metodo dichiarato nei dettagli. Non viene usato BridgeStage.MaxUtilization come attestazione di tutte le verifiche del ponte. Una analisi calcolata senza metriche complete del controllo richiesto rimane non valutata.
+
+4. DATI SPECIALISTICI COMPOSITEBRIDGE
+
+CompositeBridgeCase associa esplicitamente FEM, stazione/dominio/lato e selettore di stato concomitante a HBridgeInput. Servono provenienza, sistema degli assi di sezione, quota nativa del punto di riduzione e conferma HistoryAndReferenceConfirmed.
+
+La storia delle fasi è un input specialistico fornito esplicitamente, non viene ricostruita dalla sola risultante finale. Il codice controlla:
+- binding unico della posizione/stato;
+- geometria/materiali/armatura della sezione nativa uguali alla BeamProperty Model;
+- profilo normativo coerente;
+- orientamento delle azioni preparate coerente con gli assi dichiarati del modulo;
+- tutte le fasi attive riferite alla stessa quota CommonElevation, uguale ad ActionReferenceY;
+- somma degli incrementi meccanici N/M1/V2, dopo conversione kN/kNm -> N/Nmm, uguale al campione FEM cumulativo;
+- M2/V1/T nulli per questa mappatura iniziale;
+- categoria SLE o SLU appropriata al controllo richiesto.
+
+La conferma del riferimento resta un dato del progettista: l'uguaglianza delle risultanti non dimostra da sola la correttezza della storia costruttiva o del riferimento geometrico. Sono conservati impronta dell'input, fonte, numero di fasi, quota, coefficienti, punti tensionali, convergenza e avvertenze native. Gli snapshot del report non sostituiscono l'HBridgeInput necessario a ripetere il calcolo.
+
+5. TRIAGE STEEL
+
+R02 — I 17 fallimenti della baseline EN1993 sono ancora aperti. Comprendono classificazioni RHS, instabilità assiale/LTB, interazioni e confronti SAP per più forme. Non sono stati attribuiti tutti a una causa unica e non sono stati cambiati né attesi né tolleranze. Non sono usati come prova di validità delle altre verifiche.
+
+R03 — Confermata per lettura del sorgente la mescolanza index/j nel ciclo multi-caso di EN1993p11Checker: SetClasses, SetCapacity, SetWorkingRatio e diversi dati di report usano stationResults[j]. Il nuovo adattatore non chiama quel ciclo: invoca primitive sezionali protette attraverso una sottoclasse privata. Nessuna riscrittura delle formule.
+
+R04 — Ulteriore differenza riscontrata: CalculateShear1Capacity non divide per GammaM0, mentre CalculateVcRd1 include tale coefficiente. Il percorso collegato usa esplicitamente CalculateVcRd1, non il metodo del vecchio ciclo completo. La proporzionalità rispetto a GammaM0 è coperta da test e confronto aritmetico sulla sezione H della fixture. La correzione del ciclo completo Steel resta da trattare nel repository Checker.
+
+Questi limiti spiegano il campo ristretto dell'adattatore Steel iniziale. Non si dichiara risolta o validata integralmente la suite Steel.
+
+6. PERSISTENZA E VALIDITA'
+
+Risultati nuovi: schema 2, NativeMethodDetails serializzabile tramite archivi Model e CheckReport. Le dipendenze Concrete/Steel/CompositeBridge sono in ModelChecker, non in Model e non nei contratti serializzati.
+
+Per presentare il report multimateriale come corrente usare:
+  ModelChecker.CurrentOutcome(report, model, request)
+oppure, dopo caricamento standalone:
+  ModelChecker.CurrentOutcome(savedCheckReports, model, request).
+
+Questa API confronta il piano, i gruppi, l'intero perimetro delle proprietà di materiale, versioni/configurazioni, parametri specialistici, stati e righe richieste senza rieseguire i motori. Le API CurrentOutcome precedenti rimangono per i percorsi precedenti; non possono ricostruire le assegnazioni multimateriale.
+
+Il run usa impronte conservative ricalcolate per proteggere da oggetti legacy mutabili. Non è stata misurata la scalabilità su modelli grandi e non è stato aggiunto parallelismo.
+
+7. ESEMPIO RIPRODUCIBILE
+
+Sorgente: Examples/MultiMaterialWorkflow.cs, compilato dai test di integrazione.
+
+  var example = GPC.Examples.MultiMaterialWorkflow.Create();
+  var checker = new GPC.Model.Checker.ModelChecker();
+  var report = checker.Verify(example.Model, example.Request);
+
+L'esempio crea gruppi Concrete, Steel e Composite, con azioni analitiche assegnate, e quattro job:
+1. RC ULS: pressoflessione Concrete NTC;
+2. Steel shear: taglio V1/V2 EN1993;
+3. Bridge SLE: limiti tensionali CompositeBridge NTC;
+4. Bridge web shear: resistenza dell'anima CompositeBridge NTC.
+
+Risultato atteso sui dati della fixture: 4 richiesti, 4 eseguiti, 3 elementi, 3 gruppi, 4 contesti/analisi nativi. E' completezza delle quattro attività esplicite, non certificazione complessiva degli elementi. Un test aggiuntivo confronta anche il profilo EN1994-2 con la API nativa.
+
+Esecuzione da Model:
+  dotnet test ModelChecker.Tests/ModelChecker.Tests.csproj -c Release --no-restore --filter FullyQualifiedName~MultiMaterialWorkflowTest
+
+8. PROVE E REGISTRO
+
+- ModelChecker.Tests: 55/55, inclusi 18 nuovi test multimateriale e i 37 precedenti.
+- Selezione UnitTest Model: 84/84. Include contratti/report, assegnazioni, flusso misto, geometria/preparazione, compatibilità legacy, gruppi, trasformazioni e algebra dei risultati.
+- Le selezioni finali sono disgiunte: 139/139, nessun test ignorato. Non sommare i run intermedi sovrapposti.
+- Prove: motori reali, confronto diretto CompositeBridge NTC/EC4, aritmetica indipendente del taglio nella fixture, coefficiente GammaM0, esito non soddisfatto, conflitti/deduplicazione, riuso, stazioni mancanti, annullamento con avanzamento, factory fallita, contesti modificati durante il run, archivi e invalidazione, riferimenti/azioni incompatibili, binding ambiguo e attività globale non disponibile.
+- Preservato il warning preesistente MSB3270 di GMsh.Net nella build UnitTest. Non eseguite nuove suite native Steel/Anthea complete: il codice di quei motori non è stato modificato; i loro limiti storici restano separati.
+- TRX e hash: TestResults/CheckerStep5 e CHECKER_PASSO_5_EVIDENZE.json.
+
+Punto di ripresa: nucleo multimateriale operativo con i primi adattatori qualificati. Per ampliare Steel servono risoluzione/benchmark di R02-R04 e contesti globali appropriati; per ampliare CompositeBridge servono mappature e identità esplicite dei controlli specialistici. Il passo 4 rimane da implementare. Sul passo 6 va prima presentata e concordata la proposta plate.

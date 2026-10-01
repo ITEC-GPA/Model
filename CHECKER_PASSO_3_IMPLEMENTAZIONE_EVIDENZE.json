@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-30T21:18:29.2757796+02:00",
+  "step": 3,
+  "phase": "Implemented 3A/3B/3C for straight physical members made of complete two-node FEM beams",
+  "authorization": "Explicit user request: implementa il passo 3",
+  "modelHead": "6cca8a01e91b918051849a7813f2011ba125e196",
+  "checkerHead": "09ec5eb90f059468f8c300b0d30c34c353259eb2",
+  "state": "Uncommitted implementation in Model. Prior step 1/2 and proposal evidence preserved. No new Checker repository edits in step 3.",
+  "tests": [
+    {
+      "file": "TestResults/CheckerStep3Implementation/step3-integration-final.trx",
+      "total": 37,
+      "passed": 37,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "F60923CDBAA4F55017948881031AF598495D136791155469779B7DA136618D35"
+    },
+    {
+      "file": "TestResults/CheckerStep3Implementation/step3-model-regression.trx",
+      "total": 68,
+      "passed": 68,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "8A69510569B2474B5602B89604C0F298872E412C736E059ED90FE8C0C127E882"
+    }
+  ],
+  "finalDistinctTests": 105,
+  "newPhysicalMemberWorkflowTests": 20,
+  "validation": [
+    "Release build with --no-restore and existing local dependencies",
+    "ModelChecker.Tests: entire suite, real Concrete local solver",
+    "UnitTest filter: CheckReportContractsTest|AssignmentWorkflowTest|MixedWorkflowTest|ModelPhysicalCompletionTest|ModelPreparationWorkflowTest|LegacyModelRegressionTest|GroupWorkflowTest|ResultTransformationWorkflowTest",
+    "Intermediate TRX runs overlap final suites and are not added to the final total",
+    "git diff --check passed; line-ending conversion warnings only"
+  ],
+  "sourceHashes": [
+    {
+      "repository": "Model",
+      "path": "Model/Models/Model.cs",
+      "sha256": "0CCFF338E7AC7772CFC2BD95B2FFC8651C1DA8CA66AD5B5D65700B5A7399F2E9"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/Persistence/ModelArchive.cs",
+      "sha256": "DC28E3CEB54502D79FBF1E75B0A149F7F29CD282A3FD7A2D64C616E1FCC2326E"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/Persistence/CheckReportArchive.cs",
+      "sha256": "139C67244BB302DD53CEF9A1CC1E77F87447319747FF249209004C8BE56F0E67"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/PhysicalMembers.cs",
+      "sha256": "01918CC8B7D2AAAD9EF279D8141884F5EF24ABFD43AB000E12B1F386C7A5F7B4"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/BeamCheckContracts.cs",
+      "sha256": "91678071E283356E615EF698D725E8CADCD328A5FD4C8A852FFCEED95A0B0E3E"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/BeamCheckPlan.cs",
+      "sha256": "407BB1EA63703EABDB3AB292156CEBC4CCAF34ED68C0DA06CC701C26A7FFFCE5"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/MemberVerification.cs",
+      "sha256": "EC7A43478829F20B1CDB006EBEFC3ECE50FD4CC062ADE7090FB63B2261727F2E"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/Verification.cs",
+      "sha256": "CA904489A67318AE907B4D7647267F80889E43AB6D63FBBE7085AE1BCC42D398"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/CheckDetails.cs",
+      "sha256": "44C6A5C98B5CD467D9905F3E08E4511C99CF047ECF09BF0C00A55D5B41E5DBC6"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/CheckSummary.cs",
+      "sha256": "D10EE752F8A671938B92BFC78BEEDC91F3D02C8CB6D4AD95725F66F2B69834EC"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/CheckReport.cs",
+      "sha256": "9E535F16A17D6F0405E7DD5F8E033283B3249BF8FF69E825F7527B97A60CFF02"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/ModelChecker.cs",
+      "sha256": "CA50D7F0F005A1504A76A4EE46FE522E2503A75E9E363A7BB9D5EB4B6F2D84DF"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/PlannedBeamChecking.cs",
+      "sha256": "00971D3252D29A115BA07DF9068A419BC18425B790881E2ABF5F5EAD1E0A5317"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/ConcreteSectionVerifier.cs",
+      "sha256": "BED88985F60899F44CD51723BAFE99CB1597034F8F73B4C0E8158F88F97A616B"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests/PhysicalMemberWorkflowTest.cs",
+      "sha256": "AF418D06EBAE2A2C861A1D2C78697F441BE02FCD5C1457B559B7831424C085B0"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests/ElementScopeCharacterizationTest.cs",
+      "sha256": "928A583067E314246A717437912F938F3B436A1F97B37F9723D0C1244C0A76EA"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests/CheckReportIntegrationTest.cs",
+      "sha256": "E60863D3F6E5C38169008ED5AAE2DC0631CC490D3101939237C7C6D8BBA98DD3"
+    },
+    {
+      "repository": "Model",
+      "path": "UnitTest/CheckReportContractsTest.cs",
+      "sha256": "41A362273C0D02C9DC48D7205B077D0C899683A17625CD8128E2600A919DDEF2"
+    },
+    {
+      "repository": "Model",
+      "path": "CHECKER_PASSO_3_IMPLEMENTAZIONE.txt",
+      "sha256": "60465BEAFD9B679A952F637A8EBAC55270556EE1D8F09A6FB027662961B4EFFF"
+    },
+    {
+      "repository": "Model",
+      "path": "PROMPT_SVILUPPO_CHECKER.txt",
+      "sha256": "198A04EF9F9B87E3CD5126FE28C69A24923D2038B9D274FA20739410DF35F299"
+    }
+  ],
+  "testedDependencies": [
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCChecker.Concrete.dll",
+      "sha256": "D3F3AF40067364B681A5BD51D363DD729C5304644DF085F0FA6A6344E3744E60"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCGeometry.dll",
+      "sha256": "DBBDE4049A00009BABC057B7EB1ADBEB02C332A3A7ABD31991916C823CC2FA2E"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCUtilities.dll",
+      "sha256": "638FF722D19AD4EF5B9E14E65A5398960DF5F5BB1569BF6B1392354E84AF5AC7"
+    }
+  ],
+  "historicalEvidence": [
+    "CHECKER_PASSO_1_EVIDENZE.json",
+    "CHECKER_PASSO_2_EVIDENZE.json",
+    "CHECKER_PASSO_3_EVIDENZE.json"
+  ],
+  "limitations": [
+    "No engineering algorithm for global member stability was added; unsupported methods remain NotSupported / NotEvaluated",
+    "MemberEngine in tests is a protocol fixture only",
+    "No continuous maximum/coverage certification; no curved, branched or partial-element members",
+    "Existing section preparation remains Concrete-specific; multimaterial resolver is step 5",
+    "Member method must validate its own further engineering/normative prerequisites",
+    "Use CurrentOutcome with currentPlanForJob to compare changed external job parameters",
+    "Plate resistance method/contracts await step 6 discussion; existing shell preparation is preserved",
+    "No new Anthea/Steel/Checker benchmark run; 17 historical Steel failures remain separately tracked",
+    "Pre-existing GMsh.Net architecture warning MSB3270 persists in UnitTest build",
+    "No large-model performance benchmark; conservative fingerprints are recalculated"
+  ],
+  "nextStep": "Step 4: complete Concrete by migrating and validating ANTHEA/X.Calculations methods"
+}

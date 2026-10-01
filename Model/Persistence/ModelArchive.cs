@@ -49,17 +49,18 @@ namespace GPC.Model.Persistence
                 typeof(PostProcessing.PreservedAssignment[]), typeof(Point3d[])
             }).Distinct().ToArray();
         }
-        private static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
+        internal static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
         { KnownTypes = KnownTypes, PreserveObjectReferences = true, MaxItemsInObjectGraph = 2000000 });
 
         public static void Save(Models.Model model, Stream destination)
         {
+            CheckReportArchive.Validate(model.CheckReports.ToArray());
             // Build the archive before touching the caller's destination on serialization errors.
             using (var memory = new MemoryStream())
             {
                 using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
                 {
-                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", "1");
+                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports) ? "2" : "1");
                     Serializer(typeof(Models.Model)).WriteObject(writer, model); writer.WriteEndElement();
                 }
                 memory.Position = 0; memory.CopyTo(destination);
@@ -71,10 +72,13 @@ namespace GPC.Model.Persistence
             { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 256L * 1024 * 1024, CloseInput = false }))
             {
                 reader.MoveToContent();
-                if (reader.LocalName != "GpcModelArchive" || reader.GetAttribute("version") != "1") throw new SerializationException("Unsupported archive version.");
+                string version = reader.GetAttribute("version");
+                if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2")) throw new SerializationException("Unsupported archive version.");
                 reader.ReadStartElement();
                 var model = (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
                 reader.ReadEndElement();
+                CheckReportArchive.Validate(model.CheckReports.ToArray());
+                if (version == "1" && (model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports))) throw new SerializationException("Physical member data require archive version 2.");
                 return model;
             }
         }
