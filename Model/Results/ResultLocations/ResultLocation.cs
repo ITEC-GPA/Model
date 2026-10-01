@@ -1,4 +1,4 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
@@ -20,6 +20,7 @@ namespace GPC.Model.Results.ResultLocations
         /// The load case or combination
         /// </summary>
         protected ILoadCase _case;
+        public GPC.Model.PostProcessing.ResultState State { get; set; }
 
         #endregion
 
@@ -62,6 +63,7 @@ namespace GPC.Model.Results.ResultLocations
             : base(info, context)
         {
             _resultTypes = (ResultType)info.GetValue("ResultType", typeof(ResultType));
+            State = SerializationFields.Read<GPC.Model.PostProcessing.ResultState>(info, "State");
             _case = (ILoadCase)info.GetValue("ILoadCase", typeof(ILoadCase));
         }
 
@@ -77,6 +79,7 @@ namespace GPC.Model.Results.ResultLocations
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("State", State);
             info.AddValue("ResultType", _resultTypes, typeof(ResultType));
             info.AddValue("ILoadCase", _case, typeof(ILoadCase));
         }
@@ -86,7 +89,7 @@ namespace GPC.Model.Results.ResultLocations
         #region  Equals - hashcode - Operators
 
         /// <summary>
-        /// Equality of the result values and of the name (the load case is not compared)
+        /// Equality of the result values and of the name (including the load case and analysis state)
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>True if <paramref name="obj"/> is an equal result</returns>
@@ -94,7 +97,10 @@ namespace GPC.Model.Results.ResultLocations
         {
 
             return (obj is ResultLocation resultLocation) &&
-                _resultTypes.Equals(resultLocation._resultTypes) &&
+                GetType() == resultLocation.GetType() &&
+                object.Equals(_case, resultLocation._case) &&
+                SameState(State, resultLocation.State) &&
+                object.Equals(_resultTypes, resultLocation._resultTypes) &&
                 base.Equals(resultLocation);
         }
 
@@ -108,9 +114,21 @@ namespace GPC.Model.Results.ResultLocations
             {
                 int hashCode = 17;
                 hashCode = hashCode * -19 + base.GetHashCode();
-                hashCode = hashCode * -17 * _resultTypes.GetHashCode();
+                hashCode = hashCode * -17 * (_resultTypes?.GetHashCode() ?? 0);
+                hashCode = hashCode * -17 + (_case?.GetHashCode() ?? 0);
                 return hashCode;
             }
+        }
+
+        private static bool SameState(PostProcessing.ResultState left, PostProcessing.ResultState right)
+        {
+            if (ReferenceEquals(left, right)) return true;
+            if (left == null || right == null) return false;
+            return left.DatasetId == right.DatasetId && left.ModelRevision == right.ModelRevision && left.Phase == right.Phase
+                && left.Step == right.Step && left.ConcomitantStateId == right.ConcomitantStateId && left.Semantics == right.Semantics
+                && left.MovingLoadPosition == right.MovingLoadPosition && left.Mode == right.Mode && left.Normalization == right.Normalization
+                && left.InputFingerprint == right.InputFingerprint && left.IsCombined == right.IsCombined && left.IsCumulative == right.IsCumulative
+                && (ReferenceEquals(left.Components, right.Components) || (left.Components != null && right.Components != null && System.Linq.Enumerable.SequenceEqual(left.Components, right.Components)));
         }
 
         /// <summary>

@@ -1,6 +1,8 @@
 ﻿using GPC.Model.Elements;
 using GPC.Model.Restrains;
 using System.Collections.Generic;
+using System;
+using System.Runtime.Serialization;
 
 namespace GPC.Model.Costrains
 {
@@ -14,6 +16,7 @@ namespace GPC.Model.Costrains
     /// MultiPointsCostrain costrain1 = new MultiPointsCostrain(equations);
     /// </example>
     /// </summary>
+    [Serializable]
     public class MultiPointsCostrain : ModelObject
     {
         #region Variables
@@ -48,6 +51,19 @@ namespace GPC.Model.Costrains
         {
             _equations = equations;
             _constValue = constValue;
+        }
+
+        protected MultiPointsCostrain(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _equations = (Equation[])info.GetValue("Equations", typeof(Equation[]));
+            _constValue = info.GetDouble("ConstValue");
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Equations", _equations);
+            info.AddValue("ConstValue", _constValue);
         }
         #endregion
 
@@ -95,6 +111,7 @@ namespace GPC.Model.Costrains
         /// <summary>
         /// A term of the equation: Value * degree of freedom of a node
         /// </summary>
+        [Serializable]
         public struct Equation
         {
             /// <summary>

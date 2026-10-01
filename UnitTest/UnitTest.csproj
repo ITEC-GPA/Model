@@ -31,8 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Examples\MixedModelFactory.cs" Link="Fixtures\MixedModelFactory.cs" />
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
     <ProjectReference Include="..\Model\GPCModel.csproj" />
+    <ProjectReference Include="..\GPC Converter\GPC Converter.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-30T22:03:31.6772477+02:00",
+  "step": 5,
+  "authorization": "Explicit user request: prosegui con passo 5",
+  "phase": "Multimaterial orchestration implemented with initial limited adapters and three-material executable example",
+  "modelHead": "6cca8a01e91b918051849a7813f2011ba125e196",
+  "modelBranch": "fix/review-bugs",
+  "checkerHead": "09ec5eb90f059468f8c300b0d30c34c353259eb2",
+  "checkerBranch": "develop",
+  "state": "Uncommitted changes in Model; no new Checker source edits for step 5. Historical step 1/2/3 evidence preserved.",
+  "tests": [
+    {
+      "file": "TestResults/CheckerStep5/step5-integration-final.trx",
+      "total": 55,
+      "passed": 55,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "1854172319223B74982AF0BD5F3BBD22A7026D8D7984156AC6C1D2307F014575"
+    },
+    {
+      "file": "TestResults/CheckerStep5/step5-model-final.trx",
+      "total": 84,
+      "passed": 84,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "E31B54C5E20972AD9486A469508B930F86677FD628E7436382DAE8C55979DA4D"
+    }
+  ],
+  "finalDistinctTests": 139,
+  "newMultiMaterialTests": 18,
+  "validation": [
+    "Complete ModelChecker.Tests suite: 55/55, including 18 new tests and 37 existing tests",
+    "Selected Model regression suite: 84/84, including ModelResultAlgebraTest",
+    "Real Concrete, Steel and CompositeBridge engines; native NTC/EC4 comparison and independent steel shear fixture arithmetic",
+    "Axes, explicit phase references, assignment conflicts, cache reuse, missing coverage, cancellation, errors, stale contexts, data-only archives and persisted result invalidation",
+    "Release --no-restore; final suites disjoint; intermediate overlapping TRX runs are not added",
+    "git diff --check passed; existing UnitTest GMsh.Net MSB3270 warning remains"
+  ],
+  "sourceHashes": [
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/BeamActionPreparation.cs",
+      "sha256": "4BC0289FEAF4F97329C77CF53464592A04927518017CFBF7282730CFB120E9B4"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/BeamCheckPlan.cs",
+      "sha256": "CB0A036ACFD3D3C0A9380E22239E6062AEE25C806F964C8DF8B2F00FFE8F75F4"
+    },
+    {
+      "repository": "Model",
+      "path": "Model/PostProcessing/ModelRevisions.cs",
+      "sha256": "0967AFE96F21811C28C77CF76989761D4BF4EB5C64AF74C28951FEC7D20F9361"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/MultiMaterialChecking.cs",
+      "sha256": "E89597101B7DA812990CEF7FE19B6103945BCC6B833117381FE9B694F6DA4DF5"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/ConcreteMaterialChecker.cs",
+      "sha256": "4819BF9D5CAD14B04334DB5807D95E2418FE27874BCBC80891DAA2023231EC80"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/SteelMaterialChecker.cs",
+      "sha256": "E64707FE7E168B6C01C0DFF7D4397F3A95EB69C69238CFCF6FDC7C17EC1C16E4"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/CompositeBridgeMaterialChecker.cs",
+      "sha256": "781A0438530F1686C811FCB1B3149BB9180B2A869AF3417777F220C5205B6CB7"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/ModelChecker.cs",
+      "sha256": "EB5CF0C8732056666135488F8E9F0702298D125D9590B1F7F905A5BABC44037B"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/ConcreteSectionVerifier.cs",
+      "sha256": "BED88985F60899F44CD51723BAFE99CB1597034F8F73B4C0E8158F88F97A616B"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker/GPCModelChecker.csproj",
+      "sha256": "A4E46B4E7C7F7F10D10DF478DB8A39CE80531FE1603BAF035B77D0376C02EFC5"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests/ModelChecker.Tests.csproj",
+      "sha256": "E3CEA1F5F1885F02547A574BCD14D9CD59D16A7F7FD36288E5F1585CF00555F7"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests/MultiMaterialWorkflowTest.cs",
+      "sha256": "0A9D2221A6C9B158B001DED97A11982E33023E8BF9402E14DB2620D0A42438B4"
+    },
+    {
+      "repository": "Model",
+      "path": "Examples/MultiMaterialWorkflow.cs",
+      "sha256": "0885A99E8DBD4030EF918F931089EDE5AAEAFBCA33D7CB692F3C19953F3EAEC3"
+    },
+    {
+      "repository": "Model",
+      "path": "CHECKER_PASSO_5.txt",
+      "sha256": "77FF3F4D11FE28DC8D41412B2794869C58D7DCD3F93DA9BE466137ABDB313E64"
+    },
+    {
+      "repository": "Model",
+      "path": "PROMPT_SVILUPPO_CHECKER.txt",
+      "sha256": "51237A15E541D75A67E8211A48F85A7F97CC45798018E65F2DD5C32862C65CA3"
+    }
+  ],
+  "nativeSourceHashes": [
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Steel/Checkers/EN1993p11Checker.cs",
+      "sha256": "F990A28BD9BE8CC710DDC15B365C3052E60CBB787137977FA0705558755B56D9"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.CompositeBridge/Models/BridgeInputs.cs",
+      "sha256": "3A41EF20F03D13B9B823354601F348A6773A6369A631EC6AC01883E8F125A842"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.CompositeBridge/Models/BridgeResults.cs",
+      "sha256": "232EC0387038328A8B0DEAFBFEA14404A975C312804195FF4CFD994BD08658CD"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.CompositeBridge/HSections/HBridgeSection.Analysis.cs",
+      "sha256": "CC33EFFAE002A92EEEC85E5B6C52D562B307F0D7938F1729AEB98A84EE8CDA0C"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.CompositeBridge/HSections/HBridgeSection.Shear.cs",
+      "sha256": "AEC612C5A67751807B6C1E0A31E2DE59C0398F942DB7F89A5F304069F8552603"
+    }
+  ],
+  "testedBinaries": [
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCChecker.Concrete.dll",
+      "fileVersion": "0.0.13.0",
+      "sha256": "D3F3AF40067364B681A5BD51D363DD729C5304644DF085F0FA6A6344E3744E60"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCChecker.Steel.dll",
+      "fileVersion": "1.1.0.3",
+      "sha256": "45A906790C60DD936FEEAF8AD149A17571AF0D26A1ABC861A44CD0DCA727A576"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCChecker.CompositeBridge.dll",
+      "fileVersion": "1.4.0.0",
+      "sha256": "5FDC64F7595373CDB4FF44002BCA29B8A138E291BF0F0142B3054750B0FB7FBD"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCGeometry.dll",
+      "fileVersion": "2.1.0.3",
+      "sha256": "DBBDE4049A00009BABC057B7EB1ADBEB02C332A3A7ABD31991916C823CC2FA2E"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCModel.dll",
+      "fileVersion": "1.4.1.0",
+      "sha256": "51A97FC7A868FB5746BE2832A05EA209116D13643B51594BE38283590110083E"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCModelChecker.dll",
+      "fileVersion": "1.0.0.0",
+      "sha256": "E1AC9ADDB4281A8AFA2E063CFF2A5BCBD3FD527F7FE539F92DDFEFB372386F02"
+    },
+    {
+      "path": "ModelChecker.Tests/bin/Release/net6.0/GPCUtilities.dll",
+      "fileVersion": "2.0.0.8",
+      "sha256": "638FF722D19AD4EF5B9E14E65A5398960DF5F5BB1569BF6B1392354E84AF5AC7"
+    },
+    {
+      "path": "UnitTest/bin/Release/net6.0/GPCModel.dll",
+      "fileVersion": "1.4.1.0",
+      "sha256": "51A97FC7A868FB5746BE2832A05EA209116D13643B51594BE38283590110083E"
+    }
+  ],
+  "capabilities": [
+    "Concrete: existing ULS biaxial adapter only",
+    "Steel: EN1993-1-1:2005 native local V1/V2 plastic shear primitives for constant symmetric stocky H sections, qualified gate, no torsion",
+    "CompositeBridge: NTC2018 / EN1994-2:2005 final active-point SLE stress limits and SLU web shear with explicit HBridgeInput phase history matched to cumulative FEM state"
+  ],
+  "limitations": [
+    "Step 4 was only described, not implemented",
+    "No plate resistance engine or new plate-specific decision",
+    "Native Steel and CompositeBridge integration is partial; explicit requested unavailable methods retain NotSupported outcomes",
+    "No new global member verification in multimaterial route; no implied effective lengths or whole-element/whole-bridge certificate",
+    "Historical Steel baseline: 17 failures remain unresolved; full native Steel and Anthea suites were not rerun in step 5",
+    "Steel R03 bulk indexing and R04 CalculateShear1Capacity/GammaM0 discrepancy documented; lower-level qualified primitives used without modifying Checker",
+    "Bridge history and reference confirmation are explicit engineering inputs; matching cumulative actions alone does not prove construction-history validity",
+    "Sequential execution; scalability of conservative fingerprint checks not benchmarked; use new ModelChecker.CurrentOutcome overload for multimaterial request validity"
+  ],
+  "artifacts": [
+    "CHECKER_PASSO_5.txt",
+    "Examples/MultiMaterialWorkflow.cs",
+    "PROMPT_SVILUPPO_CHECKER.txt"
+  ]
+}

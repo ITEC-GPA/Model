@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.LoadCases;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ namespace GPC.Model.Loads
     /// <summary>
     /// A concentrated load: force and moment in a point, with components in the coordinate system of the load
     /// </summary>
+    [Serializable]
     public class PointLoad : Load, IPointLoad, IConvertibleLoad
     {
         #region Variables
@@ -506,7 +507,7 @@ namespace GPC.Model.Loads
             info.AddValue("M1", _m1);
             info.AddValue("M2", _m2);
             info.AddValue("M3", _m3);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
+
             info.AddValue("Point", _point);
         }
 

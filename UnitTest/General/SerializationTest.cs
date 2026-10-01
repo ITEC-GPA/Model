@@ -2047,7 +2047,7 @@ namespace GeneralTest
         {
             bool check = true;
 
-            ResultBrickForces m = new ResultBrickForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 1);
+            ResultPlateForces m = new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1);
             using (var ms = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -2055,22 +2055,18 @@ namespace GeneralTest
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
-                ResultBrickForces oggettoDeserializzato = (ResultBrickForces)casted;
+                ResultPlateForces oggettoDeserializzato = (ResultPlateForces)casted;
 
                 if (m.Equals(oggettoDeserializzato))
                 {
                     if (m.Fxx != oggettoDeserializzato.Fxx ||
                         m.Fyy != oggettoDeserializzato.Fyy ||
-                        m.Fzz != oggettoDeserializzato.Fzz ||
                         m.Fxy != oggettoDeserializzato.Fxy ||
                         m.Fxz != oggettoDeserializzato.Fxz ||
                         m.Fyz != oggettoDeserializzato.Fyz ||
                         m.Mxx != oggettoDeserializzato.Mxx ||
                         m.Myy != oggettoDeserializzato.Myy ||
-                        m.Mzz != oggettoDeserializzato.Mzz ||
                         m.Mxy != oggettoDeserializzato.Mxy ||
-                        m.Mxz != oggettoDeserializzato.Mxz ||
-                        m.Myz != oggettoDeserializzato.Myz ||
                         m.CoordinateSystem != oggettoDeserializzato.CoordinateSystem ||
                         m.Id != oggettoDeserializzato.Id)
                         check = false;

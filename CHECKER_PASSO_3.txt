@@ -1,0 +1,222 @@
+CHECKER — PASSO 3: DALLA SEZIONE ALL'ELEMENTO E ALL'ASTA FISICA
+Data: 30 settembre 2026
+Stato storico: proposta architetturale e prove completate prima dell'implementazione.
+Aggiornamento: su successiva richiesta esplicita «implementa il passo 3», realizzati 3A/3B/3C nel perimetro 1D qui proposto. Stato corrente, API, limiti e nuove prove sono in CHECKER_PASSO_3_IMPLEMENTAZIONE.txt e CHECKER_PASSO_3_IMPLEMENTAZIONE_EVIDENZE.json. Il testo e le evidenze seguenti descrivono la fase di proposta; le indicazioni «da implementare/da discutere» sono storiche.
+
+La richiesta del passo 3 è presentare alternative, proposta motivata e flusso completo prima delle modifiche incompatibili o delle decisioni difficili da cambiare. Questo documento soddisfa quella fase. I tipi descritti come PROPOSTI non sono API già implementate. In questo passo sono stati aggiunti soltanto test di caratterizzazione; il percorso pubblico esistente rimane quello del passo 2.
+
+DECISIONE PROPOSTA
+
+Mantenere tre livelli distinti per il caso 1D:
+1. sezione locale: solutore resistente riutilizzabile;
+2. elemento FEM: connettività, assegnazioni, campioni e verifiche locali;
+3. asta fisica: sequenza esplicita di elementi FEM, con tratti e condizioni di verifica propri.
+
+Per il caso 2D mantenere campione locale, elemento shell e regione fisica distinti. I dettagli resistenti plate restano da concordare al passo 6.
+
+Un gruppo rimane uno strumento di selezione. Un gruppo può contenere aste, shell ed elementi scollegati; la sua appartenenza non dimostra continuità né definisce una lunghezza di verifica.
+
+1. RISCONTRO SUI SORGENTI ATTUALI
+
+Percorsi relativi al repository Model, salvo indicazione Checker:
+- Model/PostProcessing/Assignments.cs:153: BeamAssignments ha LogicalMember (stringa), SectionAxes, SectionGeometryAxes, offset, tratti rigidi, sezioni e dominio delle stazioni. Non esiste una definizione dell'asta con ordine dei componenti, verso e condizioni globali.
+- Model/PostProcessing/BeamReferenceGeometry.cs:10: già disponibili domini NodeToNode, OffsetToOffset, Deformable, conversioni di stazione e trasporto esplicito al baricentro.
+- Model/PostProcessing/SectionLaws.cs:17: sezioni Constant, Tabulated esatte e LinearRectangular con compatibilità delle armature; nessuna interpolazione generale di sezioni/materiali.
+- Model/PostProcessing/ResultOrientation.cs: inversione della faccia di taglio, assi, stazioni e lati; preservazione della geometria fisica delle armature tramite SectionGeometryAxes.
+- Model/PostProcessing/ModelPreparation.cs:66: la richiesta enumera i campioni realmente presenti; se manca tutto uno stato produce una riga mancante. Non possiede una lista indipendente di stazioni fisiche obbligatorie.
+- Model/PostProcessing/Verification.cs:15,81,114: BeamCheckInput e IConcreteSectionVerifier sono specifici della sezione c.a. Il nome Beam non implica una verifica globale dell'asta.
+- Model/PostProcessing/ShellInputPreparation.cs:11,27: percorso shell distinto, con otto componenti, spessore e strati. Preparazione Ready non implica motore resistente disponibile.
+- Model/PostProcessing/CheckSummary.cs:99: ElementCheckReport è una vista per famiglia FEM e id, non un certificato dell'asta fisica.
+- ModelChecker/ModelChecker.cs:23,64,77: job/factory ancora Concrete; il conteggio è campioni per meccanismi. La stabilità richiesta verrebbe oggi schedulata per campione.
+- Model/PostProcessing/ModelRevisions.cs:72: LogicalMember non entra nell'impronta di verifica. Cambiarne l'etichetta non modifica un controllo sezionale corrente; non può essere usata come identità strutturale senza un nuovo controllo delle revisioni.
+- Checker/GPCChecker.Concrete/Checkers/BeamChecker.cs: esiste la base astratta; Attributes/BeamCheckerAttribute.cs raccoglie array di sezioni/azioni. Checkers/BeamCheckerModelCode2010.cs:16 è commentato. Riattivarlo non risolverebbe da solo gli input dell'asta e gli stati.
+- Checker/GPCChecker.Steel/Checkers/BeamChecker.cs:29,69,89: le lunghezze native dipendono da BeamElement.Length moltiplicata per fattori. L'adattatore futuro dovrà distinguere la lunghezza FEM da quella richiesta dal metodo; vietato passare implicitamente la lunghezza della maglia.
+
+2. ALTERNATIVE
+
+A — Un verificatore per ogni BeamElement/AreaElement, senza altra identità
+    Vantaggio: estensione minima del flusso attuale, adatta ai controlli locali.
+    Limite: l'identità e le lunghezze dipendono dalla discretizzazione FEM; non rappresenta una verifica che attraversa più elementi.
+    Uso: conservare come modalità per verifiche locali, senza promuoverla a controllo globale.
+
+B — Usare Group o LogicalMember come asta/regione
+    Vantaggio: selezione già disponibile e importazione semplice.
+    Limite: mancano ordine, verso, continuità, confini e vincoli; gruppi sovrapposti o misti non hanno un significato strutturale univoco.
+    Uso: suggerimento di appartenenza e selezione, non input resistente autorevole.
+
+C — Definizioni fisiche esplicite sopra il modello FEM, con preparazione per ambito [RACCOMANDATA]
+    Vantaggio: solutori riutilizzati, indipendenza dalla maglia, condizioni e copertura tracciabili; i controlli locali rimangono utilizzabili da soli.
+    Costo: definizioni di asta, piano delle verifiche e localizzazioni nei resoconti da aggiungere in modo compatibile.
+    Limite iniziale dichiarato: aste rette costituite da elementi beam rettilinei a due nodi, interi e ordinati; capacità ulteriori abilitate solo da preparatori/metodi validati.
+
+3. DATI FISICI E DATI DI VERIFICA
+
+Model conserva definizioni strutturali indipendenti dal motore:
+- PhysicalMemberDefinition [PROPOSTA]: id stabile, nome, lista ordinata di riferimenti agli elementi, verso di percorrenza I->J/J->I, provenienza e revisione;
+- BeamMemberPart [PROPOSTA]: riferimento all'elemento e verso; inizialmente elementi completi. Eventuali intervalli parziali richiederanno una successiva estensione esplicita;
+- coordinate longitudinali fisiche in mm, derivate da una linea/dominio dichiarati. Non sostituire xi locale con un numero senza dominio;
+- geometria e armature restano nelle assegnazioni degli elementi, evitando due fonti concorrenti;
+- LogicalMember rimane un'indicazione importata, utilizzabile per proporre una definizione. Una definizione importata completa può essere accettata dopo validazione; non si aggregano aste soltanto per nome uguale.
+
+MemberDesignContext [PROPOSTA], associato alla richiesta e fotografato nel risultato, conserva:
+- ambito/tratti del metodo, assi, appoggi e ritegni pertinenti, impedimenti traslazionali/rotazionali/torsionali e loro fonte;
+- controventi e posizioni effettive, con disponibilità per fase/stato quando pertinente;
+- lunghezze fisiche, libere e/o efficaci distinte per fenomeno e direzione, con unità, origine e metodo di determinazione;
+- condizioni di applicabilità, eventuali fattori e ipotesi espressamente selezionati.
+
+Un dato ignoto resta ignoto. Non equivale a cerniera, incastro, assenza di controvento o coefficiente unitario. I vincoli FEM sono evidenza da consultare, non una trasformazione universale in lunghezze efficaci.
+Definire un'asta non esegue un nuovo FEM, non aggiunge carichi e non trasforma automaticamente una cerniera interna in continuità resistente.
+
+Le definizioni di asta/regione, da sole, non cambiano il problema FEM; entrano invece nell'identità del piano e delle verifiche che le usano. Una modifica a carichi, nodi, sezioni d'analisi o rigidezze continua a invalidare anche i risultati FEM secondo le regole esistenti.
+
+4. CONTINUITÀ, ASSI, OFFSET E DISCONTINUITÀ
+
+La validazione di una definizione controlla riferimenti esistenti, ordine, verso, elementi duplicati, collegamenti e formulazioni supportate. Rami, cicli o elementi scollegati non vengono ordinati per id o per semplice distanza.
+Una linea a gomiti può essere descritta come geometria, ma un metodo che richiede asta retta deve dichiararla non supportata. Curve, cavi, link e formulazioni di ordine superiore non diventano beam verificabili per effetto dell'aggregazione.
+
+Il verso del percorso fisico non modifica la connettività del Model né invoca ReverseBeam sul modello originale. Si costruisce una mappa di stazioni; le azioni locali sono preparate con le trasformazioni già esistenti. La geometria delle barre non va specchiata durante la normalizzazione.
+Ai nodi tra elementi si conservano entrambi i campioni sorgente, anche se hanno la stessa coordinata globale. Un salto di carico, sezione o armatura richiede i lati pertinenti; uguaglianza numerica non autorizza la loro fusione.
+
+Riutilizzare BeamReferenceGeometry per offset, baricentro e domini. Conservare separati:
+- distanza tra nodi;
+- lunghezza della linea con offset;
+- tratto deformabile, al netto delle zone rigide;
+- lunghezza pertinente alla specifica verifica.
+Nessuna di queste quantità sostituisce implicitamente le altre. Un gap tra linee con offset deve essere spiegato da un collegamento fisico esplicito; non si inventa un tratto aggiuntivo o un trasporto di momenti.
+
+Sezioni variabili: valutare la legge esistente soltanto alle stazioni ammesse. Una legge geometrica lineare non autorizza l'interpolazione di N/V/T/M, né rende costanti le proprietà per la stabilità. Una variazione di armatura o una cerniera resta visibile; eventuali suddivisioni nei tratti di verifica dipendono dal metodo.
+
+5. PIANO DELLE VERIFICHE E COPERTURA
+
+Introdurre CheckWorkItem e CheckPlan [PROPOSTI] come preparazione interna di ModelChecker, prima dell'esecuzione. Ogni attività ha target, ambito, metodo/meccanismo, norma/configurazione, stato, posizioni richieste, dipendenze e impronta.
+
+Ambiti distinti:
+- SectionSample: una sezione e uno stato concomitante;
+- FemElement: più campioni dell'elemento e requisiti del metodo;
+- PhysicalMember/MemberSpan: insieme ordinato di elementi/tratto e stato coerente;
+- ShellSample/FemShell/PhysicalRegion: preparazione separata, algoritmo plate ancora da concordare.
+
+Il numero di attività dipende dall'ambito: un controllo d'asta non si ripete automaticamente una volta per stazione. Nel percorso legacy Required continua a contare i campioni/meccanismi; il nuovo piano usa il numero delle proprie attività, senza reinterpretare gli archivi storici.
+
+Politiche di copertura proposte:
+1. ExportedSamples: comportamento compatibile attuale; esito limitato ai campioni disponibili.
+2. RequiredLocations: lista esplicita di stazioni/lati da risolvere, anche se assenti dai risultati. Un punto mancante genera un'attività Insufficient e resta nel denominatore.
+3. ContinuousWithMethodEvidence: futura capacità di un metodo validato che dimostri la copertura continua. Non è attivata dalla sola interpolazione, dal numero di stazioni o dal controllo degli estremi.
+
+Gli estremi e le discontinuità di sezione/armatura sono candidati alle posizioni obbligatorie; carichi concentrati, salti e ritegni si aggiungono secondo l'ambito del metodo. Se occorre uno stato nel punto non esportato, richiederlo alla sorgente o usare soltanto un procedimento esplicito validato, conservando la derivazione. Nessun campione viene creato con il valore del vicino.
+
+Separare esito e copertura nel resoconto: “soddisfatto sulle stazioni richieste” non certifica ogni punto intermedio. CoverageAssessment [PROPOSTA] registra politica, posizioni richieste/disponibili/mancanti, lati, dominio e limitazioni. IsComplete risolve le attività del piano, non prova da solo sicurezza globale o copertura continua.
+
+6. CONCOMITANZA SULL'INTERA ASTA
+
+Conservare la concomitanza delle sei componenti nella singola sezione e, in più, la coerenza tra sezioni usate dallo stesso metodo globale.
+La chiave di stato deve includere dataset/analisi, caso o combinazione, fase, step, stato concomitante, posizione del carico mobile, modo quando ammissibile e carattere cumulativo.
+Un inviluppo può fornire stati localmente concomitanti ma governanti in passi diversi lungo l'asta: è sufficiente per separati controlli locali, non per comporre un diagramma globale contemporaneo. Anche identificativi testuali uguali richiedono una dichiarazione affidabile del loro significato da parte del converter.
+In mancanza dello stato globale coerente, il controllo d'asta resta non eseguito/Insufficient o NotSupported secondo la capacità; i controlli locali già validi rimangono consultabili. Non costruire N massimo, M massimo e diagramma dai massimi indipendenti.
+
+7. COLLOCAZIONE DEI COMPONENTI E RIUSO
+
+Model/PostProcessing:
+- dati e riferimenti fisici, geometria/mappatura delle stazioni, validazione dei riferimenti, contesti e risultati serializzabili;
+- nessuna formula di verifica normativa e nessuna dipendenza da Checker.
+
+ModelChecker:
+- risolve gruppi, elementi e definizioni fisiche; prepara il piano e gli input;
+- sceglie il motore per materiale, norma, meccanismo, ambito e formulazione;
+- raccoglie copertura, stato, annullamento e risultati, senza implementare formule resistenti.
+
+GPCChecker.Concrete / Steel / CompositeBridge:
+- coordinamento delle verifiche dell'elemento/asta specifiche del materiale;
+- riuso dei solver locali e gestione dei metodi realmente globali;
+- output nei contratti comuni del passo 2, mantenendo i risultati nativi attraverso adattatori.
+
+IBeamElementVerifier e IPhysicalMemberVerifier [NOMI PROPOSTI] ricevono input diversi e producono CheckResult/CheckReport esistenti. L'interfaccia IConcreteSectionVerifier resta disponibile come componente locale compatibile. Non introdurre un unico Verify(object) con cast tra beam e shell.
+Le capacità devono dichiarare l'ambito, oltre al meccanismo. Un risultato Ready nella preparazione non equivale a capacità del motore.
+Le sezioni c.a. e acciaio devono rimanere payload tipizzati con i tipi esistenti. ISectionShape contiene soltanto geometria e non basta come contratto resistente multimateriale. La generalizzazione dei job/factory del passo 5 deve evitare cast dell'acciaio a ReinforcedConcreteSection.
+
+Per Steel occorre adattare esplicitamente il contesto di lunghezze al metodo nativo. Non creare un BeamElement fittizio lungo quanto l'asta e non alterare le coordinate per ingannare BeamLength. Se il solver nativo non rappresenta il caso, estenderlo con input espliciti e prove al passo 5, oppure dichiarare il caso non supportato.
+CompositeBridge mantiene fasi e risultati propri; non viene ridotto a una sequenza di sezioni c.a. Nessun nuovo quarto progetto comune è necessario.
+
+8. SELEZIONI, GRUPPI E CONFLITTI
+
+Una richiesta può scegliere elementi FEM per verifiche locali e/o id di aste per verifiche globali. La selezione di metà asta mediante gruppo non estende silenziosamente la selezione al resto: servono target completo o diagnostica di ambito incompleto.
+Gruppi sovrapposti deduplicano la medesima attività con identica configurazione; norme differenti restano attività distinte. Due configurazioni conflittuali per lo stesso target/metodo nello stesso ruolo richiedono una regola esplicita, non “vince l'ultimo gruppo”. Il resolver completo resta nel passo 5.
+La cache dei solver sezionali conserva la chiave sezione/configurazione esistente. Cache di asta e piano devono includere composizione, ordine, verso, dominio, stato, condizioni, copertura e configurazione, oltre alle impronte sorgente.
+Una modifica dei controventi invalida i controlli pertinenti dell'asta; non richiede di inventare nuovi risultati FEM se il problema d'analisi non è cambiato. In prima implementazione è accettabile un'invalidazione conservativa del lavoro.
+
+9. RISULTATI COMPATIBILI, SENZA UNA GERARCHIA PARALLELA
+
+Estendere CheckResult con un riferimento al target [PROPOSTA], distinguendo FemElement, PhysicalMember e PhysicalRegion; assenza del nuovo riferimento significa risultato FEM legacy.
+Conservare separatamente posizione/i determinanti e provenienza di tutti i campioni usati. Una verifica globale può avere più punti determinanti, oppure nessun singolo punto privilegiato.
+Non usare il primo ElementId della catena come id dell'asta, né introdurre id FEM fittizi. Per i risultati con target fisico, il riferimento nuovo è autorevole; i vecchi campi FEM sono compatibilità dei risultati locali e non devono essere consultati come identità globale.
+ElementCheckReport resta la vista per elemento FEM; aggiungere viste di asta/regione fondate sul target, usando gli stessi CheckResult. Gli esiti globali si conteggiano una sola volta; le proiezioni sui componenti sono riferimenti di consultazione, non copie di attività.
+I governanti continuano a essere separati per norma, configurazione, metodo e definizione dell'indice; aggiungere l'ambito alla chiave di confronto. L'archiviazione conserva piano/target/copertura e contesto immutabile, senza solver vivi.
+I nuovi contratti strutturali richiedono versione di schema appropriata, lettura dei record precedenti e rigetto esplicito di versioni future. Non trattare un risultato globale come un vecchio risultato FEM per mantenere artificialmente la versione 1.
+
+10. REGIONI 2D: SOLO ARCHITETTURA GEOMETRICA PROPOSTA
+
+Una PhysicalRegionDefinition può identificare shell e confini/zone, con provenienza. Un nome di gruppo o ReinforcementZone è un indizio, non una regione verificata.
+Distinguere connettività per bordi, componenti separate, fori, normali, spessori, offset, facce fisiche e strati. Elementi che condividono soltanto un nodo non costituiscono automaticamente una regione valida per il metodo futuro.
+La preparazione mantiene i tensori locali e la provenienza dei punti: integrazione, estrapolazione e medie non sono intercambiabili. Non uniformare le normali cambiando soltanto il segno dei momenti o perdendo le facce fisiche.
+Una regione curva richiede riferimenti locali; non imporre un unico piano se non ammissibile. Nessuna media o riduzione a strisce è implicita nell'appartenenza alla regione.
+Il resoconto può elencare campioni e diagnostiche, ma la scelta fra metodi di membrana/flessione, taglio, regioni e punzonamento resta al confronto del passo 6. Non vengono consolidati qui interfacce resistenti o solver plate.
+
+11. ESEMPIO COMPLETO: ASTA T1 DI 5 m IN DUE ELEMENTI FEM
+
+Geometria fisica proposta:
+    nodo 10, s=0 ---- beam 250 (I=10,J=20) ---- nodo 20, s=2000
+                    ---- beam 251 (I=30,J=20, percorso J->I) ---- nodo 30, s=5000
+    T1 = [250 avanti, 251 indietro]
+
+Fixture riproducibile in ModelChecker.Tests/ElementScopeCharacterizationTest.cs:
+- mensola sintetica con forza trasversale assegnata P=1000 N in sommità, stato LC1;
+- sezioni con stessa armatura asimmetrica, cinque campioni nel beam 250 e tre nel beam 251;
+- CoordinateSystem della sezione fisica preservato; azioni grezze del beam invertito normalizzate dal percorso esistente;
+- due campioni al nodo comune, conservati separatamente. Entrambi, dopo preparazione, hanno V2=1000 N e M1=-3.000.000 Nmm e danno lo stesso indice col solver Concrete reale;
+- otto controlli sezionali, due ElementCheckReport, un solver sezionale riutilizzato. Questo è il comportamento eseguito oggi, non una verifica globale già implementata.
+
+Flusso proposto dopo adozione dell'architettura:
+1. Caricare il Model; definire/importare T1 e validare la sequenza. La lunghezza geometrica è 5000 mm; le lunghezze efficaci rimangono non assegnate.
+2. Richiedere LC1, norma/configurazione, pressoflessione sulle posizioni obbligatorie e un controllo globale d'asta identificato dal suo metodo.
+3. ModelChecker risolve le coordinate fisiche verso elemento/xi/lato, riusando i campioni esatti. I campioni del nodo comune rimangono due se richiesti dalle due sezioni.
+4. Preparare le sei componenti e la sezione corretta. Conservare le impronte e validare lo stesso stato per gli input del controllo globale.
+5. Eseguire gli otto controlli locali con il solver attuale. Se il metodo globale prevede una sola attività sull'intera asta per LC1, aggiungere una sola attività globale: totale nove, non sedici. Più tratti/direzioni/metodi produrranno un numero diverso dichiarato dal piano.
+6. Il motore Concrete globale non disponibile produce NotSupported. Quando sarà implementato, eventuali lunghezze/ritegni mancanti produrranno Insufficient; non si useranno automaticamente 2000, 3000 o 5000 mm come lunghezze efficaci.
+7. Resoconto: otto esiti locali consultabili, controllo globale ancora aperto, Outcome complessivo NotEvaluated. Salvare report e contesto; una modifica della composizione di T1 invalida il piano d'asta.
+
+Variante di copertura: manca la stazione fisica s=1000 mm nel beam 250. Oggi il percorso ExportedSamples conta sette controlli e può essere completo sui sette disponibili. Con RequiredLocations che include s=1000, restano otto attività locali, una Insufficient. Questa differenza è provata nel test e motiva il piano indipendente dai campioni importati.
+Variante di discontinuità: sezioni differenti ai due lati del nodo 20 richiedono due verifiche locali con le rispettive armature; non scegliere la sezione più favorevole e non mediare le azioni.
+Variante di stato: campioni governanti di LC1 in passi diversi non formano un diagramma globale; mantenere i controlli locali e rifiutare la composizione dell'input d'asta.
+
+12. IMPLEMENTAZIONE SUCCESSIVA PROPOSTA
+
+3A — Definizione e validazione 1D: aste rette, riferimenti ordinati, verso, mappa delle stazioni, revisione e persistenza; nessuna nuova formula resistente.
+3B — Piano/copertura e facade beam: sezioni esistenti, posizioni obbligatorie, discontinuità, stati, attività per ambito e resoconti con target esplicito; percorso legacy preservato.
+3C — Contesto globale: input espliciti e placeholder non eseguiti per metodi non disponibili. Collegare i metodi soltanto quando presenti e validati nei progetti Checker.
+4 — Trasferimenti Concrete da Anthea, usando gli stessi contratti locali e i contesti che servono a ciascun metodo.
+5 — Generalizzare il resolver multimateriale e integrare Steel/CompositeBridge sulle capacità effettive.
+6 — Discussione dedicata al metodo plate prima dei contratti resistenti e della relativa implementazione.
+
+Prove di accettazione per 3A/3B, ancora da implementare con quei componenti:
+- variazione della discretizzazione a parità di problema e campioni fisici: invarianti le verifiche locali e il contesto globale;
+- ordine/verso espliciti, catene scollegate/cicliche/ramificate rifiutate;
+- mesh corta senza dati di stabilità: nessuna lunghezza efficace automatica;
+- offset, tratti rigidi, assi e sezione asimmetrica: nessuna doppia rotazione o doppio trasporto;
+- salti di sezione/armatura/carico: entrambi i lati richiesti e risultati distinti;
+- stazione assente, stato incoerente o annullamento: attività conservata senza esito soddisfatto;
+- gruppi parziali/sovrapposti, più normative e cache: ambiti e denominatori corretti;
+- modifica di composizione, ritegni, metodo o copertura: invalidazione del resoconto corrente;
+- archivio precedente letto come FEM; nuovo target fisico ripristinato senza alias su ElementId;
+- shell selezionato: percorso distinto e nessun motore resistente simulato.
+
+13. EVIDENZE E DECISIONE PENDENTE
+
+Eseguiti in questo passo:
+- quattro nuovi test ElementScopeCharacterizationTest: 4/4, con solver Concrete reale e azioni assegnate analiticamente;
+- ModelPhysicalCompletionTest + ModelPreparationWorkflowTest: 17/17, comprendenti offset, domini, sezioni variabili, inversioni e preparazione mista;
+- totale selezioni del passo 3: 21/21. Non sono stati rieseguiti né dichiarati nuovi i test del passo 2.
+TRX in TestResults/CheckerStep3; hash e fonti in CHECKER_PASSO_3_EVIDENZE.json.
+
+Capacità operative invariate rispetto al passo 2: pressoflessione sezionale Concrete e resoconti disponibili; verifica globale Concrete, migrazioni Anthea, adattatori multimateriale e motore plate ancora da completare nei passi previsti. Restano separati i 17 fallimenti Steel storici.
+
+Da discutere: adottare l'alternativa C con definizioni fisiche esplicite, partendo dalle aste rette composte da elementi interi; mantenere i gruppi come selezione e rendere esplicita la copertura richiesta. Questo è il confronto architetturale richiesto dal passo 3 del prompt, prima di fissare nuove API e schema dei target.

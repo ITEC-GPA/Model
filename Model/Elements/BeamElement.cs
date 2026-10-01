@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using System;
 using System.Runtime.Serialization;
@@ -11,6 +11,7 @@ namespace GPC.Model.Elements
     [Serializable]
     public class BeamElement : Element, ISerializable, IEquatable<BeamElement>
     {
+        public GPC.Model.PostProcessing.BeamAssignments Assignments { get; private set; } = new GPC.Model.PostProcessing.BeamAssignments();
         #region Variables
 
         /// <summary>
@@ -29,6 +30,10 @@ namespace GPC.Model.Elements
         /// The rotation of the section around the axis of the beam, in radians
         /// </summary>
         protected double _axisAngleRadians;
+        private NodeElement _nodeI;
+        private NodeElement _nodeJ;
+        public NodeElement NodeI => _nodeI;
+        public NodeElement NodeJ => _nodeJ;
 
         #endregion
 
@@ -37,12 +42,12 @@ namespace GPC.Model.Elements
         /// <summary>
         /// The start point
         /// </summary>
-        public Point3d StartPoint { get => _startNode; set => _startNode = value; }
+        public Point3d StartPoint { get => _nodeI is null ? _startNode : _nodeI.Position; set { if (_nodeI is null) _startNode = value; else _nodeI.Position = value; } }
 
         /// <summary>
         /// The end point
         /// </summary>
-        public Point3d EndPoint { get => _endNode; set => _endNode = value; }
+        public Point3d EndPoint { get => _nodeJ is null ? _endNode : _nodeJ.Position; set { if (_nodeJ is null) _endNode = value; else _nodeJ.Position = value; } }
 
         /// <summary>
         /// A new segment from the start to the end point
@@ -55,9 +60,9 @@ namespace GPC.Model.Elements
         public BeamProperty BeamProperty { get => _beamProperty; set => _beamProperty = value; }
 
         /// <summary>
-        /// The rotation of the section around the axis of the beam, in radians (not serialized)
+        /// The legacy scalar rotation in radians; SectionAxes carries the authoritative full section orientation.
         /// </summary>
-        public double RotationAroundFirstAxis { get => _axisAngleRadians; set => _axisAngleRadians = value; }
+        public double RotationAroundFirstAxis { get => _axisAngleRadians; set => _axisAngleRadians = NumericGuard.Finite(value, nameof(value)); }
 
         /// <summary>
         /// The length of the beam
@@ -67,6 +72,18 @@ namespace GPC.Model.Elements
         #endregion
 
         #region Constructor
+
+        /// <summary>Connects existing registry nodes explicitly. No coordinate matching is performed.</summary>
+        public void ConnectNodes(NodeElement nodeI, NodeElement nodeJ)
+        {
+            if (nodeI is null) throw new ArgumentNullException(nameof(nodeI));
+            if (nodeJ is null) throw new ArgumentNullException(nameof(nodeJ));
+            if (ReferenceEquals(nodeI, nodeJ)) throw new ArgumentException("Two distinct nodes are required.");
+            _nodeI = nodeI;
+            _nodeJ = nodeJ;
+            _startNode = null;
+            _endNode = null;
+        }
 
         /// <summary>
         /// Creates a beam (the point instances are kept)
@@ -93,11 +110,15 @@ namespace GPC.Model.Elements
         protected BeamElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            Assignments = SerializationFields.Read(info, "BeamAssignments", new GPC.Model.PostProcessing.BeamAssignments());
             int version = info.GetInt32("BeamVersion");
 
             _startNode = (Point3d)info.GetValue("StartNode", typeof(Point3d));
             _endNode = (Point3d)info.GetValue("EndNode", typeof(Point3d));
             _beamProperty = (BeamProperty)info.GetValue("BeamProperty", typeof(BeamProperty));
+            RotationAroundFirstAxis = SerializationFields.Read<double>(info, "AxisAngleRadians");
+            _nodeI = SerializationFields.Read<NodeElement>(info, "NodeI");
+            _nodeJ = SerializationFields.Read<NodeElement>(info, "NodeJ");
         }
 
         #endregion
@@ -109,23 +130,20 @@ namespace GPC.Model.Elements
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>True if <paramref name="obj"/> is an equal beam</returns>
-        /// <remarks>It calls this same method (the implementation of the interface is explicit): infinite recursion (see the list of the defects found)</remarks>
+        /// <remarks>Geometry and section changes do not change FEM identity.</remarks>
         public override bool Equals(object obj)
         {
-            return Equals(obj as BeamElement);
+            return obj is BeamElement && base.Equals(obj);
         }
 
         /// <summary>
-        /// Equality of the points and of the sections
+        /// Equality of FEM identities.
         /// </summary>
         /// <param name="other">The beam to compare</param>
-        /// <returns>True if the beams have the same points and section</returns>
+        /// <returns>True if the beams have the same identity.</returns>
         bool IEquatable<BeamElement>.Equals(BeamElement other)
         {
-            return !(other is null) &&
-                _startNode.Equals(other._startNode) &&
-                _endNode.Equals(other._endNode) &&
-                _beamProperty == other.BeamProperty;
+            return Equals((object)other);
         }
 
         /// <summary>
@@ -136,12 +154,16 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("BeamAssignments", Assignments);
 
-            double version = 0;
+            double version = 1;
             info.AddValue("BeamVersion", version);
             info.AddValue("EndNode", _endNode);
             info.AddValue("StartNode", _startNode);
             info.AddValue("BeamProperty", _beamProperty);
+            info.AddValue("AxisAngleRadians", _axisAngleRadians);
+            info.AddValue("NodeI", _nodeI);
+            info.AddValue("NodeJ", _nodeJ);
         }
 
         /// <summary>
@@ -152,12 +174,7 @@ namespace GPC.Model.Elements
         {
             unchecked
             {
-                int hashCode = 23;
-                hashCode = hashCode * -17 + base.GetHashCode();
-                hashCode = hashCode * -17 + _endNode.GetHashCode();
-                hashCode = hashCode * -17 + _startNode.GetHashCode();
-                hashCode = hashCode * -17 + _beamProperty.GetHashCode();
-                return hashCode;
+                return base.GetHashCode();
             }
         }
 

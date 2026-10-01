@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ namespace GPC.Model.Restrains
     /// <summary>
     /// Restrains of the degrees of freedom of a geometry (node, line), in a coordinate system
     /// </summary>
+    [Serializable]
     public abstract class GeometryRestrain : Attributes.Attribute
     {
         /// <summary>
@@ -100,15 +101,15 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// Deserialization constructor (not implemented)
+        /// Deserialization constructor
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         protected GeometryRestrain(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            throw new NotImplementedException();
+            _coordinateSystem = (CoordinateSystem)info.GetValue("RestrainCoordinateSystem", typeof(CoordinateSystem));
+            _restrains = (List<DofRestrain>)info.GetValue("Restrains", typeof(List<DofRestrain>));
         }
 
         #endregion
@@ -196,8 +197,7 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// The stiffnesses of the degrees of freedom, summed by degree of freedom (a DOF not yet in the dictionary throws
-        /// <see cref="KeyNotFoundException"/>: it always throws if a stiffness is not zero)
+        /// The stiffnesses of the degrees of freedom, summed by degree of freedom.
         /// </summary>
         /// <returns>Dictionary of each DOF where <see cref="DofRestrain.Stiffness"/> is != 0</returns>
         public Dictionary<DOF, double> GetStiffnesses()
@@ -208,7 +208,8 @@ namespace GPC.Model.Restrains
             {
                 if (_restrains[i].Stiffness != 0)
                 {
-                    kvp[_restrains[i].Dof] += _restrains[i].Stiffness;
+                    kvp.TryGetValue(_restrains[i].Dof, out double previous);
+                    kvp[_restrains[i].Dof] = previous + _restrains[i].Stiffness;
                 }
             }
 
@@ -216,19 +217,19 @@ namespace GPC.Model.Restrains
         }
 
         /// <summary>
-        /// The imposed displacements of the degrees of freedom, summed by degree of freedom (a DOF not yet in the dictionary throws
-        /// <see cref="KeyNotFoundException"/>: it always throws if a displacement is not zero)
+        /// Legacy aggregate view of prescribed displacements. Validate conflicting assignments before use.
         /// </summary>
-        /// <returns>Dictionary of each DOF where <see cref="DofRestrain.ImposedDisplacement"/> is != 0</returns>
+        /// <returns>Dictionary of prescribed DOFs, including explicitly prescribed zero.</returns>
         public Dictionary<DOF, double> GetImposedDisplacement()
         {
             Dictionary<DOF, double> kvp = new Dictionary<DOF, double>();
 
             for (int i = 0; i < _restrains.Count; i++)
             {
-                if (_restrains[i].ImposedDisplacement != 0)
+                if (_restrains[i].HasImposedDisplacement)
                 {
-                    kvp[_restrains[i].Dof] += _restrains[i].ImposedDisplacement;
+                    kvp.TryGetValue(_restrains[i].Dof, out double previous);
+                    kvp[_restrains[i].Dof] = previous + _restrains[i].ImposedDisplacement;
                 }
             }
 
@@ -273,15 +274,15 @@ namespace GPC.Model.Restrains
         #region Equals, HasCode and operators
 
         /// <summary>
-        /// Serialization (not implemented)
+        /// Serialization
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
-        /// <exception cref="NotImplementedException">Always</exception>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            throw new NotImplementedException();
+            info.AddValue("RestrainCoordinateSystem", _coordinateSystem);
+            info.AddValue("Restrains", _restrains);
         }
 
         /// <summary>

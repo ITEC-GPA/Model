@@ -1,0 +1,118 @@
+CHECKER — PASSO 3: IMPLEMENTAZIONE 3A / 3B / 3C
+Data: 30 settembre 2026
+Autorizzazione: richiesta esplicita dell'utente «implementa il passo 3», successiva alla proposta in CHECKER_PASSO_3.txt.
+
+STATO E PERIMETRO
+
+Implementata la prima versione operativa del percorso ad asta fisica: definizioni esplicite sopra il FEM, piano delle attività, riuso del solver sezionale, resoconti e contesto dei futuri controlli globali. Supportate aste rette costituite da una catena ordinata di elementi interi StraightTwoNode, con verso dichiarato per ciascun elemento.
+
+Non è stato introdotto un algoritmo di stabilità d'asta. Non sono state cambiate formule normative. Concrete, Steel e CompositeBridge restano progetti distinti; vetro escluso. Model conserva contratti e preparazione senza dipendenza da Checker; ModelChecker orchestra i motori. I converter restano nel progetto GPC Converter. Framework pubblici netstandard2.0 invariati.
+
+3A — DEFINIZIONI, GEOMETRIA, REVISIONI
+
+- Model.PhysicalMembers contiene PhysicalMemberDefinition con Id, nome/provenienza, dominio e BeamMemberPart ordinati (BeamId, AlongIJ).
+- LogicalMember e gruppi rimangono etichette/selezioni: non creano automaticamente un'asta né completano una selezione parziale.
+- PhysicalMemberGeometry valida elementi, nodi condivisi, ordine, verso, assenza di cicli, rettilineità e continuità della linea di riferimento. Rifiuta elementi mancanti, formulazioni non supportate e vuoti irrisolti fra estremi con offset. Non inferisce l'ordine dalla mesh.
+- Locate(s, lato) mappa una distanza fisica in mm verso elemento/xi/dominio/lato. Al nodo comune, Unspecified conserva entrambe le sezioni FEM; Left/Right seleziona il lato rispetto al verso dell'asta. MemberLocation.Side è espresso nel verso locale del FEM sorgente.
+- FromElement conserva la posizione sorgente e ricava la distanza fisica. Non inverte il modello e non ruota nuovamente le forze. La normalizzazione di faccia, assi e punto di riduzione continua a usare Verification.PrepareBeam, ResultOrientation e BeamReferenceGeometry.
+- Assi rappresentati con GPC.Geometry.CoordinateSystem. Le azioni degli input locali restano negli assi effettivi della rispettiva sezione, conservati nello snapshot: non presumere che tutti i campioni siano già espressi negli assi dell'asta.
+- Il percorso fisico può essere NodeToNode oppure OffsetToOffset; conserva le zone rigide. La lunghezza deformabile è disponibile separatamente. Nessuna di queste lunghezze diventa automaticamente una lunghezza efficace.
+- Una modifica della definizione invalida il piano/report che la usa senza invalidare da sola l'analisi FEM. Geometria, sezioni, armature, dati, metadati del dataset, gruppi selezionati e parametri del piano sono controllati dalle impronte.
+
+3B — PIANO, COPERTURA E MODEL CHECKER
+
+- ModelCheckJob usa esattamente uno fra Preparation (percorso esistente) e BeamPlan (nuovo percorso). I due tipi di job possono convivere nella stessa richiesta.
+- BeamCheckPlan.Prepare produce attività ispezionabili prima dell'esecuzione: SectionSample per posizione/stato/meccanismo oppure PhysicalMember per asta/tratto/stato/metodo. WorkItems.Count è il denominatore delle verifiche richieste.
+- ExportedSamples verifica i campioni disponibili e mantiene una riga mancante quando manca l'intero stato di un elemento. Non certifica stazioni che il software non ha esportato.
+- RequiredLocations usa posizioni fisiche sull'asta oppure posizioni FEM esplicite. Una posizione mancante rimane richiesta e produce Insufficient; non viene interpolata. Occorre almeno una posizione per ogni FEM selezionato quando si richiedono controlli locali.
+- Al nodo comune restano i due input con sezioni/armature e lati propri. Campioni sorgente ambigui non vengono scelti arbitrariamente: il controllo resta non eseguibile. Selettori e attività identici sono deduplicati.
+- Una selezione parziale di gruppo non attiva implicitamente un controllo globale. Un controllo globale richiede il MemberId esplicito. Aste sovrapposte nello stesso job sono rifiutate; eventuali definizioni alternative richiedono job distinti.
+- Il percorso beam rifiuta selezioni shell. La preparazione shell precedente resta disponibile attraverso Preparation; il relativo motore resistente resta non disponibile.
+- ModelChecker riusa ConcreteSectionVerifier per configurazione e i checker sezionali per sezione. CreatedCheckers conta i checker Concrete effettivamente creati, non il numero delle attività né eventuali motori globali personalizzati.
+- Annullamento e errori mantengono tutti gli esiti richiesti. Cambiamenti degli input durante l'esecuzione impediscono di presentare il piano come completato con successo.
+- CoverageAssessment separa disponibilità delle posizioni e numero delle attività. ContinuousCoverage è sempre false: non è stata implementata la ricerca continua dei massimi.
+
+3C — CONTESTO DEI CONTROLLI GLOBALI
+
+- MemberCheckSpecification identifica asta, tratto Start/End in mm, MethodId, meccanismo e MemberDesignContext.
+- Il contesto registra ritegni con CoordinateSystem e sei flag nullable (traslazioni V1/V2/V3, poi rotazioni), provenienza/fase, lunghezze efficaci facoltative per i due assi, lunghezza per instabilità latero-torsionale, fonte e ipotesi.
+- null significa dato ignoto. Nessuna sostituzione automatica con lunghezza FEM, lunghezza dell'asta o condizione libero/incastrato. I flag non rappresentano rigidezze elastiche.
+- GlobalStateConfirmed è una dichiarazione esplicita sulla validità globale del diagramma. Servono inoltre un selettore con ConcomitantState, campioni coerenti dello stesso stato, dati per ogni componente del tratto e campioni agli estremi del tratto. Questo controllo è necessario ma non dimostra da solo l'adeguatezza al metodo resistente.
+- MemberInputSnapshot conserva definizione, contesto, assi, lunghezze, tratto, posizioni e impronte/azioni preparate di ogni campione. PhysicalMemberCheckInput espone anche gli input sezionali reali. Il metodo globale dovrà usare le posizioni e i sistemi di riferimento dichiarati, senza trattare l'ordine dei risultati importati come un diagramma implicitamente ordinato.
+- IPhysicalMemberVerifier è il contratto opzionale: Supports, versione/configurazione, norma e Verify. La factory aggiuntiva di ModelChecker permette di collegare un motore realmente disponibile.
+- Senza tale motore, o se il metodo non è supportato, l'attività è NotSupported e NotEvaluated. Con motore disponibile ma input comuni incompleti, non viene invocata. Il futuro metodo deve validare i propri ulteriori requisiti (lunghezze, ritegni, imperfezioni, condizioni normative, ecc.) prima di dichiarare un risultato.
+- Norma/configurazione del controllo globale provengono dal motore globale; non sono dedotte dal motore sezionale eventualmente presente nello stesso job. Differenze di norma, configurazione, metodo o metrica separano i risultati governanti.
+
+RESOCONTI, ARCHIVI E USO CORRENTE
+
+- CheckResult schema 2 aggiunge Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput e CoverageAssessment. Il target fisico non è associato fittiziamente al primo elemento della catena.
+- Per i risultati globali leggere Target.MemberId: Target.BeamId è null. Il campo legacy ElementId, non nullable, vale il default e non identifica un elemento. Le viste Elements escludono questi risultati; Members riunisce gli esiti locali associati e quelli globali.
+- Lo schema 1 mantiene il digest preesistente; i nuovi dati entrano nel digest solo dallo schema 2. Modifiche ai risultati, alla copertura o alle righe richieste non diventano successi impliciti.
+- CheckReportArchive e ModelArchive scrivono versione 2 quando presenti dati d'asta/nuovi report; leggono versioni 1 e 2. Il payload d'asta spacciato per versione 1 e versioni future sconosciute sono rifiutati. I modelli privi dei nuovi dati continuano a usare la versione 1.
+- Gli esiti memorizzati sono storici. Usare CurrentOutcome per presentarli come correnti. Il sovraccarico con piano corrente confronta anche le scelte del job (contesto, copertura, posizioni), che non appartengono a Model:
+  report.CurrentOutcome(model, sectionVerifierForJob, memberVerifierForJob, currentPlanForJob).
+  Senza currentPlanForJob, il confronto riguarda il piano archiviato e il Model corrente; una diversa richiesta esterna non può essere rilevata automaticamente.
+- Gli archivi standalone contengono snapshot e impronte, non il solutore né una copia completa di tutte le sezioni del Model. Per rieseguire servono Model e motori compatibili.
+
+ESEMPIO DI UTILIZZO (MODEL GIA' IMPORTATO E COMPLETATO)
+
+using System.Linq;
+using GPC.Model.PostProcessing;
+using GPC.Model.Checker;
+
+model.PhysicalMembers.Add("T1", new PhysicalMemberDefinition("T1",
+    new[] { new BeamMemberPart(250, true), new BeamMemberPart(251, false) },
+    "NodeToNode", source: "Definizione esplicita del progettista"));
+
+var planRequest = new BeamCheckPlanRequest {
+    MemberIds = new[] { "T1" },
+    Results = new[] { new ResultSelection {
+        Dataset = "synthetic-member", Case = "LC1", ConcomitantState = "LC1" } },
+    CoveragePolicy = BeamCoveragePolicy.RequiredLocations,
+    Locations = new[] { 0d, 500, 1000, 1500, 2000, 3500, 5000 }
+        .Select(s => new RequiredBeamLocation { MemberId = "T1", Distance = s }).ToArray(),
+    MemberChecks = new[] { new MemberCheckSpecification {
+        MemberId = "T1", MethodId = "metodo-globale-da-collegare",
+        Context = new MemberDesignContext(globalStateConfirmed: true) } }
+};
+var request = new ModelCheckRequest();
+request.Jobs.Add(new ModelCheckJob {
+    Name = "T1 NTC2018", BeamPlan = planRequest,
+    Options = new ConcreteVerificationOptions {
+        Standard = new GPC.Model.Standards.StandardNTC2018Concrete(),
+        Criterion = GPC.Checkers.Concrete.SectionSolvers.SectionSolver
+            .FailureAnalysisTypes.ConstantEccentricity }
+});
+var plan = BeamCheckPlan.Prepare(model, planRequest); // Ispezione delle attività.
+var report = new GPC.Model.Checker.ModelChecker().Verify(model, request);
+
+Nella fixture eseguibile PhysicalMemberWorkflowTest: asta di 5000 mm, beam 250 di 2000 mm, beam 251 di 3000 mm orientato al contrario, armatura asimmetrica. Sette distanze richieste diventano otto sezioni perché il nodo comune conserva due sezioni. Il piano conta 8 controlli locali + 1 globale, totale 9. Concrete esegue gli 8 locali; il globale non collegato resta NotSupported e il totale NotEvaluated. Eliminando il campione a s=1000 mm restano otto controlli locali richiesti, di cui sette eseguiti.
+
+MATRICE DELLE CAPACITA' DOPO IL PASSO 3
+
+Definizione/mappa asta retta intera                   Implementata, 3A
+Piano locali/globali, stazioni obbligatorie           Implementato, 3B
+Resoconti FEM/asta, target, schema 2, invalidazione    Implementati, 3B
+Contesto ritegni/lunghezze e interfaccia globale      Predisposti, 3C
+Pressoflessione sezionale Concrete multinormativa    Motore esistente riutilizzato
+Stabilita'/verifiche globali Concrete                Motore ancora da implementare/validare
+Taglio, torsione, SLE e altri trasferimenti Anthea    Passo 4, non completati da questo intervento
+Resolver/adattatori Steel e CompositeBridge          Passo 5
+Metodo resistente plate/regione fisica 2D            Passo 6, confronto dedicato ancora necessario
+Copertura continua, aste curve/ramificate/parziali   Non implementate
+UI                                                  Non avviata
+
+VALIDAZIONE ED EVIDENZE
+
+- ModelChecker.Tests completo: 37/37, zero ignorati. Include 20 nuovi PhysicalMemberWorkflowTest, 4 ElementScopeCharacterizationTest e 13 test precedenti.
+- UnitTest selezionati: 68/68, zero ignorati. Classi: CheckReportContractsTest, AssignmentWorkflowTest, MixedWorkflowTest, ModelPhysicalCompletionTest, ModelPreparationWorkflowTest, LegacyModelRegressionTest, GroupWorkflowTest, ResultTransformationWorkflowTest.
+- Totale delle due esecuzioni finali disgiunte: 105/105. Non sommare i run intermedi sovrapposti. I test del repository Checker/Anthea/Steel non sono stati rieseguiti in questo intervento.
+- Prove nuove: 8+1 attività, nodo comune e armature differenti, verso invertito, offset/rigidi, ridiscretizzazione alle stesse posizioni fisiche, stazione mancante/ambigua/non mappabile, gruppo parziale, annullamento, revisione della definizione/dataset/contesto, modifiche durante il calcolo, norma globale, archivi e rifiuto del downgrade, convivenza con i job legacy.
+- I controlli locali usano Concrete reale. MemberEngine è una fixture del solo protocollo: non valida alcun algoritmo strutturale globale e non viene distribuita nel prodotto.
+- Build e test Release con dipendenze locali e --no-restore. Rimane il warning preesistente MSB3270 del riferimento GMsh.Net (AMD64 contro MSIL); nessuna modifica delle architetture in questo passo.
+- TRX finali: TestResults/CheckerStep3Implementation/step3-integration-final.trx e step3-model-regression.trx. Hash dei sorgenti, dipendenze e TRX in CHECKER_PASSO_3_IMPLEMENTAZIONE_EVIDENZE.json.
+- Le impronte del piano sono conservative e possono invalidare per cambiamenti più ampi del singolo controllo. Non è stata eseguita una campagna prestazionale su grandi modelli; l'ottimizzazione del ricalcolo delle impronte non fa parte di questo passo.
+
+PROSSIMO PASSO
+
+Passo 4: completare il cls trasferendo da ANTHEA/X.Calculations i metodi inventariati nel passo 1, con confronto delle implementazioni, benchmark e matrice multinormativa. Non dichiarare completato il cls né la verifica globale d'asta in base alla sola infrastruttura qui consegnata. I 17 fallimenti Steel della baseline rimangono separati. Prima del metodo plate resta necessario il confronto del passo 6.

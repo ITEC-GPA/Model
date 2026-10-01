@@ -1,0 +1,160 @@
+PROMPT OPERATIVO — PASSO 4: COMPLETAMENTO CLS E MIGRAZIONE DA ANTHEA
+Preparato il 30 settembre 2026.
+
+Questo documento descrive il lavoro futuro richiesto. La sua redazione non avvia l'implementazione, non programma attività automatiche e non dichiara nuove capacità disponibili. Quando l'utente richiederà di eseguirlo, parti da 4A e procedi nell'ordine indicato, aggiornandolo al termine di ogni sottofase. Non richiedere nuovamente l'approvazione delle attività già autorizzate; chiedi soltanto dati o decisioni realmente mancanti e continua il lavoro indipendente.
+
+RUOLO, OBIETTIVO E PUNTO DI PARTENZA
+
+Agisci come sviluppatore senior C#/.NET con esperienza in software di calcolo strutturale. Completa il perimetro delle verifiche del calcestruzzo effettivamente censite, trasferendo i nuclei applicativi da Anthea a GPCChecker.Concrete e collegandoli al flusso Model -> ModelChecker -> Checker -> risultati/resoconti. Completo significa disponibile e validato per gli abbinamenti dichiarati di meccanismo, norma, geometria e armatura; non significa copertura universale del c.a./c.a.p.
+
+Repository:
+- Model: C:\Users\g.pacini\Documents\Repository\Model
+- Checker: C:\Users\g.pacini\Documents\Repository\Checker
+- Anthea: C:\Users\g.pacini\Documents\Repository\ANTHEA
+- Sorgenti da esaminare: ANTHEA/X.Calculations.
+
+Leggi le istruzioni applicabili ai repository e preserva tutte le modifiche presenti. In Anthea rispetta AGENTS.md, inclusi collocazione dei test/artefatti e requisiti per la documentazione prodotta in quel repository. Verifica i permessi prima di scrivere nei repository fratelli. Non cambiare target framework, non aggiornare indiscriminatamente pacchetti e non creare nuovi progetti per materiale o un quarto progetto comune.
+
+Prima di lavorare leggi, nel repository Model:
+- CHECKER_PASSO_1.txt e CHECKER_PASSO_1_EVIDENZE.json: inventario e origini A01-A10;
+- CHECKER_PASSO_2.txt e CHECKER_PASSO_2_EVIDENZE.json: risultati, resoconti e correzione async Concrete;
+- CHECKER_PASSO_3_IMPLEMENTAZIONE.txt e CHECKER_PASSO_3_IMPLEMENTAZIONE_EVIDENZE.json: stato operativo corrente;
+- PROMPT_SVILUPPO_CHECKER.txt: vincoli generali e registro storico.
+
+I passi 1, 2 e 3 sono stati eseguiti. Non ricominciare dalla proposta storica del passo 3 e non reinterpretarla come approvazione ancora pendente. Sono operativi PhysicalMembers, BeamCheckPlan, stazioni obbligatorie, risultati schema 2 e IPhysicalMemberVerifier. Il collegamento ConcreteSectionVerifier espone ancora soltanto UlsBiaxialSection. ShearCheckDetails, TorsionCheckDetails e ServiceabilityCheckDetails sono contratti di output, non prova dell'esistenza dei relativi motori collegati.
+
+Baseline storica, da non presentare come nuovo test eseguito:
+- passo 3: ModelChecker 37/37 e selezione Model 68/68;
+- passo 2: ConcreteControlTests 45/45 dopo correzione dell'overload async collettivo;
+- passo 1: CompositeBridge 254/254; Steel 17 fallimenti preesistenti su 94 test;
+- Anthea: 434 asserzioni ConcreteCode.Checks e 78 del modulo c.a., con dipendenze distribuite identificate nelle evidenze, non necessariamente le DLL ricompilate oggi.
+
+ARCHITETTURA DA MANTENERE
+
+1. Model contiene dati strutturali, contesti e contratti condivisi; non dipende da Checker. Aggiungi solo i dati strutturali/input di verifica effettivamente mancanti, tipizzati e con provenienza.
+2. GPCChecker.Concrete contiene algoritmi, requisiti del metodo e risultati numerici specifici. Riusa i solver e le classi Standard già disponibili. Separa calcolo meccanico, politiche normative e adattamento dei dati.
+3. ModelChecker prepara e seleziona input/metodi, istanzia e riusa i motori, mappa gli output nei resoconti e mantiene tutte le attività richieste. Le formule resistenti non devono essere implementate qui.
+4. Anthea resta il riferimento legacy durante la migrazione. Non cancellare i sorgenti originali e non sostituire automaticamente i chiamanti dell'applicazione. Il nuovo Checker non deve referenziare X.Calculations, X.Core, WPF, JsonObject del foglio o i generatori di documenti.
+5. GPC Converter rimane separato. Steel, CompositeBridge, vetro e UI non fanno parte dell'implementazione di questo passo. Non duplicare calcoli già migrati in CompositeBridge.
+
+Mantieni l'approccio multinormativa per singolo meccanismo: norma, edizione, appendice, coefficienti effettivi, override, ipotesi e metodo fanno parte di configurazione, impronta, cache e risultato. Una classe Standard non abilita automaticamente tutte le verifiche della norma. Non effettuare fallback silenziosi verso NTC o verso un annesso diverso.
+
+Nei nuclei Anthea esaminati ricorrono kN/kNm, mm e MPa; il percorso Model usa N/Nmm/mm. Censisci ogni firma, rendi esplicite le conversioni e adotta unità coerenti con Model nei nuovi contratti. Confronta le fixture legacy dopo conversione; non copiare fattori 1000/1e6 senza analizzarne il significato. Per curvature e tensioni dichiara sempre le unità. Conserva segni e sei componenti concomitanti. Usa soltanto GPC.Geometry.CoordinateSystem; non eseguire una seconda rotazione o un secondo trasporto delle azioni già preparate.
+
+SEQUENZA DI IMPLEMENTAZIONE
+
+4A — PERIMETRO, REQUISITI TIPIZZATI E CASI CONGELATI
+
+- Aggiorna l'inventario solo per differenze rilevanti rispetto al passo 1. Produci una matrice per meccanismo/norma-edizione/geometria/armatura/livello, con input obbligatori, origine del calcolo, test e stato: disponibile, da collegare, da trasferire, parziale, non supportato.
+- Parti dal c.a. ordinario per i trasferimenti che oggi lo richiedono. Registra separatamente ACI già presente nel solver, precompressione, FRC, stabilità e altri ambiti specialistici. La migrazione dei profili NTC/MC2010/EC2 non deve abilitarli implicitamente. I nomi e le edizioni riportati in Anthea descrivono il codice legacy e devono essere verificati, non assunti come attestazione normativa.
+- Acquisisci input/output legacy prima di modificare ogni famiglia. Conserva metadati, unità, tolleranze, commit/hash di sorgenti e DLL. Riprendi i casi di ANTHEA/supporto/test/ConcreteCode.Checks e X.Verifiche/ConcreteModuleChecks.cs, ConcreteEnhancementChecks.cs e ConcreteBenchmark.cs dove pertinenti.
+- Riusa reference.json e reference.py di ConcreteCode.Checks come materiale di confronto: lo script usa una revisione dichiarata di fib StructuralCodes. Verifica provenienza, ambito e indipendenza dei casi; non generare gli attesi usando il nuovo C# che il test deve verificare. Non rigenerare silenziosamente i riferimenti per eliminare differenze.
+- Definisci input immutabili per norma, metodo, geometria resistente, armatura trasversale/longitudinale pertinente, dati SLE, esposizione/durata e conferme costruttive. Distingui assenza dell'armatura, dato ignoto e parametro non pertinente. Non basta avere barre longitudinali per ricavare staffe, ancoraggi o lunghezze disponibili.
+- Mantieni nella sezione/assegnazione Model i dati fisici riutilizzabili; nei parametri della verifica le scelte di metodo e le conferme del progettista. Definisci la precedenza fra assegnazioni e override del job; conflitti non risolti devono essere diagnosticati.
+- Risolvi prima dell'integrazione la cardinalità del piano: oggi CheckMechanism.Shear e Serviceability da soli non identificano direzione, sottocontrollo e categoria di combinazione. Estendi compatibilmente le specifiche locali con discriminatori tipizzati di metodo/direzione/sottocontrollo/categoria, inclusi in Id, snapshot, impronta e persistenza. Conserva SectionMechanisms legacy con la sua semantica. Non collassare due direzioni o più verifiche SLE nella stessa attività per effetto della deduplicazione.
+- Definisci l'associazione esplicita fra selezione dei risultati e categoria SLU/SLE caratteristica/frequente/quasi permanente richiesta. Non dedurre la categoria dal nome del caso; non ricostruire componenti da inviluppi indipendenti.
+- Usa i contratti del passo 2, estendendoli in modo compatibile dove necessario. I nomi di eventuali nuove classi vanno scelti dopo la lettura dei tipi esistenti, evitando gerarchie concorrenti e dizionari di stringhe come API strutturale.
+
+Consegna 4A: matrice aggiornata, primo insieme di fixture riproducibili e contratti minimi con test di identità/copertura/persistenza. Se manca un parametro specialistico, mantieni esplicito il requisito e continua le famiglie indipendenti.
+
+4B — TENSIONI E VERIFICHE SLE: COLLEGARE IL SOLVER ESISTENTE
+
+Fonti: Checker/GPCChecker.Concrete/Results/ResultType/StressAnalysisResult.cs e Checkers/SectionChecker.cs; Anthea/X.Calculations/CheckerSection.cs, ConcreteAnalysisSession.cs, SleCheckScope e relativi adattatori.
+
+- Riusa analisi lineare/non lineare e controlli tensionali realmente disponibili; non riscrivere il solver. Preserva la correzione async del passo 2 e i suoi test.
+- Separa risposta tensionale da verifica: una distribuzione di tensioni calcolata non è da sola un esito normativo soddisfatto.
+- Collega categorie SLE e limiti applicabili al profilo normativo. Restituisci tensioni/deformazioni cls e armature, punti determinanti, limite, rapporto quando definito, convergenza e metodo.
+- La mancata convergenza, uno stato fuori dominio o un limite normativo non disponibile devono rimanere visibili. Nessun valore predefinito deve trasformarli in successo.
+- Salva dati autonomi dal solver usando ServiceabilityCheckDetails e snapshot. Evita persistenza del solver vivo, raster o griglie pensate esclusivamente per la UI.
+
+Consegna 4B: percorso Model -> ModelChecker -> Concrete -> resoconto SLE, con test sul motore reale e confronto Anthea per i profili supportati. Questo percorso fornisce lo stato tensionale richiesto dalla fessurazione.
+
+4C — TAGLIO NELLE DUE DIREZIONI
+
+Fonti: Anthea/X.Calculations/ConcreteCodeChecks.cs, Ntc2018Checks.cs, ConcreteShearAnalysis.cs, SectionShearGeometry.cs, ConcreteCalculationSettings.cs e ConcreteStandards.cs.
+
+- Estrai il nucleo di taglio in GPCChecker.Concrete con input tipizzati. Separa politiche NTC, MC2010 ed EC2/annessi effettivamente implementati dalla derivazione geometrica e dalla presentazione.
+- Conserva limiti su materiali, modelli circolari, armatura efficace/ancorata, staffe, inclinazioni, aggregato e azioni N/M/V quando richieste. Parametri derivati geometricamente non diventano conferme costruttive automatiche.
+- La geometria automatica è disponibile soltanto per le forme e i fori effettivamente trattati; permetti dati espliciti tracciati dove il metodo li ammette. Fuori da tali casi restituisci non supporto o dati insufficienti secondo il motivo.
+- Produci attività distinte per direzione, con VRsd/VRcd/VRd, domanda, rapporto, cot(theta), parametri efficaci, limitazioni e riferimenti. Riusa ShearCheckDetails senza perdere la distinzione delle componenti.
+- Valida caso senza staffe, con staffe, domanda nulla, capacità nulla, trazione/compressione, inversione dei segni, limiti di campo e geometrie supportate. Conserva il segno originale nell'input anche quando il metodo usa il valore assoluto della domanda.
+- Non introdurre riduzioni favorevoli vicino agli appoggi né supporto alla precompressione assenti dal metodo/adattatore validato.
+
+Consegna 4C: due direzioni integrate nel piano, copertura esplicita e confronti numerici per ciascun profilo dichiarato disponibile.
+
+4D — TORSIONE E INTERAZIONI TAGLIO-TORSIONE
+
+Fonti: Anthea/X.Calculations/ConcreteTorsion.cs e ConcreteShearAnalysis.cs.
+
+- Migra per primo il nucleo NTC 2018 realmente presente. Gli altri profili restano non supportati per questa famiglia finché non esiste un metodo verificato.
+- Trasferisci geometria resistente, requisiti delle staffe chiuse e delle barre periferiche, conferme e limiti. Non equiparare automaticamente spirali e staffe chiuse.
+- Pianifica taglio e torsione come calcoli coordinati sullo stesso stato, con geometria, materiali e cot(theta) coerenti. Non sommare risultati ottenuti ottimizzando separatamente angoli incompatibili.
+- Mantieni capacità del cls, armatura trasversale e longitudinale; rapporti torsionali e di interazione distinti; armatura richiesta/disponibile e condizioni di applicabilità. Usa TorsionCheckDetails e metriche separate.
+- Se un controllo accoppiato richiesto non è disponibile, non presentare i soli controlli di taglio come verifica completa dello stato con torsione. Distingui le verifiche locali eseguite dalla copertura del lavoro complessivo.
+- Una capacità validamente nulla con domanda non nulla è un fallimento ingegneristico, non un dato mancante né un rapporto zero. I contratti non ammettono NaN/Infinity: conserva domanda/capacità finite, rapporto null quando non definito e verdetto esplicito, coerente con CheckResultRules.
+
+Consegna 4D: verifica NTC e interazioni integrate, compresi i casi non soddisfatti, non applicabili, non supportati e incompleti.
+
+4E — FESSURAZIONE E REGIONI EFFICACI
+
+Fonti: Anthea/X.Calculations/Ntc2018Checks.cs, ConcreteCodeChecks.cs, ConcreteTensionCracking.cs, ConcreteInnerCracking.cs, SectionRegions.cs, SectionGeometry.cs, TensionBarSpacing.cs e CrackCalculationDetail.cs.
+
+- Migra l'intera catena: stato SLE, regioni tese/aree efficaci, barre pertinenti, interassi, copriferro, aderenza, requisito/limite e apertura calcolata. Non trasferire soltanto la formula scalare finale.
+- Sostituisci SezioneCA/Barra e accessi JsonObject con geometria/materiali/armature Model o viste numeriche autonome necessarie al metodo; evita di duplicare Model dentro Checker.
+- Preserva facce e contorni interni, casi interamente tesi e limiti delle geometrie implementate. Non sommare indiscriminatamente aree di facce diverse e non perdere le regioni con dati insufficienti.
+- Rendi esplicite norma/annesso, categoria SLE, durata/esposizione e wlim, quando richiesto come dato. Il solo superamento del calcolo dell'apertura non implica conformità del requisito.
+- Restituisci risultati e tracce per ogni regione richiesta, insieme al governante effettivo. Un solo valore massimo senza elenco/copertura delle regioni non basta.
+- Elimina la dipendenza globale mutabile Ntc2018Checks.SpacingCalculator dal nuovo percorso: usa una dipendenza esplicita per istanza/configurazione. Mantieni esecuzione sequenziale finché la sicurezza concorrente del resto dei solver non è dimostrata.
+- La presenza di trefoli nel solver di tensione non autorizza fessurazione CAP per tutti i metodi. Registra supporto e requisiti per singolo abbinamento.
+
+Consegna 4E: fessurazione integrata come sottocontrollo SLE distinguibile dalle tensioni, con snapshot delle regioni e test geometrici/normativi indipendenti pertinenti.
+
+4F — ADERENZA, ANCORAGGI, DETTAGLI E RISPOSTA M-CURVATURA
+
+Fonti, relative ad Anthea/X.Calculations: ConcreteBond.cs, ConcreteDetailing.cs, ConcreteDetailingAnalysis.cs, ConcreteCoverAnalysis.cs, Materials/NtcCover.cs, Materials/MaterialCover.cs, Materials/MinimumConcrete.cs, Materials/Durability.cs, MomentCurvature.cs e ConcreteCurvatureAnalysis.cs. Conferma i percorsi effettivi prima della migrazione.
+
+- Estrai aderenza, lunghezze di ancoraggio/sovrapposizione e controlli di distanza, mantenendo coefficienti, lunghezze disponibili e conferme esplicite. Distingui controllo del materiale, della barra e del dettaglio.
+- Migra i dettagli 1D applicabili a travi/pilastri e il controllo di copriferro con tutti i dati richiesti. Richiedi i dati fisici di elemento/asta quando una sezione non basta. Conserva come pendenti i controlli non risolvibili con gli input disponibili.
+- Pianifica i dettagli con la loro cardinalità: un ancoraggio o una zona di staffatura non va duplicato per ogni campione FEM. Associa un'identità locale stabile a barra/zona/estremo e un proprietario strutturale esplicito; eventuali estensioni del piano devono restare compatibili. Non spacciare un dettaglio per un'intera verifica di stabilità.
+- Non trasferire implicitamente regole Slab/Wall in un verificatore plate: dettaglio locale, striscia di soletta, regione shell e punzonamento hanno perimetri diversi. Lascia i controlli 2D dipendenti dal metodo al confronto del passo 6.
+- Trasferisci l'orchestrazione M-curvatura riusando solutori di resistenza/tensione. Conserva punti accettati, residui, snervamento/limite, convergenza e motivo di arresto. La curva è una risposta numerica, non un CheckResult Satisfied senza un criterio di verifica esplicito.
+- Non equiparare M-curvatura e verifica di stabilità. Se il ricontrollo dei sorgenti individua un vero metodo globale Concrete, documentane input e campo e collegalo tramite IPhysicalMemberVerifier solo dopo validazione. Altrimenti la stabilità resta NotSupported e viene elencata come ambito ancora mancante.
+- Lascia il progetto automatico delle armature ConcreteReinforcementDesign in Anthea: potrà consumare successivamente le API consolidate. Non duplicare il solver History di CompositeBridge.
+
+Consegna 4F: API numeriche e integrazione dei dettagli 1D nel loro ambito corretto; risultato di risposta M-curvatura distinto dagli esiti normativi; limiti specialistici espliciti.
+
+4G — REGRESSIONE COMPLETA DEL PERIMETRO E CONSEGNA
+
+- Dopo ogni famiglia esegui test del nucleo, confronto legacy, casi indipendenti e almeno un flusso reale attraverso ModelChecker. Non rinviare tutti i collegamenti a fine migrazione.
+- Per il confronto delle formule usa fonti primarie pertinenti all'edizione/annesso: testo normativo accessibile, documentazione ufficiale o implementazioni di riferimento di provenienza verificata. Registra clausola, edizione, URL/percorso e ipotesi. Le fixture legacy dimostrano compatibilità; un altro software non sostituisce il controllo del campo normativo.
+- Se una fonte necessaria non è accessibile, documenta ciò che è verificato e ciò che non lo è. Non ricostruire clausole a memoria e non dichiarare validata la norma; continua gli abbinamenti indipendenti.
+- Per ogni divergenza separa errore di migrazione, convenzione/unità, differenza intenzionale e difetto legacy. Documenta input, atteso motivato, prima/dopo e fonte. Non alterare tolleranze o expected per ottenere una suite verde.
+- Copri trasformazioni degli assi, inversione I-J, armatura asimmetrica, stazioni mancanti e lati delle discontinuità; categorie SLE e stati concomitanti; annullamento, non convergenza e dati insufficienti; cache per norme/parametri differenti; invalidazione dopo modifica di armature/staffe/contesto; round-trip e caricamento di report precedenti.
+- Presta attenzione ai riferimenti a DLL per percorso: ricompila nell'ordine necessario Model, Checker e ModelChecker, verificando le copie effettivamente caricate nei test. Non confondere baseline Anthea su binari distribuiti con il nuovo motore. Registra hash dei binari effettivamente provati.
+- Preserva netstandard2.0 per le librerie: adatta consapevolmente costrutti/API .NET usati in Anthea e assenti nel target, senza cambiare il comportamento numerico né aggiornare il framework per comodità.
+- Mantieni gli archivi schema 1/2 leggibili. Se un'estensione richiede una nuova versione, documenta la migrazione e testa gli archivi precedenti; non reinterpretare implicitamente le impronte storiche.
+- Crea un esempio riproducibile su asta fisica di più FEM con ULS, taglio, torsione dove supportata, tensioni SLE, fessurazione e dettagli richiesti. Esegui almeno due profili normativi realmente supportati per i meccanismi pertinenti. Rendi visibili controlli mancanti e non supportati, senza forzare tutte le norme allo stesso insieme di capacità.
+- Esegui infine le regressioni pertinenti Concrete, Model e ModelChecker. Amplia ad altri progetti soltanto se le dipendenze modificate lo richiedono. Tieni separati i 17 fallimenti Steel storici. Non sommare run sovrapposti né confondere asserzioni Anthea con casi MSTest.
+
+CRITERI DI COMPLETAMENTO
+
+Una famiglia è completata nel perimetro dichiarato soltanto quando:
+1. il nucleo è compilato in Checker senza dipendenze Anthea/applicative;
+2. input, assi, unità, norma e campo di applicazione sono espliciti;
+3. il piano conserva ogni verifica richiesta con identità e cardinalità corrette;
+4. output autonomi riportano domanda/capacità o criterio pertinente, dettagli, stato, diagnostica e provenienza;
+5. casi legacy e riferimenti indipendenti pertinenti sono superati oppure le differenze sono spiegate e validate;
+6. integrazione, persistenza e invalidazione sono provate;
+7. la matrice distingue capacità complete, parziali, non collegate e non supportate, senza promuovere un'intera norma sulla base di un solo meccanismo.
+
+Il passo 4 si conclude con il bilancio di tutte le famiglie A01-A08 entro il perimetro concordato. Se parti restano mancanti o non validabili, dichiarale e mantieni il passo parziale per quelle parti. Stabilità/CAP/FRC non diventano complete perché sono stati predisposti contratti o perché esiste il solver sezionale. Il gate sui plate resta vincolante e indipendente; resolver Steel/CompositeBridge e generalizzazione multimateriale restano al passo 5.
+
+ARTEFATTI E AGGIORNAMENTI
+
+Nel repository Model mantieni CHECKER_PASSO_4.txt come matrice/registro e CHECKER_PASSO_4_EVIDENZE.json con comandi, revisioni/hash, risultati dei test, fonti e divergenze. Colloca i test nuovi nei progetti pertinenti; per eventuali harness dentro Anthea usa supporto/test/ e per gli output supporto/artefatti/ secondo AGENTS.md. Non modificare le evidenze storiche dei passi precedenti per farle coincidere con file aggiornati.
+
+Al termine di ogni sottofase comunica: cosa è disponibile, dove è implementato, quali norme/geometrie copre, quali prove sono state eseguite, limiti e sottofase successiva. Aggiorna il registro principale senza cancellarne la storia. Prosegui autonomamente sul lavoro autorizzato; non avviare UI, sostituzione dei chiamanti Anthea, nuovo motore plate o automazioni.
+
+PRIMA AZIONE QUANDO QUESTO PROMPT VIENE ESEGUITO
+
+Avvia 4A: verifica lo stato corrente, congela i primi casi SLE/taglio e definisci le specifiche locali necessarie a distinguere direzioni e sottocontrolli nel piano. Poi completa 4B come prima famiglia collegata, seguendo 4C-4G nell'ordine indicato.

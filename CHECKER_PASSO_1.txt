@@ -1,0 +1,414 @@
+CHECKER — PASSO 1: INVENTARIO E SEQUENZA DI MIGRAZIONE
+Data: 30 settembre 2026
+Stato: inventario completato; motori e contratti pubblici non modificati.
+
+1. ESITO PRINCIPALE
+
+La base da riutilizzare è più ampia del solo verificatore sezionale:
+- Concrete contiene domini resistenti, analisi tensionale, controlli SLE e risultati numerici; il collegamento ModelChecker espone attualmente solo N-M1-M2.
+- Steel contiene verifiche a elemento/stazione EN1993 e CoP 2011, risultati dettagliati, bulloni e stabilità di pannelli. La baseline corrente non è interamente verde: 17 test EN1993 falliscono.
+- CompositeBridge contiene già calcolo trasferito da Anthea, contratti di input/output, analisi per fasi e controlli dei ponti composti. Non va trasferito una seconda volta.
+- Anthea/X.Calculations contiene le estensioni cls da migrare: taglio multinormativa, fessurazione, torsione NTC, aderenza/ancoraggi, dettagli costruttivi e orchestrazione delle curve M-curvatura.
+- Un checker generale resistente per shell in cls non è disponibile. I controlli di una striscia di soletta o dei dettagli di una parete non equivalgono a verificare le otto componenti shell.
+
+Il vetro è escluso. Nessuna UI è stata sviluppata e nessun metodo resistente plate è stato scelto.
+
+2. PERIMETRO, DIPENDENZE E RIPRODUCIBILITÀ
+
+Radice comune: C:\Users\g.pacini\Documents\Repository
+M = Model; C = Checker; A = ANTHEA. I riferimenti seguenti sono relativi a queste radici.
+
+Progetti funzionali esistenti:
+  C/GPCChecker.Concrete         netstandard2.0; assembly 0.0.13.0
+  C/GPCChecker.Steel            netstandard2.0; assembly 1.1.0.3
+  C/GPCChecker.CompositeBridge  netstandard2.0; assembly 1.4.0.0
+  M/ModelChecker               netstandard2.0
+  A/X.Calculations             net8.0; assembly ANTHEA.Calculations
+
+Concrete e Steel referenziano già Model, Geometry e Utilities tramite DLL. CompositeBridge referenzia Concrete e i tipi Model; non dipende da Anthea. ModelChecker referenzia Model e Concrete; non ha ancora adattatori Steel/CompositeBridge. Model non referenzia Checker.
+
+Anthea usa un insieme distribuito di DLL in A/lib/Checker. Le versioni nominali coincidono con le build correnti per Concrete, CompositeBridge e Model, ma gli hash SHA-256 sono diversi. Ciò non dimostra da solo una differenza di comportamento: i due insiemi vanno identificati separatamente e non miscelati. I test Anthea qui eseguiti usano le DLL distribuite; i test Checker usano le build dai sorgenti correnti.
+
+Il file CHECKER_PASSO_1_EVIDENZE.json conserva commit/stato dei repository, hash dei sorgenti chiave, versioni e hash delle DLL, conteggi e diagnostica dei test falliti. Log e TRX completi si trovano in Model e Model/TestResults/CheckerStep1; sono artefatti locali ignorati da Git. Il manifesto conserva anche gli esiti necessari a leggere l'audit senza quei file.
+
+Sono presenti attività dell'utente in altri file/repository; non sono state ripristinate o modificate. Nessun commit è stato creato da questa attività.
+
+3. LEGENDA DELLA MATRICE
+
+ATTIVO: esiste un percorso di calcolo eseguibile, non significa copertura normativa universale.
+PARZIALE: esiste calcolo con rami mancanti o un campo di applicazione ristretto.
+COMMENTATO: implementazione non compilata.
+SCHELETRO: classe compilata, senza calcolo utilizzabile.
+NON COLLEGATO: il motore non è richiamato dal ModelChecker corrente.
+
+Evidenze di test di questa esecuzione:
+  MC8    = ModelChecker.Tests: 8/8 test superati.
+  C43    = ConcreteControlTests: 43/43 casi superati; sottoinsieme della suite Concrete.
+  S94    = suite Steel: 77/94 superati, 17 falliti, nessuno ignorato.
+  B254   = suite autonoma CompositeBridge: 254/254 superati.
+  A434   = ConcreteCode.Checks: 434 asserzioni superate, processo exit 0.
+  A78    = X.Verifiche --ca-module: 78 asserzioni superate, processo exit 0.
+
+Le norme/edizioni sotto indicate descrivono l'identificazione nel codice e nei test. Questo inventario non ha eseguito una revisione esterna delle formule o delle norme e non certifica l'intero campo di applicazione di ciascuna norma.
+
+4. MATRICE DELLE CAPACITÀ CHECKER
+
+ID | Materiale / norma | Verifica e livello | Geometrie / input | Stato / evidenze / limiti
+
+C01 | CLS e armature; famiglia StandardModelCode2010, NTC 2018, EN1992 e annessi presenti in Model
+    | Dominio 3D N-M1-M2, sezioni del dominio N-M e M-M, punti resistenti; livello SEZIONE.
+    | IConcreteSection, forma, materiali, barre/trefoli, ResultBeamForces, CoordinateSystem e opzioni del solver.
+    | ATTIVO. SectionCheckerModelCode2010 + SectionSolverModelCode2010; C43 e test storici RC/PSC/FRC presenti. MC8 collega solo la verifica N-M1-M2 per ReinforcedConcreteSection.
+    | Nessuna equivalenza automatica fra una classe Standard disponibile e tutti i meccanismi normativi implementati. L'inventario non ha rieseguito l'intera suite storica RC/PSC/FRC.
+
+C02 | CLS e armature; ACI318, inclusa StandardACI318p19 nei controlli
+    | Resistenza sezionale con regole/solver ACI; livello SEZIONE.
+    | IConcreteSection, materiali e armatura compatibili, forze e SectionOptionsStandardACI318.
+    | ATTIVO, NON COLLEGATO a ModelChecker. SectionCheckerACI318 e SectionSolverACI318; casi ACI in C43.
+    | Non implica disponibilità di taglio, torsione o verifiche di asta secondo ACI.
+
+C03 | CLS/armature e, nei percorsi previsti, acciaio strutturale; Standard configurato
+    | Analisi tensionale lineare/non lineare; limiti SLE caratteristici e quasi permanenti; livello SEZIONE.
+    | Sezione, stato N-M1-M2, coefficienti psi per barre/trefoli e opzioni di trazione del cls.
+    | ATTIVO, NON COLLEGATO come Serviceability in ModelChecker. StressAnalysisResult contiene metodi SLE e tensioni/deformazioni; C43 e uso concreto in Anthea.
+    | Sovraccarico asincrono senza argomenti con rami lineare/non lineare invertiti: rilievo R01. La forma singola usata da Anthea evita quel percorso.
+
+C04 | CLS; contenitori BeamChecker/PlateChecker
+    | Aggregazione di sezioni verso elemento 1D/2D.
+    | BeamCheckerAttribute; PlateCheckerAttribute usa ancora IConcreteSection[] e ResultBeamForces[][], non un input shell a otto componenti.
+    | Basi astratte presenti; BeamCheckerModelCode2010 e PlateCheckerModelCode2010 COMMENTATI. Nessun motore resistente plate generale utilizzabile da tali classi.
+    | Le basi non definiscono ancora una verifica completa dell'asta o della regione shell.
+
+S01 | Acciaio; StandardEN1993p11 e configurazione EN1993
+    | Classificazione, trazione/compressione, flessione, taglio, instabilità, svergolamento e interazioni; livello ELEMENTO 1D / STAZIONE.
+    | BeamElement con SteelSection e BeamResult, parametri di vincolo, carico e lunghezze efficaci. Rami espliciti per H, RHS, CHS, C, T, L con coperture diverse per meccanismo.
+    | ATTIVO ma PARZIALE, NON COLLEGATO a ModelChecker. EN1993p11Checker.PerformCheck; S94 con 17 fallimenti tutti in EN1993p11Test.
+    | NotImplementedException per alcuni abbinamenti forma/metodo, casi Mcr non supportati e TODO sulla classe 4. Non esporre tutte le forme come supportate da ogni verifica.
+    | L'edizione della norma non è un campo strutturato unico e obbligatorio nel contratto corrente: dovrà esserlo nel contesto normativo futuro.
+
+S02 | Acciaio; CoP SuOS 2011
+    | Classificazione, resistenza, instabilità e interazioni; livello ELEMENTO 1D / STAZIONE.
+    | BeamElement, SteelSection, risultati concomitanti, classe di acciaio, fattori di lunghezza e opzioni CoP.
+    | ATTIVO ma PARZIALE, NON COLLEGATO. Cop2011Checker.PerformCheck; test CoP compresi in S94, nessun fallimento osservato in tali classi.
+    | Rami non implementati per geometrie, fattori e combinazioni materiale/classe. Mutazione interna di parametri e API async void da considerare nell'adattatore.
+
+S03 | Acciaio; AISC360-16
+    | Predisposizione del checker di asta.
+    | AISC360_16Checker deriva da AISCChecker.
+    | SCHELETRO: il ciclo PerformCheck alloca l'array ma non costruisce i risultati; le regioni delle capacità sono vuote. NON supportato come verifica disponibile.
+
+S04 | Acciaio; famiglia EN, inclusi moduli bulloni
+    | Verifiche bulloni/connessioni; livello COLLEGAMENTO.
+    | Disposizione dei bulloni, materiali, azioni e opzioni dei checker ENCommon/EN1993; esiste anche EN1999BoltChecker.
+    | Codice e classi di risultato presenti, NON COLLEGATI. Test EN1993BoltCheckerTest compresi in S94.
+    | Non sono verifiche automatiche di un nodo FEM; serve un modello esplicito del collegamento. L'esistenza EN1999 non estende questo lavoro a un nuovo materiale.
+
+S05 | Acciaio; implementazioni EC e codici previsti dai servizi
+    | Stabilità locale, larghezze efficaci, pannelli irrigiditi/non irrigiditi e sezione efficace.
+    | Dimensioni di piatti/pannelli, irrigidimenti, tensioni, materiali; ECPlate, ECClass4ThinWallSection, PanelsStability.
+    | Servizi ATTIVI con campi specifici; Class4Test/ECPlateTest in S94. NON COLLEGATI al flusso shell ModelChecker.
+    | Un pannello d'acciaio usato per stabilità locale non è il futuro checker shell in cls. I servizi di classe 4 non rendono completi i TODO del checker EN1993 di asta.
+
+B01 | Acciaio-cls; BridgeStandard.Ntc2018 / Eurocode4
+    | Analisi cumulativa, tensioni, sezioni efficaci e controlli per situazioni/fasi; livello SEZIONE DI PONTE.
+    | HBridgeInput con materiali Model, H, H ad anima inclinata o cassoncino, armature e fasi; N-Mx, riferimenti dei carichi e omogeneizzazione.
+    | ATTIVO e già migrato da Anthea. HBridgeSection.Calculate, Analysis/* e HBridgeAnalysisResult; B254.
+    | Il percorso lineare composto documenta N-Mx, assi principali paralleli a x/y e un unico modulo della carpenteria. NON COLLEGATO a ModelChecker; non è un'analisi globale del ponte né un verificatore biassiale generico.
+
+B02 | Acciaio-cls; profilo NTC/EC configurato
+    | Taglio, connessioni a pioli, dettagli, irrigidimenti, saldature, interazione N-M-V, soletta trasversale e controlli di fatica implementati.
+    | HBridgeInput e opzioni specialistiche; Checks/BridgeBendingShear, BridgeShearConnection, BridgeLocalDetails e HSections/*.
+    | ATTIVO entro i metodi e le geometrie previsti; B254. Risultati tipizzati già presenti.
+    | I controlli della soletta trasversale del ponte non sostituiscono il checker plate generale. Non dedurre completezza dal solo MaxUtilization delle tensioni di fase.
+
+B03 | Acciaio-cls; modello meccanico scelto
+    | Storia delle deformazioni, attivazioni, ritiro, leggi lineari/non lineari, curve M-curvatura e N-deformazione.
+    | Contratti History, stato precedente, leggi dei materiali, discretizzazione e sottopassi.
+    | ATTIVO; B254 include confronti con riferimenti OpenSees congelati. Il solver esterno non è stato rieseguito durante questo inventario.
+    | La convergenza o una curva arrestata non costituiscono automaticamente un esito di resistenza normativa; preservare motivo di arresto e stati accettati.
+
+B04 | Cassoncino acciaio-cls; controlli specifici del modulo
+    | Torsione, distorsione e diaframmi di cella singola.
+    | BridgeBoxOptions, geometria della cella, torcenti e condizioni dei diaframmi.
+    | ATTIVO con limiti documentati; BoxTorsionTests in B254.
+    | Esclusioni dichiarate: fra le altre, torsione non uniforme del cassone aperto e accoppiamento con ingobbamento torsionale. Nessuna generalizzazione a celle arbitrarie implicita.
+
+5. MATRICE DEL CLS DA TRASFERIRE DA ANTHEA
+
+I percorsi di questa sezione sono relativi ad A/X.Calculations.
+
+A01 — PROFILI NORMATIVI E MATERIALI
+  Fonti: ConcreteStandards.Create/Effective/Note; ConcreteMaterials; ConcreteCalculationSettings.
+  Norme: NTC 2018, MC2010, EN1992-1-1 prima generazione e profili UNI/DIN/DS/NS. Il catalogo include CNR-DT 204/2006 e CS-TR34, ma i controlli per cls ordinario li rifiutano: non attribuire loro taglio/fessurazione implementati.
+  Edizioni descritte dal codice: EN1992-1-1:2004/AC:2010; UNI con DM 31/07/2012; DIN con riferimento materiali NA:2013-04; DS DK NA:2024; NS prima generazione, revisione esatta da rendere esplicita. MC2010 non è MC2020; non è presente copertura implicita EC2:2023.
+  Input/dipendenze: etichette stringa/JsonObject, Standard Model, coefficienti e deroghe. Il vecchio foglio rende autorevoli alpha_cc/gamma_c/gamma_s in input.
+  Trasferimento: separare identificatore norma/edizione/annesso dai testi UI, rendere tipizzate le impostazioni e conservare gli override. Test A434 più profili nativi C43.
+
+A02 — TAGLIO MULTINORMATIVA, DUE DIREZIONI
+  Fonti: ConcreteCodeChecks.Shear(ShearInput), Ntc2018Checks.Shear, ConcreteShearAnalysis.Calculate, SectionShearGeometry.Derive.
+  Livello: SEZIONE, con requisiti locali di armatura e ancoraggio; non verifica autonoma dell'intera asta.
+  Geometrie: parametri manuali; derivazione automatica per rettangolo, cerchio e T, con casi di foro centrale previsti. Circolare richiede scelta esplicita del modello.
+  Input: N, V, M ove richiesto, area, bw, d, Asl, materiali, staffe, passo, inclinazioni, aggregato ed eccentricità MC.
+  Output: ShearResult con VRsd, VRcd, VRd, rapporto, cot(theta), modello, riferimento e dettagli numerici.
+  Limiti: fck fuori campo rifiutato; precompressione esplicitamente esclusa nell'adattatore; nessuna riduzione favorevole automatica vicino agli appoggi. Conferma dell'ancoraggio di Asl richiesta nei rami pertinenti. La derivazione geometrica è un suggerimento, non prova di efficacia dell'armatura.
+  Stato: ATTIVO, da estrarre in Checker; A434/A78. Il nucleo ShearInput è già vicino a un contratto autonomo, ma il risultato appartiene ancora a Ntc2018Checks anche per altre norme.
+
+A03 — TENSIONI SLE E STATO DELLA SEZIONE
+  Fonti: CheckerSection.Stress/DescribeStress/LimitState, ConcreteAnalysisSession.Stress, SleCheckScope.
+  Livello: SEZIONE; rettangolare, circolare, T e forme accettate dall'adattatore, armature e trefoli nei percorsi ammessi.
+  Calcolo: il solver e parte dei controlli SLE sono già in Checker. Anthea aggiunge scelta dei set, trasformazioni, limiti, risposta dettagliata e gestione della convergenza.
+  Output: CheckerStressState, SectionResponse, StressPoint, StressOutcome.
+  Limiti: trefolo con predeformazione nulla rifiutato per ambiguità di classificazione del solver; stati solo tensionali e verifiche normative sono distinti. Raster e formattazione appartengono alla presentazione e non devono vincolare il risultato persistito.
+  Trasferimento: riusare il solver; portare configurazione e risultati numerici tipizzati, lasciando JSON e visualizzazione ad Anthea. C43/A434/A78.
+
+A04 — FESSURAZIONE E REGIONI EFFICACI
+  Fonti: Ntc2018Checks.Cracking/CrackWidthWithDetails/CrackRequirement; ConcreteCodeChecks.CrackWidth/CrackRequirement/EffectiveCrackDepth; ConcreteTensionCracking.FullyTensionedCracking; ConcreteInnerCracking.InnerCracking.
+  Nota: gli ultimi due file sono parti della classe Ntc2018Checks, non classi pubbliche autonome.
+  Supporti: SectionRegions, SectionGeometry, TensionBarSpacing, SezioneCA/Barra, stato tensionale nativo e leggi materiali Model.
+  Livello: SEZIONE; facce/regioni tese, casi interamente tesi e contorni interni delle cavità entro le geometrie trattate. Le aree di facce diverse non vengono sommate indiscriminatamente.
+  Norme: stessi profili ordinari di A01, con requisiti, formule e limiti differenziati; wlim esplicito dove il codice non lo determina. Disponibilità di precompressione da valutare meccanismo per meccanismo: non promuovere l'intera famiglia CAP.
+  Input: stato SLE concomitante, tensioni/deformazioni, aree efficaci, barre tese, copriferro, diametri, interassi, aderenza, durata, esposizione e set SLE.
+  Output: CrackResult, ConcreteEffectiveRegion[], CrackCalculationDetail[], stato e dati mancanti.
+  Stato: ATTIVO, trasferimento con adattamento geometrico sostanziale; A434/A78. La proprietà globale mutabile SpacingCalculator richiede una scelta di dipendenza esplicita per uso concorrente.
+
+A05 — TORSIONE E INTERAZIONI CON IL TAGLIO
+  Fonti: ConcreteTorsionCalculator.Geometry/Calculate, ConcreteShearAnalysis.Calculate/Torsion.
+  Norma effettiva dell'adattatore: NTC 2018; un T non nullo per altri profili è rifiutato.
+  Livello: SEZIONE; geometria periferica automatica rettangolare/circolare, piena o cava nei limiti implementati.
+  Input: T, geometria resistente, materiali, staffa chiusa, armatura longitudinale disponibile, Vx/Vy concomitanti e risultati di taglio con lo stesso cot(theta).
+  Output: TorsionResult con capacità cls/staffe/longitudinali, tre rapporti distinti, armatura richiesta, geometria e stato.
+  Limiti: conferma staffe chiuse e barre periferiche, staffe a 90 gradi, spirale non automaticamente equivalente; armatura nulla non diventa verifica soddisfatta.
+  Stato: ATTIVO, nucleo numerico già separabile; A78. Non presentarlo come torsione multinormativa senza implementazioni aggiuntive.
+
+A06 — ADERENZA, ANCORAGGI E SOVRAPPOSIZIONI
+  Fonti: ConcreteBond.Calculate/Strength, ConcreteAnchorageCalculator.Calculate, ConcreteDetailingAnalysis.Anchorage.
+  Norma dell'adattatore: NTC 2018 con integrazioni EC2.
+  Livello: BARRA / DETTAGLIO LOCALE.
+  Input: diametro, tensione, resistenza a trazione cls, gamma, condizioni di aderenza, lunghezza disponibile, percentuale e distanza delle sovrapposizioni.
+  Output: Result dell'aderenza, AnchorageResult e ConcreteAnchorageResult; coefficienti e controlli di lunghezza/distanza separati.
+  Limiti: barre rettilinee, assenza di riduzioni favorevoli non documentate; materiale e limiti di campo provengono anche dall'adattatore.
+  Stato: ATTIVO; A78. Separare regole della norma da calcolo meccanico e input geometrici, non copiare l'intero foglio materiale.
+
+A07 — DETTAGLI COSTRUTTIVI E COPRIFERRO
+  Fonti: ConcreteDetailingCalculator.Calculate, ConcreteDetailingAnalysis.Calculate, ConcreteCoverAnalysis.Calculate; Materials/NtcCover, MaterialCover, MinimumConcrete, Durability.
+  Norma dell'adattatore: NTC 2018 con integrazioni EC2.
+  Livello: ELEMENTO/DETTAGLIO, ma basato sulla sezione e sui parametri forniti.
+  Input: Beam/Column/Slab/Wall, geometria e barre, compressione massima dichiarata, staffe, aggregato, durabilità, sovrapposizioni e conferme costruttive.
+  Output: DetailingCheck[], ConcreteDetailingResult, ConcreteCoverResult; alcuni controlli restano esplicitamente pendenti.
+  Limiti: soletta piena come striscia rettangolare senza foro; distribuzione fra facce, appoggi, bordi e punzonamento non risolti dalla sola sezione. Le conferme dell'utente diventano requisiti di dati, non assunzioni del motore.
+  Stato: ATTIVO e PARZIALE per definizione; A78. Le regole dipendenti da elemento/regione richiedono il confronto previsto al passo 3; nessuna anticipazione del motore plate.
+
+A08 — CURVE MOMENTO-CURVATURA
+  Fonti: MomentCurvatureCalculator.Calculate, ConcreteCurvatureAnalysis.Calculate.
+  Livello: RISPOSTA SEZIONALE; N assegnato, direzione, campionamento, punto resistente e solutore delle tensioni iniettati.
+  Output: MomentCurvatureResult/Point con punti, snervamento/limite, residuo assiale e stato.
+  Limiti: armatura ordinaria; l'adattatore rifiuta i trefoli. Una curva di risposta non è una verifica globale dell'asta.
+  Stato: ATTIVO, A78. Valutare riuso dei contratti numerici senza confonderlo col solver History già esistente in CompositeBridge.
+
+A09 — PROGETTO AUTOMATICO DELLE ARMATURE
+  Fonti: ConcreteReinforcementDesign e file parziali Checks/Search/Options.
+  Livello: RICERCA DI CONFIGURAZIONI SEZIONALI; riusa domini, SLE, taglio e dettagli.
+  Input: griglie di diametri/disposizioni/staffe e combinazioni; forme rettangolare, circolare e T, anche con foro centrale nei casi ammessi.
+  Limiti: NTC con integrazioni EC2, senza trefoli, limitazioni sulle zone di giunzione. Esiste una suite supporto/test/ConcreteDesign.Checks, non eseguita in questo inventario.
+  Stato: ATTIVO nel codice, NON prioritario per la migrazione delle verifiche. Lasciare l'ottimizzatore in Anthea finché i checker sottostanti non hanno contratti e risultati stabili.
+
+A10 — ORCHESTRAZIONE, JSON E REPORT APPLICATIVI
+  Fonti: ConcreteAnalysis.Calculate, ConcreteAnalysisSession, SectionWorkspace, VerificationSummary, X.Core/ReportConcrete e X.Desktop/Wpf.
+  Funzione: preparazione del foglio, cache, gestione degli errori, esportazione e presentazione.
+  Trasferimento: estrarre le semantiche utili e gli output numerici; NON portare UI, JsonObject dell'archivio, raster, documenti Word o dipendenze X.Core dentro Checker.
+  L'attuale ConcreteAnalysis dichiara esplicitamente verifica_normativa_completa=false e conserva errori di calcolo: queste informazioni non devono perdersi.
+
+6. CLASSI DI RISULTATO E RESOCONTO GIÀ DISPONIBILI
+
+Concrete:
+  Results/ResultType/CheckerResultType conserva sezione e Standard.
+  FailureDomainResult, FailureDomainResult2d, FailureDomainPoint, StressAnalysisResult,
+  StrainPlaneResult e StrainPlane contengono risultati meccanici ricchi.
+  StressAnalysisResult conserva anche il solver: non è il contratto finale autonomo
+  da persistere per un'intera verifica a elemento.
+
+Steel:
+  Results/CommonResults, BeamStationResults, EN1993p11BeamStationResult,
+  Cop2011BeamStationResults e risultati bulloni conservano caso, norma, opzioni,
+  capacità, rapporti e parametri di calcolo. CommonResults dipende dalle opzioni
+  del checker Steel: non è già una base neutra pronta per tutti i materiali.
+
+CompositeBridge:
+  HBridgeAnalysisResult, BridgeStage, BridgeContribution, BridgeStressPoint,
+  risultati di taglio/pioli/torsione, History e SectionResponse sono tipizzati.
+  BridgeStage.MaxUtilization considera i punti tensionali: non aggrega da solo
+  ogni verifica obbligatoria dei dettagli. Conservare Scope e Warnings.
+
+Model / ModelChecker:
+  CheckResult distingue Execution, Data, Outcome e conserva origine, posizione,
+  stato concomitante, revisione, versione/configurazione e rapporto di utilizzo.
+  CheckReport e ModelCheckReport gestiscono richiesti/eseguiti e validità rispetto
+  al modello. Mancano i dettagli tipizzati domanda/capacità, un contesto normativo
+  strutturato e una raccolta neutra per elemento/meccanismo.
+  BeamCheckInput.Section è ReinforcedConcreteSection; IConcreteSectionVerifier,
+  ConcreteVerificationOptions e la factory di ModelChecker sono specifici cls.
+  CheckReport.CurrentOutcome è attualmente limitato ai beam e a quel verificatore.
+
+Anthea:
+  ShearResult, CrackResult, TorsionResult, DetailingCheck, AnchorageResult,
+  MomentCurvatureResult, SectionResponse e VerificationSummary sono basi concrete
+  da mappare. Le tracce CrackCalculationDetail sono già usate anche per il taglio:
+  il futuro nome comune dovrà rispecchiare i dettagli di calcolo, non un solo meccanismo.
+
+Implicazione per il passo 2: introdurre un involucro comune di esecuzione e
+provenienza e dettagli specifici dei meccanismi, mantenendo adattatori verso
+questi risultati. Non sostituire tutte le classi con un unico oggetto generico
+o con un dizionario di stringhe; non spostare ancora le API pubbliche tra progetti.
+
+7. RILIEVI DA RISOLVERE PRIMA DI ESTENDERE LA COPERTURA
+
+R01 — Concrete: overload asincrono collettivo invertito.
+  C/GPCChecker.Concrete/Checkers/SectionChecker.cs:160.
+  GetTensionAnalysisResultAsync() seleziona GetStressAnalysisResults quando
+  StressAnalysisType è Linear e GetLinearStressAnalysisResults quando è NonLinear.
+  I catch restituiscono null. Anthea/CheckerSection.cs:163 usa l'overload singolo.
+  Azione futura: regressione specifica dei due modi, correzione esplicita e
+  diagnostica coerente. Non generalizzare l'uso dell'overload prima di correggerlo.
+
+R02 — Steel: baseline con 17 fallimenti, cause non ancora attribuite.
+  Tutti in C/GPCChecker.Test.Steel/EN1993p11Test.cs:
+  Sap_SectionRHSTest1 (128); Sap_SectionRHSTest2 (268);
+  SectionRHSClassification (325); SectionRHSClasstification2 (368);
+  SectionHBuckling1 (411); SectionHBucklingExample2 (488);
+  SectionHLateralTorsionalBuckling1 (535); SectionHLateralTorsionalBuckling2 (586);
+  SectionCLateralTorsionalBuckling2 (618); SectionHInteraction2 (702);
+  SectionHInteraction3 (743); Sap_SectionHAsymmetricTest1 (1045);
+  Sap_SectionHAsymmetricTest2 (1173); Sap_SectionCHSTest1 (1357);
+  Sap_SectionTTest (1712); Sap_SectionTTest2 (1840); Sap_SectionLTest (1976).
+  I messaggi e le tolleranze sono nel manifesto. Alcuni assert confrontano un
+  rapporto capacità di riferimento/capacità calcolata con 1: il valore 1 nel
+  messaggio non prova che il motore restituisca un utilizzo costante.
+  Azione futura: distinguere difetti di motore, aspettative storiche e fixture;
+  non allargare le tolleranze per ottenere una suite verde. Nessuna correzione
+  normativa dedotta da questo solo inventario.
+
+R03 — Steel: completezza e aggregazione.
+  EN1993p11Checker.cs contiene TODO per classe 4 e usi di stationResults[j]
+  accanto a stationResults[index] nel ciclo su casi/stazioni (es. riga 340).
+  Da verificare con un caso a più combinazioni, senza assumere che spieghi R02.
+  Il catch aggiunge ErrorLog e può lasciare risultati parziali; gli adattatori
+  devono leggere gli errori e verificare la completezza, non soltanto WorkingRatio.
+  Il minimo 0.001 restituito da Steel/Checker.GetWorkingRatio per azioni piccole
+  non va scambiato con una decisione di applicabilità della verifica.
+
+R04 — Plate: attributi storici non adeguati a uno shell generale.
+  PlateCheckerAttribute.cs:24 usa risultanti beam. Model prepara già shell,
+  posizione, proprietà e armature, ma ModelChecker restituisce ShellCheckerUnavailable.
+  Azione: studio condiviso di metodo, regioni, facce e punti; nessuna formula plate
+  da aggiungere durante questa migrazione senza il confronto concordato.
+
+R05 — Portabilità Anthea -> netstandard2.0.
+  X.Calculations usa record/init, API moderne come double.IsFinite, Math.Clamp,
+  Math.Cbrt/Math.Hypot, collezioni e System.Text.Json.Nodes.
+  Il trasferimento richiede estrazione/adattamento dei nuclei e dei contratti,
+  non una copia dei file che compili solo cambiando il framework di Checker.
+
+R06 — Normativa e disponibilità devono restare separate.
+  ACI è reale per la sezione cls, AISC è uno scheletro per l'acciaio; FRC nel
+  catalogo non abilita fessurazione/taglio ordinari; torsione e dettagli Anthea
+  non supportano automaticamente tutti i profili del taglio.
+  Serve una mappa materiale x geometria x meccanismo x norma/edizione.
+
+R07 — Convenzioni e stato dei solver.
+  Anthea usa azioni in kN/kNm e dimensioni in mm; Checker nativo usa N/Nmm.
+  Compressione negativa nel percorso moderno. Anthea costruisce un CoordinateSystem
+  sezionale con assi -X/-Y e trasporta esplicitamente le azioni; l'adattatore
+  ModelChecker usa il riferimento delle componenti già preparate da Model.
+  Conservare trasformazioni esplicite e test di invarianza; non inserire cambi
+  di segno globali per far coincidere i due adattatori.
+  Anthea protegge la costruzione della mesh; ModelChecker usa un lock del solver.
+  La parallelizzazione va valutata su istanze e dipendenze effettive.
+
+8. SEQUENZA PROPOSTA DI MIGRAZIONE, BASATA SUI SORGENTI TROVATI
+
+M0 — Risultati e baseline (passo 2 del prompt).
+  Definire contesto normativo, stato di esecuzione, dati, esito, origine e dettagli
+  dei singoli meccanismi. Riutilizzare CheckResult/CheckReport con adattatori dei
+  risultati nativi. Esempi concreti: pressoflessione, due tagli, torsione e SLE
+  dello stesso stato. Salvare le fixture Anthea e identificare le DLL di confronto.
+
+M1 — Consolidare la sezione cls già funzionante.
+  Correggere R01 con test dedicati e collegare i dettagli di domini e tensioni SLE.
+  Esplicitare i profili normativi, compreso il ramo ACI, senza confonderli con la
+  disponibilità dei successivi meccanismi. Nessuna riscrittura dell'integratore.
+
+M2 — Primi nuclei indipendenti.
+  Trasferire aderenza e nucleo di taglio multinormativa con input/output tipizzati.
+  Portare i benchmark A434 pertinenti e confrontare le due implementazioni.
+  Rimuovere il legame nominale del risultato generico di taglio con Ntc2018Checks.
+
+M3 — Geometria efficace e fessurazione.
+  Isolare regioni, distanze e selezione delle barre dai JsonObject/SezioneCA;
+  riusare Model/Geometry. Trasferire i rami ordinari, interamente tesi e delle
+  cavità con prove per ciascun profilo normativo. È il trasferimento con più
+  dipendenze geometriche; non ridurlo alla sola formula scalare dell'apertura.
+
+M4 — Torsione e interazioni.
+  Trasferire il nucleo NTC conservando capacità/rapporti separati, requisiti delle
+  staffe e concomitanza con i tagli. Altre norme restano esplicitamente non supportate.
+
+M5 — Ancoraggi, dettagli e curve.
+  Trasferire le verifiche locali e la risposta M-curvatura. Le parti dipendenti
+  dall'elemento richiedono prima la decisione del passo 3: distinguere sezione,
+  elemento FEM, asta fisica e regione 2D. Il progetto automatico delle armature
+  resta un consumatore successivo dei motori, non una dipendenza del checker.
+
+M6 — Orchestrazione e altri materiali.
+  Generalizzare ModelChecker per materiale/meccanismo/norma e raccolte per
+  elemento. Collegare Steel dopo il triage di R02/R03 e CompositeBridge secondo
+  il suo campo effettivo. Non cambiare automaticamente i chiamanti Anthea.
+
+M7 — Plate, solo dopo confronto.
+  Presentare alternative per Nxx/Nyy/Nxy/Mxx/Myy/Mxy/Qx/Qy, armature per faccia,
+  riferimenti, natura dei campioni e verifiche regionali. Attendere la decisione
+  prima del motore resistente o dei suoi contratti specifici. Punzonamento separato.
+
+9. VALIDAZIONE ESEGUITA E LIMITI
+
+Suite                         Risultato                         Ambiente
+ModelChecker.Tests            8 superati / 8                    net6.0; build corrente
+ConcreteControlTests           43 superati / 43                  net472; MSBuild + VSTest x64
+GPCChecker.Test.Steel          77 superati, 17 falliti / 94       net472; MSBuild + VSTest x64
+GPCChecker.Test.CompositeBridge 254 superati / 254               net8.0; build corrente
+Anthea ConcreteCode.Checks     434 asserzioni superate            net8.0; DLL distribuite
+Anthea X.Verifiche --ca-module 78 asserzioni superate             net8.0; DLL distribuite
+
+Concrete/Steel sono stati compilati con MSBuild di Visual Studio 2022; la build
+dei test Concrete ha un warning MSB3270 già nel riferimento GMsh.Net AMD64/MSIL.
+Le librerie Concrete, Steel e CompositeBridge compilano senza modifiche dei target.
+Non sono stati rieseguiti: l'intera suite storica Concrete, BridgeAudit contro
+l'applicazione, test UI, ottimizzatore armature, generazione esterna OpenSees.
+
+Esempi riproducibili (repository indicato come directory corrente):
+  Model: dotnet test ModelChecker.Tests/ModelChecker.Tests.csproj -c Release --no-restore
+  Checker: dotnet test GPCChecker.Test.CompositeBridge/GPCChecker.Test.CompositeBridge.csproj -c Release --no-restore
+  Checker: MSBuild.exe GPCChecker.Test.Concrete/GPCChecker.Test.Concrete.csproj /t:Build /p:Configuration=Release
+  Checker: MSBuild.exe GPCChecker.Test.Steel/GPCChecker.Test.Steel.csproj /t:Build /p:Configuration=Release
+  Checker: dotnet vstest GPCChecker.Test.Concrete/bin/Release/GPCChecker.Test.Concrete.dll "/Platform:x64" "/TestCaseFilter:FullyQualifiedName~ConcreteControlTests"
+  Checker: dotnet vstest GPCChecker.Test.Steel/bin/Release/GPCChecker.Test.Steel.dll "/Platform:x64"
+  ANTHEA: dotnet run --project supporto/test/ConcreteCode.Checks/ConcreteCode.Checks.csproj -c Release --no-restore
+  ANTHEA: dotnet run --project supporto/test/X.Verifiche/X.Verifiche.csproj -c Release --no-restore -- --ca-module
+
+Non sono stati aggiunti test nuovi: questa attività ha censito e rieseguito test
+esistenti. I risultati misurano i casi coperti e non una validazione generale
+di tutte le geometrie, normative o combinazioni.
+
+10. REGISTRO DI AVANZAMENTO
+
+Passo 1: COMPLETATO — inventario, sorgenti Anthea individuati, matrice delle
+capacità, risultati esistenti, baseline e ordine di migrazione.
+Passo 2: DA AVVIARE — proposta concreta e contratti compatibili di risultati/resoconti.
+Passo 3: DA DISCUTERE — passaggio a elemento; nessuna API incompatibile introdotta.
+Passo 4: DA AVVIARE — migrazione cls secondo M1-M5.
+Passo 5: DA AVVIARE — estensione ModelChecker, triage Steel e adattatore composto.
+Passo 6: CONFRONTO PREVENTIVO NECESSARIO — nessuna implementazione plate avviata.
+Passo 7: baseline acquisita per le suite indicate; validazioni di migrazione future.
+
+Prossimo risultato reviewabile: schema delle classi di risultato/resoconto con
+esempi di una verifica cls completa e di una verifica non eseguibile, mappatura
+ai tipi esistenti e strategia di persistenza senza riferimenti vivi ai solver.
