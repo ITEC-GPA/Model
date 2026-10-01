@@ -375,6 +375,10 @@ namespace GPC.Model.Sections.Concrete
         /// <summary>Detailing data (covers, widths, aggregate, lap zone, confirmations), with provenance (null: not given). Part of the section revision.</summary>
         public ConcreteDetailingData DetailingData { get => _detailingData; set => _detailingData = value; }
 
+        private ConcreteDurabilityData _durabilityData;
+        /// <summary>Durability data (exposure classes, design life, cover modifiers), with provenance (null: not given). Part of the section revision.</summary>
+        public ConcreteDurabilityData DurabilityData { get => _durabilityData; set => _durabilityData = value; }
+
         /// <summary>
         ///
         /// </summary>
@@ -572,6 +576,7 @@ namespace GPC.Model.Sections.Concrete
                     else if (entry.Name == "TorsionData") _torsionData = (ConcreteTorsionData)info.GetValue("TorsionData", typeof(ConcreteTorsionData));
                     else if (entry.Name == "CrackData") _crackData = (ConcreteCrackData)info.GetValue("CrackData", typeof(ConcreteCrackData));
                     else if (entry.Name == "DetailingData") _detailingData = (ConcreteDetailingData)info.GetValue("DetailingData", typeof(ConcreteDetailingData));
+                    else if (entry.Name == "DurabilityData") _durabilityData = (ConcreteDurabilityData)info.GetValue("DurabilityData", typeof(ConcreteDurabilityData));
                 }
         }
 
@@ -1238,6 +1243,7 @@ namespace GPC.Model.Sections.Concrete
             if (_torsionData != null) info.AddValue("TorsionData", _torsionData, typeof(ConcreteTorsionData));
             if (_crackData != null) info.AddValue("CrackData", _crackData, typeof(ConcreteCrackData));
             if (_detailingData != null) info.AddValue("DetailingData", _detailingData, typeof(ConcreteDetailingData));
+            if (_durabilityData != null) info.AddValue("DurabilityData", _durabilityData, typeof(ConcreteDurabilityData));
 
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
@@ -1288,7 +1294,8 @@ namespace GPC.Model.Sections.Concrete
                 Equals(_shearData, other._shearData) &&
                 Equals(_torsionData, other._torsionData) &&
                 Equals(_crackData, other._crackData) &&
-                Equals(_detailingData, other._detailingData);
+                Equals(_detailingData, other._detailingData) &&
+                Equals(_durabilityData, other._durabilityData);
         }
 
         /// <summary>

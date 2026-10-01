@@ -187,6 +187,26 @@ della revisione di verifica.
 Le staffe sono quelle di `ShearData`. La verifica dei dettagli è un'attività per asta fisica: una sola per asta e stato,
 mai una per ogni campione FEM.
 
+### Dati di durabilità
+
+`ReinforcedConcreteSection.DurabilityData` (`ConcreteDurabilityData`, facoltativo) contiene:
+
+- le classi di esposizione che agiscono insieme (almeno una, senza ripetizioni; X0 da sola);
+- la vita nominale, 50 o 100 anni;
+- i modificatori del prospetto 4.3N di EN 1992-1-1: riduzione per classe di resistenza e controllo di qualità della
+  produzione;
+- le maggiorazioni: superficie irregolare (+5 mm), abrasione XM1-XM3 (5, 10, 15 mm), getto contro terreno preparato
+  (40 mm) o direttamente contro terreno (75 mm);
+- per NTC: la riduzione di 5 mm per il controllo di qualità dei copriferri e il Cmin della classe pertinente (null =
+  classe UNI 11104 delle esposizioni);
+- la provenienza.
+
+Piastre (NTC) e geometria a soletta (EN) appartengono alle verifiche plate: una sezione di trave o pilastro non è mai
+una piastra. Copriferro nominale, Δcdev e aggregato sono quelli di `DetailingData`. Nella verifica dei dettagli
+cmin,dur calcolato e quello indicato in `DetailingData` si confrontano e vale il maggiore; la classe minima di
+resistenza delle esposizioni diventa un controllo. La voce è scritta solo se presente e fa parte della revisione di
+verifica.
+
 ## Sezioni variabili
 
 `SectionVariation(start, end, law)` restituisce la sezione in un punto dell'elemento interpolando i vertici dei
