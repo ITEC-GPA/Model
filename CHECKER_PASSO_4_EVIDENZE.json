@@ -1,78 +1,207 @@
 {
-    "step":  "PASSO 4 (4A avviata, 4B, 4C)",
+    "step":  "PASSO 4 completed (4A-4G)",
     "date":  "2026-10-01",
-    "baseRevisions":  {
-                          "model":  "435ca8bf",
-                          "checker":  "63a3d05b",
-                          "anthea":  "fe4652c"
-                      },
+    "authorization":  "User requests of 2026-10-01: continua lo spostamento; tutte le norme non americane; segui l\u0027ordine previsto; continua con i prossimi passi",
+    "heads":  {
+                  "model":  "205e5f78",
+                  "checker":  "9f2b466e",
+                  "anthea":  "dc8415a"
+              },
+    "commits":  {
+                    "model":  [
+                                  "017026aa 4A",
+                                  "ad562d40 4D",
+                                  "d67982bd 4E",
+                                  "6142f524 4F",
+                                  "c1c137aa 4G.1",
+                                  "205e5f78 4G.2",
+                                  "(this commit) 4G.3 and evidence"
+                              ],
+                    "checker":  [
+                                    "ce2a6131 4A",
+                                    "36b19b70 4D",
+                                    "069adc23 4E",
+                                    "9f2b466e 4F"
+                                ],
+                    "anthea":  [
+                                   "b5f2222 SLE capture",
+                                   "4bb8815 torsion capture",
+                                   "e5efa45 crack capture",
+                                   "dc8415a detailing capture"
+                               ]
+                },
     "buildOrder":  [
                        "GPCModel",
-                       "GPCModelData",
                        "GPCChecker.Concrete",
                        "GPCChecker.Steel",
                        "GPCChecker.CompositeBridge",
+                       "GPCChecker.Geotechnics",
                        "GPCModelChecker"
                    ],
     "binaries":  {
                      "Model/Model/bin/Release/netstandard2.0/GPCModel.dll":  {
                                                                                  "version":  "1.6.0.0",
-                                                                                 "sha256":  "3854BC4523486482EE72AA02F9383F37B2C4810B709BCA7FB9564F78F639BE2E"
+                                                                                 "sha256":  "B23F455C082A039F0A8655209C755D838D37D8CA0915AA02046C4DCF4C5FF1FB"
                                                                              },
-                     "Model/ModelData/bin/Release/netstandard2.0/GPCModelData.dll":  {
-                                                                                         "version":  "0.0.2.1",
-                                                                                         "sha256":  "DF6F04C53F28322F212BC5F55527193D2AF72EA64B5ACEA5B8AF0CE54CE61188"
-                                                                                     },
                      "Model/ModelChecker/bin/Release/netstandard2.0/GPCModelChecker.dll":  {
                                                                                                "version":  "1.0.0.0",
-                                                                                               "sha256":  "664DF6654E647270390A2E616724775370E51E29813C071BDA4BE6E68823382D"
+                                                                                               "sha256":  "469FBB7682FD8485F4FF291E557D6ADF0AC82CA71AFC1F563C7D0A302D524102"
                                                                                            },
                      "Checker/GPCChecker.Concrete/bin/Release/netstandard2.0/GPCChecker.Concrete.dll":  {
                                                                                                             "version":  "0.0.14.0",
-                                                                                                            "sha256":  "3DCEC17DC28B73C5297611F398B8E3F38FC4AF7774DCAB04D9F290F3F8C4843A"
+                                                                                                            "sha256":  "B957EF3C348FBA189695D6960C64EFA76DCFBED6FBEABC7C8288BC9B2753CA4E"
                                                                                                         },
                      "Checker/GPCChecker.Steel/bin/Release/netstandard2.0/GPCChecker.Steel.dll":  {
                                                                                                       "version":  "1.1.0.5",
-                                                                                                      "sha256":  "8D476AD2CCA567E8AF390F68B1C497077CE616AFF2C88A8116C8E794352E9CD5"
+                                                                                                      "sha256":  "37078DC3907570BBFDDF38947C9F51062FF81506E4507D9ACBA6B9A4E0BC1D28"
                                                                                                   },
                      "Checker/GPCChecker.CompositeBridge/bin/Release/netstandard2.0/GPCChecker.CompositeBridge.dll":  {
                                                                                                                           "version":  "1.4.0.2",
-                                                                                                                          "sha256":  "C04E998F2DE4FC0EB7E38864B1157DEA461EB5853A3736C27D50B1934A9EF8EE"
-                                                                                                                      }
+                                                                                                                          "sha256":  "C2F7D61873CF243F330676C7146DC4CB780BB10EB6603B1725C5CD9F9E2E15B6"
+                                                                                                                      },
+                     "Checker/GPCChecker.Geotechnics/bin/Release/netstandard2.0/GPCChecker.Geotechnics.dll":  {
+                                                                                                                  "version":  "0.1.0.0",
+                                                                                                                  "sha256":  "9115A8CDF01A2B6A1E21273AFF2581FD25C1FC873048F09FF34E72E82416A6C9"
+                                                                                                              }
                  },
     "legacyCapture":  {
-                          "harness":  "ANTHEA/supporto/test/CheckerMigration.Capture",
-                          "anthea":  "fe4652c",
-                          "antheaCalculationsSha256":  "C4D6F8C24C7372B5A900E485BF6C2E712D0B81E40F931DAFF4C04C07F80F8C35",
-                          "cases":  2016,
-                          "evaluated":  1840,
-                          "rejected":  176,
-                          "seed":  20261001,
-                          "fixture":  "Checker/GPCChecker.Test.Concrete/Fixtures/shear-legacy.csv",
-                          "fixtureSha256":  "F31C5F4DB72A95D068D0C20B989E3C81E593BD6DF6D5CEBF0DFC2B612DFE3FFC",
-                          "tolerance":  "relative 1e-9 (kN after conversion)"
+                          "harness":  "ANTHEA/supporto/test/CheckerMigration.Capture (dotnet run -- supporto/artefatti/migrazione-checker \u003ccommit\u003e)",
+                          "calculationSources":  "ANTHEA X.Calculations unchanged since fe4652c",
+                          "fixtures":  {
+                                           "anchorage-legacy.csv":  "2A3AC9E721C3846B2BFD8CB9C3EFC8B065E8963999CB9CE3AA1EBFEB74CC5B05",
+                                           "crack-legacy.csv":  "707AA614B1DED88FE236C36C04B24EDDC638CB0062998B4A219F5B3BFA94218D",
+                                           "crack-scalar-legacy.csv":  "55A993972AD466B4959E6A7260C9C889B11A2562964B4E7222B7989567A9B7BF",
+                                           "crack-sections.xml":  "3BCFF894CA2432401CD5FBE556539C911BAA67FA485C1D4FD2DAFDE1FDB4DF16",
+                                           "curvature-legacy.csv":  "5D2AE785A9A5099F0B3577016A45384A52AB9D0E3A1D8C45E2FE2D9B090343A8",
+                                           "detailing-legacy.csv":  "9F602A3764787663837463C0C22520560C265BFAAF63ADB2BF70171E2454F0A7",
+                                           "detailing-sections.xml":  "592A7034AADC7FD929F0717C2B7114001A8EB8DE2F8901D0C6EAB47E608384EE",
+                                           "shear-legacy.csv":  "F31C5F4DB72A95D068D0C20B989E3C81E593BD6DF6D5CEBF0DFC2B612DFE3FFC",
+                                           "stress-legacy.csv":  "022EF5A83CF881F57117A44EFA8688FEB7225F6188284E37047DF1DD76081C34",
+                                           "stress-sections.xml":  "6DBE1C1B17A2B12F91052B5FD742413725D1C0A416DF2878B7255A22E7CB0467",
+                                           "torsion-geometry-legacy.csv":  "42FE4C1F480107585F3384D77ED5349A1D5389B507BF9DF66048E24E58F14E30",
+                                           "torsion-legacy.csv":  "55406D8BD8C43D4A168156DA049C25B720B209A04B1C5EB01BE8AD3118E962B9"
+                                       },
+                          "tolerance":  "relative 1e-9 after kN/kNm -\u003e N/Nmm conversion; moment-curvature 1e-7, strains of yielded points 1e-3 (documented)"
                       },
-    "fingerprintCompatibility":  {
-                                     "method":  "reflection probe on GPCModel 1.5.0.0 (ANTHEA/lib/Checker) vs build with SectionChecks/Category",
-                                     "resultSelection":  "19103B7999B47EB0294A00D0F51FC7D25BEC332B3BB3F6687036FB9AA6C91EB5",
-                                     "beamCheckPlanRequest":  "C1A2659D8CB90012F2F38E8DFD9EC437AF33D77E0AEE18F370B2B78149FE37B3",
-                                     "identical":  true
-                                 },
     "tests":  {
-                  "Model UnitTest":  "811 passed, 1 ignored, 0 failed (dotnet test -c Release)",
-                  "ModelChecker.Tests":  "65/65 (10 new in SectionCheckSpecificationTest)",
-                  "GPCChecker.Test.Concrete":  "456/456 (5 new in ShearMigrationTests; MSBuild Release + vstest x64)",
-                  "GPCChecker.Test.Steel":  "77/94: the 17 historical failures, same tests as the reference run",
+                  "Model UnitTest":  "816/817 (1 opt-in Straus7 native benchmark not executed)",
+                  "ModelChecker.Tests":  "99/99",
+                  "GPCChecker.Test.Concrete":  "480/480 (MSBuild Release + vstest x64)",
+                  "GPCChecker.Test.Steel":  "77/94: the 17 historical failures, unchanged",
                   "GPCChecker.Test.CompositeBridge":  "254/254",
-                  "comparison":  "per-test outcomes identical to the reference (cm1) except the 5 new tests; NonfiniteTargetsAreRejected (8)/(∞) is a name-encoding artifact"
+                  "GPCChecker.Test.Geotechnics":  "3/3",
+                  "comparison":  "per-test outcomes identical to the previous run (detail4f), 14 new tests"
               },
-    "sources":  [
-                    "ANTHEA X.Calculations/ConcreteCodeChecks.cs, Ntc2018Checks.cs, CheckerSection.cs (fe4652c)",
-                    "hand calculations EC2 6.2.2/6.2.3 and NTC 2018 4.1.2.3.5 written in ShearMigrationTests",
-                    "NTC 2018 4.1.2.2.5 stress-limit coefficients 0.60/0.45 fck and 0.80 fyk asserted in SectionCheckSpecificationTest"
-                ],
+    "sources":  {
+                    "verified":  [
+                                     "D.M. 14/01/2008 chapter 4 (NTC 2008 text; NTC 2018 clauses to be re-checked on the 2018 text)",
+                                     "D.M. 31/07/2012 Italian annex to UNI EN 1992-1-1",
+                                     "DS/EN 1992-1-1 DK NA:2024 (formulas in images not readable)"
+                                 ],
+                    "notAvailable":  [
+                                         "EN 1992-1-1:2004 base text",
+                                         "DIN EN 1992-1-1/NA",
+                                         "NS-EN 1992-1-1 NA",
+                                         "fib MC2010",
+                                         "CNR-DT 200 R1/2013",
+                                         "CNR-DT 204/2006",
+                                         "CS-TR34",
+                                         "NTC 2018 and Circolare 2019"
+                                     ]
+                },
     "divergences":  [
-                        "Math.Cbrt (net8) replaced by Math.Pow(x, 1/3) in netstandard2.0: differences below 1e-15 relative, within the fixture tolerance",
-                        "NTC path now reports intermediate values (legacy had none); numeric results unchanged"
-                    ]
+                        "Math.Cbrt replaced by Math.Pow(x,1/3) (netstandard2.0): below 1e-15",
+                        "Torsion without closed links: NotSatisfied with zero resistance instead of the ANTHEA input error (intentional)",
+                        "Crack Ac,eff by polygon clipping instead of mesh cut: equal within 1e-9",
+                        "Fully tensioned NTC crack: governing spacing reported (ANTHEA lost it)",
+                        "Moment-curvature: strains of yielded points equal only to 1e-3 (plane translation defined within the solver N tolerance)",
+                        "Legacy rules not found in the NTC 2008 text kept and flagged: 15 phi restraint of compression bars, 150/200 mm anchorage/lap floors"
+                    ],
+    "skippedAsTooComplex":  [
+                                "DK NA 6.3.2(6) combined V-T-N-M rule (declared in every DS torsion result)",
+                                "CNR-DT 204 FRC crack width",
+                                "prestressed crack width",
+                                "anchorage zones in the plan",
+                                "DIN/NS/MC2010 detailing and anchorage"
+                            ],
+    "history":  [
+                    {
+                        "step":  "PASSO 4 (4A avviata, 4B, 4C)",
+                        "date":  "2026-10-01",
+                        "baseRevisions":  {
+                                              "model":  "435ca8bf",
+                                              "checker":  "63a3d05b",
+                                              "anthea":  "fe4652c"
+                                          },
+                        "buildOrder":  [
+                                           "GPCModel",
+                                           "GPCModelData",
+                                           "GPCChecker.Concrete",
+                                           "GPCChecker.Steel",
+                                           "GPCChecker.CompositeBridge",
+                                           "GPCModelChecker"
+                                       ],
+                        "binaries":  {
+                                         "Model/Model/bin/Release/netstandard2.0/GPCModel.dll":  {
+                                                                                                     "version":  "1.6.0.0",
+                                                                                                     "sha256":  "3854BC4523486482EE72AA02F9383F37B2C4810B709BCA7FB9564F78F639BE2E"
+                                                                                                 },
+                                         "Model/ModelData/bin/Release/netstandard2.0/GPCModelData.dll":  {
+                                                                                                             "version":  "0.0.2.1",
+                                                                                                             "sha256":  "DF6F04C53F28322F212BC5F55527193D2AF72EA64B5ACEA5B8AF0CE54CE61188"
+                                                                                                         },
+                                         "Model/ModelChecker/bin/Release/netstandard2.0/GPCModelChecker.dll":  {
+                                                                                                                   "version":  "1.0.0.0",
+                                                                                                                   "sha256":  "664DF6654E647270390A2E616724775370E51E29813C071BDA4BE6E68823382D"
+                                                                                                               },
+                                         "Checker/GPCChecker.Concrete/bin/Release/netstandard2.0/GPCChecker.Concrete.dll":  {
+                                                                                                                                "version":  "0.0.14.0",
+                                                                                                                                "sha256":  "3DCEC17DC28B73C5297611F398B8E3F38FC4AF7774DCAB04D9F290F3F8C4843A"
+                                                                                                                            },
+                                         "Checker/GPCChecker.Steel/bin/Release/netstandard2.0/GPCChecker.Steel.dll":  {
+                                                                                                                          "version":  "1.1.0.5",
+                                                                                                                          "sha256":  "8D476AD2CCA567E8AF390F68B1C497077CE616AFF2C88A8116C8E794352E9CD5"
+                                                                                                                      },
+                                         "Checker/GPCChecker.CompositeBridge/bin/Release/netstandard2.0/GPCChecker.CompositeBridge.dll":  {
+                                                                                                                                              "version":  "1.4.0.2",
+                                                                                                                                              "sha256":  "C04E998F2DE4FC0EB7E38864B1157DEA461EB5853A3736C27D50B1934A9EF8EE"
+                                                                                                                                          }
+                                     },
+                        "legacyCapture":  {
+                                              "harness":  "ANTHEA/supporto/test/CheckerMigration.Capture",
+                                              "anthea":  "fe4652c",
+                                              "antheaCalculationsSha256":  "C4D6F8C24C7372B5A900E485BF6C2E712D0B81E40F931DAFF4C04C07F80F8C35",
+                                              "cases":  2016,
+                                              "evaluated":  1840,
+                                              "rejected":  176,
+                                              "seed":  20261001,
+                                              "fixture":  "Checker/GPCChecker.Test.Concrete/Fixtures/shear-legacy.csv",
+                                              "fixtureSha256":  "F31C5F4DB72A95D068D0C20B989E3C81E593BD6DF6D5CEBF0DFC2B612DFE3FFC",
+                                              "tolerance":  "relative 1e-9 (kN after conversion)"
+                                          },
+                        "fingerprintCompatibility":  {
+                                                         "method":  "reflection probe on GPCModel 1.5.0.0 (ANTHEA/lib/Checker) vs build with SectionChecks/Category",
+                                                         "resultSelection":  "19103B7999B47EB0294A00D0F51FC7D25BEC332B3BB3F6687036FB9AA6C91EB5",
+                                                         "beamCheckPlanRequest":  "C1A2659D8CB90012F2F38E8DFD9EC437AF33D77E0AEE18F370B2B78149FE37B3",
+                                                         "identical":  true
+                                                     },
+                        "tests":  {
+                                      "Model UnitTest":  "811 passed, 1 ignored, 0 failed (dotnet test -c Release)",
+                                      "ModelChecker.Tests":  "65/65 (10 new in SectionCheckSpecificationTest)",
+                                      "GPCChecker.Test.Concrete":  "456/456 (5 new in ShearMigrationTests; MSBuild Release + vstest x64)",
+                                      "GPCChecker.Test.Steel":  "77/94: the 17 historical failures, same tests as the reference run",
+                                      "GPCChecker.Test.CompositeBridge":  "254/254",
+                                      "comparison":  "per-test outcomes identical to the reference (cm1) except the 5 new tests; NonfiniteTargetsAreRejected (8)/(âˆž) is a name-encoding artifact"
+                                  },
+                        "sources":  [
+                                        "ANTHEA X.Calculations/ConcreteCodeChecks.cs, Ntc2018Checks.cs, CheckerSection.cs (fe4652c)",
+                                        "hand calculations EC2 6.2.2/6.2.3 and NTC 2018 4.1.2.3.5 written in ShearMigrationTests",
+                                        "NTC 2018 4.1.2.2.5 stress-limit coefficients 0.60/0.45 fck and 0.80 fyk asserted in SectionCheckSpecificationTest"
+                                    ],
+                        "divergences":  [
+                                            "Math.Cbrt (net8) replaced by Math.Pow(x, 1/3) in netstandard2.0: differences below 1e-15 relative, within the fixture tolerance",
+                                            "NTC path now reports intermediate values (legacy had none); numeric results unchanged"
+                                        ]
+                    }
+                ]
 }

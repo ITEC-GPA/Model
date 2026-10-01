@@ -17,7 +17,8 @@ STATO DELLE SOTTOFASI
                                                              matrice e limiti)
 4F  Aderenza, ancoraggi, dettagli, M-curvatura               TRASFERITI (dettagli 1D collegati per asta; ancoraggi e
                                                              M-curvatura come API; vedi limiti)
-4G  Regressione completa e consegna                          DA FARE (regressioni eseguite per 4A-4C, vedi prove)
+4G  Regressione completa e consegna                          COMPLETATA (4G.1 fonti, 4G.2 casi, 4G.3 esempi, bilancio
+                                                             A01-A10, CHECKER_PASSO_4_EVIDENZE.json)
 
 4A — DISCRIMINATORI DEL PIANO (Model, GPC.Model.PostProcessing)
 
@@ -357,6 +358,76 @@ Erano già coperti dai passi 2-3 per la pressoflessione, e restano validi:
 - annullamento a metà con avanzamento;
 - archivi di schema 1 e 2;
 - rifiuto dei piani incoerenti.
+
+4G.3 — ESEMPI RIPRODUCIBILI SU ASTA FISICA (Step4ExamplesTest, 5 test)
+
+Asta T1 (2 elementi FEM, il secondo invertito, RC 300x500 4Ø16 con barra spostata, staffe Ø8/200).
+Verifiche di sezione:
+- pressoflessione SLU;
+- taglio V1 e V2;
+- torsione;
+- tensioni SLE caratteristica e quasi permanente;
+- fessurazione caratteristica e quasi permanente.
+In più i dettagli d'asta per stato: 8 campioni × 8 verifiche + 3 = 67 attività.
+1. NTC, trave: carico in punta 6 kN (30 kNm all'incastro), torsione 3 kNm, XC3.
+   - Tutte le verifiche richieste sono soddisfatte; la fessurazione caratteristica è non applicabile con il motivo.
+   - Pressoflessione governante all'incastro.
+   - Governanti separati per configurazione.
+   - Con 8 kN (40 kNm) la fessurazione quasi permanente all'incastro supera il limite di 0,3 mm (wk/wlim = 1,09): esito
+     reale, usato per tarare l'esempio.
+2. Stessa trave con EN 1992-1-1:
+   - fessurazione solo quasi permanente (XC3: 0,3 mm);
+   - TRcd maggiore che con NTC (ν fcd con αcc = 1 contro 0,5 fcd con αcc = 0,85);
+   - dettagli con le regole EC2 (ρw,min, sl,max, interasse delle braccia).
+3. UNI, pilastro (N = −600 kN): il passo staffe di 200 mm supera min(12 Ømin; b; 250) = 192 mm.
+   - Dettagli d'asta non soddisfatti, con NEd = 600 kN dai campioni dello stato.
+   - Verifiche di sezione soddisfatte.
+   - Esito del lavoro non soddisfatto.
+4. Armatura sensibile in XD1 (NTC): decompressione quasi permanente non soddisfatta all'incastro e soddisfatta
+   all'estremo libero. Nel lavoro DS:
+   - dettagli non supportati (regole nazionali non implementate);
+   - torsione con l'avviso DK NA 6.3.2(6);
+   - fessurazione con il limite DK di 0,4 mm in XC3.
+5. Controlli mancanti e non supportati visibili:
+   - DIN: dettagli non supportati, interazione quadratica in torsione;
+   - MC2010 senza wlim: dati insufficienti;
+   - CS-TR34: solo la pressoflessione;
+   - sezione senza dati di fessurazione: MissingCrackData, esito del lavoro «non valutato».
+Le norme non sono forzate allo stesso insieme di capacità: ogni lavoro mostra ciò che la norma richiede, ciò che manca e
+ciò che non è supportato.
+
+BILANCIO DEL PASSO 4 PER FAMIGLIA (inventario CHECKER_PASSO_1)
+
+A01 Profili normativi e materiali — COMPLETA per le norme non americane.
+    Classi Standard per tipo esatto in ogni famiglia di verifica: nessun ripiego, CS-TR34 non applicabile dove non
+    pertinente, ACI e AASHTO futuri. I materiali restano quelli di Model.
+A02 Taglio nelle due direzioni — COMPLETA nel perimetro dichiarato (c.a. ordinario, dati espliciti).
+    Fuori perimetro:
+    - CNR-DT 204 con fibre più staffe;
+    - precompressione;
+    - sezioni composte;
+    - derivazione automatica di bw, d e Asl dal contorno.
+A03 Tensioni SLE — COMPLETA (caratteristica e quasi permanente; frequente senza limiti).
+    Fuori perimetro: trefoli con predeformazione nulla, come in ANTHEA.
+A04 Fessurazione e regioni efficaci — COMPLETA (catena completa, 936 stati riprodotti).
+    Fuori perimetro: FRC, c.a.p., superfici interne di fori generici.
+A05 Torsione e interazioni — COMPLETA per tutte le norme non americane tranne CNR-DT 204.
+    Parziale DS: non applicata la regola DK NA 6.3.2(6), dichiarata in ogni risultato.
+A06 Aderenza, ancoraggi, sovrapposizioni — PARZIALE.
+    - API in Checker per NTC, EN, UNI, DS e CNR-DT 200, riprodotte su ANTHEA.
+    - Non pianificate in ModelChecker: mancano i dati delle zone di barra ed estremo.
+    - Non supportati: DIN, NS, MC2010.
+A07 Dettagli costruttivi e copriferro — PARZIALE.
+    - Travi e pilastri come attività d'asta (NTC, EN, UNI, DS; per le travi DS, As,min e ρw,min non implementati).
+    - Piastre e pareti rinviate al passo 6.
+    - Copriferro di durabilità (cmin,dur) come dato: il calcolo appartiene alla famiglia M della migrazione.
+A08 Momento-curvatura — COMPLETA come API di risposta (5 curve riprodotte). Non è una verifica, quindi non è
+    pianificata.
+A09 Progetto automatico delle armature — resta in ANTHEA (decisione del prompt): potrà usare le API di Checker.
+A10 Orchestrazione, JSON, report — resta in ANTHEA. Le semantiche utili (categorie, copertura, diagnostica, evidenza)
+    sono nel piano e nei resoconti di Model.
+Stabilità: non supportata (MemberCheckerUnavailable). Il passo 4 non la promuove con la curva M-χ.
+Il passo 4 è chiuso nel perimetro concordato. Le parti PARZIALI e i limiti sono elencati sopra e in LIMITI APERTI.
 
 MATRICE DELLE CAPACITÀ (dopo 4A-4F)
 
