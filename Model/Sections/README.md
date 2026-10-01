@@ -28,6 +28,10 @@ precompressione, confinamento) non sono in Model: sono dei verificatori.
 | Acciaio–calcestruzzo | `ReinforcedConcreteSection.CreateFilledTube`, `CreateDoubleSkinTube`, `CreateEncased`, `CreateEncasedCircular`, `CreatePartiallyEncased`, `CreateSlabOnGirders`, `CreateSlabOnSteelBox` | Vedi sotto |
 | Variabili | `SectionVariation` | Interpolazione dei contorni lungo l'elemento |
 
+`SectionCHS` e `SectionCircular` hanno le proprietà dalle formule chiuse del cerchio; la forma (32 lati) serve alla mesh, il contorno
+esatto (256 lati) alla torsione numerica, alle sovrapposizioni con il calcestruzzo e al nucleo dei tubi riempiti (prima era la forma:
+torsione numerica -1,4%, nucleo -0,6%).
+
 Le forme parametriche derivano da `SectionParametric`: il contorno è costruito dai parametri e area, baricentro,
 momenti d'inerzia, moduli elastici e plastici sono esatti sul contorno (archi discretizzati con 64 lati ogni 90°,
 errore relativo circa 1e-4).
@@ -96,7 +100,14 @@ costruiscono, non classi derivate.
 - `CalculateHomogenizedTorsionProperties(phi)`: torsione della sezione composta con gli elementi finiti, calcestruzzo
   senza l'acciaio e profili pesati con Gs/Gc (torsione) ed Es/Ec (centro di taglio, ingobbamento); le celle chiuse
   da acciaio e calcestruzzo (cassoncino chiuso dalla soletta) sono risolte come tali. Barre escluse.
-- `ConcreteShape`: la forma del calcestruzzo (`Shape` resta come membro di `ISectionShape`).
+- `ConcreteShape`: la forma del calcestruzzo (anche in `IConcreteSection`). `Shape` è ora solo l'implementazione esplicita di
+  `ISectionShape`: chi la usa su una variabile `ReinforcedConcreteSection` va aggiornato (5 file di test di `GPCChecker.Test.Concrete`,
+  209 righe; le librerie del Checker usano l'interfaccia e compilano).
+- `GetHomogeneizedMechanicalProperties(phi)` senza barre né profili restituisce le proprietà del calcestruzzo, come la versione senza
+  phi (prima tutti zeri: CompositeBridge e CheckerUI li aggiravano).
+- `SteelSectionPosition.MirrorX`, `MirrorY`: il profilo specchiato attorno all'asse verticale e/o orizzontale per il punto
+  d'inserimento, prima della rotazione (tutte le trasformazioni passano da `PositionToGlobal` e `PositionToLocal`; il prodotto
+  d'inerzia cambia segno con uno specchio).
 
 | Metodo | Tipologia |
 | --- | --- |

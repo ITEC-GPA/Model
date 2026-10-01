@@ -80,8 +80,10 @@ namespace GPC.Model.Sections.Steel
     /// <summary>
     /// Generic steel section and its displacement including:
     /// 1) Section translation from InsertionPoint to origin (0, 0).
-    /// 2) Rotation around a point RotationCenter;
-    /// 3) Traslation.
+    /// 2) Mirror about the vertical (<see cref="MirrorX"/>) and/or the horizontal (<see cref="MirrorY"/>) axis through the origin, that is through
+    /// the insertion point;
+    /// 3) Rotation around a point RotationCenter;
+    /// 4) Traslation.
     /// Operations done in this order.
     /// </summary>
     [Serializable]
@@ -105,6 +107,15 @@ namespace GPC.Model.Sections.Steel
         /// The insertion point (local coordinates of the section)
         /// </summary>
         private Point2d _insertionPoint;
+
+        /// <summary>
+        /// True to mirror the section about the vertical axis through the insertion point (x to -x)
+        /// </summary>
+        private bool _mirrorX;
+        /// <summary>
+        /// True to mirror the section about the horizontal axis through the insertion point (y to -y)
+        /// </summary>
+        private bool _mirrorY;
 
         /// <summary>
         /// The overlap with the concrete computed by <see cref="UpdateConcreteOverlap"/> (not serialized)
@@ -156,6 +167,25 @@ namespace GPC.Model.Sections.Steel
         /// Traslation.
         /// </summary>
         public Vector2d Traslation { get; set; }
+
+        /// <summary>
+        /// True to mirror the section about the vertical axis through the insertion point (x to -x), before the rotation: e.g. a channel with the
+        /// flanges towards the negative X
+        /// </summary>
+        public bool MirrorX
+        {
+            get => _mirrorX;
+            set => _mirrorX = value;
+        }
+
+        /// <summary>
+        /// True to mirror the section about the horizontal axis through the insertion point (y to -y), before the rotation: e.g. a T upside down
+        /// </summary>
+        public bool MirrorY
+        {
+            get => _mirrorY;
+            set => _mirrorY = value;
+        }
 
         /// <summary>
         /// Defines whether the section is entirely inside the concrete area (see <see cref="Concrete.ReinforcedConcreteSection.SetSteelSectionIsInside"/>).
@@ -249,7 +279,27 @@ namespace GPC.Model.Sections.Steel
         }
 
         /// <summary>
-        /// Deserialization constructor (version 1: insertion point bottom left)
+        /// Creates the position of a steel section, mirrored
+        /// </summary>
+        /// <param name="steelSection">The steel section</param>
+        /// <param name="rotationCenter">The center of rotation (null: the origin)</param>
+        /// <param name="rotation">The rotation (radians, counterclockwise)</param>
+        /// <param name="traslation">The translation (null: none)</param>
+        /// <param name="mirrorX">True to mirror about the vertical axis through the insertion point</param>
+        /// <param name="mirrorY">True to mirror about the horizontal axis through the insertion point</param>
+        /// <param name="cardinalPoint">The insertion point type</param>
+        /// <param name="middleCenter">The type of the middle points</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="steelSection"/> is null</exception>
+        public SteelSectionPosition(SteelSection steelSection, Point2d rotationCenter, double rotation, Vector2d traslation, bool mirrorX, bool mirrorY,
+            InsertionPointType cardinalPoint = InsertionPointType.BottomLeft, MiddleCenterType middleCenter = MiddleCenterType.Midpoint)
+            : this(steelSection, rotationCenter, rotation, traslation, cardinalPoint, middleCenter)
+        {
+            _mirrorX = mirrorX;
+            _mirrorY = mirrorY;
+        }
+
+        /// <summary>
+        /// Deserialization constructor (version 1: insertion point bottom left; version 3: the mirrors)
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -271,6 +321,11 @@ namespace GPC.Model.Sections.Steel
             {
                 CardinalPoint = InsertionPointType.BottomLeft;
                 MiddleCenter = MiddleCenterType.Midpoint;
+            }
+            if (version >= 3)
+            {
+                _mirrorX = info.GetBoolean("MirrorX");
+                _mirrorY = info.GetBoolean("MirrorY");
             }
         }
 
@@ -354,6 +409,8 @@ namespace GPC.Model.Sections.Steel
         {
             var globPoint2d = (Point2d)point2D.Clone();
             globPoint2d.Move(-_insertionPoint.X, -_insertionPoint.Y);
+            if (_mirrorX || _mirrorY)
+                globPoint2d = new Point2d(_mirrorX ? -globPoint2d.X : globPoint2d.X, _mirrorY ? -globPoint2d.Y : globPoint2d.Y);
             globPoint2d.Rotate(RotationCenter, Rotation);
             globPoint2d.Move(Traslation);
             return globPoint2d;
@@ -369,6 +426,8 @@ namespace GPC.Model.Sections.Steel
             var localPoint2d = (Point2d)point2D.Clone();
             localPoint2d.Move(-Traslation.X, -Traslation.Y);
             localPoint2d.Rotate(RotationCenter, -Rotation);
+            if (_mirrorX || _mirrorY)
+                localPoint2d = new Point2d(_mirrorX ? -localPoint2d.X : localPoint2d.X, _mirrorY ? -localPoint2d.Y : localPoint2d.Y);
             localPoint2d.Move(_insertionPoint.X, _insertionPoint.Y);
             return localPoint2d;
         }
@@ -378,6 +437,11 @@ namespace GPC.Model.Sections.Steel
         /// </summary>
         /// <returns>The area</returns>
         internal double CalculateArea() => Section.Area;
+
+        /// <summary>
+        /// The product of inertia of the section after the mirrors (opposite with one mirror)
+        /// </summary>
+        private double MirroredJxy => _mirrorX != _mirrorY ? -Section.Jxy : Section.Jxy;
 
         /// <summary>
         /// The centroid in global coordinates
@@ -393,7 +457,7 @@ namespace GPC.Model.Sections.Steel
         /// <returns>Jxx</returns>
         internal double CalculateJxx(in Point2d inertiaPole)
         {
-            double JxxG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation);
+            double JxxG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation);
             var centroid = CalculateCentroid();
             return JxxG + Section.Area * (centroid.Y - inertiaPole.Y) * (centroid.Y - inertiaPole.Y);
         }
@@ -406,7 +470,7 @@ namespace GPC.Model.Sections.Steel
         /// <returns>Jyy</returns>
         internal double CalculateJyy(in Point2d inertiaPole)
         {
-            double JyyG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation + 0.5 * Math.PI);
+            double JyyG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation + 0.5 * Math.PI);
             var centroid = CalculateCentroid();
             return JyyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.X - inertiaPole.X);
         }
@@ -419,7 +483,7 @@ namespace GPC.Model.Sections.Steel
         /// <returns>Jxy</returns>
         internal double CalculateJxy(in Point2d inertiaPole)
         {
-            double JxyG = SectionHelper.CalculateJxyAlpha(Section.Jxx, Section.Jyy, Section.Jxy, -Rotation);
+            double JxyG = SectionHelper.CalculateJxyAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation);
             var centroid = CalculateCentroid();
             return JxyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.Y - inertiaPole.Y);
         }
@@ -471,7 +535,7 @@ namespace GPC.Model.Sections.Steel
             object[] key =
             {
                 concrete, Section, Section?.Area, _rotation, RotationCenter?.X, RotationCenter?.Y, Traslation?.X, Traslation?.Y, _insertionPoint?.X,
-                _insertionPoint?.Y,
+                _insertionPoint?.Y, _mirrorX, _mirrorY,
             };
             if (_concreteOverlapKey != null && key.SequenceEqual(_concreteOverlapKey))
                 return _concreteOverlap;
@@ -526,8 +590,10 @@ namespace GPC.Model.Sections.Steel
         /// <param name="context">The serialization context</param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            int version = 2;
+            int version = 3;
             info.AddValue("SteelSectionPositionVersion", version);
+            info.AddValue("MirrorX", _mirrorX);
+            info.AddValue("MirrorY", _mirrorY);
 
             info.AddValue("IsInsideConcrete", IsInsideConcrete);
             info.AddValue("Rotation", Rotation);

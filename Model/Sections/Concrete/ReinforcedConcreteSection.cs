@@ -333,10 +333,10 @@ namespace GPC.Model.Sections.Concrete
         public Shape2d ConcreteShape => _sectionShape.Shape;
 
         /// <summary>
-        /// The shape of the concrete, the member of <see cref="ISectionShape"/>: the same as <see cref="ConcreteShape"/>, the name to use in this
-        /// class (Shape is also the name of the type <see cref="GPC.Geometry.Shape"/>)
+        /// The shape of the concrete as member of <see cref="ISectionShape"/>: <see cref="ConcreteShape"/>. Before, the public property Shape
+        /// (an ambiguous name: also the type <see cref="GPC.Geometry.Shape"/>); through the interface it is still available
         /// </summary>
-        public Shape2d Shape => ConcreteShape;
+        Shape2d ISectionShape.Shape => ConcreteShape;
 
         /// <summary>
         ///
@@ -1039,7 +1039,8 @@ namespace GPC.Model.Sections.Concrete
 
         /// <summary>
         /// Return all homogenized mechanical properties with the creep coefficient <paramref name="phi"/> (n = Es / (Ec / (1 + phi))). Without rebars
-        /// and steel sections all the values are zero (not the properties of the concrete)
+        /// and steel sections the properties of the concrete, as <see cref="GetHomogeneizedMechanicalProperties()"/> (before, all the values were
+        /// zero)
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
         /// <returns>
@@ -1059,24 +1060,17 @@ namespace GPC.Model.Sections.Concrete
             GetHomogeneizedMechanicalProperties(double phi)
         {
             UpdateSteelOverlaps();
-            if (_rebars.Count > 0 || _steelSections.Count > 0)
-            {
-                Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
+            Point2d centroidH = GetHomogenizedCentroid(phi, out var SxH, out var SyH);
 
-                // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
-                ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, ConcreteMaterial, _rebars.Values.ToArray(), Centroid,
-                    centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH, _steelSections);
+            // NOTA: ci siamo ricondotti a momenti d'inerzia rispetto al baricentro della sezione di solo calcestruzzo
+            ConcreteSectionHelper.CalculateHomogeneizedInertiaMoments(phi, ConcreteMaterial, _rebars.Values.ToArray(), Centroid,
+                centroidH, Jxx, Jyy, Jxy, Area, out var JxxH, out var JyyH, out var JxyH, out var JpH, _steelSections);
 
-                double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
-                double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
-                double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
+            double J11H = SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
+            double J22H = SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
+            double angleX = SectionHelper.CalculateAngle(J11H, J22H, JxxH, JyyH, JxyH);
 
-                return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
-            }
-            else
-            {
-                return (0, 0, 0, new Point2d(), 0, 0, 0, 0, 0, 0, 0);
-            }
+            return (GetHomogenizedArea(phi), SxH, SyH, centroidH, JxxH, JyyH, JxyH, JpH, J11H, J22H, angleX);
         }
 
         /// <summary>

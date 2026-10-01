@@ -103,7 +103,8 @@ namespace UnitTest
             // CHS: the core is the hole of the tube, the tube is outside the concrete (n As)
             var chs = new SectionCHS(323.9, 10, "CHS 323.9 x 10");
             var filled = ReinforcedConcreteSection.CreateFilledTube(chs, S355, C30, name: "CFT");
-            Rel(new Shape2d(new Polygon2d(323.9 - 20, origin: new Point2d(323.9 / 2, 323.9 / 2))).GetArea(), filled.Area, 1e-9);
+            Rel(new Shape2d(new Polygon2d(323.9 - 20, 256, new Point2d(323.9 / 2, 323.9 / 2))).GetArea(), filled.Area, 1e-9);
+            Rel(Math.PI * Math.Pow(323.9 - 20, 2) / 4, filled.Area, 2e-4); // the exact outline of the tube: 256 sides, 1e-4 (before, 32: -0.6%)
             Assert.IsFalse(filled.SteelSections[0].IsInsideConcrete);
             Rel(filled.Area + N * chs.Area, filled.GetHomogenizedArea());
             Rel(323.9 / 2, filled.GetHomogenizedCentroid(out _, out _).X, 1e-9);
@@ -129,8 +130,8 @@ namespace UnitTest
             Assert.AreEqual(2, section.SteelSections.Count);
             Assert.IsFalse(section.SteelSections.Any(s => s.IsInsideConcrete));
             Rel(0, section.SteelSections[1].ConcreteOverlapArea, 1e-9);
-            double hole = new Shape2d(new Polygon2d(380, origin: new Point2d(200, 200))).GetArea();
-            double core = new Shape2d(new Polygon2d(200, origin: new Point2d(200, 200))).GetArea();
+            double hole = new Shape2d(new Polygon2d(380, 256, new Point2d(200, 200))).GetArea();
+            double core = new Shape2d(new Polygon2d(200, 256, new Point2d(200, 200))).GetArea();
             Rel(hole - core, section.Area, 1e-9);
             Rel(section.Area + N * (outer.Area + inner.Area), section.GetHomogenizedArea());
             Rel(200, section.GetHomogenizedCentroid(out _, out _).Y, 1e-9);
@@ -220,6 +221,62 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void MirroredSteelSections()
+        {
+            // two angles L 100 x 10 in a 400 x 300 rectangle, one mirrored about its vertical axis: the section is symmetric
+            var angle = new SectionL(100, 10, 100, 10, "L 100 x 10");
+            var right = new SteelSectionPosition(new SteelSection(angle, S355), null, 0, new Vector2d(250, 50));
+            var left = new SteelSectionPosition(new SteelSection(angle, S355), null, 0, new Vector2d(150, 50), mirrorX: true, mirrorY: false);
+            Assert.IsTrue(left.MirrorX);
+            Point2d global = left.PositionToGlobal(new Point2d(10, 50));
+            Rel(140, global.X);
+            Rel(100, global.Y);
+            Point2d back = left.PositionToLocal(global);
+            Rel(10, back.X);
+            Rel(50, back.Y);
+
+            var section = new ReinforcedConcreteSection(new SectionRectangular(300, 400), C30, null,
+                new System.Collections.Generic.List<SteelSectionPosition> { right, left });
+            Assert.IsTrue(section.SteelSections.All(s => s.IsInsideConcrete));
+            var properties = section.GetHomogeneizedMechanicalProperties();
+            Rel(200, properties.centroidH.X, 1e-9);
+            Assert.AreEqual(0, properties.JxyH, 1e-9 * properties.JxxH);
+
+            // mirrored about its horizontal axis too: a rotation of 180°
+            var both = new SteelSectionPosition(new SteelSection(angle, S355), null, 0, new Vector2d(0, 0), true, true);
+            var rotated = new SteelSectionPosition(new SteelSection(angle, S355), null, Math.PI, new Vector2d(0, 0));
+            Rel(rotated.PositionToGlobal(new Point2d(30, 70)).X, both.PositionToGlobal(new Point2d(30, 70)).X, 1e-12);
+            Rel(rotated.PositionToGlobal(new Point2d(30, 70)).Y, both.PositionToGlobal(new Point2d(30, 70)).Y, 1e-12);
+
+#pragma warning disable SYSLIB0011
+            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (var stream = new System.IO.MemoryStream())
+            {
+                formatter.Serialize(stream, left);
+                stream.Position = 0;
+                var copy = (SteelSectionPosition)formatter.Deserialize(stream);
+                Assert.IsTrue(copy.MirrorX);
+                Assert.IsFalse(copy.MirrorY);
+                Rel(140, copy.PositionToGlobal(new Point2d(10, 50)).X);
+            }
+#pragma warning restore SYSLIB0011
+        }
+
+        [TestMethod]
+        public void HomogenizedPropertiesWithCreepWithoutSteel()
+        {
+            // without bars and steel sections the properties of the concrete (before, all zero)
+            var section = new ReinforcedConcreteSection(new SectionRectangular(500, 300), C30);
+            var properties = section.GetHomogeneizedMechanicalProperties(2.0);
+            Rel(150000, properties.areaH);
+            Rel(150, properties.centroidH.X);
+            Rel(250, properties.centroidH.Y);
+            Rel(300 * Math.Pow(500, 3) / 12, properties.JxxH);
+            Rel(properties.J11H, section.GetHomogeneizedMechanicalProperties().J11H);
+            Rel(150000 * 250, properties.SxH);
+        }
+
+        [TestMethod]
         public void TorsionOfTwoRegionsOfTheSameMaterialIsTheOneOfTheirUnion()
         {
             // slab 1000 x 200 and a plate 300 x 20 under it, of a "steel" with the moduli of the concrete: the same as the T of one material
@@ -250,8 +307,8 @@ namespace UnitTest
             var c = ConcreteMaterialEN1992Data.C30_37;
             var steel = SteelMaterialEN1993Data.S355;
             var tube = new SectionCHS(200, 10, "CHS 200 x 10");
-            var core = new Section(new Shape2d(new Polygon2d(Enumerable.Range(0, tube.Shape.Holes[0].Count)
-                .Select(i => new Point2d(tube.Shape.Holes[0][i].X, tube.Shape.Holes[0][i].Y)).ToArray())), "core");
+            var hole = tube.GetPlasticShape().Holes[0];
+            var core = new Section(new Shape2d(new Polygon2d(Enumerable.Range(0, hole.Count).Select(i => new Point2d(hole[i].X, hole[i].Y)).ToArray())), "core");
             core.SetMechanicalProperties();
             var section = new ReinforcedConcreteSection(core, c, null,
                 new System.Collections.Generic.List<SteelSectionPosition> { new SteelSectionPosition(new SteelSection(tube, steel), null, 0, null) });

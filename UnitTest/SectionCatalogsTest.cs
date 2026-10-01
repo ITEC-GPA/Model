@@ -19,6 +19,71 @@ namespace UnitTest
         private const string PromozioneAcciaioSha256 = "92AA2618551E23476AC9F2167FC178E00A28D875092179BCA99AF25263C7BD66";
         private const string AiscSha256 = "82D0CEB96A0D938AE1A6BD9637CB10A1E269225B5D668DCE5B0BDC8D86013496";
 
+        /// <summary>
+        /// The trace of the profiles whose It or Iw of the formulas of Model deviate from the published ones more than the threshold
+        /// (ModelData/Sections/TorsionDeviations.csv). If the formulas or the catalogs change, the test writes the new trace, with the values
+        /// solved with the finite elements, to %TEMP%\TorsionDeviations.csv: copy it to ModelData/Sections
+        /// </summary>
+        [TestMethod]
+        public void TorsionDeviationsAreTraced()
+        {
+            var exceeding = new List<(SectionCatalog Catalog, CatalogProfile Profile, Section Section)>();
+            foreach (SectionCatalog catalog in SectionCatalogs.All)
+            {
+                foreach (CatalogProfile profile in catalog.Profiles)
+                {
+                    if (!profile.Has("It") && !profile.Has("Iw"))
+                        continue;
+                    Section section;
+                    try
+                    {
+                        section = SectionMappings.CreateSection(profile);
+                    }
+                    catch (NotSupportedException)
+                    {
+                        continue;
+                    }
+                    if (section is null)
+                        continue;
+                    bool It = Math.Abs(section.Jt / profile["It"] - 1) > TorsionDeviations.Threshold;
+                    bool Iw = Math.Abs(section.Jw / profile["Iw"] - 1) > TorsionDeviations.Threshold;
+                    if (It || Iw)
+                        exceeding.Add((catalog, profile, section));
+                }
+            }
+
+            static bool Close(double a, double b) => double.IsNaN(a) && double.IsNaN(b) || Math.Abs(a - b) <= 1e-9 * Math.Max(Math.Abs(a), Math.Abs(b));
+            IReadOnlyList<TorsionDeviation> traced = TorsionDeviations.All;
+            bool same = traced.Count == exceeding.Count && exceeding.All(e => traced.Any(t => t.CatalogId == e.Catalog.Id &&
+                t.Designation == e.Profile.Designation && Close(t.ItModel, e.Section.Jt) && Close(t.IwModel, e.Section.Jw)));
+            if (same)
+            {
+                foreach (TorsionDeviation deviation in traced)
+                    Assert.IsTrue(deviation.ItExceeds || deviation.IwExceeds, deviation.ToString());
+                Assert.AreSame(traced.First(), TorsionDeviations.Find(SectionCatalogs.All.First(c => c.Id == traced.First().CatalogId).Find(traced.First().Designation)));
+                return;
+            }
+
+            // the new trace, with the values of the finite elements
+            string R(double v) => double.IsNaN(v) ? "" : v.ToString("R", CultureInfo.InvariantCulture);
+            var text = new StringBuilder();
+            text.AppendLine("# Trace: catalog profiles whose torsion constant It or warping constant Iw computed by the formulas of Model deviate from the published value");
+            text.AppendLine($"# Threshold: {TorsionDeviations.Threshold.ToString(CultureInfo.InvariantCulture)}");
+            text.AppendLine($"# Generated: {DateTime.Today:yyyy-MM-dd} by UnitTest SectionCatalogsTest.TorsionDeviationsAreTraced");
+            text.AppendLine("# Numerical: Section.CalculateTorsionProperties, finite elements on the exact outline (default mesh)");
+            text.AppendLine("# Units: mm4 (It), mm6 (Iw)");
+            text.AppendLine("Catalog,Designation,Series,ItPublished,ItModel,ItNumerical,IwPublished,IwModel,IwNumerical");
+            foreach (var (catalog, profile, section) in exceeding)
+            {
+                SectionTorsionProperties numerical = section.CalculateTorsionProperties();
+                text.AppendLine(string.Join(",", catalog.Id, profile.Designation, profile.Series, R(profile["It"]), R(section.Jt), R(numerical.TorsionConstant),
+                    R(profile["Iw"]), R(section.Jw), R(numerical.WarpingConstant)));
+            }
+            string file = Path.Combine(Path.GetTempPath(), "TorsionDeviations.csv");
+            File.WriteAllText(file, text.ToString(), new UTF8Encoding(false));
+            Assert.Fail($"The trace of the torsion deviations is not up to date ({traced.Count} traced, {exceeding.Count} found): copy {file} to ModelData/Sections");
+        }
+
         [TestMethod]
         public void TheAiscShapesAreFoundWithTheirManualAndMetricDesignations()
         {

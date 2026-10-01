@@ -139,8 +139,14 @@ Lettura:
   C15x50, invariato raffinando la mesh) e gli scarti vengono dalla geometria reale: le ali rastremate sono più sottili
   alle punte, dove la coordinata settoriale è massima (AISC C, MC, S, ST: Iw fino al 20% minore), i raccordi
   aggiungono materiale (UPE, PFC: 7-8% maggiore).
-- Le formule delle classi non sono cambiate (i risultati del Checker restano quelli): sostituire It e Iw dei canali,
-  di IPN, J, S e ST con i valori numerici è una decisione da prendere.
+- Le formule delle classi non sono cambiate (i risultati del Checker restano quelli).
+
+Traccia: i profili con It o Iw delle formule di Model oltre il 5% dal valore pubblicato (soglia `TorsionDeviations.Threshold`; i valori
+pubblicati hanno 3-4 cifre significative) sono in [TorsionDeviations.csv](TorsionDeviations.csv), incorporato nell'assembly e letto da
+`TorsionDeviations.All` e `TorsionDeviations.Find(profilo)`: valore pubblicato, della formula di Model e numerico, per It e Iw. Al
+01/10/2026 sono 239: IPN (21), J (10), UPE (14), PFC (6), UPN (18), AISC S (28), C (32), MC (38), L (44), ST (28). Il test
+`SectionCatalogsTest.TorsionDeviationsAreTraced` controlla che la traccia sia aggiornata; se formule o cataloghi cambiano, scrive la nuova
+traccia in `%TEMP%\TorsionDeviations.csv` da copiare qui.
 
 ## Incoerenze della fonte
 
