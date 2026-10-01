@@ -7,6 +7,7 @@ namespace GPC.Model.Elements
     /// <summary>
     /// A volume (brick) element: its nodes and a brick property
     /// </summary>
+    [System.Serializable]
     public class VolumeElement : Element
     {
         #region VARIABLES
@@ -92,10 +93,7 @@ namespace GPC.Model.Elements
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is AreaElement surface) &&
-                surface.Points.Equals(_nodes) &&
-                surface.PlateProperty.Equals(_plateProperty) &&
-                base.Equals(surface);
+            return obj is VolumeElement && base.Equals(obj);
         }
 
         /// <summary>
@@ -106,10 +104,7 @@ namespace GPC.Model.Elements
         {
             unchecked
             {
-                int hashCode = -391 + base.GetHashCode();
-                hashCode = hashCode * -17 + _nodes.GetHashCode();
-                hashCode = hashCode * -17 + _plateProperty.GetHashCode();
-                return hashCode;
+                return base.GetHashCode();
             }
         }
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup Condition="Exists('..\..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll')">
+    <DefineConstants>$(DefineConstants);GPC_CHECKER</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ModelData\GPCModelData.csproj" />
+    <ProjectReference Include="..\..\Model\GPCModel.csproj" />
+    <ProjectReference Include="..\..\GPC Converter\GPC Converter.csproj" />
+    <ProjectReference Include="..\..\ModelChecker\GPCModelChecker.csproj" Condition="Exists('..\..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll')" />
+    <Reference Include="GPCGeometry"><HintPath>..\..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.Concrete" Condition="Exists('..\..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll')"><HintPath>..\..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll</HintPath></Reference>
+    <Compile Include="..\MixedModelFactory.cs" Link="MixedModelFactory.cs" />
+  </ItemGroup>
+</Project>

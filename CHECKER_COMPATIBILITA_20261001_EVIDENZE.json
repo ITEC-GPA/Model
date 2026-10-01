@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-10-01T09:29:00.8104005+02:00",
+  "activity": "Compatibility audit and authorized push, 2026-10-01 Europe/Rome",
+  "authorization": "User: esatto. se non si e rotta la compatibilita pusha tutto quello che hai fatto",
+  "verdict": "No new regression detected in tested Model/Checker/Anthea paths. Existing Steel failures retained. Source push approved by the user; no Anthea library deployment.",
+  "modelHeadBeforeCommit": "6cca8a01e91b918051849a7813f2011ba125e196",
+  "modelBranch": "fix/review-bugs",
+  "checkerHead": "2a7001b5850c2ba7d02054690a49a6f0dafd72b4",
+  "checkerBranch": "develop",
+  "antheaHeadObservedAfterTests": "ce69d288cf344b13882e42815642974f3a1e4ade",
+  "tests": [
+    {
+      "file": "TestResults/Compatibility20261001/model-full.trx",
+      "total": 759,
+      "passed": 758,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "096F1A4F7FEDBB3224FB67ABD4996DB1C25BB158F33E40C8D25B53F1423F7D6D",
+      "skippedResultCount": 1,
+      "skippedResults": [
+        {
+          "name": "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+          "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_BENCHMARK to the newly generated native fixture directory."
+        }
+      ]
+    },
+    {
+      "file": "TestResults/Compatibility20261001/modelchecker-full.trx",
+      "total": 55,
+      "passed": 55,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "AF685CD2CD405ACDB0E922E8A204BB748AF2FFF1D014E7D768809BE0D7E8F97C",
+      "skippedResultCount": 0,
+      "skippedResults": []
+    },
+    {
+      "file": "TestResults/Compatibility20261001/concrete-controls.trx",
+      "total": 45,
+      "passed": 45,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "10705ADDEECE50C644284659C429F8E176B9CAF82EBEAC7306036E707678105D",
+      "skippedResultCount": 0,
+      "skippedResults": []
+    },
+    {
+      "file": "TestResults/Compatibility20261001/composite-full.trx",
+      "total": 254,
+      "passed": 254,
+      "failed": 0,
+      "notExecuted": 0,
+      "outcome": "Completed",
+      "sha256": "0C9B931C8B0D5BAC7CE52A6DF63819A8C9A805FC4470F623B35632EAE6C87792",
+      "skippedResultCount": 0,
+      "skippedResults": []
+    },
+    {
+      "file": "TestResults/Compatibility20261001/steel-full.trx",
+      "total": 94,
+      "passed": 77,
+      "failed": 17,
+      "notExecuted": 0,
+      "outcome": "Failed",
+      "sha256": "FC46F41947670D03ED2F332098C9B7E46DD9DAA507F7BEBA37835389FBD39539",
+      "skippedResultCount": 0,
+      "skippedResults": []
+    }
+  ],
+  "steelBaseline": "TestResults/CheckerStep1/checker-step1-steel.trx",
+  "steelBaselineSha256": "F6B82A8E3EA640B7A37DB47E872F7CB529758DF466E615248A63654D03D744C3",
+  "steelSameFailedNamesAndMessages": true,
+  "steelFailures": [
+    {
+      "Test": "Sap_SectionCHSTest1",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.970688298005356> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionHAsymmetricTest1",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <1.16947906499521> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionHAsymmetricTest2",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.912664174161692> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionLTest",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <∞> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionRHSTest1",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.001> tra il valore previsto <0.48> e il valore effettivo <0.494017299466536>. "
+    },
+    {
+      "Test": "Sap_SectionRHSTest2",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.971625893502773> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionTTest",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.03> tra il valore previsto <1.77533039647577> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "Sap_SectionTTest2",
+      "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.001> tra il valore previsto <0.786138355852794> e il valore effettivo <1>. "
+    },
+    {
+      "Test": "SectionCLateralTorsionalBuckling2",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHBuckling1",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHBucklingExample2",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHInteraction2",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHInteraction3",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHLateralTorsionalBuckling1",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionHLateralTorsionalBuckling2",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionRHSClassification",
+      "Message": "Assert.IsTrue non riuscita. "
+    },
+    {
+      "Test": "SectionRHSClasstification2",
+      "Message": "Assert.IsTrue non riuscita. "
+    }
+  ],
+  "antheaAssertionsPerConfiguration": {
+    "concreteCodes": 434,
+    "concreteModule": 78,
+    "bridgeSection": 172,
+    "bridgeMethods": 2957,
+    "bridgeGuideExamples": 189,
+    "bridgePredalle": 191,
+    "bridgeTotal": 3509
+  },
+  "antheaTestOutputs": [
+    {
+      "file": "TestResults/Compatibility20261001/anthea-baseline-concrete.log",
+      "sha256": "FB8ACCA6C92FF0DA21166C2ADE3BBAA37A08C58933EB208169DC5795DE1D07EF",
+      "output": "PASS · 434 controlli normative CA (riferimenti fib, benchmark DIN, formule DS/NS, integrazione catalogo)."
+    },
+    {
+      "file": "TestResults/Compatibility20261001/anthea-baseline-module.log",
+      "sha256": "8E1DFB59FF39078B2806AD74FFAC41AB87EC94EED62E735E259A4320C4BC6398",
+      "output": "Modulo CA ampliato: 78 controlli superati."
+    },
+    {
+      "file": "TestResults/Compatibility20261001/anthea-baseline-bridge.log",
+      "sha256": "176AB416CED68EA602B9A60C0F0777D3BC9199E592B678FFE5E0F29EE4979B66",
+      "output": "Default: 432 ms; η=0,373\r\nSezione mista: 172 controlli superati.\r\nMetodi ponti e curve: 2957 controlli superati.\r\nGuida torsione: A0 2,828750 / 3,079353 m²; q 35,3513 / 48,7115 / 162,3718 kN/m; J 0,041788 / 0,080873 / 0,100659 m⁴; I_Dw 0,010042 m⁶; K 607,168 kN·m/m; K_D 2872,26 MN·m; carico 0,341377; ψ 2,7617E-004; ψD 1,0717E-004; σdw 14,946 / 2,841 MPa; rapporto 0,2022; m 43,351 / 39,887 N·mm/mm; τD 8,3945 MPa\r\nEsempi guide H inclinata e cassoncino: 189 controlli superati.\r\nPredalle: 191 controlli superati (geometria, metodi esistenti, report e progetto)."
+    },
+    {
+      "file": "TestResults/Compatibility20261001/anthea-candidate-concrete.log",
+      "sha256": "FB8ACCA6C92FF0DA21166C2ADE3BBAA37A08C58933EB208169DC5795DE1D07EF",
+      "output": "PASS · 434 controlli normative CA (riferimenti fib, benchmark DIN, formule DS/NS, integrazione catalogo)."
+    },
+    {
+      "file": "TestResults/Compatibility20261001/anthea-candidate-module.log",
+      "sha256": "8E1DFB59FF39078B2806AD74FFAC41AB87EC94EED62E735E259A4320C4BC6398",
+      "output": "Modulo CA ampliato: 78 controlli superati."
+    },
+    {
+      "file": "TestResults/Compatibility20261001/anthea-candidate-bridge.log",
+      "sha256": "0CD5B4EDB5115136F0FEF7A3088305A72D5F4E1884AEB0BBE6467C6E450B89D5",
+      "output": "Default: 338 ms; η=0.373\r\nSezione mista: 172 controlli superati.\r\nMetodi ponti e curve: 2957 controlli superati.\r\nGuida torsione: A0 2.828750 / 3.079353 m²; q 35.3513 / 48.7115 / 162.3718 kN/m; J 0.041788 / 0.080873 / 0.100659 m⁴; I_Dw 0.010042 m⁶; K 607.168 kN·m/m; K_D 2872.26 MN·m; carico 0.341377; ψ 2.7617E-004; ψD 1.0717E-004; σdw 14.946 / 2.841 MPa; rapporto 0.2022; m 43.351 / 39.887 N·mm/mm; τD 8.3945 MPa\r\nEsempi guide H inclinata e cassoncino: 189 controlli superati.\r\nPredalle: 191 controlli superati (geometria, metodi esistenti, report e progetto)."
+    }
+  ],
+  "candidateLibraries": [
+    {
+      "Name": "DelaunayMesh.dll",
+      "Sha256": "4000DF8C3F73396D991C79C6A223ECEB27642BB33833367264164155777D4053"
+    },
+    {
+      "Name": "GPCChecker.CompositeBridge.dll",
+      "Sha256": "AA2344428DA33A10AF2C08784411758BF045402445CEB344556504421790B37E"
+    },
+    {
+      "Name": "GPCChecker.Concrete.dll",
+      "Sha256": "7972857FF4E6CC8AEE71A5BB33232BD985065471ABAC333F232CC5B20B80E2DA"
+    },
+    {
+      "Name": "GPCChecker.Steel.dll",
+      "Sha256": "E40F52F1DF6AD1C7B1774343FFF52647630C85D8B14620B65B321B6F3A16F7DA"
+    },
+    {
+      "Name": "GPCGeometry.dll",
+      "Sha256": "DBBDE4049A00009BABC057B7EB1ADBEB02C332A3A7ABD31991916C823CC2FA2E"
+    },
+    {
+      "Name": "GPCModel.dll",
+      "Sha256": "51A97FC7A868FB5746BE2832A05EA209116D13643B51594BE38283590110083E"
+    },
+    {
+      "Name": "GPCModelData.dll",
+      "Sha256": "31E66CEA7C637D3A8D9247705689F4F4027A1741F088F1B67EA29FB772E85DC2"
+    },
+    {
+      "Name": "GPCUtilities.dll",
+      "Sha256": "638FF722D19AD4EF5B9E14E65A5398960DF5F5BB1569BF6B1392354E84AF5AC7"
+    }
+  ],
+  "verifiedRuntimeDlls": [
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "DelaunayMesh.dll",
+      "sha256": "4000DF8C3F73396D991C79C6A223ECEB27642BB33833367264164155777D4053",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCChecker.CompositeBridge.dll",
+      "sha256": "AA2344428DA33A10AF2C08784411758BF045402445CEB344556504421790B37E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCChecker.Concrete.dll",
+      "sha256": "7972857FF4E6CC8AEE71A5BB33232BD985065471ABAC333F232CC5B20B80E2DA",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCGeometry.dll",
+      "sha256": "DBBDE4049A00009BABC057B7EB1ADBEB02C332A3A7ABD31991916C823CC2FA2E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCModel.dll",
+      "sha256": "51A97FC7A868FB5746BE2832A05EA209116D13643B51594BE38283590110083E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCModelData.dll",
+      "sha256": "31E66CEA7C637D3A8D9247705689F4F4027A1741F088F1B67EA29FB772E85DC2",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-concrete",
+      "file": "GPCUtilities.dll",
+      "sha256": "638FF722D19AD4EF5B9E14E65A5398960DF5F5BB1569BF6B1392354E84AF5AC7",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "DelaunayMesh.dll",
+      "sha256": "4000DF8C3F73396D991C79C6A223ECEB27642BB33833367264164155777D4053",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCChecker.CompositeBridge.dll",
+      "sha256": "AA2344428DA33A10AF2C08784411758BF045402445CEB344556504421790B37E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCChecker.Concrete.dll",
+      "sha256": "7972857FF4E6CC8AEE71A5BB33232BD985065471ABAC333F232CC5B20B80E2DA",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCGeometry.dll",
+      "sha256": "DBBDE4049A00009BABC057B7EB1ADBEB02C332A3A7ABD31991916C823CC2FA2E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCModel.dll",
+      "sha256": "51A97FC7A868FB5746BE2832A05EA209116D13643B51594BE38283590110083E",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCModelData.dll",
+      "sha256": "31E66CEA7C637D3A8D9247705689F4F4027A1741F088F1B67EA29FB772E85DC2",
+      "matchesCandidate": true
+    },
+    {
+      "testFolder": "anthea-candidate-module",
+      "file": "GPCUtilities.dll",
+      "sha256": "638FF722D19AD4EF5B9E14E65A5398960DF5F5BB1569BF6B1392354E84AF5AC7",
+      "matchesCandidate": true
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "CHECKER_COMPATIBILITA_20261001.txt",
+      "sha256": "60CAC4798B3675451A578B28AC033DCA14BBDD5E8C56713A720AAE3941976903"
+    },
+    {
+      "path": "CHECKER_PASSO_1.txt",
+      "sha256": "D4CA18F4BFEA9DC67C1E49E688F4777AF4C14525A68ED8194E2AC3DA90DA7C15"
+    },
+    {
+      "path": "CHECKER_PASSO_2.txt",
+      "sha256": "275F5C8013383E0E1A9ADBF7C3E738B2EB46309A80D75480937105E927C7C6D9"
+    },
+    {
+      "path": "CHECKER_PASSO_3_IMPLEMENTAZIONE.txt",
+      "sha256": "60465BEAFD9B679A952F637A8EBAC55270556EE1D8F09A6FB027662961B4EFFF"
+    },
+    {
+      "path": "CHECKER_PASSO_3.txt",
+      "sha256": "C9CDAD650BBF0CB8B5383C20BD8E3A42E555B60AE320D513D78EE93397A30FDE"
+    },
+    {
+      "path": "CHECKER_PASSO_5.txt",
+      "sha256": "77FF3F4D11FE28DC8D41412B2794869C58D7DCD3F93DA9BE466137ABDB313E64"
+    },
+    {
+      "path": "Examples/Compatibility/AntheaCandidateLibraries.targets",
+      "sha256": "3D8D32CCC06EB60570614168EE6EE5D2A43E614EDA9A23601CA7CD6965A897F7"
+    },
+    {
+      "path": "Examples/MultiMaterialWorkflow.cs",
+      "sha256": "0885A99E8DBD4030EF918F931089EDE5AAEAFBCA33D7CB692F3C19953F3EAEC3"
+    },
+    {
+      "path": "Model/Models/Model.cs",
+      "sha256": "0CCFF338E7AC7772CFC2BD95B2FFC8651C1DA8CA66AD5B5D65700B5A7399F2E9"
+    },
+    {
+      "path": "Model/Persistence/CheckReportArchive.cs",
+      "sha256": "139C67244BB302DD53CEF9A1CC1E77F87447319747FF249209004C8BE56F0E67"
+    },
+    {
+      "path": "Model/Persistence/ModelArchive.cs",
+      "sha256": "DC28E3CEB54502D79FBF1E75B0A149F7F29CD282A3FD7A2D64C616E1FCC2326E"
+    },
+    {
+      "path": "Model/PostProcessing/BeamActionPreparation.cs",
+      "sha256": "4BC0289FEAF4F97329C77CF53464592A04927518017CFBF7282730CFB120E9B4"
+    },
+    {
+      "path": "Model/PostProcessing/BeamCheckContracts.cs",
+      "sha256": "91678071E283356E615EF698D725E8CADCD328A5FD4C8A852FFCEED95A0B0E3E"
+    },
+    {
+      "path": "Model/PostProcessing/BeamCheckPlan.cs",
+      "sha256": "CB0A036ACFD3D3C0A9380E22239E6062AEE25C806F964C8DF8B2F00FFE8F75F4"
+    },
+    {
+      "path": "Model/PostProcessing/CheckDetails.cs",
+      "sha256": "44C6A5C98B5CD467D9905F3E08E4511C99CF047ECF09BF0C00A55D5B41E5DBC6"
+    },
+    {
+      "path": "Model/PostProcessing/CheckReport.cs",
+      "sha256": "9E535F16A17D6F0405E7DD5F8E033283B3249BF8FF69E825F7527B97A60CFF02"
+    },
+    {
+      "path": "Model/PostProcessing/CheckSummary.cs",
+      "sha256": "D10EE752F8A671938B92BFC78BEEDC91F3D02C8CB6D4AD95725F66F2B69834EC"
+    },
+    {
+      "path": "Model/PostProcessing/MemberVerification.cs",
+      "sha256": "EC7A43478829F20B1CDB006EBEFC3ECE50FD4CC062ADE7090FB63B2261727F2E"
+    },
+    {
+      "path": "Model/PostProcessing/ModelRevisions.cs",
+      "sha256": "0967AFE96F21811C28C77CF76989761D4BF4EB5C64AF74C28951FEC7D20F9361"
+    },
+    {
+      "path": "Model/PostProcessing/PhysicalMembers.cs",
+      "sha256": "01918CC8B7D2AAAD9EF279D8141884F5EF24ABFD43AB000E12B1F386C7A5F7B4"
+    },
+    {
+      "path": "Model/PostProcessing/Verification.cs",
+      "sha256": "CA904489A67318AE907B4D7647267F80889E43AB6D63FBBE7085AE1BCC42D398"
+    },
+    {
+      "path": "ModelChecker.Tests/CheckReportIntegrationTest.cs",
+      "sha256": "E60863D3F6E5C38169008ED5AAE2DC0631CC490D3101939237C7C6D8BBA98DD3"
+    },
+    {
+      "path": "ModelChecker.Tests/ElementScopeCharacterizationTest.cs",
+      "sha256": "928A583067E314246A717437912F938F3B436A1F97B37F9723D0C1244C0A76EA"
+    },
+    {
+      "path": "ModelChecker.Tests/ModelChecker.Tests.csproj",
+      "sha256": "E3CEA1F5F1885F02547A574BCD14D9CD59D16A7F7FD36288E5F1585CF00555F7"
+    },
+    {
+      "path": "ModelChecker.Tests/MultiMaterialWorkflowTest.cs",
+      "sha256": "0A9D2221A6C9B158B001DED97A11982E33023E8BF9402E14DB2620D0A42438B4"
+    },
+    {
+      "path": "ModelChecker.Tests/PhysicalMemberWorkflowTest.cs",
+      "sha256": "AF418D06EBAE2A2C861A1D2C78697F441BE02FCD5C1457B559B7831424C085B0"
+    },
+    {
+      "path": "ModelChecker/CompositeBridgeMaterialChecker.cs",
+      "sha256": "781A0438530F1686C811FCB1B3149BB9180B2A869AF3417777F220C5205B6CB7"
+    },
+    {
+      "path": "ModelChecker/ConcreteMaterialChecker.cs",
+      "sha256": "4819BF9D5CAD14B04334DB5807D95E2418FE27874BCBC80891DAA2023231EC80"
+    },
+    {
+      "path": "ModelChecker/ConcreteSectionVerifier.cs",
+      "sha256": "BED88985F60899F44CD51723BAFE99CB1597034F8F73B4C0E8158F88F97A616B"
+    },
+    {
+      "path": "ModelChecker/GPCModelChecker.csproj",
+      "sha256": "A4E46B4E7C7F7F10D10DF478DB8A39CE80531FE1603BAF035B77D0376C02EFC5"
+    },
+    {
+      "path": "ModelChecker/ModelChecker.cs",
+      "sha256": "EB5CF0C8732056666135488F8E9F0702298D125D9590B1F7F905A5BABC44037B"
+    },
+    {
+      "path": "ModelChecker/MultiMaterialChecking.cs",
+      "sha256": "E89597101B7DA812990CEF7FE19B6103945BCC6B833117381FE9B694F6DA4DF5"
+    },
+    {
+      "path": "ModelChecker/PlannedBeamChecking.cs",
+      "sha256": "00971D3252D29A115BA07DF9068A419BC18425B790881E2ABF5F5EAD1E0A5317"
+    },
+    {
+      "path": "ModelChecker/SteelMaterialChecker.cs",
+      "sha256": "E64707FE7E168B6C01C0DFF7D4397F3A95EB69C69238CFCF6FDC7C17EC1C16E4"
+    },
+    {
+      "path": "PROMPT_SVILUPPO_CHECKER_PASSO_4.txt",
+      "sha256": "10ABF38ADFD488B5AA9F725A1D2C167513981760D0433FB3EDF2DA1D17EFC88E"
+    },
+    {
+      "path": "PROMPT_SVILUPPO_CHECKER.txt",
+      "sha256": "177769650473886C382874313CA96850F5C324028407F7A175DF36499D5C93F5"
+    },
+    {
+      "path": "UnitTest/CheckReportContractsTest.cs",
+      "sha256": "41A362273C0D02C9DC48D7205B077D0C899683A17625CD8128E2600A919DDEF2"
+    }
+  ],
+  "auditBuildHelper": "Examples/Compatibility/AntheaCandidateLibraries.targets",
+  "coverageLimits": [
+    "Native Straus7 benchmark skipped: GPC_STRAUS7_BENCHMARK fixture not configured",
+    "Concrete native suite restricted to ConcreteControlTests; full historical native Concrete suite not rerun",
+    "No full Anthea desktop UI, installer or all-module audit",
+    "Pre-existing MSB3270 GMsh.Net architecture warning",
+    "Step 4 and proposed architecture refactoring are not implemented; Step 5 adapters keep their documented limited capabilities",
+    "Anthea distributed lib/Checker files were not changed; other Anthea work is outside this push",
+    "Excel aisc-shapes-database-v160-2.xlsx excluded from this work"
+  ]
+}

@@ -1,14 +1,19 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using System.Runtime.Serialization;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace GPC.Model.Elements
 {
     /// <summary>
     /// An area element: a planar shape with a plate property
     /// </summary>
+    [Serializable]
     public class AreaElement : Element
     {
+        public GPC.Model.PostProcessing.ShellAssignments Assignments { get; private set; } = new GPC.Model.PostProcessing.ShellAssignments();
         #region VARIABLES
 
         /// <summary>
@@ -19,6 +24,16 @@ namespace GPC.Model.Elements
         /// The plate property
         /// </summary>
         protected PlateProperty _plateProperty;
+        private NodeElement[] _nodes;
+        public IReadOnlyList<NodeElement> Nodes => Array.AsReadOnly(_nodes ?? new NodeElement[0]);
+
+        public void ConnectNodes(params NodeElement[] nodes)
+        {
+            if (nodes == null || (nodes.Length != 3 && nodes.Length != 4) || nodes.Any(n => n is null))
+                throw new ArgumentException("A linear shell requires three or four explicit nodes.", nameof(nodes));
+            _nodes = (NodeElement[])nodes.Clone();
+            _shape = null;
+        }
 
         #endregion
 
@@ -27,22 +42,22 @@ namespace GPC.Model.Elements
         /// <summary>
         /// The shape of the element
         /// </summary>
-        public Shape Shape { get => _shape; set => _shape = value; }
+        public Shape Shape { get => _nodes == null ? _shape : new Shape(new Polygon3d(_nodes.Select(n => n.Position))); set { if (_nodes != null) throw new InvalidOperationException("Edit connected node positions instead of replacing shell geometry."); _shape = value; } }
 
         /// <summary>
         /// The external border of the shape (<see cref="Shape.Fill"/>)
         /// </summary>
-        public Polygon3d Fill { get => _shape.Fill; }
+        public Polygon3d Fill { get => Shape.Fill; }
 
         /// <summary>
         /// The holes of the shape (<see cref="Shape.Holes"/>; null if it has none)
         /// </summary>
-        public Polygon3d[] Holes { get => _shape.Holes; }
+        public Polygon3d[] Holes { get => Shape.Holes; }
 
         /// <summary>
         /// The vertices of the shape (fill, holes and children, see <see cref="Shape.GetPoints"/>)
         /// </summary>
-        public Point3d[] Points { get => _shape.GetPoints(); }
+        public Point3d[] Points { get => _nodes == null ? (_shape?.GetPoints() ?? new Point3d[0]) : _nodes.Select(n => n.Position).ToArray(); }
 
         /// <summary>
         /// The plate property
@@ -76,8 +91,10 @@ namespace GPC.Model.Elements
         protected AreaElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            Assignments = SerializationFields.Read(info, "AreaAssignments", new GPC.Model.PostProcessing.ShellAssignments());
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
             _plateProperty = (PlateProperty)info.GetValue("PlateProperty", typeof(PlateProperty));
+            _nodes = SerializationFields.Read<NodeElement[]>(info, "ConnectedNodes");
         }
 
         #endregion
@@ -92,8 +109,10 @@ namespace GPC.Model.Elements
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("AreaAssignments", Assignments);
             info.AddValue("Shape", _shape);
             info.AddValue("PlateProperty", _plateProperty);
+            info.AddValue("ConnectedNodes", _nodes);
         }
 
         /// <summary>
@@ -106,10 +125,7 @@ namespace GPC.Model.Elements
             if (ReferenceEquals(this, obj))
                 return true;
 
-            return (obj is AreaElement surface) &&
-                surface.Points.Equals(_shape) &&
-                surface.PlateProperty.Equals(_plateProperty) &&
-                base.Equals(surface);
+            return obj is AreaElement && base.Equals(obj);
         }
 
         /// <summary>
@@ -120,10 +136,7 @@ namespace GPC.Model.Elements
         {
             unchecked
             {
-                int hashCode = -391 + base.GetHashCode();
-                hashCode = hashCode * -17 + _shape.GetHashCode();
-                hashCode = hashCode * -17 + _plateProperty.GetHashCode();
-                return hashCode;
+                return base.GetHashCode();
             }
         }
 

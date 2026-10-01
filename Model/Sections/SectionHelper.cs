@@ -452,13 +452,32 @@ namespace GPC.Model.Sections
         /// <returns>The plastic modulus; 0 for a shape without area</returns>
         internal static double CalculatePlasticModulus(Shape shape, Point2d centroid, double angle)
         {
-            if (shape is null || shape.Fill is null || shape.Fill.Count < 3)
+            return CalculatePlasticModulus(new[] { shape }, centroid, angle);
+        }
+
+        /// <summary>
+        /// Plastic modulus of a region made of separate shapes (e.g. the parts of a built-up section, that must not overlap), see
+        /// <see cref="CalculatePlasticModulus(Shape, Point2d, double)"/>
+        /// </summary>
+        /// <param name="shapes">The shapes (the null or empty ones are ignored)</param>
+        /// <param name="centroid">The centroid of the region (origin of the local coordinates)</param>
+        /// <param name="angle">The direction of the axis</param>
+        /// <returns>The plastic modulus; 0 for a region without area</returns>
+        internal static double CalculatePlasticModulus(IReadOnlyList<Shape> shapes, Point2d centroid, double angle)
+        {
+            if (shapes is null)
                 return 0.0;
 
             // the rings in the coordinates (u, w): u along the axis, w = (y - yc) cos - (x - xc) sin the distance from it
             double cos = Math.Cos(angle), sin = Math.Sin(angle);
             var rings = new List<(double[] u, double[] w, double factor)>();
-            AddPlasticRings(shape, centroid, cos, sin, 1.0, rings);
+            foreach (Shape shape in shapes)
+            {
+                if (!(shape is null || shape.Fill is null || shape.Fill.Count < 3))
+                    AddPlasticRings(shape, centroid, cos, sin, 1.0, rings);
+            }
+            if (rings.Count == 0)
+                return 0.0;
 
             double wMin = double.MaxValue, wMax = double.MinValue;
             foreach (var ring in rings)
@@ -662,6 +681,96 @@ namespace GPC.Model.Sections
             iyy += factor * xx / 12.0;
             ixx += factor * yy / 12.0;
             ixy += factor * xy / 24.0;
+        }
+
+        /// <summary>
+        /// A shape moved with the bottom left corner of the bounding box of its fill at the origin
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <returns>The moved shape (the same instance if already there)</returns>
+        internal static Shape2d AtTheOrigin(Shape2d shape)
+        {
+            var (minX, minY, _, _) = Bounds(shape);
+            if (minX == 0 && minY == 0)
+                return shape;
+
+            Polygon2d Move(Polygon3d p) => new Polygon2d(Enumerable.Range(0, p.Count).Select(i => new Point2d(p[i].X - minX, p[i].Y - minY)).ToArray());
+            Shape2d MoveShape(Shape s)
+            {
+                Polygon2d[] holes = s.Holes?.Where(h => h != null && h.Count >= 3).Select(Move).ToArray();
+                Shape2d[] childs = s.Childs?.Where(c => c?.Fill != null).Select(MoveShape).ToArray();
+                return new Shape2d(Move(s.Fill), holes != null && holes.Length > 0 ? holes : null, childs != null && childs.Length > 0 ? childs : null);
+            }
+            return MoveShape(shape);
+        }
+
+        /// <summary>
+        /// The bounding box of the fill of a shape
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <returns>The minimum and maximum coordinates</returns>
+        internal static (double MinX, double MinY, double MaxX, double MaxY) Bounds(Shape shape)
+        {
+            Polygon3d fill = shape.Fill;
+            double minX = double.MaxValue, minY = double.MaxValue, maxX = double.MinValue, maxY = double.MinValue;
+            for (int i = 0; i < fill.Count; i++)
+            {
+                minX = Math.Min(minX, fill[i].X);
+                maxX = Math.Max(maxX, fill[i].X);
+                minY = Math.Min(minY, fill[i].Y);
+                maxY = Math.Max(maxY, fill[i].Y);
+            }
+            return (minX, minY, maxX, maxY);
+        }
+
+        /// <summary>
+        /// True if the corners of a shape (fill and holes, without the vertices aligned with their neighbours) are symmetric about the vertical
+        /// or the horizontal axis through a point (relative tolerance 1e-9)
+        /// </summary>
+        /// <param name="shape">The shape</param>
+        /// <param name="centroid">The point of the axis</param>
+        /// <param name="aboutVertical">True for the vertical axis, false for the horizontal one</param>
+        /// <returns>True if symmetric</returns>
+        internal static bool IsSymmetric(Shape shape, Point2d centroid, bool aboutVertical)
+        {
+            var (minX, minY, maxX, maxY) = Bounds(shape);
+            double tolerance = 1e-9 * Math.Max(maxX - minX, maxY - minY);
+
+            var points = new List<Point2d>();
+            void AddCorners(Polygon3d ring)
+            {
+                int count = ring.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    Point3d p = ring[(i + count - 1) % count], q = ring[i], r = ring[(i + 1) % count];
+                    double cross = (q.X - p.X) * (r.Y - q.Y) - (q.Y - p.Y) * (r.X - q.X);
+                    double length = Math.Sqrt((r.X - p.X) * (r.X - p.X) + (r.Y - p.Y) * (r.Y - p.Y));
+                    if (Math.Abs(cross) > tolerance * length)
+                        points.Add(new Point2d(q.X, q.Y));
+                }
+            }
+            AddCorners(shape.Fill);
+            if (shape.Holes != null)
+            {
+                foreach (Polygon3d hole in shape.Holes)
+                    AddCorners(hole);
+            }
+
+            var grid = new HashSet<(long, long)>(points.Select(p => ((long)Math.Round(p.X / tolerance), (long)Math.Round(p.Y / tolerance))));
+            foreach (Point2d p in points)
+            {
+                double mx = aboutVertical ? 2 * centroid.X - p.X : p.X, my = aboutVertical ? p.Y : 2 * centroid.Y - p.Y;
+                long ix = (long)Math.Round(mx / tolerance), iy = (long)Math.Round(my / tolerance);
+                bool found = false;
+                for (long i = ix - 2; i <= ix + 2 && !found; i++)
+                {
+                    for (long j = iy - 2; j <= iy + 2 && !found; j++)
+                        found = grid.Contains((i, j));
+                }
+                if (!found)
+                    return false;
+            }
+            return true;
         }
     }
 }

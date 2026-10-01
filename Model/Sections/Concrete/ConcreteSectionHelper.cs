@@ -1,4 +1,4 @@
-using GPC.Geometry;
+﻿using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model.Materials;
 using GPC.Model.Sections.Rebar;
@@ -37,19 +37,23 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// The homogenized static moments: the concrete mesh plus (n - 1) A of the rebars and n A of the steel sections (n - 1 inside the concrete)
+        /// The homogenized static moments: the concrete (its area by its centroid) plus (n - 1) A of the rebars and n A of the steel sections minus
+        /// the concrete they replace. Before, the static moments of the concrete were integrated on its mesh while the homogenized area used the
+        /// area of the shape: for a circle (mesh of 32 sides) the centroid moved towards the origin by 0.6%
         /// </summary>
-        /// <param name="mesh">The mesh of the concrete</param>
+        /// <param name="concreteCentroid">The centroid of the concrete</param>
+        /// <param name="area">The area of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="SxHomog">The homogenized static moment respect to X</param>
         /// <param name="SyHomog">The homogenized static moment respect to Y</param>
         /// <param name="steelSections">The steel sections (optional)</param>
-        internal static void CalculateHomogeneizedStaticMoments(Mesh mesh, ReinforcedConcreteRebar[] rebars,
+        internal static void CalculateHomogeneizedStaticMoments(Point2d concreteCentroid, double area, ReinforcedConcreteRebar[] rebars,
             ConcreteMaterial concreteMaterial, out double SxHomog, out double SyHomog,
             IList<SteelSectionPosition> steelSections = null)
         {
-            SectionHelper.CalculateStaticMoments(mesh, out SxHomog, out SyHomog);
+            SxHomog = area * concreteCentroid.Y;
+            SyHomog = area * concreteCentroid.X;
             AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog);
             AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog);
         }
@@ -75,7 +79,9 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Adds the static moments of the steel sections, n A y and n A x (n - 1 inside the concrete)
+        /// Adds the static moments of the steel sections, n A y and n A x, minus the ones of the concrete they replace (see
+        /// <see cref="SteelSectionPosition.ReplacedConcrete"/>: the whole section inside the concrete, n - 1; nothing outside, n; the overlap for
+        /// a section partly inside. Before, n - 1 or n for the whole section, from the first thin wall)
         /// </summary>
         /// <param name="steelSections">The steel sections</param>
         /// <param name="concreteMaterial">The concrete</param>
@@ -91,13 +97,15 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
 
                     var centroid = steelSection.CalculateCentroid();
                     SxHomog += nSteelSection * steelSection.CalculateArea() * centroid.Y;
                     SyHomog += nSteelSection * steelSection.CalculateArea() * centroid.X;
+
+                    // the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out _, out double sx, out double sy, out _, out _, out _);
+                    SxHomog -= sx;
+                    SyHomog -= sy;
                 }
             }
         }
@@ -126,7 +134,8 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Adds the moments of inertia of the steel sections about the axes through a point, n J (n - 1 inside the concrete)
+        /// Adds the moments of inertia of the steel sections about the axes through a point, n J, minus the ones of the concrete they replace
+        /// (see <see cref="AddSteelSectionStaticMoments"/>)
         /// </summary>
         /// <param name="steelSections">The steel sections</param>
         /// <param name="centroid">The origin of the axes</param>
@@ -145,13 +154,16 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double n = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        n -= 1.0;
 
                     JxxHomogenized += n * steelSection.CalculateJxx(centroid);
                     JyyHomogenized += n * steelSection.CalculateJyy(centroid);
                     JxyHomogenized += n * steelSection.CalculateJxy(centroid);
+
+                    // the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(centroid, out _, out _, out _, out double ixx, out double iyy, out double ixy);
+                    JxxHomogenized -= ixx;
+                    JyyHomogenized -= iyy;
+                    JxyHomogenized -= ixy;
                 }
             }
         }
@@ -234,7 +246,7 @@ namespace GPC.Model.Sections.Concrete
         /// <summary>
         /// The centroid of the homogenized section with default value of homogenized factor n
         /// </summary>
-        /// <param name="mesh">The mesh of the concrete</param>
+        /// <param name="concreteCentroid">The centroid of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -242,11 +254,11 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The centroid</returns>
-        internal static Point2d GetHomogenizedCentroid(Mesh mesh, ReinforcedConcreteRebar[] rebars,
+        internal static Point2d GetHomogenizedCentroid(Point2d concreteCentroid, ReinforcedConcreteRebar[] rebars,
             ConcreteMaterial concreteMaterial, double area, out double SxHomog, out double SyHomog,
             IList<SteelSectionPosition> steelSections = null)
         {
-            CalculateHomogeneizedStaticMoments(mesh, rebars, concreteMaterial, out SxHomog, out SyHomog, steelSections);
+            CalculateHomogeneizedStaticMoments(concreteCentroid, area, rebars, concreteMaterial, out SxHomog, out SyHomog, steelSections);
 
             return SectionHelper.CalculateCentroid(SxHomog, SyHomog, GetHomogenizedArea(rebars, concreteMaterial, area, steelSections));
         }
@@ -255,7 +267,7 @@ namespace GPC.Model.Sections.Concrete
         /// The centroid of the homogenized section with the creep coefficient <paramref name="phi"/>
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
-        /// <param name="mesh">The mesh of the concrete</param>
+        /// <param name="concreteCentroid">The centroid of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -263,7 +275,7 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="SyHomog">The first moment of area respect Y-Axis</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The centroid</returns>
-        internal static Point2d GetHomogenizedCentroid(double phi, Mesh mesh, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+        internal static Point2d GetHomogenizedCentroid(double phi, Point2d concreteCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, out double SxHomog, out double SyHomog, IList<SteelSectionPosition> steelSections = null)
         {
             // Rebars
@@ -275,10 +287,8 @@ namespace GPC.Model.Sections.Concrete
             if (steelSections != null && steelSections.Count > 0)
                 nSteelSections = CalculateHomogenizedFactorN(phi, steelSections, concreteMaterial);
 
-            SectionHelper.CalculateStaticMoments(mesh, out double Sx, out double Sy);
-
-            SxHomog = Sx;
-            SyHomog = Sy;
+            SxHomog = area * concreteCentroid.Y;
+            SyHomog = area * concreteCentroid.X;
 
             AddRebarsStaticMoments(rebars, concreteMaterial, ref SxHomog, ref SyHomog, nRebars);
             AddSteelSectionStaticMoments(steelSections, concreteMaterial, ref SxHomog, ref SyHomog, nSteelSections);
@@ -368,11 +378,9 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = CalculateN(steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
-
-                    areaH += nSteelSection * steelSection.CalculateArea();
+                    // minus the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out double replaced, out _, out _, out _, out _, out _);
+                    areaH += nSteelSection * steelSection.CalculateArea() - replaced;
                 }
             }
 
@@ -402,11 +410,9 @@ namespace GPC.Model.Sections.Concrete
                 {
                     var steelSection = steelSections[i];
                     double nSteelSection = CalculateHomogenizedFactorN(phi, steelSection, concreteMaterial);
-                    // n-1 Is used to disregard the area of concrete that is replaced by the steel section.
-                    if (steelSection.IsInsideConcrete)
-                        nSteelSection -= 1.0;
-
-                    areaH += nSteelSection * steelSection.CalculateArea();
+                    // minus the concrete replaced by the steel section
+                    steelSection.ReplacedConcrete(Point2d.Origin, out double replaced, out _, out _, out _, out _, out _);
+                    areaH += nSteelSection * steelSection.CalculateArea() - replaced;
                 }
             }
 
@@ -418,7 +424,6 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
         /// <param name="sectionCentroid">The centroid of the concrete</param>
-        /// <param name="mesh">The mesh of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -427,10 +432,10 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="Jxy">The product of inertia of the concrete (its centroid)</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The moment of inertia</returns>
-        internal static double GetHomogeneizedJ11(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
+        internal static double GetHomogeneizedJ11(double phi, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars,
             ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
         {
-            Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _, steelSections);
+            Point2d centroidH = GetHomogenizedCentroid(phi, sectionCentroid, rebars, concreteMaterial, area, out double _, out double _, steelSections);
             CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area,
                 out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
             return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
@@ -440,7 +445,6 @@ namespace GPC.Model.Sections.Concrete
         /// The homogenized moment of inertia about the principal axis 1 (n = Es / Ec)
         /// </summary>
         /// <param name="sectionCentroid">The centroid of the concrete</param>
-        /// <param name="mesh">The mesh of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -449,10 +453,10 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="Jxy">The product of inertia of the concrete (its centroid)</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The moment of inertia</returns>
-        internal static double GetHomogeneizedJ11(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+        internal static double GetHomogeneizedJ11(Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
         {
-            Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _, steelSections);
+            Point2d centroidH = GetHomogenizedCentroid(sectionCentroid, rebars, concreteMaterial, area, out _, out _, steelSections);
             CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
                 out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
             return SectionHelper.CalculateJ11(JxxH, JyyH, JxyH);
@@ -463,7 +467,6 @@ namespace GPC.Model.Sections.Concrete
         /// </summary>
         /// <param name="phi">The creep coefficient</param>
         /// <param name="sectionCentroid">The centroid of the concrete</param>
-        /// <param name="mesh">The mesh of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -472,10 +475,10 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="Jxy">The product of inertia of the concrete (its centroid)</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The moment of inertia</returns>
-        internal static double GetHomogeneizedJ22(double phi, Point2d sectionCentroid, Mesh mesh, ReinforcedConcreteRebar[] rebars,
+        internal static double GetHomogeneizedJ22(double phi, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars,
             ConcreteMaterial concreteMaterial, double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
         {
-            Point2d centroidH = GetHomogenizedCentroid(phi, mesh, rebars, concreteMaterial, area, out double _, out double _, steelSections);
+            Point2d centroidH = GetHomogenizedCentroid(phi, sectionCentroid, rebars, concreteMaterial, area, out double _, out double _, steelSections);
             CalculateHomogeneizedInertiaMoments(phi, concreteMaterial, rebars, sectionCentroid, centroidH, Jxx, Jyy, Jxy, area,
                 out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
             return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);
@@ -485,7 +488,6 @@ namespace GPC.Model.Sections.Concrete
         /// The homogenized moment of inertia about the principal axis 2 (n = Es / Ec)
         /// </summary>
         /// <param name="sectionCentroid">The centroid of the concrete</param>
-        /// <param name="mesh">The mesh of the concrete</param>
         /// <param name="rebars">The rebars</param>
         /// <param name="concreteMaterial">The concrete</param>
         /// <param name="area">The area of the concrete</param>
@@ -494,10 +496,10 @@ namespace GPC.Model.Sections.Concrete
         /// <param name="Jxy">The product of inertia of the concrete (its centroid)</param>
         /// <param name="steelSections">The steel sections (optional)</param>
         /// <returns>The moment of inertia</returns>
-        internal static double GetHomogeneizedJ22(Mesh mesh, Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
+        internal static double GetHomogeneizedJ22(Point2d sectionCentroid, ReinforcedConcreteRebar[] rebars, ConcreteMaterial concreteMaterial,
             double area, double Jxx, double Jyy, double Jxy, IList<SteelSectionPosition> steelSections = null)
         {
-            Point2d centroidH = GetHomogenizedCentroid(mesh, rebars, concreteMaterial, area, out _, out _, steelSections);
+            Point2d centroidH = GetHomogenizedCentroid(sectionCentroid, rebars, concreteMaterial, area, out _, out _, steelSections);
             CalculateHomogeneizedInertiaMoments(rebars, sectionCentroid, centroidH, concreteMaterial, Jxx, Jyy, Jxy, area,
                 out double JxxH, out double JyyH, out double JxyH, out double _, steelSections);
             return SectionHelper.CalculateJ22(JxxH, JyyH, JxyH);

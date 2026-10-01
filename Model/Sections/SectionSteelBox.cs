@@ -313,6 +313,15 @@ namespace GPC.Model.Sections
         protected override double CalculateJw() => 0;
 
         /// <summary>
+        /// Torsion constant of the thin walls of the open box: approximate; warping constant (0) and shear centre (the centroid) are placeholders,
+        /// not available: use <see cref="Section.CalculateTorsionProperties"/>
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Approximate, PropertyAvailability.NotAvailable, PropertyAvailability.NotAvailable);
+
+        /// <summary>
         /// Builds the thin walls (flanges and webs along their axes), discards the mesh and the shape and calculates the properties
         /// </summary>
         private void CalculateSection()

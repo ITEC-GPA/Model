@@ -1,0 +1,24 @@
+<Project>
+  <Target Name="UseCompatibilityCandidateLibraries" BeforeTargets="ResolveAssemblyReferences" Condition="'$(CompatibilityLibraryDirectory)' != ''">
+    <ItemGroup>
+      <Reference Condition="'%(Reference.Identity)' == 'GPCChecker.Concrete'">
+        <HintPath>$(CompatibilityLibraryDirectory)/GPCChecker.Concrete.dll</HintPath>
+        <Private>true</Private>
+      </Reference>
+      <Reference Condition="'%(Reference.Identity)' == 'GPCChecker.CompositeBridge'">
+        <HintPath>$(CompatibilityLibraryDirectory)/GPCChecker.CompositeBridge.dll</HintPath>
+        <Private>true</Private>
+      </Reference>
+      <Reference Condition="'%(Reference.Filename)' == 'GPCModel' Or '%(Reference.Filename)' == 'GPCModelData' Or '%(Reference.Filename)' == 'GPCChecker.Concrete' Or '%(Reference.Filename)' == 'GPCChecker.CompositeBridge' Or '%(Reference.Filename)' == 'GPCGeometry' Or '%(Reference.Filename)' == 'GPCUtilities' Or '%(Reference.Filename)' == 'DelaunayMesh'">
+        <HintPath>$(CompatibilityLibraryDirectory)/%(Reference.Filename).dll</HintPath>
+        <Private>true</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
+  <Target Name="RecordCompatibilityCandidateReferences" AfterTargets="ResolveAssemblyReferences" Condition="'$(CompatibilityLibraryDirectory)' != ''">
+    <ItemGroup>
+      <CompatibilityReference Include="@(ReferencePath)" Condition="'%(ReferencePath.Filename)' == 'GPCModel' Or '%(ReferencePath.Filename)' == 'GPCChecker.Concrete' Or '%(ReferencePath.Filename)' == 'GPCChecker.CompositeBridge'" />
+    </ItemGroup>
+    <Message Importance="High" Text="Compatibility reference $(MSBuildProjectName): %(CompatibilityReference.FullPath)" />
+  </Target>
+</Project>

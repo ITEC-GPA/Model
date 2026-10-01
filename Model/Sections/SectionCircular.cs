@@ -137,6 +137,15 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// The exact outline: the circle as a polygon of <see cref="SectionOutline.SegmentsPerQuarter"/> sides every 90° (area within 1e-4), used
+        /// by the numerical torsion and the overlaps with the concrete. The properties are the closed formulas; the shape (32 sides) is the one of
+        /// the mesh
+        /// </summary>
+        /// <returns>The outline</returns>
+        internal override Shape2d GetPlasticShape() =>
+            new Shape2d(new Polygon2d(_diameter, 4 * SectionOutline.SegmentsPerQuarter, new Point2d(_diameter / 2.0, _diameter / 2.0)));
+
+        /// <summary>
         /// A mesh with quadrangles between the outer polygon and an inner one of diameter D / 3 and triangles from the inner polygon to the centre
         /// </summary>
         /// <param name="numberOfEdges">The number of edges of the polygons</param>
@@ -266,6 +275,20 @@ namespace GPC.Model.Sections
         {
             return new Point2d(Diameter / 2.0, Diameter / 2.0);
         }
+
+        /// <summary>
+        /// Calculate the shear centre: the centre (before, the same value from the base class)
+        /// </summary>
+        /// <returns>The shear centre</returns>
+        protected override Point2d CalculateShearCenter() => CalculateCentroid();
+
+        /// <summary>
+        /// All the properties are exact (closed formulas of the circle)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Exact, PropertyAvailability.Exact, PropertyAvailability.Exact);
 
         /// <summary>
         /// Calculate the elastic modulus: π D³ / 32

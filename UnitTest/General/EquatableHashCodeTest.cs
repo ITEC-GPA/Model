@@ -18,7 +18,7 @@ using System.Collections.Generic;
 namespace GeneralTest
 {
     [TestClass]
-    public class EquatableHashCodeTest 
+    public class EquatableHashCodeTest
     {
         private Mesh CreateSimpleMesh(int incrementX, int incrementY, int numberOfFaceX, int numberOfFaceY, int numberOfVolumeZ, int incrementZ = 0)
         {
@@ -243,7 +243,9 @@ namespace GeneralTest
             Assert.IsTrue(dict.ContainsKey(n2.Id));
             Assert.IsTrue(dict.ContainsKey(n3.Id));
             Assert.IsTrue(dict.ContainsValue(n1));
-            Assert.IsTrue(dict.ContainsValue(n2));
+            // n3 intentionally replaces ID 2; coincident nodes have distinct FEM identities.
+            Assert.AreSame(n3, dict[2]);
+            Assert.IsFalse(dict.ContainsValue(n2));
             Assert.IsTrue(dict.ContainsValue(n3));
         }
 

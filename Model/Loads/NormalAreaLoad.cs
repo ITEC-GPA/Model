@@ -114,7 +114,7 @@ namespace GPC.Model.Loads
         #region Equals, HasCode and operators
 
         /// <summary>
-        /// Serializes the data of <see cref="Load"/>, pressure, shape and the coordinate system (a second time: duplicated name, the serialization throws)
+        /// Serializes the base load, pressure and shape.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -123,7 +123,6 @@ namespace GPC.Model.Loads
             base.GetObjectData(info, context);
             info.AddValue("Pressure", _pressure);
             info.AddValue("Shape", _shape);
-            info.AddValue("CoordinateSystem", _coordinateSystem);
         }
 
         /// <summary>

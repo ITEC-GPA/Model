@@ -69,7 +69,7 @@ namespace GPC.Model.Loads
         protected Load(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _loadCase = (LoadCase)info.GetValue("LoadCase", typeof(LoadCase));
+            _loadCase = (LoadCaseBase)info.GetValue("LoadCase", typeof(LoadCaseBase));
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
         }
 

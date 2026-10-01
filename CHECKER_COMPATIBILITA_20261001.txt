@@ -1,0 +1,40 @@
+COMPATIBILITA' MODEL / CHECKER / ANTHEA — 1 OTTOBRE 2026
+
+Esito: nessuna nuova regressione rilevata nei percorsi provati. Il lavoro Model e il commit Concrete sono pronti per il push sui branch esistenti. Non e' una nuova distribuzione delle DLL di Anthea.
+
+PROVE SULLE BUILD CORRENTI
+- UnitTest Model completo: 758 superati, 0 falliti, 1 ignorato (benchmark lineare statico nativo Straus7 non disponibile nell'ambiente).
+- ModelChecker.Tests completo: 55/55.
+- Checker Concrete, ConcreteControlTests: 45/45; inclusa la correzione dell'overload asincrono lineare/non lineare.
+- Checker CompositeBridge completo: 254/254.
+- Checker Steel completo: 77 superati e 17 falliti su 94. Nomi e messaggi di tutti i fallimenti sono IDENTICI alla baseline del passo 1: nessun nuovo fallimento. R02/R03/R04 restano i limiti documentati nei passi precedenti.
+
+ANTHEA: BASELINE DISTRIBUITA E LIBRERIE CANDIDATE
+Ricompilati i programmi di prova esistenti contro le DLL distribuite, poi contro le nuove build Model/ModelData/Concrete/CompositeBridge. I riferimenti di X.Calculations, X.Core e X.Verifiche sono stati indirizzati alla cartella candidata con un target MSBuild usato soltanto nell'audit. Controllati gli SHA-256 delle sette DLL effettivamente copiate negli output: nessuna libreria vecchia mista alle nuove nella prova finale.
+
+Risultati identici delle due configurazioni:
+- ConcreteCode.Checks: 434 asserzioni normative cls.
+- X.Verifiche --ca-module: 78 controlli del modulo cls.
+- X.Verifiche --bridge: 172 controlli di sezione mista, 2957 controlli metodi/curve, 189 controlli degli esempi H inclinata/cassoncino, 191 controlli predalle. Totale Bridge: 3509.
+
+I test usano i motori reali. Non eseguiti l'intera suite storica Concrete, UI desktop, installer o tutti i moduli Anthea. Resta il warning preesistente GMsh.Net MSB3270. Non sono stati modificati i sorgenti o le DLL distribuite in ANTHEA/lib/Checker.
+
+RIPRODUZIONE
+1. Compilare Model e ModelData Release, poi Checker Concrete/Steel/CompositeBridge contro queste build; eseguire le suite sopra.
+2. Copiare in una cartella candidata le DLL di quelle build e le dipendenze GPCGeometry, GPCUtilities, DelaunayMesh. Non aggiornare lib/Checker di Anthea durante l'audit.
+3. Compilare i progetti Anthea supporto/test/ConcreteCode.Checks e supporto/test/X.Verifiche con output separati, passando:
+   -p:CheckerLibraryDirectory=<cartella-candidata>
+   -p:CompatibilityLibraryDirectory=<cartella-candidata>
+   -p:CustomAfterMicrosoftCommonTargets=<percorso-assoluto>/Examples/Compatibility/AntheaCandidateLibraries.targets
+4. Controllare i riferimenti elencati dalla build e gli hash delle DLL negli output. Eseguire ConcreteCode.Checks.dll, ANTHEA.Verifiche.dll --ca-module e ANTHEA.Verifiche.dll --bridge.
+
+EVIDENZE
+CHECKER_COMPATIBILITA_20261001_EVIDENZE.json conserva contatori, commit di partenza, hash dei sorgenti e delle librerie, confronto Steel e output Anthea. I log/TRX e le copie binarie restano localmente in TestResults/Compatibility20261001, esclusi da Git.
+
+PERIMETRO GIT
+Model: fix/review-bugs, comprende il precedente commit della lavorazione Model e le aggiunte dei passi 1/2/3/5, prompt del passo 4 ed evidenze. Il foglio aisc-shapes-database-v160-2.xlsx e' estraneo a questo intervento e resta escluso.
+Checker: develop, commit 2a7001b5 della correzione Concrete e relativi test.
+Anthea: nessun commit/push di questa attivita'. Le sue altre lavorazioni restano separate.
+
+STATO FUNZIONALE
+Il passo 4 e il riassetto architetturale proposto dopo il passo 5 non sono implementati. Gli adattatori Steel/CompositeBridge restano nel perimetro limitato del passo 5; nessun nuovo motore globale o plate. Queste parti mancanti non sono state nascoste o trasformate in verifiche soddisfatte.

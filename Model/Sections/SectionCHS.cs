@@ -295,6 +295,15 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// The exact outline: the circles as polygons of <see cref="SectionOutline.SegmentsPerQuarter"/> sides every 90° (area within 1e-4), used
+        /// by the numerical torsion, the overlaps with the concrete and the core of a filled tube. The properties are the closed formulas; the
+        /// shape (<see cref="GetShape()"/>, 32 sides) is the one of the mesh. Before, the outline was the shape: the numerical torsion constant was
+        /// 1.4% lower and the core of a filled tube 0.6% smaller
+        /// </summary>
+        /// <returns>The outline</returns>
+        internal override Shape2d GetPlasticShape() => GetShape(4 * SectionOutline.SegmentsPerQuarter);
+
+        /// <summary>
         /// A mesh with a quadrangle between each edge of the outer and of the inner polygons
         /// </summary>
         /// <param name="numberOfEdges">The number of edges of the polygons</param>
@@ -355,6 +364,14 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <returns>The shear center</returns>
         protected override Point2d CalculateShearCenter() => _shearCenter;
+
+        /// <summary>
+        /// All the properties are exact (closed formulas of the circular tube)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) =>
+            Declared(property, PropertyAvailability.Exact, PropertyAvailability.Exact, PropertyAvailability.Exact);
 
         /// <summary>
         /// The plastic modulus respect to the axis 1 (already set)

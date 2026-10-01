@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-30T20:44:29.7284923+02:00",
+  "step": 3,
+  "status": "Proposal and characterization tests complete; structural public contracts pending requested architecture discussion.",
+  "modelHead": "6cca8a01e91b918051849a7813f2011ba125e196",
+  "checkerHead": "09ec5eb90f059468f8c300b0d30c34c353259eb2",
+  "tests": [
+    {
+      "file": "TestResults/CheckerStep3/step3-element-scope.trx",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "notExecuted": 0,
+      "sha256": "DE81FBF32F2D67EC3D9B72757095F48014A29C9F511E64D570822478CE8E8B7A"
+    },
+    {
+      "file": "TestResults/CheckerStep3/step3-geometry-preparation.trx",
+      "total": 17,
+      "passed": 17,
+      "failed": 0,
+      "notExecuted": 0,
+      "sha256": "93EB9F6C3A84DC6C1F7120EFF7280FAC288F18191CB74F2E10EFBA3AAA002297"
+    }
+  ],
+  "productionSourcesComparedWithStep2": [
+    {
+      "path": "Model\\PostProcessing\\Verification.cs",
+      "unchanged": true
+    },
+    {
+      "path": "Model\\PostProcessing\\CheckDetails.cs",
+      "unchanged": true
+    },
+    {
+      "path": "Model\\PostProcessing\\CheckSummary.cs",
+      "unchanged": true
+    },
+    {
+      "path": "Model\\PostProcessing\\CheckReport.cs",
+      "unchanged": true
+    },
+    {
+      "path": "Model\\Persistence\\CheckReportArchive.cs",
+      "unchanged": true
+    },
+    {
+      "path": "Model\\Persistence\\ModelArchive.cs",
+      "unchanged": true
+    },
+    {
+      "path": "ModelChecker\\ConcreteSectionVerifier.cs",
+      "unchanged": true
+    },
+    {
+      "path": "ModelChecker\\ModelChecker.cs",
+      "unchanged": true
+    }
+  ],
+  "sourceHashes": [
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\Assignments.cs",
+      "sha256": "3D06330EF49527F1B7CD8281CAE764CB67DC52D02EFED466D4086EDFD4B8B4C3"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\BeamReferenceGeometry.cs",
+      "sha256": "FBD235DB87A36357D8979898544886C425A9AADE766284FE25240DEF5803D4B7"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\SectionLaws.cs",
+      "sha256": "EFBF9D36B6BE1F89ED847D3D5A5989492ED629FD12FE0A04AE033F74DD6DCDC7"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\ResultOrientation.cs",
+      "sha256": "0950880055FAF732BDCA3C8E30A5BF19AB9F9CFBC45C6C783C0FB82CFEAE635E"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\ModelPreparation.cs",
+      "sha256": "60CCB805E43B79969EE1A99BCC9A6B91F9E98247571A36A816208C7049FF03C7"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\ModelRevisions.cs",
+      "sha256": "43B0FAAB937E317A0C68FB2F8C608AD9ED1FA230449349B2B0E6AFB275E39EF6"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\Verification.cs",
+      "sha256": "4EC6CEB2B2F9FAE7B1AB44AA9840AE270012950B6BEC4E38317D6735EC5775B2"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\ShellInputPreparation.cs",
+      "sha256": "112F48CDF31B6451B48F216E43E5F46EF596AAAE8C7F2045E9A8D1CB771DEA3B"
+    },
+    {
+      "repository": "Model",
+      "path": "Model\\PostProcessing\\CheckSummary.cs",
+      "sha256": "A7455640214D710FCB181D3F6662A8603AC16AF980FFE9A6C1DDB3C58E4BDF87"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker\\ModelChecker.cs",
+      "sha256": "974DC5A54C74BEA04E745ECAEB97E953EDF99F9A62E8AD48266EB53B990D4B25"
+    },
+    {
+      "repository": "Model",
+      "path": "ModelChecker.Tests\\ElementScopeCharacterizationTest.cs",
+      "sha256": "8BFBC60F72DD47451CD9571CA68C70C7A084534FA2112E9DC858435AEC7633CA"
+    },
+    {
+      "repository": "Model",
+      "path": "CHECKER_PASSO_3.txt",
+      "sha256": "B520983E2D26869F8E0DBE97713D31029D93892AF173D2446E0D6139C09540BC"
+    },
+    {
+      "repository": "Model",
+      "path": "PROMPT_SVILUPPO_CHECKER.txt",
+      "sha256": "A68CEDF7B6B1085F4998C75BF53A59B8653EB10377F9C37D357EDD8FB60CA7D0"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Concrete\\Checkers\\BeamChecker.cs",
+      "sha256": "9F783D503E1D8F63B9DC33AB2BC7AA65E872B44003186D272B08D596BA665084"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Concrete\\Attributes\\BeamCheckerAttribute.cs",
+      "sha256": "78BF9234036B9F638F9F3DAAE748F6C779109F935CDA75B9230C23FF8D19BE6A"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Concrete\\Checkers\\BeamCheckerModelCode2010.cs",
+      "sha256": "9FB185EF84A57AF86D6C131AE64CA8221AD11C7332D6167C6754D6643CAB014A"
+    },
+    {
+      "repository": "Checker",
+      "path": "GPCChecker.Steel\\Checkers\\BeamChecker.cs",
+      "sha256": "D57B42D37499C4690AC8A1D03008AFC849A637E7FB8ECB2BE985B516DC54748C"
+    }
+  ],
+  "findings": [
+    "LogicalMember is a label; it is not a validated physical member and is not part of the current verification fingerprint.",
+    "Current completion counts exported samples and cannot detect a station omitted before planning without an explicit required-location policy.",
+    "Reversed FEM orientation preserves asymmetric physical section forces at the shared point with the real Concrete solver.",
+    "The current stability request remains unsupported and is counted per sample. A member plan must schedule by method scope.",
+    "Steel native lengths depend on FEM BeamElement.Length and factors; future member input requires explicit mapping."
+  ],
+  "changesInThisStep": [
+    "New ElementScopeCharacterizationTest.cs only in the test project.",
+    "CHECKER_PASSO_3.txt, CHECKER_PASSO_3_EVIDENZE.json and prompt checkpoint.",
+    "No new production API, numerical formula, plate method or dependency introduced."
+  ]
+}

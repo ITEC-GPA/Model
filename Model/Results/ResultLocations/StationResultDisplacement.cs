@@ -16,15 +16,19 @@ namespace GPC.Model.Results.ResultLocations
         /// The position of the station along the beam: 0 at the start point, 1 at the end point
         /// </summary>
         private double _parametricCoordinate;
+        public GPC.Model.PostProcessing.SectionSide Side { get; set; }
+        private double? _physicalDistance;
+        public double? PhysicalDistance { get => _physicalDistance; set => _physicalDistance = value.HasValue ? NumericGuard.Finite(value.Value, nameof(value)) : (double?)null; }
+        public string StationDomain { get; set; }
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// The position of the station along the beam: 0 at the start point, 1 at the end point (the setter does not check the range)
+        /// The position of the station along the beam: 0 at the start point, 1 at the end point (finite values in [0,1] only)
         /// </summary>
-        public double ParametricDistance { get => _parametricCoordinate; set => _parametricCoordinate = value; }
+        public double ParametricDistance { get => _parametricCoordinate; set => _parametricCoordinate = NumericGuard.Station(value); }
 
         /// <summary>
         /// The displacements
@@ -47,9 +51,7 @@ namespace GPC.Model.Results.ResultLocations
         public StationResultDisplacement(ILoadCase loadCase, ResultDisplacement results, double parametricCoordinate, int id = ModelObjectId.IDUNASSIGNED, string name = "")
             : base(loadCase, results, id, name)
         {
-            if (parametricCoordinate < 0.0 || parametricCoordinate > 1.0)
-                throw new ArgumentException($"distanceFromStartPoint can not lower than 0 or higher than 1");
-            _parametricCoordinate = parametricCoordinate;
+            ParametricDistance = parametricCoordinate;
         }
 
         /// <summary>
@@ -60,7 +62,10 @@ namespace GPC.Model.Results.ResultLocations
         protected StationResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _parametricCoordinate = info.GetDouble("ParametricDistance");
+            Side = SerializationFields.Read<GPC.Model.PostProcessing.SectionSide>(info, "Side");
+            PhysicalDistance = SerializationFields.Read<double?>(info, "PhysicalDistance");
+            StationDomain = SerializationFields.Read<string>(info, "StationDomain");
+            ParametricDistance = info.GetDouble(SerializationFields.Has(info, "ParametricDistance") ? "ParametricDistance" : "DistanceFromStartPoint");
         }
 
         #endregion
@@ -75,7 +80,10 @@ namespace GPC.Model.Results.ResultLocations
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("DistanceFromStartPoint", _parametricCoordinate);
+            info.AddValue("Side", Side);
+            info.AddValue("PhysicalDistance", PhysicalDistance);
+            info.AddValue("StationDomain", StationDomain);
+            info.AddValue("ParametricDistance", _parametricCoordinate);
         }
 
         /// <summary>
@@ -85,11 +93,11 @@ namespace GPC.Model.Results.ResultLocations
         /// <returns>True if the results are equal</returns>
         public override bool Equals(object obj)
         {
-            return Equals((StationResultDisplacement)obj);
+            return Equals(obj as StationResultDisplacement);
         }
 
         /// <summary>
-        /// Equality of the result values and of the name and of the station (the load case is not compared, see <see cref="ResultLocation.Equals(object)"/>)
+        /// Equality of the result values and of the name and of the station (including the load case and analysis state)
         /// </summary>
         /// <param name="other">The result to compare</param>
         /// <returns>True if the results are equal</returns>
@@ -102,7 +110,7 @@ namespace GPC.Model.Results.ResultLocations
                 return true;
 
             return base.Equals(other) &&
-                _parametricCoordinate == other._parametricCoordinate;
+                _parametricCoordinate == other._parametricCoordinate && Side == other.Side && PhysicalDistance == other.PhysicalDistance && StationDomain == other.StationDomain;
         }
 
         /// <summary>

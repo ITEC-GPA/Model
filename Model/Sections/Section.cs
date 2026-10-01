@@ -182,6 +182,11 @@ namespace GPC.Model.Sections
         /// </summary>
         private double _meshSize;
 
+        /// <summary>
+        /// The torsion solved with the finite elements for the values left to compute (null until the first access to one of them)
+        /// </summary>
+        private SectionTorsionProperties _numericalTorsion;
+
         #endregion
 
         #region Properties
@@ -194,12 +199,16 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The torsion constant
         /// </summary>
-        public double Jt => _jt;
+        /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
+        /// before, 0)</remarks>
+        public double Jt => double.IsNaN(_jt) && SolvesTorsionNumerically ? (_jt = NumericalTorsion.TorsionConstant) : _jt;
 
         /// <summary>
         /// The warping constant
         /// </summary>
-        public double Jw => _jw;
+        /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
+        /// before, 0); <see cref="double.NaN"/> when not available (see <see cref="GetAvailability"/>)</remarks>
+        public double Jw => double.IsNaN(_jw) && SolvesTorsionNumerically ? (_jw = NumericalTorsion.WarpingConstant) : _jw;
 
         /// <summary>
         /// The moment of inertia (second moment of area) about the X axis through the centroid
@@ -235,13 +244,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the 1-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = ShapePlasticModulus(_angleX1)) : _wpl1;
+        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = PlasticModulus(_angleX1)) : _wpl1;
 
         /// <summary>
         /// The plastic modulus calculated respect the 2-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = ShapePlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
+        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = PlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
 
         /// <summary>
         /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid
@@ -307,13 +316,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the X axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double WplX => double.IsNaN(_wplX) ? (_wplX = ShapePlasticModulus(0.0)) : _wplX;
+        public double WplX => double.IsNaN(_wplX) ? (_wplX = PlasticModulus(0.0)) : _wplX;
 
         /// <summary>
         /// The plastic modulus calculated respect the Y axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, <see cref="Wel2Max"/>)</remarks>
-        public double WplY => double.IsNaN(_wplY) ? (_wplY = ShapePlasticModulus(Math.PI / 2.0)) : _wplY;
+        public double WplY => double.IsNaN(_wplY) ? (_wplY = PlasticModulus(Math.PI / 2.0)) : _wplY;
 
         /// <summary>
         /// The centroid of the section
@@ -323,12 +332,29 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The shear center of the section (in the coordinates of the shape)
         /// </summary>
-        public Point2d ShearCenter => _shearCenter;
+        /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
+        /// before, the centroid)</remarks>
+        public Point2d ShearCenter => _shearCenter is null && SolvesTorsionNumerically ? (_shearCenter = OnTheAxesOfSymmetry(NumericalTorsion.ShearCenter)) : _shearCenter;
+
+        /// <summary>
+        /// The shear centre solved with the finite elements, on the axes of symmetry of the section (the mesh is not symmetric: the coordinate
+        /// along an axis of symmetry differs from the one of the centroid by about 1e-5 of the size)
+        /// </summary>
+        /// <param name="point">The shear centre of the finite elements</param>
+        /// <returns>The shear centre with the coordinates of the centroid along the axes of symmetry</returns>
+        private Point2d OnTheAxesOfSymmetry(Point2d point)
+        {
+            if (point is null || _centroid is null)
+                return point;
+            double x = _isSymmetricAlongYLocalAxis && !double.IsNaN(point.X) ? _centroid.X : point.X;
+            double y = _isSymmetricAlongXLocalAxis && !double.IsNaN(point.Y) ? _centroid.Y : point.Y;
+            return new Point2d(x, y);
+        }
 
         /// <summary>
         /// The shear center of the section relative to the centroid
         /// </summary>
-        public Point2d ShearCenterLocalCoord => _shearCenter - _centroid;
+        public Point2d ShearCenterLocalCoord => ShearCenter - _centroid;
 
         /// <summary>
         /// The angle of rotation of the principal axis
@@ -431,6 +457,26 @@ namespace GPC.Model.Sections
         /// The thin walls of the section (not implemented in the base class: it throws <see cref="NotImplementedException"/>)
         /// </summary>
         public virtual ThinWallSection.ThinWall[] ThinWalls => throw new NotImplementedException();
+
+        /// <summary>
+        /// True if the torsion constant, the warping constant and the shear centre left to compute (<see cref="double.NaN"/> and null after
+        /// <see cref="SetMechanicalProperties"/>, as in the generic shapes) are computed with the finite elements at the first access; false if
+        /// the missing values mean "not available" (e.g. the warping constant of <see cref="SectionBuiltUp"/>)
+        /// </summary>
+        private protected virtual bool SolvesTorsionNumerically => true;
+
+        /// <summary>
+        /// The torsion solved with the finite elements on the region of the section, with the default mesh (computed once)
+        /// </summary>
+        private SectionTorsionProperties NumericalTorsion
+        {
+            get
+            {
+                if (_numericalTorsion is null)
+                    Interlocked.CompareExchange(ref _numericalTorsion, CalculateTorsionProperties(), null);
+                return _numericalTorsion;
+            }
+        }
 
         #endregion
 
@@ -541,6 +587,15 @@ namespace GPC.Model.Sections
 
             if (version >= 3)
                 _shape = (Shape2d)info.GetValue("Shape2d", typeof(Shape2d));
+
+            // before the version 4 the generic shapes had the torsion constant and the warping constant 0 and the shear centre in the centroid,
+            // placeholders: now they are computed with the finite elements at the first access
+            if (version < 4 && GetType() == typeof(Section) && _shape != null && _jt == 0 && _jw == 0)
+            {
+                _jt = double.NaN;
+                _jw = double.NaN;
+                _shearCenter = null;
+            }
         }
 
         #endregion
@@ -556,6 +611,15 @@ namespace GPC.Model.Sections
             _meshSize = size > 0 ? size : 0;
             _mesh = GetMesh();
         }
+
+        /// <summary>
+        /// The torsion properties computed with the finite elements on the exact region of the section (with the fillets and the welds of the
+        /// rolled and welded sections): Saint-Venant torsion constant, warping constant and shear centre, see <see cref="SectionTorsionProperties"/>.
+        /// The properties <see cref="Jt"/>, <see cref="Jw"/> and <see cref="ShearCenter"/> of the sections with formulas are not changed
+        /// </summary>
+        /// <param name="meshSize">The size of the elements (not positive: half the minimum thickness, see <see cref="SectionTorsionProperties.MeshSize"/>)</param>
+        /// <returns>The properties; not solved (<see cref="SectionTorsionProperties.Error"/>) for a section without region</returns>
+        public virtual SectionTorsionProperties CalculateTorsionProperties(double meshSize = 0) => SectionTorsion.Calculate(GetPlasticShape(), meshSize);
 
         #endregion
 
@@ -591,6 +655,7 @@ namespace GPC.Model.Sections
         /// </summary>
         public virtual void SetMechanicalProperties()
         {
+            _numericalTorsion = null;
             _area = CalculateArea();
 
             _centroid = CalculateCentroid();
@@ -682,21 +747,21 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the torsion constant (0 in the base class)
+        /// Calculate the torsion constant
         /// </summary>
-        /// <returns>The torsion constant</returns>
+        /// <returns><see cref="double.NaN"/> in the base class: computed with the finite elements at the first access to <see cref="Jt"/> (before, 0)</returns>
         protected virtual double CalculateJt()
         {
-            return 0;
+            return double.NaN;
         }
 
         /// <summary>
-        /// Calculate the warping constant (0 in the base class)
+        /// Calculate the warping constant
         /// </summary>
-        /// <returns>The warping constant</returns>
+        /// <returns><see cref="double.NaN"/> in the base class: computed with the finite elements at the first access to <see cref="Jw"/> (before, 0)</returns>
         protected virtual double CalculateJw()
         {
-            return 0;
+            return double.NaN;
         }
 
         /// <summary>
@@ -729,12 +794,13 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the shear center (the centroid in the base class)
+        /// Calculate the shear center
         /// </summary>
-        /// <returns>The shear center</returns>
+        /// <returns>null in the base class: computed with the finite elements at the first access to <see cref="ShearCenter"/> (before, the
+        /// centroid)</returns>
         protected virtual Point2d CalculateShearCenter()
         {
-            return _centroid;
+            return null;
         }
 
         // Moduli respect to the principal axes 1 and 2 and to the axes X and Y.
@@ -829,11 +895,18 @@ namespace GPC.Model.Sections
         /// <param name="angle">The direction of the bending axis from X (radians)</param>
         /// <returns>The plastic modulus of the shape for the bending about the axis through the centroid with direction <paramref name="angle"/>,
         /// 0 if the section has no shape</returns>
-        private double ShapePlasticModulus(double angle)
+        private protected virtual double PlasticModulus(double angle)
         {
-            Shape2d shape = Shape;
+            Shape2d shape = GetPlasticShape();
             return shape is null || _centroid is null ? 0.0 : SectionHelper.CalculatePlasticModulus(shape, _centroid, angle);
         }
+
+        /// <summary>
+        /// The region of the exact plastic moduli: the shape of the section. The rolled and welded sections return their exact outline, with
+        /// the fillets and the welds that their shape (used for the meshes) does not have
+        /// </summary>
+        /// <returns>The region</returns>
+        internal virtual Shape2d GetPlasticShape() => Shape;
 
         /// <summary>
         /// The extreme distance of the vertices of the shape from an axis through the centroid
@@ -1060,7 +1133,8 @@ namespace GPC.Model.Sections
         #region Public override method
 
         /// <summary>
-        /// Serializes the section (version 3: with the shape; the lazy plastic moduli are calculated)
+        /// Serializes the section (version 3: with the shape; the lazy plastic moduli are calculated. Version 4: the torsion constant, the
+        /// warping constant and the shear centre not computed yet are written as NaN and null, computed again after the deserialization)
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -1068,7 +1142,7 @@ namespace GPC.Model.Sections
         {
             base.GetObjectData(info, context);
 
-            double version = 3;
+            double version = 4;
             info.AddValue("SectionVersion", version);
 
             //info.AddValue("Material", _material); // Removed in version==3.
@@ -1117,8 +1191,8 @@ namespace GPC.Model.Sections
                    _jyy == section._jyy &&
                    _jxy == section._jxy &&
                    _jp == section._jp &&
-                   _jt == section._jt &&
-                   _jw == section._jw &&
+                   Jt.Equals(section.Jt) && // the properties: the values computed at the first access are computed (NaN equals NaN)
+                   Jw.Equals(section.Jw) &&
                    _j11 == section._j11 &&
                    _j22 == section._j22 &&
                    Wpl1 == section.Wpl1 && // the properties: the lazy NaN values are calculated (NaN != NaN)
@@ -1135,7 +1209,7 @@ namespace GPC.Model.Sections
                    _welYMin == section._welYMin &&
                    _angleX1 == section._angleX1 &&
                    _centroid == section._centroid &&
-                   _shearCenter == section._shearCenter &&
+                   SamePoint(ShearCenter, section.ShearCenter) &&
                    _isSymmetricAlongXLocalAxis == section._isSymmetricAlongXLocalAxis &&
                    _isSymmetricAlongYLocalAxis == section._isSymmetricAlongYLocalAxis &&
                    base.Equals(obj);
@@ -1156,8 +1230,7 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -23 + _jyy.GetHashCode();
                 hashCode = hashCode * -23 + _jxy.GetHashCode();
                 hashCode = hashCode * -23 + _jp.GetHashCode();
-                hashCode = hashCode * -23 + _jt.GetHashCode();
-                hashCode = hashCode * -23 + _jw.GetHashCode();
+                // the torsion constant, the warping constant and the shear centre are not used: they can be computed at the first access
                 hashCode = hashCode * -23 + _j11.GetHashCode();
                 hashCode = hashCode * -23 + _j22.GetHashCode();
                 // the plastic moduli are not used: they can be not calculated yet (NaN)
@@ -1167,10 +1240,91 @@ namespace GPC.Model.Sections
                 hashCode = hashCode * -23 + _wel2Min.GetHashCode();
                 hashCode = hashCode * -23 + _angleX1.GetHashCode();
                 hashCode = hashCode * -23 + _centroid.GetHashCode();
-                hashCode = hashCode * -23 + _shearCenter.GetHashCode();
                 hashCode = hashCode * -23 + _isSymmetricAlongXLocalAxis.GetHashCode();
                 hashCode = hashCode * -23 + _isSymmetricAlongYLocalAxis.GetHashCode();
                 return hashCode;
+            }
+        }
+
+        /// <summary>
+        /// Equality of two points that can be null or have NaN coordinates (a shear centre not available)
+        /// </summary>
+        private static bool SamePoint(Point2d a, Point2d b)
+        {
+            if (a is null || b is null)
+                return a is null && b is null;
+            return a == b || a.X.Equals(b.X) && a.Y.Equals(b.Y);
+        }
+
+        /// <summary>
+        /// How a property of the section is obtained: <see cref="PropertyAvailability.NotAvailable"/> if its value is not defined or is a
+        /// placeholder that must not be used, otherwise the method declared by the section (exact, numerical, approximate formula or given)
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The availability (the torsion properties computed at the first access are computed)</returns>
+        public PropertyAvailability GetAvailability(SectionProperty property)
+        {
+            PropertyAvailability declared = DeclaredAvailability(property);
+            return declared == PropertyAvailability.NotAvailable || !HasValue(property) ? PropertyAvailability.NotAvailable : declared;
+        }
+
+        /// <summary>
+        /// How the section obtains a property, without checking its value (see <see cref="GetAvailability"/>). Base class: the section given
+        /// by its values (no region) has the moduli not available and the other properties given; the generic shape has the properties exact
+        /// on its boundary and the torsion properties solved with the finite elements
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected virtual PropertyAvailability DeclaredAvailability(SectionProperty property)
+        {
+            if (GetPlasticShape() is null)
+                return property == SectionProperty.ElasticModuli || property == SectionProperty.PlasticModuli
+                    ? PropertyAvailability.NotAvailable
+                    : PropertyAvailability.Given;
+
+            return Declared(property, PropertyAvailability.Numerical, PropertyAvailability.Numerical, PropertyAvailability.Numerical);
+        }
+
+        /// <summary>
+        /// The declared availability of a section with the geometric properties exact (area, centroid, moments of inertia, elastic and plastic
+        /// moduli) and the given availability of the torsion properties
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <param name="torsionConstant">The availability of the torsion constant</param>
+        /// <param name="warpingConstant">The availability of the warping constant</param>
+        /// <param name="shearCenter">The availability of the shear centre</param>
+        /// <returns>The availability of <paramref name="property"/></returns>
+        private protected static PropertyAvailability Declared(SectionProperty property, PropertyAvailability torsionConstant,
+            PropertyAvailability warpingConstant, PropertyAvailability shearCenter)
+        {
+            switch (property)
+            {
+                case SectionProperty.TorsionConstant: return torsionConstant;
+                case SectionProperty.WarpingConstant: return warpingConstant;
+                case SectionProperty.ShearCenter: return shearCenter;
+                default: return PropertyAvailability.Exact;
+            }
+        }
+
+        /// <summary>
+        /// True if the value of a property is a finite number (all the values of the group)
+        /// </summary>
+        private bool HasValue(SectionProperty property)
+        {
+            bool Finite(double v) => !double.IsNaN(v) && !double.IsInfinity(v);
+            bool FinitePoint(Point2d p) => !(p is null) && Finite(p.X) && Finite(p.Y);
+
+            switch (property)
+            {
+                case SectionProperty.Area: return Finite(_area) && _area > 0;
+                case SectionProperty.Centroid: return FinitePoint(_centroid);
+                case SectionProperty.MomentsOfInertia: return Finite(_jxx) && Finite(_jyy) && Finite(_jxy) && Finite(_j11) && Finite(_j22);
+                case SectionProperty.ElasticModuli: return Finite(Wel1) && Finite(Wel2) && Finite(WelX) && Finite(WelY);
+                case SectionProperty.PlasticModuli: return Finite(Wpl1) && Finite(Wpl2) && Finite(WplX) && Finite(WplY);
+                case SectionProperty.TorsionConstant: return Finite(Jt);
+                case SectionProperty.WarpingConstant: return Finite(Jw);
+                case SectionProperty.ShearCenter: return FinitePoint(ShearCenter);
+                default: return false;
             }
         }
 

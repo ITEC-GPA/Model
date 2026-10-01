@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <ProjectReference Include="..\ModelChecker\GPCModelChecker.csproj" />
+    <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
+    <Reference Include="GPCGeometry"><HintPath>..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.Concrete"><HintPath>..\..\Checker\GPCChecker.Concrete\bin\Release\netstandard2.0\GPCChecker.Concrete.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.Steel"><HintPath>..\..\Checker\GPCChecker.Steel\bin\Release\netstandard2.0\GPCChecker.Steel.dll</HintPath></Reference>
+    <Reference Include="GPCChecker.CompositeBridge"><HintPath>..\..\Checker\GPCChecker.CompositeBridge\bin\Release\netstandard2.0\GPCChecker.CompositeBridge.dll</HintPath></Reference>
+    <Compile Include="..\Examples\MixedModelFactory.cs" Link="MixedModelFactory.cs" />
+    <Compile Include="..\Examples\MultiMaterialWorkflow.cs" Link="MultiMaterialWorkflow.cs" />
+  </ItemGroup>
+</Project>

@@ -33,6 +33,11 @@ namespace GPC.Model.Sections.Concrete
         ISectionShape SectionShape { get; }
 
         /// <summary>
+        /// The shape of the concrete (the same as <see cref="ISectionShape.Shape"/>, the unambiguous name)
+        /// </summary>
+        Shape2d ConcreteShape { get; }
+
+        /// <summary>
         /// Rebar list.
         /// </summary>
         IEnumerable<ReinforcedConcreteRebar> Rebars { get; }

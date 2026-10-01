@@ -1,0 +1,385 @@
+{
+  "SchemaVersion": 1,
+  "CapturedAt": "2026-09-30T19:52:54.3498883+02:00",
+  "Scope": "Passo 1: inventario e baseline, nessuna modifica dei motori",
+  "Repositories": [
+    {
+      "Name": "Model",
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model",
+      "Commit": "6cca8a01e91b918051849a7813f2011ba125e196",
+      "Status": [
+        "?? CHECKER_PASSO_1_EVIDENZE.json"
+      ]
+    },
+    {
+      "Name": "Checker",
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker",
+      "Commit": "09ec5eb90f059468f8c300b0d30c34c353259eb2",
+      "Status": []
+    },
+    {
+      "Name": "ANTHEA",
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA",
+      "Commit": "895bf3122753f73de18582a313e04a49332c804d",
+      "Status": [
+        " M supporto/installer/ANTHEA.nsi",
+        " M supporto/installer/Crea-Installer.ps1",
+        " M supporto/installer/README.md",
+        "?? supporto/SUPERATI/installer-guide-20260930/",
+        "?? supporto/installer/Documentazione.ps1",
+        "?? supporto/installer/Guide.json",
+        "?? supporto/installer/Indice-guide.md",
+        "?? supporto/installer/Indice-guide.pdf",
+        "?? supporto/installer/README.pdf",
+        "?? supporto/test/installer/"
+      ]
+    }
+  ],
+  "SourceHashes": [
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\Model\\PostProcessing\\Verification.cs",
+      "Sha256": "B6ADFDC2CE131F5236F045A795C557E2321DCD834C4E1C8274111BB75475CF18"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\Model\\PostProcessing\\CheckReport.cs",
+      "Sha256": "EB9A4BCAED6488ADD21019163DC2AD5B631B68F5C77FAF66EB45BF0919CCE3F6"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\Model\\PostProcessing\\ShellInputPreparation.cs",
+      "Sha256": "112F48CDF31B6451B48F216E43E5F46EF596AAAE8C7F2045E9A8D1CB771DEA3B"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\ModelChecker\\ModelChecker.cs",
+      "Sha256": "7039DC33FB57554A31EF2FA9EC400161F848C1F9BC3BC11D95B3B1621D8EC39C"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\ModelChecker\\ConcreteSectionVerifier.cs",
+      "Sha256": "32B845E4A7BDC132E689CE211F2E85866CCE545FB22FC1FB1FBC91E8815F83E9"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\ModelChecker.Tests\\ModelCheckerWorkflowTest.cs",
+      "Sha256": "C45E775B5822148B9F9B6ACEDEA5A36EE1284134A60AD6DC2B5897D897A51A89"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Checkers\\SectionChecker.cs",
+      "Sha256": "A36C838D65A6664B51ABCF1D32918DA1A9D57065759520A8C5393D5B4AB1A9A3"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Checkers\\SectionCheckerModelCode2010.cs",
+      "Sha256": "879524AC15CEEF35C38DECD7ECF32B1802D5550B2DE4ACF0974A981838DA7CB8"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Checkers\\SectionCheckerACI318.cs",
+      "Sha256": "E101B480EFB202318C602B85809FC7AAE946A7A1CEF2E5D8B0C668FAF889AEDB"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Checkers\\BeamCheckerModelCode2010.cs",
+      "Sha256": "9FB185EF84A57AF86D6C131AE64CA8221AD11C7332D6167C6754D6643CAB014A"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Checkers\\PlateCheckerModelCode2010.cs",
+      "Sha256": "44CD5E4A773A93AA9CADBCAD8EBBA6ECC6CF32F53772EC3C99E6BFDDE29BE03A"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\Results\\ResultType\\StressAnalysisResult.cs",
+      "Sha256": "469DD3A4D20FB0501C1514A7E004C2E14BF5198AD0F969AD63D51D8EBAC10270"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Steel\\Checkers\\EN1993p11Checker.cs",
+      "Sha256": "F990A28BD9BE8CC710DDC15B365C3052E60CBB787137977FA0705558755B56D9"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Steel\\Checkers\\Cop2011Checker.cs",
+      "Sha256": "A54BD1D83C64374853F0907D8224A040F5AF8449198A5AE24019754F75712914"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Steel\\Checkers\\AISCChecker.cs",
+      "Sha256": "4DA20D6B5060A87E2585633121548BF5D32006F00775585570C5B6589235E527"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Steel\\Results\\CommonResults.cs",
+      "Sha256": "8C8F401734A183BCC9F8E2942C203B6FA2F32AABA8B8A08290BF9D532F1AA05A"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.CompositeBridge\\Models\\BridgeInputs.cs",
+      "Sha256": "3A41EF20F03D13B9B823354601F348A6773A6369A631EC6AC01883E8F125A842"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.CompositeBridge\\Models\\BridgeResults.cs",
+      "Sha256": "232EC0387038328A8B0DEAFBFEA14404A975C312804195FF4CFD994BD08658CD"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.CompositeBridge\\History\\SectionResponseContracts.cs",
+      "Sha256": "489CD838B25749CA2B7A137891815B36D0C9E02DEC2E269D93983DA2D59CF7C7"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Concrete\\ConcreteControlTests.cs",
+      "Sha256": "78B9E31C3D4932C100075565CEE6793ED247EF5BED46A8525C290CCBA145E150"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs",
+      "Sha256": "D67CA1BAD6F2037F34D57F5079C081BDF16C928613EE0BBCDE20406A5FB884B5"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteStandards.cs",
+      "Sha256": "D561B364C084BEC587A7328F386C6BE01B40B924C1825AD9F4E26CFF772F3DBC"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteCodeChecks.cs",
+      "Sha256": "29F7C53B9665483629697720D517BD8A42197FB5C6C74594B1F95653B27B65A6"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\Ntc2018Checks.cs",
+      "Sha256": "86CA1463F1E4E5524A98F702F226EA941D2F43D5D675F75FEBCBBE242B5C49EC"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteTorsion.cs",
+      "Sha256": "7829DAA5B172EC8531CB2E6B6E1B394F934F90E26416AA4E99B8CFA2124C500B"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteBond.cs",
+      "Sha256": "BA45389115CE066931374E1290E28B26F96DC402C6D604DF1793FB6DD7A362F9"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteDetailing.cs",
+      "Sha256": "80812A3941A4E6804D009ED0D86681F2B21D259184652C7D559D3DFB97E279BB"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteDetailingAnalysis.cs",
+      "Sha256": "B80F2512B1D8A346D848601955755951BCBD53E18488E4F1B2653FA80A01CEBD"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteShearAnalysis.cs",
+      "Sha256": "D5EF192CB033BFAB5D2EEB92B450E12225404FBB0B7F3AF519D2DD9B2DD17C22"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\CheckerSection.cs",
+      "Sha256": "E2214FA4C979CCA1D006416D6180AFB1726CAB13308B4E05F8D5A9B862FD9D4F"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteAnalysisSession.cs",
+      "Sha256": "D945C1DDA98F180DDC53A60C5F18C8F464FA8CCBEDE2E6182C66F46F6FB8AEB8"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteAnalysis.cs",
+      "Sha256": "AB9A79B2FEB2C15D5D0D20B5267D9BF2A479A4B00EA0E80D49B96BF0836CC832"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\MomentCurvature.cs",
+      "Sha256": "ADA0F8A4785EB7CD1F7B4B899D44303678D07062D70F1E764C686F537C4031D0"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteCurvatureAnalysis.cs",
+      "Sha256": "7CF4BA077C6ABCEDB606F8C9310F0D46C6AEB85DEF39DE766BF69B7E07270629"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteTensionCracking.cs",
+      "Sha256": "0DD9255DAD03352FE831DE9AFFC9D04863054F7202816F2C9E4A6761C6E42E3E"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteInnerCracking.cs",
+      "Sha256": "B7F78B511761EE9A6A24F2DD2B59474A780ECDA01ABD5366796BB8E8B36B68BE"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\SectionShearGeometry.cs",
+      "Sha256": "6E9B633E0CEB758DCB619BF72B31CCF44FB21EBE40C75A338427AD1A0F09BA50"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\SectionRegions.cs",
+      "Sha256": "56CE4798D6910188F398F86A0843A22AE2A39F5B0881626201BDE86D754570EC"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\TensionBarSpacing.cs",
+      "Sha256": "3D80A2581EFDDAC72929D5451BCBF68EC7CB9946F82F970D8657ADE5E554CADB"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\CrackCalculationDetail.cs",
+      "Sha256": "987774168C5481491CF242271987CE0E5B1886560DD224F60D59E19AE47D4770"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\VerificationSummary.cs",
+      "Sha256": "395DE2B1EA004113AA29333427385811F3A2811681AFF8AA879EB40AA069A819"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\X.Calculations\\ConcreteReinforcementDesign.cs",
+      "Sha256": "D76D229C6A7CE6151B09D957935D6993319D0B5CC44B4728C8E80CC8E406CDC7"
+    }
+  ],
+  "Assemblies": [
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Concrete\\bin\\Release\\netstandard2.0\\GPCChecker.Concrete.dll",
+      "Version": "0.0.13.0",
+      "Sha256": "570C1E1D8CECB64F41D7F2424B3C5CF2325FAD016E0DEF057286F32D92B49F49"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Steel\\bin\\Release\\netstandard2.0\\GPCChecker.Steel.dll",
+      "Version": "1.1.0.3",
+      "Sha256": "45A906790C60DD936FEEAF8AD149A17571AF0D26A1ABC861A44CD0DCA727A576"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.CompositeBridge\\bin\\Release\\netstandard2.0\\GPCChecker.CompositeBridge.dll",
+      "Version": "1.4.0.0",
+      "Sha256": "5FDC64F7595373CDB4FF44002BCA29B8A138E291BF0F0142B3054750B0FB7FBD"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\Model\\Model\\bin\\Release\\netstandard2.0\\GPCModel.dll",
+      "Version": "1.4.1.0",
+      "Sha256": "74F037571BB089E1E5E0554AA74C03DDA9C9B9A1D1C928AFC277A21706F6F4C3"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\lib\\Checker\\GPCChecker.Concrete.dll",
+      "Version": "0.0.13.0",
+      "Sha256": "C4D2537E9A944A9F3617CFB2CD1638E15B82A3A69A439FCC164DECA7FFF7C8CA"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\lib\\Checker\\GPCModel.dll",
+      "Version": "1.4.1.0",
+      "Sha256": "9ACD719B5F5B41324B62A5C49DD9BD26E68A4D2111A351213CC07C4F5E8A5DCF"
+    },
+    {
+      "Path": "C:\\Users\\g.pacini\\Documents\\Repository\\ANTHEA\\lib\\Checker\\GPCChecker.CompositeBridge.dll",
+      "Version": "1.4.0.0",
+      "Sha256": "EBAFBA8555C79AD8E433E03AB5FCBCCC5B9AF7A739BE0F24A7CEB0AFBD6A81F2"
+    }
+  ],
+  "TestRuns": [
+    {
+      "Trx": "TestResults/CheckerStep1/checker-step1-modelchecker-final.trx",
+      "Total": 8,
+      "Passed": 8,
+      "Failed": 0,
+      "NotExecuted": 0,
+      "Failures": []
+    },
+    {
+      "Trx": "TestResults/CheckerStep1/checker-step1-concrete-control.trx",
+      "Total": 43,
+      "Passed": 43,
+      "Failed": 0,
+      "NotExecuted": 0,
+      "Failures": []
+    },
+    {
+      "Trx": "TestResults/CheckerStep1/checker-step1-composite.trx",
+      "Total": 254,
+      "Passed": 254,
+      "Failed": 0,
+      "NotExecuted": 0,
+      "Failures": []
+    },
+    {
+      "Trx": "TestResults/CheckerStep1/checker-step1-steel.trx",
+      "Total": 94,
+      "Passed": 77,
+      "Failed": 17,
+      "NotExecuted": 0,
+      "Failures": [
+        {
+          "Name": "SectionRHSClassification",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionRHSClassification() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 325\r\n"
+        },
+        {
+          "Name": "Sap_SectionRHSTest1",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.001> tra il valore previsto <0.48> e il valore effettivo <0.494017299466536>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionRHSTest1() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 128\r\n"
+        },
+        {
+          "Name": "SectionHLateralTorsionalBuckling2",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHLateralTorsionalBuckling2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 586\r\n"
+        },
+        {
+          "Name": "SectionCLateralTorsionalBuckling2",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionCLateralTorsionalBuckling2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 618\r\n"
+        },
+        {
+          "Name": "Sap_SectionHAsymmetricTest2",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.912664174161692> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionHAsymmetricTest2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1173\r\n"
+        },
+        {
+          "Name": "SectionHInteraction3",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHInteraction3() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 743\r\n"
+        },
+        {
+          "Name": "Sap_SectionHAsymmetricTest1",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <1.16947906499521> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionHAsymmetricTest1() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1045\r\n"
+        },
+        {
+          "Name": "SectionHBuckling1",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHBuckling1() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 411\r\n"
+        },
+        {
+          "Name": "SectionRHSClasstification2",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionRHSClasstification2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 368\r\n"
+        },
+        {
+          "Name": "SectionHLateralTorsionalBuckling1",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHLateralTorsionalBuckling1() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 535\r\n"
+        },
+        {
+          "Name": "Sap_SectionTTest",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.03> tra il valore previsto <1.77533039647577> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionTTest() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1712\r\n"
+        },
+        {
+          "Name": "Sap_SectionTTest2",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.001> tra il valore previsto <0.786138355852794> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionTTest2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1840\r\n"
+        },
+        {
+          "Name": "SectionHInteraction2",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHInteraction2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 702\r\n"
+        },
+        {
+          "Name": "Sap_SectionRHSTest2",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.971625893502773> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionRHSTest2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 268\r\n"
+        },
+        {
+          "Name": "Sap_SectionCHSTest1",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <0.970688298005356> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionCHSTest1() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1357\r\n"
+        },
+        {
+          "Name": "Sap_SectionLTest",
+          "Message": "Assert.AreEqual non riuscita. Prevista una differenza non maggiore di <0.01> tra il valore previsto <∞> e il valore effettivo <1>. ",
+          "Stack": "   in SteelTests.EN1993p11Test.Sap_SectionLTest() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 1976\r\n"
+        },
+        {
+          "Name": "SectionHBucklingExample2",
+          "Message": "Assert.IsTrue non riuscita. ",
+          "Stack": "   in SteelTests.EN1993p11Test.SectionHBucklingExample2() in C:\\Users\\g.pacini\\Documents\\Repository\\Checker\\GPCChecker.Test.Steel\\EN1993p11Test.cs:riga 488\r\n"
+        }
+      ]
+    }
+  ],
+  "AntheaAssertions": [
+    {
+      "Suite": "ConcreteCode.Checks",
+      "Passed": 434,
+      "ExitCode": 0,
+      "Log": "checker-step1-anthea-codes.log"
+    },
+    {
+      "Suite": "X.Verifiche --ca-module",
+      "Passed": 78,
+      "ExitCode": 0,
+      "Log": "checker-step1-anthea-module.log"
+    }
+  ],
+  "Notes": [
+    "Le suite Anthea usano le DLL distribuite in ANTHEA/lib/Checker.",
+    "ConcreteControlTests è un sottoinsieme selezionato della suite Concrete, non l'intera suite.",
+    "I 17 fallimenti Steel sono osservazioni della baseline corrente; la causa non è determinata dall'inventario.",
+    "Log e TRX sono artefatti locali ignorati da Git; i riepiloghi e gli errori sono conservati in questo manifesto."
+  ]
+}
