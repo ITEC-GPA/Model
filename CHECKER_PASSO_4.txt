@@ -15,7 +15,8 @@ STATO DELLE SOTTOFASI
                                                              matrice e parti non applicate)
 4E  Fessurazione e regioni efficaci                          TRASFERITA E COLLEGATA (tutte le norme non americane; vedi
                                                              matrice e limiti)
-4F  Aderenza, ancoraggi, dettagli, M-curvatura               DA FARE
+4F  Aderenza, ancoraggi, dettagli, M-curvatura               TRASFERITI (dettagli 1D collegati per asta; ancoraggi e
+                                                             M-curvatura come API; vedi limiti)
 4G  Regressione completa e consegna                          DA FARE (regressioni eseguite per 4A-4C, vedi prove)
 
 4A — DISCRIMINATORI DEL PIANO (Model, GPC.Model.PostProcessing)
@@ -233,7 +234,49 @@ PARTI SALTATE PERCHÉ TROPPO COMPLESSE (richiesta dell'utente del 1/10/2026: «s
   - CNR-DT 204: apertura delle fessure dei calcestruzzi fibrorinforzati (resistenza residua nel tension stiffening).
   - Apertura delle fessure dei c.a.p. (anche in ANTHEA era "da definire").
 
-MATRICE DELLE CAPACITÀ (dopo 4A-4E)
+4F — ADERENZA, ANCORAGGI, DETTAGLI E RISPOSTA M-CURVATURA
+
+- ANTHEA aveva dettagli e ancoraggi solo per NTC 2018 con integrazioni EC2. In Checker
+  (GPC.Checkers.Concrete.Detailing):
+  - NTC e CNR-DT 200: trasferiti da ANTHEA;
+  - EN 1992-1-1: valori raccomandati;
+  - UNI: valori del DM 31/07/2012, riscontrati sul testo dell'annesso;
+  - DS: DK NA; il capitolo 9 è "Uændret" (invariato) tranne 9.2.1.1(1) e 9.2.2(5), i cui valori nazionali non sono
+    leggibili nel testo estratto e restano "non implementati";
+  - DIN, NS e MC2010: non supportati, con il motivo; CS-TR34 non applicabile.
+- AnchorageCalculator: aderenza fbd e lunghezze di ancoraggio e sovrapposizione.
+  - NTC: minimi di ANTHEA, interferro delle barre sovrapposte ≤ 4Ø.
+  - Eurocodice: lb,min e l0,min (8.6 e 8.11); la sovrapposizione si allunga dell'interferro oltre min(4Ø; 50 mm)
+    (8.7.2(3), valore cautelativo).
+  - Solo barre ad aderenza migliorata (DK NA 8.4.2(2)).
+- MemberDetailingCalculator (travi e pilastri):
+  - interferro e copriferri;
+  - armature minime e massime, staffe minime, passi;
+  - interasse trasversale delle braccia (EC2 9.2.2(8)), calcolato con braccia equidistanti sull'anima;
+  - conferme esplicite per barre compresse trattenute e zone di estremità.
+  Le regole di piastre e pareti di ANTHEA non sono trasferite: appartengono al confronto plate del passo 6.
+- MomentCurvatureAnalysis (GPC.Checkers.Concrete.Response): orchestrazione M-χ sul solutore nativo, con punto limite
+  a N costante e analisi non lineari. È una risposta, non un CheckResult.
+- Model: ReinforcedConcreteSection.DetailingData (ConcreteDetailingData), scritto solo se presente, nella revisione di
+  verifica.
+- ModelChecker: ConcreteSectionVerifier è anche IPhysicalMemberVerifier.
+  - Metodi Concrete.Detailing1D.Beam e Concrete.Detailing1D.Column, meccanismo Detailing: un'attività per asta e
+    stato, non per campione.
+  - Ogni sezione distinta dell'asta è verificata con i suoi dati; NEd è la massima compressione dei campioni dello
+    stato.
+  - Esiti:
+    - un controllo non soddisfatto rende l'esito non soddisfatto;
+    - controlli in sospeso per mancanza di dati o conferme danno dati insufficienti (DetailingPending);
+    - regole non implementate danno non supportato (DetailingRuleNotImplemented).
+  - Il costruttore predefinito di ModelChecker usa il verificatore anche per le attività d'asta; gli altri metodi
+    restano MemberCheckerUnavailable, come prima.
+- Non collegati, con nota:
+  - ancoraggi e sovrapposizioni nel piano: servono i dati delle zone (barra, estremo, lunghezza disponibile,
+    percentuale sovrapposta);
+  - M-curvatura: risposta numerica senza criterio di verifica;
+  - copriferro di durabilità (cmin,dur): calcolo della famiglia M (materiali e durabilità); qui è un dato.
+
+MATRICE DELLE CAPACITÀ (dopo 4A-4F)
 
 Norme di Model considerate (richiesta dell'utente del 1/10/2026: tutte le norme non americane):
 NTC 2018, Model Code 2010, EN 1992-1-1, UNI / DIN / DS / NS EN 1992-1-1, CNR-DT 204/2006, CS-TR34, CNR-DT 200 R1/2013.
@@ -249,7 +292,10 @@ Tensioni SLE frequente          —  —  —   —   —  —  —    —      
 Taglio V1 / V2 (Ultimate)       ✓  ✓  ✓   ✓   ✓  ✓  ✓   ✓ (1)    n.a.    ✓ (2)  dati espliciti della sezione
 Torsione + taglio (Ultimate)    ✓  ✓  ✓   ✓   ✓ ✓(3) ✓  n.s.(4)  n.a.    ✓ (2)  staffe chiuse a 90°, cot θ comune assegnato
 Fessurazione SLE (5)            ✓  ✓  ✓   ✓   ✓  ✓  ✓  n.s.(6)  n.a.    ✓ (7)  dati di fessurazione della sezione
-Aderenza / dettagli / M-χ       4F
+Dettagli 1D travi (asta)        ✓  n.s ✓  ✓  n.s ~(8) n.s n.s.     n.a.    ✓ (7)  dati dei dettagli e staffe della sezione
+Dettagli 1D pilastri (asta)     ✓  n.s ✓  ✓  n.s  ✓ n.s n.s.     n.a.    ✓ (7)
+Ancoraggi/sovrapposizioni (API) ✓  n.s ✓  ✓  n.s  ✓ n.s n.s.     n.a.    ✓      solo API Checker, non pianificati
+M-curvatura (API)               risposta numerica per ogni norma (leggi dei materiali della classe), non è una verifica
 
 ✓ disponibile e provato; n.a. = non applicabile, con il motivo (CS-TR34 riguarda le pavimentazioni su terreno e non
 definisce né il taglio di trave né i limiti tensionali della sezione).
@@ -269,6 +315,8 @@ definisce né il taglio di trave né i limiti tensionali della sezione).
     Le altre combinazioni sono non applicabili, con il motivo. Decompressione e formazione delle fessure secondo NTC.
 (6) CNR-DT 204: modello di fessurazione FRC non implementato.
 (7) CNR-DT 200: membratura c.a. secondo NTC (nessun dato FRP).
+(8) DS travi: As,min (9.2.1.1(1)) e ρw,min (9.2.2(5)) con valore nazionale non disponibile: non supportato; gli altri
+    controlli sono valutati.
 Il materiale FRC con le altre norme: avviso FibreContributionNotUsed (resistenza del calcestruzzo semplice).
 Coefficienti delle tensioni SLE: quelli delle classi di Model (unica sorgente; gli annessi che non li ridefiniscono usano
 i valori MC2010 0,60 / 0,45 / 0,80 / 0,75). Formule di CNR-DT 204 e CNR-DT 200: da riscontrare sul testo (non disponibile
@@ -374,6 +422,25 @@ CASI CONGELATI E CONFRONTI
     - dati obbligatori (esposizione, interasse, wlim di MC2010);
     - decompressione non soddisfatta con le armature sensibili in XD1;
     - invalidazione del piano e archivio.
+- Dettagli e M-curvatura (4F): la harness congela ANTHEA al commit e5efa45 (sorgenti di calcolo invariati da fe4652c).
+  - anchorage-legacy.csv: 450 ancoraggi e sovrapposizioni (griglia, limiti, 300 casi casuali con seme 20261004), di cui
+    5 rifiutati, e 18 resistenze di aderenza.
+  - detailing-legacy.csv: 144 casi NTC.
+    - Sezioni salvate in detailing-sections.xml: rettangolari, a T, circolare, cava, pilastro Ø10.
+    - Variabili: travi e pilastri, NEd, staffe, aggregato, cmin,dur, Δcdev, sovrapposizione, conferme.
+  - curvature-legacy.csv: 5 curve M-χ (NTC, EN, MC2010; N di compressione e nullo; direzioni 0°-180°). Sono registrati
+    i coefficienti effettivi e gli assi passati al solutore.
+  - DetailingMigrationTests:
+    - tutti i casi riprodotti, con tolleranza 1e-9 per ancoraggi e dettagli;
+    - curve con tolleranza 1e-7 su momenti, N, curvature e gradienti;
+    - deformazioni: 1e-7 per i punti con acciaio elastico, 1e-3 per quelli con acciaio snervato. Con i materiali
+      plastici la traslazione del piano è definita solo entro la tolleranza su N del solutore; divergenza analizzata,
+      non errore di migrazione.
+  - Calcoli indipendenti:
+    - EN 8.4/8.7 a mano (fbd 3,0 MPa, lb,rqd 652,2 mm, l0 con α6 = 1,5 e interferro);
+    - valori di pilastri e travi EN, UNI e DS.
+  - MemberDetailingTest (ModelChecker): un'attività per asta; trave NTC soddisfatta; pilastro NTC non soddisfatto sul
+    passo staffe; EN soddisfatto; DS non supportato; dati mancanti; conferme; revisione; archivio.
 - Fonti indipendenti: per ora solo i calcoli a mano sopra. Riscontro su testi normativi e esempi pubblicati
   da fare in 4G; nessuna norma è dichiarata validata integralmente.
 
@@ -394,5 +461,6 @@ LIMITI APERTI E PROSSIMI PASSI
   suggerimento geometrico): da proporre come aiuto, mai come conferma.
 - Torsione: regola DS 6.3.2(6) per V, T, N e M combinati; staffe inclinate; scelta automatica del cot θ comune;
   riscontro delle formule DIN, NS e MC2010 sul testo.
-- 4F dettagli e M-curvatura.
+- Dettagli: zone di ancoraggio e sovrapposizione nel piano (dati di barra ed estremo); DIN, NS e MC2010; valori DK NA di
+  9.2.1.1(1) e 9.2.2(5); regole di piastre e pareti (passo 6).
 - 4G regressione e fonti primarie.

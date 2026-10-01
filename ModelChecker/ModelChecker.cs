@@ -88,7 +88,8 @@ namespace GPC.Model.Checker
     {
         private readonly Func<ModelCheckJob, IConcreteSectionVerifier> _factory;
         private readonly Func<ModelCheckJob, IPhysicalMemberVerifier> _memberFactory;
-        public ModelChecker() : this(job => job.Options?.CreateVerifier()) { }
+        /// <summary>Concrete section verifier from the job options, also for the member detailing tasks (other member methods: not supported).</summary>
+        public ModelChecker() : this(job => job.Options?.CreateVerifier(), job => job.Options?.CreateVerifier()) { }
         public ModelChecker(Func<ModelCheckJob, IConcreteSectionVerifier> factory) { _factory = factory ?? throw new ArgumentNullException(nameof(factory)); }
         public ModelChecker(Func<ModelCheckJob, IConcreteSectionVerifier> sectionFactory, Func<ModelCheckJob, IPhysicalMemberVerifier> memberFactory) : this(sectionFactory)
         { _memberFactory = memberFactory ?? throw new ArgumentNullException(nameof(memberFactory)); }

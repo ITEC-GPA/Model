@@ -171,6 +171,22 @@ GPCChecker.Concrete propongono Ak, uk e tef dal contorno, da confermare. La voce
 La durata del carico e il wlim di progetto sono opzioni della verifica. La voce è scritta solo se presente e fa parte
 della revisione di verifica.
 
+### Dati dei dettagli costruttivi
+
+`ReinforcedConcreteSection.DetailingData` (`ConcreteDetailingData`, facoltativo) contiene:
+
+- il copriferro nominale alle staffe;
+- cmin,dur del progetto di durabilità (null se non indicato) e Δcdev;
+- le larghezze bt delle zone tese superiore e inferiore e la larghezza dell'anima;
+- il diametro massimo dell'aggregato;
+- la zona di sovrapposizione;
+- le conferme sulle barre compresse trattenute e sulle zone di estremità (ancoraggio agli appoggi per le travi, passo
+  ridotto vicino a travi e solette per i pilastri);
+- la provenienza.
+
+Le staffe sono quelle di `ShearData`. La verifica dei dettagli è un'attività per asta fisica: una sola per asta e stato,
+mai una per ogni campione FEM.
+
 ## Sezioni variabili
 
 `SectionVariation(start, end, law)` restituisce la sezione in un punto dell'elemento interpolando i vertici dei

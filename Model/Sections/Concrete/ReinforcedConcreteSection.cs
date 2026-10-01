@@ -371,6 +371,10 @@ namespace GPC.Model.Sections.Concrete
         /// <summary>Crack-control data (exposure, sensitivity, cover, bond, bar layout), with provenance (null: not given). Part of the section revision.</summary>
         public ConcreteCrackData CrackData { get => _crackData; set => _crackData = value; }
 
+        private ConcreteDetailingData _detailingData;
+        /// <summary>Detailing data (covers, widths, aggregate, lap zone, confirmations), with provenance (null: not given). Part of the section revision.</summary>
+        public ConcreteDetailingData DetailingData { get => _detailingData; set => _detailingData = value; }
+
         /// <summary>
         ///
         /// </summary>
@@ -567,6 +571,7 @@ namespace GPC.Model.Sections.Concrete
                     if (entry.Name == "ShearData") _shearData = (ConcreteShearData)info.GetValue("ShearData", typeof(ConcreteShearData));
                     else if (entry.Name == "TorsionData") _torsionData = (ConcreteTorsionData)info.GetValue("TorsionData", typeof(ConcreteTorsionData));
                     else if (entry.Name == "CrackData") _crackData = (ConcreteCrackData)info.GetValue("CrackData", typeof(ConcreteCrackData));
+                    else if (entry.Name == "DetailingData") _detailingData = (ConcreteDetailingData)info.GetValue("DetailingData", typeof(ConcreteDetailingData));
                 }
         }
 
@@ -1232,6 +1237,7 @@ namespace GPC.Model.Sections.Concrete
             // Same rule for the torsion data (read by the version-4 loop on the entries).
             if (_torsionData != null) info.AddValue("TorsionData", _torsionData, typeof(ConcreteTorsionData));
             if (_crackData != null) info.AddValue("CrackData", _crackData, typeof(ConcreteCrackData));
+            if (_detailingData != null) info.AddValue("DetailingData", _detailingData, typeof(ConcreteDetailingData));
 
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
@@ -1281,7 +1287,8 @@ namespace GPC.Model.Sections.Concrete
                 _steelSections.SequenceEqual(other._steelSections) &&
                 Equals(_shearData, other._shearData) &&
                 Equals(_torsionData, other._torsionData) &&
-                Equals(_crackData, other._crackData);
+                Equals(_crackData, other._crackData) &&
+                Equals(_detailingData, other._detailingData);
         }
 
         /// <summary>
