@@ -4,6 +4,7 @@ using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Sections.Rebar;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -90,6 +91,132 @@ namespace UnitTest
             Assert.IsTrue(section.SteelSections[0].IsInsideConcrete);
             double n = steel.ElasticModulusTension / c.ElasticModulusCompression;
             Rel(120000 + (n - 1) * angles.Area, section.GetHomogenizedArea());
+        }
+
+        private static readonly ConcreteMaterial C30 = ConcreteMaterialEN1992Data.C30_37;
+        private static readonly SteelMaterial S355 = SteelMaterialEN1993Data.S355;
+        private static double N => S355.ElasticModulusTension / C30.ElasticModulusCompression;
+
+        [TestMethod]
+        public void FilledTubes()
+        {
+            // CHS: the core is the hole of the tube, the tube is outside the concrete (n As)
+            var chs = new SectionCHS(323.9, 10, "CHS 323.9 x 10");
+            var filled = ReinforcedConcreteSection.CreateFilledTube(chs, S355, C30, name: "CFT");
+            Rel(new Shape2d(new Polygon2d(323.9 - 20, origin: new Point2d(323.9 / 2, 323.9 / 2))).GetArea(), filled.Area, 1e-9);
+            Assert.IsFalse(filled.SteelSections[0].IsInsideConcrete);
+            Rel(filled.Area + N * chs.Area, filled.GetHomogenizedArea());
+            Rel(323.9 / 2, filled.GetHomogenizedCentroid(out _, out _).X, 1e-9);
+
+            // RHS with rounded corners: the core has the inner radius
+            var rhs = new SectionRHSRoundedCorners(300, 200, 10, 15, 10, "RHS 300 x 200 x 10");
+            filled = ReinforcedConcreteSection.CreateFilledTube(rhs, S355, C30);
+            Rel(280 * 180 - (4 - Math.PI) * 10 * 10, filled.Area, 1e-4);
+            Rel(filled.Area + N * rhs.Area, filled.GetHomogenizedArea());
+            Point2d centroid = filled.GetHomogenizedCentroid(out _, out _);
+            Rel(100, centroid.X, 1e-9);
+            Rel(150, centroid.Y, 1e-9);
+
+            Assert.ThrowsException<ArgumentException>(() => ReinforcedConcreteSection.CreateFilledTube(new SectionRectangular(100, 100), S355, C30));
+        }
+
+        [TestMethod]
+        public void DoubleSkinTube()
+        {
+            var outer = new SectionCHS(400, 10, "CHS 400 x 10");
+            var inner = new SectionCHS(200, 8, "CHS 200 x 8");
+            var section = ReinforcedConcreteSection.CreateDoubleSkinTube(outer, inner, S355, C30);
+            Assert.AreEqual(2, section.SteelSections.Count);
+            Assert.IsFalse(section.SteelSections.Any(s => s.IsInsideConcrete));
+            Rel(0, section.SteelSections[1].ConcreteOverlapArea, 1e-9);
+            double hole = new Shape2d(new Polygon2d(380, origin: new Point2d(200, 200))).GetArea();
+            double core = new Shape2d(new Polygon2d(200, origin: new Point2d(200, 200))).GetArea();
+            Rel(hole - core, section.Area, 1e-9);
+            Rel(section.Area + N * (outer.Area + inner.Area), section.GetHomogenizedArea());
+            Rel(200, section.GetHomogenizedCentroid(out _, out _).Y, 1e-9);
+
+            Assert.ThrowsException<ArgumentException>(() =>
+                ReinforcedConcreteSection.CreateDoubleSkinTube(new SectionCHS(200, 10, "outer"), new SectionCHS(190, 5, "inner"), S355, C30));
+        }
+
+        [TestMethod]
+        public void EncasedSections()
+        {
+            // HE 300 B in 500 x 500 with four bars Ø25 at the corners
+            var heb = new SectionH(300, 11, 300, 19, 300, 19, "HE 300 B", 27);
+            var bar = new RebarSectionCircular(25, SteelMaterialEN1992Data.B450C);
+            double nb = SteelMaterialEN1992Data.B450C.ElasticModulusTension / C30.ElasticModulusCompression, ab = Math.PI * 25 * 25 / 4;
+            var section = ReinforcedConcreteSection.CreateEncased(500, 500, heb, S355, C30, 0, bar, 50);
+            Assert.IsTrue(section.SteelSections[0].IsInsideConcrete);
+            Assert.AreEqual(4, section.RebarsCount);
+            Rel(250000 + (N - 1) * heb.Area + 4 * (nb - 1) * ab, section.GetHomogenizedArea());
+            var properties = section.GetHomogeneizedMechanicalProperties();
+            Rel(250, properties.centroidH.X, 1e-9);
+            Rel(250, properties.centroidH.Y, 1e-9);
+            double bars = 4 * (nb - 1) * (Math.PI * Math.Pow(25, 4) / 64 + ab * 200 * 200);
+            Rel(Math.Pow(500, 4) / 12 + (N - 1) * heb.Jxx + bars, properties.JxxH, 1e-9);
+
+            // rotated by 90°: the weak axis of the H about X
+            var rotated = ReinforcedConcreteSection.CreateEncased(500, 500, heb, S355, C30, Math.PI / 2, bar, 50);
+            Rel(Math.Pow(500, 4) / 12 + (N - 1) * heb.Jyy + bars, rotated.GetHomogeneizedMechanicalProperties().JxxH, 1e-9);
+
+            Assert.ThrowsException<ArgumentException>(() => ReinforcedConcreteSection.CreateEncased(250, 250, heb, S355, C30));
+
+            // in a circle of 600 with 8 bars
+            var circular = ReinforcedConcreteSection.CreateEncasedCircular(600, heb, S355, C30, 0, bar, 8, 50);
+            Assert.IsTrue(circular.SteelSections[0].IsInsideConcrete);
+            Assert.AreEqual(8, circular.RebarsCount);
+            Rel(300, circular.GetHomogenizedCentroid(out _, out _).X, 1e-9);
+
+            // partially encased: the concrete between the flanges, flush with their tips
+            var partially = ReinforcedConcreteSection.CreatePartiallyEncased(heb, S355, C30);
+            Assert.IsTrue(partially.SteelSections[0].IsInsideConcrete);
+            Rel(300 * 300 + (N - 1) * heb.Area, partially.GetHomogenizedArea());
+            Assert.ThrowsException<ArgumentException>(() =>
+                ReinforcedConcreteSection.CreatePartiallyEncased(new SectionH(300, 11, 300, 19, 200, 19, "mono"), S355, C30));
+        }
+
+        [TestMethod]
+        public void SlabOnGirdersWithHaunches()
+        {
+            // slab 4000 x 250 on two IPE 600 at X = 1000 and 3000, haunches 100 high widening 1:1 (220 at the bottom, 420 at the top)
+            var ipe = new SectionH(600, 12, 220, 19, 220, 19, "IPE 600", 24);
+            var section = ReinforcedConcreteSection.CreateSlabOnGirders(4000, 250, C30, new[] { ((Section)ipe, 1000.0), ((Section)ipe, 3000.0) }, S355, 100, 1);
+            Rel(4000 * 250 + 2 * (220 + 420) / 2.0 * 100, section.Area, 1e-9);
+            Assert.AreEqual(2, section.SteelSections.Count);
+            Assert.IsFalse(section.SteelSections.Any(s => s.IsInsideConcrete));
+            Point2d top = section.SteelSections[0].PositionToGlobal(new Point2d(110, 600));
+            Rel(1000, top.X, 1e-9);
+            Rel(-100, top.Y, 1e-9);
+            Rel(section.Area + 2 * N * ipe.Area, section.GetHomogenizedArea());
+            Rel(2000, section.GetHomogenizedCentroid(out _, out _).X, 1e-9);
+
+            // without haunches: the rectangle
+            var plain = ReinforcedConcreteSection.CreateSlabOnGirders(4000, 250, C30, new[] { ((Section)ipe, 2000.0) }, S355);
+            Rel(1e6, plain.Area);
+            Rel(-600, plain.SteelSections[0].PositionToGlobal(new Point2d(0, 0)).Y, 1e-9);
+
+            Assert.ThrowsException<ArgumentException>(() =>
+                ReinforcedConcreteSection.CreateSlabOnGirders(4000, 250, C30, new[] { ((Section)ipe, 100.0) }, S355, 100, 1));
+
+            // bars: as many as fit between the limits, centred
+            Assert.AreEqual(7, plain.AddRebarRow(new RebarSectionCircular(12, SteelMaterialEN1992Data.B450C), 200, 150, 50, 1000));
+            Assert.AreEqual(7, plain.RebarsCount);
+            Rel(75, plain.GetRebars().Min(r => r.Position.X), 1e-12);
+        }
+
+        [TestMethod]
+        public void SlabOnSteelBox()
+        {
+            var box = new SectionSteelBox(1000, 15, 400, 20, 1300, 25, 1600, 1200);
+            var section = ReinforcedConcreteSection.CreateSlabOnSteelBox(2400, 250, C30, box, S355, 50, 0.5);
+            Point2d middleTop = section.SteelSections[0].PositionToGlobal(new Point2d(box.Width / 2, box.Height));
+            Rel(1200, middleTop.X, 1e-9);
+            Rel(-50, middleTop.Y, 1e-9);
+            Rel(2400 * 250 + 2 * (400 + 450) / 2.0 * 50, section.Area, 1e-9);
+            SectionTorsionProperties torsion = section.CalculateHomogenizedTorsionProperties();
+            Assert.IsTrue(torsion.IsSolved, torsion.Error);
+            Rel(1200, torsion.ShearCenter.X, 1e-3);
         }
 
         [TestMethod]

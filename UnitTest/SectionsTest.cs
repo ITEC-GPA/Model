@@ -2496,7 +2496,7 @@ namespace ModelObjectTest
             Assert.AreEqual(expectedSx, Sx, 0.0001);
             Assert.AreEqual(expectedSy, Sy, 0.0001);
 
-            ConcreteSectionHelper.CalculateHomogeneizedStaticMoments(mesh, rebars, material, out double SxH, out double SyH);
+            ConcreteSectionHelper.CalculateHomogeneizedStaticMoments(section.Centroid, expectedArea, rebars, material, out double SxH, out double SyH);
             Assert.AreEqual(expectedSxH, SxH, 0.0001);
             Assert.AreEqual(expectedSyH, SyH, 0.0001);
 
@@ -2509,8 +2509,8 @@ namespace ModelObjectTest
             Assert.AreEqual(new Point2d(100, 250), SectionHelper.CalculateCentroid(Sx, Sy, section.Area));
             Assert.AreEqual(new Point2d(100, 250), SectionHelper.CalculateCentroid(expectedSxH, expectedSyH, expectedAreaH));
 
-            Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(mesh, rebars, material, expectedArea, out double _, out double _), section.Centroid);
-            Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(phi, mesh, rebars, material, expectedArea, out double _, out double _), section.Centroid);
+            Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(section.Centroid, rebars, material, expectedArea, out double _, out double _), section.Centroid);
+            Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(phi, section.Centroid, rebars, material, expectedArea, out double _, out double _), section.Centroid);
 
             Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(rebars, material, Sx, Sy, expectedArea, out double _, out double _), section.Centroid);
             Assert.AreEqual(ConcreteSectionHelper.GetHomogenizedCentroid(phi, rebars, material, Sx, Sy, expectedArea, out double _, out double _), section.Centroid);

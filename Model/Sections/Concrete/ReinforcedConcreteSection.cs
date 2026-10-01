@@ -17,7 +17,7 @@ namespace GPC.Model.Sections.Concrete
     /// A reinforced concrete section: a concrete shape with rebars and, for composite sections, steel sections. The properties of the shape are the ones of the concrete only; the homogenized ones include the rebars and the steel sections
     /// </summary>
     [Serializable]
-    public class ReinforcedConcreteSection : BeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
+    public partial class ReinforcedConcreteSection : BeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
     {
         #region Variables
 
@@ -987,7 +987,7 @@ namespace GPC.Model.Sections.Concrete
         public Point2d GetHomogenizedCentroid(out double SxHomog, out double SyHomog)
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogenizedCentroid(Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogenizedCentroid(Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog, _steelSections);
         }
 
@@ -1009,7 +1009,7 @@ namespace GPC.Model.Sections.Concrete
         public double GetHomogeneizedJ11()
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogeneizedJ11(Mesh, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogeneizedJ11(Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
@@ -1021,7 +1021,7 @@ namespace GPC.Model.Sections.Concrete
         public double GetHomogeneizedJ22()
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogeneizedJ22(Mesh, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogeneizedJ22(Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
@@ -1089,7 +1089,7 @@ namespace GPC.Model.Sections.Concrete
         public Point2d GetHomogenizedCentroid(double phi, out double SxHomog, out double SyHomog)
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogenizedCentroid(phi, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, out SxHomog, out SyHomog, _steelSections);
         }
 
@@ -1113,7 +1113,7 @@ namespace GPC.Model.Sections.Concrete
         public double GetHomogeneizedJ11(double phi)
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogeneizedJ11(phi, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
@@ -1126,7 +1126,7 @@ namespace GPC.Model.Sections.Concrete
         public double GetHomogeneizedJ22(double phi)
         {
             UpdateSteelOverlaps();
-            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, Mesh, _rebars.Values.ToArray(), ConcreteMaterial,
+            return ConcreteSectionHelper.GetHomogeneizedJ22(phi, Centroid, _rebars.Values.ToArray(), ConcreteMaterial,
                 Area, Jxx, Jyy, Jxy, _steelSections);
         }
 
