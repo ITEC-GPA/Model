@@ -28,7 +28,7 @@ namespace GPC.Model.Materials
 		/// <param name="density">The density</param>
 		/// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
 		public SteelMaterialDM1996(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic,
-			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
+			SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.3, double density = SteelDensity, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulus, fyk, fu, strainU, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)
 		{
 		}
@@ -57,7 +57,7 @@ namespace GPC.Model.Materials
 		public SteelMaterialDM1996(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
 			double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
 			StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic, SteelTypes steelType = SteelTypes.Undefined,
-			double poisson = 0.3, double density = 0.00785, double alfaThermalExpansion = 1.2E-05)
+			double poisson = 0.3, double density = SteelDensity, double alfaThermalExpansion = 1.2E-05)
 			: base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression,
 				  strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension,
 				  stressStrainTableCompression, stressStrainTableTensio, stressStrainCurveType, steelType, poisson, density, alfaThermalExpansion)

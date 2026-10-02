@@ -28,12 +28,21 @@ di `Sections/Catalogs`, con in testa norma, fonte, versione e SHA256 del file.
 | `EN10365_Channels` | EN 10365:2017, tolleranze EN 10279 | idem | 48: UPE, PFC, UPN |
 | `EN10056_Angles` | EN 10056-1:2017 | idem | 76: angolari a lati uguali e disuguali |
 | `EN10210_CircularHollow` | EN 10210-2 | Fondazione Promozione Acciaio, tabelle dei profili cavi (2005) | 237 CHS a caldo |
+| `EN10210_CircularHollowCelsius` | EN 10210-2:2006 | Tata Steel, Celsius: foglio delle proprietà CHS (Eurocodice 3, 01/07/2020) e tabelle di disponibilità della brochure | 175 CHS a caldo della gamma Celsius |
 | `EN10210_RectangularHollow` | EN 10210-2 | idem | 255 SHS e RHS a caldo |
 | `EN10219_CircularHollow` | EN 10219-2 | idem | 221 CHS a freddo |
 | `AISC_ShapesV16` | AISC Steel Construction Manual 16th Ed.; ASTM A6, A500/A1085, A53 | AISC Shapes Database v16.0 (agosto 2023) | 2299: W, M, S, HP, C, MC, L, WT, MT, ST, 2L, HSS, PIPE |
 
 Il programma ArcelorMittal segna i profili fuori norma ("Additional section to the standard"): nel
-catalogo hanno `IsInStandard = false`. Le serie ASTM del programma sono escluse: i profili americani vengono
+catalogo hanno `IsInStandard = false`.
+
+La gamma Celsius di Tata Steel completa i tubi a caldo con le misure del produttore che le tabelle della
+norma riprodotte dalla Fondazione Promozione Acciaio non hanno (per esempio CHS 60.3 x 3.6, 88.9 x 10,
+193.7 x 14.2: tutti i tubi del catalogo dei micropali di ANTHEA sono ora in ModelData). `IsInStandard` vale
+`true` per le 89 misure presenti anche in `EN10210_CircularHollow`, `false` per le altre 86. Le 7 misure della
+brochure senza proprietà nel foglio (42.4 x 5 e gli spessori 17,5 da 273 a 508) hanno la massa pubblicata e
+le proprietà calcolate da D e t con le formule di EN 10210-2, a 3 cifre significative come il foglio. `Find`
+restituisce prima il profilo delle tabelle della norma; `FindAll` restituisce anche quello Celsius. Le serie ASTM del programma sono escluse: i profili americani vengono
 dal database AISC, convertito esattamente dalle colonne in pollici (quelle metriche sono arrotondate).
 
 `Find` cerca nei cataloghi europei prima di quelli americani: le designazioni metriche di alcuni profili AISC
@@ -93,6 +102,7 @@ al 01/10/2026:
 | EN UPN | 0,36% | 0,87% | 0,69% | 2,0% | 12% | Iw 17%, ym 9% |
 | EN angolari | 0,84% | 1,6% | 1,5% | — | — | baricentro 2% (pubblicato al mm) |
 | EN CHS | 0,41% | 0,32% | 0,38% | 0,43% | 0,32% | — |
+| EN CHS Celsius (3 cifre significative) | 0,39% | 0,45% | 0,49% | 0,44% | 0,46% | — |
 | EN SHS, RHS | 0,42% | 1,3% (pareti spesse, media 0,2%) | 1,2% | 0,56% | 0,33% (Ct 0,37%) | — |
 | AISC W | 0,73% | 1,4% | 1,2% | 1,1% | 1,1% | Iw 3,4% |
 | AISC M, HP | esatta | 1,3% | 1,0% | 0,8% | 2,8% | Iw 1,8% |
@@ -181,6 +191,9 @@ I dati non sono corretti: il test li elenca e ne controlla il numero.
 python tools/section-catalogs/extract_arcelormittal.py "<Sections and Merchant Bars-ArcelorMittal_V2026-1.xlsx>" ModelData/Sections/Catalogs
 python tools/section-catalogs/extract_promozioneacciaio.py "<EN 10210 CHS.pdf>" ModelData/Sections/Catalogs
 python tools/section-catalogs/extract_aisc.py "<aisc-shapes-database-v160.xlsx>" ModelData/Sections/Catalogs
+python tools/section-catalogs/extract_tatasteel_celsius.py "<Celsius-CHS-sectionpropertiesdimensionsproperties-Eurocode3-1_7_2020.xlsx>" "<celsius-overview-brochure-all.pdf>" ModelData/Sections/Catalogs
 ```
 
-Servono `openpyxl` e `pdfplumber`. Lo SHA256 della fonte è nell'intestazione del CSV e nel test dei cataloghi.
+Servono `openpyxl` e `pdfplumber`. Lo SHA256 della fonte è nell'intestazione del CSV e nel test dei cataloghi. Lo script
+Celsius legge `EN10210_CircularHollow.csv` della cartella di uscita per `IsInStandard`: va eseguito dopo quello della
+Fondazione Promozione Acciaio. La brochure è https://www.tatasteel.com/media/14622/celsius-overview-brochure-all.pdf.

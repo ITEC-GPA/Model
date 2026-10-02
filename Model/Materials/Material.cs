@@ -68,9 +68,14 @@ namespace GPC.Model.Materials
         /// </summary>
         protected double _alfaThermalExpansion;
         /// <summary>
-        /// The density
+        /// The density, t/mm³
         /// </summary>
         protected double _density;
+
+        /// <summary>
+        /// Densities above this value (t/mm³, 1e6 kg/m³) in the files before the version 5 are in g/mm³
+        /// </summary>
+        private const double LegacyDensityLimit = 1e-6;
 
         /// <summary>
         /// The characteristic stress-strain table in compression
@@ -169,9 +174,37 @@ namespace GPC.Model.Materials
         public double AlfaThermalExpansion { get => _alfaThermalExpansion; set => _alfaThermalExpansion = value; }
 
         /// <summary>
-        /// Density of material
+        /// Density of the material, t/mm³: mass unit of <see cref="Units.DefaultUnits"/> (ton) over mm³, so that ρ by an acceleration in mm/s²
+        /// is a force per unit volume in N/mm³ (steel <see cref="SteelDensity"/> = 7.85e-9 t/mm³ = 7850 kg/m³). Files written before the
+        /// version 5 of the material have the density in g/mm³ (see the deserialization constructor)
         /// </summary>
         public double Density { get => _density; set => _density = value; }
+
+        /// <summary>
+        /// Density of the steel, 7850 kg/m³ in t/mm³ (default of the steel, bolt and FRP materials)
+        /// </summary>
+        public const double SteelDensity = 7.85e-9;
+
+        /// <summary>
+        /// Density of the concrete, 2500 kg/m³ in t/mm³ (default of the concrete materials)
+        /// </summary>
+        public const double ConcreteDensity = 2.5e-9;
+
+        /// <summary>
+        /// Density of the aluminium, 2700 kg/m³ in t/mm³ (default of the aluminium materials)
+        /// </summary>
+        public const double AluminiumDensity = 2.7e-9;
+
+        /// <summary>
+        /// The unit weight ρ g of the material, N/mm³ (t/mm³ by mm/s²)
+        /// </summary>
+        /// <param name="gravityAcceleration">The acceleration of the gravity, mm/s² (<see cref="Loads.ModelGravityLoad.GRAVITYACCELERATION"/>
+        /// by default; the geotechnical unit weights use 9810, see <see cref="Geotechnics.SoilUnits.Gravity"/>)</param>
+        /// <returns>The unit weight</returns>
+        public double GetUnitWeight(double gravityAcceleration = Loads.ModelGravityLoad.GRAVITYACCELERATION)
+        {
+            return _density * gravityAcceleration;
+        }
 
         /// <summary>
         /// Characteristic Stress strain table in compression
@@ -240,7 +273,7 @@ namespace GPC.Model.Materials
         /// <param name="name">The name</param>
         /// <param name="elasticModulus">Elastic Modulus [MPa]</param>
         /// <param name="poisson">Poisson's ratio, from 0 to 0.5</param>
-        /// <param name="density">Density [T/mm^3]</param>
+        /// <param name="density">Density, t/mm³ (see <see cref="Density"/>)</param>
         /// <param name="alfaThermalExpansion">Thermal expansion constant</param>
         /// <exception cref="ArgumentException">If the Poisson's ratio is out of [0, 0.5] or a value is negative</exception>
         public Material(string name, double elasticModulus, double poisson, double density, double alfaThermalExpansion)
@@ -315,7 +348,9 @@ namespace GPC.Model.Materials
 
         /// <summary>
         /// Deserialization constructor: reads the data according to the version (1: only one elastic modulus; 2: moduli, strains, stresses and tables;
-        /// 3: read only flag; 4: according to standard flag)
+        /// 3: read only flag; 4: according to standard flag; 5: density in t/mm³). Before the version 5 the unit of the density was not defined and
+        /// the defaults were in g/mm³ (steel 0.00785, concrete 0.0025, aluminium 0.0027): a density above 1e-6, impossible in t/mm³ (1e6 kg/m³),
+        /// is read as g/mm³ and converted (/ 1e6); the smaller ones are kept
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -357,6 +392,8 @@ namespace GPC.Model.Materials
 
             _alfaThermalExpansion = info.GetDouble("AlfaThermalExpansion");
             _density = info.GetDouble("Density");
+            if (version < 5 && _density > LegacyDensityLimit)
+                _density /= 1e6;
             _ni = info.GetDouble("Ni");
 
             if (version >= 3)
@@ -474,7 +511,7 @@ namespace GPC.Model.Materials
         #region Equals - HashCode - Operators
 
         /// <summary>
-        /// Serializes the data of <see cref="ModelObject"/> and the properties (version 4)
+        /// Serializes the data of <see cref="ModelObject"/> and the properties (version 5: density in t/mm³)
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -482,7 +519,7 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            double version = 4;
+            double version = 5;
 
             info.AddValue("MaterialVersion", version);
 

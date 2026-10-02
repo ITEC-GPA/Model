@@ -74,5 +74,10 @@ namespace GPC.Model.Geotechnics
         public const double Degree = Math.PI / 180;
         /// <summary>Unit weight of water 9.81 kN/m³, N/mm³ (value used by the legacy ANTHEA calculations).</summary>
         public const double WaterUnitWeight = 9.81 * KiloNewtonPerCubicMetre;
+        /// <summary>
+        /// Acceleration of the gravity of the geotechnical unit weights, 9.81 m/s² in mm/s² (as <see cref="WaterUnitWeight"/>): the unit weight of a
+        /// Model material is <see cref="Materials.Material.GetUnitWeight"/>(Gravity), N/mm³ (steel 7.85e-9 t/mm³ · 9810 = 77.0 kN/m³).
+        /// </summary>
+        public const double Gravity = 9810;
     }
 }

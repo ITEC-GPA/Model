@@ -118,7 +118,7 @@ namespace GPC.Model.Materials
         /// <param name="density">The density (the default is the one of the steel)</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public FRP(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.Linear,
-            double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            double poisson = 0.30, double density = SteelDensity, double alfaThermalExpansion = 12 * 1e-6)
             : this(name, elasticModulus, poisson, fyk, fu, strainU, stressStrainCurveType, density, alfaThermalExpansion)
         {
 
@@ -151,18 +151,18 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainTableTensio">The table in tension</param>
         /// <param name="stressStrainCurveType">Not used</param>
         /// <param name="poisson">The Poisson's ratio</param>
-        /// <param name="density">The density (passed to the base constructor as thermal expansion: see the list of the defects found)</param>
-        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (passed as density)</param>
+        /// <param name="density">The density, t/mm³</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public FRP(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio,
             StressStrainCurveType stressStrainCurveType = StressStrainCurveType.Bilinear,
-             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+             double poisson = 0.30, double density = SteelDensity, double alfaThermalExpansion = 12 * 1e-6)
             : base(name, elasticModulusCompression, elasticModulusTension,
             strainYCompression, strainUCompression, strainYTension, strainUTension,
             stressYCompression, stressUCompression, stressYTension, stressUTension,
-            stressStrainTableCompression, stressStrainTableTensio, poisson, density, alfaThermalExpansion)
+            stressStrainTableCompression, stressStrainTableTensio, poisson, alfaThermalExpansion, density)
         {
             _fyk = stressYTension;
             _fu = stressUTension;

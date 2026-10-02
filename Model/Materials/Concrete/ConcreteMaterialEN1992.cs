@@ -24,7 +24,7 @@ namespace GPC.Model.Materials
 		/// <param name="alfaThermalExpansion">The coefficient of thermal expansion (see the default of <see cref="ConcreteMaterialEuropeanCommon"/>)</param>
 		/// <param name="cementType">The class of cement</param>
 		public ConcreteMaterialEN1992(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
-			double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
+			double poisson = 0.2, double density = ConcreteDensity, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
 			: base(name, fck, compressionStressStrainDiagrams, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
 		{
 
@@ -44,7 +44,7 @@ namespace GPC.Model.Materials
 		/// <param name="cementType">The class of cement</param>
 		public ConcreteMaterialEN1992(string name, double strainYCompression, double strainYTension, StressStrainTable stressStrainTableCompression,
 			StressStrainTable stressStrainTableTension,
-			double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6,
+			double poisson = 0.2, double density = ConcreteDensity, double alfaThermalExpansion = 10e-6,
 			CementTypes cementType = CementTypes.ClassN)
 			: base(name, strainYTension, strainYCompression, stressStrainTableCompression, stressStrainTableTension, ConcreteTypes.Concrete, poisson, density, alfaThermalExpansion, cementType)
 		{

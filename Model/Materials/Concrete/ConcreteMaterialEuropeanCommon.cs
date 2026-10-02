@@ -125,7 +125,7 @@ namespace GPC.Model.Materials
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (the default 1E-6 is ten times smaller than the 1E-5 of EN 1992-1-1 3.1.3)</param>
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
+            double poisson = 0.2, double density = ConcreteDensity, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -160,7 +160,7 @@ namespace GPC.Model.Materials
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double fck, CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double ffts, double fFtu, double strainYTension, double strainUTension, TensionStressStrainDiagrams tensionStressStrainDiagrams, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
+            double poisson = 0.2, double density = ConcreteDensity, double alfaThermalExpansion = 10e-6, CementTypes cementType = CementTypes.ClassN)
             : base(name, poisson, density, alfaThermalExpansion)
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
@@ -193,7 +193,7 @@ namespace GPC.Model.Materials
         /// <param name="cementType">The class of cement</param>
         public ConcreteMaterialEuropeanCommon(string name, double strainYTension, double strainYCompression,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTension, ConcreteTypes concreteType,
-            double poisson = 0.2, double density = 0.0025, double alfaThermalExpansion = 10e-6,
+            double poisson = 0.2, double density = ConcreteDensity, double alfaThermalExpansion = 10e-6,
             CementTypes cementType = CementTypes.ClassN)
             : base(name, stressStrainTableCompression, stressStrainTableTension, stressStrainTableCompression.GetElasticModulus(),
                   stressStrainTableTension.GetElasticModulus(), poisson, density, alfaThermalExpansion)

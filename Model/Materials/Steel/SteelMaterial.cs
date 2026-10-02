@@ -165,7 +165,7 @@ namespace GPC.Model.Materials
         /// <param name="density">The density</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public SteelMaterial(string name, double elasticModulus, double fyk, double fu, double strainU = 0.1, StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticPerfectPlastic,
-            SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+            SteelTypes steelType = SteelTypes.Undefined, double poisson = 0.30, double density = SteelDensity, double alfaThermalExpansion = 12 * 1e-6)
             : this(name, elasticModulus, poisson, fyk, fu, strainU, stressStrainCurveType, steelType, density, alfaThermalExpansion)
         {
 
@@ -200,18 +200,18 @@ namespace GPC.Model.Materials
         /// <param name="stressStrainCurveType">Not used (the curve type keeps its default value)</param>
         /// <param name="steelType">The kind of steel</param>
         /// <param name="poisson">The Poisson's ratio</param>
-        /// <param name="density">The density (passed to the base constructor as thermal expansion: see the list of the defects found)</param>
-        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (passed as density)</param>
+        /// <param name="density">The density, t/mm³</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public SteelMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio,
             StressStrainCurveType stressStrainCurveType = StressStrainCurveType.ElasticHardening, SteelTypes steelType = SteelTypes.Undefined,
-             double poisson = 0.30, double density = 0.007850, double alfaThermalExpansion = 12 * 1e-6)
+             double poisson = 0.30, double density = SteelDensity, double alfaThermalExpansion = 12 * 1e-6)
             : base(name, elasticModulusCompression, elasticModulusTension,
             strainYCompression, strainUCompression, strainYTension, strainUTension,
             stressYCompression, stressUCompression, stressYTension, stressUTension,
-            stressStrainTableCompression, stressStrainTableTensio, poisson, density, alfaThermalExpansion)
+            stressStrainTableCompression, stressStrainTableTensio, poisson, alfaThermalExpansion, density)
         {
             _steelType = steelType;
             _fyk = stressYTension;

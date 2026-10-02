@@ -121,7 +121,7 @@ namespace GPC.Model.Materials
         /// <param name="poisson">The Poisson's ratio</param>
         /// <param name="density">The density</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
-        public AluminiumMaterial(string name, double elasticModulus, double fo, double fu, double strainU = 0.1, AluminiumTypes aluminiumType = AluminiumTypes.Undefined, double thicknessMax = 5, double poisson = 0.3, double density = 0.0027, double alfaThermalExpansion = 23e-6)
+        public AluminiumMaterial(string name, double elasticModulus, double fo, double fu, double strainU = 0.1, AluminiumTypes aluminiumType = AluminiumTypes.Undefined, double thicknessMax = 5, double poisson = 0.3, double density = AluminiumDensity, double alfaThermalExpansion = 23e-6)
             : this(name, elasticModulus, poisson, fo, fu, strainU, aluminiumType, thicknessMax, density, alfaThermalExpansion)
         {
         }
@@ -156,17 +156,17 @@ namespace GPC.Model.Materials
         /// <param name="aluminiumType">The kind of aluminium</param>
         /// <param name="thicknessMax">Maximum thickness</param>
         /// <param name="poisson">The Poisson's ratio</param>
-        /// <param name="density">The density (passed to the base constructor as thermal expansion: see the list of the defects found)</param>
-        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion (passed as density)</param>
+        /// <param name="density">The density, t/mm³</param>
+        /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public AluminiumMaterial(string name, double elasticModulusCompression, double elasticModulusTension,
             double strainYCompression, double strainUCompression, double strainYTension, double strainUTension,
             double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, AluminiumTypes aluminiumType = AluminiumTypes.Undefined, double thicknessMax = 5,
-             double poisson = 0.3, double density = 0.0027, double alfaThermalExpansion = 23e-6)
+             double poisson = 0.3, double density = AluminiumDensity, double alfaThermalExpansion = 23e-6)
             : base(name, elasticModulusCompression, elasticModulusTension,
             strainYCompression, strainUCompression, strainYTension, strainUTension,
             stressYCompression, stressUCompression, stressYTension, stressUTension,
-            stressStrainTableCompression, stressStrainTableTensio, poisson, density, alfaThermalExpansion)
+            stressStrainTableCompression, stressStrainTableTensio, poisson, alfaThermalExpansion, density)
         {
             AluminiumType = aluminiumType;
             _fo = stressYTension;

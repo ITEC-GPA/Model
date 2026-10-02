@@ -27,7 +27,7 @@ namespace GPC.Model.Materials
         /// <param name="density">The density</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
         public AluminiumMaterialEN1999(string name, double elasticModulus, double fo, double fu, double strainU = 0.045,
-            AluminiumTypes steelType = AluminiumTypes.Structural, double thicknessMax = 5, double poisson = 0.3, double density = 0.0027, double alfaThermalExpansion = 23e-6)
+            AluminiumTypes steelType = AluminiumTypes.Structural, double thicknessMax = 5, double poisson = 0.3, double density = AluminiumDensity, double alfaThermalExpansion = 23e-6)
             : base(name, elasticModulus, fo, fu, strainU, steelType, thicknessMax, poisson, density, alfaThermalExpansion)
         {
         }
@@ -42,8 +42,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// Creates an aluminium alloy from all the properties. The arguments are passed to the base constructor with poisson and thicknessMax
-        /// swapped: with the default values the Poisson's ratio is 5 and the constructor throws (see the list of the defects found)
+        /// Creates an aluminium alloy from all the properties
         /// </summary>
         /// <param name="name">The name</param>
         /// <param name="elasticModulusCompression">The elastic modulus in compression</param>
@@ -61,16 +60,16 @@ namespace GPC.Model.Materials
         /// <param name="steelType">The kind of aluminium</param>
         /// <param name="thicknessMax">Maximum thickness</param>
         /// <param name="poisson">The Poisson's ratio</param>
-        /// <param name="density">The density</param>
+        /// <param name="density">The density, t/mm³</param>
         /// <param name="alfaThermalExpansion">The coefficient of thermal expansion</param>
-        /// <exception cref="ArgumentException">If the thickness (used as Poisson's ratio) is greater than 0.5</exception>
+        /// <exception cref="ArgumentException">If the Poisson's ratio is greater than 0.5</exception>
         public AluminiumMaterialEN1999(string name, double elasticModulusCompression, double elasticModulusTension, double strainYCompression, double strainUCompression,
             double strainYTension, double strainUTension, double stressYCompression, double stressUCompression, double stressYTension, double stressUTension,
             StressStrainTable stressStrainTableCompression, StressStrainTable stressStrainTableTensio, AluminiumTypes steelType = AluminiumTypes.Structural, double thicknessMax = 5,
-            double poisson = 0.3, double density = 0.0027, double alfaThermalExpansion = 23e-6)
+            double poisson = 0.3, double density = AluminiumDensity, double alfaThermalExpansion = 23e-6)
             : base(name, elasticModulusCompression, elasticModulusTension, strainYCompression, strainUCompression,
                   strainYTension, strainUTension, stressYCompression, stressUCompression, stressYTension, stressUTension,
-                  stressStrainTableCompression, stressStrainTableTensio, steelType, poisson, thicknessMax, density, alfaThermalExpansion)
+                  stressStrainTableCompression, stressStrainTableTensio, steelType, thicknessMax, poisson, density, alfaThermalExpansion)
         {
         }
 

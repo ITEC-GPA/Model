@@ -29,6 +29,9 @@ namespace GPC.Model.Data.Sections
         private static readonly Lazy<SectionCatalog> _en10210CircularHollow = Catalog("EN10210_CircularHollow",
             series => series == "CHS" ? SectionFamily.CircularHollow : (SectionFamily?)null);
 
+        private static readonly Lazy<SectionCatalog> _en10210CircularHollowCelsius = Catalog("EN10210_CircularHollowCelsius",
+            series => series == "CHS" ? SectionFamily.CircularHollow : (SectionFamily?)null);
+
         private static readonly Lazy<SectionCatalog> _en10210RectangularHollow = Catalog("EN10210_RectangularHollow",
             series => series == "SHS" || series == "RHS" ? SectionFamily.RectangularHollow : (SectionFamily?)null);
 
@@ -85,6 +88,13 @@ namespace GPC.Model.Data.Sections
         public static SectionCatalog EN10210CircularHollow => _en10210CircularHollow.Value;
 
         /// <summary>
+        /// Hot finished circular hollow sections to EN 10210 of the Tata Steel Celsius range: the sizes of the tables of EN 10210-2 and the
+        /// other sizes of the producer (see <see cref="CatalogProfile.IsInStandard"/>), e.g. CHS 60.3 x 3.6, 88.9 x 10, 273 x 17.5; source: Tata
+        /// Steel workbook of the Celsius CHS properties and Celsius brochure
+        /// </summary>
+        public static SectionCatalog EN10210CircularHollowCelsius => _en10210CircularHollowCelsius.Value;
+
+        /// <summary>
         /// Hot finished square and rectangular hollow sections of EN 10210-2 (SHS, RHS); source: tables of Fondazione Promozione Acciaio
         /// </summary>
         public static SectionCatalog EN10210RectangularHollow => _en10210RectangularHollow.Value;
@@ -102,13 +112,13 @@ namespace GPC.Model.Data.Sections
 
         /// <summary>
         /// All the catalogs: the European ones before the American ones (the metric designations of some AISC shapes are the same of
-        /// European ones, e.g. HP 360 x 174: <see cref="Find"/> returns the European one), the hot finished hollow sections before the cold
-        /// formed ones with the same designation
+        /// European ones, e.g. HP 360 x 174: <see cref="Find"/> returns the European one), the tables of the standards before the producer
+        /// range (Celsius), the hot finished hollow sections before the cold formed ones with the same designation
         /// </summary>
         public static IReadOnlyList<SectionCatalog> All => new[]
         {
-            EN10365ParallelFlangeIH, EN10365TaperFlangeI, EN10365Channels, EN10056Angles, EN10210CircularHollow, EN10210RectangularHollow,
-            EN10219CircularHollow, AISCShapesV16,
+            EN10365ParallelFlangeIH, EN10365TaperFlangeI, EN10365Channels, EN10056Angles, EN10210CircularHollow, EN10210CircularHollowCelsius,
+            EN10210RectangularHollow, EN10219CircularHollow, AISCShapesV16,
         };
 
         /// <summary>

@@ -18,6 +18,8 @@ namespace UnitTest
         private const string ArcelorMittalSha256 = "84D01778D48973BC03670C77DBE6E17141B20F1BE449DC614F26CCEEE283C5B9";
         private const string PromozioneAcciaioSha256 = "92AA2618551E23476AC9F2167FC178E00A28D875092179BCA99AF25263C7BD66";
         private const string AiscSha256 = "82D0CEB96A0D938AE1A6BD9637CB10A1E269225B5D668DCE5B0BDC8D86013496";
+        private const string CelsiusSha256 = "156D7C18FF128CD27AF9790AFF1079BA21AC5766363912B6766B7781A925E248";
+        private const string CelsiusBrochureSha256 = "130ECAC0807BAAE29F4533D5F8A72391F2B68A33FAC843A6A249EB36DF5F172D";
 
         /// <summary>
         /// The trace of the profiles whose It or Iw of the formulas of Model deviate from the published ones more than the threshold
@@ -116,6 +118,13 @@ namespace UnitTest
                     continue;
                 }
                 StringAssert.StartsWith(catalog.Standard, "EN 10", catalog.Id);
+                if (catalog == SectionCatalogs.EN10210CircularHollowCelsius)
+                {
+                    StringAssert.StartsWith(catalog.Source, "Tata Steel, Celsius");
+                    Assert.AreEqual(CelsiusSha256, catalog.SourceSha256);
+                    Assert.AreEqual(CelsiusBrochureSha256, catalog.Metadata["Brochure SHA256"]);
+                    continue;
+                }
                 bool arcelorMittal = catalog.Id.StartsWith("EN10365") || catalog.Id.StartsWith("EN10056");
                 StringAssert.Contains(catalog.Source, arcelorMittal ? "ArcelorMittal" : "Fondazione Promozione Acciaio", catalog.Id);
                 Assert.AreEqual(arcelorMittal ? ArcelorMittalSha256 : PromozioneAcciaioSha256, catalog.SourceSha256, catalog.Id);
@@ -126,13 +135,16 @@ namespace UnitTest
             Assert.AreEqual(48, SectionCatalogs.EN10365Channels.Profiles.Count);
             Assert.AreEqual(76, SectionCatalogs.EN10056Angles.Profiles.Count);
             Assert.AreEqual(237, SectionCatalogs.EN10210CircularHollow.Profiles.Count);
+            Assert.AreEqual(175, SectionCatalogs.EN10210CircularHollowCelsius.Profiles.Count);
             Assert.AreEqual(255, SectionCatalogs.EN10210RectangularHollow.Profiles.Count);
             Assert.AreEqual(221, SectionCatalogs.EN10219CircularHollow.Profiles.Count);
 
             // the same designation in the catalogs of the hot finished and of the cold formed sections: both found, the hot finished first
             string common = SectionCatalogs.EN10210CircularHollow.Profiles.Select(p => p.Designation)
                 .First(d => SectionCatalogs.EN10219CircularHollow.Find(d) != null);
-            Assert.AreEqual(2, SectionCatalogs.FindAll(common).Count);
+            IReadOnlyList<CatalogProfile> all = SectionCatalogs.FindAll(common);
+            CollectionAssert.Contains(all.Select(p => p.Catalog).ToList(), SectionCatalogs.EN10219CircularHollow);
+            Assert.AreEqual(SectionCatalogs.EN10210CircularHollowCelsius.Find(common) is null ? 2 : 3, all.Count);
             Assert.AreSame(SectionCatalogs.EN10210CircularHollow, SectionCatalogs.Find(common)!.Catalog);
 
             // HE 300 B of EN 10365: h, b, tw, tf, r and the published properties in mm units
@@ -159,6 +171,61 @@ namespace UnitTest
             Assert.IsTrue(SectionCatalogs.Find("IPE 750 x 196")!.IsInStandard);
             Assert.IsFalse(SectionCatalogs.Find("L 200 x 100 x 16")!.IsInStandard);
             Assert.IsTrue(SectionCatalogs.Find("L 200 x 100 x 15")!.IsInStandard);
+        }
+
+        /// <summary>
+        /// The Celsius range of Tata Steel completes the hot finished tubes: the sizes of the micropile catalog of ANTHEA missing in the tables of
+        /// the standards, the sizes of the brochure without published properties (calculated) and the priority of the tables of the standards
+        /// </summary>
+        [TestMethod]
+        public void TheCelsiusRangeCompletesTheHotFinishedTubes()
+        {
+            SectionCatalog celsius = SectionCatalogs.EN10210CircularHollowCelsius;
+            string[] missing = { "60.3 x 3.6", "60.3 x 6.3", "60.3 x 8", "76.1 x 3.6", "76.1 x 8", "88.9 x 3.6", "88.9 x 8", "88.9 x 10", "114.3 x 3.6",
+                "139.7 x 3.6", "193.7 x 14.2", "219.1 x 14.2", "244.5 x 14.2", "273 x 14.2", "273 x 17.5" };
+            foreach (string size in missing)
+            {
+                CatalogProfile profile = SectionCatalogs.Find("CHS " + size)!;
+                Assert.IsNotNull(profile, size);
+                Assert.AreSame(celsius, profile.Catalog, size);
+                Assert.IsFalse(profile.IsInStandard, size);
+                Assert.IsNull(SectionCatalogs.EN10210CircularHollow.Find("CHS " + size), size);
+                var chs = (SectionCHS)SectionMappings.CreateSection(profile);
+                Assert.AreEqual(profile["D"], chs.Diameter);
+                Assert.AreEqual(profile["t"], chs.Thickness);
+                Assert.AreEqual(profile["A"], chs.Area, 0.005 * profile["A"], size);
+                Assert.AreEqual(profile["G"], 7.85e-3 * chs.Area, 0.005 * profile["G"], size);
+            }
+
+            // the same spellings of the other catalogs (×, comma)
+            Assert.AreSame(SectionCatalogs.Find("CHS 88.9 x 10"), SectionCatalogs.Find("CHS 88,9×10"));
+
+            // the sizes in the tables of the standard are found in EN10210_CircularHollow first, also listed by Celsius
+            CatalogProfile standard = SectionCatalogs.Find("CHS 139.7 x 8")!;
+            Assert.AreSame(SectionCatalogs.EN10210CircularHollow, standard.Catalog);
+            Assert.IsTrue(celsius.Find("CHS 139.7 x 8")!.IsInStandard);
+            Assert.AreEqual(3, SectionCatalogs.FindAll("CHS 139.7 x 8").Count);
+            Assert.AreEqual(89, celsius.Profiles.Count(p => p.IsInStandard));
+            Assert.AreEqual(86, celsius.Profiles.Count(p => !p.IsInStandard));
+            // the common sizes: published values of the two sources within their rounding (3 significant figures)
+            foreach (CatalogProfile profile in celsius.Profiles.Where(p => p.IsInStandard))
+            {
+                CatalogProfile other = SectionCatalogs.EN10210CircularHollow.Find(profile.Designation)!;
+                foreach (string key in new[] { "G", "A", "I", "Wel", "Wpl", "It", "Ct" })
+                    Assert.AreEqual(other[key], profile[key], 0.005 * other[key], profile.Designation + " " + key);
+            }
+
+            // brochure only (published mass 110 kg/m): properties calculated from D and t, 3 significant figures
+            CatalogProfile thick = celsius.Find("CHS 273 x 17.5")!;
+            Assert.AreEqual(110, thick["G"]);
+            Assert.AreEqual(14000, thick["A"]);
+            Assert.AreEqual(115e6, thick["I"]);
+            Assert.AreEqual(844e3, thick["Wel"]);
+            Assert.AreEqual(1.14e6, thick["Wpl"]);
+            Assert.AreEqual(230e6, thick["It"]);
+            Assert.AreEqual(1.69e6, thick["Ct"]);
+            StringAssert.StartsWith(celsius.Metadata["Sizes of the brochure without properties in the workbook"], "42.4 x 5, 273 x 17.5, 323.9 x 17.5");
+            Assert.IsNull(SectionCatalogs.Find("CHS 273 x 18"));
         }
 
         [TestMethod]
@@ -300,6 +367,7 @@ namespace UnitTest
         /// </summary>
         private static string Group(CatalogProfile profile) =>
             profile.Catalog == SectionCatalogs.AISCShapesV16 ? "AISC " + profile.Series
+            : profile.Catalog == SectionCatalogs.EN10210CircularHollowCelsius ? "CircularHollow Celsius"
             : profile.Series == "J" ? profile.Family + " J" : profile.Family.ToString();
 
         /// <summary>
@@ -380,6 +448,8 @@ namespace UnitTest
                 ["TaperFlangeChannel"] = (0.004, 0.009, 0.0075, 0.021, 0.12, 0.175, 0.095),
                 ["Angle"] = (0.009, 0.016, 0.0155, 0, 0, 0, 0.02),
                 ["CircularHollow"] = (0.0045, 0.0035, 0.004, 0.0045, 0.0035, 0, 0),
+                // the Celsius workbook rounds every value to 3 significant figures (up to 0.5%)
+                ["CircularHollow Celsius"] = (0.005, 0.005, 0.005, 0.005, 0.005, 0, 0),
                 // the moments of inertia of the thick walls of small sizes (t / b = 0.2) up to 1.3% from the published values (the exact
                 // geometry of Model is checked against the integration of the outline in SectionRHSRoundedCornersTest)
                 ["RectangularHollow"] = (0.0045, 0.013, 0.012, 0.006, 0.004, 0, 0),
