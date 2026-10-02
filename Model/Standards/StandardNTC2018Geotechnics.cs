@@ -9,7 +9,9 @@ namespace GPC.Model.Standards
     /// Tab. 6.2.I (A1, A2), 6.2.II (M1, M2), 6.4.I shallow foundations, 6.4.II piles, 6.4.IV correlation factors, 6.4.VI transverse
     /// piles, 6.5.I retaining walls, §6.8.2 slopes and global stability (R2 = 1.1), Tab. 7.11.II and 7.11.III and §7.11.4 seismic.
     /// Approaches: foundations, walls and piles Approccio 2 (A1+M1+R3); global stability and slopes A2+M2+R2; seismic: actions
-    /// with partial factors 1, M1, seismic γR. Values as used by the legacy ANTHEA calculations; to be checked against the text.
+    /// with partial factors 1, M1, seismic γR. Values as used by the legacy ANTHEA calculations. Checked against the text of D.M. 17/01/2018:
+    /// Tab. 6.2.I, 6.2.II, 6.8.I, §7.11.4, Tab. 7.11.II and 7.11.III (phase G of the ANTHEA migration); the factor 1.6 on qu comes from NTC 2008
+    /// (Tab. 6.2.II of 2018 has no qu row); Tab. 6.4.I, 6.4.II, 6.4.IV, 6.4.VI and 6.5.I are checked with the piles and walls.
     /// </summary>
     [Serializable]
     public class StandardNTC2018Geotechnics : StandardGeotechnical
