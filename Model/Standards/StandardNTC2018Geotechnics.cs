@@ -6,12 +6,12 @@ namespace GPC.Model.Standards
 {
     /// <summary>
     /// NTC 2018 (D.M. 17/01/2018, chapters 6 and 7.11) geotechnical partial factors.
-    /// Tab. 6.2.I (A1, A2), 6.2.II (M1, M2), 6.4.I shallow foundations, 6.4.II piles, 6.4.IV correlation factors, 6.4.VI transverse
+    /// Tab. 6.2.I (A1, A2), 6.2.II (M1, M2), 6.4.I shallow foundations, 6.4.II piles by execution (<see cref="PileExecution"/>), 6.4.IV correlation factors, 6.4.VI transverse
     /// piles, 6.5.I retaining walls, §6.8.2 slopes and global stability (R2 = 1.1), Tab. 7.11.II and 7.11.III and §7.11.4 seismic.
     /// Approaches: foundations, walls and piles Approccio 2 (A1+M1+R3); global stability and slopes A2+M2+R2; seismic: actions
     /// with partial factors 1, M1, seismic γR. Values as used by the legacy ANTHEA calculations. Checked against the text of D.M. 17/01/2018:
     /// Tab. 6.2.I, 6.2.II, 6.8.I, §7.11.4, Tab. 7.11.II and 7.11.III (phase G of the ANTHEA migration); the factor 1.6 on qu comes from NTC 2008
-    /// (Tab. 6.2.II of 2018 has no qu row); Tab. 6.4.I, 6.4.II, 6.4.IV, 6.4.VI and 6.5.I are checked with the piles and walls.
+    /// (Tab. 6.2.II of 2018 has no qu row); Tab. 6.4.II, 6.4.IV and 6.4.VI checked with the piles (phase F); 6.4.I and 6.5.I are checked with the walls.
     /// </summary>
     [Serializable]
     public class StandardNTC2018Geotechnics : StandardGeotechnical
@@ -42,17 +42,43 @@ namespace GPC.Model.Standards
             // §6.8.2, §6.5.3.1.1 and §7.11.4: global stability and slopes.
             Define(GeotechnicalCheck.GlobalStability, st, "R2", 1.1); Define(GeotechnicalCheck.SlopeStability, st, "R2", 1.1);
             Define(GeotechnicalCheck.GlobalStability, eq, "R2", 1.2); Define(GeotechnicalCheck.SlopeStability, eq, "R2", 1.2);
-            // Tab. 6.4.II (bored piles, R3) and 6.4.VI (transverse load).
+            // Tab. 6.4.II (R3): base, shaft in compression, total, shaft in tension of driven, bored and CFA piles; "R3" alone keeps the bored
+            // values. Tab. 6.4.VI: transverse load.
             Define(GeotechnicalCheck.PileBase, st, "R3", 1.35); Define(GeotechnicalCheck.PileShaftCompression, st, "R3", 1.15);
             Define(GeotechnicalCheck.PileTotalCompression, st, "R3", 1.30); Define(GeotechnicalCheck.PileShaftTension, st, "R3", 1.25);
+            foreach (var (execution, values) in new[] { (PileExecution.Driven, new[] { 1.15, 1.15, 1.15, 1.25 }), (PileExecution.Bored, new[] { 1.35, 1.15, 1.30, 1.25 }),
+                (PileExecution.ContinuousFlightAuger, new[] { 1.3, 1.15, 1.25, 1.25 }) })
+            {
+                string set = PileSet(execution);
+                Define(GeotechnicalCheck.PileBase, st, set, values[0]); Define(GeotechnicalCheck.PileShaftCompression, st, set, values[1]);
+                Define(GeotechnicalCheck.PileTotalCompression, st, set, values[2]); Define(GeotechnicalCheck.PileShaftTension, st, set, values[3]);
+            }
             Define(GeotechnicalCheck.PileTransverse, st, "R3", 1.3);
         }
-        protected StandardNTC2018Geotechnics(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected StandardNTC2018Geotechnics(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            try { _piles = (PileExecution)info.GetInt32("PileExecution"); } catch (SerializationException) { _piles = PileExecution.Bored; }
+        }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("PileExecution", (int)_piles);
+        }
+
+        private PileExecution _piles = PileExecution.Bored;
+        /// <summary>Execution of the piles for the factors of Tab. 6.4.II (driven, bored, continuous flight auger); bored by default.</summary>
+        public PileExecution PileExecution { get => _piles; set => _piles = value; }
+        private static string PileSet(PileExecution execution) => "R3-" + execution;
+        private static bool IsAxialPile(GeotechnicalCheck c) => c == GeotechnicalCheck.PileBase || c == GeotechnicalCheck.PileShaftCompression
+            || c == GeotechnicalCheck.PileTotalCompression || c == GeotechnicalCheck.PileShaftTension;
+
+        public override bool Equals(object obj) => obj is StandardNTC2018Geotechnics s && s._piles == _piles && base.Equals(obj);
+        public override int GetHashCode() => base.GetHashCode();
 
         public override IReadOnlyList<GeotechnicalCombination> Combinations(GeotechnicalCheck check, GeotechnicalSituation situation)
         {
             bool stability = check == GeotechnicalCheck.GlobalStability || check == GeotechnicalCheck.SlopeStability;
-            string set = stability ? "R2" : "R3";
+            string set = stability ? "R2" : IsAxialPile(check) ? PileSet(_piles) : "R3";
             if (!ResistanceFactor(check, situation, set).HasValue) return new GeotechnicalCombination[0];
             if (situation == GeotechnicalSituation.Seismic)
                 return new[] { Combination(check, situation, Seismic, M1, set, "NTC 2018 §7.11 (A = 1, M1, γR seismic)") };

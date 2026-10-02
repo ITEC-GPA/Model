@@ -72,6 +72,18 @@ namespace UnitTest
             Assert.AreEqual(Tuple.Create(1.70, 1.70), ntc.PileCorrelationFactors(1));
             Assert.AreEqual(Tuple.Create(1.50, 1.34), ntc.PileCorrelationFactors(6), "between columns the safe-side column applies");
             Assert.AreEqual(Tuple.Create(1.40, 1.21), ntc.PileCorrelationFactors(12));
+            // Tab. 6.4.II by execution: base 1.15 driven, 1.35 bored, 1.3 CFA; shaft 1.15; total 1.15, 1.30, 1.25; tension 1.25. Bored by default.
+            var bored = ntc.Combinations(GeotechnicalCheck.PileBase, GeotechnicalSituation.PersistentTransient).Single();
+            Assert.AreEqual(PileExecution.Bored, ntc.PileExecution); Assert.AreEqual("A1+M1+R3-Bored", bored.Name); Assert.AreEqual(1.35, bored.ResistanceFactor);
+            foreach (var (execution, values) in new[] { (PileExecution.Driven, new[] { 1.15, 1.15, 1.15, 1.25 }), (PileExecution.Bored, new[] { 1.35, 1.15, 1.30, 1.25 }),
+                (PileExecution.ContinuousFlightAuger, new[] { 1.3, 1.15, 1.25, 1.25 }) })
+            {
+                var standard = new StandardNTC2018Geotechnics { PileExecution = execution };
+                var checks = new[] { GeotechnicalCheck.PileBase, GeotechnicalCheck.PileShaftCompression, GeotechnicalCheck.PileTotalCompression, GeotechnicalCheck.PileShaftTension };
+                CollectionAssert.AreEqual(values, checks.Select(c => standard.Combinations(c, GeotechnicalSituation.PersistentTransient).Single().ResistanceFactor).ToArray(), execution.ToString());
+                Assert.AreEqual(1.3, standard.Combinations(GeotechnicalCheck.PileTransverse, GeotechnicalSituation.PersistentTransient).Single().ResistanceFactor, "transverse: one value");
+            }
+            Assert.AreNotEqual(new StandardNTC2018Geotechnics(), new StandardNTC2018Geotechnics { PileExecution = PileExecution.Driven });
         }
 
         [TestMethod]
@@ -103,7 +115,8 @@ namespace UnitTest
             ntc.SetMaterialSet(new GeotechnicalMaterialFactors("M2", 1.3, 1.3, 1.5, 1.6, 1.0));
             Assert.AreEqual(1.2, ntc.Combinations(GeotechnicalCheck.RetainingWallSliding, GeotechnicalSituation.PersistentTransient).Single().ResistanceFactor);
             Assert.AreNotEqual(new StandardNTC2018Geotechnics(), ntc);
-            foreach (StandardGeotechnical original in new StandardGeotechnical[] { ntc, new StandardEN1997p1("EN DA3", GeotechnicalDesignApproach.DA3, PileExecution.ContinuousFlightAuger) })
+            foreach (StandardGeotechnical original in new StandardGeotechnical[] { ntc, new StandardEN1997p1("EN DA3", GeotechnicalDesignApproach.DA3, PileExecution.ContinuousFlightAuger),
+                new StandardNTC2018Geotechnics { PileExecution = PileExecution.Driven } })
             {
                 var info = new SerializationInfo(original.GetType(), new FormatterConverter());
                 original.GetObjectData(info, new StreamingContext());
