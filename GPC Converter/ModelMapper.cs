@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using GPC.Geometry;
+using GPC.Model.Combinations;
 using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
@@ -116,21 +117,24 @@ namespace GPC.Converter
                 if (batch.Combinations.Count != 0)
                 {
                     record = "combinations";
-                    var definitions = batch.Combinations.ToArray(); int linear = 0;
-                    var duplicated = new HashSet<string>(definitions.GroupBy(d => d.Name, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.Ordinal);
+                    var definitions = batch.Combinations.ToArray(); int linear = 0, envelopes = 0;
                     foreach (var definition in definitions)
                     {
                         cancellationToken.ThrowIfCancellationRequested(); record = definition.Record;
-                        var name = duplicated.Contains(definition.Name) ? definition.Name + " [" + definition.Source + "]" : definition.Name;
-                        if (cases.ContainsKey(name)) name += " [combination]";
+                        var name = CombinationExpansion.ModelName(definitions, definition, cases.ContainsKey);
+                        if (model.Combinations.ContainsKey(name)) continue;
                         var combination = CombinationExpansion.ToCombination(definitions, definition, cases, name);
-                        if (combination != null && !model.Combinations.ContainsKey(name) && model.AddCombination(combination)) linear++;
+                        if (combination != null) { if (model.AddCombination(combination)) linear++; }
+                        // An envelope is declared without coefficients: it names the concomitant states rebuilt from the static
+                        // results (CombinationResults); declaring it now keeps the analysis fingerprint of the imported results.
+                        else if (CombinationExpansion.IsExpandable(definitions, definition.Id) && model.AddCombination(new Combination(name))) envelopes++;
                     }
                     var preserved = CombinationExpansion.Preserve(definitions, batch.Program);
                     model.PreservedSourceData.Add(preserved); report.Preserved.Add(preserved);
                     report.Diagnostics.Add(new ModelDiagnostic { Code = "CombinationsImported", Severity = DiagnosticSeverity.Information, Record = "combinations",
                         Message = linear.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + definitions.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                            + " source combinations are linear in the static cases and are Model combinations; envelopes and nested envelopes are kept as definitions (CombinationExpansion)." });
+                            + " source combinations are linear in the static cases and are Model combinations with their factors; " + envelopes.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + " envelopes are Model combinations without factors, for their rebuilt concomitant states; all definitions are preserved (CombinationExpansion)." });
                 }
                 foreach (var g in batch.Gravity)
                 {

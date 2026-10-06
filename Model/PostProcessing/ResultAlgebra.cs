@@ -242,7 +242,7 @@ namespace GPC.Model.PostProcessing
             if (s is PointResultPlateForces p) { var f = p.Forces; return new[] { f.Fxx, f.Fyy, f.Fxy, f.Fxz, f.Fyz, f.Mxx, f.Myy, f.Mxy }; }
             throw new NotSupportedException("UnsupportedResultAlgebra");
         }
-        private static string[] Names(ResultLocation s) => s is PointResultPlateForces ? new[] { "Nxx", "Nyy", "Nxy", "Qx", "Qy", "Mxx", "Myy", "Mxy" }
+        internal static string[] Names(ResultLocation s) => s is PointResultPlateForces ? new[] { "Nxx", "Nyy", "Nxy", "Qx", "Qy", "Mxx", "Myy", "Mxy" }
             : s is StationResultBeamForces ? new[] { "N", "V1", "V2", "T", "M1", "M2" }
             : s is NodeResultDisplacement ? new[] { "Dx", "Dy", "Dz", "Rx", "Ry", "Rz" } : new[] { "Fx", "Fy", "Fz", "Mx", "My", "Mz" };
         private static ResultLocation Sum(IReadOnlyList<ResultLocation> terms, IReadOnlyList<double> factors, ILoadCase outputCase)
@@ -258,6 +258,12 @@ namespace GPC.Model.PostProcessing
             state.DerivedFrom = terms.ToArray(); state.DerivedSourceFingerprint = ModelArchive.Fingerprint(terms.Cast<object>());
             state.SourceHash = ModelArchive.Fingerprint(terms.Cast<object>()); state.IsSynthetic = terms.Any(t => t.State.IsSynthetic);
             state.Transformation = string.Join("; ", terms.Select((t, i) => factors[i].ToString("R", CultureInfo.InvariantCulture) + " * " + t.Case.Name + " [" + t.State.ConcomitantStateId + "]"));
+            var result = Create(first, sum, axes, outputCase);
+            result.State = state; return result;
+        }
+        /// <summary>A sample at the location of <paramref name="first"/> with the given values in <paramref name="axes"/>; the state is left to the caller.</summary>
+        internal static ResultLocation Create(ResultLocation first, double[] sum, CoordinateSystem axes, ILoadCase outputCase)
+        {
             ResultLocation result;
             if (first is StationResultBeamForces b)
                 result = new StationResultBeamForces(outputCase, new ResultBeamForces(sum[0], sum[1], sum[2], sum[3], sum[4], sum[5], axes), b.ParametricDistance)
@@ -273,7 +279,7 @@ namespace GPC.Model.PostProcessing
                 { PointKind = p.PointKind, CoordinateKind = p.CoordinateKind, SourceNodeId = p.SourceNodeId, AveragingRegion = p.AveragingRegion,
                     GlobalLocation = p.GlobalLocation == null ? null : new Point3d(p.GlobalLocation.X, p.GlobalLocation.Y, p.GlobalLocation.Z) };
             }
-            result.State = state; return result;
+            return result;
         }
     }
 }

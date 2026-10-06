@@ -59,7 +59,7 @@ namespace GPC.Converter
             var definitions = CombinationExpansion.Definitions(model); var combinations = new List<string>();
             foreach (var name in Combinations.Distinct(StringComparer.Ordinal))
             {
-                var definition = definitions.FirstOrDefault(d => d.Id == name) ?? Single(definitions.Where(d => d.Name == name).ToArray(), name);
+                var definition = CombinationResults.Definition(model, definitions, name);
                 if (definition != null) foreach (var c in CombinationExpansion.StaticCases(definitions, definition.Id)) Add(c, " (combination " + name + ")");
                 else if (model.Combinations.TryGetValue(name, out var combination)) foreach (var c in combination.GetLoadCases()) Add(c.Name, " (combination " + name + ")");
                 else throw new ArgumentException("UnknownCombination: " + name);
@@ -70,12 +70,6 @@ namespace GPC.Converter
             var ordered = nodes.Values.OrderBy(n => n.Id).ToArray();
             return new ResultReadPlan { Beams = beams.OrderBy(b => b.Id).ToArray(), Shells = shells.OrderBy(s => s.Id).ToArray(), Nodes = ordered,
                 Supports = ordered.Where(n => n.Assignments.Restrains.Count != 0).ToArray(), StaticCases = cases, Combinations = combinations };
-        }
-
-        private static CombinationRecord Single(CombinationRecord[] matches, string name)
-        {
-            if (matches.Length > 1) throw new ArgumentException("AmbiguousCombinationName: " + name + "; select it by id.");
-            return matches.Length == 1 ? matches[0] : null;
         }
 
         /// <summary>Every beam, plate and node with every static case of the model, or of the given cases.</summary>

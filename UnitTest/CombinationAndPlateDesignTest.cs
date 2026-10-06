@@ -66,7 +66,8 @@ public class CombinationAndPlateDesignTest
         Assert.AreEqual(ImportStatus.Partial, report.Status, string.Join("; ", report.Diagnostics.Select(d => d.Message)));
         var m = report.Model; var slu = m.Combinations["SLU_1"];
         Assert.AreEqual(1.35, slu.GetLoadCaseCoefficient(m.LoadCases["G1"]), 1e-12); Assert.AreEqual(1.5, slu.GetLoadCaseCoefficient(m.LoadCases["Q"]), 1e-12);
-        Assert.AreEqual(1, m.Combinations.Count, "Envelopes and non-static terms are not Model combinations.");
+        Assert.AreEqual(2, m.Combinations.Count, "Non-static terms are not Model combinations.");
+        Assert.AreEqual(0, m.Combinations["ENV"].LoadCaseCount, "An envelope is declared without factors, for its rebuilt states.");
         var definitions = CombinationExpansion.Definitions(m);
         Assert.AreEqual(3, definitions.Count); Assert.AreEqual("INACTIVE", definitions.Single(d => d.Name == "ENV").Status);
         Assert.AreEqual(2, CombinationExpansion.Expand(definitions, "LCOM-CONC/ENV").Count);

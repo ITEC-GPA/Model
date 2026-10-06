@@ -237,7 +237,20 @@ L'import da API (Civil NX, Straus7) salva con `SourceBinding` due impronte: `Ana
 - gruppi (con sottogruppi), elementi espliciti e famiglie, tramite `ElementSelection`: Beam per le forze beam, Shell per le forze plate, Node per spostamenti e reazioni dei nodi vincolati;
 - nomi di proprietà (sezioni, spessori); i nodi dei beam e plate selezionati sono inclusi;
 - casi statici;
-- combinazioni (definizioni sorgente per nome o id, oppure `Combination` del modello). Se ne leggono soltanto i casi statici, ricavati dai termini senza espandere gli inviluppi; la ricostruzione resta a `CombinationExpansion` e `ResultAlgebra`. ABS e SRSS sono rifiutate.
+- combinazioni (definizioni sorgente per id, per nome o per nome nel modello, oppure `Combination` del modello). Se ne leggono soltanto i casi statici, ricavati dai termini senza espandere gli inviluppi. ABS e SRSS sono rifiutate.
+
+#### Ricostruzione delle combinazioni
+
+`CombinationResults.Rebuild(model, plan, datasetId)` ricostruisce le combinazioni del piano dai risultati statici del dataset, ai beam, plate e nodi del piano. Il calcolo è in `CombinationRebuild.Rebuild` (Model).
+- **Calcolo**: in ogni punto di risultato i campioni statici sono ruotati in un unico riferimento; ogni alternativa è la somma dei vettori statici moltiplicati per i coefficienti, come in `ResultAlgebra.LinearCombination`.
+- **Combinazione lineare**: uno stato per punto, con `ConcomitantStateId` `linear:<nome>`.
+- **Inviluppo**: per ogni componente si prendono le alternative di minimo e di massimo. Ogni alternativa governante si registra una volta sola, come stato concomitante completo (`ConcomitantEnvelopeState`, `envelope:<nome>:<scelte>`); `Coverage` elenca le componenti che governa. Non si compone mai un vettore di estremi indipendenti.
+- **Tracciabilità**: gli stati derivano dai campioni statici (`DerivedFrom`), restano correnti dopo la riapertura e passano alla preparazione delle verifiche.
+- **Elementi saltati**: un elemento con risultati statici incompleti, ad esempio le travi con offset di estremità in Civil NX, viene saltato con un avviso. Una seconda ricostruzione della stessa combinazione segnala i duplicati e non registra nulla.
+
+I risultati appartengono a una `Combination` del modello dichiarata prima dell'import dei risultati statici, perché le combinazioni fanno parte di `AnalysisFingerprint`. All'import `ModelMapper` dichiara le combinazioni lineari con i coefficienti e gli inviluppi senza coefficienti. Questi ultimi danno il nome agli stati ricostruiti, mentre la definizione resta tra i dati sorgente. Per i modelli importati prima di questa versione, `CombinationResults.Declare(model, nomi)` va chiamato prima di leggere i risultati statici; se ci sono già dataset, avvisa che vanno riletti.
+
+Misura indicativa su 10.000 plate e 10 casi: 1,2 s per una combinazione lineare; 6,2 s per un inviluppo di 25 alternative, con 117.000 stati governanti registrati.
 
 Senza casi né combinazioni il piano comprende tutti i casi statici. Straus7 chiama un caso di risultato "‹numero del caso di carico›: ‹nome›" e numera i casi di risultato solo su quelli risolti (verificato su R31). Per questo `Straus7LinearStaticResults.CaseMap` associa i casi tramite quel numero e non tramite il numero del caso di risultato.
 

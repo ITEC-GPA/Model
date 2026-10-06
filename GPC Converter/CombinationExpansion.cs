@@ -63,6 +63,22 @@ namespace GPC.Converter
             return cases;
         }
 
+        /// <summary>The name of the Model combination of a definition: the source name, with the source table when several definitions share it,
+        /// and " [combination]" when a static case has the same name.</summary>
+        public static string ModelName(IReadOnlyCollection<CombinationRecord> definitions, CombinationRecord definition, Func<string, bool> isStaticCase)
+        {
+            if (definitions == null || definition == null || isStaticCase == null) throw new ArgumentNullException();
+            var name = definitions.Count(d => d.Name == definition.Name) > 1 ? definition.Name + " [" + definition.Source + "]" : definition.Name;
+            return isStaticCase(name) ? name + " [combination]" : name;
+        }
+
+        /// <summary>True when the combination is a linear superposition of static cases, possibly through envelopes, so that it can be rebuilt.</summary>
+        public static bool IsExpandable(IReadOnlyCollection<CombinationRecord> definitions, string id)
+        {
+            try { StaticCases(definitions, id); return true; }
+            catch (Exception ex) when (ex is NotSupportedException || ex is InvalidOperationException) { return false; }
+        }
+
         /// <summary>The GPC combination of a definition with exactly one alternative; null otherwise.</summary>
         public static Combination ToCombination(IReadOnlyCollection<CombinationRecord> definitions, CombinationRecord definition, IReadOnlyDictionary<string, LoadCaseBase> cases, string name)
         {
