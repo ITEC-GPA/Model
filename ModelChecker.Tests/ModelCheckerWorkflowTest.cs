@@ -49,7 +49,7 @@ public class ModelCheckerWorkflowTest
         var prepared = Verification.PrepareBeam(model, 250, Verification.BeamSample(model.BeamElements[250], "synthetic-static", "P+", .5, SectionSide.Unspecified), "integration fixture");
         var independent = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, fresh);
         Assert.AreEqual(independent.Utilization!.Value, midpoint.Utilization!.Value, 1e-10);
-        Assert.AreEqual("0.0.14.0", midpoint.EngineVersion);
+        Assert.AreEqual("0.0.15.0", midpoint.EngineVersion);
     }
 
     [TestMethod]
