@@ -6,8 +6,10 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Loads
 {
     /// <summary>
-    /// The gravity acting on the whole model: direction and acceleration. Its load case must be a self weight <see cref="LoadCases.LoadCase"/>
+    /// The gravity acting on the whole model: direction and acceleration. Its load case must be a self weight <see cref="LoadCases.LoadCase"/>.
+    /// It belongs to <see cref="Models.Model.ModelLoads"/>
     /// </summary>
+    [Serializable]
     public class ModelGravityLoad : Load, ISerializable
     {
         /// <summary>
@@ -86,7 +88,7 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
-        /// Deserialization constructor: reads the data of <see cref="Load"/>, "Vector" and "Acceleration" (the class does not serialize them)
+        /// Deserialization constructor: reads the data of <see cref="Load"/>, "Vector" and "Acceleration"
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -95,6 +97,18 @@ namespace GPC.Model.Loads
         {
             _versor = (Vector3d)info.GetValue("Vector", typeof(Vector3d));
             _acceleration = (double)info.GetValue("Acceleration", typeof(double));
+        }
+
+        /// <summary>
+        /// Serializes the data of <see cref="Load"/>, the direction ("Vector") and the acceleration
+        /// </summary>
+        /// <param name="info">The serialization data</param>
+        /// <param name="context">The serialization context</param>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("Vector", _versor, typeof(Vector3d));
+            info.AddValue("Acceleration", _acceleration);
         }
 
         #endregion

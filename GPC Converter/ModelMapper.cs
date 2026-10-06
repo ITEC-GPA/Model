@@ -105,10 +105,22 @@ namespace GPC.Converter
                     model.ReparentGroup(g.Name, g.ParentName);
                 }
                 var cases = new Dictionary<string, LoadCaseBase>(StringComparer.Ordinal);
+                var selfWeight = new HashSet<string>(batch.Gravity.Select(g => g.Case), StringComparer.Ordinal);
                 foreach (var c in batch.LoadCases)
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = c.Record;
-                    var loadCase = new LoadCaseBase(c.Name); cases.Add(c.Name, loadCase); model.LoadCases.Add(loadCase);
+                    // ModelGravityLoad requires a self weight LoadCase; the other cases keep the untyped base.
+                    var loadCase = selfWeight.Contains(c.Name) ? new LoadCase(c.Name, LoadCase.LoadCaseTypes.SelfWeight) : new LoadCaseBase(c.Name);
+                    cases.Add(c.Name, loadCase); model.LoadCases.Add(loadCase);
+                }
+                foreach (var g in batch.Gravity)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = g.Record;
+                    var f = g.Factors ?? throw new ArgumentException("MissingGravityFactors");
+                    double factor = Math.Sqrt(Finite(f.X, "gravity") * f.X + Finite(f.Y, "gravity") * f.Y + Finite(f.Z, "gravity") * f.Z);
+                    if (!(factor > 0)) throw new ArgumentException("NullGravity");
+                    model.ModelLoads.Add(new ModelGravityLoad(new Vector3d(f.X / factor, f.Y / factor, f.Z / factor), factor * ModelGravityLoad.GRAVITYACCELERATION,
+                        cases[g.Case], CoordinateSystem.Global, g.Record));
                 }
                 foreach (var l in batch.NodeLoads)
                 {
@@ -152,7 +164,19 @@ namespace GPC.Converter
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = l.Record;
                     var shell = shells[l.ShellId]; var loadCase = cases[l.Case];
-                    if (l.Edge.HasValue)
+                    if (l.NodalPressures != null)
+                    {
+                        if (l.Edge.HasValue || l.Components != null || l.NodalPressures.Length != shell.Nodes.Count) throw new ArgumentException("One pressure per shell node required.");
+                        CoordinateSystem direction;
+                        if (l.Normal)
+                        {
+                            if (!declaredShellAxes.Contains(l.ShellId)) throw new ArgumentException("ShellAxesRequiredForNormalPressure");
+                            direction = Frames.At(shell.CoordinateSystem, shell.CoordinateSystem.Origin);
+                        }
+                        else direction = Along(l.Direction ?? throw new ArgumentException("MissingPressureDirection"));
+                        shell.Loads.Add(new NonUniformPlatePressure(shell.Nodes.Select(n => n.Position).ToArray(), l.NodalPressures, loadCase, direction, l.Record));
+                    }
+                    else if (l.Edge.HasValue)
                     {
                         Axes.Validate(l.CoordinateSystem);
                         var v = l.Components; int count = shell.Nodes.Count;
@@ -210,6 +234,17 @@ namespace GPC.Converter
             if (values == null || values.Length != 6 || values.Any(x => double.IsNaN(x) || double.IsInfinity(x)))
                 throw new ArgumentException("Six finite load components required.");
             return values;
+        }
+
+        /// <summary>A global frame whose V3 is the given direction.</summary>
+        private static CoordinateSystem Along(Vector3d direction)
+        {
+            double length = Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y + direction.Z * direction.Z);
+            if (!(length > 0) || double.IsInfinity(length)) throw new ArgumentException("InvalidPressureDirection");
+            var z = new Vector3d(direction.X / length, direction.Y / length, direction.Z / length);
+            var seed = Math.Abs(z.X) < 0.9 ? new Vector3d(1, 0, 0) : new Vector3d(0, 1, 0);
+            var x = seed - z * Axes.Dot(seed, z); x = x / Axes.Length(x);
+            var axes = new CoordinateSystem(new Point3d(0, 0, 0), x, z.CrossProduct(x), z); Axes.Validate(axes); return axes;
         }
 
         private static double Finite(double value, string what)

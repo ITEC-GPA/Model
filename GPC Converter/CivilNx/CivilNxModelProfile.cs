@@ -21,9 +21,11 @@ namespace GPC.Converter.CivilNx
         public const string Program = "MIDAS Civil NX";
         public static IReadOnlyList<string> RequiredTables { get; } = new[] { "UNIT", "NODE", "ELEM" };
         public static IReadOnlyList<string> OptionalTables { get; } = new[]
-            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "STLD", "CNLD", "BMLD", "PRES", "BODF", "LCOM-GEN" };
+            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF", "LCOM-GEN" };
         /// <summary>Optional post/TABLE response with computed section properties, used for sections without a usable outline.</summary>
         public const string SectionTable = "SECTIONALL";
+        /// <summary>Optional post/TABLE response with the material data used by the analysis (weight density also for code-database grades).</summary>
+        public const string MaterialTable = "MATERIAL";
 
         public string Id => "civil-nx/model/v1";
         public IReadOnlyDictionary<string, CapabilityStatus> Capabilities { get; } = new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>
@@ -67,10 +69,11 @@ namespace GPC.Converter.CivilNx
             {
                 Units(); Skews(); Nodes();
                 var thicknesses = Thicknesses(); var sections = Sections(); Materials();
-                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); NodalLoads(); BeamLoads(); Pressures();
-                foreach (var table in new[] { "FRLS", "BODF", "LCOM-GEN" })
+                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight();
+                foreach (var table in new[] { "FRLS", "NBOF", "LCOM-GEN" })
                     if (Has(table)) Warn("CivilNx" + table + "Preserved", "db/" + table, table == "FRLS" ? "Beam end releases are preserved, not mapped."
-                        : table == "BODF" ? "Self weight definitions are preserved, not converted to loads." : "Load combinations are preserved, not mapped.");
+                        : table == "NBOF" ? "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads."
+                        : "Load combinations are preserved, not mapped.");
                 foreach (var missing in snapshot.Unavailable) Warn("CivilNxTableUnavailable", missing, "The API did not return this database; its data is not in the model.");
                 foreach (var w in warnings) batch.Diagnostics.Add(new ModelDiagnostic { Code = w.Key.Split('\u001f')[0], Severity = DiagnosticSeverity.Warning,
                     Record = w.Key.Split('\u001f')[1], Message = w.Key.Split('\u001f')[2] + (w.Value > 1 ? " (" + w.Value.ToString(CultureInfo.InvariantCulture) + " records)" : "") });
@@ -139,8 +142,27 @@ namespace GPC.Converter.CivilNx
                 if (points.Count == 0) throw new InvalidDataException("CivilNxModelWithoutNodes");
             }
 
+            /// <summary>Rows of the MATERIAL table by material ID: weight density (force/length³), Poisson's ratio and modulus in the table units.</summary>
+            private Dictionary<string, Func<string, double?>> AnalysisMaterials(out double tableForce, out double tableLength)
+            {
+                var result = new Dictionary<string, Func<string, double?>>(StringComparer.Ordinal); tableForce = force; tableLength = length;
+                if (!snapshot.Responses.TryGetValue(MaterialTable, out var response)) return result;
+                var tables = CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(response.Json);
+                var table = tables?.Values.FirstOrDefault(t => t?.Headers != null);
+                if (table == null) return result;
+                tableForce = MidasConventions.ForceFactor(table.ForceUnit) ?? throw new NotSupportedException("UnknownCivilNxForceUnit: " + table.ForceUnit);
+                tableLength = MidasConventions.LengthFactor(table.LengthUnit) ?? throw new NotSupportedException("UnknownCivilNxLengthUnit: " + table.LengthUnit);
+                for (int r = 0; r < table.Rows.Length; r++)
+                {
+                    int row = r;
+                    result[table.Get(r, "ID")] = column => double.TryParse(table.Get(row, column), NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : (double?)null;
+                }
+                return result;
+            }
+
             private void Materials()
             {
+                var analysis = AnalysisMaterials(out var tableForce, out var tableLength);
                 foreach (var pair in Rows<MaterialData>("MATL"))
                 {
                     var m = pair.Value ?? throw new InvalidDataException("InvalidCivilNxMaterial: " + pair.Key);
@@ -156,6 +178,13 @@ namespace GPC.Converter.CivilNx
                         {
                             record.Poisson = p.Poisson; record.ThermalExpansion = p.Thermal * thermal;
                             if (p.WeightDensity.HasValue) record.Density = p.WeightDensity.Value * force / (length * length * length) / 9806.65;
+                        }
+                        if (analysis.TryGetValue(pair.Key, out var value))
+                        {
+                            // The weight density actually used by the analysis, as a mass density for the standard gravity.
+                            var weight = value("Density"); var poisson = value("Poisson");
+                            if (weight.HasValue) record.Density = weight.Value * tableForce / (tableLength * tableLength * tableLength) / 9806.65;
+                            if (poisson.HasValue) record.Poisson = poisson;
                         }
                     }
                     if (record.Kind == MaterialKind.Other) Warn("CivilNxMaterialPreserved", record.Record, "Material type " + m.Type + " (" + m.Name + ") is not mapped.");
@@ -447,7 +476,14 @@ namespace GPC.Converter.CivilNx
                         { Warn("CivilNxPressurePreserved", "PRES", "Projected or non-plate pressures are preserved, not mapped."); continue; }
                         var values = edge ? l.EdgeLoads : l.Forces;
                         double? uniform = Uniform(values, edge ? 3 : 5);
-                        if (!uniform.HasValue) { Warn("CivilNxVaryingPressurePreserved", "PRES", "Pressures varying over the element (e.g. hydrostatic) are preserved, not mapped."); continue; }
+                        double[] nodal = null;
+                        if (!uniform.HasValue)
+                        {
+                            // FORCES [0,P1..P4]: one value per plate node, in connectivity order (P4 unused on triangles).
+                            if (edge || values == null || values.Length != 5 || values[0] != 0 || (shell.Nodes.Length == 3 && values[4] != 0))
+                            { Warn("CivilNxVaryingPressurePreserved", "PRES", "Varying edge loads or unknown pressure layouts are preserved, not mapped."); continue; }
+                            nodal = values.Skip(1).Take(shell.Nodes.Length).Select(p => p * force / (length * length)).ToArray();
+                        }
                         Vector3d vector; CoordinateSystem system = CoordinateSystem.Global;
                         if (direction == "VECTOR")
                         {
@@ -461,7 +497,13 @@ namespace GPC.Converter.CivilNx
                             if (direction[0] == 'L') system = shell.CoordinateSystem;
                         }
                         else { Warn("CivilNxPressurePreserved", "PRES", "Pressure direction " + direction + " is not mapped."); continue; }
-                        if (edge)
+                        if (nodal != null)
+                        {
+                            var global = system == CoordinateSystem.Global ? vector : system.V1 * vector.X + system.V2 * vector.Y + system.V3 * vector.Z;
+                            batch.ShellLoads.Add(new ShellLoadRecord { ShellId = pair.Key, Case = l.Case, NodalPressures = nodal, Record = record,
+                                Normal = direction == "LZ", Direction = direction == "LZ" ? null : new Vector3d(global.X, global.Y, global.Z) });
+                        }
+                        else if (edge)
                         {
                             int index = (l.EdgeFace ?? 0) - 1;
                             if (index < 0 || index >= shell.Nodes.Length) throw new InvalidDataException("CivilNxPressureEdge: " + record);
@@ -477,6 +519,18 @@ namespace GPC.Converter.CivilNx
                                 Components = new[] { vector.X * q, vector.Y * q, vector.Z * q } });
                         }
                     }
+                }
+            }
+
+            /// <summary>BODF: FV multiplies the gravity along GCS X, Y, Z for the whole model; a self weight restricted to a group is preserved only.</summary>
+            private void SelfWeight()
+            {
+                foreach (var pair in Rows<SelfWeightData>("BODF"))
+                {
+                    var s = pair.Value; var record = "BODF/" + pair.Key;
+                    if (s?.Factors == null || s.Factors.Length != 3 || string.IsNullOrWhiteSpace(s.Case)) throw new InvalidDataException("InvalidCivilNxSelfWeight: " + record);
+                    if (!string.IsNullOrEmpty(s.Group)) { Warn("CivilNxGroupSelfWeightPreserved", record, "Self weight restricted to a load group is preserved, not mapped."); continue; }
+                    batch.Gravity.Add(new GravityRecord { Case = s.Case, Factors = new Vector3d(s.Factors[0], s.Factors[1], s.Factors[2]), Record = record });
                 }
             }
 
@@ -567,6 +621,11 @@ namespace GPC.Converter.CivilNx
         [DataContract] private sealed class CaseData
         { [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; } }
         [DataContract] private sealed class ItemList<T> { [DataMember(Name = "ITEMS")] public T[] Items { get; set; } }
+        [DataContract] private sealed class SelfWeightData
+        {
+            [DataMember(Name = "LCNAME")] public string Case { get; set; } [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
+            [DataMember(Name = "FV")] public double[] Factors { get; set; }
+        }
         [DataContract] private sealed class SupportItem { [DataMember(Name = "CONSTRAINT")] public string Constraint { get; set; } }
         [DataContract] private sealed class OffsetItem
         {

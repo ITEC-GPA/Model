@@ -172,6 +172,11 @@ namespace GPC.Model.Models
         /// </summary>
         public UniqueIdCollection<Stage> Stages => _stages;
 
+        /// <summary>
+        /// Loads acting on the whole model rather than on an element, e.g. <see cref="Loads.ModelGravityLoad"/>
+        /// </summary>
+        public UniqueIdCollection<Load> ModelLoads { get; private set; } = new UniqueIdCollection<Load>();
+
         #endregion
 
         #region Constructors
@@ -236,6 +241,7 @@ namespace GPC.Model.Models
             _stageCombinationsMap = (Dictionary<int, HashSet<string>>)info.GetValue("StageCombinationsMap", typeof(Dictionary<int, HashSet<string>>));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));
             _stages = (UniqueIdCollection<Stage>)info.GetValue("Stages", typeof(UniqueIdCollection<Stage>));
+            ModelLoads = SerializationFields.Read(info, "ModelLoads", new UniqueIdCollection<Load>());
         }
 
         #endregion
@@ -1742,6 +1748,8 @@ namespace GPC.Model.Models
             info.AddValue("StageCombinationsMap", _stageCombinationsMap, typeof(Dictionary<int, HashSet<string>>));
             info.AddValue("Stages", _stages, typeof(UniqueIdCollection<Stage>));
             info.AddValue("Groups", _groups, typeof(UniqueNameCollection<Group>));
+            // Written only when present, so that archives of models without them are unchanged.
+            if (ModelLoads.Count != 0) info.AddValue("ModelLoads", ModelLoads, typeof(UniqueIdCollection<Load>));
         }
 
         /// <summary>

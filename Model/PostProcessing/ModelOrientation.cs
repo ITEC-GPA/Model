@@ -87,7 +87,8 @@ namespace GPC.Model.PostProcessing
         {
             var model = Copy(source); var shell = model.AreaElements[shellId]; var nodes = shell.Nodes.ToArray();
             if (nodes.Length != 3 && nodes.Length != 4 || shell.Attributes.Count != 0) throw new NotSupportedException("UnsupportedShellReversal");
-            if (shell.Loads.Values.Any(l => !(l is PointLoad) && !(l is AreaLoad) && !(l is NormalAreaLoad))) throw new NotSupportedException("UnsupportedShellLoadReversal");
+            if (shell.Loads.Values.Any(l => !(l is PointLoad) && !(l is AreaLoad) && !(l is NormalAreaLoad) && !(l is LineLoad) && !(l is NonUniformPlatePressure)))
+                throw new NotSupportedException("UnsupportedShellLoadReversal");
             var target = Flip(shell.CoordinateSystem, shell.CoordinateSystem.Origin);
             foreach (var set in shell.Results)
                 for (int i = 0; i < set.Results.Count; i++)
@@ -107,7 +108,8 @@ namespace GPC.Model.PostProcessing
             }
             else if (a.Layers.Count != 0) throw new ArgumentException("MissingLayerAxes");
             a.Offset = -a.Offset;
-            // Area/normal loads carry their own global shape and frame; retaining these preserves their physical direction.
+            // Area/normal/line loads and non-uniform pressures carry their own global geometry and frame (the vertex values stay on their points);
+            // retaining these preserves their physical direction.
             Validate(model); return model;
         }
         private static void Validate(Models.Model model)

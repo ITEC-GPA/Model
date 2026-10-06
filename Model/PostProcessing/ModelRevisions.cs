@@ -72,6 +72,8 @@ namespace GPC.Model.PostProcessing
             }
             yield return model.LoadCases; yield return model.Combinations; yield return model.FreedomCases;
             yield return model.Stages; yield return model.StageCombinationsMap; yield return model.Costrains;
+            // Added later: it enters only when present, so the fingerprints of models without model loads are unchanged.
+            if (model.ModelLoads.Count != 0) yield return model.ModelLoads;
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {

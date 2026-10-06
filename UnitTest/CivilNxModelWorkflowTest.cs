@@ -44,6 +44,8 @@ public class CivilNxModelWorkflowTest
             + "{\"ID\":2,\"LCNAME\":\"Q\",\"GROUP_NAME\":\"\",\"CMD\":\"HYDRO\",\"ELEM_TYPE\":\"PLATE\",\"FACE_EDGE_TYPE\":\"FACE\",\"DIRECTION\":\"LZ\",\"FORCES\":[0,1,1,2,2]},"
             + "{\"ID\":3,\"LCNAME\":\"Q\",\"GROUP_NAME\":\"\",\"CMD\":\"PRES\",\"ELEM_TYPE\":\"PLATE\",\"FACE_EDGE_TYPE\":\"EDGE\",\"DIRECTION\":\"GZ\",\"OPT_PROJECTION\":false,\"EDGE_LOADS\":[-3,0,0],\"EDGE_FACE\":2}]}}}",
         ["BODF"] = "{\"BODF\":{\"1\":{\"LCNAME\":\"G1\",\"GROUP_NAME\":\"\",\"FV\":[0,0,-1]}}}",
+        ["NBOF"] = "{\"NBOF\":{\"1\":{\"LCNAME\":\"Q\",\"OPT_USE_GROUP\":false,\"KEY_NODE_ITEMS\":[2,3],\"X\":0.3,\"Y\":0,\"Z\":0}}}",
+        ["MATERIAL"] = "{\"T\":{\"FORCE\":\"N\",\"DIST\":\"mm\",\"HEAD\":[\"Index\",\"ID\",\"Name\",\"Type\",\"Density\",\"Poisson\"],\"DATA\":[[\"1\",\"1\",\"C30/37\",\"Concrete\",\"2.5000e-05\",\"0.2\"],[\"2\",\"2\",\"S355\",\"Steel\",\"7.6982e-05\",\"0.3\"]]}}",
     };
     private static CivilNxSnapshot Snapshot(Dictionary<string, string> json) => new(json.ToDictionary(p => p.Key, p => new CivilNxResponse("db/" + p.Key, p.Value)));
     private static AnalysisSource Identity() => new() { Program = "MIDAS Civil NX", SolverVersion = "fixture", ModelRevision = "rev", AnalysisId = "analysis" };
@@ -77,7 +79,11 @@ public class CivilNxModelWorkflowTest
         Assert.AreEqual(4, m.GetGroupElements("Impalcato").Count);
         var support = Find<NodeElement>(m, EntityFamily.Node, "1").Assignments.Restrains.Single().Restrain;
         Assert.AreEqual(5, support.Restrains.Count);
-        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "CivilNxBODFPreserved"));
+        var gravity = m.ModelLoads.Values.OfType<ModelGravityLoad>().Single();
+        Assert.AreEqual(-1, gravity.GravityVersor.Z); Assert.AreEqual(ModelGravityLoad.GRAVITYACCELERATION, gravity.Acceleration);
+        Assert.AreEqual(GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SelfWeight, ((GPC.Model.LoadCases.LoadCase)m.LoadCases["G1"]).LoadCaseType);
+        Assert.AreEqual(2.5e-5 / 9806.65, rc.ConcreteMaterial.Density, 1e-18, "Weight density of the analysis (MATERIAL table), as mass density.");
+        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "CivilNxNBOFPreserved"));
         Assert.IsNotNull(m.PreservedSourceData.Single(p => p.Kind == CivilNxGeometryReader.InputBindingKind));
     }
 
@@ -98,7 +104,9 @@ public class CivilNxModelWorkflowTest
         Assert.AreEqual(-0.002, plate.Loads.Values.OfType<NormalAreaLoad>().Single().Pressure, 1e-15);
         var edge = plate.Loads.Values.OfType<LineLoad>().Single();
         Assert.AreEqual(-3, edge.F3); Assert.AreEqual(4000, edge.Line.Start.X); Assert.AreEqual(2000, edge.Line.End.Y, 1e-9);
-        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "CivilNxVaryingPressurePreserved"));
+        var hydro = plate.Loads.Values.OfType<NonUniformPlatePressure>().Single();
+        CollectionAssert.AreEqual(new[] { 0.001, 0.001, 0.002, 0.002 }, hydro.Pressures.ToArray());
+        Assert.AreEqual(1.5e-3 * 8e6, hydro.GetGlobalLoadVector().Z, 1e-6, "Mean 1.5 kN/m² on 4 x 2 m along the plate normal +Z.");
     }
 
     [TestMethod]

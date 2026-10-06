@@ -94,7 +94,10 @@ namespace GPC.Converter.CivilNx
                 try { values.Add(CivilNxModelProfile.SectionTable, await ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.SectionProperties }, cancellationToken).ConfigureAwait(false)); }
                 catch (CivilNxHttpStatusException ex) when (ex.StatusCode >= 400 && ex.StatusCode < 500) { unavailable.Add(CivilNxModelProfile.SectionTable); }
             }
-            foreach (var table in values.Keys.Where(k => k != CivilNxModelProfile.SectionTable).ToArray())
+            // Elastic data and weight densities actually used by the analysis, including code-database materials.
+            try { values.Add(CivilNxModelProfile.MaterialTable, await ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.MaterialProperties }, cancellationToken).ConfigureAwait(false)); }
+            catch (CivilNxHttpStatusException ex) when (ex.StatusCode >= 400 && ex.StatusCode < 500) { unavailable.Add(CivilNxModelProfile.MaterialTable); }
+            foreach (var table in values.Keys.Where(k => k != CivilNxModelProfile.SectionTable && k != CivilNxModelProfile.MaterialTable).ToArray())
                 if ((await ReadDatabaseAsync(table, cancellationToken).ConfigureAwait(false)).Sha256 != values[table].Sha256)
                     throw new InvalidOperationException("CivilNxModelChangedDuringRead");
             return new CivilNxSnapshot(values, unavailable);

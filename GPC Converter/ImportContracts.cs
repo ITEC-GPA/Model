@@ -146,7 +146,8 @@ namespace GPC.Converter
     }
 
     /// <summary>Uniform load on the whole shell in N/mm²: Normal = pressure along the element V3, otherwise traction (Px,Py,Pz) in CoordinateSystem.
-    /// With Edge set, a uniform line load in N/mm on the edge from node Edge to the next node (0-based, connectivity order).</summary>
+    /// With Edge set, a uniform line load in N/mm on the edge from node Edge to the next node (0-based, connectivity order).
+    /// With NodalPressures set, a pressure varying over the shell (one value per node, connectivity order) along V3 (Normal) or Direction.</summary>
     public sealed class ShellLoadRecord
     {
         public string ShellId { get; set; }
@@ -156,6 +157,16 @@ namespace GPC.Converter
         public double[] Components { get; set; }
         public CoordinateSystem CoordinateSystem { get; set; }
         public int? Edge { get; set; }
+        public double[] NodalPressures { get; set; }
+        public Vector3d Direction { get; set; }
+        public string Record { get; set; }
+    }
+
+    /// <summary>Self weight of the whole model in a case: Factors multiply the standard gravity along global X, Y, Z (e.g. 0, 0, -1).</summary>
+    public sealed class GravityRecord
+    {
+        public string Case { get; set; }
+        public Vector3d Factors { get; set; }
         public string Record { get; set; }
     }
     public sealed class GroupRecord
@@ -205,6 +216,7 @@ namespace GPC.Converter
         public List<ThicknessRecord> Thicknesses { get; } = new List<ThicknessRecord>();
         public List<BeamLoadRecord> BeamLoads { get; } = new List<BeamLoadRecord>();
         public List<ShellLoadRecord> ShellLoads { get; } = new List<ShellLoadRecord>();
+        public List<GravityRecord> Gravity { get; } = new List<GravityRecord>();
         public List<ModelDiagnostic> Diagnostics { get; } = new List<ModelDiagnostic>();
         public List<PreservedAssignment> Uninterpreted { get; } = new List<PreservedAssignment>();
     }

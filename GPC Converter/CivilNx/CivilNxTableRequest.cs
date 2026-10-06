@@ -8,7 +8,7 @@ using System.Text;
 
 namespace GPC.Converter.CivilNx
 {
-    public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength, DisplacementGlobal, ReactionGlobal, SectionProperties }
+    public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength, DisplacementGlobal, ReactionGlobal, SectionProperties, MaterialProperties }
 
     public sealed class CivilNxTableRequest
     {
@@ -28,7 +28,8 @@ namespace GPC.Converter.CivilNx
                 ["UNIT"] = new Dictionary<string, object> { ["FORCE"] = "N", ["DIST"] = "mm" },
                 ["STYLES"] = new Dictionary<string, object> { ["FORMAT"] = "Scientific", ["PLACE"] = 12 }
             };
-            if (Table == CivilNxResultTable.SectionProperties) return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });
+            if (Table == CivilNxResultTable.SectionProperties || Table == CivilNxResultTable.MaterialProperties)
+                return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });
             if (ElementIds == null || ElementIds.Length == 0 || ElementIds.Any(id => id <= 0) || LoadCases == null || LoadCases.Length == 0 || LoadCases.Any(string.IsNullOrWhiteSpace))
                 throw new ArgumentException("Explicit table, elements and cases required.");
             argument["NODE_ELEMS"] = new Dictionary<string, object> { ["KEYS"] = ElementIds.Distinct().ToArray() };
@@ -54,6 +55,7 @@ namespace GPC.Converter.CivilNx
                 case CivilNxResultTable.PlateForcePerUnitLength: return "PLATEFORCEUL";
                 case CivilNxResultTable.DisplacementGlobal: return "DISPLACEMENTG";
                 case CivilNxResultTable.ReactionGlobal: return "REACTIONG";
+                case CivilNxResultTable.MaterialProperties: return "MATERIAL";
                 default: return "SECTIONALL";
             }
         }

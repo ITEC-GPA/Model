@@ -175,6 +175,14 @@ namespace GPC.Converter
             else
             {
                 if (!string.IsNullOrWhiteSpace(record.Name)) material.SetName(record.Name);
+                // The mass density of the analysis replaces the default of the strength class: it is not a strength, and the self weight must match.
+                if (record.Density.HasValue && record.Density.Value > 0)
+                {
+                    if (Math.Abs(record.Density.Value - material.Density) > 0.005 * material.Density)
+                        Report("MaterialDensityFromAnalysis", record.Record, "Material " + record.Name + ": density " + (record.Density.Value * 1e12).ToString("G6", CultureInfo.InvariantCulture)
+                            + " kg/m³ of the analysis replaces " + (material.Density * 1e12).ToString("G6", CultureInfo.InvariantCulture) + " kg/m³ of the strength class.", DiagnosticSeverity.Information);
+                    material.Density = Finite(record.Density.Value, "density");
+                }
                 double modelModulus = material is ConcreteMaterial ? material.ElasticModulusCompression : material.ElasticModulusTension;
                 if (record.ElasticModulus.HasValue && Math.Abs(record.ElasticModulus.Value - modelModulus) > 0.02 * Math.Abs(modelModulus))
                     Report("MaterialElasticModulusDiffers", record.Record, "Material " + record.Name + ": the analysis used E = "

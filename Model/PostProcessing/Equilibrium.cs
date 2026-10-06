@@ -159,6 +159,65 @@ namespace GPC.Model.PostProcessing
             var c = Explicit(physicalAction, "area", caseName, points[0], force, moment, sourceRecord);
             string hash = ModelArchive.Fingerprint(new object[] { shell.Points, globalTraction }); c.Current = () => hash == ModelArchive.Fingerprint(new object[] { shell.Points, globalTraction }); return c;
         }
+        /// <summary>Exact resultant of a pressure varying linearly/bilinearly over its own vertices, in global N and Nmm.</summary>
+        public static EquilibriumContribution PlatePressure(NonUniformPlatePressure load, string physicalAction, string representation = "applied")
+        {
+            if (load == null) throw new ArgumentNullException(nameof(load));
+            var origin = new Point3d(0, 0, 0); var (force, moment) = load.GetGlobalResultant(origin);
+            var c = Explicit(physicalAction, representation, load.LoadCase?.Name, origin, force, moment, "NonUniformPlatePressure:" + load.Guid);
+            string hash = ModelArchive.Fingerprint(new object[] { load }); c.Current = () => hash == ModelArchive.Fingerprint(new object[] { load });
+            c.ValueFingerprint = c.Fingerprint(); return c;
+        }
+
+        /// <summary>Weight of the beams and plates under a model gravity load, in global N and Nmm about the origin: beams A ρ g along the
+        /// node-to-node line (steel section area; gross concrete area, without rebars), plates t ρ g over the planar element area with the
+        /// physical thickness or else the membrane thickness, on the mid-surface moved by the shell offset along V3. Elements without a steel/concrete beam property or a FEM plate property are
+        /// added to <paramref name="withoutMass"/> when supplied, otherwise they reject the evaluation.</summary>
+        public static EquilibriumContribution Gravity(Models.Model model, ModelGravityLoad load, string physicalAction, ICollection<Element> withoutMass = null)
+        {
+            if (model == null || load == null) throw new ArgumentNullException();
+            var g = load.GravityVector ?? throw new ArgumentException("MissingGravityVector");
+            Global(CoordinateSystem.Global, g.X, g.Y, g.Z);
+            var force = new Vector3d(0, 0, 0); var moment = new Vector3d(0, 0, 0);
+            void Add(double mass, Point3d centroid)
+            {
+                var f = g * NumericGuard.Finite(mass, "mass"); force += f; moment += ((Vector3d)(centroid - Point3d.Origin)).CrossProduct(f);
+            }
+            void Missing(Element element)
+            {
+                if (withoutMass == null) throw new ArgumentException("MissingMassProperty: element " + element.Id);
+                withoutMass.Add(element);
+            }
+            foreach (var beam in model.BeamElements.Values)
+            {
+                double area, density;
+                if (beam.BeamProperty is Sections.Steel.SteelSection steel && steel.SteelMaterial != null) { area = steel.Area; density = steel.SteelMaterial.Density; }
+                else if (beam.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc && rc.ConcreteMaterial != null) { area = rc.SectionShape.Area; density = rc.ConcreteMaterial.Density; }
+                else { Missing(beam); continue; }
+                Add(area * beam.Length * density, beam.StartPoint + (beam.EndPoint - beam.StartPoint) * 0.5);
+            }
+            foreach (var shell in model.AreaElements.Values)
+            {
+                var points = shell.Points;
+                if (!(shell.PlateProperty is ElementProperties.IFemPlateProperty plate) || plate.Material == null || points.Length < 3 || points.Length > 4) { Missing(shell); continue; }
+                double thickness = shell.Assignments.PhysicalThickness ?? plate.MembraneThickness, area = 0; var first = new Vector3d(0, 0, 0);
+                for (int i = 1; i < points.Length - 1; i++)
+                {
+                    Vector3d v = points[i] - points[0], w = points[i + 1] - points[0]; double a = Axes.Length(v.CrossProduct(w)) / 2;
+                    area += a; first += ((Vector3d)(points[0] - Point3d.Origin) + (v + w) / 3) * a;
+                }
+                if (!(area > 0)) throw new ArgumentException("DegenerateShell: " + shell.Id);
+                var c = first / area;
+                // The mass lies on the mid-surface, offset from the node plane along V3.
+                if (shell.Assignments.Offset.HasValue) { Axes.Validate(shell.CoordinateSystem); c += shell.CoordinateSystem.V3 * NumericGuard.Finite(shell.Assignments.Offset.Value, "offset"); }
+                Add(area * thickness * plate.Material.Density, new Point3d(c.X, c.Y, c.Z));
+            }
+            if (model.VolumeElements.Count != 0) foreach (var volume in model.VolumeElements.Values) Missing(volume);
+            var contribution = Explicit(physicalAction, "gravity", load.LoadCase?.Name, new Point3d(0, 0, 0), force, moment, "ModelGravityLoad:" + load.Guid);
+            string input = model.AnalysisFingerprint(); contribution.Current = () => input == model.AnalysisFingerprint();
+            contribution.ValueFingerprint = contribution.Fingerprint(); return contribution;
+        }
+
         public static EquilibriumReport Check(EquilibriumScope scope, IEnumerable<EquilibriumContribution> contributions)
         {
             var report = new EquilibriumReport(); var issues = new List<ModelDiagnostic>(); report.Diagnostics = issues;
