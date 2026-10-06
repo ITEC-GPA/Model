@@ -37,6 +37,32 @@ namespace GPC.Converter
             return result.Select(a => new LinearAlternative { Label = a.Label, Factors = a.Factors.Where(p => p.Value != 0).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) }).ToArray();
         }
 
+        /// <summary>The static cases a combination needs, from its terms and those of its nested combinations, without expanding the envelopes.
+        /// Throws like <see cref="Expand"/> for combinations that are not linear superpositions of static cases.</summary>
+        public static IReadOnlyList<string> StaticCases(IReadOnlyCollection<CombinationRecord> definitions, string id)
+        {
+            if (definitions == null || string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException();
+            var byId = definitions.ToDictionary(d => d.Id, StringComparer.Ordinal);
+            var cases = new List<string>(); var seen = new HashSet<string>(StringComparer.Ordinal); var done = new HashSet<string>(StringComparer.Ordinal);
+            void Visit(string combination, HashSet<string> path)
+            {
+                if (done.Contains(combination)) return;
+                if (!byId.TryGetValue(combination, out var definition)) throw new InvalidOperationException("UnknownCombination: " + combination);
+                if (!path.Add(combination)) throw new InvalidOperationException("CyclicCombination: " + combination);
+                if (definition.Kind == CombinationKind.Absolute || definition.Kind == CombinationKind.Srss)
+                    throw new NotSupportedException("Combination " + definition.Name + " (" + definition.Kind + ") is not a linear superposition.");
+                foreach (var term in definition.Terms)
+                {
+                    if (term.IsCombination) Visit(term.Name, path);
+                    else if (term.IsStaticCase) { if (seen.Add(term.Name)) cases.Add(term.Name); }
+                    else throw new NotSupportedException("Combination " + definition.Name + " has a " + term.Analysis + " term (" + term.Name + "), not a static case.");
+                }
+                path.Remove(combination); done.Add(combination);
+            }
+            Visit(id, new HashSet<string>(StringComparer.Ordinal));
+            return cases;
+        }
+
         /// <summary>The GPC combination of a definition with exactly one alternative; null otherwise.</summary>
         public static Combination ToCombination(IReadOnlyCollection<CombinationRecord> definitions, CombinationRecord definition, IReadOnlyDictionary<string, LoadCaseBase> cases, string name)
         {

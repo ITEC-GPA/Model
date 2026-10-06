@@ -13,6 +13,45 @@ namespace GPC.Converter.Straus7
     /// explicit case mapping, initial axes and unstaged primary cases. Does not attest section-centroid offsets.</summary>
     public static class Straus7LinearStaticResults
     {
+        private static readonly System.Text.RegularExpressions.Regex ModelCase = new System.Text.RegularExpressions.Regex(@"^Case (\d+): (.*)$",
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant | System.Text.RegularExpressions.RegexOptions.Singleline);
+        private static readonly System.Text.RegularExpressions.Regex ResultCase = new System.Text.RegularExpressions.Regex(@"^(\d+): (.*)$",
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        /// <summary>Native result case number to Model load case (<see cref="Straus7ApiConverter.CaseName"/>). Straus7 names a linear static
+        /// result case "&lt;load case number&gt;: &lt;load case name&gt;" and numbers the result cases consecutively over the solved load cases
+        /// (verified on R31: with load case 2 left out of the solution, result case 2 is "3: C"), so the name gives the load case exactly.
+        /// A name without the number is matched to the load case names, told apart by the number when equal; result cases without a
+        /// single match are left out.</summary>
+        public static IReadOnlyDictionary<int, string> CaseMap(GPC.Model.Models.Model model, IEnumerable<Straus7ResultCase> cases)
+        {
+            if (model == null || cases == null) throw new ArgumentNullException();
+            var loadCases = model.LoadCases.Keys.Select(k => ModelCase.Match(k)).Where(m => m.Success)
+                .Select(m => (Name: m.Value, Number: int.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture), Label: m.Groups[2].Value)).ToArray();
+            var map = new Dictionary<int, string>();
+            foreach (var c in cases)
+            {
+                var numbered = ResultCase.Match(c.Name ?? "");
+                if (numbered.Success && int.TryParse(numbered.Groups[1].Value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var number))
+                {
+                    var exact = Straus7ApiConverter.CaseName(number, numbered.Groups[2].Value);
+                    if (model.LoadCases.ContainsKey(exact)) { map[c.Number] = exact; continue; }
+                }
+                var named = loadCases.Where(l => l.Label == (c.Name ?? "")).ToArray();
+                if (named.Length > 1) named = named.Where(l => l.Number == c.Number).ToArray();
+                if (named.Length == 1) map[c.Number] = named[0].Name;
+            }
+            return map;
+        }
+
+        /// <summary>As the explicit overload, with the result cases mapped to the Model load cases by <see cref="CaseMap"/>.</summary>
+        public static ResultImportReport Import(GPC.Model.Models.Model model, Straus7ResultsReport native, string datasetId, bool isSynthetic = false,
+            CancellationToken cancellationToken = default)
+        {
+            if (model == null || native == null) return Import(model, native, datasetId, null, isSynthetic, cancellationToken);
+            return Import(model, native, datasetId, CaseMap(model, native.Cases), isSynthetic, cancellationToken);
+        }
+
         public static ResultImportReport Import(GPC.Model.Models.Model model, Straus7ResultsReport native,
             string datasetId, IReadOnlyDictionary<int, string> caseMap, bool isSynthetic = false, CancellationToken cancellationToken = default)
         {
@@ -28,8 +67,7 @@ namespace GPC.Converter.Straus7
                 var source = model.AnalysisSource;
                 if (source == null || source.Program != "Straus7" || source.GeometryHash != native.ModelHash || source.SolverVersion != native.ApiVersion
                     || string.IsNullOrWhiteSpace(source.AnalysisId) || string.IsNullOrWhiteSpace(native.ResultHash)) throw new InvalidDataException("Model/result source mismatch or missing analysis identity.");
-                var bindings = model.PreservedSourceData.Where(p => p.Kind == "Straus7 input binding" && p.SourceRecord == native.ModelHash).ToArray();
-                if (bindings.Length != 1 || bindings[0].RawData != model.AnalysisFingerprint()) throw new InvalidDataException("Model inputs changed since API import; re-establish the source binding before importing results.");
+                var changed = SourceBinding.Check(model, Straus7ApiConverter.InputBindingKind, native.ModelHash, "Straus7");
                 if (native.Cases.Select(c => c.Number).Distinct().Count() != native.Cases.Count) throw new InvalidDataException("Duplicate result case metadata.");
                 var caseNumbers = new HashSet<int>(native.Cases.Select(c => c.Number));
                 foreach (var c in native.Cases)
@@ -143,6 +181,7 @@ namespace GPC.Converter.Straus7
                 };
                 var result = ResultMapper.Import(model, batch, cancellationToken);
                 if (result.Status == ImportStatus.Completed || result.Status == ImportStatus.Partial) model.PreservedSourceData.AddRange(evidence);
+                if (changed != null) result.Diagnostics.Add(changed);
                 return result;
             }
             catch (OperationCanceledException) { rejected.Status = ImportStatus.Cancelled; }

@@ -95,6 +95,37 @@ public class Straus7ApiWorkflowTest
         Assert.AreEqual(ImportStatus.Completed, list.Status); Assert.AreEqual(1, list.Cases.Count); Assert.AreEqual(0, list.Tables.Count);
     }
 
+    [TestMethod]
+    public void PlannedRead_ReadsOnlyTheFilteredEntities_AndMapsCasesByName()
+    {
+        var converter = new Straus7ApiConverter(() => new SyntheticApi()); var model = converter.Import(Request()).Model;
+        var filter = new ResultFilter { Elements = new ElementSelection { Families = new[] { EntityFamily.Beam } } };
+        var native = converter.ReadResults(model, filter.Resolve(model), modelPath, resultPath);
+        Assert.AreEqual(ImportStatus.Completed, native.Status, string.Join(";", native.Diagnostics.Select(d => d.Message)));
+        Assert.AreEqual("BeamForceGlobal", native.Tables.Single().Quantity);
+        var result = Straus7LinearStaticResults.Import(model, native, "planned", isSynthetic: true);
+        Assert.AreEqual(ImportStatus.Completed, result.Status, string.Join(";", result.Diagnostics.Select(d => d.Message))); Assert.AreEqual(3, result.ImportedSamples);
+        var nodes = converter.ReadResults(model, new ResultFilter { Elements = new ElementSelection { Families = new[] { EntityFamily.Node } } }.Resolve(model), modelPath, resultPath);
+        Assert.AreEqual(8, nodes.Tables.Count(t => t.Entity == Straus7Entity.Node)); Assert.AreEqual(8, nodes.Tables.Count);
+        var missing = converter.ReadResults(model, filter.Resolve(model), modelPath, Path.Combine(directory, "absent.lsa"));
+        Assert.AreEqual(ImportStatus.Rejected, missing.Status); Assert.AreEqual(0, missing.Tables.Count);
+    }
+
+    [TestMethod]
+    public void CaseMap_UsesTheLoadCaseNumberOfTheNativeName_ThenTheNameAlone()
+    {
+        var model = new GPC.Model.Models.Model();
+        foreach (var name in new[] { Straus7ApiConverter.CaseName(1, "G"), Straus7ApiConverter.CaseName(2, "G"), Straus7ApiConverter.CaseName(3, "Q") })
+            model.LoadCases.Add(new GPC.Model.LoadCases.LoadCaseBase(name));
+        // R31 names: "<load case>: <name>", result cases numbered over the solved load cases only.
+        var map = Straus7LinearStaticResults.CaseMap(model, new[] { new Straus7ResultCase { Number = 1, Name = "2: G" }, new Straus7ResultCase { Number = 2, Name = "3: Q" } });
+        Assert.AreEqual("Case 2: G", map[1]); Assert.AreEqual("Case 3: Q", map[2], "Load case 1 left out of the solution.");
+        map = Straus7LinearStaticResults.CaseMap(model, new[] { new Straus7ResultCase { Number = 1, Name = "Q" }, new Straus7ResultCase { Number = 2, Name = "G" },
+            new Straus7ResultCase { Number = 5, Name = "G" }, new Straus7ResultCase { Number = 6, Name = "W" }, new Straus7ResultCase { Number = 7, Name = "4: G" } });
+        Assert.AreEqual("Case 3: Q", map[1]); Assert.AreEqual("Case 2: G", map[2], "Equal names told apart by the number.");
+        Assert.IsFalse(map.ContainsKey(5), "Ambiguous name."); Assert.IsFalse(map.ContainsKey(6)); Assert.IsFalse(map.ContainsKey(7), "No load case 4.");
+    }
+
     [DataTestMethod]
     [DataRow("result-mismatch")][DataRow("result-shape")][DataRow("result-nan")][DataRow("result-inactive")]
     [DataRow("result-missing")][DataRow("result-case")][DataRow("result-position")][DataRow("result-order")]

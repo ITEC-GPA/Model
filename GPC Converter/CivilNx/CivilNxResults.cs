@@ -27,16 +27,21 @@ namespace GPC.Converter.CivilNx
 
         /// <summary>Requests the result tables of the given static cases (STLD names) for every imported beam, plate and node,
         /// and reactions for every restrained node; one request per case and table.</summary>
-        public static async Task<IReadOnlyList<CivilNxResponse>> ReadAsync(CivilNxApiClient client, GPC.Model.Models.Model model, IEnumerable<string> staticCases,
+        public static Task<IReadOnlyList<CivilNxResponse>> ReadAsync(CivilNxApiClient client, GPC.Model.Models.Model model, IEnumerable<string> staticCases,
             CancellationToken cancellationToken = default)
         {
             if (client == null || model == null || staticCases == null) throw new ArgumentNullException();
-            int[] Ids(IEnumerable<Element> elements) => elements.Where(e => e.Source?.Program == CivilNxModelProfile.Program)
-                .Select(e => int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture)).OrderBy(i => i).ToArray();
-            var beams = Ids(model.BeamElements.Values); var plates = Ids(model.AreaElements.Values); var nodes = Ids(model.NodesElements.Values);
-            var supports = Ids(model.NodesElements.Values.Where(n => n.Assignments.Restrains.Count != 0));
-            var responses = new List<CivilNxResponse>(); var names = staticCases.Distinct(StringComparer.Ordinal).ToArray();
-            foreach (var name in names) if (!model.LoadCases.ContainsKey(name)) throw new ArgumentException("UnknownStaticCase: " + name);
+            return ReadAsync(client, model, ResultFilter.All(model, staticCases), cancellationToken);
+        }
+
+        /// <summary>Requests the result tables of a plan resolved on the imported model (<see cref="ResultFilter"/>): beam forces of its beams,
+        /// plate forces of its plates, displacements of its nodes and reactions of its supports, for its static cases only.</summary>
+        public static async Task<IReadOnlyList<CivilNxResponse>> ReadAsync(CivilNxApiClient client, GPC.Model.Models.Model model, ResultReadPlan plan,
+            CancellationToken cancellationToken = default)
+        {
+            if (client == null || model == null || plan == null) throw new ArgumentNullException();
+            var beams = Ids(plan.Beams); var plates = Ids(plan.Shells); var nodes = Ids(plan.Nodes); var supports = Ids(plan.Supports);
+            var responses = new List<CivilNxResponse>(); var names = Cases(model, plan.StaticCases);
             // Cases per request bounded so that a plate table stays well under the client's 32 MiB response limit.
             int perRequest = Math.Max(1, Math.Min(10, 20000 / Math.Max(1, plates.Length)));
             for (int at = 0; at < names.Length; at += perRequest)
@@ -44,22 +49,36 @@ namespace GPC.Converter.CivilNx
                 var cases = names.Skip(at).Take(perRequest).Select(name => name + "(ST)").ToArray();
                 if (beams.Length != 0) responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.BeamForce, ElementIds = beams, LoadCases = cases }, cancellationToken).ConfigureAwait(false));
                 if (plates.Length != 0) responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.PlateForcePerUnitLength, ElementIds = plates, LoadCases = cases }, cancellationToken).ConfigureAwait(false));
-                responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.DisplacementGlobal, ElementIds = nodes, LoadCases = cases }, cancellationToken).ConfigureAwait(false));
+                if (nodes.Length != 0) responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.DisplacementGlobal, ElementIds = nodes, LoadCases = cases }, cancellationToken).ConfigureAwait(false));
                 if (supports.Length != 0) responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.ReactionGlobal, ElementIds = supports, LoadCases = cases }, cancellationToken).ConfigureAwait(false));
             }
             return responses;
         }
 
+        private static int[] Ids(IEnumerable<Element> elements) => elements.Where(e => e.Source?.Program == CivilNxModelProfile.Program)
+            .Select(e => int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture)).Distinct().OrderBy(i => i).ToArray();
+        private static string[] Cases(GPC.Model.Models.Model model, IEnumerable<string> staticCases)
+        {
+            var names = staticCases.Distinct(StringComparer.Ordinal).ToArray();
+            foreach (var name in names) if (!model.LoadCases.ContainsKey(name)) throw new ArgumentException("UnknownStaticCase: " + name);
+            return names;
+        }
+
         /// <summary>Separate request for the unaveraged plate values at the element nodes (extrapolated by the solver from the integration
         /// points), for the given static cases; import them with <see cref="Import"/>, usually as their own dataset.</summary>
-        public static async Task<IReadOnlyList<CivilNxResponse>> ReadPlateNodesAsync(CivilNxApiClient client, GPC.Model.Models.Model model, IEnumerable<string> staticCases,
+        public static Task<IReadOnlyList<CivilNxResponse>> ReadPlateNodesAsync(CivilNxApiClient client, GPC.Model.Models.Model model, IEnumerable<string> staticCases,
             CancellationToken cancellationToken = default)
         {
             if (client == null || model == null || staticCases == null) throw new ArgumentNullException();
-            var plates = model.AreaElements.Values.Where(e => e.Source?.Program == CivilNxModelProfile.Program)
-                .Select(e => int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture)).OrderBy(i => i).ToArray();
-            var names = staticCases.Distinct(StringComparer.Ordinal).ToArray(); var responses = new List<CivilNxResponse>();
-            foreach (var name in names) if (!model.LoadCases.ContainsKey(name)) throw new ArgumentException("UnknownStaticCase: " + name);
+            return ReadPlateNodesAsync(client, model, ResultFilter.All(model, staticCases), cancellationToken);
+        }
+
+        /// <summary>The element-node plate values of the plates and static cases of a plan.</summary>
+        public static async Task<IReadOnlyList<CivilNxResponse>> ReadPlateNodesAsync(CivilNxApiClient client, GPC.Model.Models.Model model, ResultReadPlan plan,
+            CancellationToken cancellationToken = default)
+        {
+            if (client == null || model == null || plan == null) throw new ArgumentNullException();
+            var plates = Ids(plan.Shells); var names = Cases(model, plan.StaticCases); var responses = new List<CivilNxResponse>();
             int perRequest = Math.Max(1, Math.Min(10, 5000 / Math.Max(1, plates.Length)));
             for (int at = 0; at < names.Length && plates.Length != 0; at += perRequest)
                 responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.PlateForcePerUnitLength, ElementIds = plates,
@@ -80,8 +99,8 @@ namespace GPC.Converter.CivilNx
                 var source = model.AnalysisSource;
                 if (source?.Program != CivilNxModelProfile.Program || source.GeometryHash != current.Hash)
                     throw new InvalidDataException("The Civil NX model changed or is not the imported one: re-import it before reading results.");
-                var bindings = model.PreservedSourceData.Where(p => p.Kind == CivilNxGeometryReader.InputBindingKind && p.SourceRecord == source.GeometryHash).ToArray();
-                if (bindings.Length != 1 || bindings[0].RawData != model.AnalysisFingerprint()) throw new InvalidDataException("Model inputs changed since the Civil NX import.");
+                var changed = SourceBinding.Check(model, CivilNxGeometryReader.InputBindingKind, source.GeometryHash, "Civil NX");
+                if (changed != null) skipped.Add(changed);
                 ResultImportBatch batch = null; double force = 0, length = 0; var rejectedBeams = new HashSet<string>(StringComparer.Ordinal);
                 var index = model.AllElements.Where(e => e.Source != null).ToDictionary(e => e.Source);
                 foreach (var response in tables)

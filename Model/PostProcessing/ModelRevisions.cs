@@ -10,9 +10,16 @@ namespace GPC.Model.PostProcessing
         /// <summary>Evaluated on demand. Observes legacy mutable points, properties, attributes, loads and collections.</summary>
         public static string AnalysisFingerprint(this Models.Model model)
         {
-            return ModelArchive.Fingerprint(AnalysisInputs(model));
+            return ModelArchive.Fingerprint(AnalysisInputs(model, true));
         }
-        private static IEnumerable<object> AnalysisInputs(Models.Model model)
+        /// <summary>The inputs that tie the results of a solver to the elements: those of <see cref="AnalysisFingerprint"/> without beam and
+        /// plate properties, materials, physical thicknesses and combinations, which may be edited after an import (e.g. for the checks)
+        /// without changing which results belong to which element, case and point.</summary>
+        public static string SolverBindingFingerprint(this Models.Model model)
+        {
+            return ModelArchive.Fingerprint(AnalysisInputs(model, false));
+        }
+        private static IEnumerable<object> AnalysisInputs(Models.Model model, bool properties)
         {
             yield return model.Guid;
             foreach (var e in model.AllElements)
@@ -35,12 +42,15 @@ namespace GPC.Model.PostProcessing
                 if (e is BeamElement b)
                 {
                     yield return b.StartPoint; yield return b.EndPoint; yield return b.NodeI?.Guid; yield return b.NodeJ?.Guid;
-                    if (b.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc) {
-                        yield return rc.SectionShape; yield return rc.ConcreteMaterial;
-                        // Embedded structural steel participates in the physical composite section, unlike an RC-only design rebar update.
-                        if (rc.SteelSections.Count > 0) yield return rc.SteelSections.ToArray();
+                    if (properties)
+                    {
+                        if (b.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc) {
+                            yield return rc.SectionShape; yield return rc.ConcreteMaterial;
+                            // Embedded structural steel participates in the physical composite section, unlike an RC-only design rebar update.
+                            if (rc.SteelSections.Count > 0) yield return rc.SteelSections.ToArray();
+                        }
+                        else yield return b.BeamProperty;
                     }
-                    else yield return b.BeamProperty;
                     yield return b.RotationAroundFirstAxis;
                     yield return b.Assignments.Formulation; yield return b.Assignments.SectionAxes;
                     yield return b.Assignments.SectionGeometryAxes;
@@ -51,7 +61,7 @@ namespace GPC.Model.PostProcessing
                     yield return b.Assignments.SectionCentroidOffset; yield return b.Assignments.AnalysisProfile;
                     yield return b.Assignments.OtherAssignments.ToArray();
                     yield return b.Assignments.Loads.ToArray();
-                    foreach (var assignment in b.Assignments.Sections)
+                    if (properties) foreach (var assignment in b.Assignments.Sections)
                     {
                         yield return assignment.Start; yield return assignment.End; yield return assignment.Law;
                         yield return assignment.Section?.SectionShape; yield return assignment.Section?.ConcreteMaterial;
@@ -65,12 +75,14 @@ namespace GPC.Model.PostProcessing
                 }
                 if (e is AreaElement a)
                 {
-                    yield return a.Points; yield return a.PlateProperty; yield return a.Assignments.PhysicalThickness; yield return a.Assignments.Offset;
+                    yield return a.Points;
+                    if (properties) { yield return a.PlateProperty; yield return a.Assignments.PhysicalThickness; }
+                    yield return a.Assignments.Offset;
                     foreach (var n2 in a.Nodes) yield return n2.Guid;
                 }
-                if (e is VolumeElement v) { yield return v.Nodes; yield return v.PlateProperty; }
+                if (e is VolumeElement v) { yield return v.Nodes; if (properties) yield return v.PlateProperty; }
             }
-            yield return model.LoadCases; yield return model.Combinations; yield return model.FreedomCases;
+            yield return model.LoadCases; if (properties) yield return model.Combinations; yield return model.FreedomCases;
             yield return model.Stages; yield return model.StageCombinationsMap; yield return model.Costrains;
             // Added later: it enters only when present, so the fingerprints of models without model loads are unchanged.
             if (model.ModelLoads.Count != 0) yield return model.ModelLoads;

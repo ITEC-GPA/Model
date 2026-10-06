@@ -16,6 +16,7 @@ namespace GPC.Converter.Straus7
     /// API initialization, licence ownership and all reads are serialized for this converter.</summary>
     public sealed class Straus7ApiConverter
     {
+        public const string InputBindingKind = "Straus7 input binding";
         private static readonly SemaphoreSlim Gate = new SemaphoreSlim(1, 1);
         private readonly Func<IStraus7ReadApi> openApi;
         private const int MaximumEntities = 1000000;
@@ -47,8 +48,8 @@ namespace GPC.Converter.Straus7
                 var mapped = ModelMapper.Map(batch, cancellationToken);
                 if (mapped.Model != null)
                 {
-                    var binding = new PreservedAssignment { Kind = "Straus7 input binding", SourceRecord = report.SourceHash,
-                        RawData = mapped.Model.AnalysisFingerprint(), UnsupportedReason = "Exact imported Model input fingerprint for subsequent API result binding." };
+                    var binding = SourceBinding.Create(InputBindingKind, report.SourceHash, mapped.Model,
+                        "Imported Model fingerprints for subsequent API result binding.");
                     mapped.Model.PreservedSourceData.Add(binding); mapped.Preserved.Add(binding);
                 }
                 return mapped;
@@ -271,6 +272,35 @@ namespace GPC.Converter.Straus7
             finally { if (acquired) Gate.Release(); }
             return report;
         }
+        /// <summary>Reads the results of a plan resolved on a model imported from <paramref name="modelPath"/> (<see cref="ResultFilter"/>): lists the
+        /// primary result cases, maps the planned static cases to them by name (<see cref="Straus7LinearStaticResults.CaseMap"/>), then reads the
+        /// forces of the planned beams and plates and the displacements and reactions of the planned nodes.</summary>
+        public Straus7ResultsReport ReadResults(GPC.Model.Models.Model model, ResultReadPlan plan, string modelPath, string resultPath, bool includeElementNodeForces = false,
+            int minimumBeamStations = 3, CancellationToken cancellationToken = default)
+        {
+            Straus7ResultsRequest request;
+            try
+            {
+                if (model == null || plan == null) throw new ArgumentNullException();
+                var listing = ReadResults(new Straus7ResultsRequest { ModelPath = modelPath, ResultPath = resultPath }, cancellationToken);
+                if (listing.Status != ImportStatus.Completed) return listing;
+                var map = Straus7LinearStaticResults.CaseMap(model, listing.Cases);
+                var numbers = plan.StaticCases.Select(name => map.Where(p => p.Value == name).Select(p => (int?)p.Key).SingleOrDefault()
+                    ?? throw new InvalidDataException("No primary result case of " + Path.GetFileName(resultPath) + " for " + name + "; result cases: "
+                        + string.Join(", ", listing.Cases.Select(c => c.Number.ToString(CultureInfo.InvariantCulture) + " '" + c.Name + "'")))).ToArray();
+                int[] Numbers(IEnumerable<GPC.Model.Elements.Element> elements) => elements.Select(e => e.Source?.Program == "Straus7"
+                    ? int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture) : throw new ArgumentException("Element " + e.Id + " was not imported from Straus7.")).ToArray();
+                request = new Straus7ResultsRequest { ModelPath = modelPath, ResultPath = resultPath, CaseNumbers = numbers, BeamNumbers = Numbers(plan.Beams),
+                    PlateNumbers = Numbers(plan.Shells), NodeNumbers = Numbers(plan.Nodes), MinimumBeamStations = minimumBeamStations, IncludeElementNodeForces = includeElementNodeForces };
+            }
+            catch (OperationCanceledException) { return new Straus7ResultsReport { Status = ImportStatus.Cancelled }; }
+            catch (Exception ex) when (Handled(ex))
+            {
+                var rejected = new Straus7ResultsReport { Status = ImportStatus.Rejected }; rejected.Diagnostics.Add(Diagnostic(ex)); return rejected;
+            }
+            return ReadResults(request, cancellationToken);
+        }
+
         public static string CaseName(int number, string name) => "Case " + Id(number) + ": " + (name ?? "");
         internal static string Id(int n) => n.ToString(CultureInfo.InvariantCulture);
         internal static ResultUnits Units(int[] codes)

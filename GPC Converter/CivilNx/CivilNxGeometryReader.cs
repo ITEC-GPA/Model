@@ -40,9 +40,9 @@ namespace GPC.Converter.CivilNx
                 report.Diagnostics.Add(new ModelDiagnostic { Code = "CivilNxGeometryProfile", Severity = DiagnosticSeverity.Information, Message = profile.Id });
                 if (report.Model != null)
                 {
-                    // Exact input fingerprint for binding results read later from the same, unchanged Civil NX model.
-                    var binding = new PreservedAssignment { Kind = InputBindingKind, SourceRecord = batch.SourceHash, RawData = report.Model.AnalysisFingerprint(),
-                        UnsupportedReason = "Imported Model input fingerprint; results require the same source snapshot and unchanged inputs." };
+                    // Binds results read later from the same, unchanged Civil NX model (SourceBinding).
+                    var binding = SourceBinding.Create(InputBindingKind, batch.SourceHash, report.Model,
+                        "Imported Model fingerprints; results require the same source snapshot and unchanged solver inputs.");
                     report.Model.PreservedSourceData.Add(binding); report.Preserved.Add(binding);
                 }
                 return report;

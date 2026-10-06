@@ -118,11 +118,12 @@ public class Straus7NativeIntegrationTest
         Assert.AreEqual(250, thick.Assignments.PhysicalThickness); Assert.AreEqual(50, thick.Assignments.Offset);
         Assert.AreEqual(6, model.NodesElements.Values.Count(n => n.Assignments.Restrains.Count == 1));
 
-        var native = converter.ReadResults(new Straus7ResultsRequest { ModelPath = path, ResultPath = resultPath, CaseNumbers = new[] { 1, 2 },
-            BeamNumbers = new[] { 1, 2, 3 }, PlateNumbers = new[] { 1, 2 }, NodeNumbers = Enumerable.Range(1, 8).ToArray() });
+        // Results chosen after the import and read for the whole model, with the cases mapped by name.
+        var native = converter.ReadResults(model, ResultFilter.All(model), path, resultPath);
         Assert.AreEqual(ImportStatus.Completed, native.Status, string.Join(";", native.Diagnostics.Select(d => d.Message)));
         var cases = new Dictionary<int, string> { [1] = Straus7ApiConverter.CaseName(1, "Loads"), [2] = Straus7ApiConverter.CaseName(2, "Gravity") };
-        var imported = Straus7LinearStaticResults.Import(model, native, "native-assignments", cases);
+        CollectionAssert.AreEquivalent(cases.ToArray(), Straus7LinearStaticResults.CaseMap(model, native.Cases).ToArray());
+        var imported = Straus7LinearStaticResults.Import(model, native, "native-assignments");
         Assert.AreEqual(ImportStatus.Completed, imported.Status, string.Join(";", imported.Diagnostics.Select(d => d.Message)));
 
         // Solver totals of the applied loads (Straus7 load summary of the fixture).
