@@ -94,7 +94,16 @@ namespace GPC.Converter.Straus7
             }
             foreach (var g in nativeGroups)
                 if (g.ParentId != -1) groups[g.Id].ParentName = groups.TryGetValue(g.ParentId, out var parent) ? parent.Name : throw new InvalidDataException("Missing group parent " + g.ParentId);
-            var seenProperties = new HashSet<string>();
+            int cases = Bounded(api.LoadCaseCount); var caseNames = new Dictionary<int, string>();
+            for (int i = 1; i <= cases; i++)
+            {
+                token.ThrowIfCancellationRequested(); string name = api.ReadLoadCase(i);
+                caseNames.Add(i, CaseName(i, name));
+                batch.LoadCases.Add(new LoadCaseRecord { Name = CaseName(i, name), Record = "St7GetLoadCaseName " + i });
+                Preserve("LoadCase/" + i, name);
+            }
+            var assignments = new Straus7Assignments(batch, unitCodes, api as IStraus7AssignmentReadApi, caseNames);
+            var seenProperties = new Dictionary<string, (Straus7Property Property, string Material, string Other)>();
             foreach (var entity in new[] { Straus7Entity.Beam, Straus7Entity.Plate })
             {
                 int count = entity == Straus7Entity.Beam ? beams : plates;
@@ -102,9 +111,21 @@ namespace GPC.Converter.Straus7
                 {
                     token.ThrowIfCancellationRequested(); var e = api.ReadElement(entity, i); var record = entity + "/" + i;
                     if (e == null || e.Number != i || e.Property <= 0) throw new InvalidDataException("Invalid element API number/property: " + record);
-                    Preserve(record, e, "Property reference and UserId preserved. Offsets, releases and other attributes are not inferred.");
+                    Preserve(record, e, "Property reference and UserId preserved.");
                     bool beam = entity == Straus7Entity.Beam;
                     if (e.Formulation != (beam ? 6 : 4)) throw new NotSupportedException("Unsupported Straus7 formulation " + e.Formulation + " at " + record);
+                    var propertyKey = entity + "/" + e.Property;
+                    if (!seenProperties.TryGetValue(propertyKey, out var mapped))
+                    {
+                        var property = api.ReadProperty(entity, e.Property);
+                        if (property == null || property.Number != e.Property || property.Formulation != e.Formulation) throw new InvalidDataException("Property identity/formulation mismatch: " + record);
+                        if (property.Geometry != null) Finite(property.Geometry, property.Geometry.Length, propertyKey);
+                        if (property.Material != null) Finite(property.Material, property.Material.Length, propertyKey);
+                        if (property.SectionProperties != null) Finite(property.SectionProperties, property.SectionProperties.Length, propertyKey);
+                        Preserve("Property/" + propertyKey, property, "Native elastic/section data in source units; strengths come only from a recognised grade of the material name.");
+                        var ids = beam ? assignments.Beam(property) : assignments.Plate(property);
+                        mapped = (property, ids.Item1, ids.Item2); seenProperties.Add(propertyKey, mapped);
+                    }
                     if (e.Nodes == null || (beam ? e.Nodes.Length != 2 : e.Nodes.Length != 3 && e.Nodes.Length != 4))
                         throw new NotSupportedException("Unsupported higher-order/orientation-node connectivity at " + record);
                     if (e.Nodes.Distinct().Count() != e.Nodes.Length || e.Nodes.Any(n => !points.ContainsKey(n))) throw new InvalidDataException("Invalid connectivity at " + record);
@@ -117,39 +138,32 @@ namespace GPC.Converter.Straus7
                         Vector3d direction = points[e.Nodes[1]] - points[e.Nodes[0]]; double length = Axes.Length(direction);
                         if (length <= 1e-9 || !Finite(length) || Axes.Length(direction / length - axes.V3) > 1e-8)
                             throw new InvalidDataException("Beam axis 3 must follow I to J: " + record);
-                        var b = new BeamRecord { Id = Id(i), I = Id(e.Nodes[0]), J = Id(e.Nodes[1]), CoordinateSystem = axes, Record = record };
-                        b.OtherAssignments.Add(Evidence(record, e, "Unmapped property/offset/release metadata.")); batch.Beams.Add(b);
+                        var b = new BeamRecord { Id = Id(i), I = Id(e.Nodes[0]), J = Id(e.Nodes[1]), CoordinateSystem = axes, Record = record,
+                            MaterialId = mapped.Material, SectionId = mapped.Material == null ? null : mapped.Other };
+                        b.OtherAssignments.Add(Evidence(record, e, "Element record; releases and other unmapped attributes stay in the source file.")); batch.Beams.Add(b);
+                        assignments.BeamElement(i, b, e.Property);
                     }
                     else
                     {
                         Vector3d normal = ((Vector3d)(points[e.Nodes[1]] - points[e.Nodes[0]])).CrossProduct(points[e.Nodes[2]] - points[e.Nodes[0]]);
                         if (Axes.Length(normal) <= 1e-9 || Axes.Dot(normal / Axes.Length(normal), axes.V3) < 1 - 1e-8)
                             throw new InvalidDataException("Plate axis normal conflicts with connectivity: " + record);
-                        batch.Shells.Add(new ShellRecord { Id = Id(i), Nodes = e.Nodes.Select(Id).ToArray(), CoordinateSystem = axes, Record = record });
+                        var shell = new ShellRecord { Id = Id(i), Nodes = e.Nodes.Select(Id).ToArray(), CoordinateSystem = axes, Record = record,
+                            MaterialId = mapped.Material, ThicknessId = mapped.Material == null ? null : mapped.Other };
+                        batch.Shells.Add(shell);
+                        assignments.PlateElement(i, shell, mapped.Property);
                     }
                     if (!groups.TryGetValue(e.GroupId, out var group)) throw new InvalidDataException("Missing element group: " + record);
                     group.Members.Add(new SourceIdentity("Straus7", revision, beam ? EntityFamily.Beam : EntityFamily.Shell, Id(i)));
-                    var propertyKey = entity + "/" + e.Property;
-                    if (seenProperties.Add(propertyKey))
-                    {
-                        var property = api.ReadProperty(entity, e.Property);
-                        if (property == null || property.Number != e.Property || property.Formulation != e.Formulation) throw new InvalidDataException("Property identity/formulation mismatch: " + record);
-                        if (property.Geometry != null) Finite(property.Geometry, property.Geometry.Length, propertyKey);
-                        if (property.Material != null) Finite(property.Material, property.Material.Length, propertyKey);
-                        Preserve("Property/" + propertyKey, property, "Native elastic/section data retained in source units; no concrete strength, reinforcement or physical shell thickness inferred.");
-                    }
                 }
             }
-            int cases = Bounded(api.LoadCaseCount);
-            for (int i = 1; i <= cases; i++)
-            {
-                token.ThrowIfCancellationRequested(); string name = api.ReadLoadCase(i);
-                batch.LoadCases.Add(new LoadCaseRecord { Name = CaseName(i, name), Record = "St7GetLoadCaseName " + i });
-                Preserve("LoadCase/" + i, name);
-            }
+            assignments.Nodes(points); assignments.Gravity(cases); assignments.Finish();
             int stages = Bounded(api.StageCount); Preserve("St7GetNumStages", stages, "Construction-stage definitions/activation are not mapped.");
-            batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7AssignmentsNotMapped", Severity = DiagnosticSeverity.Warning,
-                Message = "Native nodes, beam/plate axes, groups and case names imported. Properties are retained as native data; loads, restraints, releases, springs, offsets and stages require further mapping." });
+            batch.Diagnostics.Add(assignments.Available
+                ? new ModelDiagnostic { Code = "Straus7AssignmentsPartlyMapped", Severity = DiagnosticSeverity.Warning,
+                    Message = "Properties, offsets, restraints of a single freedom case, nodal/beam/plate loads and gravity imported; releases, springs, links, temperatures and stages are not mapped." }
+                : new ModelDiagnostic { Code = "Straus7AssignmentsNotMapped", Severity = DiagnosticSeverity.Warning,
+                    Message = "The API binding reads no element attributes: properties are imported, loads, restraints and offsets are not." });
             return batch;
         }
 

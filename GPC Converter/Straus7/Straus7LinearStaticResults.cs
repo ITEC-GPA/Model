@@ -109,7 +109,8 @@ namespace GPC.Converter.Straus7
                                 Axes = SourceAxes(axes, p, units.LengthToMm), Values = new double?[] { Axes.Dot(force, axes.V3), Axes.Dot(force, axes.V1), Axes.Dot(force, axes.V2),
                                     Axes.Dot(moment, axes.V3), Axes.Dot(moment, axes.V1), Axes.Dot(moment, axes.V2) },
                                 Station = station, PhysicalDistance = beam.Length * station / units.LengthToMm, Body = ActionBody.PositiveSectionFace,
-                                StationDomain = "Straus7 bpParam, reference element length; offsets not resolved", Record = "St7GetBeamResultArray Beam/" + id + "/case/" + table.CaseNumber + "/row/" + row });
+                                // bpParam: fraction of the node-to-node length from End 1 (Straus7 offsets are transverse, they do not shorten the beam).
+                                StationDomain = "NodeToNode", Record = "St7GetBeamResultArray Beam/" + id + "/case/" + table.CaseNumber + "/row/" + row });
                         }
                     }
                     else if (table.Entity == Straus7Entity.Plate && table.Quantity == "PlateForceLocalCentroid")

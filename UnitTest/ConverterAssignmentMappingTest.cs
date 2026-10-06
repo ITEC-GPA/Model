@@ -92,6 +92,22 @@ public class ConverterAssignmentMappingTest
         Assert.AreEqual(x, offset.X, 1e-9); Assert.AreEqual(y, offset.Y, 1e-9);
     }
 
+    [DataTestMethod]
+    [DataRow(0, SectionVerticalReference.Centroid)][DataRow(1, SectionVerticalReference.Centroid)][DataRow(1, SectionVerticalReference.MaximumV2)]
+    public void SectionsKnownOnlyByValues_LeaveNoProperty_ForSteelAndConcrete(int index, SectionVerticalReference vertical)
+    {
+        // Steel needs the outline for edges and classification; a concrete section recomputes its properties from it.
+        var batch = Batch(); var section = batch.Sections[index];
+        section.CatalogDesignation = null; section.Shape = SectionShapeKind.Unknown; section.Dimensions = null;
+        section.Values = new SectionValues { Area = 150000, I11 = 3.125e9, I22 = 1.125e9, Torsion = 2.8e9 };
+        section.Reference = new SectionReference { Vertical = vertical };
+        var report = Map(batch); var beam = report.Model.BeamElements.Values.Single(b => b.Source.OriginalId == (index == 0 ? "10" : "11"));
+        Assert.IsNull(beam.BeamProperty);
+        Assert.AreEqual(DiagnosticSeverity.Warning, report.Diagnostics.Single(d => d.Code == "SectionByValuesOnly").Severity);
+        if (vertical == SectionVerticalReference.Centroid) Assert.AreEqual(0, beam.Assignments.SectionCentroidOffset.Y);
+        else { Assert.IsNull(beam.Assignments.SectionCentroidOffset); Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "SectionReferenceUnresolved")); }
+    }
+
     [TestMethod]
     public void UnresolvedMaterial_LeavesNoProperty_UnlessTheCallerResolvesIt()
     {

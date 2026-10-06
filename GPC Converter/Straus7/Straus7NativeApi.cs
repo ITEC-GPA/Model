@@ -9,7 +9,7 @@ namespace GPC.Converter.Straus7
 {
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
-    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi
+    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi
     {
         private IntPtr library;
         private bool initialized, modelOpen, resultsOpen;
@@ -139,6 +139,22 @@ namespace GPC.Converter.Straus7
                     int type = 0; var geometry = new double[6];
                     Check(Call<SectionCall>("St7GetBeamSectionGeometry")(FileId, number, ref type, geometry), "St7GetBeamSectionGeometry " + number);
                     p.SectionType = type; p.Geometry = geometry; p.Material = Values("St7GetBeamMaterialData", number, 9);
+                    var integers = new int[4]; var section = new double[20];
+                    Check(Call<SectionData>("St7GetBeamSectionPropertyData")(FileId, number, integers, section), "St7GetBeamSectionPropertyData " + number);
+                    p.SectionProperties = section.Take(11).ToArray();
+                    p.SectionName = Name("St7GetBeamSectionName", number);
+                    if (type == 17)
+                    {
+                        int shape = 0; var dimensions = new double[16];
+                        Check(Call<SectionCall>("St7GetBeamSectionGeometryBGL")(FileId, number, ref shape, dimensions), "St7GetBeamSectionGeometryBGL " + number);
+                        p.BglShape = shape; p.BglDimensions = dimensions;
+                    }
+                    if (type != 1 && type != 2)
+                    {
+                        int mirror = 0, twist = 0; var gap = new double[2];
+                        Check(Call<MirrorCall>("St7GetBeamMirrorOption")(FileId, number, ref mirror, ref twist, gap), "St7GetBeamMirrorOption " + number);
+                        p.MirrorType = mirror;
+                    }
                 }
             }
             else if (entity == Straus7Entity.Plate)
@@ -151,6 +167,12 @@ namespace GPC.Converter.Straus7
                     p.Geometry = Values("St7GetPlateThickness", number, 2);
                     if (material == 1) p.Material = Values("St7GetPlateIsotropicMaterial", number, 8);
                 }
+            }
+            if (p.Formulation == (entity == Straus7Entity.Beam ? 6 : 4))
+            {
+                var material = new StringBuilder(1024);
+                Check(Call<PropertyName>("St7GetMaterialName")(FileId, (int)entity, number, material, material.Capacity), "St7GetMaterialName " + key);
+                p.MaterialName = material.ToString();
             }
             else throw new NotSupportedException("Unsupported property family.");
             properties.Add(key, p); return p;
@@ -220,6 +242,69 @@ namespace GPC.Converter.Straus7
                 entity == Straus7Entity.Beam ? new[] { 0d, 1d } : null, values, state);
             result.NodeNumbers = connection.Skip(1).Take(rows).ToArray(); return result;
         }
+        public Straus7Attribute[] ReadAttributes(Straus7Entity entity, int number, int attribute)
+        {
+            int count = 0;
+            Check(Call<AttributeCount>("St7GetEntityAttributeSequenceCount")(FileId, (int)entity, number, attribute, ref count), "St7GetEntityAttributeSequenceCount " + entity + "/" + number + "/" + attribute);
+            if (count < 0 || count > 100000) throw new InvalidDataException("Invalid attribute count.");
+            if (count == 0) return new Straus7Attribute[0];
+            var values = new int[4 * count];
+            Check(Call<AttributeSequence>("St7GetEntityAttributeSequence")(FileId, (int)entity, number, attribute, count, values), "St7GetEntityAttributeSequence " + entity + "/" + number + "/" + attribute);
+            return Enumerable.Range(0, count).Select(i => new Straus7Attribute { Local = values[4 * i], Axis = values[4 * i + 1], Case = values[4 * i + 2], Id = values[4 * i + 3] }).ToArray();
+        }
+        public int FreedomCaseCount => Count("St7GetNumFreedomCase");
+        public Straus7Restraint ReadRestraint(int node, int freedomCase)
+        {
+            int ucs = 0; var status = new int[6]; var values = new double[6];
+            Check(Call<RestraintCall>("St7GetNodeRestraint6")(FileId, node, freedomCase, ref ucs, status, values), "St7GetNodeRestraint6 " + node + "/" + freedomCase);
+            return new Straus7Restraint { Ucs = ucs, Status = status, Values = values };
+        }
+        public Straus7Ucs ReadUcs(int id)
+        {
+            int type = 0; var data = new double[10];
+            Check(Call<UcsCall>("St7GetUCS")(FileId, id, ref type, data), "St7GetUCS " + id);
+            return new Straus7Ucs { Type = type, Data = data };
+        }
+        public double[] ReadNodeLoad(int node, int loadCase, bool moment) => CaseValues(moment ? "St7GetNodeMoment3" : "St7GetNodeForce3", node, loadCase, 3);
+        public double[] ReadBeamOffset(int beam) => Values("St7GetBeamOffset2", beam, 2);
+        public double[] ReadPlateOffset(int plate) => Values("St7GetPlateOffset1", plate, 1);
+        public double[] ReadPlateThickness(int plate) => Values("St7GetPlateThickness2", plate, 2);
+        public Straus7DistributedLoad ReadBeamDistributedLoad(int beam, Straus7LoadFrame frame, int direction, int loadCase, int id)
+        {
+            int type = 0, project = 0; var values = new double[6];
+            if (frame == Straus7LoadFrame.Global)
+                Check(Call<DistributedGlobal>("St7GetBeamDistributedForceGlobal6ID")(FileId, beam, direction, loadCase, id, ref project, ref type, values), "St7GetBeamDistributedForceGlobal6ID " + beam);
+            else
+                Check(Call<DistributedPrincipal>(frame == Straus7LoadFrame.Principal ? "St7GetBeamDistributedForcePrincipal6ID" : "St7GetBeamDistributedMomentPrincipal6ID")(FileId, beam, direction, loadCase, id, ref type, values),
+                    "St7GetBeamDistributed" + frame + " " + beam);
+            return new Straus7DistributedLoad { Type = type, Project = project, Values = values };
+        }
+        public double[] ReadBeamPointLoad(int beam, int loadCase, int id, bool moment, bool global)
+        {
+            var name = "St7GetBeamPoint" + (moment ? "Moment" : "Force") + (global ? "Global" : "Principal") + "4ID"; var values = new double[4];
+            Check(Call<FourIntDoubles>(name)(FileId, beam, loadCase, id, values), name + " " + beam); return values;
+        }
+        public double[] ReadPlateNormalPressure(int plate, int loadCase) => CaseValues("St7GetPlateNormalPressure2", plate, loadCase, 2);
+        public double[] ReadPlateGlobalPressure(int plate, int surface, int loadCase, out int project)
+        {
+            int flag = 0; var values = new double[3];
+            Check(Call<GlobalPressure>("St7GetPlateGlobalPressure3S")(FileId, plate, surface, loadCase, ref flag, values), "St7GetPlateGlobalPressure3S " + plate);
+            project = flag; return values;
+        }
+        public Straus7LoadCaseData ReadLoadCaseData(int number)
+        {
+            var data = new Straus7LoadCaseData { Number = number, Type = Attribute("St7GetLoadCaseType", number) };
+            if (data.Type == 1)
+            {
+                data.GravityDirection = Attribute("St7GetLoadCaseGravityDir", number); double gravity = 0;
+                Check(Call<GravityCall>("St7GetLoadCaseGravity")(FileId, number, ref gravity), "St7GetLoadCaseGravity " + number); data.Gravity = gravity;
+            }
+            data.Defaults = Values("St7GetLoadCaseDefaults", number, 13);
+            return data;
+        }
+        private double[] CaseValues(string call, int number, int loadCase, int size)
+        { var values = new double[size]; Check(Call<ThreeIntDoubles>(call)(FileId, number, loadCase, values), call + " " + number + "/" + loadCase); return values; }
+
         private static Straus7ResultTable Table(Straus7Entity entity, int number, int resultCase, string quantity, int rows, int columns, double[] positions, double[] values, int[] state)
         {
             if (rows <= 0 || columns <= 0 || (long)rows * columns > values.Length || (positions != null && rows > positions.Length))
@@ -270,5 +355,17 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int PlateResults(int a, int b, int c, int d, int e, int f, int g, int h, ref int i, ref int j, [Out] double[] k);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int NodeResults(int a, int b, int c, int d, [Out] double[] e);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ReferenceDisplacement(int a, int b, byte c);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionData(int a, int b, [Out] int[] c, [Out] double[] d);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MirrorCall(int a, int b, ref int c, ref int d, [Out] double[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int AttributeCount(int a, int b, int c, int d, ref int e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int AttributeSequence(int a, int b, int c, int d, int e, [Out] int[] f);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int RestraintCall(int a, int b, int c, ref int d, [Out] int[] e, [Out] double[] f);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int UcsCall(int a, int b, ref int c, [Out] double[] d);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ThreeIntDoubles(int a, int b, int c, [Out] double[] d);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int FourIntDoubles(int a, int b, int c, int d, [Out] double[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DistributedPrincipal(int a, int b, int c, int d, int e, ref int f, [Out] double[] g);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DistributedGlobal(int a, int b, int c, int d, int e, ref int f, ref int g, [Out] double[] h);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GlobalPressure(int a, int b, int c, int d, ref int e, [Out] double[] f);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GravityCall(int a, int b, ref double c);
     }
 }

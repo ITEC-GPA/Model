@@ -170,8 +170,8 @@ namespace GPC.Model.PostProcessing
         }
 
         /// <summary>Weight of the beams and plates under a model gravity load, in global N and Nmm about the origin: beams A ρ g along the
-        /// node-to-node line (steel section area; gross concrete area, without rebars), plates t ρ g over the planar element area with the
-        /// physical thickness or else the membrane thickness, on the mid-surface moved by the shell offset along V3. Elements without a steel/concrete beam property or a FEM plate property are
+        /// node-to-node line moved by the section centroid offset (steel section area; gross concrete area, without rebars), plates t ρ g over
+        /// the planar element area with the physical thickness or else the membrane thickness, on the mid-surface moved by the shell offset along V3. Elements without a steel/concrete beam property or a FEM plate property are
         /// added to <paramref name="withoutMass"/> when supplied, otherwise they reject the evaluation.</summary>
         public static EquilibriumContribution Gravity(Models.Model model, ModelGravityLoad load, string physicalAction, ICollection<Element> withoutMass = null)
         {
@@ -194,7 +194,11 @@ namespace GPC.Model.PostProcessing
                 if (beam.BeamProperty is Sections.Steel.SteelSection steel && steel.SteelMaterial != null) { area = steel.Area; density = steel.SteelMaterial.Density; }
                 else if (beam.BeamProperty is Sections.Concrete.ReinforcedConcreteSection rc && rc.ConcreteMaterial != null) { area = rc.SectionShape.Area; density = rc.ConcreteMaterial.Density; }
                 else { Missing(beam); continue; }
-                Add(area * beam.Length * density, beam.StartPoint + (beam.EndPoint - beam.StartPoint) * 0.5);
+                Point3d middle = beam.StartPoint + (beam.EndPoint - beam.StartPoint) * 0.5;
+                // The mass lies on the centroidal axis: shifted by the declared centroid offset in the section axes.
+                var c = beam.Assignments.SectionCentroidOffset;
+                if (c != null) { Axes.Validate(beam.Assignments.SectionAxes); middle = middle + beam.Assignments.SectionAxes.V1 * c.X + beam.Assignments.SectionAxes.V2 * c.Y; }
+                Add(area * beam.Length * density, middle);
             }
             foreach (var shell in model.AreaElements.Values)
             {

@@ -32,6 +32,74 @@ namespace GPC.Converter.Straus7
         public int SectionType { get; set; }
         public double[] Geometry { get; set; }
         public double[] Material { get; set; }
+        // Optional (null when the binding does not read them): names, computed section data and BGL geometry.
+        public string MaterialName { get; set; }
+        public string SectionName { get; set; }
+        /// <summary>St7GetBeamSectionPropertyData: A, I11, I22, J, SL1, SL2, SA1, SA2, XBAR, YBAR, ANGLE (model units, radians).</summary>
+        public double[] SectionProperties { get; set; }
+        public int BglShape { get; set; }
+        public double[] BglDimensions { get; set; }
+        public int MirrorType { get; set; }
+    }
+
+    /// <summary>One attribute instance of St7GetEntityAttributeSequence: local number, axis, load/freedom case, ID.</summary>
+    public sealed class Straus7Attribute
+    {
+        public int Local { get; set; }
+        public int Axis { get; set; }
+        public int Case { get; set; }
+        public int Id { get; set; }
+    }
+    public sealed class Straus7Restraint
+    {
+        public int Ucs { get; set; }
+        public int[] Status { get; set; }
+        public double[] Values { get; set; }
+    }
+    public sealed class Straus7Ucs
+    {
+        public int Type { get; set; }
+        public double[] Data { get; set; }
+    }
+    public enum Straus7LoadFrame { Principal, Global, PrincipalMoment }
+    /// <summary>Doubles PA, PB, P1, P2, a, b with the dl* type of the distributed load.</summary>
+    public sealed class Straus7DistributedLoad
+    {
+        public int Type { get; set; }
+        public int Project { get; set; }
+        public double[] Values { get; set; }
+    }
+    public sealed class Straus7LoadCaseData
+    {
+        public int Number { get; set; }
+        public int Type { get; set; }
+        public int GravityDirection { get; set; }
+        public double Gravity { get; set; }
+        public double[] Defaults { get; set; }
+    }
+    /// <summary>Attribute ordinals of the R3 API (St7API.cs).</summary>
+    public static class Straus7Attributes
+    {
+        public const int Restraint = 1, Force = 2, Moment = 3, BeamOffset = 22, BeamDLL = 28, BeamDLG = 29, BeamCFL = 30, BeamCFG = 31, BeamCML = 32, BeamCMG = 33,
+            BeamDML = 44, BeamTaper = 92, BeamSectionFactor = 94, PlateOffset = 52, PlateFacePressure = 54, PlateFaceShear = 55, PlateEdgeNormalPressure = 56,
+            PlateGlobalPressure = 66, PlateThickness = 69, PlateEdgeGlobalPressure = 72, PlatePointForce = 99, PlatePointMoment = 100, PlateSectionFactor = 121;
+    }
+    /// <summary>Optional read-only access to element attributes, restraints and loads. A binding without it imports properties and geometry only.</summary>
+    public interface IStraus7AssignmentReadApi
+    {
+        Straus7Attribute[] ReadAttributes(Straus7Entity entity, int number, int attribute);
+        int FreedomCaseCount { get; }
+        Straus7Restraint ReadRestraint(int node, int freedomCase);
+        Straus7Ucs ReadUcs(int id);
+        double[] ReadNodeLoad(int node, int loadCase, bool moment);
+        double[] ReadBeamOffset(int beam);
+        double[] ReadPlateOffset(int plate);
+        double[] ReadPlateThickness(int plate);
+        Straus7DistributedLoad ReadBeamDistributedLoad(int beam, Straus7LoadFrame frame, int direction, int loadCase, int id);
+        double[] ReadBeamPointLoad(int beam, int loadCase, int id, bool moment, bool global);
+        double[] ReadPlateNormalPressure(int plate, int loadCase);
+        double[] ReadPlateGlobalPressure(int plate, int surface, int loadCase, out int project);
+        Straus7LoadCaseData ReadLoadCaseData(int number);
     }
     public sealed class Straus7Group
     {

@@ -29,8 +29,9 @@ namespace GPC.Converter
     /// elastic source values never generate a strength. An unresolved record leaves the element without property.</summary>
     internal sealed class PropertyMapper
     {
-        private static readonly Regex SteelGrade = new Regex(@"^S\s*(\d{3})", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        private static readonly Regex ConcreteClass = new Regex(@"^C\s*(\d{2,3}(?:[.,]\d+)?)\s*[/_\-]\s*(\d{2,3})", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        // Whole words anywhere in the designation: "S355", "S 355 JR", "Steel S355", "C30/37", "Concrete C30/37".
+        private static readonly Regex SteelGrade = new Regex(@"(?<![A-Za-z0-9])S\s*(\d{3})(?!\d)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        private static readonly Regex ConcreteClass = new Regex(@"(?<![A-Za-z0-9])C\s*(\d{2,3}(?:[.,]\d+)?)\s*[/_\-]\s*(\d{2,3})(?!\d)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
         private readonly ImportBatch batch;
         private readonly MappingOptions options;
@@ -235,14 +236,14 @@ namespace GPC.Converter
             if (shape == null && s.Shape != SectionShapeKind.Unknown) shape = Parametric(s, name);
             if (shape == null && s.Values != null)
             {
+                // A Section built from values has no outline: SteelSection needs it for the edges and the classification, and
+                // ReinforcedConcreteSection recomputes the properties from it (zero area), so no beam property is built.
                 var v = s.Values;
                 Positive(v.Area, "Section " + s.Id + " area"); Positive(v.I11, "Section " + s.Id + " I11"); Positive(v.I22, "Section " + s.Id + " I22");
                 Finite(v.Torsion, "Section " + s.Id + " torsion"); Finite(v.Warping, "Section " + s.Id + " warping");
-                shape = new Section(v.Area, v.I11, v.I22, v.Torsion, v.Warping, new Point2d(0, 0), new Point3d(0, 0, 0), 0, name);
-                Report("SectionByValuesOnly", s.Record, "Section " + name + ": numeric properties only, no outline; checks needing the geometry are not available.",
-                    DiagnosticSeverity.Information);
+                Report("SectionByValuesOnly", s.Record, "Section " + name + ": numeric properties only, no outline; steel and concrete sections need the outline, so beams keep no property.");
             }
-            if (shape == null && s.Shape == SectionShapeKind.Unknown && string.IsNullOrWhiteSpace(s.CatalogDesignation))
+            else if (shape == null && s.Shape == SectionShapeKind.Unknown && string.IsNullOrWhiteSpace(s.CatalogDesignation))
                 Report("SectionShapeUnsupported", s.Record, "Section " + name + ": shape not supported by the converter; beams keep no property.");
             shapes.Add(s.Id, shape);
             return shape;
@@ -250,7 +251,7 @@ namespace GPC.Converter
 
         /// <summary>Dimension order (mm): I and Channel H, Btop, tw, tftop, Bbottom, tfbottom[, r]; Angle H, B, tw (vertical leg), tf (horizontal leg)[, r];
         /// Tee H, B, tw, tf[, r]; Box H, B, tw, tftop, tfbottom; Pipe D, t; SolidRectangle H, B; SolidCircle D.</summary>
-        private static ISectionShape Parametric(SectionRecord s, string name)
+        internal static ISectionShape Parametric(SectionRecord s, string name)
         {
             var d = s.Dimensions ?? new double[0];
             int required;
