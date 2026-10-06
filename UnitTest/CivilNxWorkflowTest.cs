@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using GPC.Converter;
 using GPC.Converter.CivilNx;
@@ -90,7 +90,7 @@ public class CivilNxWorkflowTest
     {
         var handler = new Handler { Respond = _ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized) { Content = new StringContent("secret error body") }) };
         using var client = new CivilNxApiClient(new Uri("https://example.invalid/civil"), () => "test-only-key", handler);
-        var error = await Assert.ThrowsExceptionAsync<HttpRequestException>(() => client.ReadDatabaseAsync("NODE"));
+        var error = await Assert.ThrowsExceptionAsync<CivilNxHttpStatusException>(() => client.ReadDatabaseAsync("NODE"));
         Assert.AreEqual("CivilNxHttpStatus:401", error.Message);
         await Assert.ThrowsExceptionAsync<OperationCanceledException>(() => client.ReadDatabaseAsync("NODE", new CancellationToken(true)));
     }

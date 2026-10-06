@@ -21,7 +21,10 @@ namespace GPC.Converter.CivilNx
 
     public static class CivilNxGeometryReader
     {
-        public static ImportReport Import(CivilNxSnapshot snapshot, AnalysisSource identity, ICivilNxGeometryProfile profile = null, CancellationToken cancellationToken = default)
+        public const string InputBindingKind = "Civil NX input binding";
+
+        public static ImportReport Import(CivilNxSnapshot snapshot, AnalysisSource identity, ICivilNxGeometryProfile profile = null, CancellationToken cancellationToken = default,
+            MappingOptions options = null)
         {
             if (snapshot == null || identity == null) throw new ArgumentNullException();
             var rejected = new ImportReport { Status = ImportStatus.Rejected };
@@ -32,11 +35,16 @@ namespace GPC.Converter.CivilNx
                 var batch = profile.Read(snapshot, identity, cancellationToken);
                 if (batch.Program != "MIDAS Civil NX") throw new ArgumentException("CivilNxProfileProgramMismatch");
                 batch.Uninterpreted.AddRange(rejected.Preserved);
-                batch.SourceHash = ModelArchive.Fingerprint(snapshot.Responses.OrderBy(p => p.Key, StringComparer.Ordinal).SelectMany(p => new object[] { p.Key, p.Value.Sha256 }));
-                var report = ModelMapper.Map(batch, cancellationToken);
+                batch.SourceHash = snapshot.Hash;
+                var report = ModelMapper.Map(batch, cancellationToken, null, options);
                 report.Diagnostics.Add(new ModelDiagnostic { Code = "CivilNxGeometryProfile", Severity = DiagnosticSeverity.Information, Message = profile.Id });
-                report.Diagnostics.Add(new ModelDiagnostic { Code = "CivilNxAssignmentsPending", Severity = DiagnosticSeverity.Warning,
-                    Message = "Only node coordinates and beam/plate connectivity mapped. Axes, material/section assignments, groups, boundaries, loads and results remain to be interpreted and validated." });
+                if (report.Model != null)
+                {
+                    // Exact input fingerprint for binding results read later from the same, unchanged Civil NX model.
+                    var binding = new PreservedAssignment { Kind = InputBindingKind, SourceRecord = batch.SourceHash, RawData = report.Model.AnalysisFingerprint(),
+                        UnsupportedReason = "Imported Model input fingerprint; results require the same source snapshot and unchanged inputs." };
+                    report.Model.PreservedSourceData.Add(binding); report.Preserved.Add(binding);
+                }
                 return report;
             }
             catch (OperationCanceledException) { rejected.Status = ImportStatus.Cancelled; }
@@ -82,7 +90,7 @@ namespace GPC.Converter.CivilNx
             {
                 cancellationToken.ThrowIfCancellationRequested(); var element = pair.Value;
                 if (element?.Nodes == null) throw new InvalidDataException("MissingCivilNxConnectivity: " + pair.Key);
-                var ids = element.Nodes;
+                var ids = element.Nodes.Reverse().SkipWhile(n => n == 0).Reverse().ToArray(); // The API pads NODE to eight entries with zeros.
                 // Documented 2/3/4-node arrays only; an unrecognized padding/higher-order layout needs a separate profile.
                 if (element.Type == "BEAM" && ids.Length == 2 && ids.All(n => n > 0))
                     batch.Beams.Add(new BeamRecord { Id = pair.Key, I = ids[0].ToString(CultureInfo.InvariantCulture), J = ids[1].ToString(CultureInfo.InvariantCulture), Record = "ELEM/" + pair.Key });
@@ -90,6 +98,8 @@ namespace GPC.Converter.CivilNx
                     batch.Shells.Add(new ShellRecord { Id = pair.Key, Nodes = ids.Select(n => n.ToString(CultureInfo.InvariantCulture)).ToArray(), Record = "ELEM/" + pair.Key });
                 else throw new NotSupportedException("UnsupportedCivilNxElementOrConnectivity: " + pair.Key + " (" + element.Type + ")");
             }
+            batch.Diagnostics.Add(new ModelDiagnostic { Code = "CivilNxAssignmentsPending", Severity = DiagnosticSeverity.Warning,
+                Message = "Only node coordinates and beam/plate connectivity mapped; use CivilNxModelProfile for axes, properties, groups, supports and loads." });
             return batch;
         }
         [DataContract] private sealed class UnitResponse { [DataMember(Name = "UNIT")] public Dictionary<string, UnitData> Units { get; set; } }

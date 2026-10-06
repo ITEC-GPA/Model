@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -23,8 +24,22 @@ namespace GPC.Converter.CivilNx
     public sealed class CivilNxSnapshot
     {
         public IReadOnlyDictionary<string, CivilNxResponse> Responses { get; }
-        public CivilNxSnapshot(IDictionary<string, CivilNxResponse> responses)
-        { Responses = new ReadOnlyDictionary<string, CivilNxResponse>(new Dictionary<string, CivilNxResponse>(responses, StringComparer.Ordinal)); }
+        /// <summary>Optional databases the API refused (HTTP 4xx); their data is absent, not empty.</summary>
+        public IReadOnlyList<string> Unavailable { get; }
+        public CivilNxSnapshot(IDictionary<string, CivilNxResponse> responses, IEnumerable<string> unavailable = null)
+        {
+            Responses = new ReadOnlyDictionary<string, CivilNxResponse>(new Dictionary<string, CivilNxResponse>(responses, StringComparer.Ordinal));
+            Unavailable = (unavailable ?? new string[0]).ToList().AsReadOnly();
+        }
+        /// <summary>Identity of the acquired source: table names and response hashes, independent of acquisition order.</summary>
+        public string Hash => GPC.Model.Persistence.ModelArchive.Fingerprint(Responses.OrderBy(p => p.Key, StringComparer.Ordinal).SelectMany(p => new object[] { p.Key, p.Value.Sha256 })
+            .Concat(Unavailable.OrderBy(t => t, StringComparer.Ordinal).Select(t => (object)("unavailable:" + t))));
+    }
+
+    public sealed class CivilNxHttpStatusException : HttpRequestException
+    {
+        public int StatusCode { get; }
+        public CivilNxHttpStatusException(int statusCode) : base("CivilNxHttpStatus:" + statusCode) { StatusCode = statusCode; }
     }
 
     /// <summary>Read-only MIDAS transport. No model-editing or analysis commands. Keys are supplied at runtime and never saved in responses.</summary>
@@ -63,6 +78,28 @@ namespace GPC.Converter.CivilNx
             return new CivilNxSnapshot(values);
         }
 
+        /// <summary>Reads every database of <see cref="CivilNxModelProfile"/> twice and rejects observed changes; optional databases the
+        /// API refuses with HTTP 4xx are listed as unavailable. Transport failures are never turned into missing data.</summary>
+        public async Task<CivilNxSnapshot> ReadModelSnapshotAsync(bool includeSectionProperties = true, CancellationToken cancellationToken = default)
+        {
+            var values = new Dictionary<string, CivilNxResponse>(StringComparer.Ordinal); var unavailable = new List<string>();
+            foreach (var table in CivilNxModelProfile.RequiredTables) values.Add(table, await ReadDatabaseAsync(table, cancellationToken).ConfigureAwait(false));
+            foreach (var table in CivilNxModelProfile.OptionalTables)
+            {
+                try { values.Add(table, await ReadDatabaseAsync(table, cancellationToken).ConfigureAwait(false)); }
+                catch (CivilNxHttpStatusException ex) when (ex.StatusCode >= 400 && ex.StatusCode < 500) { unavailable.Add(table); }
+            }
+            if (includeSectionProperties)
+            {
+                try { values.Add(CivilNxModelProfile.SectionTable, await ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.SectionProperties }, cancellationToken).ConfigureAwait(false)); }
+                catch (CivilNxHttpStatusException ex) when (ex.StatusCode >= 400 && ex.StatusCode < 500) { unavailable.Add(CivilNxModelProfile.SectionTable); }
+            }
+            foreach (var table in values.Keys.Where(k => k != CivilNxModelProfile.SectionTable).ToArray())
+                if ((await ReadDatabaseAsync(table, cancellationToken).ConfigureAwait(false)).Sha256 != values[table].Sha256)
+                    throw new InvalidOperationException("CivilNxModelChangedDuringRead");
+            return new CivilNxSnapshot(values, unavailable);
+        }
+
         public Task<CivilNxResponse> ReadResultTableAsync(CivilNxTableRequest request, CancellationToken cancellationToken = default)
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
@@ -84,7 +121,7 @@ namespace GPC.Converter.CivilNx
                     if (body != null) request.Content = new StringContent(body, Encoding.UTF8, "application/json");
                     using (var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
                     {
-                        if (!response.IsSuccessStatusCode) throw new HttpRequestException("CivilNxHttpStatus:" + (int)response.StatusCode);
+                        if (!response.IsSuccessStatusCode) throw new CivilNxHttpStatusException((int)response.StatusCode);
                         if (response.Content.Headers.ContentLength > MaxResponseBytes) throw new InvalidDataException("CivilNxResponseTooLarge");
                         using (var input = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                         using (var memory = new MemoryStream())

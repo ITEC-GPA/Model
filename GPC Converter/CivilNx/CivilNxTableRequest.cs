@@ -8,7 +8,7 @@ using System.Text;
 
 namespace GPC.Converter.CivilNx
 {
-    public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength }
+    public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength, DisplacementGlobal, ReactionGlobal, SectionProperties }
 
     public sealed class CivilNxTableRequest
     {
@@ -16,37 +16,55 @@ namespace GPC.Converter.CivilNx
         public string Name { get; set; } = "GPC Results";
         public int[] ElementIds { get; set; }
         public string[] LoadCases { get; set; }
-        public string[] BeamParts { get; set; } = new[] { "Part I", "Part J" };
+        /// <summary>Null requests every part the API returns (I, 1/4, 2/4, 3/4, J); the response labels them I[node], 1/4, 2/4, 3/4, J[node].</summary>
+        public string[] BeamParts { get; set; }
         public string[] StageSteps { get; set; }
         public string ToJson()
         {
-            if (!Enum.IsDefined(typeof(CivilNxResultTable), Table) || string.IsNullOrWhiteSpace(Name) || ElementIds == null || ElementIds.Length == 0
-                || ElementIds.Any(id => id <= 0) || LoadCases == null || LoadCases.Length == 0 || LoadCases.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Explicit table, elements and cases required.");
+            if (!Enum.IsDefined(typeof(CivilNxResultTable), Table) || string.IsNullOrWhiteSpace(Name)) throw new ArgumentException("Explicit table required.");
             var argument = new Dictionary<string, object>
             {
-                ["TABLE_NAME"] = Name, ["TABLE_TYPE"] = Table == CivilNxResultTable.BeamForce ? "BEAMFORCE" : "PLATEFORCEUL",
+                ["TABLE_NAME"] = Name, ["TABLE_TYPE"] = Type(Table),
                 ["UNIT"] = new Dictionary<string, object> { ["FORCE"] = "N", ["DIST"] = "mm" },
-                ["NODE_ELEMS"] = new Dictionary<string, object> { ["KEYS"] = ElementIds.Distinct().ToArray() },
-                ["LOAD_CASE_NAMES"] = LoadCases,
                 ["STYLES"] = new Dictionary<string, object> { ["FORMAT"] = "Scientific", ["PLACE"] = 12 }
             };
+            if (Table == CivilNxResultTable.SectionProperties) return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });
+            if (ElementIds == null || ElementIds.Length == 0 || ElementIds.Any(id => id <= 0) || LoadCases == null || LoadCases.Length == 0 || LoadCases.Any(string.IsNullOrWhiteSpace))
+                throw new ArgumentException("Explicit table, elements and cases required.");
+            argument["NODE_ELEMS"] = new Dictionary<string, object> { ["KEYS"] = ElementIds.Distinct().ToArray() };
+            argument["LOAD_CASE_NAMES"] = LoadCases;
             if (Table == CivilNxResultTable.BeamForce)
             {
-                if (BeamParts == null || BeamParts.Length == 0 || BeamParts.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Explicit beam parts required.");
-                argument["PARTS"] = BeamParts;
+                if (BeamParts != null && (BeamParts.Length == 0 || BeamParts.Any(string.IsNullOrWhiteSpace))) throw new ArgumentException("Explicit beam parts required.");
+                if (BeamParts != null) argument["PARTS"] = BeamParts;
             }
-            else
+            else if (Table == CivilNxResultTable.PlateForcePerUnitLength)
             {
                 argument["AVERAGE_NODAL_RESULT"] = false;
-                argument["NODE_FLAG"] = new Dictionary<string, object> { ["CENTER"] = true, ["NODES"] = true };
+                argument["NODE_FLAG"] = new Dictionary<string, object> { ["CENTER"] = true, ["NODES"] = false };
             }
             if (StageSteps != null && StageSteps.Length > 0) { argument["OPT_CS"] = true; argument["STAGE_STEP"] = StageSteps; }
             return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });
+        }
+        private static string Type(CivilNxResultTable table)
+        {
+            switch (table)
+            {
+                case CivilNxResultTable.BeamForce: return "BEAMFORCE";
+                case CivilNxResultTable.PlateForcePerUnitLength: return "PLATEFORCEUL";
+                case CivilNxResultTable.DisplacementGlobal: return "DISPLACEMENTG";
+                case CivilNxResultTable.ReactionGlobal: return "REACTIONG";
+                default: return "SECTIONALL";
+            }
         }
     }
 
     internal static class CivilNxJson
     {
+        private static readonly System.Text.RegularExpressions.Regex EmptyAnswer =
+            new System.Text.RegularExpressions.Regex(@"^\s*\{\s*(""message""\s*:\s*""""\s*)?\}\s*$", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+        /// <summary>The API answers {"message":""} (HTTP 200) for a database without records; a non-empty message is not an empty database.</summary>
+        public static bool IsEmptyDatabase(string json) => json != null && EmptyAnswer.IsMatch(json);
         public static T Read<T>(string json)
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))

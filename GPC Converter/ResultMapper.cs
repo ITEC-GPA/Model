@@ -40,6 +40,14 @@ namespace GPC.Converter
                 var issues = model.ValidateTopology().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
                 if (issues.Length != 0) { report.Diagnostics.AddRange(issues); return report; }
                 var staged = new List<Tuple<Element, ElementResult>>(); var keys = new HashSet<string>();
+                // One lookup per sample; same result as Model.FindBySource, which scans all elements and requires a unique match.
+                var bySource = model.AllElements.Where(e => e.Source != null).ToLookup(e => e.Source);
+                Element Find(SourceIdentity identity)
+                {
+                    var matches = bySource[identity].Take(2).ToArray();
+                    if (matches.Length > 1) throw new InvalidOperationException("DuplicateSourceIdentity");
+                    return matches.FirstOrDefault();
+                }
                 foreach (ResultRecord row in batch.Beams.Cast<ResultRecord>().Concat(batch.Shells).Concat(batch.NodeForces).Concat(batch.NodeDisplacements))
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = row?.Record;
@@ -49,7 +57,7 @@ namespace GPC.Converter
                     ILoadCase loadCase = model.LoadCases.TryGetValue(row.Case, out var lc) ? (ILoadCase)lc :
                         model.Combinations.TryGetValue(row.Case, out var combination) ? combination : throw new ArgumentException("MissingOrUnmappedCase");
                     var family = row is BeamForceRecord ? EntityFamily.Beam : row is ShellForceRecord ? EntityFamily.Shell : EntityFamily.Node;
-                    var element = model.FindBySource(new SourceIdentity(source.Program, source.ModelRevision, family, row.ElementId));
+                    var element = Find(new SourceIdentity(source.Program, source.ModelRevision, family, row.ElementId));
                     if (element == null) throw new ArgumentException("MissingSourceElement");
                     var count = family == EntityFamily.Shell ? 8 : 6;
                     if (row.Values == null || row.Values.Length != count || row.State.Components == null || row.State.Components.Length != count)
@@ -98,7 +106,7 @@ namespace GPC.Converter
                         int? nodeId = null;
                         if (shell.SourceNodeId != null)
                         {
-                            var node = model.FindBySource(new SourceIdentity(source.Program, source.ModelRevision, EntityFamily.Node, shell.SourceNodeId)) as NodeElement;
+                            var node = Find(new SourceIdentity(source.Program, source.ModelRevision, EntityFamily.Node, shell.SourceNodeId)) as NodeElement;
                             if (node == null || !((AreaElement)element).Nodes.Any(n => ReferenceEquals(n, node))) throw new ArgumentException("InvalidShellPointNode");
                             nodeId = node.Id;
                         }
@@ -115,7 +123,7 @@ namespace GPC.Converter
                         if (Axes.Length(axes.Origin - node.Position) > 1e-7) throw new ArgumentException("NodalResultReductionPointMustBeNode");
                         if (row is NodeForceRecord nodal)
                         {
-                            var owner = nodal.OwnerSource == null ? null : model.FindBySource(nodal.OwnerSource);
+                            var owner = nodal.OwnerSource == null ? null : Find(nodal.OwnerSource);
                             if (nodal.OwnerSource != null && owner == null) throw new ArgumentException("MissingNodalForceOwner");
                             var forces = new NodeResultForces(loadCase, new ResultBeamForces(values[2], values[0], values[1], values[5], values[3], values[4], axes))
                             {

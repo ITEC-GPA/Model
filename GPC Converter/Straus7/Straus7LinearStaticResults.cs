@@ -150,7 +150,7 @@ namespace GPC.Converter.Straus7
             return rejected;
         }
         private static CoordinateSystem SourceAxes(CoordinateSystem axes, Point3d pointMm, double lengthToMm) =>
-            new CoordinateSystem(new Point3d(pointMm.X / lengthToMm, pointMm.Y / lengthToMm, pointMm.Z / lengthToMm), axes.V1, axes.V2, axes.V3);
+            Frames.At(axes, new Point3d(pointMm.X / lengthToMm, pointMm.Y / lengthToMm, pointMm.Z / lengthToMm));
         private static ResultState State(int resultCase, int count) => new ResultState { Semantics = AnalysisSemantics.LinearStatic,
             ConcomitantStateId = "Straus7 primary case " + resultCase, IsCombined = false, IsCumulative = true,
             Components = Enumerable.Repeat(ComponentAvailability.Available, count).ToArray(), Coverage = "Explicit API selection only; no continuous-maximum or full-model coverage assertion." };
