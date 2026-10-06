@@ -50,6 +50,23 @@ namespace GPC.Converter.CivilNx
             return responses;
         }
 
+        /// <summary>Separate request for the unaveraged plate values at the element nodes (extrapolated by the solver from the integration
+        /// points), for the given static cases; import them with <see cref="Import"/>, usually as their own dataset.</summary>
+        public static async Task<IReadOnlyList<CivilNxResponse>> ReadPlateNodesAsync(CivilNxApiClient client, GPC.Model.Models.Model model, IEnumerable<string> staticCases,
+            CancellationToken cancellationToken = default)
+        {
+            if (client == null || model == null || staticCases == null) throw new ArgumentNullException();
+            var plates = model.AreaElements.Values.Where(e => e.Source?.Program == CivilNxModelProfile.Program)
+                .Select(e => int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture)).OrderBy(i => i).ToArray();
+            var names = staticCases.Distinct(StringComparer.Ordinal).ToArray(); var responses = new List<CivilNxResponse>();
+            foreach (var name in names) if (!model.LoadCases.ContainsKey(name)) throw new ArgumentException("UnknownStaticCase: " + name);
+            int perRequest = Math.Max(1, Math.Min(10, 5000 / Math.Max(1, plates.Length)));
+            for (int at = 0; at < names.Length && plates.Length != 0; at += perRequest)
+                responses.Add(await client.ReadResultTableAsync(new CivilNxTableRequest { Table = CivilNxResultTable.PlateForcePerUnitLength, ElementIds = plates,
+                    LoadCases = names.Skip(at).Take(perRequest).Select(n => n + "(ST)").ToArray(), PlateNodes = true }, cancellationToken).ConfigureAwait(false));
+            return responses;
+        }
+
         /// <summary>Binds the tables to the model: <paramref name="current"/> must be a snapshot of the same unchanged Civil NX model,
         /// taken when the tables were read, and the Model inputs must be unchanged since the import.</summary>
         public static ResultImportReport Import(GPC.Model.Models.Model model, CivilNxSnapshot current, IReadOnlyList<CivilNxResponse> tables, string datasetId,
@@ -140,15 +157,23 @@ namespace GPC.Converter.CivilNx
 
         private static void Plate(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length)
         {
-            if (table.Get(r, "Node") != "Cent") return; // Element-node values are extrapolated; only the unaveraged centre is imported.
-            var id = table.Get(r, "Elem");
+            var id = table.Get(r, "Elem"); var node = table.Get(r, "Node");
             var shell = Find(index, batch, EntityFamily.Shell, id) as AreaElement
                 ?? throw new InvalidDataException("Result for an absent plate: " + id);
-            Axes.Validate(shell.CoordinateSystem);
-            batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 8), Record = record,
-                Axes = SourceAxes(shell.CoordinateSystem, shell.CoordinateSystem.Origin, length),
-                Values = new double?[] { V(table, r, "Fxx"), V(table, r, "Fyy"), V(table, r, "Fxy"), V(table, r, "Vxx"), V(table, r, "Vyy"), -V(table, r, "Mxx"), -V(table, r, "Myy"), -V(table, r, "Mxy") },
-                Location = new Point2d(0, 0), PointKind = ShellResultPointKind.Centroid, CoordinateKind = ResultCoordinateKind.LocalPhysical });
+            var axes = shell.CoordinateSystem; Axes.Validate(axes);
+            var values = new double?[] { V(table, r, "Fxx"), V(table, r, "Fyy"), V(table, r, "Fxy"), V(table, r, "Vxx"), V(table, r, "Vyy"), -V(table, r, "Mxx"), -V(table, r, "Myy"), -V(table, r, "Mxy") };
+            if (node == "Cent")
+                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 8), Record = record, Values = values,
+                    Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(0, 0), PointKind = ShellResultPointKind.Centroid, CoordinateKind = ResultCoordinateKind.LocalPhysical });
+            else
+            {
+                // Unaveraged value at an element node, extrapolated by the solver: same plate axes, point in local physical coordinates.
+                var vertex = shell.Nodes.FirstOrDefault(n => n.Source?.OriginalId == node) ?? throw new InvalidDataException("Plate " + id + " has no node " + node + " at " + record);
+                Vector3d d = vertex.Position - axes.Origin;
+                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 8), Record = record, Values = values,
+                    Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(Axes.Dot(d, axes.V1) / length, Axes.Dot(d, axes.V2) / length),
+                    PointKind = ShellResultPointKind.ElementNodeExtrapolated, CoordinateKind = ResultCoordinateKind.LocalPhysical, SourceNodeId = node });
+            }
         }
 
         private static void Node(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, bool reaction)

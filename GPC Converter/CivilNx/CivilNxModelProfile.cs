@@ -21,7 +21,11 @@ namespace GPC.Converter.CivilNx
         public const string Program = "MIDAS Civil NX";
         public static IReadOnlyList<string> RequiredTables { get; } = new[] { "UNIT", "NODE", "ELEM" };
         public static IReadOnlyList<string> OptionalTables { get; } = new[]
-            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF", "LCOM-GEN" };
+            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF",
+              "LCOM-GEN", "LCOM-CONC", "LCOM-STEEL", "LCOM-SRC", "LCOM-STLCOMP", "LCOM-SEISMIC" };
+        /// <summary>Combination databases and the ANAL label of their references in other combinations (e.g. CBC: a LCOM-CONC combination).</summary>
+        private static readonly IReadOnlyDictionary<string, string> CombinationTables = new Dictionary<string, string>(StringComparer.Ordinal)
+            { ["CB"] = "LCOM-GEN", ["CBC"] = "LCOM-CONC", ["CBS"] = "LCOM-STEEL", ["CBR"] = "LCOM-SRC", ["CBSC"] = "LCOM-STLCOMP", ["CBSM"] = "LCOM-SEISMIC" };
         /// <summary>Optional post/TABLE response with computed section properties, used for sections without a usable outline.</summary>
         public const string SectionTable = "SECTIONALL";
         /// <summary>Optional post/TABLE response with the material data used by the analysis (weight density also for code-database grades).</summary>
@@ -69,11 +73,10 @@ namespace GPC.Converter.CivilNx
             {
                 Units(); Skews(); Nodes();
                 var thicknesses = Thicknesses(); var sections = Sections(); Materials();
-                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight();
-                foreach (var table in new[] { "FRLS", "NBOF", "LCOM-GEN" })
+                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
+                foreach (var table in new[] { "FRLS", "NBOF" })
                     if (Has(table)) Warn("CivilNx" + table + "Preserved", "db/" + table, table == "FRLS" ? "Beam end releases are preserved, not mapped."
-                        : table == "NBOF" ? "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads."
-                        : "Load combinations are preserved, not mapped.");
+                        : "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads.");
                 foreach (var missing in snapshot.Unavailable) Warn("CivilNxTableUnavailable", missing, "The API did not return this database; its data is not in the model.");
                 foreach (var w in warnings) batch.Diagnostics.Add(new ModelDiagnostic { Code = w.Key.Split('\u001f')[0], Severity = DiagnosticSeverity.Warning,
                     Record = w.Key.Split('\u001f')[1], Message = w.Key.Split('\u001f')[2] + (w.Value > 1 ? " (" + w.Value.ToString(CultureInfo.InvariantCulture) + " records)" : "") });
@@ -522,6 +525,33 @@ namespace GPC.Converter.CivilNx
                 }
             }
 
+            /// <summary>LCOM-*: iTYPE Add 0, Envelope 1, ABS 2, SRSS 3; terms ST (static case) or CB* (combination of the matching database).</summary>
+            private void Combinations()
+            {
+                var staticCases = new HashSet<string>(batch.LoadCases.Select(c => c.Name), StringComparer.Ordinal);
+                foreach (var table in CombinationTables.Values)
+                    foreach (var pair in Rows<CombinationData>(table))
+                    {
+                        var c = pair.Value; var record = table + "/" + pair.Key;
+                        if (string.IsNullOrWhiteSpace(c?.Name) || c.Terms == null) throw new InvalidDataException("InvalidCivilNxCombination: " + record);
+                        if (c.Type < 0 || c.Type > 3) throw new InvalidDataException("UnknownCivilNxCombinationType: " + record);
+                        var definition = new CombinationRecord { Id = table + "/" + c.Name, Name = c.Name, Kind = (CombinationKind)c.Type, Status = c.Active, Source = table, Record = record };
+                        foreach (var t in c.Terms)
+                        {
+                            var analysis = t?.Analysis ?? "";
+                            bool isCase = analysis == "ST", isCombination = CombinationTables.TryGetValue(analysis, out var referenced);
+                            if (isCase && !staticCases.Contains(t.Case)) throw new InvalidDataException("CivilNxCombinationCaseMissing: " + record + " " + t.Case);
+                            definition.Terms.Add(new CombinationTermRecord { Name = isCombination ? referenced + "/" + t.Case : t.Case, IsStaticCase = isCase, IsCombination = isCombination,
+                                Analysis = analysis, Factor = t.Factor });
+                        }
+                        batch.Combinations.Add(definition);
+                    }
+                var ids = new HashSet<string>(batch.Combinations.Select(d => d.Id), StringComparer.Ordinal);
+                foreach (var d in batch.Combinations)
+                    foreach (var t in d.Terms.Where(t => t.IsCombination))
+                        if (!ids.Contains(t.Name)) throw new InvalidDataException("CivilNxCombinationReferenceMissing: " + d.Record + " " + t.Name);
+            }
+
             /// <summary>BODF: FV multiplies the gravity along GCS X, Y, Z for the whole model; a self weight restricted to a group is preserved only.</summary>
             private void SelfWeight()
             {
@@ -621,6 +651,16 @@ namespace GPC.Converter.CivilNx
         [DataContract] private sealed class CaseData
         { [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; } }
         [DataContract] private sealed class ItemList<T> { [DataMember(Name = "ITEMS")] public T[] Items { get; set; } }
+        [DataContract] private sealed class CombinationData
+        {
+            [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "ACTIVE")] public string Active { get; set; }
+            [DataMember(Name = "iTYPE")] public int Type { get; set; } [DataMember(Name = "vCOMB")] public CombinationTermData[] Terms { get; set; }
+        }
+        [DataContract] private sealed class CombinationTermData
+        {
+            [DataMember(Name = "ANAL")] public string Analysis { get; set; } [DataMember(Name = "LCNAME")] public string Case { get; set; }
+            [DataMember(Name = "FACTOR")] public double Factor { get; set; }
+        }
         [DataContract] private sealed class SelfWeightData
         {
             [DataMember(Name = "LCNAME")] public string Case { get; set; } [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }

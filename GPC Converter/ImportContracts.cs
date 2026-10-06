@@ -162,6 +162,31 @@ namespace GPC.Converter
         public string Record { get; set; }
     }
 
+    public enum CombinationKind { Linear, Envelope, Absolute, Srss }
+    /// <summary>A term of a source combination: a static load case or another combination (by its Id), with its factor.
+    /// Analysis keeps the source label (e.g. "ST", "CBC"); terms of other analyses make the combination not expandable.</summary>
+    [System.Runtime.Serialization.DataContract]
+    public sealed class CombinationTermRecord
+    {
+        [System.Runtime.Serialization.DataMember] public string Name { get; set; }
+        [System.Runtime.Serialization.DataMember] public bool IsCombination { get; set; }
+        [System.Runtime.Serialization.DataMember] public bool IsStaticCase { get; set; }
+        [System.Runtime.Serialization.DataMember] public string Analysis { get; set; }
+        [System.Runtime.Serialization.DataMember] public double Factor { get; set; }
+    }
+    /// <summary>A source load combination as defined in the solver: Id unique in the batch, Name as shown by the solver.</summary>
+    [System.Runtime.Serialization.DataContract]
+    public sealed class CombinationRecord
+    {
+        [System.Runtime.Serialization.DataMember] public string Id { get; set; }
+        [System.Runtime.Serialization.DataMember] public string Name { get; set; }
+        [System.Runtime.Serialization.DataMember] public CombinationKind Kind { get; set; }
+        [System.Runtime.Serialization.DataMember] public string Status { get; set; }
+        [System.Runtime.Serialization.DataMember] public string Source { get; set; }
+        [System.Runtime.Serialization.DataMember] public List<CombinationTermRecord> Terms { get; set; } = new List<CombinationTermRecord>();
+        [System.Runtime.Serialization.DataMember] public string Record { get; set; }
+    }
+
     /// <summary>Self weight of the whole model in a case: Factors multiply the standard gravity along global X, Y, Z (e.g. 0, 0, -1).</summary>
     public sealed class GravityRecord
     {
@@ -217,6 +242,7 @@ namespace GPC.Converter
         public List<BeamLoadRecord> BeamLoads { get; } = new List<BeamLoadRecord>();
         public List<ShellLoadRecord> ShellLoads { get; } = new List<ShellLoadRecord>();
         public List<GravityRecord> Gravity { get; } = new List<GravityRecord>();
+        public List<CombinationRecord> Combinations { get; } = new List<CombinationRecord>();
         public List<ModelDiagnostic> Diagnostics { get; } = new List<ModelDiagnostic>();
         public List<PreservedAssignment> Uninterpreted { get; } = new List<PreservedAssignment>();
     }

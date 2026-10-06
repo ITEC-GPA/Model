@@ -19,6 +19,8 @@ namespace GPC.Converter.CivilNx
         /// <summary>Null requests every part the API returns (I, 1/4, 2/4, 3/4, J); the response labels them I[node], 1/4, 2/4, 3/4, J[node].</summary>
         public string[] BeamParts { get; set; }
         public string[] StageSteps { get; set; }
+        /// <summary>Plate tables: false requests the unaveraged centre only, true the unaveraged element-node values only.</summary>
+        public bool PlateNodes { get; set; }
         public string ToJson()
         {
             if (!Enum.IsDefined(typeof(CivilNxResultTable), Table) || string.IsNullOrWhiteSpace(Name)) throw new ArgumentException("Explicit table required.");
@@ -42,7 +44,7 @@ namespace GPC.Converter.CivilNx
             else if (Table == CivilNxResultTable.PlateForcePerUnitLength)
             {
                 argument["AVERAGE_NODAL_RESULT"] = false;
-                argument["NODE_FLAG"] = new Dictionary<string, object> { ["CENTER"] = true, ["NODES"] = false };
+                argument["NODE_FLAG"] = new Dictionary<string, object> { ["CENTER"] = !PlateNodes, ["NODES"] = PlateNodes };
             }
             if (StageSteps != null && StageSteps.Length > 0) { argument["OPT_CS"] = true; argument["STAGE_STEP"] = StageSteps; }
             return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });

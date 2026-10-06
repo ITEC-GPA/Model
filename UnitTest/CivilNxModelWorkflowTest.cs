@@ -18,7 +18,7 @@ public class CivilNxModelWorkflowTest
 {
     private const string Empty = "{\"message\":\"\"}";
     // Units KN, M. Column 1-2 vertical along +Z from (0,0,0); beam 3 horizontal along +X at z=3; plate 10 horizontal, plate 11 the same nodes rotated by ANGLE 90.
-    private static Dictionary<string, string> Json() => new()
+    internal static Dictionary<string, string> Json() => new()
     {
         ["UNIT"] = "{\"UNIT\":{\"1\":{\"FORCE\":\"KN\",\"DIST\":\"M\",\"HEAT\":\"KJ\",\"TEMPER\":\"C\"}}}",
         ["NODE"] = "{\"NODE\":{\"1\":{\"X\":0,\"Y\":0,\"Z\":0},\"2\":{\"X\":0,\"Y\":0,\"Z\":3},\"3\":{\"X\":4,\"Y\":0,\"Z\":3},\"4\":{\"X\":4,\"Y\":2,\"Z\":3},\"5\":{\"X\":0,\"Y\":2,\"Z\":3}}}",
@@ -47,8 +47,8 @@ public class CivilNxModelWorkflowTest
         ["NBOF"] = "{\"NBOF\":{\"1\":{\"LCNAME\":\"Q\",\"OPT_USE_GROUP\":false,\"KEY_NODE_ITEMS\":[2,3],\"X\":0.3,\"Y\":0,\"Z\":0}}}",
         ["MATERIAL"] = "{\"T\":{\"FORCE\":\"N\",\"DIST\":\"mm\",\"HEAD\":[\"Index\",\"ID\",\"Name\",\"Type\",\"Density\",\"Poisson\"],\"DATA\":[[\"1\",\"1\",\"C30/37\",\"Concrete\",\"2.5000e-05\",\"0.2\"],[\"2\",\"2\",\"S355\",\"Steel\",\"7.6982e-05\",\"0.3\"]]}}",
     };
-    private static CivilNxSnapshot Snapshot(Dictionary<string, string> json) => new(json.ToDictionary(p => p.Key, p => new CivilNxResponse("db/" + p.Key, p.Value)));
-    private static AnalysisSource Identity() => new() { Program = "MIDAS Civil NX", SolverVersion = "fixture", ModelRevision = "rev", AnalysisId = "analysis" };
+    internal static CivilNxSnapshot Snapshot(Dictionary<string, string> json) => new(json.ToDictionary(p => p.Key, p => new CivilNxResponse("db/" + p.Key, p.Value)));
+    internal static AnalysisSource Identity() => new() { Program = "MIDAS Civil NX", SolverVersion = "fixture", ModelRevision = "rev", AnalysisId = "analysis" };
     private static ImportReport Import(Dictionary<string, string>? json = null)
     {
         var report = CivilNxGeometryReader.Import(Snapshot(json ?? Json()), Identity(), new CivilNxModelProfile());
@@ -140,12 +140,12 @@ public class CivilNxModelWorkflowTest
         };
         var report = CivilNxResults.Import(m, snapshot, tables, "dataset");
         Assert.AreEqual(ImportStatus.Completed, report.Status, string.Join("; ", report.Diagnostics.Select(d => d.Message)));
-        Assert.AreEqual(3 + 1 + 1 + 1, report.ImportedSamples, "Element-node plate rows are not imported.");
+        Assert.AreEqual(3 + 2 + 1 + 1, report.ImportedSamples, "Centre and element-node plate rows are both imported when present.");
         var girder = Find<BeamElement>(m, EntityFamily.Beam, "3");
         var quarter = girder.Results.SelectMany(r => r.Results).OfType<StationResultBeamForces>().Single(s => s.ParametricDistance == .25).ResultBeamForces;
         Assert.AreEqual(1000, quarter.N); Assert.AreEqual(2000, quarter.V1); Assert.AreEqual(3000, quarter.V2);
         Assert.AreEqual(4e6, quarter.T); Assert.AreEqual(-5e6, quarter.M1); Assert.AreEqual(6e6, quarter.M2);
-        var plate = Find<AreaElement>(m, EntityFamily.Shell, "11").Results.SelectMany(r => r.Results).OfType<PointResultPlateForces>().Single().Forces;
+        var plate = Find<AreaElement>(m, EntityFamily.Shell, "11").Results.SelectMany(r => r.Results).OfType<PointResultPlateForces>().Single(s => s.PointKind == ShellResultPointKind.Centroid).Forces;
         Assert.AreEqual(1, plate.Fxx); Assert.AreEqual(7, plate.Fxz); Assert.AreEqual(-4000, plate.Mxx); Assert.AreEqual(-6000, plate.Mxy);
         Vector(plate.CoordinateSystem.V1, 0, 1, 0);
         var reaction = Find<NodeElement>(m, EntityFamily.Node, "1").Results.SelectMany(r => r.Results).OfType<NodeResultForces>().Single();

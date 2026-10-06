@@ -113,6 +113,25 @@ namespace GPC.Converter
                     var loadCase = selfWeight.Contains(c.Name) ? new LoadCase(c.Name, LoadCase.LoadCaseTypes.SelfWeight) : new LoadCaseBase(c.Name);
                     cases.Add(c.Name, loadCase); model.LoadCases.Add(loadCase);
                 }
+                if (batch.Combinations.Count != 0)
+                {
+                    record = "combinations";
+                    var definitions = batch.Combinations.ToArray(); int linear = 0;
+                    var duplicated = new HashSet<string>(definitions.GroupBy(d => d.Name, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key), StringComparer.Ordinal);
+                    foreach (var definition in definitions)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested(); record = definition.Record;
+                        var name = duplicated.Contains(definition.Name) ? definition.Name + " [" + definition.Source + "]" : definition.Name;
+                        if (cases.ContainsKey(name)) name += " [combination]";
+                        var combination = CombinationExpansion.ToCombination(definitions, definition, cases, name);
+                        if (combination != null && !model.Combinations.ContainsKey(name) && model.AddCombination(combination)) linear++;
+                    }
+                    var preserved = CombinationExpansion.Preserve(definitions, batch.Program);
+                    model.PreservedSourceData.Add(preserved); report.Preserved.Add(preserved);
+                    report.Diagnostics.Add(new ModelDiagnostic { Code = "CombinationsImported", Severity = DiagnosticSeverity.Information, Record = "combinations",
+                        Message = linear.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of " + definitions.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + " source combinations are linear in the static cases and are Model combinations; envelopes and nested envelopes are kept as definitions (CombinationExpansion)." });
+                }
                 foreach (var g in batch.Gravity)
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = g.Record;
