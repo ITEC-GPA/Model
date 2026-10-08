@@ -25,9 +25,7 @@ namespace GPC.Model.Persistence
         private static Type[] DataTypes()
         {
             // The assemblies and namespaces are fixed here, never selected by an input file.
-            var domain = typeof(Models.Model).Assembly.GetTypes().Where(t => t.IsVisible && !t.IsAbstract && !t.ContainsGenericParameters
-                && (t.IsSerializable || t.IsEnum) && t.Namespace != null
-                && !t.Namespace.StartsWith("GPC.Model.FiniteElementAnalysis", StringComparison.Ordinal));
+            var domain = ArchiveContractRegistry.Domain;
             var geometry = new[] { typeof(Point3d), typeof(Point2d), typeof(Vector3d), typeof(Vector2d), typeof(CoordinateSystem),
                 typeof(Shape), typeof(Shape2d), typeof(Polygon3d), typeof(Polygon2d), typeof(Line3d), typeof(Line2d) };
             var collections = new[] { typeof(SortedCollection<NodeElement>), typeof(SortedCollection<BeamElement>), typeof(SortedCollection<AreaElement>), typeof(SortedCollection<VolumeElement>),
@@ -52,8 +50,25 @@ namespace GPC.Model.Persistence
         internal static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
         { KnownTypes = KnownTypes, PreserveObjectReferences = true, MaxItemsInObjectGraph = 2000000 });
 
+        /// <summary>Explicit document contract for new applications, including models without an analysis snapshot.</summary>
+        public static void SaveDocument(Models.Model model, Stream destination)
+        {
+            if (model == null || destination == null) throw new ArgumentNullException();
+            CheckReportArchive.Validate(model.CheckReports.ToArray());
+            using (var memory = new MemoryStream())
+            {
+                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
+                {
+                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", "4");
+                    Serializer(typeof(ModelDocument)).WriteObject(writer, ModelDocument.Capture(model)); writer.WriteEndElement();
+                }
+                memory.Position = 0; memory.CopyTo(destination);
+            }
+        }
+
         public static void Save(Models.Model model, Stream destination)
         {
+            if (model?.Analysis?.UsesCanonicalFingerprint == true) { SaveDocument(model, destination); return; }
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             // Build the archive before touching the caller's destination on serialization errors.
             using (var memory = new MemoryStream())
@@ -74,12 +89,13 @@ namespace GPC.Model.Persistence
             {
                 reader.MoveToContent();
                 string version = reader.GetAttribute("version");
-                if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2" && version != "3")) throw new SerializationException("Unsupported archive version.");
+                if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2" && version != "3" && version != "4")) throw new SerializationException("Unsupported archive version.");
                 reader.ReadStartElement();
-                var model = (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
+                var model = version == "4" ? ((ModelDocument)Serializer(typeof(ModelDocument)).ReadObject(reader)).Restore()
+                    : (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
                 reader.ReadEndElement();
                 CheckReportArchive.Validate(model.CheckReports.ToArray());
-                if (version != "3" && (model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)))
+                if (version != "3" && version != "4" && (model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)))
                     throw new SerializationException("Analysis/scenario provenance requires archive version 3.");
                 model.Analysis?.OpenModel();
                 if (version == "1" && (model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports))) throw new SerializationException("Physical member data require archive version 2.");

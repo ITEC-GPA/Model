@@ -47,7 +47,7 @@ namespace GPC.Model.PostProcessing
             var analysis = model.Analysis;
             if (analysis == null) return Unknown("UnknownAnalysisProvenance", "Record the original analysis inputs before results; legacy provenance is insufficient for automatic verification.");
             if (model.Guid != analysis.ModelGuid) return Unknown("ForeignAnalysisSnapshot", "The snapshot belongs to another model.");
-            if (ModelArchive.Fingerprint(new object[] { model.AnalysisSource }) != analysis.SourceFingerprint)
+            if (ModelArchive.Fingerprint(new object[] { model.AnalysisSource }) != analysis.CanonicalSource)
                 return Unknown("AnalysisSourceChanged", "The solver provenance changed since the recorded analysis.");
             if (model.AnalysisFingerprint() != analysis.InputFingerprint)
                 return new AnalysisCompatibilityResult(AnalysisCompatibility.RequiresReanalysis, "RequiresReanalysis", "Physical analysis inputs changed. Reanalyse the scenario before verification.");
@@ -55,9 +55,9 @@ namespace GPC.Model.PostProcessing
                 if (pair.Value == null || pair.Key != pair.Value.Id || pair.Value.InputFingerprint != analysis.InputFingerprint
                     || pair.Value.AnalysisSnapshotId != null && pair.Value.AnalysisSnapshotId != analysis.Id)
                     return Unknown("DatasetAnalysisMismatch", "A dataset is not bound to the recorded analysis.");
-            if (AnalysisStorage.Prestress(model) != analysis.PrestressFingerprint)
+            if (AnalysisStorage.Prestress(model) != analysis.CanonicalPrestress)
                 return new AnalysisCompatibilityResult(AnalysisCompatibility.RequiresReanalysis, "PrestressRequiresReanalysis", "Prestressing changed and can change the applied actions.");
-            if (AnalysisStorage.Reinforcement(model) != analysis.ReinforcementFingerprint)
+            if (AnalysisStorage.Reinforcement(model) != analysis.CanonicalReinforcement)
             {
                 if (analysis.ReinforcementRole == ReinforcementAnalysisRole.Unknown)
                     return Unknown("UnknownReinforcementInfluence", "The analysis does not declare whether reinforcement affects stiffness or response.");

@@ -10,14 +10,18 @@ namespace GPC.Model.PostProcessing
         /// <summary>Evaluated on demand. Observes legacy mutable points, properties, attributes, loads and collections.</summary>
         public static string AnalysisFingerprint(this Models.Model model)
         {
-            return Checking.ValidationReadScope.Read(model, "analysis", () => ModelArchive.Fingerprint(AnalysisInputs(model, true)));
+            return Checking.ValidationReadScope.Read(model, "analysis", () => {
+                var canonical = ModelArchive.Fingerprint(AnalysisInputs(model, true));
+                return model.Analysis == null ? canonical : model.Analysis.OriginalIdentityFor(canonical);
+            });
         }
         /// <summary>The inputs that tie the results of a solver to the elements: those of <see cref="AnalysisFingerprint"/> without beam and
         /// plate properties, materials, physical thicknesses and combinations, which may be edited after an import (e.g. for the checks)
         /// without changing which results belong to which element, case and point.</summary>
         public static string SolverBindingFingerprint(this Models.Model model)
         {
-            return ModelArchive.Fingerprint(AnalysisInputs(model, false));
+            return model.Analysis == null ? ModelArchive.Fingerprint(AnalysisInputs(model, false))
+                : model.Analysis.InOriginalVocabulary(() => ModelArchive.Fingerprint(AnalysisInputs(model, false)));
         }
         private static IEnumerable<object> AnalysisInputs(Models.Model model, bool properties)
         {

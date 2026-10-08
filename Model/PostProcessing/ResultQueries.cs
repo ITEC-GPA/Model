@@ -28,6 +28,13 @@ namespace GPC.Model.PostProcessing
 
     public static class ResultQueries
     {
+        /// <summary>Queries a detached indexed store without scanning element lists or sharing mutable samples.</summary>
+        public static IReadOnlyList<T> Samples<T>(Results.IResultStore store, Guid element, ResultSelection selection) where T : ResultLocation
+        {
+            if (store == null) throw new ArgumentNullException(nameof(store));
+            return store.Query(element, selection).Where(r => r.Is<T>()).Select(r => r.Read<T>()).ToArray();
+        }
+
         public static IReadOnlyList<StationResultBeamForces> BeamSamples(BeamElement beam, string dataset, string caseName)
             => beam.Results.SelectMany(r => r.Results).OfType<StationResultBeamForces>()
                 .Where(r => r.State?.DatasetId == dataset && r.Case?.Name == caseName)

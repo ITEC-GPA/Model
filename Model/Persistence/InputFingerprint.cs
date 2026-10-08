@@ -35,7 +35,7 @@ namespace GPC.Model.Persistence
         private static void Write(BinaryWriter w, object value, HashSet<object> path)
         {
             if (value == null) { w.Write("null"); return; }
-            Type type = value.GetType(); w.Write(type.FullName);
+            Type type = value.GetType(); w.Write(FingerprintContracts.WireName(type));
             if (type.IsEnum) { w.Write(Convert.ToInt64(value)); return; }
             if (value is double d) { w.Write(d == 0 ? 0.0 : d); return; }
             if (value is string s) { w.Write(s); return; }
@@ -77,7 +77,18 @@ namespace GPC.Model.Persistence
                     }
                     return;
                 }
-                // Only input data records reach this branch; no computed property getters are invoked.
+                var members = FingerprintContracts.Members(type);
+                if (members != null)
+                {
+                    foreach (var member in members)
+                    {
+                        var fieldValue = member.Accessor.GetValue(value);
+                        if (fieldValue == null && member.OmitNull) continue;
+                        w.Write(member.WireName); Write(w, fieldValue, path);
+                    }
+                    return;
+                }
+                // Compatibility for caller-owned records. Persisted Model records use the explicit vocabulary above.
                 for (Type current = type; current != null; current = current.BaseType)
                     foreach (var field in current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(f => !f.IsNotSerialized).OrderBy(f => f.Name, StringComparer.Ordinal))
                     {

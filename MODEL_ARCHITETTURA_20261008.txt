@@ -240,6 +240,56 @@ Le mutazioni dirette di geometria, configurazioni, campioni, dataset e forze
 preparate continuano a invalidare input e resoconti. Il modello legacy non
 diventa thread-safe: le modifiche concorrenti richiedono snapshot separati.
 
+7. Contratti persistenti e organizzazione dei risultati - COMPLETATO
+GPCModel 1.6.1.8.
+
+ModelDocument e' il contratto radice esplicito del wrapper v4: nomi, ordine,
+schema, collezioni obbligatorie e mapping sono separati da Models.Model.
+SaveDocument lo usa sempre; Save lo seleziona per le nuove analisi con
+impronta canonica. Per grafi storici resta disponibile la scrittura v1-v3.
+Load legge entrambe le famiglie e conserva GUID, oggetti condivisi,
+provenienza, scenari e notifiche di rinomina. I contratti foglia storici
+(sezioni, materiali, ecc.) sono mantenuti per compatibilita, con vocabolario
+chiuso esplicito ArchiveContractRegistry; non sono piu' scoperti riflettendo
+tutte le classi Serializable dell'assembly. Non e' un nuovo formato neutro
+universale di tutte le sezioni: i mapping foglia si evolvono singolarmente.
+
+FingerprintContracts dichiara nomi wire e accessori dei record persistenti,
+inclusi i campi opzionali. Un campo runtime aggiunto non entra implicitamente
+nel digest. I contratti legacy ISerializable mantengono i propri nomi
+espliciti; record esterni dei chiamanti conservano il fallback compatibile.
+Le identita dei tipi generici non includono piu' versioni DLL/runtime.
+Una fixture realmente prodotta da GPCModel 1.6.1.7/.NET 6 ha intercettato
+questa dipendenza, invisibile a un semplice round-trip con la stessa DLL.
+Le vecchie impronte degli snapshot vengono validate sui quattro digest
+originali con i vocabolari delle release 1.6.1.5-7 e runtime .NET 6/8/9/10.
+Solo gli input originali validati conservano l'identita analitica storica;
+modifiche fisiche rimangono RequiresReanalysis. Snapshot di altra provenienza
+non validabile sono rifiutati. Non si rietichettano sollecitazioni usando il
+modello modificato. I resoconti/calcoli derivati storici con digest legacy
+rimangono consultabili e possono richiedere nuova verifica/ricostruzione.
+
+IResultStore e InMemoryResultStore offrono un indice distaccato per GUID
+elemento, dataset/caso, stato e posizione. ResultRecord conserva il campione
+privatamente e restituisce copie. ResultQueries ha l'overload per lo store;
+le liste storiche degli elementi restano disponibili. Tagli sinistro/destro,
+domini, estremi e proprietari delle azioni nodali, punti/regioni dei plate,
+tipi di risultato e stati concomitanti non vengono confusi. Esportazioni
+duplicate restano righe distinte, senza sovrascrittura o interpolazione.
+L'implementazione iniziale e' in memoria: occorre ricatturarla dopo import
+o modifiche; non introduce un database o uno store su disco.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step7-final.trx: 939 superati, 0 falliti, 2 fixture Straus7 assenti.
+- modelchecker-step7-final.trx: 111 superati, 0 falliti, con Concrete 0.0.18.0.
+- ExplicitPersistenceTest: migrazione reale v3-v4, riferimenti condivisi,
+  scenari, versione sconosciuta, isolamento/duplicati nello store e digest
+  identico fra .NET 6 e .NET 10.0.11.
+- anthea-step7/summary.json: 4 build e 4 suite PASS con il bundle precedente.
+Durante la fase Checker esterno e' stato aggiornato indipendentemente a
+0ad8314b (Concrete 0.0.18.0). Il test della provenienza confronta ora la
+versione della DLL caricata, anziche la vecchia costante 0.0.17.0; gli attesi
+numerici sono invariati. Nessun sorgente Checker/Anthea modificato qui.
+
 Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
-7. Contratti persistenti e organizzazione dei risultati.
 8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.
