@@ -1,0 +1,45 @@
+CORREZIONI ARCHITETTURALI MODEL - 8 ottobre 2026
+Branch: codex/model-architecture
+Base: 5ad566813a72514251c98fdcb3e0d9bafafaa579
+
+1. Definizione della sezione e cache dei calcoli - COMPLETATO
+GPCModel 1.6.1.2.
+Jt, Jw, centro di taglio e moduli plastici differiti vengono conservati
+in una cache runtime separata dai campi della definizione. Le letture
+non modificano gli input serializzati o il fingerprint. Lazy<T> evita
+esecuzioni duplicate del solutore nelle letture concorrenti; la modifica
+della geometria durante un calcolo resta non supportata.
+SetMechanicalProperties invalida cache e mesh anche negli override.
+Serializzazione v5 ed Equals non eseguono calcoli meccanici differiti.
+Equals confronta la definizione, includendo la geometria delle proprieta
+differite; non e' un confronto fra due risposte numeriche approssimate.
+Le proprieta assegnate esplicitamente restano parte degli input.
+Le sezioni generiche geometriche v1-v4 sono leggibili e i vecchi valori
+calcolati sono normalizzati come proprieta da calcolare. Le impronte
+storiche che includevano la cache possono non coincidere: eventuali
+resoconti diventano obsoleti secondo le verifiche di validita esistenti.
+
+Evidenze (TestResults/Architecture20261008, artefatti locali ignorati):
+- section-before.trx: 3 regressioni falliscono, 2 passano prima del fix.
+- section-after.trx: 253 test di sezioni e archivi superati.
+- model-step1.trx: 898 superati, 0 falliti, 2 fixture native Straus7 mancanti.
+- modelchecker-step1.trx: 106 superati, 0 falliti.
+- anthea-baseline/summary.json e anthea-step1-verified/summary.json:
+  CalculationLibrary.Checks, ConcreteCode.Checks,
+  ConcreteLibraryAdapter.Checks, ConcreteDesign.Checks tutti PASS;
+  4 build + 4 suite, nessuna nuova regressione.
+  ANTHEA 98a21d452a0239b3dbe0720cd09653661790bb60; il candidato sostituisce
+  solamente GPCModel.dll in una copia temporanea delle DLL distribuite.
+  Nessuna modifica a lib/Checker, nessun deployment Anthea, nessun test UI.
+  Il primo avvio candidato e' fallito per un percorso senza separatore
+  finale; il runner e' poi stato rieseguito correttamente nella cartella
+  anthea-step1-verified. Non si tratta di una regressione del prodotto.
+
+Passi successivi della revisione:
+2. Identita esplicita e mutazioni coerenti delle collezioni.
+3. Assegnazioni di sezione generali, con compatibilita del contratto cls.
+4. Distinzione fra modello analizzato e scenario di verifica.
+5. Confini e responsabilita delle librerie.
+6. Snapshot preparati stabili e controllo di obsolescenza meno costoso.
+7. Contratti persistenti e organizzazione dei risultati.
+8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.
