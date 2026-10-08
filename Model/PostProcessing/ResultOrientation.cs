@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Linq;
 using GPC.Geometry;
@@ -19,7 +20,7 @@ namespace GPC.Model.PostProcessing
             double dot = Axes.Dot(source.ResultBeamForces.CoordinateSystem.V3, target.V3);
             if (Math.Abs(dot) < 1 - 1e-8) throw new ArgumentException("IncompatibleBeamDirection");
             if (reverseStations && dot > 0) throw new ArgumentException("StationReversalRequiresOppositeDirection");
-            var rotated = ResultTransformations.RotateBeam(source, target); var f = rotated.ResultBeamForces;
+            var rotated = ActionTransformations.RotateBeam(source, target); var f = rotated.ResultBeamForces;
             if (dot < 0)
                 rotated = new StationResultBeamForces(source.Case, new ResultBeamForces(-f.N, -f.V1, -f.V2, -f.T, -f.M1, -f.M2, f.CoordinateSystem), rotated.ParametricDistance)
                 { Side = source.Side, PhysicalDistance = source.PhysicalDistance, Body = source.Body, StationDomain = source.StationDomain, State = rotated.State };
@@ -51,7 +52,7 @@ namespace GPC.Model.PostProcessing
             if (Math.Abs(sign) < 1 - 1e-10 || Axes.Length(old.Origin - target.Origin) > 1e-8) throw new ArgumentException("IncompatibleShellPlane");
             if (reverseConnectivity && (sign > 0 || nodeCount != 3 && nodeCount != 4)) throw new ArgumentException("InvalidShellConnectivityReversal");
             // Also performs the common completeness and finite-value checks.
-            var copy = ResultTransformations.RotateShell(source, old);
+            var copy = ActionTransformations.RotateShell(source, old);
             sign = sign < 0 ? -1 : 1;
             double a = Axes.Dot(target.V1, old.V1), b = Axes.Dot(target.V1, old.V2);
             double c = Axes.Dot(target.V2, old.V1), d = Axes.Dot(target.V2, old.V2);
@@ -65,7 +66,7 @@ namespace GPC.Model.PostProcessing
                 location = new Point2d(a * location.X + b * location.Y, c * location.X + d * location.Y);
             else if (location != null && source.CoordinateKind == ResultCoordinateKind.Natural && reverseConnectivity)
                 location = new Point2d(location.Y, location.X);
-            var result = new PointResultPlateForces(source.Case, new ResultPlateForces(ResultTransformations.AtPoint(target, target.Origin),
+            var result = new PointResultPlateForces(source.Case, new ResultPlateForces(ActionTransformations.AtPoint(target, target.Origin),
                 n[0], n[1], n[2], sign * (a*f.Fxz+b*f.Fyz), sign * (c*f.Fxz+d*f.Fyz), sign*m[0], sign*m[1], sign*m[2]), location, source.LocationKind)
             { PointKind = source.PointKind, CoordinateKind = source.CoordinateKind, SourceNodeId = source.SourceNodeId,
                 AveragingRegion = source.AveragingRegion, GlobalLocation = copy.GlobalLocation, State = copy.State };
@@ -81,7 +82,7 @@ namespace GPC.Model.PostProcessing
             var old = source.LayerAxes; double sign = Axes.Dot(old.V3, target.V3);
             if (Math.Abs(sign) < 1 - 1e-10 || Axes.Length(old.Origin - target.Origin) > 1e-8) throw new ArgumentException("IncompatibleLayerPlane");
             var result = new ShellAssignments { PhysicalThickness = source.PhysicalThickness, Offset = source.Offset * sign,
-                LayerAxes = ResultTransformations.AtPoint(target, target.Origin), ReinforcementZone = source.ReinforcementZone };
+                LayerAxes = ActionTransformations.AtPoint(target, target.Origin), ReinforcementZone = source.ReinforcementZone };
             foreach (var layer in source.Layers)
             {
                 NumericGuard.Finite(layer.DirectionRadians, "layer angle"); NumericGuard.Finite(layer.AxisPositionThroughThickness, "layer depth");

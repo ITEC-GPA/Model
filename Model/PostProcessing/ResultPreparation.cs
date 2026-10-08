@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,13 +71,13 @@ namespace GPC.Model.PostProcessing
                 result.datasetFingerprint = ModelArchive.Fingerprint(new object[] { dataset });
                 if (element is NodeElement node)
                 {
-                    var target = ResultTransformations.AtPoint(targetOrientation ?? node.CoordinateSystem, node.Position);
+                    var target = ActionTransformations.AtPoint(targetOrientation ?? node.CoordinateSystem, node.Position);
                     if (sample is NodeResultForces f)
                     {
                         NodalActions.Validate(model, node, f);
-                        result.LocalSample = ResultTransformations.RotateNode(f, target);
+                        result.LocalSample = ActionTransformations.RotateNode(f, target);
                     }
-                    else if (sample is NodeResultDisplacement d) result.LocalSample = ResultTransformations.RotateNode(d, target);
+                    else if (sample is NodeResultDisplacement d) result.LocalSample = ActionTransformations.RotateNode(d, target);
                     else throw new NotSupportedException("UnsupportedNodalResult");
                 }
                 else if (element is BeamElement beam && sample is StationResultBeamForces b)
@@ -86,9 +87,9 @@ namespace GPC.Model.PostProcessing
                     if (b.Body != ActionBody.PositiveSectionFace || string.IsNullOrWhiteSpace(b.StationDomain)) throw new ArgumentException("UnresolvedSectionConvention");
                     if (b.ResultBeamForces == null) throw new ArgumentException("MissingBeamForces");
                     Axes.Validate(b.ResultBeamForces.CoordinateSystem);
-                    var normalized = ResultOrientation.Beam(b, ResultTransformations.AtPoint(beam.Assignments.SectionAxes, b.ResultBeamForces.CoordinateSystem.Origin));
+                    var normalized = ResultOrientation.Beam(b, ActionTransformations.AtPoint(beam.Assignments.SectionAxes, b.ResultBeamForces.CoordinateSystem.Origin));
                     if (beam.Assignments.SectionCentroidOffset != null) normalized = reference.AtCentroid(normalized);
-                    result.LocalSample = ResultOrientation.Beam(normalized, ResultTransformations.AtPoint(targetOrientation ?? beam.Assignments.SectionAxes, normalized.ResultBeamForces.CoordinateSystem.Origin));
+                    result.LocalSample = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(targetOrientation ?? beam.Assignments.SectionAxes, normalized.ResultBeamForces.CoordinateSystem.Origin));
                 }
                 else if (element is AreaElement plate && sample is PointResultPlateForces p)
                 {
@@ -98,7 +99,7 @@ namespace GPC.Model.PostProcessing
                     if (p.CoordinateKind != ResultCoordinateKind.LocalPhysical && p.CoordinateKind != ResultCoordinateKind.Natural) throw new NotSupportedException("UnsupportedShellCoordinates");
                     // A source-normal change must be explicit through ResultOrientation.Shell before attachment.
                     if (Axes.Dot(p.Forces.CoordinateSystem.V3, plate.CoordinateSystem.V3) < 1 - 1e-10) throw new ArgumentException("ShellNormalMismatch");
-                    result.LocalSample = ResultOrientation.Shell(p, ResultTransformations.AtPoint(targetOrientation ?? plate.CoordinateSystem, p.Forces.CoordinateSystem.Origin));
+                    result.LocalSample = ResultOrientation.Shell(p, ActionTransformations.AtPoint(targetOrientation ?? plate.CoordinateSystem, p.Forces.CoordinateSystem.Origin));
                 }
                 else throw new NotSupportedException("UnsupportedElementResult");
                 cancellationToken.ThrowIfCancellationRequested();

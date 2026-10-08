@@ -1,3 +1,4 @@
+using GPC.Model.Checking;
 using System;
 using System.Threading;
 using GPC.Model.Elements;
@@ -23,10 +24,10 @@ namespace GPC.Model.Checker
             internal Session(ConcreteSectionVerifier verifier) { _verifier = verifier; }
             public int CreatedCheckers => _verifier.CreatedCheckers;
             public CheckResult Verify(BeamActionInput input, CheckMechanism mechanism, CancellationToken token)
-                => Verification.Run(Verification.PrepareBeam(input.Model, input.Element.Id, input.Sample, input.Settings), mechanism, _verifier, token);
+                => SectionCheckExecution.Run(BeamCheckPreparation.Prepare(input.Model, input.Element.Id, input.Sample, input.Settings), mechanism, _verifier, token);
             public bool Supports(SectionCheckSpecification check) => _verifier.Supports(check);
             public CheckResult Verify(BeamActionInput input, SectionCheckSpecification check, CancellationToken token)
-                => Verification.Run(Verification.PrepareBeam(input.Model, input.Element.Id, input.Sample, input.Settings), check, _verifier, token);
+                => SectionCheckExecution.Run(BeamCheckPreparation.Prepare(input.Model, input.Element.Id, input.Sample, input.Settings), check, _verifier, token);
         }
     }
 }

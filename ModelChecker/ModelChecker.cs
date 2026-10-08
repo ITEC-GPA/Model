@@ -1,3 +1,4 @@
+using GPC.Model.Checking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -147,7 +148,7 @@ namespace GPC.Model.Checker
                             result = new CheckResult { Execution = ExecutionStatus.Cancelled, Data = DataStatus.Insufficient };
                         else if (row.Beam != null)
                         {
-                            result = Verification.Run(row.Beam, mechanism, verifier, cancellationToken);
+                            result = SectionCheckExecution.Run(row.Beam, mechanism, verifier, cancellationToken);
                             if (factoryError != null && row.Beam.Status == DataStatus.Ready)
                             { result.Execution = ExecutionStatus.Error; result.Diagnostics.Add(ModelDiagnostic.Error("CheckerCreationFailed", message: factoryError.Message)); }
                         }

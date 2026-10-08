@@ -185,8 +185,34 @@ La suite ModelChecker e' passata da circa 1m56s (passo 3) a 4m44s e 4m22s
 nelle regressioni complete del nuovo flusso. Ottimizzazione e revisioni stabili
 restano il punto 6, senza indebolire il controllo della compatibilita.
 
+5. Confini e responsabilita delle librerie - COMPLETATO
+GPCModel 1.6.1.6; GPCModelChecker e GPC.Converter 1.0.2.0.
+
+Le trasformazioni fisiche vivono in Results/Processing/ActionTransformations.
+La preparazione, i contratti e l'esecuzione con verificatore fornito dal
+chiamante sono separati in Checking/Preparation, Contracts, Execution e Reports.
+Analysis contiene snapshot, persistenza interna e compatibilita dell'analisi.
+Design contiene le politiche normative e le azioni di progetto dei plate.
+NormativeCombinations richiede una politica esplicita; ResultAlgebra continua
+a combinare valori con coefficienti gia' forniti. WoodArmerDesign,
+ShellDesignActions e ShellStripActions distinguono il metodo di progetto
+dalla rotazione tensoriale. Nessuna nuova verifica resistente plate.
+I prototipi FEM non utilizzati sono isolati in Compatibility.
+
+Verification, CheckRunner, MemberVerification, ResultTransformations e
+WoodArmer rimangono facciate compatibili. I contratti persistiti conservano
+assembly, namespace, campi e ordine. Converter e ModelChecker usano i nuovi
+servizi; Model non dipende da motori Checker, Converter o UI. Non e' stato
+introdotto un nuovo assembly che obbligherebbe a dipendenze circolari.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step5.trx: 931 superati, 0 falliti, 2 fixture native Straus7 assenti.
+- modelchecker-step5.trx: 110 superati, 0 falliti, durata 4m46s.
+- ArchitectureBoundaryTest controlla i riferimenti assembly, le chiamate IL
+  delle trasformazioni fisiche e le deleghe delle API storiche.
+- anthea-step5/summary.json: 4 build e 4 suite PASS sul bundle temporaneo.
+
 Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
-5. Confini e responsabilita delle librerie.
 6. Snapshot preparati stabili e controllo di obsolescenza meno costoso.
 7. Contratti persistenti e organizzazione dei risultati.
 8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.

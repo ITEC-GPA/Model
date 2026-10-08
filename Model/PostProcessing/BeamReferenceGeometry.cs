@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using GPC.Geometry;
 using GPC.Model.Elements;
@@ -98,8 +99,8 @@ namespace GPC.Model.PostProcessing
         public StationResultBeamForces AtCentroid(StationResultBeamForces sample)
         {
             ValidateSample(sample);
-            return ResultTransformations.TransportBeam(sample,
-                ResultTransformations.AtPoint(beam.Assignments.SectionAxes, CentroidAt(sample.ParametricDistance, sample.StationDomain)));
+            return ActionTransformations.TransportBeam(sample,
+                ActionTransformations.AtPoint(beam.Assignments.SectionAxes, CentroidAt(sample.ParametricDistance, sample.StationDomain)));
         }
     }
 }

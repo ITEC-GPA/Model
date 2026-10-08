@@ -1,3 +1,4 @@
+using GPC.Model.Checking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,7 +111,7 @@ namespace GPC.Model.PostProcessing
             foreach (var row in rows)
             {
                 if (cancellationToken.IsCancellationRequested) { row.Cancelled = true; continue; }
-                if (row.Element.Family == EntityFamily.Beam) row.Beam = Verification.PrepareBeam(model, row.Element.Id, (StationResultBeamForces)row.Sample, snapshot.Settings);
+                if (row.Element.Family == EntityFamily.Beam) row.Beam = BeamCheckPreparation.Prepare(model, row.Element.Id, (StationResultBeamForces)row.Sample, snapshot.Settings);
                 else row.Shell = ShellInputPreparation.Prepare(model, row.Element.Id, (PointResultPlateForces)row.Sample, snapshot.Settings);
             }
             return new ModelPreparation { Request = snapshot, ScopeFingerprint = scope, Samples = rows };

@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,8 +60,8 @@ namespace GPC.Model.PostProcessing
             try
             {
                 if (sample.Forces == null) throw new ArgumentException("MissingShellForces");
-                var target = ResultTransformations.AtPoint(shell.Assignments.LayerAxes, sample.Forces.CoordinateSystem.Origin);
-                var local = ResultTransformations.RotateShell(sample, target).Forces;
+                var target = ActionTransformations.AtPoint(shell.Assignments.LayerAxes, sample.Forces.CoordinateSystem.Origin);
+                var local = ActionTransformations.RotateShell(sample, target).Forces;
                 result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings,
                     VerificationRevision = model.VerificationFingerprint(settings), SampleRevision = ModelArchive.Fingerprint(new object[] { sample }),
                     PreparedFingerprint = ModelArchive.Fingerprint(new object[] { local }) };

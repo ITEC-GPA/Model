@@ -1,3 +1,4 @@
+using GPC.Model.Checking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,9 @@ namespace GPC.Model.Checker
                 CheckResult result;
                 if (token.IsCancellationRequested) result = new CheckResult { Execution = ExecutionStatus.Cancelled, Data = DataStatus.Insufficient };
                 else if (!plan.IsCurrent) result = new CheckResult { Data = DataStatus.Stale, Diagnostics = new List<ModelDiagnostic> { ModelDiagnostic.Error("StaleBeamPlan") } };
-                else if (item.Scope == CheckScope.PhysicalMember) result = MemberVerification.Run(plan, item, memberEngine, token);
-                else result = item.Check == null ? Verification.Run(item.Section, item.Mechanism, sectionEngine, token)
-                    : Verification.Run(item.Section, item.Check, sectionEngine, token);
+                else if (item.Scope == CheckScope.PhysicalMember) result = MemberCheckExecution.Run(plan, item, memberEngine, token);
+                else result = item.Check == null ? SectionCheckExecution.Run(item.Section, item.Mechanism, sectionEngine, token)
+                    : SectionCheckExecution.Run(item.Section, item.Check, sectionEngine, token);
                 var error = item.Scope == CheckScope.PhysicalMember ? memberError : sectionError;
                 if (error != null && result.Execution != ExecutionStatus.Cancelled)
                 { result.Execution = ExecutionStatus.Error; result.Outcome = EngineeringOutcome.NotEvaluated; result.Diagnostics.Add(ModelDiagnostic.Error("CheckerCreationFailed", message: error.Message)); }

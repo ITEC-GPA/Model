@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace GPC.Model.PostProcessing
                 || beam.Attributes.Values.Any(v => !(v is BeamReleasesAttribute))) throw new NotSupportedException("UnresolvedBeamAssignmentsCannotBeReversed");
             if (beam.Loads.Values.Any(l => !(l is PointLoad) && !(l is LineLoad))) throw new NotSupportedException("UnsupportedBeamLoadReversal");
             var geometry = new BeamReferenceGeometry(beam); var oldAxes = a.SectionAxes; Axes.Validate(oldAxes);
-            var geometryAxes = a.SectionGeometryAxes ?? ResultTransformations.AtPoint(oldAxes, oldAxes.Origin);
+            var geometryAxes = a.SectionGeometryAxes ?? ActionTransformations.AtPoint(oldAxes, oldAxes.Origin);
             var target = Flip(oldAxes, geometry.End);
             // Re-express positive cut actions and reverse station/side. The source record/Original data are retained.
             foreach (var set in beam.Results)
@@ -37,8 +38,8 @@ namespace GPC.Model.PostProcessing
                 {
                     if (!(set.Results[i] is StationResultBeamForces sample)) throw new NotSupportedException("UnsupportedBeamResultReversal");
                     geometry.ValidateSample(sample);
-                    var canonical = ResultOrientation.Beam(sample, ResultTransformations.AtPoint(oldAxes, sample.ResultBeamForces.CoordinateSystem.Origin));
-                    set.Results[i] = ResultOrientation.Beam(canonical, ResultTransformations.AtPoint(target, sample.ResultBeamForces.CoordinateSystem.Origin), true, geometry.DomainLength(sample.StationDomain));
+                    var canonical = ResultOrientation.Beam(sample, ActionTransformations.AtPoint(oldAxes, sample.ResultBeamForces.CoordinateSystem.Origin));
+                    set.Results[i] = ResultOrientation.Beam(canonical, ActionTransformations.AtPoint(target, sample.ResultBeamForces.CoordinateSystem.Origin), true, geometry.DomainLength(sample.StationDomain));
                 }
             var oldI = beam.NodeI.Id; model.ConnectBeam(beamId, beam.NodeJ.Id, oldI);
             beam.CoordinateSystem = target; a.SectionAxes = target;
@@ -95,8 +96,8 @@ namespace GPC.Model.PostProcessing
                 {
                     if (!(set.Results[i] is PointResultPlateForces p)) throw new NotSupportedException("UnsupportedShellResultReversal");
                     // First align the source to the authoritative old normal, then reverse the connectivity coordinates.
-                    var aligned = ResultOrientation.Shell(p, ResultTransformations.AtPoint(shell.CoordinateSystem, p.Forces.CoordinateSystem.Origin));
-                    set.Results[i] = ResultOrientation.Shell(aligned, ResultTransformations.AtPoint(target, p.Forces.CoordinateSystem.Origin), true, nodes.Length);
+                    var aligned = ResultOrientation.Shell(p, ActionTransformations.AtPoint(shell.CoordinateSystem, p.Forces.CoordinateSystem.Origin));
+                    set.Results[i] = ResultOrientation.Shell(aligned, ActionTransformations.AtPoint(target, p.Forces.CoordinateSystem.Origin), true, nodes.Length);
                 }
             model.ConnectShell(shellId, new[] { nodes[0].Id }.Concat(nodes.Skip(1).Reverse().Select(n => n.Id)).ToArray());
             shell.CoordinateSystem = target;

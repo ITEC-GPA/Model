@@ -28,6 +28,16 @@ namespace GPC.Model.PostProcessing
 
     public static class ResultQueries
     {
+        public static IReadOnlyList<StationResultBeamForces> BeamSamples(BeamElement beam, string dataset, string caseName)
+            => beam.Results.SelectMany(r => r.Results).OfType<StationResultBeamForces>()
+                .Where(r => r.State?.DatasetId == dataset && r.Case?.Name == caseName)
+                .OrderBy(r => r.ParametricDistance).ThenBy(r => r.Side).ToArray();
+
+        /// <summary>Exact exported stations only. Missing points never trigger implicit interpolation.</summary>
+        public static StationResultBeamForces BeamSample(BeamElement beam, string dataset, string caseName, double station, SectionSide side)
+            => BeamSamples(beam, dataset, caseName).SingleOrDefault(r => r.ParametricDistance == NumericGuard.Station(station) && r.Side == side);
+
+
         /// <summary>Typed node/beam/shell samples referencing the existing dataset; no numeric data is copied or interpolated.</summary>
         public static IReadOnlyList<T> Samples<T>(Element element, ResultSelection selection) where T : ResultLocation
         {

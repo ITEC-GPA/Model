@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +63,7 @@ namespace GPC.Model.PostProcessing
         public PhysicalMemberDefinition Definition { get; }
         public double Length { get; }
         public double DeformableLength { get; }
-        public CoordinateSystem Axes => ResultTransformations.AtPoint(_axes, _axes.Origin);
+        public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         private static SectionSide Reverse(SectionSide side) => side == SectionSide.Left ? SectionSide.Right : side == SectionSide.Right ? SectionSide.Left : side;
         public PhysicalMemberGeometry(Models.Model model, PhysicalMemberDefinition definition)
         {
@@ -126,7 +127,7 @@ namespace GPC.Model.PostProcessing
         public double Distance { get; private set; }
         public string Phase { get; private set; }
         public string Source { get; private set; }
-        public CoordinateSystem Axes => ResultTransformations.AtPoint(_axes, _axes.Origin);
+        public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         /// <summary>Order V1,V2,V3 translations then rotations. Elastic stiffness is not represented by these flags.</summary>
         public IReadOnlyList<bool?> Restrained => Array.AsReadOnly(_restrained);
         public MemberRestraint(double distance, CoordinateSystem axes, IEnumerable<bool?> restrained, string source, string phase = null)
@@ -134,7 +135,7 @@ namespace GPC.Model.PostProcessing
             CheckValue.Finite(distance, nameof(distance)); CheckValue.Text(source, nameof(source));
             _restrained = (restrained ?? throw new ArgumentNullException(nameof(restrained))).ToArray();
             if (distance < 0 || _restrained.Length != 6) throw new ArgumentException("Six explicit nullable restraint flags required.");
-            _axes = ResultTransformations.AtPoint(axes, axes.Origin); Distance = distance; Source = source; Phase = phase;
+            _axes = ActionTransformations.AtPoint(axes, axes.Origin); Distance = distance; Source = source; Phase = phase;
         }
     }
     [Serializable]

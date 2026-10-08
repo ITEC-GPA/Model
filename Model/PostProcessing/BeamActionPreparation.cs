@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,9 +73,9 @@ namespace GPC.Model.PostProcessing
                 Axes.Validate(raw.CoordinateSystem);
                 if (!beam.Assignments.ActionsAtSectionCentroidConfirmed && beam.Assignments.SectionCentroidOffset == null) throw new NotSupportedException("UnresolvedReductionPoint");
                 if (diagnostics.Count > 0) return result;
-                var normalized = ResultOrientation.Beam(sample, ResultTransformations.AtPoint(beam.Assignments.SectionAxes, raw.CoordinateSystem.Origin));
+                var normalized = ResultOrientation.Beam(sample, ActionTransformations.AtPoint(beam.Assignments.SectionAxes, raw.CoordinateSystem.Origin));
                 if (beam.Assignments.SectionCentroidOffset != null) normalized = new BeamReferenceGeometry(beam).AtCentroid(normalized);
-                var forces = ResultOrientation.Beam(normalized, ResultTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
+                var forces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
                 var property = beam.Assignments.Sections.Count == 0 ? beam.BeamProperty : beam.Assignments.PropertyAt(
                     new BeamReferenceGeometry(beam).ConvertStation(sample.ParametricDistance, sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), sample.Side);
                 result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Property = property, Settings = settings,

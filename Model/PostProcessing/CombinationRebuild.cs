@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -126,7 +127,7 @@ namespace GPC.Model.PostProcessing
             foreach (var template in byCase[0])
             {
                 token.ThrowIfCancellationRequested();
-                var axes = ResultTransformations.AtPoint(ResultAlgebra.Frame(template), ResultAlgebra.Frame(template).Origin);
+                var axes = ActionTransformations.AtPoint(ResultAlgebra.Frame(template), ResultAlgebra.Frame(template).Origin);
                 var samples = new ResultLocation[cases.Length]; var values = new double[cases.Length][];
                 for (int c = 0; c < cases.Length; c++)
                 {

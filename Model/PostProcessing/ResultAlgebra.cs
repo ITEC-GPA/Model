@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -209,8 +210,8 @@ namespace GPC.Model.PostProcessing
         internal static ResultLocation Rotate(ResultLocation s, CoordinateSystem axes)
         {
             if (s is StationResultBeamForces b) return ResultOrientation.Beam(b, axes);
-            if (s is NodeResultForces n) return ResultTransformations.RotateNode(n, axes);
-            if (s is NodeResultDisplacement d) return ResultTransformations.RotateNode(d, axes);
+            if (s is NodeResultForces n) return ActionTransformations.RotateNode(n, axes);
+            if (s is NodeResultDisplacement d) return ActionTransformations.RotateNode(d, axes);
             if (s is PointResultPlateForces p) return ResultOrientation.Shell(p, axes);
             throw new NotSupportedException("UnsupportedResultAlgebra");
         }
@@ -247,7 +248,7 @@ namespace GPC.Model.PostProcessing
             : s is NodeResultDisplacement ? new[] { "Dx", "Dy", "Dz", "Rx", "Ry", "Rz" } : new[] { "Fx", "Fy", "Fz", "Mx", "My", "Mz" };
         private static ResultLocation Sum(IReadOnlyList<ResultLocation> terms, IReadOnlyList<double> factors, ILoadCase outputCase)
         {
-            var first = terms[0]; var axes = ResultTransformations.AtPoint(Frame(first), Frame(first).Origin); var sum = new double[Values(first).Length];
+            var first = terms[0]; var axes = ActionTransformations.AtPoint(Frame(first), Frame(first).Origin); var sum = new double[Values(first).Length];
             for (int i = 0; i < terms.Count; i++)
             {
                 var values = Values(Rotate(terms[i], axes));

@@ -1,3 +1,4 @@
+using GPC.Model.Checking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -200,7 +201,7 @@ namespace GPC.Model.PostProcessing
         private static void AddSection(List<CheckWorkItem> rows, Models.Model model, Scope scope, BeamCheckPlanRequest r, ResultSelection selection,
             int beamId, StationResultBeamForces sample, double? station, string domain, SectionSide side, CancellationToken token, bool actionsOnly, string missingCode = "MissingBeamSamples")
         {
-            var prepared = token.IsCancellationRequested || actionsOnly ? null : Verification.PrepareBeam(model, beamId, sample, r.Settings);
+            var prepared = token.IsCancellationRequested || actionsOnly ? null : BeamCheckPreparation.Prepare(model, beamId, sample, r.Settings);
             var actions = token.IsCancellationRequested || !actionsOnly ? null : BeamActionPreparation.Prepare(model, beamId, sample, r.Settings);
             var member = scope.Owners.TryGetValue(beamId, out var owner) ? owner : null;
             MemberLocation location = null;
@@ -265,7 +266,7 @@ namespace GPC.Model.PostProcessing
                 foreach (var sample in samples)
                 {
                     if (token.IsCancellationRequested) continue;
-                    var prepared = Verification.PrepareBeam(model, part.BeamId, sample, r.Settings);
+                    var prepared = BeamCheckPreparation.Prepare(model, part.BeamId, sample, r.Settings);
                     stale |= prepared.Status == DataStatus.Stale;
                     if (prepared.Input == null) errors.AddRange(prepared.Diagnostics); else inputs.Add(prepared.Input);
                 }

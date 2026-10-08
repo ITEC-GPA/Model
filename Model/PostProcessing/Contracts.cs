@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using GPC.Model.Elements;
@@ -114,7 +115,7 @@ namespace GPC.Model.PostProcessing
         {
             var copy = (OriginalResultData)MemberwiseClone();
             copy.Values = Values == null ? null : (double?[])Values.Clone();
-            copy.Axes = Axes == null ? null : ResultTransformations.AtPoint(Axes, Axes.Origin);
+            copy.Axes = Axes == null ? null : ActionTransformations.AtPoint(Axes, Axes.Origin);
             return copy;
         }
     }

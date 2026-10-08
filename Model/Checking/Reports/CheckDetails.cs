@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,13 +113,13 @@ namespace GPC.Model.PostProcessing
         public double T { get; private set; }
         public double M1 { get; private set; }
         public double M2 { get; private set; }
-        public CoordinateSystem Axes => ResultTransformations.AtPoint(_axes, _axes.Origin);
+        public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         public BeamForceSnapshot(ResultBeamForces forces)
         {
             if (forces == null) throw new ArgumentNullException(nameof(forces));
             foreach (double value in new[] { forces.N, forces.V1, forces.V2, forces.T, forces.M1, forces.M2 }) CheckValue.Finite(value, nameof(forces));
             GPC.Model.PostProcessing.Axes.Validate(forces.CoordinateSystem);
-            _axes = ResultTransformations.AtPoint(forces.CoordinateSystem, forces.CoordinateSystem.Origin);
+            _axes = ActionTransformations.AtPoint(forces.CoordinateSystem, forces.CoordinateSystem.Origin);
             N = forces.N; V1 = forces.V1; V2 = forces.V2; T = forces.T; M1 = forces.M1; M2 = forces.M2;
         }
     }

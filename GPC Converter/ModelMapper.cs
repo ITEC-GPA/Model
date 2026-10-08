@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,11 +43,11 @@ namespace GPC.Converter
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = n.Record;
                     if (!Axes.IsFinite(n.GlobalPosition)) throw new ArgumentException("NonFiniteCoordinate");
-                    var nodeAxes = ResultTransformations.AtPoint(n.CoordinateSystem ?? GPC.Geometry.CoordinateSystem.Global, n.GlobalPosition);
+                    var nodeAxes = ActionTransformations.AtPoint(n.CoordinateSystem ?? GPC.Geometry.CoordinateSystem.Global, n.GlobalPosition);
                     if (nodes.TryGetValue(n.Id, out var existing))
                     {
                         if (existing.Position.X != n.GlobalPosition.X || existing.Position.Y != n.GlobalPosition.Y || existing.Position.Z != n.GlobalPosition.Z
-                            || !ResultTransformations.AtPoint(existing.CoordinateSystem, n.GlobalPosition).Equals(nodeAxes))
+                            || !ActionTransformations.AtPoint(existing.CoordinateSystem, n.GlobalPosition).Equals(nodeAxes))
                             throw new ArgumentException("SourceCollision");
                         report.Diagnostics.Add(new ModelDiagnostic { Code = "IdenticalDuplicate", Severity = DiagnosticSeverity.Information, Record = record, Message = n.Id }); continue;
                     }

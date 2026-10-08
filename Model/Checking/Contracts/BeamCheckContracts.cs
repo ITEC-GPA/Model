@@ -1,3 +1,4 @@
+using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,7 +110,7 @@ namespace GPC.Model.PostProcessing
         public double DeformableLength { get; private set; }
         public double SpanStart { get; private set; }
         public double SpanEnd { get; private set; }
-        public CoordinateSystem Axes => ResultTransformations.AtPoint(_axes, _axes.Origin);
+        public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         public IReadOnlyList<MemberSampleSnapshot> Samples => Array.AsReadOnly(_samples);
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamCheckInput> inputs)
         {

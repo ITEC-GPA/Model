@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.6.1.5")]
-[assembly: AssemblyFileVersion("1.6.1.5")]
+[assembly: AssemblyVersion("1.6.1.6")]
+[assembly: AssemblyFileVersion("1.6.1.6")]
 
 [assembly: InternalsVisibleTo("UnitTest")]
 [assembly: InternalsVisibleTo("FemModel")]
