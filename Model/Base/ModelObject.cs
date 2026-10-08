@@ -43,10 +43,18 @@ namespace GPC.Model
         public Guid Guid => _guid;
 
         /// <summary>
-        /// The name. It is the key of the equality (see <see cref="Equals(object)"/> and <see cref="ModelObjectNameEqualityComparer"/>): do not change it
-        /// while the object is in a hash set or in a dictionary
+        /// The name. Registered name indexes are updated atomically, rejecting collisions before mutation.
+        /// Legacy Equals/GetHashCode still compare content: use <see cref="ModelObjectIdentityComparer"/> for entity hash sets.
         /// </summary>
-        public string Name { get => _name; set => _name = value; }
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (_name == value) return;
+                Collections.NameIndexRegistry.Rename(this, value, () => _name = value);
+            }
+        }
 
         #endregion
 

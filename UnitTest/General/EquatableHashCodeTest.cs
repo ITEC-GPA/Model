@@ -237,7 +237,10 @@ namespace GeneralTest
             NodeElement n2 = new NodeElement(Point3d.Origin, null, "", 2);
             NodeElement n3 = new NodeElement(Point3d.Origin, null, "", 2);
 
-            UniqueIdCollection<NodeElement> dict = new UniqueIdCollection<NodeElement> { n1, n2, n3 };
+            UniqueIdCollection<NodeElement> dict = new UniqueIdCollection<NodeElement> { n1, n2 };
+            // Replacing a FEM entity is now explicit; Add must not invalidate shared references silently.
+            Assert.ThrowsException<InvalidOperationException>(() => dict.Add(n3));
+            dict.Replace(n3.Id, n3);
 
             Assert.IsTrue(dict.ContainsKey(n1.Id));
             Assert.IsTrue(dict.ContainsKey(n2.Id));

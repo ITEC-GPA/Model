@@ -10,8 +10,13 @@ namespace GPC.Model.Collections
     /// </summary>
     /// <typeparam name="T">The type of the objects</typeparam>
     [Serializable]
-    public class UniqueNameCollection<T> : Dictionary<string, T> where T : ModelObject, ISerializable
+    public class UniqueNameCollection<T> : Dictionary<string, T>, INameIndex where T : ModelObject, ISerializable
     {
+        [field: NonSerialized]
+        internal event Action<T, string, string> ItemRenamed;
+        [field: NonSerialized]
+        internal event Action<T, string> ItemRenaming;
+
         #region Constructor
 
         /// <summary>
@@ -19,7 +24,7 @@ namespace GPC.Model.Collections
         /// </summary>
         public UniqueNameCollection()
         {
-
+            NameIndexRegistry.Register(this);
         }
 
         /// <summary>
@@ -30,7 +35,7 @@ namespace GPC.Model.Collections
         protected UniqueNameCollection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
+            NameIndexRegistry.Register(this);
         }
 
         #endregion
@@ -57,13 +62,42 @@ namespace GPC.Model.Collections
         {
             if (items != null)
             {
-                foreach (var item in items)
+                var values = items.ToArray();
+                var names = new HashSet<string>(Keys, Comparer);
+                foreach (var item in values)
+                {
+                    if (item is null || item.Name == null) throw new ArgumentException("Named items are required.", nameof(items));
+                    if (!names.Add(item.Name)) throw new ArgumentException("Duplicate item name: " + item.Name, nameof(items));
+                }
+                foreach (var item in values)
                 {
                     Add(item.Name, item);
                 }
                 return true;
             }
             return false;
+        }
+
+        /// <summary>Renames the actual entity and every registered name index that contains it.</summary>
+        public void Rename(string name, string newName) => this[name].Name = newName;
+
+        NameIndexChange INameIndex.PrepareRename(ModelObject item, string name)
+        {
+            if (!(item is T typed)) return null;
+            // Reference identity is essential: legacy Equals can equate different entities with the same name.
+            var keys = this.Where(p => ReferenceEquals(p.Value, typed)).Select(p => p.Key).ToArray();
+            if (keys.Length == 0) return null;
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (keys.Length != 1) throw new InvalidOperationException("AmbiguousNameIndex: the entity has multiple keys.");
+            if (TryGetValue(name, out var existing) && !ReferenceEquals(existing, typed))
+                throw new ArgumentException("Duplicate item name: " + name, nameof(name));
+            ItemRenaming?.Invoke(typed, name);
+            string oldName = item.Name;
+            return new NameIndexChange
+            {
+                Apply = () => { base.Remove(keys[0]); base.Add(name, typed); },
+                Notify = () => ItemRenamed?.Invoke(typed, oldName, name)
+            };
         }
 
         /// <summary>

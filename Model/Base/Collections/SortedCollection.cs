@@ -64,13 +64,13 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Tell if an item exists or not (the id is not considered: the items are compared with their Equals, i.e. by name). O(n)
+        /// Tests registered entity identity (registry ID and persistent GUID), independently of mutable content. O(log n).
         /// </summary>
         /// <param name="item">The item to check</param>
         /// <returns>True if the collection contains the given item</returns>
         public bool Contains(T item)
         {
-            return ContainsValue(item);
+            return !(item is null) && TryGetValue(item.Id, out var existing) && existing.Guid == item.Guid;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace GPC.Model.Collections
 
         /// <summary>
         /// Adds an item and returns its Id. An item without id (<see cref="ModelObjectId.IDUNASSIGNED"/>) gets the last id + 1; an item with the id
-        /// of an existing one replaces it
+        /// of a different existing instance is rejected. Replacement must be explicit via <see cref="Replace"/>.
         /// </summary>
         /// <param name="item">The item to add (its id can be changed)</param>
         /// <returns>The item Id</returns>
@@ -102,7 +102,8 @@ namespace GPC.Model.Collections
             {
                 if (ContainsKey(item.Id))
                 {
-                    this[item.Id] = item;
+                    if (!ReferenceEquals(this[item.Id], item))
+                        throw new InvalidOperationException("DuplicateEntityId: use an explicit replacement operation.");
                     return item.Id;
                 }
 
@@ -135,24 +136,13 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Remove the given item (all the items equal to it) from the collection
+        /// Removes only the entity with the given registry ID and GUID, never other objects with equal content.
         /// </summary>
         /// <param name="item">The item to remove</param>
         /// <returns>True if the items were removed, false if there were none</returns>
         public bool Remove(T item)
         {
-            if (ContainsValue(item))
-            {
-                foreach (var i in this.Where(kvp => kvp.Value == item).ToList())
-                {
-                    if (i.Value.Id == _lastId)
-                        _lastId = Keys.Max();
-                    if (!Remove(i.Key))
-                        return false;
-                }
-                return true;
-            }
-            return false;
+            return Contains(item) && Remove(item.Id);
         }
 
         /// <summary>

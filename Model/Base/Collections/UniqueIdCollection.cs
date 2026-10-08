@@ -58,12 +58,14 @@ namespace GPC.Model.Collections
 
         /// <summary>
         /// Adds an item. An item without id (<see cref="ModelObjectId.IDUNASSIGNED"/>) gets the largest id + 1; an item with the id of an existing
-        /// one replaces it
+        /// different instance is rejected. Replacement must be explicit via <see cref="Replace"/>.
         /// </summary>
         /// <param name="item">The item to add (its id can be changed)</param>
         /// <returns>Always true</returns>
         public bool Add(T item)
         {
+            if (item is null) throw new ArgumentNullException(nameof(item));
+            if (Count > 0) _maxId = Math.Max(_maxId, Keys.Max());
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
                 item.Id = ++_maxId;
@@ -74,7 +76,8 @@ namespace GPC.Model.Collections
             {
                 if (ContainsKey(item.Id))
                 {
-                    this[item.Id] = item;
+                    if (!ReferenceEquals(this[item.Id], item))
+                        throw new InvalidOperationException("DuplicateEntityId: use an explicit replacement operation.");
                     return true;
                 }
 
@@ -84,6 +87,15 @@ namespace GPC.Model.Collections
                 Add(item.Id, item);
                 return true;
             }
+        }
+
+        /// <summary>Explicit replacement retaining the registry ID. References held elsewhere must be managed by the caller.</summary>
+        public int Replace(int id, T item)
+        {
+            if (item is null || item.Id != id) throw new ArgumentException("Replacement must retain the registry ID.", nameof(item));
+            if (!ContainsKey(id)) return ModelObjectId.IDUNASSIGNED;
+            this[id] = item;
+            return id;
         }
 
         /// <summary>
@@ -160,24 +172,13 @@ namespace GPC.Model.Collections
         }
 
         /// <summary>
-        /// Removes the given item (all the items equal to it, see <see cref="ModelObjectId.Equals(object)"/>). O(n)
+        /// Removes only the registered entity with the given ID and GUID, independently of its mutable content.
         /// </summary>
         /// <param name="item">The item to remove</param>
         /// <returns>True if the items were removed, false if there were none</returns>
         public bool Remove(T item)
         {
-            if (ContainsValue(item))
-            {
-                foreach (var i in this.Where(kvp => kvp.Value == item).ToList())
-                {
-                    if (i.Value.Id == _maxId)
-                        _maxId = Keys.Max();
-                    if (!Remove(i.Key))
-                        return false;
-                }
-                return true;
-            }
-            return false;
+            return !(item is null) && TryGetValue(item.Id, out var existing) && existing.Guid == item.Guid && Remove(item.Id);
         }
 
         /// <summary>

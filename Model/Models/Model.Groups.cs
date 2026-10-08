@@ -66,11 +66,20 @@ namespace GPC.Model.Models
             if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("Group name required.", nameof(newName));
             if (name == newName) return;
             if (Groups.ContainsKey(newName) || AllElements.Any(e => e.Groups.ContainsKey(newName))) throw new InvalidOperationException("GroupNameConflict");
-            var members = GetGroupElements(name);
+            GetGroupElements(name); // Validate the entire group graph before changing any index.
             if (AllElements.Any(e => e.Groups.TryGetValue(name, out var old) && !ReferenceEquals(old, group))) throw new InvalidOperationException("GroupIdentityConflict");
-            Groups.Remove(name); group.Name = newName; Groups.Add(newName, group);
-            foreach (var element in members) { element.Groups.Remove(name); element.Groups.Add(newName, group); }
-            foreach (var shell in AreaElements.Values.Where(a => a.Assignments.ReinforcementZone == name)) shell.Assignments.ReinforcementZone = newName;
+            group.Name = newName;
+        }
+
+        private void OnGroupRenamed(Group group, string oldName, string newName)
+        {
+            foreach (var shell in AreaElements.Values.Where(a => a.Assignments.ReinforcementZone == oldName))
+                shell.Assignments.ReinforcementZone = newName;
+        }
+
+        private void OnGroupRenaming(Group group, string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("Group name required.", nameof(newName));
         }
 
         public void ReparentGroup(string name, string parentName)

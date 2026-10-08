@@ -35,8 +35,38 @@ Evidenze (TestResults/Architecture20261008, artefatti locali ignorati):
   finale; il runner e' poi stato rieseguito correttamente nella cartella
   anthea-step1-verified. Non si tratta di una regressione del prodotto.
 
+2. Identita esplicita e mutazioni coerenti delle collezioni - COMPLETATO
+GPCModel 1.6.1.3.
+ModelObjectIdentityComparer confronta i GUID e mantiene stabili HashSet e
+Dictionary quando nome o contenuto cambiano. Equals/GetHashCode storici
+restano confronti di contenuto: i chiamanti che conservano entita in un
+HashSet devono scegliere esplicitamente il comparatore di identita.
+La rinomina aggiorna atomicamente tutti i registri UniqueNameCollection
+che contengono la stessa istanza, comprese appartenenze ai gruppi e zone
+di armatura, anche dopo deserializzazione. Un conflitto abortisce prima
+di mutare il nome o un indice. AddRange valida tutto prima di aggiungere.
+Per compatibilita binaria le collezioni continuano a derivare dai vecchi
+Dictionary: un registro debole osserva le voci effettive al momento della
+rinomina, inclusi gli inserimenti fatti tramite un cast alla classe base.
+Questo costo riguarda le rinomine, non i normali lookup; non introduce
+garanzie di mutazione concorrente. Il registro non trattiene i modelli.
+SortedCollection e UniqueIdCollection rimuovono per ID e GUID anziche per
+contenuto. Add rifiuta di sostituire implicitamente una diversa istanza
+con lo stesso ID; Replace rende questa intenzione esplicita. Un test
+storico di sostituzione e' stato migrato a Replace, mantenendo i controlli
+di identita. La numerazione osserva anche ID inseriti dalla API Dictionary.
+Gli indexer legacy restano modificabili: per la topologia usare le API
+controllate del Model; non e' stata eliminata l'intera superficie mutabile.
+
+Evidenze:
+- registry-before.trx: 5 regressioni falliscono prima della correzione.
+- registry-after.trx: 18 test mirati superati.
+- model-step2-verified.trx: 907 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- modelchecker-step2.trx: 106 superati, 0 falliti.
+- anthea-step2/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
+  Nessun deployment di DLL nei consumatori.
+
 Passi successivi della revisione:
-2. Identita esplicita e mutazioni coerenti delle collezioni.
 3. Assegnazioni di sezione generali, con compatibilita del contratto cls.
 4. Distinzione fra modello analizzato e scenario di verifica.
 5. Confini e responsabilita delle librerie.

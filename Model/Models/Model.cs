@@ -193,6 +193,8 @@ namespace GPC.Model.Models
             _volumeProperties = new UniqueNameCollection<BrickProperty>();
 
             _groups = new UniqueNameCollection<Group>();
+            _groups.ItemRenamed += OnGroupRenamed;
+            _groups.ItemRenaming += OnGroupRenaming;
             _costrains = new UniqueIdCollection<Costrain>();
 
             _nodesElements = new SortedCollection<NodeElement>();
@@ -240,6 +242,8 @@ namespace GPC.Model.Models
 
             _stageCombinationsMap = (Dictionary<int, HashSet<string>>)info.GetValue("StageCombinationsMap", typeof(Dictionary<int, HashSet<string>>));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));
+            _groups.ItemRenamed += OnGroupRenamed;
+            _groups.ItemRenaming += OnGroupRenaming;
             _stages = (UniqueIdCollection<Stage>)info.GetValue("Stages", typeof(UniqueIdCollection<Stage>));
             ModelLoads = SerializationFields.Read(info, "ModelLoads", new UniqueIdCollection<Load>());
         }
