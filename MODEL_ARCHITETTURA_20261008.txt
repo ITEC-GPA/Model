@@ -212,7 +212,34 @@ Evidenze (TestResults/Architecture20261008):
   delle trasformazioni fisiche e le deleghe delle API storiche.
 - anthea-step5/summary.json: 4 build e 4 suite PASS sul bundle temporaneo.
 
+6. Snapshot preparati stabili e controllo di obsolescenza - COMPLETATO
+GPCModel 1.6.1.7; GPCModelChecker 1.0.3.0.
+
+VerificationSnapshot.Capture(PreparedVerification) conserva privatamente
+gli input compatibili, comprese sollecitazioni e provenienza. OpenModel e
+gli overload Verify(snapshot, request) producono grafi indipendenti per ogni
+esecuzione; IsCurrent confronta lo snapshot con un modello corrente.
+
+ValidationReadScope e' interno, sincrono e limitato a una preparazione o
+validazione. Condivide impronte e diagnostica fra gli input dello stesso
+piano, senza attraversare motori, callback di avanzamento o await. Non e'
+una cache persistente: le proprieta legacy rimangono mutabili e ogni nuovo
+controllo rilegge i valori. BeamCheckPlan.IsCurrentFor confronta richiesta,
+scope e input preparati senza rigenerarli. Il routing multimateriale risolve
+gli elementi prima della preparazione, che avviene una volta sola; Current
+non ricostruisce il piano. I controlli prima/dopo i motori restano attivi.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step6.trx: 933 superati, 0 falliti, 2 fixture Straus7 assenti.
+- modelchecker-step6.trx: gli stessi 110 test passano in 1m03s contro 4m46s
+  del punto 5, sullo stesso ambiente; non e' un benchmark generale del FEM.
+- snapshot-step6.trx: ulteriore test di esecuzione ripetibile dopo una
+  modifica al grafo preparato, superato. Totale ModelChecker: 111 distinti.
+- anthea-step6/summary.json: 4 build e 4 suite PASS.
+Le mutazioni dirette di geometria, configurazioni, campioni, dataset e forze
+preparate continuano a invalidare input e resoconti. Il modello legacy non
+diventa thread-safe: le modifiche concorrenti richiedono snapshot separati.
+
 Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
-6. Snapshot preparati stabili e controllo di obsolescenza meno costoso.
 7. Contratti persistenti e organizzazione dei risultati.
 8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.

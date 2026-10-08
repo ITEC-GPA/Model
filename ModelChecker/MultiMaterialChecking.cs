@@ -51,6 +51,7 @@ namespace GPC.Model.Checker
         {
             internal MultiMaterialCheckJob Job;
             internal BeamCheckPlan Plan;
+            internal BeamCheckPlanRequest Request;
             internal Dictionary<int, IMaterialChecker> Routes;
             internal Dictionary<int, string> Keys;
             internal string Settings;
@@ -59,15 +60,18 @@ namespace GPC.Model.Checker
             c.GetType().AssemblyQualifiedName, c.Id, c.Version, c.Configuration, c.Standard?.Identity });
         private static MaterialPlan PrepareMaterialJob(Models.Model model, MultiMaterialCheckJob job, CancellationToken token)
         {
+            var result = ResolveMaterialJob(model, job);
+            result.Plan = BeamCheckPlan.PrepareActions(model, result.Request, token);
+            return result;
+        }
+        private static MaterialPlan ResolveMaterialJob(Models.Model model, MultiMaterialCheckJob job)
+        {
             if (job == null || string.IsNullOrWhiteSpace(job.Name) || job.Plan == null || job.Assignments == null
                 || job.Assignments.Any(a => a?.Checker == null)) throw new ArgumentException("InvalidMaterialCheckJob");
             if (job.Assignments.Any(a => a.Selection != null && (a.Selection.Families == null || a.Selection.Families.Any(f => f != EntityFamily.Beam))))
                 throw new NotSupportedException("MaterialAssignmentRequiresBeamSelection");
             var planRequest = job.Plan.Copy();
-            // The existing plan resolves members, explicit stations and source state exactly once.
-            var selectionPlan = BeamCheckPlan.PrepareActions(model, planRequest, token);
-            var ids = selectionPlan.WorkItems.Where(w => w.Target.BeamId.HasValue).Select(w => w.Target.BeamId.Value)
-                .Concat(selectionPlan.WorkItems.Where(w => w.Member != null).SelectMany(w => w.Member.Snapshot.Definition.Parts.Select(p => p.BeamId))).Distinct().ToArray();
+            var ids = BeamCheckPlan.ResolveBeamIds(model, planRequest);
             var routes = new Dictionary<int, IMaterialChecker>();
             var resolved = job.Assignments.Select(a => new { a.Checker, Ids = a.Selection?.Resolve(model).OfType<BeamElement>().Select(b => b.Id).ToArray() }).ToArray();
             foreach (int id in ids)
@@ -82,11 +86,11 @@ namespace GPC.Model.Checker
             planRequest.Settings = (planRequest.Settings ?? "") + "\nMaterialRouting:" + ModelArchive.Fingerprint(new object[] {
                 job.Assignments.Select(a => new object[] { a.Selection, EngineKey(a.Checker) }).ToArray(),
                 keys.OrderBy(p => p.Key).Select(p => new object[] { p.Key, p.Value }).ToArray() });
-            return new MaterialPlan { Job = job, Routes = routes, Keys = keys, Settings = job.Plan.Settings, Plan = BeamCheckPlan.PrepareActions(model, planRequest, token) };
+            return new MaterialPlan { Job = job, Routes = routes, Keys = keys, Settings = job.Plan.Settings, Request = planRequest };
         }
         private static bool Current(Models.Model model, MaterialPlan plan)
         {
-            try { return plan.Plan.IsCurrent && PrepareMaterialJob(model, plan.Job, new CancellationToken(true)).Plan.ScopeFingerprint == plan.Plan.ScopeFingerprint; }
+            try { return plan.Plan.IsCurrentFor(ResolveMaterialJob(model, plan.Job).Request); }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
         }
         /// <summary>One sequential run, several materials/standards. Ambiguous assignments fail before any engine is invoked.</summary>

@@ -18,8 +18,11 @@ namespace GPC.Model.Checking
     {
         public static BeamPreparation Prepare(Models.Model model, int beamId, StationResultBeamForces sample, string settings)
         {
-            var b = model.BeamElements[beamId]; var errors = model.ValidateTopology().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
-            errors.AddRange(model.ValidateAssignments().Where(d => d.Severity == DiagnosticSeverity.Error));
+            using (ValidationReadScope.Enter(model)) return PrepareCore(model, beamId, sample, settings);
+        }
+        private static BeamPreparation PrepareCore(Models.Model model, int beamId, StationResultBeamForces sample, string settings)
+        {
+            var b = model.BeamElements[beamId]; var errors = ValidationReadScope.Errors(model).ToList();
             if (errors.Count > 0) return new BeamPreparation { BeamId = beamId, Sample = sample, Status = DataStatus.Insufficient, Diagnostics = errors };
             var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
             if (compatibility != null) return new BeamPreparation { BeamId = beamId, Sample = sample, Status = compatibilityStatus, Diagnostics = new[] { compatibility } };
@@ -95,7 +98,11 @@ namespace GPC.Model.Checking
             };
         }
 
-        internal static bool IsCurrent(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
+        internal static bool IsCurrent(BeamCheckInput input)
+        {
+            using (ValidationReadScope.Enter(input.Model)) return IsCurrentCore(input);
+        }
+        private static bool IsCurrentCore(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
             && ResultAlgebra.HasCurrentDerivation(input.Model, input.Model.BeamElements[input.BeamId], input.Sample.State)
             && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })

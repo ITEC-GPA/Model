@@ -25,8 +25,8 @@ namespace GPC.Model.PostProcessing
     {
         // Low-level legacy section preparation remains usable without a Model analysis record.
         // ModelChecker always requires the strict Validate gate, including for legacy models.
-        internal static bool KnownAnalysisIsCompatible(Models.Model model) => model.Analysis == null
-            || Validate(model).Status == AnalysisCompatibility.Compatible && (model.VerificationContext == null || model.VerificationContext.IsCurrent(model));
+        internal static bool KnownAnalysisIsCompatible(Models.Model model) => Checking.ValidationReadScope.Read(model, "known-analysis", () => model.Analysis == null
+            || Validate(model).Status == AnalysisCompatibility.Compatible && (model.VerificationContext == null || model.VerificationContext.IsCurrent(model)));
         internal static ModelDiagnostic KnownAnalysisDiagnostic(Models.Model model, out DataStatus status)
         {
             status = DataStatus.Insufficient;
@@ -38,7 +38,7 @@ namespace GPC.Model.PostProcessing
         public static AnalysisCompatibilityResult Validate(Models.Model model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
-            try { return ValidateInputs(model); }
+            try { return Checking.ValidationReadScope.Read(model, "analysis-compatibility", () => ValidateInputs(model)); }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
             { return Unknown("InvalidAnalysisInputs", ex.Message); }
         }

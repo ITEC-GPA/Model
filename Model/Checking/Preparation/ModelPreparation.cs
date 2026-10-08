@@ -106,6 +106,10 @@ namespace GPC.Model.PostProcessing
         }
         public static ModelPreparation Prepare(Models.Model model, PreparationRequest request, CancellationToken cancellationToken = default)
         {
+            using (GPC.Model.Checking.ValidationReadScope.Enter(model)) return PrepareRead(model, request, cancellationToken);
+        }
+        private static ModelPreparation PrepareRead(Models.Model model, PreparationRequest request, CancellationToken cancellationToken)
+        {
             Validate(request); var snapshot = request.Copy(); var rows = Enumerate(model, snapshot);
             var scope = FingerprintScope(model, snapshot);
             foreach (var row in rows)

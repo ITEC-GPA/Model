@@ -23,7 +23,8 @@ namespace GPC.Model.PostProcessing
         internal string Revision;
         internal string DatasetFingerprint;
         internal string PreparedPropertyFingerprint;
-        public bool IsCurrent => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element)
+        public bool IsCurrent { get { using (Checking.ValidationReadScope.Enter(Model)) return IsCurrentCore(); } }
+        private bool IsCurrentCore() => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, Sample))
             && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
@@ -41,9 +42,13 @@ namespace GPC.Model.PostProcessing
         public IReadOnlyList<ModelDiagnostic> Diagnostics { get; private set; }
         public static BeamActionPreparation Prepare(Models.Model model, int id, StationResultBeamForces sample, string settings)
         {
+            using (Checking.ValidationReadScope.Enter(model)) return PrepareCore(model, id, sample, settings);
+        }
+        private static BeamActionPreparation PrepareCore(Models.Model model, int id, StationResultBeamForces sample, string settings)
+        {
             var beam = model.BeamElements[id]; var diagnostics = new List<ModelDiagnostic>();
             var result = new BeamActionPreparation { Status = DataStatus.Insufficient, Diagnostics = diagnostics.AsReadOnly() };
-            diagnostics.AddRange(model.ValidateTopology().Concat(model.ValidateAssignments()).Where(d => d.Severity == DiagnosticSeverity.Error));
+            diagnostics.AddRange(Checking.ValidationReadScope.Errors(model));
             if (diagnostics.Count > 0) return result;
             var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
             if (compatibility != null) { diagnostics.Add(compatibility); result.Status = compatibilityStatus; return result; }

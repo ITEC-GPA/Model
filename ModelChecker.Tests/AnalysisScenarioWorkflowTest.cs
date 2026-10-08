@@ -11,6 +11,23 @@ namespace ModelChecker.Tests;
 [TestClass]
 public class AnalysisScenarioWorkflowTest
 {
+    [TestMethod]
+    public void FrozenExecutionIsRepeatableAfterThePreparedGraphChanges()
+    {
+        var model = MixedModelFactory.Create();
+        var prepared = VerificationPreparation.Prepare(model, VerificationScenario.Create(model.Analysis.Id, "Frozen"));
+        var snapshot = GPC.Model.Checking.VerificationSnapshot.Capture(prepared);
+        prepared.Model.NodesElements[40].Position.Z += 1;
+        Assert.IsFalse(prepared.IsCurrent);
+        var service = new Service(_ => new Verifier());
+        var first = service.Verify(snapshot, Request());
+        var second = service.Verify(snapshot, Request());
+        Assert.AreEqual(5, first.Executed);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, first.Outcome);
+        CollectionAssert.AreEqual(first.Jobs.Single().Results.Select(r => r.Utilization).ToArray(),
+            second.Jobs.Single().Results.Select(r => r.Utilization).ToArray());
+    }
+
     private static ModelCheckRequest Request()
     {
         var request = new ModelCheckRequest();

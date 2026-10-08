@@ -10,7 +10,7 @@ namespace GPC.Model.PostProcessing
         /// <summary>Evaluated on demand. Observes legacy mutable points, properties, attributes, loads and collections.</summary>
         public static string AnalysisFingerprint(this Models.Model model)
         {
-            return ModelArchive.Fingerprint(AnalysisInputs(model, true));
+            return Checking.ValidationReadScope.Read(model, "analysis", () => ModelArchive.Fingerprint(AnalysisInputs(model, true)));
         }
         /// <summary>The inputs that tie the results of a solver to the elements: those of <see cref="AnalysisFingerprint"/> without beam and
         /// plate properties, materials, physical thicknesses and combinations, which may be edited after an import (e.g. for the checks)
@@ -89,9 +89,9 @@ namespace GPC.Model.PostProcessing
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {
-            return ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
+            return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
-                .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments)));
+                .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))));
         }
 
         private static IEnumerable<object> AssignedPhysicalSection(ElementProperties.BeamProperty property)

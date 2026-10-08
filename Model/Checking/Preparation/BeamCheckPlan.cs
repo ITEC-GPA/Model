@@ -40,11 +40,14 @@ namespace GPC.Model.PostProcessing
         public BeamCheckPlanRequest Request { get; private set; }
         public string ScopeFingerprint { get; private set; }
         public IReadOnlyList<CheckWorkItem> WorkItems { get; private set; }
-        public bool IsCurrent
+        public bool IsCurrent => IsCurrentFor(Request);
+        /// <summary>Checks current selectors/configuration and prepared inputs without rebuilding transformations or tasks.</summary>
+        public bool IsCurrentFor(BeamCheckPlanRequest currentRequest)
         {
-            get
+            using (ValidationReadScope.Enter(_model))
             {
-                try { return ScopeFingerprint == ScopeDigest(_model, Request, _actionsOnly) && _preparedFingerprint == PreparedFingerprint()
+                try { return ScopeFingerprint == ScopeDigest(_model, currentRequest, _actionsOnly)
+                        && (ReferenceEquals(Request, currentRequest) || ScopeFingerprint == ScopeDigest(_model, Request, _actionsOnly)) && _preparedFingerprint == PreparedFingerprint()
                         && WorkItems.All(w => (w.Section?.Input == null || w.Section.Input.IsCurrent) && (w.Actions?.Input == null || w.Actions.Input.IsCurrent)
                             && (w.Member == null || w.Member.Sections.All(s => s.IsCurrent))); }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
@@ -126,12 +129,20 @@ namespace GPC.Model.PostProcessing
             => !actionsOnly ? FingerprintScope(model, request) : ModelArchive.Fingerprint(new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
                 .Concat(Resolve(model, request).Beams.Values.OrderBy(b => b.Id).SelectMany(b => new object[] { b.Id, b.BeamProperty })));
 
+        /// <summary>Resolves only the selected elements, without preparing samples or invoking an engine.</summary>
+        public static IReadOnlyList<int> ResolveBeamIds(Models.Model model, BeamCheckPlanRequest request)
+            => Array.AsReadOnly(Resolve(model, request).Beams.Keys.OrderBy(id => id).ToArray());
+
         public static BeamCheckPlan Prepare(Models.Model model, BeamCheckPlanRequest request, CancellationToken token = default(CancellationToken))
             => PrepareCore(model, request, token, false);
         /// <summary>Same coverage and identities, without assuming a reinforced-concrete section.</summary>
         public static BeamCheckPlan PrepareActions(Models.Model model, BeamCheckPlanRequest request, CancellationToken token = default(CancellationToken))
             => PrepareCore(model, request, token, true);
         private static BeamCheckPlan PrepareCore(Models.Model model, BeamCheckPlanRequest request, CancellationToken token, bool actionsOnly)
+        {
+            using (ValidationReadScope.Enter(model)) return PrepareRead(model, request, token, actionsOnly);
+        }
+        private static BeamCheckPlan PrepareRead(Models.Model model, BeamCheckPlanRequest request, CancellationToken token, bool actionsOnly)
         {
             Resolve(model, request); var r = request.Copy(); var scope = Resolve(model, r);
             var plan = new BeamCheckPlan { _model = model, _actionsOnly = actionsOnly, Request = r, ScopeFingerprint = ScopeDigest(model, r, actionsOnly) };
