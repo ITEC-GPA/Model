@@ -8,7 +8,7 @@ using GPC.Model.Persistence;
 
 namespace GPC.Model.PostProcessing
 {
-    public enum CheckScope { SectionSample, PhysicalMember }
+    public enum CheckScope { SectionSample, PhysicalMember, ShellPoint }
     public enum CheckTargetKind { FemElement, PhysicalMember }
     public enum BeamCoveragePolicy { ExportedSamples, RequiredLocations }
 
@@ -18,8 +18,15 @@ namespace GPC.Model.PostProcessing
         public CheckTargetKind Kind { get; private set; }
         public int? BeamId { get; private set; }
         public string MemberId { get; private set; }
+        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet] public EntityFamily? Family { get; private set; }
+        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet] public int? ElementId { get; private set; }
         public CheckTargetReference(int beamId, string memberId = null) { Kind = CheckTargetKind.FemElement; BeamId = beamId; MemberId = memberId; }
         public CheckTargetReference(string memberId) { CheckValue.Text(memberId, nameof(memberId)); Kind = CheckTargetKind.PhysicalMember; MemberId = memberId; }
+        public CheckTargetReference(EntityFamily family, int elementId)
+        {
+            if (family != EntityFamily.Shell) throw new ArgumentException("Use the beam/member constructors for their existing identities.");
+            Kind = CheckTargetKind.FemElement; Family = family; ElementId = elementId;
+        }
     }
 
     [Serializable]

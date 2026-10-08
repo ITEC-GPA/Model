@@ -293,3 +293,66 @@ numerici sono invariati. Nessun sorgente Checker/Anthea modificato qui.
 
 Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
 8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.
+
+Checkpoint prima dello spegnimento, 8 ottobre 2026.
+GPCModel 1.6.1.9; GPCModelChecker 1.0.4; GPCConverter invariato.
+
+Implementato e verificato nella parte 8A:
+- VerificationConfiguration: dati persistenti e versionati, contesti normativi
+  riutilizzabili, revisioni, unita, definizioni motore e assegnazioni.
+- EngineCatalog: factory registrate esplicitamente, capacita e limiti;
+  configurazione salvabile per Concrete, Steel e CompositeBridge.
+- Routing beam per meccanismo o specifico controllo, conflitti rilevati prima
+  delle sessioni native. Domini delle sezioni e facce plate espliciti.
+- Plate: selezione elementi/gruppi, preparazione materiale-neutra,
+  CoordinateSystem elemento/armatura/esplicito, stati concomitanti,
+  IPlateChecker/IPlateCheckSession, copertura per punti esportati, progress,
+  cancellazione, invalidazione per modifiche a input, risultati o motori.
+- Verify(model, configuration, catalog) prepara beam e plate prima di
+  creare sessioni e raccoglie i resoconti comuni. Supporta VerificationSnapshot.
+- ShellThickness in ElementProperties: oggetto immutabile, in mm, distinto
+  dal materiale, con spessore fisico, equivalente membranale e flessionale.
+  Nessuna duplicazione dei dati autorevoli di PlateProperty/ShellAssignments.
+  Snapshot dei tre valori nel resoconto, acquisito PRIMA del checker.
+- Resoconti plate schema 3 nel wrapper v4: target 2D, punto, faccia, assi,
+  azioni e spessori usati. Gli archivi beam precedenti rimangono leggibili.
+- Due categorie di verifica sullo stesso stato plate mantengono due task.
+
+Limiti espliciti:
+- Concrete.Plate e Steel.Plate nel catalogo sono capacita NON disponibili:
+  producono NotEvaluated/MissingDependency. Non sono state inventate formule
+  resistenti. I test plate usano un adapter di protocollo dichiaratamente
+  fittizio, separato dai motori resistenti reali dei beam.
+- La rotazione ordinaria conserva la normale. La sua inversione va prima
+  normalizzata esplicitamente con ResultOrientation.Shell/ShellLayers;
+  non viene applicata automaticamente dal piano di verifica.
+- Spessore costante per elemento. Stratificati e campi variabili richiedono
+  contratti dedicati. Copriferro e altezza utile non sono Thickness.
+- Questo checkpoint NON conclude tutto il punto 8.
+
+Ripresa (ordine consigliato):
+1. Revisione finale del nuovo flusso plate: dettaglio direzione/categoria
+   nel resoconto leggibile, capability/context dei plugin e prove miste
+   beam+plate nello stesso model, routing plate per singolo controllo.
+2. Punto 8B: manifest delle DLL esterne con SHA256/versione/provenienza,
+   directory bundle esplicita e verifica in build/CI; baseline automatica
+   delle API pubbliche. Oggi restano i riferimenti alle bin/Release sorelle.
+3. Riordino/pulizia richiesto dall'utente, con COMMIT SEPARATO: inventario
+   dei riferimenti interni ed esterni prima di rimuovere API pubbliche.
+   Gia individuati: vecchi Compile Remove su cartelle FEM ora inesistenti,
+   abbozzi FemBeam/EulerBeam in Model/Compatibility/FiniteElementAnalysis,
+   stub NotImplementedException e TODO in sezioni/carichi/risultati.
+   Non tutti sono codice morto: alcuni fanno parte di API/archivi storici.
+   Non sono state effettuate cancellazioni generiche prima dello stop.
+4. Completare i test aggiuntivi, aggiornare questo resoconto e dichiarare
+   concluso il punto 8 solo quando anche 8B e' completato.
+
+Validazione checkpoint:
+- model-step8-checkpoint.trx: 939 pass, 0 fail, 2 fixture Straus7 assenti.
+- modelchecker-step8-checkpoint.trx: 119 pass, 0 fail.
+- configured-step8-final.trx: 9 pass, 0 fail dopo la correzione di categorie
+  plate (include i precedenti 8 casi e il nuovo caso multicategoria).
+- anthea-step8-checkpoint/summary.json: quattro build e quattro suite PASS
+  con bundle temporaneo; nessuna DLL distribuita Anthea modificata.
+- L'ultima correzione aggiunge un percorso di enumerazione plate;
+  l'enumerazione legacy resta invariata. Nessuna formula nativa modificata.

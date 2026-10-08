@@ -3,24 +3,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
+using GPC.Model.ElementProperties;
 using GPC.Model.Persistence;
 using GPC.Model.Results;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
 {
+    public enum ShellInputAxes { Element, Reinforcement, Explicit }
     public sealed class ShellCheckInput
     {
         internal Models.Model Model { get; set; }
         internal string PreparedFingerprint { get; set; }
+        internal string DatasetFingerprint { get; set; }
         public AreaElement Element { get; internal set; }
         public PointResultPlateForces Sample { get; internal set; }
         public ResultPlateForces LocalForces { get; internal set; }
         public ShellAssignments Assignments => Element.Assignments;
+        public ShellThickness Thickness { get; internal set; }
         public string Settings { get; internal set; }
         public string VerificationRevision { get; internal set; }
         public string SampleRevision { get; internal set; }
-        public bool IsCurrent => VerificationRevision == Model.VerificationFingerprint(Settings)
+        public bool IsCurrent => !string.IsNullOrEmpty(Sample?.State?.DatasetId) && Model.AreaElements.TryGetValue(Element.Id, out var current) && ReferenceEquals(current, Element)
+            && Element.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, Sample))
+            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
+            && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State)
+            && VerificationRevision == Model.VerificationFingerprint(Settings)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && SampleRevision == ModelArchive.Fingerprint(new object[] { Sample })
             && PreparedFingerprint == ModelArchive.Fingerprint(new object[] { LocalForces });
@@ -35,17 +43,22 @@ namespace GPC.Model.PostProcessing
         public IReadOnlyList<ModelDiagnostic> Diagnostics { get; private set; }
 
         public static ShellInputPreparation Prepare(Models.Model model, int shellId, PointResultPlateForces sample, string settings)
+            => PrepareCore(model, shellId, sample, model.AreaElements[shellId].Assignments.LayerAxes, settings, true);
+        /// <summary>Material-neutral shell actions in an explicitly supplied coordinate system. Reinforcement requirements belong to the selected verifier.</summary>
+        public static ShellInputPreparation PrepareActions(Models.Model model, int shellId, PointResultPlateForces sample, GPC.Geometry.CoordinateSystem axes, string settings)
+            => PrepareCore(model, shellId, sample, axes, settings, false);
+        private static ShellInputPreparation PrepareCore(Models.Model model, int shellId, PointResultPlateForces sample, GPC.Geometry.CoordinateSystem axes, string settings, bool reinforcementRequired)
         {
             var shell = model.AreaElements[shellId]; var status = DataStatus.Insufficient;
-            var errors = model.ValidateTopology().Concat(model.ValidateAssignments()).Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            var errors = Checking.ValidationReadScope.Errors(model).ToList();
             var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
             if (compatibility != null) { errors.Add(compatibility); status = compatibilityStatus; }
             var state = sample?.State;
             if (state != null && !ResultAlgebra.HasCurrentDerivation(model, shell, state)) { errors.Add(ModelDiagnostic.Error("StaleDerivedSources", shell)); status = DataStatus.Stale; }
             if (sample == null || !shell.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))) errors.Add(ModelDiagnostic.Error("MissingShellSample", shell));
             if (!shell.Assignments.PhysicalThickness.HasValue) errors.Add(ModelDiagnostic.Error("MissingPhysicalThickness", shell));
-            if (shell.PlateProperty == null) errors.Add(ModelDiagnostic.Error("MissingShellProperty", shell));
-            if (shell.Assignments.Layers.Count == 0 || shell.Assignments.Layers.Any(l => l.Steel == null || string.IsNullOrWhiteSpace(l.PhysicalFace))) errors.Add(ModelDiagnostic.Error("MissingShellReinforcement", shell));
+            if (shell.PlateProperty is null) errors.Add(ModelDiagnostic.Error("MissingShellProperty", shell));
+            if (reinforcementRequired && (shell.Assignments.Layers.Count == 0 || shell.Assignments.Layers.Any(l => l.Steel == null || string.IsNullOrWhiteSpace(l.PhysicalFace)))) errors.Add(ModelDiagnostic.Error("MissingShellReinforcement", shell));
             if (state == null || state.Components == null || state.Components.Length != 8 || state.Components.Any(c => c != ComponentAvailability.Available)
                 || sample.Case == null || string.IsNullOrWhiteSpace(state.ConcomitantStateId)) errors.Add(ModelDiagnostic.Error("IncompleteShellState", shell));
             if (state == null || string.IsNullOrEmpty(state.DatasetId) || !model.Datasets.TryGetValue(state.DatasetId, out var dataset)
@@ -60,10 +73,11 @@ namespace GPC.Model.PostProcessing
             try
             {
                 if (sample.Forces == null) throw new ArgumentException("MissingShellForces");
-                var target = ActionTransformations.AtPoint(shell.Assignments.LayerAxes, sample.Forces.CoordinateSystem.Origin);
+                var target = ActionTransformations.AtPoint(axes, sample.Forces.CoordinateSystem.Origin);
                 var local = ActionTransformations.RotateShell(sample, target).Forces;
-                result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings,
+                result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings, Thickness = ShellThickness.From(shell),
                     VerificationRevision = model.VerificationFingerprint(settings), SampleRevision = ModelArchive.Fingerprint(new object[] { sample }),
+                    DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
                     PreparedFingerprint = ModelArchive.Fingerprint(new object[] { local }) };
                 result.Status = DataStatus.Ready;
             }

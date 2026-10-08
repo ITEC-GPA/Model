@@ -237,6 +237,7 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.CheckResult", "<Scope>k__BackingField", "<Scope>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<Settings>k__BackingField", "<Settings>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellCoordinateKind>k__BackingField", "<ShellCoordinateKind>k__BackingField", false),
+                Field("GPC.Model.PostProcessing.CheckResult", "<ShellInput>k__BackingField", "<ShellInput>k__BackingField", true),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellPoint>k__BackingField", "<ShellPoint>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellPointKind>k__BackingField", "<ShellPointKind>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<Side>k__BackingField", "<Side>k__BackingField", false),
@@ -256,6 +257,8 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.CheckStandardContext", "<Reference>k__BackingField", "<Reference>k__BackingField", false));
             Register("GPC.Model.PostProcessing.CheckTargetReference", "GPC.Model.PostProcessing.CheckTargetReference",
                 Field("GPC.Model.PostProcessing.CheckTargetReference", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false),
+                Field("GPC.Model.PostProcessing.CheckTargetReference", "<ElementId>k__BackingField", "<ElementId>k__BackingField", true),
+                Field("GPC.Model.PostProcessing.CheckTargetReference", "<Family>k__BackingField", "<Family>k__BackingField", true),
                 Field("GPC.Model.PostProcessing.CheckTargetReference", "<Kind>k__BackingField", "<Kind>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckTargetReference", "<MemberId>k__BackingField", "<MemberId>k__BackingField", false));
             Register("GPC.Model.PostProcessing.CoverageAssessment", "GPC.Model.PostProcessing.CoverageAssessment",

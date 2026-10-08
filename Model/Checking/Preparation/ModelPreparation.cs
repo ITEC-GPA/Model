@@ -79,7 +79,7 @@ namespace GPC.Model.PostProcessing
             if (request.Mechanisms == null || request.Mechanisms.Length == 0 || request.Mechanisms.Distinct().Count() != request.Mechanisms.Length
                 || request.Mechanisms.Any(m => !Enum.IsDefined(typeof(CheckMechanism), m))) throw new ArgumentException("InvalidCheckMechanisms");
         }
-        private static PreparedElementSample[] Enumerate(Models.Model model, PreparationRequest request)
+        private static PreparedElementSample[] Enumerate(Models.Model model, PreparationRequest request, bool preserveCategories = false)
         {
             Validate(request);
             var rows = new List<PreparedElementSample>(); var selected = request.Selection.Resolve(model);
@@ -87,9 +87,16 @@ namespace GPC.Model.PostProcessing
             foreach (var element in selected)
             {
                 var seen = new HashSet<ResultLocation>(ReferenceComparer<ResultLocation>.Instance);
+                var categorySamples = new Dictionary<CombinationCategory, HashSet<ResultLocation>>();
                 var missing = new HashSet<string>();
                 foreach (var selection in request.Results)
                 {
+                    if (preserveCategories)
+                    {
+                        var category = selection.Category ?? CombinationCategory.Unspecified;
+                        if (!categorySamples.TryGetValue(category, out seen))
+                            categorySamples.Add(category, seen = new HashSet<ResultLocation>(ReferenceComparer<ResultLocation>.Instance));
+                    }
                     var values = element is BeamElement beam ? ResultQueries.Samples<StationResultBeamForces>(beam, selection).Cast<ResultLocation>().ToArray()
                         : ResultQueries.Samples<PointResultPlateForces>(element, selection).Cast<ResultLocation>().ToArray();
                     if (values.Length == 0 && missing.Add(ModelArchive.Fingerprint(new object[] { selection }))) values = new ResultLocation[] { null };
@@ -100,13 +107,37 @@ namespace GPC.Model.PostProcessing
             return rows.ToArray();
         }
         public static string FingerprintScope(Models.Model model, PreparationRequest request)
+            => FingerprintScopeCore(model, request, false);
+        public static string FingerprintShellScope(Models.Model model, PreparationRequest request)
+            => FingerprintScopeCore(model, request, true);
+        private static string FingerprintScopeCore(Models.Model model, PreparationRequest request, bool preserveCategories)
         {
-            var entries = Enumerate(model, request);
+            var entries = Enumerate(model, request, preserveCategories);
             return ModelArchive.Fingerprint(new object[] { request }.Concat(entries.SelectMany(e => new object[] { e.Element, e.Selection, e.Sample })));
         }
         public static ModelPreparation Prepare(Models.Model model, PreparationRequest request, CancellationToken cancellationToken = default)
         {
             using (GPC.Model.Checking.ValidationReadScope.Enter(model)) return PrepareRead(model, request, cancellationToken);
+        }
+        public static ModelPreparation PrepareShellActions(Models.Model model, PreparationRequest request, ShellInputAxes axesKind,
+            GPC.Geometry.CoordinateSystem axes = null, CancellationToken cancellationToken = default)
+        {
+            if (!Enum.IsDefined(typeof(ShellInputAxes), axesKind) || request?.Selection?.Families == null
+                || request.Selection.Families.Any(f => f != EntityFamily.Shell) || (axesKind == ShellInputAxes.Explicit) != (axes != null))
+                throw new ArgumentException("ExplicitShellScopeAndAxesRequired");
+            using (ValidationReadScope.Enter(model))
+            {
+                Validate(request); var snapshot = request.Copy(); var rows = Enumerate(model, snapshot, true);
+                var scope = FingerprintShellScope(model, snapshot);
+                foreach (var row in rows)
+                {
+                    if (cancellationToken.IsCancellationRequested) { row.Cancelled = true; continue; }
+                    var element = model.AreaElements[row.Element.Id];
+                    var target = axesKind == ShellInputAxes.Explicit ? axes : axesKind == ShellInputAxes.Reinforcement ? element.Assignments.LayerAxes : element.CoordinateSystem;
+                    row.Shell = ShellInputPreparation.PrepareActions(model, element.Id, (PointResultPlateForces)row.Sample, target, snapshot.Settings);
+                }
+                return new ModelPreparation { Request = snapshot, ScopeFingerprint = scope, Samples = rows };
+            }
         }
         private static ModelPreparation PrepareRead(Models.Model model, PreparationRequest request, CancellationToken cancellationToken)
         {

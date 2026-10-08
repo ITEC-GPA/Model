@@ -43,6 +43,18 @@ namespace GPC.Model.PostProcessing
             report.SealScope();
             return report;
         }
+        /// <summary>One outcome for each explicit shell task, including absent and unsupported inputs.</summary>
+        public static CheckReport ForShellPlan(string job, ModelPreparation preparation, IEnumerable<string> itemIds, IEnumerable<CheckResult> results)
+        {
+            if (preparation == null || itemIds == null || results == null) throw new ArgumentNullException();
+            var ids = itemIds.ToArray();
+            if (ids.Any(string.IsNullOrWhiteSpace) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length) throw new ArgumentException("UniqueShellTaskIdsRequired");
+            var report = new CheckReport { Job = job, Scope = preparation.Request.Copy(), ScopeFingerprint = preparation.ScopeFingerprint, Required = ids.Length };
+            report.Results.AddRange(results);
+            if (!ids.SequenceEqual(report.Results.Select(r => r?.PlanItemId)) || report.Results.Any(r => r.Family != EntityFamily.Shell || r.SchemaVersion != 3))
+                throw new ArgumentException("Every shell task needs one ordered shell outcome.");
+            report.SealScope(); return report;
+        }
         public static CheckReport ForSingleResult(CheckResult result)
         {
             if (result == null) throw new ArgumentNullException(nameof(result));

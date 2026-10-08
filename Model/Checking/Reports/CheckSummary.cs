@@ -8,20 +8,23 @@ namespace GPC.Model.PostProcessing
     {
         internal static bool ValidDecision(CheckResult r)
         {
-            if (r == null || r.Diagnostics == null || r.SchemaVersion < 0 || r.SchemaVersion > 2 || !Enum.IsDefined(typeof(CheckApplicability), r.Applicability)
+            if (r == null || r.Diagnostics == null || r.SchemaVersion < 0 || r.SchemaVersion > 3 || !Enum.IsDefined(typeof(CheckApplicability), r.Applicability)
                 || !Enum.IsDefined(typeof(EngineeringOutcome), r.Outcome) || !Enum.IsDefined(typeof(ExecutionStatus), r.Execution)
                 || !Enum.IsDefined(typeof(DataStatus), r.Data)) return false;
-            if (r.SchemaVersion == 2 && (r.Target == null || !Enum.IsDefined(typeof(CheckScope), r.Scope) || !Enum.IsDefined(typeof(CheckTargetKind), r.Target.Kind)
+            if (r.SchemaVersion >= 2 && (r.Target == null || !Enum.IsDefined(typeof(CheckScope), r.Scope) || !Enum.IsDefined(typeof(CheckTargetKind), r.Target.Kind)
                 || string.IsNullOrWhiteSpace(r.PlanItemId) || r.CoverageAssessment == null
                 || (r.Scope == CheckScope.PhysicalMember) != (r.Target.Kind == CheckTargetKind.PhysicalMember)
                 || (r.Scope == CheckScope.PhysicalMember && (r.Target.BeamId.HasValue || string.IsNullOrWhiteSpace(r.Target.MemberId)
                     || r.MemberInput?.Definition?.Id != r.Target.MemberId || string.IsNullOrWhiteSpace(r.MethodId)))
-                || (r.Scope == CheckScope.SectionSample && (r.Target.BeamId != r.ElementId || r.Family != EntityFamily.Beam)))) return false;
+                || (r.Scope == CheckScope.SectionSample && (r.Target.BeamId != r.ElementId || r.Family != EntityFamily.Beam))
+                || (r.Scope == CheckScope.ShellPoint && (r.SchemaVersion < 3 || r.Family != EntityFamily.Shell || r.Target.Family != EntityFamily.Shell
+                    || r.Target.ElementId != r.ElementId || r.Target.BeamId.HasValue || r.Target.MemberId != null || string.IsNullOrWhiteSpace(r.MethodId))))) return false;
             if (r.Applicability != CheckApplicability.Required)
                 return !string.IsNullOrWhiteSpace(r.ApplicabilityReason) && r.Outcome == EngineeringOutcome.NotEvaluated
                     && r.Execution == ExecutionStatus.NotExecuted && !r.Utilization.HasValue;
             if (r.Outcome == EngineeringOutcome.NotEvaluated) return true;
             if (r.Execution != ExecutionStatus.Completed || r.Data != DataStatus.Ready || r.Details?.Convergence?.Converged == false) return false;
+            if (r.Scope == CheckScope.ShellPoint && r.ShellInput == null) return false;
             if (r.Utilization.HasValue)
             {
                 var u = r.Utilization.Value;

@@ -8,6 +8,9 @@ namespace GPC.Model.Persistence
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(global::GPC.Model.ElementProperties.ShellThickness),
+            typeof(global::GPC.Model.PostProcessing.ShellInputAxes),
+            typeof(global::GPC.Model.PostProcessing.ShellInputSnapshot),
             typeof(global::GPC.Model.Attributes.BeamConnectionKind),
             typeof(global::GPC.Model.Attributes.BeamDofConnection),
             typeof(global::GPC.Model.Attributes.BeamReleasesAttribute),

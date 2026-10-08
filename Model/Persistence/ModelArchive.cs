@@ -22,6 +22,8 @@ namespace GPC.Model.Persistence
     public static class ModelArchive
     {
         private static readonly Type[] KnownTypes = DataTypes();
+        /// <summary>Closed leaf vocabulary shared by document/configuration codecs; caller files cannot add CLR types.</summary>
+        public static IReadOnlyCollection<Type> DataContracts => Array.AsReadOnly(KnownTypes);
         private static Type[] DataTypes()
         {
             // The assemblies and namespaces are fixed here, never selected by an input file.
@@ -68,7 +70,7 @@ namespace GPC.Model.Persistence
 
         public static void Save(Models.Model model, Stream destination)
         {
-            if (model?.Analysis?.UsesCanonicalFingerprint == true) { SaveDocument(model, destination); return; }
+            if (model?.Analysis?.UsesCanonicalFingerprint == true || model != null && CheckReportArchive.RequiresVersion4(model.CheckReports)) { SaveDocument(model, destination); return; }
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             // Build the archive before touching the caller's destination on serialization errors.
             using (var memory = new MemoryStream())
@@ -95,6 +97,7 @@ namespace GPC.Model.Persistence
                     : (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
                 reader.ReadEndElement();
                 CheckReportArchive.Validate(model.CheckReports.ToArray());
+                if (version != "4" && CheckReportArchive.RequiresVersion4(model.CheckReports)) throw new SerializationException("Plate task reports require archive version 4.");
                 if (version != "3" && version != "4" && (model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)))
                     throw new SerializationException("Analysis/scenario provenance requires archive version 3.");
                 model.Analysis?.OpenModel();

@@ -34,6 +34,12 @@ namespace GPC.Model.Checker
         /// <summary>Null matches the job's full selection, still filtered by the checker's material capability.</summary>
         public ElementSelection Selection { get; set; }
         public IMaterialChecker Checker { get; set; }
+        /// <summary>Null means all mechanisms. An empty array selects none.</summary>
+        public CheckMechanism[] Mechanisms { get; set; }
+        /// <summary>Optional exact discriminators. Null also matches legacy mechanism-only tasks.</summary>
+        public SectionCheckSpecification[] Checks { get; set; }
+        internal bool Matches(CheckMechanism mechanism, SectionCheckSpecification check) => (Mechanisms == null || Mechanisms.Contains(mechanism))
+            && (Checks == null || check != null && Checks.Any(c => c.Key == check.Key));
     }
     public sealed class MultiMaterialCheckJob
     {
@@ -52,12 +58,14 @@ namespace GPC.Model.Checker
             internal MultiMaterialCheckJob Job;
             internal BeamCheckPlan Plan;
             internal BeamCheckPlanRequest Request;
-            internal Dictionary<int, IMaterialChecker> Routes;
-            internal Dictionary<int, string> Keys;
+            internal Dictionary<string, IMaterialChecker> Routes;
+            internal Dictionary<string, string> Keys;
             internal string Settings;
         }
         private static string EngineKey(IMaterialChecker c) => c == null ? null : ModelArchive.Fingerprint(new object[] {
             c.GetType().AssemblyQualifiedName, c.Id, c.Version, c.Configuration, c.Standard?.Identity });
+        private static string RouteId(int beam, CheckMechanism mechanism, SectionCheckSpecification check)
+            => beam.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + (check?.Key ?? mechanism.ToString());
         private static MaterialPlan PrepareMaterialJob(Models.Model model, MultiMaterialCheckJob job, CancellationToken token)
         {
             var result = ResolveMaterialJob(model, job);
@@ -67,25 +75,30 @@ namespace GPC.Model.Checker
         private static MaterialPlan ResolveMaterialJob(Models.Model model, MultiMaterialCheckJob job)
         {
             if (job == null || string.IsNullOrWhiteSpace(job.Name) || job.Plan == null || job.Assignments == null
-                || job.Assignments.Any(a => a?.Checker == null)) throw new ArgumentException("InvalidMaterialCheckJob");
+                || job.Assignments.Any(a => a?.Checker == null || a.Mechanisms != null && a.Mechanisms.Any(m => !Enum.IsDefined(typeof(CheckMechanism), m))
+                    || a.Checks != null && a.Checks.Any(c => c == null))) throw new ArgumentException("InvalidMaterialCheckJob");
             if (job.Assignments.Any(a => a.Selection != null && (a.Selection.Families == null || a.Selection.Families.Any(f => f != EntityFamily.Beam))))
                 throw new NotSupportedException("MaterialAssignmentRequiresBeamSelection");
             var planRequest = job.Plan.Copy();
             var ids = BeamCheckPlan.ResolveBeamIds(model, planRequest);
-            var routes = new Dictionary<int, IMaterialChecker>();
-            var resolved = job.Assignments.Select(a => new { a.Checker, Ids = a.Selection?.Resolve(model).OfType<BeamElement>().Select(b => b.Id).ToArray() }).ToArray();
+            var routes = new Dictionary<string, IMaterialChecker>(StringComparer.Ordinal);
+            var resolved = job.Assignments.Select(a => new { Assignment = a, a.Checker, Ids = a.Selection?.Resolve(model).OfType<BeamElement>().Select(b => b.Id).ToArray() }).ToArray();
+            var checks = planRequest.SectionMechanisms.Select(m => new { Mechanism = m, Check = (SectionCheckSpecification)null })
+                .Concat((planRequest.SectionChecks ?? new SectionCheckSpecification[0]).Select(c => new { c.Mechanism, Check = c })).ToArray();
             foreach (int id in ids)
+            foreach (var check in checks)
             {
-                var matches = resolved.Where(a => (a.Ids == null || a.Ids.Contains(id)) && a.Checker.Accepts(model.BeamElements[id]))
+                var matches = resolved.Where(a => (a.Ids == null || a.Ids.Contains(id)) && a.Assignment.Matches(check.Mechanism, check.Check)
+                    && a.Checker.Accepts(model.BeamElements[id]))
                     .Select(a => a.Checker).GroupBy(EngineKey, StringComparer.Ordinal).Select(g => g.First()).ToArray();
-                if (matches.Length > 1) throw new ArgumentException("ConflictingMaterialAssignments: beam " + id + "; use separate jobs for alternative standards/configurations.");
-                routes[id] = matches.SingleOrDefault();
+                if (matches.Length > 1) throw new ArgumentException("ConflictingMaterialAssignments: " + RouteId(id, check.Mechanism, check.Check) + "; select one engine for each check.");
+                routes[RouteId(id, check.Mechanism, check.Check)] = matches.SingleOrDefault();
             }
             var keys = routes.ToDictionary(p => p.Key, p => EngineKey(p.Value));
             // Persist a digest of selectors AND resolved configurations through the existing scope/settings contract.
             planRequest.Settings = (planRequest.Settings ?? "") + "\nMaterialRouting:" + ModelArchive.Fingerprint(new object[] {
-                job.Assignments.Select(a => new object[] { a.Selection, EngineKey(a.Checker) }).ToArray(),
-                keys.OrderBy(p => p.Key).Select(p => new object[] { p.Key, p.Value }).ToArray() });
+                job.Assignments.Select(a => new object[] { a.Selection, EngineKey(a.Checker), a.Mechanisms, a.Checks }).ToArray(),
+                keys.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => new object[] { p.Key, p.Value }).ToArray() });
             return new MaterialPlan { Job = job, Routes = routes, Keys = keys, Settings = job.Plan.Settings, Request = planRequest };
         }
         private static bool Current(Models.Model model, MaterialPlan plan)
@@ -102,6 +115,11 @@ namespace GPC.Model.Checker
             var blocked = AnalysisGate(model, request.Jobs.Select(j => j.Name), out var provenance);
             if (blocked != null) return blocked;
             var plans = request.Jobs.Select(j => PrepareMaterialJob(model, j, token)).ToArray();
+            return VerifyMaterialPlans(model, plans, provenance, token, progress);
+        }
+        private ModelCheckReport VerifyMaterialPlans(Models.Model model, MaterialPlan[] plans, VerificationProvenance provenance,
+            CancellationToken token, IProgress<VerificationProgress> progress)
+        {
             int total = plans.Sum(p => p.Plan.WorkItems.Count), completed = 0;
             var sessions = new Dictionary<string, IMaterialCheckSession>(StringComparer.Ordinal);
             var sessionErrors = new Dictionary<string, Exception>(StringComparer.Ordinal);
@@ -111,8 +129,9 @@ namespace GPC.Model.Checker
                 var results = new List<CheckResult>();
                 foreach (var item in plan.Plan.WorkItems)
                 {
-                    var engine = item.Target.BeamId.HasValue ? plan.Routes[item.Target.BeamId.Value] : null;
-                    var key = item.Target.BeamId.HasValue ? plan.Keys[item.Target.BeamId.Value] : null;
+                    var route = item.Target.BeamId.HasValue ? RouteId(item.Target.BeamId.Value, item.Mechanism, item.Check) : null;
+                    var engine = route != null && plan.Routes.TryGetValue(route, out var routed) ? routed : null;
+                    var key = route != null && plan.Keys.TryGetValue(route, out var routedKey) ? routedKey : null;
                     var result = new CheckResult { Data = item.Data };
                     try
                     {
