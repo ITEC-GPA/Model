@@ -15,16 +15,20 @@ namespace GPC.Model.PostProcessing
         public BeamElement Element { get; internal set; }
         public StationResultBeamForces Sample { get; internal set; }
         public ResultBeamForces Forces { get; internal set; }
+        /// <summary>The property resolved at this cut, from an assignment or the element's constant property.</summary>
+        public ElementProperties.BeamProperty Property { get; internal set; }
         public string Settings { get; internal set; }
         public CheckInputSnapshot Snapshot { get; internal set; }
         internal string Revision;
         internal string DatasetFingerprint;
+        internal string PreparedPropertyFingerprint;
         public bool IsCurrent => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element)
             && beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, Sample))
             && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
             && Revision == Model.VerificationFingerprint(Settings)
             && Snapshot.SampleFingerprint == ModelArchive.Fingerprint(new object[] { Sample })
             && Snapshot.ForcesFingerprint == ModelArchive.Fingerprint(new object[] { Forces })
+            && PreparedPropertyFingerprint == ModelArchive.Fingerprint(new object[] { Property })
             && Snapshot.SectionFingerprint == ModelArchive.Fingerprint(new object[] { Element.BeamProperty, Element.Assignments.Sections.ToArray() })
             && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State);
     }
@@ -38,6 +42,7 @@ namespace GPC.Model.PostProcessing
             var beam = model.BeamElements[id]; var diagnostics = new List<ModelDiagnostic>();
             var result = new BeamActionPreparation { Status = DataStatus.Insufficient, Diagnostics = diagnostics.AsReadOnly() };
             diagnostics.AddRange(model.ValidateTopology().Concat(model.ValidateAssignments()).Where(d => d.Severity == DiagnosticSeverity.Error));
+            if (diagnostics.Count > 0) return result;
             if (sample == null || !beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, sample)))
             { diagnostics.Add(ModelDiagnostic.Error("MissingSample", beam)); return result; }
             var state = sample.State;
@@ -67,7 +72,10 @@ namespace GPC.Model.PostProcessing
                 var normalized = ResultOrientation.Beam(sample, ResultTransformations.AtPoint(beam.Assignments.SectionAxes, raw.CoordinateSystem.Origin));
                 if (beam.Assignments.SectionCentroidOffset != null) normalized = new BeamReferenceGeometry(beam).AtCentroid(normalized);
                 var forces = ResultOrientation.Beam(normalized, ResultTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
-                result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Settings = settings,
+                var property = beam.Assignments.Sections.Count == 0 ? beam.BeamProperty : beam.Assignments.PropertyAt(
+                    new BeamReferenceGeometry(beam).ConvertStation(sample.ParametricDistance, sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), sample.Side);
+                result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Property = property, Settings = settings,
+                    PreparedPropertyFingerprint = ModelArchive.Fingerprint(new object[] { property }),
                     DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
                     Revision = model.VerificationFingerprint(settings), Snapshot = new CheckInputSnapshot(
                         ModelArchive.Fingerprint(new object[] { beam.BeamProperty, beam.Assignments.Sections.ToArray() }),
@@ -76,6 +84,7 @@ namespace GPC.Model.PostProcessing
             }
             catch (NotSupportedException ex) { if (result.Status != DataStatus.Stale) result.Status = DataStatus.NotSupported; diagnostics.Add(ModelDiagnostic.Error("UnsupportedBeamActions", beam, ex.Message)); }
             catch (ArgumentException ex) { diagnostics.Add(ModelDiagnostic.Error("InvalidBeamActions", beam, ex.Message)); }
+            catch (InvalidOperationException ex) { diagnostics.Add(ModelDiagnostic.Error("SectionAssignment", beam, ex.Message)); }
             return result;
         }
     }

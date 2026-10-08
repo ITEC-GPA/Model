@@ -52,9 +52,9 @@ namespace GPC.Model.PostProcessing
             {
                 if (section.Law != "Constant" && section.Law != "LinearRectangular" && section.Law != "Tabulated") throw new NotSupportedException("UnsupportedSectionLawReversal");
                 var reversed = new BeamSectionAssignment { Start = 1 - section.End, End = 1 - section.Start, Law = section.Law,
-                    Section = section.Law == "LinearRectangular" ? section.EndSection : section.Section,
-                    EndSection = section.Law == "LinearRectangular" ? section.Section : section.EndSection };
-                foreach (var s in section.Stations.OrderByDescending(s => s.Station)) reversed.Stations.Add(new BeamSectionStation { Station = 1 - s.Station, Side = Flip(s.Side), Section = s.Section });
+                    Property = section.Law == "LinearRectangular" ? section.EndProperty : section.Property,
+                    EndProperty = section.Law == "LinearRectangular" ? section.Property : section.EndProperty };
+                foreach (var s in section.Stations.OrderByDescending(s => s.Station)) reversed.Stations.Add(new BeamSectionStation { Station = 1 - s.Station, Side = Flip(s.Side), Property = s.Property });
                 a.Sections.Add(reversed);
             }
             foreach (var load in a.Loads)

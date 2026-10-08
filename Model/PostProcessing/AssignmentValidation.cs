@@ -71,19 +71,23 @@ namespace GPC.Model.PostProcessing
                     var a = sorted[i];
                     if (!Finite(a.Start) || !Finite(a.End) || a.Start < 0 || a.End > 1 || a.Start >= a.End) result.Add(ModelDiagnostic.Error("InvalidSectionInterval", beam));
                     if (i > 0 && a.Start < sorted[i - 1].End) result.Add(ModelDiagnostic.Error("OverlappingSectionIntervals", beam));
-                    if (a.Section != null) result.AddRange(ValidateRebars(a.Section, beam));
-                    if (a.EndSection != null) result.AddRange(ValidateRebars(a.EndSection, beam));
-                    if (a.Law == "LinearRectangular")
-                        try { SectionLaws.Evaluate(a, (a.Start + a.End) / 2, SectionSide.Unspecified); }
-                        catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is InvalidOperationException)
-                        { result.Add(ModelDiagnostic.Error("InvalidSectionLaw", beam, ex.Message)); }
-                    else if (a.Law == "Tabulated")
+                    try
                     {
-                        if (a.Stations == null || a.Stations.Count == 0 || a.Stations.Any(s => s == null || !Finite(s.Station) || s.Station < a.Start || s.Station > a.End || s.Section == null)
-                            || a.Stations.GroupBy(s => new { s.Station, s.Side }).Any(g => g.Count() > 1)) result.Add(ModelDiagnostic.Error("InvalidTabulatedSections", beam));
-                        else foreach (var station in a.Stations) result.AddRange(ValidateRebars(station.Section, beam));
+                        if (a.Property is ReinforcedConcreteSection concrete) result.AddRange(ValidateRebars(concrete, beam));
+                        if (a.EndProperty is ReinforcedConcreteSection endConcrete) result.AddRange(ValidateRebars(endConcrete, beam));
+                        if (a.Law == "LinearRectangular") SectionLaws.EvaluateProperty(a, (a.Start + a.End) / 2, SectionSide.Unspecified);
+                        else if (a.Law == "Tabulated")
+                        {
+                            if (a.Stations == null || a.Stations.Count == 0 || a.Stations.Any(s => s == null || !Finite(s.Station) || s.Station < a.Start || s.Station > a.End
+                                || !Enum.IsDefined(typeof(SectionSide), s.Side) || s.Property is null)
+                                || a.Stations.GroupBy(s => new { s.Station, s.Side }).Any(g => g.Count() > 1)) result.Add(ModelDiagnostic.Error("InvalidTabulatedSections", beam));
+                            else foreach (var station in a.Stations)
+                                if (station.Property is ReinforcedConcreteSection stationConcrete) result.AddRange(ValidateRebars(stationConcrete, beam));
+                        }
+                        else if (a.Law != "Constant") result.Add(ModelDiagnostic.Error("UnsupportedSectionLaw", beam));
                     }
-                    else if (a.Law != "Constant") result.Add(ModelDiagnostic.Error("UnsupportedSectionLaw", beam));
+                    catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is InvalidOperationException)
+                    { result.Add(ModelDiagnostic.Error("InvalidSectionLaw", beam, ex.Message)); }
                 }
                 foreach (var load in beam.Assignments.Loads)
                 {

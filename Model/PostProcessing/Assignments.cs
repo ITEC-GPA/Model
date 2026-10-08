@@ -139,10 +139,28 @@ namespace GPC.Model.PostProcessing
     [Serializable]
     public sealed class BeamSectionAssignment
     {
+        [OptionalField, GPC.Model.Persistence.FingerprintWhenSet]
+        private GPC.Model.ElementProperties.BeamProperty _property;
+        [OptionalField, GPC.Model.Persistence.FingerprintWhenSet]
+        private GPC.Model.ElementProperties.BeamProperty _endProperty;
+
         public double Start { get; set; }
         public double End { get; set; }
+        /// <summary>Legacy concrete API. New material-neutral callers use <see cref="Property"/>.</summary>
         public ReinforcedConcreteSection Section { get; set; }
         [field: OptionalField] public ReinforcedConcreteSection EndSection { get; set; }
+        /// <summary>The assigned property, including steel, concrete and composite beam properties.
+        /// Concrete values retain their historical serialized representation.</summary>
+        public GPC.Model.ElementProperties.BeamProperty Property
+        {
+            get => SectionLaws.ResolveProperty(_property, Section);
+            set { Section = value as ReinforcedConcreteSection; _property = Section is null ? value : null; }
+        }
+        public GPC.Model.ElementProperties.BeamProperty EndProperty
+        {
+            get => SectionLaws.ResolveProperty(_endProperty, EndSection);
+            set { EndSection = value as ReinforcedConcreteSection; _endProperty = EndSection is null ? value : null; }
+        }
         /// <summary>For Tabulated: exact, absolute stations in the assignment domain. No implicit interpolation.</summary>
         [field: OptionalField] public List<BeamSectionStation> Stations { get; private set; } = new List<BeamSectionStation>();
         public string Law { get; set; } = "Constant";
@@ -174,13 +192,17 @@ namespace GPC.Model.PostProcessing
         [field: OptionalField] public BeamAnalysisProfile AnalysisProfile { get; set; }
         public List<PreservedAssignment> OtherAssignments { get; private set; } = new List<PreservedAssignment>();
         public ReinforcedConcreteSection SectionAt(double station, SectionSide side)
+            => SectionLaws.RequireConcrete(PropertyAt(station, side));
+
+        /// <summary>Resolves the exact assigned property at a station/side. Missing intervals and ambiguous cuts fail explicitly.</summary>
+        public GPC.Model.ElementProperties.BeamProperty PropertyAt(double station, SectionSide side)
         {
             NumericGuard.Station(station);
             var matches = Sections.Where(a => station >= a.Start && station <= a.End
                 && (station != a.Start || station == 0 || side != SectionSide.Left)
                 && (station != a.End || station == 1 || side != SectionSide.Right)).ToArray();
             if (matches.Length != 1) throw new InvalidOperationException("MissingOrAmbiguousSectionAssignment");
-            return SectionLaws.Evaluate(matches[0], station, side);
+            return SectionLaws.EvaluateProperty(matches[0], station, side);
         }
     }
 

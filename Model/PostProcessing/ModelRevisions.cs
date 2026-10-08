@@ -64,12 +64,12 @@ namespace GPC.Model.PostProcessing
                     if (properties) foreach (var assignment in b.Assignments.Sections)
                     {
                         yield return assignment.Start; yield return assignment.End; yield return assignment.Law;
-                        yield return assignment.Section?.SectionShape; yield return assignment.Section?.ConcreteMaterial;
-                        yield return assignment.EndSection?.SectionShape; yield return assignment.EndSection?.ConcreteMaterial;
+                        foreach (var input in AssignedPhysicalSection(assignment.Property)) yield return input;
+                        foreach (var input in AssignedPhysicalSection(assignment.EndProperty)) yield return input;
                         foreach (var station in assignment.Stations)
                         {
                             yield return station.Station; yield return station.Side;
-                            yield return station.Section?.SectionShape; yield return station.Section?.ConcreteMaterial;
+                            foreach (var input in AssignedPhysicalSection(station.Property)) yield return input;
                         }
                     }
                 }
@@ -92,6 +92,21 @@ namespace GPC.Model.PostProcessing
             return ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
                 .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments)));
+        }
+
+        private static IEnumerable<object> AssignedPhysicalSection(ElementProperties.BeamProperty property)
+        {
+            if (property is Sections.Concrete.ReinforcedConcreteSection rc)
+            {
+                yield return rc.SectionShape; yield return rc.ConcreteMaterial;
+                if (rc.SteelSections.Count > 0) yield return rc.SteelSections.ToArray();
+            }
+            else if (property is null)
+            {
+                // Preserve the historical empty concrete slots for existing models and saved reports.
+                yield return null; yield return null;
+            }
+            else yield return property;
         }
     }
 }

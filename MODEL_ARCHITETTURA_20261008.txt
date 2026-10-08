@@ -66,8 +66,33 @@ Evidenze:
 - anthea-step2/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
   Nessun deployment di DLL nei consumatori.
 
+3. Assegnazioni di sezione generali - COMPLETATO
+GPCModel 1.6.1.4.
+BeamSectionAssignment e BeamSectionStation espongono Property (BeamProperty)
+e EndProperty. Le sezioni cls mantengono i vecchi campi Section/EndSection e
+la medesima rappresentazione persistita; i nuovi campi entrano nel fingerprint
+soltanto quando usati da altri materiali. PropertyAt/EvaluateProperty sono
+le API generali; SectionAt/Evaluate mantengono il contratto cls e rifiutano
+esplicitamente altri materiali. Conflitti fra nuovi e vecchi campi sono errori.
+Le leggi Constant e Tabulated accettano proprieta beam generali; la legge
+LinearRectangular resta qualificata per il cls. Non si inventano interpolazioni
+fra materiali, geometrie o armature incompatibili. Le discontinuita conservano
+stazione e lato e l'inversione I/J conserva proprieta e assi fisici.
+Le proprieta generali entrano nella revisione analitica; l'acciaio incorporato
+nelle assegnazioni composite cls entra anch'esso nella revisione fisica.
+BeamActionInput.Property identifica la proprieta effettiva del taglio, con
+controllo delle modifiche sia degli input sia del dato preparato.
+Questo completa il contratto dati Model: i limiti dichiarati dagli adattatori
+Steel e CompositeBridge restano attivi; non sono state abilitate nuove formule
+di resistenza o verifiche plate.
+
+Evidenze:
+- sections-general-verified.trx: 26 test mirati superati (7 nuovi).
+- model-step3.trx: 914 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- modelchecker-step3.trx: 106 superati, 0 falliti.
+- anthea-step3/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
+
 Passi successivi della revisione:
-3. Assegnazioni di sezione generali, con compatibilita del contratto cls.
 4. Distinzione fra modello analizzato e scenario di verifica.
 5. Confini e responsabilita delle librerie.
 6. Snapshot preparati stabili e controllo di obsolescenza meno costoso.
