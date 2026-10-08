@@ -23,7 +23,8 @@ namespace GPC.Examples
     /// <summary>Synthetic post-processing fixture. Forces below are assigned analytical data, not FEM analysis output.</summary>
     public static class MixedModelFactory
     {
-        public static GPC.Model.Models.Model Create(Action<GPC.Model.Models.Model>? configureBeforeResults = null)
+        public static GPC.Model.Models.Model Create(Action<GPC.Model.Models.Model>? configureBeforeResults = null,
+            ReinforcementAnalysisRole reinforcementRole = ReinforcementAnalysisRole.ExcludedFromAnalysis)
         {
             var model = new GPC.Model.Models.Model("SYNTHETIC beam and shell fixture");
             int[] ids = { 10, 40, 90, 130 };
@@ -58,6 +59,7 @@ namespace GPC.Examples
             model.NodesElements[40].Loads.Add(new PointLoad(0, 1000, 0, 0, 0, 0, points[1], model.LoadCases["P+"]));
             model.NodesElements[40].Loads.Add(new PointLoad(0, -1000, 0, 0, 0, 0, points[1], model.LoadCases["P-"]));
             configureBeforeResults?.Invoke(model);
+            model.CaptureAnalysis(reinforcementRole, reinforcementRole == ReinforcementAnalysisRole.Unknown ? null : "Declared reinforcement role for the analytical fixture.");
             string fingerprint = model.AnalysisFingerprint();
             model.Datasets.Add("synthetic-static", new AnalysisDataset { Id = "synthetic-static", Program = "Synthetic", ModelRevision = "mixed-v1", AnalysisId = "static", InputFingerprint = fingerprint, NormalizedUnits = "N,mm,rad", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic });
             foreach (var lc in model.LoadCases.Values)

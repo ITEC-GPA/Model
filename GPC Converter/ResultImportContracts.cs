@@ -55,6 +55,8 @@ namespace GPC.Converter
         public string SourceHash { get; set; }
         // Explicit reader/caller binding to the fully assigned imported model, not inferred from file hashes.
         public string ExpectedInputFingerprint { get; set; }
+        /// <summary>Original analysed inputs from the solver binding; separate from the current target mutation guard.</summary>
+        public string AnalysisInputFingerprint { get; set; }
         public ResultUnits Units { get; set; }
         public double ShellDenominatorLengthToMm { get; set; }
         public string ResolvedConvention { get; set; }

@@ -78,6 +78,7 @@ namespace GPC.Converter.Straus7
                 var units = Straus7ApiConverter.Units(native.Units);
                 var batch = new ResultImportBatch { Source = source, SourceHash = native.ResultHash, DatasetId = datasetId,
                     ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = "GPC.Straus7.R3.LinearStatic/2",
+                    AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, Straus7ApiConverter.InputBindingKind, native.ModelHash),
                     ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.",
                     Units = units, ShellDenominatorLengthToMm = units.LengthToMm, Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = isSynthetic };
                 var keys = new HashSet<string>();

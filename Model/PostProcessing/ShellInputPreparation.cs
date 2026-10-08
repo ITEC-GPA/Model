@@ -20,6 +20,7 @@ namespace GPC.Model.PostProcessing
         public string VerificationRevision { get; internal set; }
         public string SampleRevision { get; internal set; }
         public bool IsCurrent => VerificationRevision == Model.VerificationFingerprint(Settings)
+            && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && SampleRevision == ModelArchive.Fingerprint(new object[] { Sample })
             && PreparedFingerprint == ModelArchive.Fingerprint(new object[] { LocalForces });
     }
@@ -36,6 +37,8 @@ namespace GPC.Model.PostProcessing
         {
             var shell = model.AreaElements[shellId]; var status = DataStatus.Insufficient;
             var errors = model.ValidateTopology().Concat(model.ValidateAssignments()).Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
+            if (compatibility != null) { errors.Add(compatibility); status = compatibilityStatus; }
             var state = sample?.State;
             if (state != null && !ResultAlgebra.HasCurrentDerivation(model, shell, state)) { errors.Add(ModelDiagnostic.Error("StaleDerivedSources", shell)); status = DataStatus.Stale; }
             if (sample == null || !shell.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))) errors.Add(ModelDiagnostic.Error("MissingShellSample", shell));

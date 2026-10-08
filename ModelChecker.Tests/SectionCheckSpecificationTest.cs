@@ -275,11 +275,14 @@ public class SectionCheckSpecificationTest
             Options(standard).CreateVerifier()).Details!.Metrics.Single().Capacity!.Value;
         double plain = Capacity(new StandardCNR204()), ec2 = Capacity(new StandardEN1992p11());
         Assert.AreEqual(ec2, plain, 1e-9 * ec2);
-        section.ConcreteMaterial = new ConcreteMaterialModelCode2010("FRC C25/30", 25, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
-            2.0, 1.5, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC, 0.2, 0.0025, 10e-6, ConcreteMaterial.CementTypes.ClassN);
-        // The material enters the analysis revision. The cantilever is statically determinate: the analytical forces stay valid.
-        var fingerprint = m.AnalysisFingerprint(); m.Datasets["synthetic-member"].InputFingerprint = fingerprint;
-        foreach (var state in m.BeamElements.Values.SelectMany(b => b.Results).SelectMany(r => r.Results).OfType<StationResultBeamForces>()) state.State.InputFingerprint = fingerprint;
+        // Generate a new analytical fixture for the changed material, recording its inputs before its results.
+        m = ElementScopeCharacterizationTest.Model(configureBeforeResults: value => {
+            var frcSection = value.BeamElements[250].Assignments.Sections[0].Section;
+            frcSection.ConcreteMaterial = new ConcreteMaterialModelCode2010("FRC C25/30", 25, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
+                2.0, 1.5, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC, 0.2, 0.0025, 10e-6, ConcreteMaterial.CementTypes.ClassN);
+            frcSection.ShearData = ShearData(frcSection, stirrups: false);
+        });
+        sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", .5, SectionSide.Unspecified);
         double frc = Capacity(new StandardCNR204());
         Assert.IsTrue(frc > 1.5 * plain, frc + " vs " + plain);
         var warned = Verification.Run(Verification.PrepareBeam(m, 250, sample, "frc"), SectionCheckSpecification.ShearAxis2(), Options(new StandardEN1992p11()).CreateVerifier());

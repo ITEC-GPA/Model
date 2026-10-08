@@ -78,6 +78,7 @@ namespace GPC.Model.PostProcessing
         [field: System.Runtime.Serialization.OptionalField] public CoverageAssessment CoverageAssessment { get; set; }
         /// <summary>Direction, sub-check and combination category of a task planned through SectionChecks; null otherwise.</summary>
         [field: System.Runtime.Serialization.OptionalField] public SectionCheckSpecification Check { get; set; }
+        [field: System.Runtime.Serialization.OptionalField] public VerificationProvenance Provenance { get; set; }
 
         /// <summary>Detects subsequent edits to stored evidence; it is not a digital signature. Legacy results have no seal.</summary>
         public bool HasUnchangedEvidence => EvidenceFingerprint == null || EvidenceFingerprint == Evidence();
@@ -89,8 +90,9 @@ namespace GPC.Model.PostProcessing
             Source, Job, Dataset, Case, Station, Side, Phase, Step, Coverage, ConcomitantStateId, MovingLoadPosition, Mode,
                 ShellPoint, ShellPointKind, ShellCoordinateKind, Face, Layer, GroupNames, Applicability, ApplicabilityReason, Standard, Input, Details, Diagnostics };
             // The specification enters only when present, so seals written before it existed remain valid.
-            return Persistence.ModelArchive.Fingerprint(SchemaVersion < 2 ? fields : fields.Concat(new object[] {
-                Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }).Concat(Check == null ? new object[0] : new object[] { Check }));
+            var evidence = SchemaVersion < 2 ? fields : fields.Concat(new object[] {
+                Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }).Concat(Check == null ? new object[0] : new object[] { Check });
+            return Persistence.ModelArchive.Fingerprint(evidence.Concat(Provenance == null ? new object[0] : new object[] { Provenance }));
         }
     }
 
@@ -140,6 +142,8 @@ namespace GPC.Model.PostProcessing
             var b = model.BeamElements[beamId]; var errors = model.ValidateTopology().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             errors.AddRange(model.ValidateAssignments().Where(d => d.Severity == DiagnosticSeverity.Error));
             if (errors.Count > 0) return new BeamPreparation { BeamId = beamId, Sample = sample, Status = DataStatus.Insufficient, Diagnostics = errors };
+            var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
+            if (compatibility != null) return new BeamPreparation { BeamId = beamId, Sample = sample, Status = compatibilityStatus, Diagnostics = new[] { compatibility } };
             var status = DataStatus.Insufficient;
             if (sample == null || !b.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))) errors.Add(ModelDiagnostic.Error("MissingSample", b));
             else
@@ -241,6 +245,7 @@ namespace GPC.Model.PostProcessing
                 return result;
             }
             var input = preparation.Input;
+            if (input.Model.Analysis != null) result.Provenance = VerificationPreparation.CurrentProvenance(input.Model);
             if (!IsCurrent(input))
             { result.Data = DataStatus.Stale; result.Diagnostics.Add(ModelDiagnostic.Error("StalePreparation")); return result; }
             result.ElementId = input.BeamId; result.Station = input.Sample.ParametricDistance; result.Side = input.Sample.Side;
@@ -275,6 +280,7 @@ namespace GPC.Model.PostProcessing
                 evaluated.Phase = result.Phase; evaluated.Step = result.Step; evaluated.Coverage = result.Coverage; evaluated.ConcomitantStateId = result.ConcomitantStateId;
                 evaluated.MovingLoadPosition = result.MovingLoadPosition; evaluated.Mode = result.Mode; evaluated.Family = EntityFamily.Beam;
                 evaluated.Input = result.Input;
+                evaluated.Provenance = result.Provenance;
                 evaluated.SealEvidence();
                 return evaluated;
             }
@@ -284,6 +290,7 @@ namespace GPC.Model.PostProcessing
         }
 
         internal static bool IsCurrent(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
+            && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
             && ResultAlgebra.HasCurrentDerivation(input.Model, input.Model.BeamElements[input.BeamId], input.Sample.State)
             && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })
             && input.SampleFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Sample })

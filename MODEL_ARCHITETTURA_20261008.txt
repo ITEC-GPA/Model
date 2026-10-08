@@ -92,8 +92,100 @@ Evidenze:
 - modelchecker-step3.trx: 106 superati, 0 falliti.
 - anthea-step3/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
 
-Passi successivi della revisione:
-4. Distinzione fra modello analizzato e scenario di verifica.
+4. Distinzione fra modello analizzato e scenario di verifica - COMPLETATO
+GPCModel 1.6.1.5; GPCModelChecker e GPC.Converter 1.0.1.0.
+
+AnalysisSnapshot conserva una copia serializzata indipendente degli input,
+senza risultati, resoconti o snapshot annidati. OpenModel restituisce ogni
+volta un nuovo grafo. Il digest controlla contenuto e identita al caricamento;
+non e' una firma digitale. CaptureAnalysis deve precedere i risultati e
+rifiuta di ricostruire retroattivamente la provenienza dal progetto corrente.
+
+VerificationScenario conserva override per GUID degli elementi, copiando i
+valori al momento dell'assegnazione. Gestisce proprieta e leggi delle sezioni
+beam, oltre agli input di armatura e spessore dei plate. Le assegnazioni beam
+variabili devono essere specificate esplicitamente con SetBeamSections.
+Model.VerificationScenarios conserva le alternative nell'archivio.
+VerificationPreparation.Prepare copia il modello che contiene i campioni,
+applica una copia dello scenario e produce PreparedVerification. Cambiare
+lo scenario o il modello originali non modifica la preparazione gia' creata.
+Cambiare il grafo preparato o i suoi risultati invalida IsCurrent.
+
+AnalysisCompatibilityValidator distingue Compatible, RequiresReanalysis e
+Unknown. Geometria, sezioni fisiche, materiali, spessori, vincoli, carichi,
+assi e altre proprieta analitiche cambiate richiedono una nuova analisi.
+La precompressione cambiata richiede sempre rianalisi. Una variazione di
+armatura ordinaria, staffe o dati di torsione e' ammissibile soltanto se
+ReinforcementAnalysisRole e' stato dichiarato ExcludedFromAnalysis, con
+riferimento esplicito all'ipotesi del FEM, prima dei risultati. Se incluso
+nell'analisi, il cambiamento richiede rianalisi; se ignoto resta Unknown.
+Le API dei converter non inventano questa ipotesi: il default e' Unknown.
+
+I binding Civil NX e Straus7 registrano lo snapshot all'importazione.
+ResultMapper distingue l'impronta del modello destinatario, usata contro
+mutazioni durante l'importazione, dall'impronta degli input analizzati.
+Anche dopo modifiche di proprieta, dataset e campioni mantengono l'impronta
+originale. I risultati possono essere importati e consultati, ma non usati
+per verificare automaticamente uno scenario incompatibile. La provenienza
+del solver e l'eventuale AnalysisSnapshotId del dataset sono controllati.
+I vecchi binding conservano l'impronta originale senza fabbricare uno snapshot.
+
+Entrambi gli ingressi ModelChecker (cls e multimateriale) accettano anche
+PreparedVerification. Verify(Model, request) resta disponibile come adapter
+al controllo di compatibilita: Unknown e RequiresReanalysis producono un
+esito NotEvaluated prima della creazione dei checker. Un job bloccato prima
+della pianificazione ha un esito diagnostico di job, non un elenco inventato
+di sezioni valutate. Le API storiche di calcolo sezionale senza snapshot
+restano disponibili; non certificano la provenienza di un'analisi FEM.
+CurrentOutcome non dichiara attuale un resoconto su un modello con analisi
+sconosciuta o incompatibile. I resoconti storici restano consultabili.
+
+CheckResult.Provenance conserva identita/impronte di analisi, scenario,
+progetto materializzato e dataset, incluse nel sigillo dell'evidenza.
+Gli archivi Model e resoconti usano il wrapper v3 quando contengono questi
+dati; i vecchi v1/v2 restano leggibili. I vecchi lettori rifiutano v3 anziche
+ignorare la provenienza. Nessuna nuova formula o verifica plate abilitata.
+
+Esempio (modello importato con risultati e Analysis gia' registrata):
+  var analysis = model.Analysis;
+  var alternative = analysis.OpenModel();
+  var scenario = VerificationScenario.Create(analysis.Id, "Armatura B");
+  // Modificare la sezione della copia alternative, poi:
+  scenario.SetBeamDesign(model.BeamElements[id].Guid,
+      alternative.BeamElements[id].BeamProperty);
+  model.VerificationScenarios.Add(scenario.Id, scenario);
+  var prepared = VerificationPreparation.Prepare(model, scenario);
+  var report = checker.Verify(prepared, request);
+Il ruolo dell'armatura nel FEM deve essere dichiarato su input originali,
+prima dei risultati: non si cambia l'impronta di vecchie sollecitazioni per
+rendere verificabile il nuovo progetto. I vecchi modelli senza questi input
+richiedono la riacquisizione della provenienza/analisi originale.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step4-verified.trx: 926 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- legacy-binding-step4.trx: 6 superati, incluso un ulteriore caso per binding
+  storici senza snapshot.
+- scenarios-step4-final.trx: 33 superati, incluso un ulteriore caso di scenario
+  incoerente che invalida IsCurrent senza eccezioni. Complessivamente sono
+  stati verificati 928 test Model distinti, oltre ai 2 nativi non eseguibili.
+- modelchecker-step4-verified.trx: 110 superati, 0 falliti;
+  modelchecker-scenarios-step4-final.trx: 9 controlli di scenario/resoconto
+  superati sull'ultima build dopo la gestione della mutazione incoerente.
+- anthea-step4-final/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS;
+  stesso bundle Checker distribuito, sostituita solo GPCModel.dll in copia.
+  Nessun aggiornamento di lib/Checker o test UI.
+Le fixture analitiche registrano ora gli input prima delle sollecitazioni;
+le prove di cambio materiale e mesh generano esplicitamente una nuova analisi
+sintetica. Gli attesi numerici indipendenti non sono stati cambiati.
+
+Limiti e costo: uno snapshot analitico per modello; gli override non sono
+un nuovo solutore. Preparazione e archivio copiano i grafi; i controlli di
+validita osservano ancora il modello legacy mutabile, con hash ripetuti.
+La suite ModelChecker e' passata da circa 1m56s (passo 3) a 4m44s e 4m22s
+nelle regressioni complete del nuovo flusso. Ottimizzazione e revisioni stabili
+restano il punto 6, senza indebolire il controllo della compatibilita.
+
+Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
 5. Confini e responsabilita delle librerie.
 6. Snapshot preparati stabili e controllo di obsolescenza meno costoso.
 7. Contratti persistenti e organizzazione dei risultati.

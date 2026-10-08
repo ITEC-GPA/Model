@@ -23,6 +23,7 @@ namespace GPC.Model.PostProcessing
         internal string DatasetFingerprint;
         internal string PreparedPropertyFingerprint;
         public bool IsCurrent => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element)
+            && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, Sample))
             && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
             && Revision == Model.VerificationFingerprint(Settings)
@@ -43,6 +44,8 @@ namespace GPC.Model.PostProcessing
             var result = new BeamActionPreparation { Status = DataStatus.Insufficient, Diagnostics = diagnostics.AsReadOnly() };
             diagnostics.AddRange(model.ValidateTopology().Concat(model.ValidateAssignments()).Where(d => d.Severity == DiagnosticSeverity.Error));
             if (diagnostics.Count > 0) return result;
+            var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
+            if (compatibility != null) { diagnostics.Add(compatibility); result.Status = compatibilityStatus; return result; }
             if (sample == null || !beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, sample)))
             { diagnostics.Add(ModelDiagnostic.Error("MissingSample", beam)); return result; }
             var state = sample.State;

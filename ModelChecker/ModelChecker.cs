@@ -113,6 +113,8 @@ namespace GPC.Model.Checker
             if (jobs.Length == 0 || jobs.Any(j => j == null || string.IsNullOrWhiteSpace(j.Name) || (j.Preparation == null) == (j.BeamPlan == null))
                 || jobs.Select(j => j.Name).Distinct(StringComparer.Ordinal).Count() != jobs.Length) throw new ArgumentException("Unique named check jobs are required.");
             // Validate all selections before invoking an engine. No partial reports are attached to Model by this service.
+            var blocked = AnalysisGate(model, jobs.Select(j => j.Name), out var provenance);
+            if (blocked != null) return blocked;
             var plans = jobs.Select(j => j.Preparation == null ? null : ModelPreparation.Prepare(model, j.Preparation, cancellationToken)).ToArray();
             var beamPlans = jobs.Select(j => j.BeamPlan == null ? null : BeamCheckPlan.Prepare(model, j.BeamPlan, cancellationToken)).ToArray();
             int total = plans.Sum(p => p == null ? 0 : p.Samples.Count * p.Request.Mechanisms.Length) + beamPlans.Sum(p => p?.WorkItems.Count ?? 0), completed = 0;
@@ -184,7 +186,7 @@ namespace GPC.Model.Checker
                 }
                 reports.Add(CheckReport.ForPreparedResults(job.Name, plan, results));
             }
-            return new ModelCheckReport { Jobs = reports.AsReadOnly(), CreatedCheckers = engines.Values.Distinct().OfType<ConcreteSectionVerifier>().Sum(e => e.CreatedCheckers) };
+            return WithProvenance(new ModelCheckReport { Jobs = reports.AsReadOnly(), CreatedCheckers = engines.Values.Distinct().OfType<ConcreteSectionVerifier>().Sum(e => e.CreatedCheckers) }, model, provenance);
         }
     }
 }

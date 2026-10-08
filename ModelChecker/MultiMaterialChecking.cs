@@ -95,6 +95,8 @@ namespace GPC.Model.Checker
             if (model == null || request == null) throw new ArgumentNullException();
             if (request.Jobs.Count == 0 || request.Jobs.Any(j => j == null) || request.Jobs.Select(j => j.Name).Distinct(StringComparer.Ordinal).Count() != request.Jobs.Count)
                 throw new ArgumentException("UniqueNamedMaterialJobsRequired");
+            var blocked = AnalysisGate(model, request.Jobs.Select(j => j.Name), out var provenance);
+            if (blocked != null) return blocked;
             var plans = request.Jobs.Select(j => PrepareMaterialJob(model, j, token)).ToArray();
             int total = plans.Sum(p => p.Plan.WorkItems.Count), completed = 0;
             var sessions = new Dictionary<string, IMaterialCheckSession>(StringComparer.Ordinal);
@@ -164,19 +166,20 @@ namespace GPC.Model.Checker
             for (int i = 0; i < plans.Length; i++) if (!Current(model, plans[i]))
                 foreach (var result in reports[i].Results.Where(r => r.Outcome != EngineeringOutcome.NotEvaluated))
                 { result.Data = DataStatus.Stale; result.Outcome = EngineeringOutcome.NotEvaluated; result.Diagnostics.Add(ModelDiagnostic.Error("MaterialInputsChangedDuringRun")); result.SealEvidence(); }
-            return new ModelCheckReport { Jobs = reports.AsReadOnly(), CreatedCheckers = sessions.Values.Sum(s => s.CreatedCheckers) };
+            return WithProvenance(new ModelCheckReport { Jobs = reports.AsReadOnly(), CreatedCheckers = sessions.Values.Sum(s => s.CreatedCheckers) }, model, provenance);
         }
         /// <summary>Validate persisted scopes against current model, routing, methods and external module parameters without recalculating.</summary>
         public static EngineeringOutcome CurrentOutcome(ModelCheckReport report, Models.Model model, MultiMaterialCheckRequest request)
         {
             if (report == null || model == null || request == null || report.Jobs.Count != request.Jobs.Count) return EngineeringOutcome.NotEvaluated;
+            if (AnalysisCompatibilityValidator.Validate(model).Status != AnalysisCompatibility.Compatible) return EngineeringOutcome.NotEvaluated;
             try
             {
                 for (int i = 0; i < request.Jobs.Count; i++)
                 {
                     var current = PrepareMaterialJob(model, request.Jobs[i], new CancellationToken(true)); var saved = report.Jobs[i];
                     if (saved.Job != current.Job.Name || saved.ScopeFingerprint != current.Plan.ScopeFingerprint || !saved.HasUnchangedScope
-                        || saved.Results.Count != current.Plan.WorkItems.Count || saved.Results.Any(r => r == null || !r.HasUnchangedEvidence)
+                        || saved.Results.Count != current.Plan.WorkItems.Count || saved.Results.Any(r => r == null || !r.HasUnchangedEvidence || r.Provenance != null && !r.Provenance.IsCurrent(model))
                         || !saved.Results.Select(r => r.PlanItemId).SequenceEqual(current.Plan.WorkItems.Select(w => w.Id))) return EngineeringOutcome.NotEvaluated;
                 }
                 return report.Outcome;

@@ -19,8 +19,19 @@ namespace GPC.Converter
         public static PreservedAssignment Create(string kind, string sourceHash, GPC.Model.Models.Model model, string reason)
         {
             if (string.IsNullOrWhiteSpace(kind) || string.IsNullOrWhiteSpace(sourceHash) || model == null) throw new ArgumentException("Explicit binding kind, source and model required.");
+            model.CaptureAnalysis();
             return new PreservedAssignment { Kind = kind, SourceRecord = sourceHash, UnsupportedReason = reason,
                 RawData = Version + "\n" + model.AnalysisFingerprint() + "\n" + model.SolverBindingFingerprint() };
+        }
+
+        /// <summary>Original analysed inputs, also for bindings predating independent snapshots.</summary>
+        public static string AnalysisFingerprint(GPC.Model.Models.Model model, string kind, string sourceHash)
+        {
+            var binding = model.PreservedSourceData.Single(p => p.Kind == kind && p.SourceRecord == sourceHash);
+            var parts = (binding.RawData ?? "").Split('\n');
+            if (parts.Length == 3 && parts[0] == Version) return parts[1];
+            if (parts.Length == 1 && !string.IsNullOrWhiteSpace(parts[0])) return parts[0];
+            throw new InvalidDataException("Unknown analysis binding.");
         }
 
         /// <summary>Throws <see cref="InvalidDataException"/> when the model has no single binding to this source or its solver inputs changed;

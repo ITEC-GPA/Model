@@ -115,6 +115,7 @@ namespace GPC.Converter.CivilNx
                     {
                         force = f; length = l;
                         batch = new ResultImportBatch { Source = source, DatasetId = datasetId, SourceHash = SourceHash(tables), ExpectedInputFingerprint = model.AnalysisFingerprint(),
+                            AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, CivilNxGeometryReader.InputBindingKind, source.GeometryHash),
                             Units = new ResultUnits(f, l, f * l), ShellDenominatorLengthToMm = l, ResolvedConvention = Convention, ReaderVersion = ReaderVersion,
                             Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = isSynthetic };
                     }

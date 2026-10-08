@@ -49,6 +49,7 @@ namespace GPC.Examples
                 if (i == 0) beam.Assignments.Sections.Add(new BeamSectionAssignment { Start = 0, End = 1, Section = (GPC.Model.Sections.Concrete.ReinforcedConcreteSection)sections[i] });
             }
             foreach (string name in new[] { "ULS", "SLE" }) model.LoadCases.Add(new LoadCaseBase(name));
+            model.CaptureAnalysis(ReinforcementAnalysisRole.ExcludedFromAnalysis, "Assigned analytical actions independent of design reinforcement.");
             string revision = model.AnalysisFingerprint(); model.Datasets.Add("step5", new AnalysisDataset { Id = "step5", Program = "Assigned analytical fixture",
                 ModelRevision = "1", InputFingerprint = revision, NormalizedUnits = "N,mm,rad", Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = true });
             foreach (var beam in model.BeamElements.Values) foreach (string name in new[] { "ULS", "SLE" })

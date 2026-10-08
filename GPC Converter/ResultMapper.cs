@@ -32,6 +32,10 @@ namespace GPC.Converter
                     throw new ArgumentException("AnalysisSourceMismatch");
                 var fingerprint = model.AnalysisFingerprint();
                 if (batch.ExpectedInputFingerprint != fingerprint) throw new ArgumentException("InputFingerprintMismatch");
+                var analysisFingerprint = batch.AnalysisInputFingerprint ?? model.Analysis?.InputFingerprint ?? fingerprint;
+                if (model.Analysis != null && (analysisFingerprint != model.Analysis.InputFingerprint
+                    || model.SolverBindingFingerprint() != model.Analysis.OpenModel().SolverBindingFingerprint()))
+                    throw new ArgumentException("AnalysisSnapshotMismatch");
                 if (string.IsNullOrWhiteSpace(batch.DatasetId) || model.Datasets.ContainsKey(batch.DatasetId)
                     || model.AllElements.SelectMany(e => e.Results).SelectMany(r => r.Results).Any(r => r.State?.DatasetId == batch.DatasetId))
                     throw new ArgumentException("MissingOrDuplicateDataset");
@@ -75,7 +79,7 @@ namespace GPC.Converter
                             : (i < 5 ? batch.Units.ForcePerLength(row.Values[i].Value, batch.ShellDenominatorLengthToMm) : batch.Units.ShellMoment(row.Values[i].Value, batch.ShellDenominatorLengthToMm))
                             : double.NaN;
                     }
-                    var state = row.State.Copy(); state.DatasetId = batch.DatasetId; state.InputFingerprint = fingerprint; state.ModelRevision = source.ModelRevision;
+                    var state = row.State.Copy(); state.DatasetId = batch.DatasetId; state.InputFingerprint = analysisFingerprint; state.ModelRevision = source.ModelRevision;
                     if (state.Semantics != batch.Semantics) throw new ArgumentException("InconsistentAnalysisSemantics");
                     state.IsSynthetic = batch.IsSynthetic; state.SourceHash = batch.SourceHash; state.SourceRecord = record;
                     state.Normalization = "N,mm,rad"; state.Transformation = "Explicit source units to N,mm,rad; axes and signs resolved by " + batch.ReaderVersion;
@@ -148,7 +152,7 @@ namespace GPC.Converter
                 cancellationToken.ThrowIfCancellationRequested();
                 if (model.AnalysisFingerprint() != fingerprint) throw new InvalidOperationException("ModelChangedDuringImport");
                 var dataset = new AnalysisDataset { Id = batch.DatasetId, Program = source.Program, SolverVersion = source.SolverVersion,
-                    ModelRevision = source.ModelRevision, AnalysisId = source.AnalysisId, InputFingerprint = fingerprint,
+                    ModelRevision = source.ModelRevision, AnalysisId = source.AnalysisId, InputFingerprint = analysisFingerprint, AnalysisSnapshotId = model.Analysis?.Id,
                     NormalizedUnits = "N,mm,rad", Semantics = batch.Semantics, IsSynthetic = batch.IsSynthetic };
                 dataset.SourceHashes.Add("results", batch.SourceHash);
                 if (!string.IsNullOrEmpty(geometry.GeometryHash)) dataset.SourceHashes.Add("geometry", geometry.GeometryHash);

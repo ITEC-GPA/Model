@@ -73,6 +73,7 @@ namespace GPC.Model.PostProcessing
         public EngineeringOutcome CurrentOutcome(Models.Model model, IConcreteSectionVerifier verifier, IPhysicalMemberVerifier memberVerifier, BeamCheckPlanRequest currentRequest)
         {
             if (model == null || Results.Count != Required || !HasUnchangedScope) return EngineeringOutcome.NotEvaluated;
+            if (AnalysisCompatibilityValidator.Validate(model).Status != AnalysisCompatibility.Compatible) return EngineeringOutcome.NotEvaluated;
             if (BeamScope != null)
             {
                 try { if (ScopeFingerprint != BeamCheckPlan.FingerprintScope(model, BeamScope)
@@ -86,6 +87,7 @@ namespace GPC.Model.PostProcessing
             }
             foreach (var result in Results)
             {
+                if (result?.Provenance != null && !result.Provenance.IsCurrent(model)) return EngineeringOutcome.NotEvaluated;
                 if (result?.Scope == CheckScope.PhysicalMember)
                 {
                     if (BeamScope == null || !result.HasUnchangedEvidence || memberVerifier == null || !memberVerifier.Supports(result.MethodId, result.Mechanism)

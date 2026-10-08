@@ -19,7 +19,7 @@ namespace GPC.Model.Persistence
             {
                 using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
                 {
-                    writer.WriteStartElement("GpcCheckReports"); writer.WriteAttributeString("version", RequiresVersion2(rows) ? "2" : "1");
+                    writer.WriteStartElement("GpcCheckReports"); writer.WriteAttributeString("version", RequiresVersion3(rows) ? "3" : RequiresVersion2(rows) ? "2" : "1");
                     ModelArchive.Serializer(typeof(CheckReport[])).WriteObject(writer, rows); writer.WriteEndElement();
                 }
                 memory.Position = 0; memory.CopyTo(destination);
@@ -32,15 +32,17 @@ namespace GPC.Model.Persistence
             {
                 reader.MoveToContent();
                 string version = reader.GetAttribute("version");
-                if (reader.LocalName != "GpcCheckReports" || (version != "1" && version != "2")) throw new SerializationException("Unsupported check report archive version.");
+                if (reader.LocalName != "GpcCheckReports" || (version != "1" && version != "2" && version != "3")) throw new SerializationException("Unsupported check report archive version.");
                 reader.ReadStartElement();
                 var reports = (CheckReport[])ModelArchive.Serializer(typeof(CheckReport[])).ReadObject(reader);
                 reader.ReadEndElement(); Validate(reports);
+                if (version != "3" && RequiresVersion3(reports)) throw new SerializationException("Analysis/scenario provenance requires report archive version 3.");
                 if (version == "1" && RequiresVersion2(reports)) throw new SerializationException("Member reports require archive version 2.");
                 return Array.AsReadOnly(reports);
             }
         }
         internal static bool RequiresVersion2(IEnumerable<CheckReport> reports) => reports.Any(r => r.BeamScope != null || r.Results.Any(v => v.SchemaVersion >= 2));
+        internal static bool RequiresVersion3(IEnumerable<CheckReport> reports) => reports.Any(r => r.Results.Any(v => v.Provenance != null));
         internal static void Validate(CheckReport[] reports)
         {
             if (reports == null || reports.Any(r => r == null || r.Required < 0 || r.Results == null || r.Results.Any(v => v == null || v.SchemaVersion < 0 || v.SchemaVersion > 2

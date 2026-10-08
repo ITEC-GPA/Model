@@ -26,7 +26,8 @@ public class ElementScopeCharacterizationTest
     /// <param name="torque">Constant torque about the member axis in the analytical results, Nmm (0 = the historical fixture).</param>
     /// <param name="axial">Constant axial force, N (compression negative; 0 = the historical fixture).</param>
     /// <param name="shear">Tip load along global Y, N: V2 and M1 = −shear·(5000 − z) (1000 = the historical fixture).</param>
-    internal static GPC.Model.Models.Model Model(double torque = 0, double axial = 0, double shear = 1000)
+    internal static GPC.Model.Models.Model Model(double torque = 0, double axial = 0, double shear = 1000,
+        Action<GPC.Model.Models.Model>? configureBeforeResults = null)
     {
         var model = new GPC.Model.Models.Model("Step 3: two FEM elements, proposed physical member T1");
         foreach (var entry in new[] { (Id: 10, Z: 0.0), (Id: 20, Z: 2000.0), (Id: 30, Z: 5000.0) })
@@ -50,6 +51,8 @@ public class ElementScopeCharacterizationTest
         var loadCase = new LoadCaseBase("LC1"); model.LoadCases.Add(loadCase);
         model.NodesElements[30].Loads.Add(new PointLoad(0, 1000, 0, 0, 0, 0, model.NodesElements[30].Position, loadCase));
         model.NodesElements[10].Assignments.Restrains.Add(new RestrainAssignment { Restrain = NodeRestrain.GetAllFixed(model.NodesElements[10], CoordinateSystem.Global) });
+        configureBeforeResults?.Invoke(model);
+        model.CaptureAnalysis(ReinforcementAnalysisRole.ExcludedFromAnalysis, "Analytical cantilever fixture; forces independent of reinforcement.");
         var fingerprint = model.AnalysisFingerprint();
         model.Datasets.Add("synthetic-member", new AnalysisDataset { Id = "synthetic-member", Program = "Analytical fixture", ModelRevision = "r1",
             InputFingerprint = fingerprint, NormalizedUnits = "N,mm,rad", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic });

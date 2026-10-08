@@ -60,7 +60,8 @@ namespace GPC.Model.Persistence
             {
                 using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
                 {
-                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports) ? "2" : "1");
+                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)
+                        ? "3" : model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports) ? "2" : "1");
                     Serializer(typeof(Models.Model)).WriteObject(writer, model); writer.WriteEndElement();
                 }
                 memory.Position = 0; memory.CopyTo(destination);
@@ -73,11 +74,14 @@ namespace GPC.Model.Persistence
             {
                 reader.MoveToContent();
                 string version = reader.GetAttribute("version");
-                if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2")) throw new SerializationException("Unsupported archive version.");
+                if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2" && version != "3")) throw new SerializationException("Unsupported archive version.");
                 reader.ReadStartElement();
                 var model = (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
                 reader.ReadEndElement();
                 CheckReportArchive.Validate(model.CheckReports.ToArray());
+                if (version != "3" && (model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)))
+                    throw new SerializationException("Analysis/scenario provenance requires archive version 3.");
+                model.Analysis?.OpenModel();
                 if (version == "1" && (model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports))) throw new SerializationException("Physical member data require archive version 2.");
                 return model;
             }

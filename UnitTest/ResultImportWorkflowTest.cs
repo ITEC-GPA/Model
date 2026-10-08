@@ -13,9 +13,10 @@ public class ResultImportWorkflowTest
 {
     private static (GPC.Model.Models.Model model, ResultImportBatch batch) Fixture()
     {
-        var model = MixedModelFactory.Create();
-        model.AnalysisSource = new AnalysisSource { Program = "Synthetic", SolverVersion = "fixture-1", ModelRevision = "mixed-v1", AnalysisId = "static" };
-        model.AreaElements[1090].Source = new SourceIdentity("Synthetic", "mixed-v1", EntityFamily.Shell, "B1"); // Same text ID, different family.
+        var model = MixedModelFactory.Create(value => {
+            value.AnalysisSource = new AnalysisSource { Program = "Synthetic", SolverVersion = "fixture-1", ModelRevision = "mixed-v1", AnalysisId = "static" };
+            value.AreaElements[1090].Source = new SourceIdentity("Synthetic", "mixed-v1", EntityFamily.Shell, "B1"); // Same text ID, different family.
+        });
         var batch = new ResultImportBatch { Source = model.AnalysisSource, DatasetId = "imported", SourceHash = "synthetic-record-hash",
             ReaderVersion = "fixture-reader-1", ExpectedInputFingerprint = model.AnalysisFingerprint(), Units = new ResultUnits(1000, 1000, 1e6),
             ShellDenominatorLengthToMm = 1000, ResolvedConvention = "GPC canonical positive section face / shell tensor", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic };

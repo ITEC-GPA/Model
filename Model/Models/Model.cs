@@ -220,7 +220,10 @@ namespace GPC.Model.Models
             : base(info, context)
         {
             int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
-            if (schemaVersion < 0 || schemaVersion > 1) throw new SerializationException("Unsupported Model schema version.");
+            if (schemaVersion < 0 || schemaVersion > 2) throw new SerializationException("Unsupported Model schema version.");
+            Analysis = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSnapshot>(info, "AnalysisSnapshot");
+            VerificationContext = SerializationFields.Read<GPC.Model.PostProcessing.VerificationProvenance>(info, "VerificationContext");
+            VerificationScenarios = SerializationFields.Read(info, "VerificationScenarios", new GPC.Model.PostProcessing.VerificationScenario[0]).ToDictionary(s => s.Id, StringComparer.Ordinal);
             Datasets = SerializationFields.Read(info, "Datasets", new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>());
             AnalysisSource = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSource>(info, "AnalysisSource");
             CheckReports = SerializationFields.Read(info, "CheckReports", new GPC.Model.PostProcessing.CheckReport[0]).ToList();
@@ -1729,7 +1732,10 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("ModelSchemaVersion", 1);
+            info.AddValue("ModelSchemaVersion", Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            if (Analysis != null) info.AddValue("AnalysisSnapshot", Analysis);
+            if (VerificationContext != null) info.AddValue("VerificationContext", VerificationContext);
+            if (VerificationScenarios.Count != 0) info.AddValue("VerificationScenarios", VerificationScenarios.Values.ToArray());
             info.AddValue("CheckReports", CheckReports.ToArray());
             if (PhysicalMembers.Count != 0) info.AddValue("PhysicalMembers", PhysicalMembers.Values.ToArray());
             info.AddValue("PreservedSourceData", PreservedSourceData.ToArray());
