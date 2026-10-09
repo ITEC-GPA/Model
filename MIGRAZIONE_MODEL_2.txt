@@ -1,0 +1,16 @@
+MODEL 2.0 - MIGRAZIONE DELLE API
+
+Rimossi FemBeam ed EulerBeam (GPC.Model.FiniteElementAnalysis.FiniteElements.Beam).
+Erano abbozzi di solutore: BuildMatrix e costruzione delle forze lanciavano sempre
+NotImplementedException. Usare BeamElement per rappresentazione/import dei dati;
+Model non e' un solutore FEM. Eliminata anche IFiniteElement, interna.
+Nessun uso attivo trovato nei sorgenti di Model, Converter, Checker e Anthea.
+Non erano tipi serializzabili registrati nell'archivio Model: nessun migratore
+di file deve trasformarli. La versione major esplicita la rimozione pubblica.
+Il controllo API consente soltanto la rimozione dei due tipi nominati.
+
+Eliminati BeamTest.cs (4195 righe interamente commentate, nessun test eseguibile)
+e sei esclusioni di cartelle FEM Brick/Plate prive di sorgenti nel csproj.
+I tipi vetro/solidi, le leggi fisiche e le facciate pubbliche usate dai consumer
+restano disponibili. Una cartella fuori dal percorso corrente non prova che
+un tipo pubblico o un formato storico siano inutilizzati.

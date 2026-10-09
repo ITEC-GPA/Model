@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,16 +7,7 @@
   <Configurations>Debug;Release;DebugLocalLibs</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
-    <Compile Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
-    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
-    <EmbeddedResource Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
-    <None Remove="FiniteElementAnalysis\FiniteElements\Brick\**" />
-    <None Remove="FiniteElementAnalysis\FiniteElements\Plate\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+<ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
 

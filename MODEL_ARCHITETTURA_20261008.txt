@@ -387,3 +387,10 @@ nessuna rottura nelle fasi calcolo/plate. Provato rifiuto di DLL mancanti o
 alterate. Runner completo: Model/Converter 939 passati + 2 saltati; ModelChecker
 124 passati. Punto 8 infrastrutturale completato; plate resistenti restano
 fuori perimetro fino alla scelta condivisa dei metodi.
+
+9 OTTOBRE - PULIZIA CERTA / MODEL 2.0
+Rimossi i due tipi pubblici incompleti FemBeam/EulerBeam e IFiniteElement
+interna, il test interamente commentato e le esclusioni FEM inutili. La rottura
+intenzionale e le sostituzioni sono in MIGRAZIONE_MODEL_2.txt. Versione Model
+2.0.0.0. API check: soltanto 15 firme rimosse appartenenti ai due tipi approvati;
+nessuna altra rottura. Model/Converter: 939 passati, 2 fixture esterne saltate.

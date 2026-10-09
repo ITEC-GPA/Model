@@ -1,0 +1,3 @@
+# Model 2.0: abandoned, non-serializable FEM prototypes; use BeamElement and imported FEM results.
+GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.FemBeam
+GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.EulerBeam
