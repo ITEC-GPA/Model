@@ -227,3 +227,10 @@ la discussione richiesta dall'utente.
 Verify.ps1 finale completato: tutti i controlli sopra PASS. Le mappe XML
 sono inizializzate nel costruttore statico per non dipendere dall'ordine
 dei file partial; regressioni mirate su namespace/persistenza riconfermate.
+
+Release di tutte le librerie e integrazione sul ramo principale
+Incrementate tutte le nove librerie di produzione nei due repository;
+versioni/validazioni in RELEASE_LIBRERIE_20261009.txt. Aggiornati hash e
+provenienza del bundle Checker dopo la ricompilazione dal merge 72e9698d.
+L'utente ha chiesto il ramo principale e ha confermato master (main non esiste).
+Anthea non aggiornato. NuGet non pubblicato.

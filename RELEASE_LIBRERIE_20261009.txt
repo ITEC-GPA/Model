@@ -1,0 +1,33 @@
+VERSIONI LIBRERIE - 9 OTTOBRE 2026
+
+Libreria                    AssemblyVersion / FileVersion
+GPCModel                    4.0.0.0  -> 4.0.1.0
+GPCModelData                 0.0.2.4  -> 0.0.2.5
+GPCModelChecker              2.0.0.0  -> 2.0.1.0
+GPC.Converter               2.0.0.0  -> 2.0.1.0
+GPC.Model.Persistence       2.0.0.0  -> 2.0.1.0
+GPCChecker.Concrete          0.0.23.0 -> 0.0.24.0
+GPCChecker.Steel             2.0.0.0  -> 2.0.1.0
+GPCChecker.CompositeBridge   1.4.0.5  -> 1.4.0.6
+GPCChecker.Geotechnics       0.1.1.2  -> 0.1.1.3
+
+Version dei progetti/pacchetti: Model 4.0.1; ModelData 0.0.2.5;
+ModelChecker, Converter, Persistence, Steel 2.0.1; Concrete 0.0.24;
+CompositeBridge 1.4.0.6; Geotechnics 0.1.1.3.
+La versione pacchetto e' esplicita anche nei progetti con AssemblyInfo manuale.
+Nessuna formula, API, dipendenza NuGet o fixture numerica cambiata.
+
+Build Release e controllo delle versioni effettive delle nove DLL riusciti.
+Verify.ps1: 3 core, 996 Model/Converter (+2 fixture Straus esterne saltate),
+155 ModelChecker PASS; controlli API senza rimozioni inattese.
+Test Checker: 50 Concrete, 254 CompositeBridge, 98 Geotechnics PASS;
+Steel: 77 PASS / gli stessi 17 FAIL della baseline, confrontati per nome/esito.
+
+Su richiesta dell'utente tutte le modifiche di codex/model-architecture sono
+integrate nel ramo principale master dei due repository. Checker integra con
+72e9698d il commit versioni b8abb798; build/dependencies.props fissa le DLL
+ricompilate da quel merge tramite versione, SHA256 e commit sorgente.
+Le guide MIGRAZIONE_MODEL_4.txt restano valide per la migrazione dei consumer;
+la tabella sopra aggiorna solo i numeri di versione delle relative fotografie.
+Il bundle applicativo Anthea non viene sostituito; nessun pacchetto NuGet
+viene pubblicato da questa operazione.
