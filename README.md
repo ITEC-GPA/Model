@@ -1,5 +1,26 @@
 # GPC Model: post-processing NODE / BEAM / SHELL
 
+## Sviluppo: assegnazioni Civil NX per il visualizzatore (9 ottobre 2026)
+
+Branch `codex/viewer-boundary-data`, dalla base `master` a324af3f. Converter 2.0.2, non ancora rilasciato.
+Le classi del dominio per svincoli, molle e relazioni cinematiche esistevano già; il convertitore ora le alimenta con:
+
+- FRLS: sei gradi di libertà I/J, svincolo completo, fissità relativa o rigidezza assoluta, assi MIDAS espliciti;
+- RIGD: equazioni dei soli gradi di libertà richiesti, nodi master/slave e bracci firmati;
+- ELNK: link RIGID oppure GEN elastico diagonale con rotazione e conversione coerente N/mm/rad.
+
+La presenza di fasi, warping negli svincoli, leggi non lineari, accoppiamento a taglio, condizioni miste rigido/elastico
+o assi nodali non risolti conserva i record e produce diagnostica: non crea un equivalente meccanico arbitrario.
+Svincoli su truss o altre formulazioni assiali rimangono conservati senza assegnare gradi di libertà flessionali.
+Errori di connettività e coefficienti non validi rifiutano il candidato atomicamente.
+
+Collaudo: 90 test mirati di importazione, assegnazioni, persistenza e regressione; prova reale Civil NX con
+3.755 nodi, 181 beam, 3.435 plate, 381 ELNK rigidi e 1.263 relazioni master/slave da due record RIGD.
+La serializzazione esplicita conserva svincoli e link, che contribuiscono all'impronta degli input di analisi.
+Le evidenze private sono negli artefatti del branch visualizzatore ANTHEA. Nessun aggiornamento del bundle DLL di ANTHEA.
+Restano da estendere/completare: leggi non lineari, PRLS, attivazione per fase, trasformazione MPC con SKEW,
+warping, formulazioni di compressione/cavo e adattatori degli altri solutori.
+
 Il riordino attuale usa **Model 4** e richiede la ricompilazione dei consumer. La [guida di migrazione](MIGRAZIONE_MODEL_4.txt) descrive namespace, DLL da aggiornare e compatibilita' degli archivi. Per il controllo completo: `./build/Verify.ps1`.
 
 Il dominio FEM rimane `GPC.Model.Models.Model`. Nodi, beam, shell e solidi condividono identità e registri; gli assi sono sempre i tipi reali `Point3d`, `Vector3d` e **`GPC.Geometry.CoordinateSystem`**.

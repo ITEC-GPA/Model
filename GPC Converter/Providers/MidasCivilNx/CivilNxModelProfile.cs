@@ -17,15 +17,16 @@ namespace GPC.Converter.CivilNx
 {
     /// <summary>MIDAS Civil NX model profile: nodes, beams/trusses, plates, element axes, groups, static cases, materials, sections,
     /// thicknesses, beam end offsets, supports, nodal/beam/pressure loads. Database values are in the model UNIT; every
-    /// response is preserved. Releases, springs, links, stages and combinations are preserved only.
+    /// response is preserved. Static six-DOF releases, uncoupled linear links and global rigid links are mapped.
+    /// Staged boundaries, warping and unsupported link laws are preserved with diagnostics.
     /// Conventions checked on a real Civil NX model through the API (October 2026): plate axes are the ECS of the Analysis
     /// Manual rotated by ELEM ANGLE about z; empty databases answer {"message":""}.</summary>
-    public sealed class CivilNxModelProfile : ICivilNxGeometryProfile
+    public sealed partial class CivilNxModelProfile : ICivilNxGeometryProfile
     {
         public const string Program = "MIDAS Civil NX";
         public static IReadOnlyList<string> RequiredTables { get; } = new[] { "UNIT", "NODE", "ELEM" };
         public static IReadOnlyList<string> OptionalTables { get; } = new[]
-            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF",
+            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "ELNK", "RIGD", "STAG", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF",
               "LCOM-GEN", "LCOM-CONC", "LCOM-STEEL", "LCOM-SRC", "LCOM-STLCOMP", "LCOM-SEISMIC" };
         /// <summary>Combination databases and the ANAL label of their references in other combinations (e.g. CBC: a LCOM-CONC combination).</summary>
         private static readonly IReadOnlyDictionary<string, string> CombinationTables = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -44,7 +45,8 @@ namespace GPC.Converter.CivilNx
             ["Section offset points, beam end offsets"] = CapabilityStatus.InterpretedWithoutRealFileTest,
             ["Groups, static cases, supports, nodal/beam/uniform pressure loads"] = CapabilityStatus.ImplementedSyntheticTests,
             ["Plate edge loads"] = CapabilityStatus.InterpretedWithoutRealFileTest,
-            ["Non-uniform pressures, releases, springs, links, stages, combinations, self weight"] = CapabilityStatus.PreservedOnly,
+            ["Six-DOF beam releases, global rigid links and uncoupled linear elastic links"] = CapabilityStatus.ImplementedSyntheticTests,
+            ["Warping releases, nonlinear or shear-coupled links, staged boundary activation"] = CapabilityStatus.PreservedOnly,
         });
 
         public ImportBatch Read(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken cancellationToken)
@@ -54,7 +56,7 @@ namespace GPC.Converter.CivilNx
             return new Reader(snapshot, identity, cancellationToken).Read();
         }
 
-        private sealed class Reader
+        private sealed partial class Reader
         {
             private readonly CivilNxSnapshot snapshot;
             private readonly CancellationToken token;
@@ -77,8 +79,8 @@ namespace GPC.Converter.CivilNx
             {
                 Units(); Skews(); Nodes();
                 var thicknesses = Thicknesses(); var sections = Sections(); Materials();
-                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
-                foreach (var table in new[] { "FRLS", "NBOF" })
+                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); BoundaryAssignments(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
+                foreach (var table in new[] { "NBOF" })
                     if (Has(table)) Warn("CivilNx" + table + "Preserved", "db/" + table, table == "FRLS" ? "Beam end releases are preserved, not mapped."
                         : "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads.");
                 foreach (var missing in snapshot.Unavailable) Warn("CivilNxTableUnavailable", missing, "The API did not return this database; its data is not in the model.");

@@ -224,6 +224,20 @@ namespace GPC.Converter
         public CoordinateSystem CoordinateSystem { get; set; }
         public string Record { get; set; }
     }
+    public sealed class BeamReleaseRecord
+    {
+        public string BeamId { get; set; }
+        public GPC.Model.Attributes.BeamReleasesAttribute Release { get; set; }
+        public string Record { get; set; }
+    }
+    public sealed class NodeLinkRecord
+    {
+        public string I { get; set; }
+        public string J { get; set; }
+        public bool[] RigidDofs { get; set; } // Global DX,DY,DZ,RX,RY,RZ; rigid body lever arms included by ModelMapper.
+        public SpringMatrix Spring { get; set; }
+        public string Record { get; set; }
+    }
     public sealed class ImportBatch
     {
         public string Program { get; set; }
@@ -238,6 +252,8 @@ namespace GPC.Converter
         public List<LoadCaseRecord> LoadCases { get; } = new List<LoadCaseRecord>();
         public List<NodeLoadRecord> NodeLoads { get; } = new List<NodeLoadRecord>();
         public List<NodeRestrainRecord> NodeRestrains { get; } = new List<NodeRestrainRecord>();
+        public List<BeamReleaseRecord> BeamReleases { get; } = new List<BeamReleaseRecord>();
+        public List<NodeLinkRecord> NodeLinks { get; } = new List<NodeLinkRecord>();
         public List<MaterialRecord> Materials { get; } = new List<MaterialRecord>();
         public List<SectionRecord> Sections { get; } = new List<SectionRecord>();
         public List<ThicknessRecord> Thicknesses { get; } = new List<ThicknessRecord>();
