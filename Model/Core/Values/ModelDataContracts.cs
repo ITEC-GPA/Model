@@ -260,6 +260,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Sections.SectionRHS),
             typeof(global::GPC.Model.Sections.SectionRHSRoundedCorners),
             typeof(global::GPC.Model.Sections.SectionStadium),
+            typeof(global::GPC.Model.Sections.SectionCurveOutline),
             typeof(global::GPC.Model.Sections.SectionSteelBox),
             typeof(global::GPC.Model.Sections.SectionT),
             typeof(global::GPC.Model.Sections.SectionTorsionProperties),

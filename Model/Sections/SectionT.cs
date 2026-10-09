@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -238,8 +238,22 @@ namespace GPC.Model.Sections
             if (!HasWorkedCorners)
                 return Shape;
 
+            return SectionOutline.Create(GetCurveVertices());
+        }
+
+        /// <summary>The worked boundary as tangent lines and circular arcs.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            if (!HasWorkedCorners)
+                return base.GetCurveOutlines();
+
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(GetCurveVertices())) };
+        }
+
+        private SectionOutline.Vertex[] GetCurveVertices()
+        {
             double b = LenghtFlange, tw = ThicknessWeb, hw = HeightWeb;
-            return SectionOutline.Create(new[]
+            return new[]
             {
                 new SectionOutline.Vertex(0.0, Height),
                 new SectionOutline.Vertex(b, Height),
@@ -249,7 +263,7 @@ namespace GPC.Model.Sections
                 new SectionOutline.Vertex(b / 2.0 - tw / 2.0, 0.0),
                 SectionOutline.Inside(b / 2.0 - tw / 2.0, hw, _edgeWorking, _r),
                 new SectionOutline.Vertex(0.0, hw),
-            });
+            };
         }
 
         /// <summary>

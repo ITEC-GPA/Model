@@ -52,6 +52,14 @@ namespace GPC.Model.Sections
         /// <summary>True if hollow</summary>
         public bool IsHollow => _thickness > 0;
 
+        /// <summary>The exact outer and inner ellipses. Existing numerical properties keep their established discretization.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            Curve3d Loop(double inset) => new EllipseCurve3d(new Point3d(_width / 2, _height / 2, 0),
+                new Vector3d(0, 0, 1), new Vector3d(1, 0, 0), _width / 2 - inset, _height / 2 - inset);
+            return new[] { new SectionCurveOutline(Loop(0), IsHollow ? new[] { Loop(_thickness) } : null) };
+        }
+
         /// <summary>
         /// The ellipse, and the inner one if hollow
         /// </summary>

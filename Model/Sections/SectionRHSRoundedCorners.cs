@@ -67,6 +67,18 @@ namespace GPC.Model.Sections
         /// </summary>
         public double Thickness => ThicknessTop;
 
+        /// <summary>Four tangent circular corners on each boundary, including the inner void.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            SectionOutline.Vertex[] Rectangle(double inset, double radius) => new[]
+            {
+                new SectionOutline.Vertex(inset, inset, radius), new SectionOutline.Vertex(Base - inset, inset, radius),
+                new SectionOutline.Vertex(Base - inset, Height - inset, radius), new SectionOutline.Vertex(inset, Height - inset, radius)
+            };
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(Rectangle(0, _ro)),
+                new[] { SectionOutline.Curve(Rectangle(Thickness, _ri)) }) };
+        }
+
         /// <summary>
         /// The torsion modulus Ct of EN 10210-2: It / (t + K / t)
         /// </summary>

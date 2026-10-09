@@ -65,6 +65,13 @@ namespace GPC.Model.Sections
         /// </summary>
         public double DiameterInternal => _externalDiameter - (2 * _thickness);
 
+        /// <summary>The exact outer and inner circles.</summary>
+        public override IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => new[]
+        {
+            new SectionCurveOutline(SectionOutline.Circle(Diameter / 2, Diameter / 2, Diameter / 2),
+                new[] { SectionOutline.Circle(Diameter / 2, Diameter / 2, DiameterInternal / 2) })
+        };
+
         /// <summary>
         /// The height: the external diameter
         /// </summary>

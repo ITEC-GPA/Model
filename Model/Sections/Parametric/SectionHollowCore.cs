@@ -66,6 +66,14 @@ namespace GPC.Model.Sections
         /// <summary>The number of voids</summary>
         public int Voids => _voids;
 
+        /// <summary>The rectangular boundary and exact circular or stadium-shaped voids.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => new[]
+        {
+            new SectionCurveOutline(Shape.Fill.ToCurve3d(), Enumerable.Range(0, _voids).Select(k =>
+                SectionOutline.StadiumCurve(_width / 2 + (k - (_voids - 1) / 2.0) * _voidSpacing,
+                    _voidCentre, _voidWidth, _voidHeight)))
+        };
+
         /// <summary>
         /// The rectangle with the voids
         /// </summary>

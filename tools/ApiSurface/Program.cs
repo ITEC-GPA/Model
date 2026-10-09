@@ -25,7 +25,9 @@ foreach (var name in args.Skip(3))
     if (args[0] == "capture") { File.WriteAllLines(file, lines); Console.WriteLine($"{name}: captured {lines.Length} signatures"); continue; }
     var allowedFile = Path.Combine(baseline, name + ".removed-types.txt");
     var allowed = File.Exists(allowedFile) ? File.ReadAllLines(allowedFile).Where(l => l.Length > 0 && !l.StartsWith('#')).ToHashSet(StringComparer.Ordinal) : new();
-    var removed = File.ReadAllLines(file).Select(ApplyRenames).Except(lines, StringComparer.Ordinal).ToArray();
+    var types = lines.Where(l => l.StartsWith("T|", StringComparison.Ordinal)).ToDictionary(l => l.Split('|')[1], StringComparer.Ordinal);
+    var removed = File.ReadAllLines(file).Select(ApplyRenames).Except(lines, StringComparer.Ordinal)
+        .Where(l => !types.TryGetValue(l.Split('|')[1], out var current) || !GPC.Tools.ApiCompatibility.IsAdditiveInterfaceImplementation(l, current)).ToArray();
     var unexpected = removed.Where(l => !allowed.Contains(l.Split('|')[1])).ToArray();
     foreach (var line in unexpected) Console.Error.WriteLine("Unexpected removal: " + line);
     foreach (var type in allowed.Where(t => !removed.Any(l => l.Split('|')[1] == t))) { Console.Error.WriteLine("Unused removal allowance: " + type); failures++; }

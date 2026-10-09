@@ -35,7 +35,8 @@ namespace GPC.Model.Core
             // The assemblies and namespaces are fixed here, never selected by an input file.
             var domain = ModelDataContracts.Domain;
             var geometry = new[] { typeof(Point3d), typeof(Point2d), typeof(Vector3d), typeof(Vector2d), typeof(CoordinateSystem),
-                typeof(Shape), typeof(Shape2d), typeof(Polygon3d), typeof(Polygon2d), typeof(Line3d), typeof(Line2d) };
+                typeof(Shape), typeof(Shape2d), typeof(Polygon3d), typeof(Polygon2d), typeof(Line3d), typeof(Line2d),
+                typeof(LineCurve3d), typeof(ArcCurve3d), typeof(EllipseCurve3d), typeof(PolylineCurve3d), typeof(PolyCurve3d), typeof(Curve3d[]) };
             var collections = new[] { typeof(SortedCollection<NodeElement>), typeof(SortedCollection<BeamElement>), typeof(SortedCollection<AreaElement>), typeof(SortedCollection<VolumeElement>),
                 typeof(UniqueNameCollection<Group>), typeof(UniqueIdCollection<Attributes.Attribute>), typeof(UniqueIdCollection<Load>),
                 typeof(UniqueNameCollection<BeamProperty>), typeof(UniqueNameCollection<PlateProperty>), typeof(UniqueNameCollection<BrickProperty>),

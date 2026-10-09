@@ -60,3 +60,24 @@ Release di GPCModel, GPCModelData, GPC.Model.Persistence) e Checker 0ff71a2e
 (worktree; dotnet build Release delle librerie), SDK 9.0.318.
 La prima fissatura (52bfd2e1) usava una GPCModel non riproducibile ed e'
 sostituita da questa.
+
+
+TERZA RELEASE DEL 9 OTTOBRE 2026: contorni nativi a curve
+
+GPCModel 4.1.0.0; GPCModelData 0.0.2.6; GPCModelChecker 2.0.2.0;
+GPC.Converter 2.0.2.0; GPC.Model.Persistence 2.1.0.0.
+Merge di codex/section-curves su master, conservando la rimozione di gmsh
+dal bundle fissato. Geometry 2.3.0.0 e DelaunayMesh 2.0.0.14 sono fissate
+al commit pubblicato e8f840e4607806104ed8b4650faaf0e8f0e4e548.
+
+ISectionCurveShape e SectionCurveOutline espongono contorni, fori e parti
+composte con segmenti, archi, ellissi e policurve. Discretizzazione esplicita
+con tolleranza; forme poligonali e proprieta' di calcolo esistenti conservate.
+Aggiornata la persistenza dei tipi di curva e delle sezioni.
+
+Verify.ps1 Release: Core 6/6, UnitTest 1146 PASS e 2 fixture esterne ignorate,
+ModelChecker 166/166. Controlli API: nessuna rimozione inattesa.
+I test includono 100 combinazioni famiglia/dimensione delle sezioni, casi
+limite e controlli negativi dello strumento di compatibilita' API.
+I Checker fissati restano quelli precedenti durante questo primo rilascio;
+il loro aggiornamento segue dopo la pubblicazione di Model 4.1.0.
