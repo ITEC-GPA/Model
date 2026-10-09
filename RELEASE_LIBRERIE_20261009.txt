@@ -81,3 +81,27 @@ I test includono 100 combinazioni famiglia/dimensione delle sezioni, casi
 limite e controlli negativi dello strumento di compatibilita' API.
 I Checker fissati restano quelli precedenti durante questo primo rilascio;
 il loro aggiornamento segue dopo la pubblicazione di Model 4.1.0.
+
+Chiusura del rilascio coordinato: Checker master pubblicato al commit
+2dff88f53649a8ff6951971fddb72b399d77cd3e. Il manifest ora fissa Concrete
+0.0.26.0, Steel 2.0.3.0 e CompositeBridge 1.4.0.8, tramite versione/SHA256
+e commit sorgente. Le versioni di Model restano quelle della terza release.
+
+Le DLL di Checker sono state ricompilate due volte da quel commit con
+MSBuild 17.14.51.32402 di Visual Studio 2022 e SDK 9.0.318: hash identici.
+Input e percorsi sono registrati in Checker/RELEASE_LIBRERIE_20261009.txt.
+GPCModel/GPCModelData/Persistence sono quelli compilati dal commit Model
+82d1e028 (prima di aggiornare questi pin); Geometry contiene i binari
+committati in e8f840e. L'ordine evita di confondere la provenienza degli input
+con il successivo aggiornamento del manifest. Prepare-Dependencies e la
+validazione di tutti i sei SHA256 restano obbligatori.
+
+Checker: Concrete 680 PASS, Calculation 171 PASS, CompositeBridge 260 PASS,
+Geotechnics 108 PASS; Steel 88 PASS e 17 FAIL gia' presenti, con nomi e
+messaggi identici alla baseline prima dell'aggiornamento.
+
+Verify.ps1 rieseguito con i pin finali: Core 6/6, UnitTest 1146 PASS con
+le stesse 2 fixture esterne ignorate, ModelChecker 166/166. API di Model,
+ModelChecker, Concrete e Persistence senza rimozioni inattese. I sei hash
+del bundle corrispondono al manifest; ModelChecker referenzia effettivamente
+Concrete 0.0.26.0, Steel 2.0.3.0 e CompositeBridge 1.4.0.8.
