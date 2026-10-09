@@ -82,3 +82,13 @@ ricostruzione sorgente e DLL vincolata; nessuna aspettativa storica modificata.
 Le formule native, le dipendenze vincolate e Anthea sono invariati in questa fase.
 Restano da riprendere secondo l'ordine da concordare i punti lasciati in coda:
 3 (completamento cls), 6 (scelta condivisa dei metodi plate), 7 (converter).
+
+Punto 6 - proposta plate per il confronto
+Esaminati i contratti Model/ModelChecker e il codice plate Concrete/Steel.
+PROPOSTA_CHECKER_PLATE_PUNTO6.txt confronta Wood-Armer, equilibrio sandwich
+e risposta non lineare a strati, distingue verifiche locali e di regione,
+propone dati/resoconti, riporta un esempio di equilibrio e il piano dei test.
+Da chiarire il piano di riferimento dei momenti e il significato di Offset
+prima di attivare un motore resistente. Nessuna formula, API o dipendenza
+modificata. Test non rieseguiti: fase documentale. Metodo ancora da concordare
+secondo il vincolo esplicito del PASSO 6; nessuno shell dichiarato verificato.

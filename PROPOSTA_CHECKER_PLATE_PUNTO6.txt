@@ -1,0 +1,242 @@
+PUNTO 6 - PROPOSTA PER LE VERIFICHE PLATE/SHELL
+Data: 2026-10-09
+Stato: proposta da discutere; nessun nuovo motore resistente implementato.
+Branch: codex/model-architecture. Nomi delle nuove classi indicativi.
+
+1. OBIETTIVO E STATO EFFETTIVO
+Model descrive struttura e risultati; Checker esegue le verifiche; ModelChecker
+seleziona, prepara, instrada e raccoglie gli esiti. Anthea gestira' l'interfaccia.
+Il confine vale anche per altri materiali futuri. Il vetro e' escluso.
+
+Gia' presenti:
+- ResultPlateForces: otto componenti concomitanti e CoordinateSystem.
+- PointResultPlateForces: punto, tipo, nodo sorgente e regione di media.
+- ShellThickness: Physical, Membrane e Bending distinti, in mm.
+- ShellAssignments / ShellRebarLayer: spessore fisico, offset, assi, faccia,
+  materiale, diametro, passo, angolo e quota di ciascuno strato di barre.
+- ShellInputPreparation: copie di proprieta'/armature, assi, unita', provenienza,
+  compatibilita' FEM e invalidazione. Rifiuta gia' campioni Unknown e Averaged.
+- IPlateChecker/IPlateCheckSession, pianificazione e resoconti dei punti shell.
+
+Manca un motore resistente qualificato: EngineCatalog dichiara Concrete.Plate
+e Steel.Plate non disponibili. Il PlateChecker Concrete legacy e' astratto;
+PlateCheckerAttribute contiene sezioni e ResultBeamForces. La bozza
+PlateCheckerModelCode2010 e il file Steel/EuroCode/ECPlate.cs sono commentati.
+Questi nomi non costituiscono un'implementazione 2D da attivare.
+
+WoodArmerDesign, oggi in Model, calcola azioni di progetto per sola flessione
+con armature ortogonali negli assi considerati: non verifica la resistenza.
+ShellStripActions estrae una striscia da azioni gia' determinate. Da solo non
+risolve l'interazione membrana-flessione ne' autorizza l'uso del checker beam.
+
+2. SEPARAZIONE DELLE RESPONSABILITA' PROPOSTA
+Model
+  AreaElement / PlateProperty / ShellThickness
+  ShellAssignments / ShellRebarLayer
+  Risultati FEM, CoordinateSystem, facce e piano di riferimento delle azioni
+  Geometria delle regioni fisiche, appoggi e aperture (estensioni successive)
+
+Checker.Concrete
+  Plates
+    ConcreteShellInput                 dati autonomi del calcolo
+    IConcreteShellResistanceMethod     strategia SLU esplicitamente scelta
+      WoodArmerBendingMethod           metodo limitato alla sola flessione
+      SandwichEquilibriumMethod        prima strategia combinata proposta
+    IConcreteShellResponseSolver       futura risposta a strati per gli SLE
+    ConcretePlateStandardProfile       regole, coefficienti e campo normativo
+    ConcreteShellResult                esiti locali e dettagli per strato
+    TransverseShear / Punching          meccanismi distinti, quando qualificati
+
+Checker.Steel
+  Plates
+    SteelShellInput
+    ElasticShellStressMethod           primo controllo locale proposto
+    SteelPlateStandardProfile
+    SteelShellResult
+  Panels
+    PlateBucklingInput / Method / Result  fase successiva con dati di pannello
+
+ModelChecker
+  IPlateChecker / IPlateCheckSession    adapter e routing esistenti
+  PlateCheckSpecification              selezione di metodo e meccanismo
+  Preparazione -> sessione -> CheckResult -> resoconto persistente
+  Aggregazione dei punti e, successivamente, verifiche di regione
+
+Non creare una gerarchia comune che costringa cls e acciaio allo stesso solver.
+Riutilizzare CoordinateSystem di GPC.Geometry. Nessun nuovo tipo di assi.
+Il materiale e il metodo determinano le capacita'; non il nome del software FEM.
+
+Sposterei le formule Wood-Armer in Checker.Concrete; in Model resterebbero le
+trasformazioni fisiche di assi, unita' e piano di riferimento. La migrazione
+richiede ricerca dei chiamanti e confronto numerico; evitare una dipendenza
+Model -> Checker per conservare artificialmente il vecchio metodo statico.
+IShellDesignActionMethod/ShellDesignActions sono API esistenti da riesaminare:
+le azioni di progetto derivate devono essere distinguibili dai risultati FEM.
+Non sostituire nel dataset originale le azioni concomitanti con quelle di progetto.
+
+3. SCELTA DEL METODO CLS: ALTERNATIVE
+A. Wood-Armer e strisce unitarie
+   Primo incremento relativamente contenuto per flessione Mxx/Myy/Mxy.
+   Dominio esplicito: armature ortogonali e assenza delle azioni di membrana
+   nella verifica combinata. Qx/Qy richiedono un controllo separato.
+   Non e' il metodo generale per pareti, membrane o shell con N e M.
+   Un metodo di progetto SLU non fornisce automaticamente tensioni/fessure SLE.
+
+B. Equilibrio sandwich con strati esterni resistenti e nucleo
+   Proposta per il primo motore SLU combinato Nxx/Nyy/Nxy/Mxx/Myy/Mxy.
+   Ripartisce le azioni fra gli strati e verifica insieme armature e cls.
+   Devono essere scelti e documentati: spessori efficaci, bracci interni,
+   campo compresso, direzioni delle bielle, limiti e trattamento di Qx/Qy.
+   Baumann e' una possibile trasformazione delle azioni per le armature;
+   non e' un sinonimo di sandwich e non basta da solo a definire il modello.
+   Partire con piastra piana omogenea, armature ortogonali, quote note e carichi
+   statici; estendere armature oblique e altri domini solo con prove dedicate.
+   Nel primo incremento Q diverso da zero comporta esito parziale se il taglio
+   non e' ancora qualificato: il punto non diventa complessivamente verificato.
+
+C. Risposta non lineare a strati con legame costitutivo piano
+   Estensione per risposta, deformazioni, tensioni e verifiche SLE coerenti.
+   Richiede scelta del modello fessurato, legame biaxiale del cls, tension
+   stiffening e gestione del taglio. Per gli effetti differiti serve la storia.
+   E' piu' impegnativo da validare; non basta chiamare due solutori beam.
+   Il solver 1D puo' essere riutilizzato per sottoproblemi realmente equivalenti,
+   con ipotesi esplicite, non come sostituto del problema 2D.
+
+Raccomandazione: B come obiettivo del primo SLU generale; A disponibile soltanto
+come metodo limitato ed esplicito; C in un incremento distinto per gli SLE.
+La scelta di B non approva ancora una formulazione specifica o tutte le norme.
+Prima del codice: scheda del metodo, equazioni, dominio e benchmark indipendenti.
+La priorita' e' verificare l'armatura assegnata. Il progetto automatico As richiesto
+va esposto come operazione separata, senza modificare il Model durante la verifica.
+
+4. ACCIAIO, TAGLIO E REGIONI
+Acciaio: primo incremento per tensioni locali elastiche di piastra omogenea,
+ricostruite con spessore fisico e piano di riferimento espliciti; poi controllo
+di snervamento previsto dal profilo normativo. Non equivale a verificare stabilita'.
+Con taglio trasversale non sommare massimi di tensione presi a quote diverse:
+serve una distribuzione nello spessore dichiarata e un controllo concomitante.
+
+Instabilita' di pannello: input distinto con dimensioni, bordi, irrigidimenti,
+vincoli e distribuzione delle azioni. Un elemento della mesh non identifica
+automaticamente un pannello fisico. Scegliere la parte normativa secondo il
+problema: EN 1993-1-5 non copre genericamente tutti gli effetti fuori piano.
+
+Cls Qx/Qy: mantenere il vettore, la direzione verificata, l'altezza utile e la
+pertinente armatura; la sola norma del vettore non definisce la verifica completa.
+Distinguere verifiche senza/con armatura trasversale e compressione delle bielle.
+Non applicare automaticamente la verifica del taglio delle travi alla piastra.
+
+Punzonamento: controllo di regione con impronta di carico/appoggio, reazioni e
+azioni trasferite, perimetri, bordi, fori, spessore e armature. Non dedurlo dal
+massimo Q del singolo elemento. Resta un incremento successivo da concordare.
+I gruppi esistenti possono selezionare elementi, ma non sostituiscono questi dati.
+
+5. CONVENZIONI E AMMISSIBILITA' DEI DATI
+- CoordinateSystem ortonormale destrorso; normale e facce fisiche tracciate.
+  Invertire la normale deve conservare l'identita' fisica delle armature.
+- Nxx/Nyy/Nxy corrispondono a Fxx/Fyy/Fxy; Qx/Qy a Fxz/Fyz. Unita' interne:
+  N e Q in N/mm; M in N*mm/mm; quote in mm e angoli in rad.
+  1 kN/m = 1 N/mm; 1 kN*m/m = 1000 N*mm/mm.
+- Trazione positiva. Coerentemente con WoodArmerDesign attuale, Mxx positivo
+  tende la faccia +z. Ogni converter deve dimostrare la conversione dei segni.
+- Il piano rispetto a cui il FEM fornisce M deve essere noto. Offset e rotazione
+  sono operazioni distinte: non basta ruotare il tensore quando cambia il piano.
+  ShellInputPreparation oggi ruota ma non applica una traslazione basata su Offset:
+  e' un punto da chiarire prima di attivare il motore, non una correzione da indovinare.
+- Spessore fisico per geometria resistente; Membrane/Bending descrivono il FEM.
+  Vietato scegliere lo spessore numericamente piu' favorevole alla verifica.
+- Conservare quota e direzione di ogni ordine di barre: le due direzioni della
+  stessa faccia possono avere altezze utili diverse. Verificare barre entro spessore.
+- Stato unico concomitante con caso/combinazione, fase, passo e provenienza.
+  Nessuna combinazione artificiale di massimi N, M, Q presi da stati diversi.
+- Punti di integrazione: percorso iniziale preferito, conservando coordinate.
+  Centroide: ammissibile soltanto come copertura puntuale dichiarata.
+  Nodi estrapolati: metodo/provenienza espliciti; mai spacciati per valori integrati.
+  La preparazione attuale li ammette: il metodo potra' restringerne l'uso.
+  Medie: restano escluse inizialmente. Eventuali medie future devono dichiarare
+  algoritmo, pesi, sorgenti e regione omogenea, senza attraversare discontinuita'.
+- Distinguere punto verificato, riepilogo dei punti di un elemento e verifica
+  della regione. Il massimo dei punti esportati non certifica il massimo continuo.
+
+6. RISULTATI E APPROCCIO MULTINORMATIVA
+Un esito conserva input autonomi, revisione, assi, facce, origine FEM, metodo e
+versione, norma/edizione/annesso nazionale e parametri effettivamente applicati.
+I dettagli tipizzati del Checker alimentano il CheckResult comune di ModelChecker.
+Restituire per meccanismo: domanda, limite/capacita' se definito, utilizzo con la
+sua definizione, stato, strato/faccia/direzione governante e motivi di esclusione.
+Non esiste necessariamente un unico rapporto resistente valido per tutti i metodi.
+Allegare tensioni/deformazioni quando calcolate, residui d'equilibrio, iterazioni,
+tolleranze e ipotesi. Non convergenza e dati insufficienti non sono esiti positivi.
+Le soglie devono distinguere N, M, Q, equilibrio e variabili iterative, con scale
+assolute/relative e unita'. I cinque criteri Concrete esistenti restano preservati;
+non attribuire automaticamente ai problemi 2D il significato dei criteri 1D.
+
+Profili NTC, EN e Model Code selezionabili solo dove realmente implementati e
+validati. Supportare un metodo numerico non equivale a supportare tutte le norme.
+Anthea mostra i risultati persistenti e la copertura; non ricalcola formule.
+
+7. ESEMPIO ILLUSTRATIVO, NON VERIFICA DI RESISTENZA
+Piastra h=200 mm, assi locali x/y, armature ortogonali.
+Caso A: N=0, Q=0; Mxx=40, Myy=20, Mxy=10 kN*m/m.
+Il metodo Wood-Armer attuale produce sulla faccia +z momenti di progetto 50 e
+30 kN*m/m; sulla faccia -z produce zero. Questo non determina As, tensioni,
+armatura minima o esito della verifica.
+
+Caso B: stessi momenti, ma Nxx=200, Nyy=100, Nxy=80 kN/m.
+Per illustrare il SOLO equilibrio si assumono due piani resistenti a +/-80 mm
+(braccio z=160 mm scelto per l'esempio, NON determinato dal modello resistente).
+Per ogni componente: n+ = N/2 + M/z; n- = N/2 - M/z.
+Risultati in kN/m, nell'ordine xx, yy, xy:
+  piano +: (350, 175, 102.5)
+  piano -: (-150, -75, -22.5)
+Le somme restituiscono (200,100,80); 0.08*(n+ - n-) restituisce (40,20,10).
+Il sistema resistente deve ora equilibrare anche il taglio di membrana di ciascun
+piano e verificare il cls compresso. Ripetere soltanto 50/30 ignorerebbe N.
+L'esempio dimostra perche' serve la scelta del metodo combinato; non fissa il
+braccio interno o la distribuzione reale delle tensioni da usare nel codice.
+
+8. PIANO DI VALIDAZIONE E CONSEGNA DOPO L'ACCORDO
+6A. Convenzioni e piano di riferimento: conversioni dimensionali; rotazioni 0,
+    45, 90 gradi e inverse; normale invertita con le stesse facce fisiche;
+    offset con N non nullo; copriferro/quote/ordini; spessori FEM diversi dal fisico.
+6B. Metodo cls scelto: membrana pura, flessione pura, torsione pura, N-M combinati,
+    Nxy con Mxy concordi/discordi, entrambe le facce, armatura asimmetrica,
+    crisi cls/armatura, zero domanda, casi fuori dominio e mancata convergenza.
+    Confronti a mano o pubblicati, oltre al confronto con motori indipendenti.
+6C. Acciaio locale: tensioni mono/biaxiali, taglio, combinazione membrana/flessione,
+    quote governanti, spessore reale e casi oltre il limite elastico.
+6D. Integrazione reale Model -> ModelChecker -> Checker -> report: gruppi,
+    concomitanza, sorgenti obsolete, campioni mancanti, estrapolati/mediati,
+    cancellazione, round-trip, riapertura e invalidazione dopo modifica.
+6E. SLE, taglio, instabilita' e punzonamento: incrementi separati con scheda del
+    metodo e benchmark propri. Non marcarli disponibili anticipatamente.
+Per ciascun incremento: commit distinto, test pertinenti, matrice di capacita'
+e limiti aggiornata. Nessuna fixture attesa rigenerata usando il motore in prova.
+
+9. DECISIONE DA DISCUTERE
+Condividere la priorita' B (SLU cls combinato), con primo dominio limitato e
+acciaio locale in un incremento indipendente. In alternativa, iniziare da A se
+l'esigenza immediata e' soltanto la verifica flessionale delle solette.
+Dopo la scelta preparare la scheda della formulazione esatta e i benchmark,
+poi implementare. Nessun contratto specifico viene consolidato da questo testo.
+Il vincolo deriva dal PASSO 6 di PROMPT_SVILUPPO_CHECKER.txt e dalla richiesta
+dell'utente di discutere i plate insieme prima di procedere al motore resistente.
+
+RIFERIMENTI CONSULTATI PER IL CONFRONTO, NON QUALIFICAZIONE NORMATIVA
+- Codice dei repository Model e Checker alle revisioni aabbca86 e 27d9cde1.
+- DIANA, Element Stresses, Combined Moments and Forces:
+  https://manuals.dianafea.com/d107/en/1181807-1182458-element-stresses.html
+  Supporta la distinzione fra azioni combinate e somma di progetti separati.
+- SCIA, Theoretical background, internal forces 2D:
+  https://help.scia.net/25.0/en/concrete/reinf._design_-_2d_members/internal_forces_2d/02_theoretical_background.htm
+  Esempio di procedimento con braccio interno, azioni alle facce e trasformazione
+  di Baumann. Non e' una specifica automaticamente adottata in GPC.
+- JRC/ECCS, Commentary and worked examples to EN 1993-1-5 (2007):
+  https://eurocodes.jrc.ec.europa.eu/publications/commentary-and-worked-examples-en-1993-1-5-plated-structural-elements?id=100
+  Background della stabilita' dei pannelli; edizione da distinguere dalle successive.
+- AENOR, scheda EN 1993-1-5:2024, campo di applicazione:
+  https://tienda.aenor.com/en/p/norma-cen-en-1993-1-5-2024-69837
+  Azioni nel piano; gli effetti del carico fuori piano richiedono altro inquadramento.
+
+Verifica di questa fase: sola documentazione; nessuna suite software rieseguita.
+Stato del punto 6: analisi consegnata, scelta resistente ancora da concordare.
