@@ -368,3 +368,5 @@ femm.png
 # *.cd
 # the sources of the section catalogs stay outside the repository (_fonti_sezioni; SHA256 in the catalogs)
 /*.xlsx
+
+/.dependencies/

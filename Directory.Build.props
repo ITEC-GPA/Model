@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <GpcDependencyDir Condition="'$(GpcDependencyDir)' == ''">$(MSBuildThisFileDirectory).dependencies</GpcDependencyDir>
+  </PropertyGroup>
+</Project>

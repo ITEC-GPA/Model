@@ -378,3 +378,12 @@ run e due motori distinti per due verifiche dello stesso plate.
 Validazione: 12 test plate/configurazione; Model/Converter 939 passati, 2 test
 Straus nativi ignorati per fixture esterne assenti. Warning GMsh architettura
 preesistente. Le formule resistenti plate rimangono da concordare separatamente.
+
+9 OTTOBRE - PUNTO 8C: BUILD E COMPATIBILITA'
+Soluzione completa con ModelChecker e relativi test. Build basata su un bundle
+unico di otto DLL controllate con versione/SHA256, lock NuGet e runner
+build/Verify.ps1. Baseline API dalle DLL originali acquisita e controllata:
+nessuna rottura nelle fasi calcolo/plate. Provato rifiuto di DLL mancanti o
+alterate. Runner completo: Model/Converter 939 passati + 2 saltati; ModelChecker
+124 passati. Punto 8 infrastrutturale completato; plate resistenti restano
+fuori perimetro fino alla scelta condivisa dei metodi.

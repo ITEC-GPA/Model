@@ -1,0 +1,25 @@
+BUILD RIPRODUCIBILE E BASELINE API
+
+Eseguire: ./build/Verify.ps1
+Il runner prepara .dependencies da build/dependencies.props, ripristina NuGet
+con --locked-mode, esegue UnitTest e ModelChecker.Tests e confronta le API.
+Per una macchina senza repository fratelli: -SourceBundle <cartella DLL>.
+Per build dirette e' possibile -p:GpcDependencyDir=<cartella>; gli hash restano
+obbligatori. Non e' previsto un fallback silenzioso a bin/Release.
+
+Il manifest fissa versioni e SHA256 degli otto file. ObservedSourceCommit e'
+provenienza del checkout osservato: non attesta una ricompilazione di DLL gia'
+esistenti. Un aggiornamento delle dipendenze richiede revisione del manifest e
+nuova validazione, non una rigenerazione automatica durante CI.
+
+Baseline API acquisita dalle DLL del checkpoint precedente al refactoring:
+GPCModel 1.6.1.9, GPCModelChecker 1.0.4, Concrete 0.0.18.0.
+Il tool verifica tipi pubblici, basi, interfacce, metodi/accessor, visibilita',
+parametri/default, vincoli generici e costanti. Le aggiunte sono ammesse;
+rimozioni o modifiche non approvate falliscono. Non sostituisce le prove
+numeriche/archivi e non certifica semantica o compatibilita' di codice esterno
+non disponibile. Le eccezioni per tipi rimossi sono file *.removed-types.txt.
+Non usare capture per aggiornare gli attesi dopo un errore di compatibilita'.
+
+Validazione dei controlli: una DLL temporanea alterata viene respinta per SHA256;
+una DLL assente viene respinta senza usare il repository fratello.
