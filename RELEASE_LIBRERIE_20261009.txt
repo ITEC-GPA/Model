@@ -38,3 +38,13 @@ Il checkout Windows ha evidenziato tre mutazioni di test MIDAS basate su LF:
 il test ora normalizza solo la fixture prima della mutazione e controlla
 esplicitamente input LF e CRLF, conservando il confronto dei byte originali.
 Il lettore di produzione e i risultati numerici non sono stati modificati.
+
+
+SECONDA RELEASE DEL 9 OTTOBRE 2026 (sera): solo dipendenze
+
+Le versioni di Model non cambiano. build/dependencies.props fissa:
+GPCGeometry 2.1.0.5 e DelaunayMesh 2.0.0.12 (Geometry 1f901ef, binari
+committati); GPCChecker.Concrete 0.0.25.0, Steel 2.0.2.0, CompositeBridge
+1.4.0.7 (Checker 0ff71a2e, ricompilati contro questo Model e la Geometry nuova).
+Verify.ps1: Model.Core.Tests 6/6, UnitTest 1016 PASS (2 ignorati come prima),
+ModelChecker.Tests 166/166; API senza rimozioni inattese.
