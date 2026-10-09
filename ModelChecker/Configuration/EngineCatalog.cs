@@ -115,6 +115,14 @@ namespace GPC.Model.Checker.Configuration
                     return new SteelMaterialChecker(code, context.Edition, context.NationalAnnex);
                 }, (engine, mechanism, check) => check == null && mechanism == CheckMechanism.Shear
                     && ((SteelMaterialChecker)engine).Edition == "2005" && ((SteelMaterialChecker)engine).Code.GetType() == typeof(StandardEN1993p11)));
+            catalog.Register(new EngineCapability("Steel.EN1993.Section", 1, "Steel section shear and uniaxial bending",
+                "EN1993-1-1:2005; symmetric H stocky in compression; bending requires N=T=0, one moment axis and low shear. No global stability.",
+                (definition, context) => {
+                    NoExtraParameters(definition);
+                    if (!(context.Code is StandardEN1993p11 code) || context.BridgeCode.HasValue) throw new ArgumentException("SteelCodeRequired");
+                    return new SteelMaterialChecker(code, context.Edition, context.NationalAnnex, true);
+                }, (engine, mechanism, check) => check == null && (mechanism == CheckMechanism.Shear || mechanism == CheckMechanism.UlsBiaxialSection)
+                    && ((SteelMaterialChecker)engine).Edition == "2005" && ((SteelMaterialChecker)engine).Code.GetType() == typeof(StandardEN1993p11)));
             catalog.Register(new EngineCapability("CompositeBridge.Section", 1, "Composite bridge section", "Explicit phase history and moment reference required; SLE stresses and web shear only.",
                 (definition, context) => {
                     NoExtraParameters(definition);
@@ -122,12 +130,24 @@ namespace GPC.Model.Checker.Configuration
                     return new CompositeBridgeMaterialChecker(context.BridgeCode.Value, context.Edition,
                         definition.BridgeCases.Select(c => c.ToCase()), context.NationalAnnex);
                 }, (engine, mechanism, check) => check == null && (mechanism == CheckMechanism.Serviceability || mechanism == CheckMechanism.Shear)));
+            catalog.Register(new EngineCapability("CompositeBridge.HistoryLinear", 1, "Composite bridge linear construction history",
+                "Explicit incremental phase history, reference and numerical settings. Only SLE stresses; no shear, nonlinear resistance or member stability.",
+                (definition, context) => {
+                    NoExtraParameters(definition);
+                    if (!context.BridgeCode.HasValue || context.Code != null || definition.BridgeCases == null || definition.BridgeHistory == null)
+                        throw new ArgumentException("BridgeHistoryContextAndOptionsRequired");
+                    return new CompositeBridgeMaterialChecker(context.BridgeCode.Value, context.Edition,
+                        definition.BridgeCases.Select(c => c.ToCase()), context.NationalAnnex, definition.BridgeHistory);
+                }, (engine, mechanism, check) => check == null && mechanism == CheckMechanism.Serviceability
+                    && ((CompositeBridgeMaterialChecker)engine).Edition == (((CompositeBridgeMaterialChecker)engine).Code == GPC.Checkers.CompositeBridge.BridgeStandard.Ntc2018 ? "2018" : "2005")));
             catalog.RegisterPlate(new PlateEngineCapability("Concrete.Plate", 1, "Concrete plate checks", "No qualified resistant implementation is installed; explicit method, faces and reinforcement are required."));
             catalog.RegisterPlate(new PlateEngineCapability("Steel.Plate", 1, "Steel plate checks", "No qualified plate resistance/stability implementation is installed."));
             return catalog;
         }
         private static void NoExtraParameters(EngineDefinition definition)
         {
+            if (definition.BridgeHistory != null && definition.Kind != "CompositeBridge.HistoryLinear")
+                throw new ArgumentException("BridgeHistoryOptionsOnDifferentEngine");
             if (definition.Parameters.Count != 0) throw new ArgumentException("UnknownBuiltInEngineParameters");
         }
     }

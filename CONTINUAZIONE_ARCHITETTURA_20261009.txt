@@ -65,3 +65,20 @@ ModelChecker 495, Concrete 2016; nessuna rimozione inattesa.
 Anthea e Checker non modificati in questa fase; non effettuato un deployment WPF.
 Prossima fase autorizzata: punto 5, acciaio e CompositeBridge. Restano in coda
 punto 3, discussione delle verifiche plate (6), converter (7).
+
+Punto 5 - estensione qualificata degli adattatori
+ModelChecker 1.0.14. Steel.EN1993.Section abilita esplicitamente taglio e flessione
+monoassiale di H simmetriche stocky con N=T=0 e taglio basso; richiama le primitive
+native e usa la sezione preparata al taglio. Il precedente Steel.EN1993.PlasticShear
+resta separato. CompositeBridge.HistoryLinear collega le tensioni SLE al solver
+storico lineare con opzioni persistenti/copiate e diagnostica di convergenza per
+ogni fase; CompositeBridge.Section resta cumulativo. Nessun metodo non lineare,
+resistente plate o globale viene qualificato implicitamente.
+Guida e limiti: GUIDA_ACCIAIO_COMPOSITEBRIDGE_PUNTO5.txt.
+Verifica finale: Model 960 PASS + 2 fixture esterne saltate, ModelChecker 150 PASS
+(20 nuovi casi), CompositeBridge nativo 254 PASS. API senza nuove rimozioni.
+Baseline acciaio ripetuta: 77 PASS / 17 FAIL su 94, stessi singoli fallimenti su
+ricostruzione sorgente e DLL vincolata; nessuna aspettativa storica modificata.
+Le formule native, le dipendenze vincolate e Anthea sono invariati in questa fase.
+Restano da riprendere secondo l'ordine da concordare i punti lasciati in coda:
+3 (completamento cls), 6 (scelta condivisa dei metodi plate), 7 (converter).

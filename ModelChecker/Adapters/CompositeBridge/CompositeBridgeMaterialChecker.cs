@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Checkers.CompositeBridge;
+using GPC.Checkers.CompositeBridge.History;
+using GPC.Model.Checker.Configuration;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Persistence;
@@ -32,12 +34,21 @@ namespace GPC.Model.Checker
         public BridgeStandard Code { get; }
         public string Edition { get; }
         public string NationalAnnex { get; }
-        public string Id => "CompositeBridge.Section";
+        private readonly BridgeHistoryDefinition _history;
+        public BridgeHistoryDefinition History => _history == null ? null : ConfigurationArchive.CopyData(_history);
+        public string Id => _history == null ? "CompositeBridge.Section" : "CompositeBridge.HistoryLinear";
         public string Version => NativeResults.Version(typeof(HBridgeSection));
-        public string Configuration => ModelArchive.Fingerprint(new object[] { Id, Code, Edition, NationalAnnex, Cases });
+        public string Configuration => ModelArchive.Fingerprint(_history == null
+            ? new object[] { Id, Code, Edition, NationalAnnex, Cases }
+            : new object[] { Id, Code, Edition, NationalAnnex, Cases, _history });
         public CheckStandardContext Standard => new CheckStandardContext(Code.ToString(), Edition, NationalAnnex, Id, Configuration);
         public CompositeBridgeMaterialChecker(BridgeStandard code, string edition, IEnumerable<CompositeBridgeCase> cases, string nationalAnnex = null)
+            : this(code, edition, cases, nationalAnnex, null) { }
+        public CompositeBridgeMaterialChecker(BridgeStandard code, string edition, IEnumerable<CompositeBridgeCase> cases,
+            string nationalAnnex, BridgeHistoryDefinition history)
         {
+            _history = history == null ? null : ConfigurationArchive.CopyData(history);
+            _history?.CreateOptions();
             if (!Enum.IsDefined(typeof(BridgeStandard), code) || string.IsNullOrWhiteSpace(edition)) throw new ArgumentException("ExplicitBridgeStandardRequired");
             Code = code; Edition = edition; NationalAnnex = nationalAnnex;
             Cases = (cases ?? throw new ArgumentNullException(nameof(cases))).ToArray();
@@ -57,6 +68,8 @@ namespace GPC.Model.Checker
             {
                 token.ThrowIfCancellationRequested();
                 if (_owner.Edition != (_owner.Code == BridgeStandard.Ntc2018 ? "2018" : "2005")) return NativeResults.Unavailable("BridgeEditionNotQualified");
+                if (_owner._history != null && mechanism != CheckMechanism.Serviceability)
+                    return NativeResults.Unavailable("BridgeHistoryMethodNotQualified", "Linear construction history is connected only to SLE stress limits; no shear or SLU capacity is inferred.");
                 if (mechanism != CheckMechanism.Serviceability && mechanism != CheckMechanism.Shear)
                     return NativeResults.Unavailable("BridgeMethodNotConnected", "Connected methods: SLE point stress limits and SLU web shear. No full bridge or member certificate.");
                 var matches = _owner.Cases.Where(c => c.BeamId == input.Element.Id && c.StationDomain == input.Sample.StationDomain
@@ -89,16 +102,29 @@ namespace GPC.Model.Checker
                     return NativeResults.Missing("BridgeSleCategoryRequired");
                 if (mechanism == CheckMechanism.Shear && data.Options.LimitState != BridgeLimitState.Ultimate)
                     return NativeResults.Missing("BridgeUlsCategoryRequired");
-                string fingerprint = ModelArchive.Fingerprint(new object[] { data });
-                if (!_analyses.TryGetValue(fingerprint, out var analysis)) { analysis = HBridgeSection.Calculate(data, token); _analyses.Add(fingerprint, analysis); }
+                string fingerprint = ModelArchive.Fingerprint(new object[] { data, _owner._history });
+                if (!_analyses.TryGetValue(fingerprint, out var analysis))
+                {
+                    try { analysis = _owner._history == null ? HBridgeSection.Calculate(data, token)
+                        : HBridgeHistoryResults.Calculate(data, _owner._history.CreateOptions(), token); }
+                    catch (HistoryConvergenceException ex)
+                    {
+                        var rejected = NativeResults.Missing("BridgeHistoryNotConverged"); rejected.Execution = ExecutionStatus.Error;
+                        rejected.Diagnostics.Add(ModelDiagnostic.Error("BridgeHistoryFailureLocation", message: "Phase " + ex.PhaseIndex + ": " + ex.PhaseName + "; substep " + ex.Substep + "; " + ex.Message));
+                        return rejected;
+                    }
+                    _analyses.Add(fingerprint, analysis);
+                }
                 var stage = analysis.Stages.Last();
                 var metrics = new List<CheckMetric>(); var points = new List<CheckPointValue>();
                 if (mechanism == CheckMechanism.Serviceability)
                 {
+                    int index = 0;
                     foreach (var p in stage.Points.Where(p => p.Active))
                     {
-                        metrics.Add(new CheckMetric(p.Material + ":" + p.Name, p.Stress, p.Limit, "MPa", p.Utilization));
-                        points.Add(new CheckPointValue(p.Material + ":" + p.Name, 0, p.Y, 0, p.Stress, "MPa", "Native bridge section: y=0 at steel top; orientation in input snapshot"));
+                        string key = p.Material + ":" + p.Name + (_owner._history == null ? "" : "@" + index++);
+                        metrics.Add(new CheckMetric(key, p.Stress, p.Limit, "MPa", p.Utilization));
+                        points.Add(new CheckPointValue(key, 0, p.Y, 0, p.Stress, "MPa", "Native bridge section: y=0 at steel top; orientation in input snapshot"));
                     }
                 }
                 else
@@ -111,6 +137,10 @@ namespace GPC.Model.Checker
                 string method = _owner.Id + (mechanism == CheckMechanism.Shear ? ".WebShear" : ".SleStress");
                 var warnings = analysis.Stages.SelectMany(s => s.Warnings).Distinct().Concat(new[] { analysis.Scope,
                     "Only the selected final-state check is included. Intermediate situations, connectors, details, fatigue and global stability are separate required checks." });
+                var numericalTrace = new List<CheckCalculationValue>();
+                var convergence = _owner._history == null
+                    ? new CheckConvergence(analysis.Stages.All(s => s.Residual <= 1e-7), analysis.Stages.Sum(s => s.Iterations), analysis.Stages.Max(s => s.Residual), 1e-7, "Native effective-width iteration")
+                    : HistoryConvergence(analysis, _owner._history, numericalTrace);
                 var details = new NativeMethodDetails(method, mechanism == CheckMechanism.Shear ? "Final-state web shear resistance only" : "Final-state active material point stress limits only",
                     fingerprint, metrics, new[] { new CheckCalculationValue("ActivePhases", phases.Length, "1", binding.Source),
                         new CheckCalculationValue("CommonLoadY", data.Options.CommonLoadY, "mm", "Explicit reference of prepared FEM moments"),
@@ -118,9 +148,33 @@ namespace GPC.Model.Checker
                         new CheckCalculationValue("GammaM1", data.Options.GammaM1, "1", "Native options"),
                         new CheckCalculationValue("GammaC", data.Options.GammaC, "1", "Native options"),
                         new CheckCalculationValue("GammaS", data.Options.GammaS, "1", "Native options"),
-                        new CheckCalculationValue("AlphaCC", data.Options.AlphaCC, "1", "Native options") }, warnings, points,
-                    new CheckConvergence(analysis.Stages.All(s => s.Residual <= 1e-7), analysis.Stages.Sum(s => s.Iterations), analysis.Stages.Max(s => s.Residual), 1e-7, "Native effective-width iteration"));
+                        new CheckCalculationValue("AlphaCC", data.Options.AlphaCC, "1", "Native options") }.Concat(numericalTrace), warnings, points, convergence);
+                if (!convergence.Converged)
+                {
+                    var rejected = NativeResults.Missing("BridgeNumericalConvergenceRejected"); rejected.Details = details; return rejected;
+                }
                 return NativeResults.Decision(details);
+            }
+            private static CheckConvergence HistoryConvergence(HBridgeAnalysisResult result, BridgeHistoryDefinition options, List<CheckCalculationValue> trace)
+            {
+                double maxRatio = 0; int iterations = 0;
+                foreach (var stage in result.Stages)
+                {
+                    var state = stage.GetHistory().State;
+                    double length = Math.Max(1, state.Fibers.Max(f => f.Fiber.Y) - state.Fibers.Min(f => f.Fiber.Y));
+                    double ft = options.ForceTolerance + options.RelativeTolerance * Math.Max(Math.Abs(state.N), Math.Abs(state.MomentAtOrigin) / length);
+                    double mt = options.MomentTolerance + options.RelativeTolerance * Math.Max(Math.Abs(state.MomentAtOrigin), Math.Abs(state.N) * length);
+                    double ratio = Math.Max(Math.Abs(state.ForceResidual) / ft, Math.Max(Math.Abs(state.MomentResidual) / mt, Math.Abs(state.EffectiveResidual) / options.EffectiveTolerance));
+                    maxRatio = Math.Max(maxRatio, ratio); iterations += state.NewtonIterations;
+                    string suffix = "@" + state.Index;
+                    trace.Add(new CheckCalculationValue("ForceResidual" + suffix, state.ForceResidual, "N", state.Name));
+                    trace.Add(new CheckCalculationValue("ForceTolerance" + suffix, ft, "N", "Native combined absolute/relative tolerance"));
+                    trace.Add(new CheckCalculationValue("MomentResidual" + suffix, state.MomentResidual, "Nmm", state.Name));
+                    trace.Add(new CheckCalculationValue("MomentTolerance" + suffix, mt, "Nmm", "Native combined absolute/relative tolerance"));
+                    trace.Add(new CheckCalculationValue("EffectiveResidual" + suffix, state.EffectiveResidual, "1", state.Name));
+                    trace.Add(new CheckCalculationValue("EffectiveTolerance" + suffix, options.EffectiveTolerance, "1", "Native effective area tolerance"));
+                }
+                return new CheckConvergence(maxRatio <= 1, iterations, maxRatio, 1, "Maximum normalized N/M/effective-area residual over accepted history phases");
             }
         }
     }

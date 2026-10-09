@@ -61,6 +61,7 @@ namespace GPC.Model.Checker.Configuration
         [DataMember(Order = 6)] public string RequiredImplementationVersion { get; set; }
         [DataMember(Order = 7)] public ConcreteVerificationOptions Concrete { get; set; }
         [DataMember(Order = 8)] public BridgeCaseDefinition[] BridgeCases { get; set; }
+        [DataMember(Order = 10, EmitDefaultValue = false)] public BridgeHistoryDefinition BridgeHistory { get; set; }
         [DataMember(Order = 9)] public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>(StringComparer.Ordinal);
     }
     [DataContract(Name = "Route", Namespace = ConfigurationArchive.Namespace)]
