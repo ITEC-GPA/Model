@@ -53,7 +53,8 @@ public class ConfiguredPlateWorkflowTest
     {
         public string Id => "Test.Plate";
         public string Version => "test-1";
-        public string Configuration => "protocol-only";
+        public string RuntimeConfiguration = "protocol-only";
+        public string Configuration => RuntimeConfiguration;
         public CheckStandardContext Standard => new("TEST", "1", null, Id, Configuration);
         public int CreatedCheckers => 1;
         public int Calls, Sessions;
@@ -119,6 +120,14 @@ public class ConfiguredPlateWorkflowTest
         var saved = CheckReportArchive.Load(stream);
         Assert.IsTrue(saved.All(j => j.HasUnchangedScope && j.Results.All(r => r.HasUnchangedEvidence)));
         Assert.AreEqual(240, saved[0].Results[0].ShellInput.Thickness.Bending);
+        var spec = saved[0].Results[0].ShellCheck;
+        Assert.AreEqual("face-x", spec.Id); Assert.AreEqual(SectionCheckDirection.Axis1, spec.Direction);
+        Assert.AreEqual(CombinationCategory.Ultimate, spec.ResultCategory); Assert.AreEqual(1, spec.FaceNormalSign);
+        Assert.IsTrue(spec.ReinforcementRequired);
+        saved[0].Results[0].ShellCheck = new ShellCheckSnapshot("changed", spec.MethodId, spec.Mechanism, spec.RequestedCategory,
+            spec.ResultCategory, spec.Direction, spec.PhysicalFace, spec.FaceNormalSign, spec.ReinforcementRequired);
+        Assert.IsFalse(saved[0].Results[0].HasUnchangedEvidence);
+        saved[0].Results[0].ShellCheck = spec;
         Assert.AreEqual(EntityFamily.Shell, saved[0].Results[0].Target.Family);
         model.CheckReports.AddRange(saved); using var modelFile = new MemoryStream(); ModelArchive.Save(model, modelFile); modelFile.Position = 0;
         Assert.AreEqual(EngineeringOutcome.Satisfied, ModelArchive.Load(modelFile).CheckReports.Single().Outcome);
@@ -202,10 +211,55 @@ public class ConfiguredPlateWorkflowTest
         Assert.ThrowsException<NotSupportedException>(() => EngineCatalog.BuiltIn().CompilePlates(config));
         config = PlateConfiguration(); var report = new Service().Verify(MixedModelFactory.Create(), config, Catalog(new ProtocolPlate()));
         using var stream = new MemoryStream(); CheckReportArchive.Save(report.Jobs, stream); stream.Position = 0;
-        var xml = XDocument.Load(stream); Assert.AreEqual("4", xml.Root!.Attribute("version")!.Value); xml.Root.Attribute("version")!.Value = "3";
+        var xml = XDocument.Load(stream); Assert.AreEqual("5", xml.Root!.Attribute("version")!.Value); xml.Root.Attribute("version")!.Value = "3";
         using var changed = new MemoryStream(); xml.Save(changed); changed.Position = 0;
         Assert.ThrowsException<SerializationException>(() => CheckReportArchive.Load(changed));
         report.Jobs[0].Results[0].SchemaVersion = 2;
         Assert.ThrowsException<SerializationException>(() => CheckReportArchive.Save(report.Jobs, new MemoryStream()));
     }
+    [TestMethod]
+    public void MixedBeamAndPlateJobsKeepTheirScopeAndReadableSpecifications()
+    {
+        var model = MixedModelFactory.Create(); var config = PlateConfiguration(); var engine = new ProtocolPlate();
+        config.Engines = config.Engines.Concat(new[] { new EngineDefinition { Id = "beam", Kind = "Concrete.Section", ContextId = "rc",
+            Concrete = new ConcreteVerificationOptions { Criterion = GPC.Checkers.Concrete.SectionSolvers.SectionSolver.FailureAnalysisTypes.ConstantEccentricity } } }).ToArray();
+        config.Jobs = new[] { new ConfiguredCheckJob { Name = "beam", Plan = new BeamCheckPlanRequest {
+            Elements = new ElementSelection { Families = new[] { EntityFamily.Beam } },
+            Results = new[] { new ResultSelection { Dataset = "synthetic-static", Case = "P+", Category = CombinationCategory.Ultimate } } },
+            Routes = new[] { new CheckRouteDefinition { EngineId = "beam" } } } };
+        var catalog = Catalog(engine); var report = new Service().Verify(model, config, catalog);
+        Assert.AreEqual(7, report.Required); Assert.AreEqual(7, report.Executed, Diagnostics(report));
+        Assert.AreEqual(5, report.Jobs[0].Results.Count); Assert.AreEqual(2, report.Jobs[1].Results.Count);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, Service.CurrentOutcome(report, model, config, catalog));
+        config.Engines[0].Kind = "missing-plugin";
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, Service.CurrentOutcome(report, model, config, catalog));
+    }
+    [TestMethod]
+    public void PlateRoutingCanSelectDifferentEnginesPerCheckAndRejectOverlap()
+    {
+        var model = MixedModelFactory.Create(); var config = PlateConfiguration(); var first = new ProtocolPlate(); var second = new ProtocolPlate();
+        var job = config.PlateJobs[0]; var other = job.Checks[0].Copy(); other.Id = "face-y"; other.Direction = SectionCheckDirection.Axis2;
+        job.Checks = new[] { job.Checks[0], other };
+        config.Engines = new[] { config.Engines[0], new EngineDefinition { Id = "second", Kind = "Test.Second", ContextId = "rc" } };
+        job.Routes = new[] { new CheckRouteDefinition { EngineId = "plate", PlateCheckIds = new[] { "face-x" } },
+            new CheckRouteDefinition { EngineId = "second", PlateCheckIds = new[] { "face-y" } } };
+        // Different configurations identify different runtime sessions even when the implementation type is shared.
+        second.RuntimeConfiguration = "second-protocol";
+        var catalog = Catalog(first); catalog.RegisterPlate(new PlateEngineCapability("Test.Second", 1, "Test", "Protocol only", (_, _) => second));
+        var report = new Service().Verify(model, config, catalog);
+        Assert.AreEqual(4, report.Executed, Diagnostics(report)); Assert.AreEqual(2, first.Calls); Assert.AreEqual(2, second.Calls);
+        CollectionAssert.AreEquivalent(new[] { "face-x", "face-y" }, report.Jobs[0].Results.Select(r => r.ShellCheck.Id).Distinct().ToArray());
+        job.Routes[1].PlateCheckIds = new[] { "face-x", "face-y" };
+        Assert.ThrowsException<ArgumentException>(() => new Service().Verify(model, config, catalog));
+    }
+    [TestMethod]
+    public void CapabilityQueriesRejectMismatchedContextsBeforeCreatingAnEngine()
+    {
+        var definition = new EngineDefinition { Id = "c", Kind = "Concrete.Section", ContextId = "expected" };
+        var context = new DesignContextDefinition { Id = "other", Edition = "2018", Code = new StandardNTC2018Concrete() };
+        Assert.ThrowsException<ArgumentException>(() => EngineCatalog.BuiltIn().Supports(definition, context, CheckMechanism.UlsBiaxialSection));
+        context.Id = "expected"; context.Revision = 2;
+        Assert.ThrowsException<ArgumentException>(() => EngineCatalog.BuiltIn().Supports(definition, context, CheckMechanism.UlsBiaxialSection));
+    }
+
 }

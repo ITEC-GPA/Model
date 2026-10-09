@@ -238,6 +238,7 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.CheckResult", "<Settings>k__BackingField", "<Settings>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellCoordinateKind>k__BackingField", "<ShellCoordinateKind>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellInput>k__BackingField", "<ShellInput>k__BackingField", true),
+                Field("GPC.Model.PostProcessing.CheckResult", "<ShellCheck>k__BackingField", "<ShellCheck>k__BackingField", true),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellPoint>k__BackingField", "<ShellPoint>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<ShellPointKind>k__BackingField", "<ShellPointKind>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.CheckResult", "<Side>k__BackingField", "<Side>k__BackingField", false),

@@ -69,10 +69,14 @@ namespace GPC.Model.Checker.Configuration
             var copy = ConfigurationArchive.Copy(configuration); var fingerprint = ConfigurationArchive.Fingerprint(copy);
             var used = new HashSet<string>(copy.PlateJobs.SelectMany(j => j.Routes).Select(r => r.EngineId), StringComparer.Ordinal);
             var engines = copy.Engines.Where(e => used.Contains(e.Id)).ToDictionary(e => e.Id, e => {
+                var context = copy.Contexts.Single(c => c.Id == e.ContextId);
+                ValidateBinding(e, context);
                 if (!_plates.TryGetValue(e.Kind, out var descriptor)) throw new NotSupportedException("UnknownPlateEngine: " + e.Kind);
                 if (descriptor.Schema != e.Schema) throw new NotSupportedException("UnsupportedPlateEngineSchema");
                 if (!descriptor.IsAvailable) return null;
-                var engine = descriptor.Factory(e, copy.Contexts.Single(c => c.Id == e.ContextId)) ?? throw new InvalidOperationException("NullPlateEngine");
+                var engine = descriptor.Factory(e, context) ?? throw new InvalidOperationException("NullPlateEngine");
+                ValidateRuntime(engine.Id, engine.Version, engine.Configuration);
+                if (engine.Standard == null || !engine.Standard.HasDeclaredEdition) throw new InvalidOperationException("UndeclaredPlateStandard");
                 if (e.RequiredImplementationVersion != null && e.RequiredImplementationVersion != engine.Version) throw new InvalidOperationException("PlateEngineVersionMismatch");
                 return engine;
             }, StringComparer.Ordinal);

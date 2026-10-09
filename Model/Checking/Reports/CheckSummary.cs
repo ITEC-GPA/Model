@@ -8,7 +8,7 @@ namespace GPC.Model.PostProcessing
     {
         internal static bool ValidDecision(CheckResult r)
         {
-            if (r == null || r.Diagnostics == null || r.SchemaVersion < 0 || r.SchemaVersion > 3 || !Enum.IsDefined(typeof(CheckApplicability), r.Applicability)
+            if (r == null || r.Diagnostics == null || r.SchemaVersion < 0 || r.SchemaVersion > 4 || !Enum.IsDefined(typeof(CheckApplicability), r.Applicability)
                 || !Enum.IsDefined(typeof(EngineeringOutcome), r.Outcome) || !Enum.IsDefined(typeof(ExecutionStatus), r.Execution)
                 || !Enum.IsDefined(typeof(DataStatus), r.Data)) return false;
             if (r.SchemaVersion >= 2 && (r.Target == null || !Enum.IsDefined(typeof(CheckScope), r.Scope) || !Enum.IsDefined(typeof(CheckTargetKind), r.Target.Kind)
@@ -19,6 +19,8 @@ namespace GPC.Model.PostProcessing
                 || (r.Scope == CheckScope.SectionSample && (r.Target.BeamId != r.ElementId || r.Family != EntityFamily.Beam))
                 || (r.Scope == CheckScope.ShellPoint && (r.SchemaVersion < 3 || r.Family != EntityFamily.Shell || r.Target.Family != EntityFamily.Shell
                     || r.Target.ElementId != r.ElementId || r.Target.BeamId.HasValue || r.Target.MemberId != null || string.IsNullOrWhiteSpace(r.MethodId))))) return false;
+            if (r.Scope == CheckScope.ShellPoint && r.SchemaVersion >= 4 && (r.ShellCheck == null || r.ShellCheck.MethodId != r.MethodId
+                || r.ShellCheck.Mechanism != r.Mechanism || r.ShellCheck.PhysicalFace != r.Face)) return false;
             if (r.Applicability != CheckApplicability.Required)
                 return !string.IsNullOrWhiteSpace(r.ApplicabilityReason) && r.Outcome == EngineeringOutcome.NotEvaluated
                     && r.Execution == ExecutionStatus.NotExecuted && !r.Utilization.HasValue;

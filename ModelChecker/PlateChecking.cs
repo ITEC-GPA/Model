@@ -152,7 +152,11 @@ namespace GPC.Model.Checker
             var sample = task.Row.Sample as PointResultPlateForces; var element = model.AreaElements[task.ElementId];
             var result = new CheckResult();
             if (task.Row.Shell != null) result.Diagnostics.AddRange(task.Row.Shell.Diagnostics);
-            result.SchemaVersion = 3; result.Job = plan.Name; result.Family = EntityFamily.Shell; result.ElementId = task.ElementId;
+            result.SchemaVersion = 4;
+            var specification = task.Specification;
+            result.ShellCheck = new ShellCheckSnapshot(specification.Id, specification.MethodId, specification.Mechanism, specification.Category,
+                task.Row.Selection.Category, specification.Direction, specification.Face?.PhysicalName,
+                specification.Face == null ? (int?)null : specification.Face.NormalFace == ShellNormalFace.Positive ? 1 : -1, specification.ReinforcementRequired); result.Job = plan.Name; result.Family = EntityFamily.Shell; result.ElementId = task.ElementId;
             result.Target = new CheckTargetReference(EntityFamily.Shell, task.ElementId); result.Scope = CheckScope.ShellPoint; result.PlanItemId = task.Id;
             result.MethodId = task.Specification.MethodId; result.Mechanism = task.Specification.Mechanism; result.Face = task.Specification.Face?.PhysicalName;
             result.Settings = plan.Preparation.Request.Settings; result.Dataset = sample?.State?.DatasetId ?? task.Row.Selection.Dataset;

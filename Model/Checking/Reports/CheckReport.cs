@@ -51,7 +51,7 @@ namespace GPC.Model.PostProcessing
             if (ids.Any(string.IsNullOrWhiteSpace) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length) throw new ArgumentException("UniqueShellTaskIdsRequired");
             var report = new CheckReport { Job = job, Scope = preparation.Request.Copy(), ScopeFingerprint = preparation.ScopeFingerprint, Required = ids.Length };
             report.Results.AddRange(results);
-            if (!ids.SequenceEqual(report.Results.Select(r => r?.PlanItemId)) || report.Results.Any(r => r.Family != EntityFamily.Shell || r.SchemaVersion != 3))
+            if (!ids.SequenceEqual(report.Results.Select(r => r?.PlanItemId)) || report.Results.Any(r => r.Family != EntityFamily.Shell || r.SchemaVersion < 3 || r.SchemaVersion > 4))
                 throw new ArgumentException("Every shell task needs one ordered shell outcome.");
             report.SealScope(); return report;
         }

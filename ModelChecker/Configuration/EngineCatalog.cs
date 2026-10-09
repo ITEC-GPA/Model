@@ -41,12 +41,27 @@ namespace GPC.Model.Checker.Configuration
         }
         private IMaterialChecker Create(EngineDefinition definition, DesignContextDefinition context)
         {
+            ValidateBinding(definition, context);
             if (!_engines.TryGetValue(definition.Kind, out var descriptor) || descriptor.Schema != definition.Schema)
                 throw new NotSupportedException("UnknownEngineOrSchema: " + definition.Kind);
             var engine = descriptor.Factory(definition, context) ?? throw new InvalidOperationException("NullEngineFactoryResult");
+            ValidateRuntime(engine.Id, engine.Version, engine.Configuration);
             if (definition.RequiredImplementationVersion != null && definition.RequiredImplementationVersion != engine.Version)
                 throw new InvalidOperationException("EngineVersionMismatch: " + definition.Id);
             return engine;
+        }
+        private static void ValidateBinding(EngineDefinition definition, DesignContextDefinition context)
+        {
+            if (definition == null || context == null || string.IsNullOrWhiteSpace(definition.Id) || string.IsNullOrWhiteSpace(definition.Kind)
+                || definition.Schema < 1 || definition.Parameters == null || string.IsNullOrWhiteSpace(context.Id) || context.Revision < 1
+                || string.IsNullOrWhiteSpace(context.Edition) || context.Units != CheckUnitConvention.N_Mm_Rad
+                || definition.ContextId != context.Id || definition.ContextRevision != context.Revision)
+                throw new ArgumentException("InvalidEngineDesignContextBinding");
+        }
+        private static void ValidateRuntime(string id, string version, string configuration)
+        {
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(version) || configuration == null)
+                throw new InvalidOperationException("IncompleteRuntimeEngineIdentity");
         }
         /// <summary>Independent runtime adapters; no native session is created until execution.</summary>
         public MultiMaterialCheckRequest Compile(VerificationConfiguration configuration)

@@ -42,12 +42,17 @@ namespace GPC.Model.Checker
         public static EngineeringOutcome CurrentOutcome(ModelCheckReport report, Models.Model model, VerificationConfiguration configuration, EngineCatalog catalog)
         {
             if (report == null || catalog == null || model == null) return EngineeringOutcome.NotEvaluated;
+            try
+            {
             var frozen = ConfigurationArchive.Copy(configuration);
             var beams = catalog.Compile(frozen); var plates = catalog.CompilePlates(frozen);
             if (report.Jobs.Count != beams.Jobs.Count + plates.Jobs.Count) return EngineeringOutcome.NotEvaluated;
             if (beams.Jobs.Count > 0 && CurrentOutcome(report.Jobs.Take(beams.Jobs.Count), model, beams) == EngineeringOutcome.NotEvaluated) return EngineeringOutcome.NotEvaluated;
             if (plates.Jobs.Count > 0 && CurrentOutcome(new ModelCheckReport { Jobs = report.Jobs.Skip(beams.Jobs.Count).ToArray() }, model, plates) == EngineeringOutcome.NotEvaluated) return EngineeringOutcome.NotEvaluated;
             return report.Outcome;
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is System.Runtime.Serialization.SerializationException)
+            { return EngineeringOutcome.NotEvaluated; }
         }
         private sealed class CombinedProgress : IProgress<VerificationProgress>
         {

@@ -366,3 +366,15 @@ identificato dai dettagli. Le firme precedenti restano utilizzabili. Il lock
 fra sessioni e la validazione degli input non sono stati rimossi.
 Validazione: 120 test preesistenti ModelChecker passati, piu' un test del motore
 alternativo/non convergenza. Checker Concrete 0.0.19.0 richiesto.
+
+9 OTTOBRE - PUNTO 8B: PLATE E CATALOGO COMPLETATI
+Schema risultato 4 / archivio resoconti 5: ShellCheckSnapshot registra ID,
+metodo, direzione, categoria richiesta/effettiva, faccia fisica, segno della
+normale e richiesta di armatura. Vecchi resoconti restano leggibili.
+Catalogo: verifica binding contesto/revisione/unita' anche nelle query di
+capacita'; verifica identita' runtime. Un plugin/configurazione non disponibile
+fa decadere CurrentOutcome a NotEvaluated. Provati beam e plate nello stesso
+run e due motori distinti per due verifiche dello stesso plate.
+Validazione: 12 test plate/configurazione; Model/Converter 939 passati, 2 test
+Straus nativi ignorati per fixture esterne assenti. Warning GMsh architettura
+preesistente. Le formule resistenti plate rimangono da concordare separatamente.
