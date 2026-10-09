@@ -3,6 +3,16 @@ Data: 2026-10-09
 Stato: proposta da discutere; nessun nuovo motore resistente implementato.
 Branch: codex/model-architecture. Nomi delle nuove classi indicativi.
 
+AGGIORNAMENTO DOPO IL CONFRONTO SUL MODELLO DATI
+Implementati: una proprieta' per AreaElement FEM, armatura nella
+ReinforcedConcretePlateSection, PhysicalSurfaceDefinition e zone su insiemi
+di plate. Le zone non appartengono al singolo elemento FEM.
+GUIDA_SEZIONI_PLATE_SUPERFICI.txt descrive il contratto ora effettivo e sostituisce
+le ipotesi di questa proposta sulla proprieta' dell'armatura e sulle macrozone.
+ShellAssignments.Layers/PhysicalThickness restano solo per compatibilita'.
+Le strategie resistenti descritte sotto restano proposte da discutere;
+nessun nuovo motore resistente e' stato abilitato.
+
 1. OBIETTIVO E STATO EFFETTIVO
 Model descrive struttura e risultati; Checker esegue le verifiche; ModelChecker
 seleziona, prepara, instrada e raccoglie gli esiti. Anthea gestira' l'interfaccia.
@@ -34,7 +44,8 @@ Model
   AreaElement / PlateProperty / ShellThickness
   ShellAssignments / ShellRebarLayer
   Risultati FEM, CoordinateSystem, facce e piano di riferimento delle azioni
-  Geometria delle regioni fisiche, appoggi e aperture (estensioni successive)
+  PhysicalSurfaceDefinition / SurfaceZoneDefinition (ora implementate)
+  Appoggi e aperture semantiche per verifiche di regione (estensioni successive)
 
 Checker.Concrete
   Plates

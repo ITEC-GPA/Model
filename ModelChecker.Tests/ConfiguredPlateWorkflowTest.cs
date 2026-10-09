@@ -3,6 +3,8 @@ using System.Xml.Linq;
 using GPC.Examples;
 using GPC.Geometry;
 using GPC.Model.Checker;
+using GPC.Model.Checking;
+using GPC.Model.Structure;
 using GPC.Model.Checker.Configuration;
 using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
@@ -165,6 +167,63 @@ public class ConfiguredPlateWorkflowTest
         Assert.AreEqual(EngineeringOutcome.NotEvaluated,report.Outcome);
         Assert.IsTrue(report.Jobs.SelectMany(j=>j.Results).Any(r=>r.Data==DataStatus.Stale));
         Assert.AreEqual(150,((ReinforcedConcretePlateSection)model.AreaElements[1090].PlateProperty).RebarLayers[0].Pitch);
+    }
+    [TestMethod]
+    public void SurfaceZoneSelectionPersistsAndReportsItsPhysicalIdentity()
+    {
+        var model = MixedModelFactory.Create();
+        model.PhysicalSurfaces.Add("wall", new PhysicalSurfaceDefinition("wall", new[] { 1090, 1130 }, new[] {
+            new SurfaceZoneDefinition("left", new[] { 1090 }), new SurfaceZoneDefinition("right", new[] { 1130 }) }));
+        var configuration = PlateConfiguration();
+        configuration.PlateJobs[0].Preparation.Selection = new ElementSelection {
+            Families = new[] { EntityFamily.Shell }, Surfaces = new[] { new SurfaceSelection { SurfaceId = "wall", ZoneId = "left" } } };
+        var copy = ConfigurationArchive.Copy(configuration);
+        Assert.AreEqual(ConfigurationArchive.Fingerprint(configuration), ConfigurationArchive.Fingerprint(copy));
+        configuration.PlateJobs[0].Preparation.Selection.Surfaces[0].ZoneId = "right";
+        Assert.AreEqual("left", copy.PlateJobs[0].Preparation.Selection.Surfaces[0].ZoneId);
+        var engine = new ProtocolPlate(); var catalog = Catalog(engine);
+        var report = new Service().Verify(model, copy, catalog);
+        Assert.AreEqual(1, report.Required); Assert.AreEqual(1, report.Executed, Diagnostics(report));
+        var result = report.Jobs.Single().Results.Single();
+        Assert.AreEqual(1090, result.ElementId);
+        Assert.AreEqual("wall", result.ShellInput.PhysicalSurfaceId);
+        Assert.AreEqual("left", result.ShellInput.SurfaceZoneId);
+        model.CheckReports.AddRange(report.Jobs);
+        var restored = ModelArchive.Copy(model);
+        Assert.AreEqual("left", restored.CheckReports.Single().Results.Single().ShellInput.SurfaceZoneId);
+        Assert.IsTrue(restored.CheckReports.Single().Results.Single().HasUnchangedEvidence);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, Service.CurrentOutcome(report, restored, copy, catalog));
+        // Reassigning zones leaves the mesh unchanged, but the saved verification scope is no longer current.
+        restored.PhysicalSurfaces["wall"] = new PhysicalSurfaceDefinition("wall", new[] { 1090, 1130 }, new[] {
+            new SurfaceZoneDefinition("left", new[] { 1130 }), new SurfaceZoneDefinition("right", new[] { 1090 }) });
+        Assert.AreEqual(AnalysisCompatibility.Compatible, AnalysisCompatibilityValidator.Validate(restored).Status);
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, Service.CurrentOutcome(report, restored, copy, catalog));
+    }
+    [TestMethod]
+    public void InvalidPhysicalMembershipIsReportedWithoutCreatingPlateCheckers()
+    {
+        var model = MixedModelFactory.Create();
+        model.PhysicalSurfaces.Add("first", new PhysicalSurfaceDefinition("first", new[] { 1090, 1130 }));
+        model.PhysicalSurfaces.Add("second", new PhysicalSurfaceDefinition("second", new[] { 1090 }));
+        var engine = new ProtocolPlate();
+        var report = new Service().Verify(model, PlateConfiguration(), Catalog(engine));
+        Assert.AreEqual(2, report.Required); Assert.AreEqual(0, report.Executed, Diagnostics(report));
+        Assert.AreEqual(0, engine.Sessions); Assert.AreEqual(EngineeringOutcome.NotEvaluated, report.Outcome);
+        Assert.IsTrue(report.Jobs.SelectMany(j => j.Results).All(r => r.Diagnostics.Any(d => d.Code == "PlateInMultiplePhysicalSurfaces")), Diagnostics(report));
+    }
+    [TestMethod]
+    public void PhysicalSurfaceSelectionDoesNotEnableUnqualifiedPlateResistanceMethods()
+    {
+        var model = MixedModelFactory.Create();
+        model.PhysicalSurfaces.Add("wall", new PhysicalSurfaceDefinition("wall", new[] { 1090, 1130 }));
+        var config = PlateConfiguration("Concrete.Plate");
+        config.PlateJobs[0].Preparation.Selection = new ElementSelection { Families = new[] { EntityFamily.Shell },
+            Surfaces = new[] { new SurfaceSelection { SurfaceId = "wall" } } };
+        var report = new Service().Verify(model, config, EngineCatalog.BuiltIn());
+        Assert.AreEqual(2, report.Required); Assert.AreEqual(0, report.Executed);
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, report.Outcome);
+        Assert.IsTrue(report.Jobs.Single().Results.All(r => r.ShellInput.PhysicalSurfaceId == "wall" && r.ShellInput.SurfaceZoneId == null
+            && r.Diagnostics.Any(d => d.Code == "PlateCheckerUnavailable")), Diagnostics(report));
     }
     [TestMethod]
     public void BuiltInPlateMethodsAreExplicitlyUnavailableAndKeepRequestedCoverage()

@@ -18,17 +18,29 @@ namespace GPC.Model.PostProcessing
     [Serializable]
     public sealed class ElementSelection
     {
+        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet]
+        public SurfaceSelection[] Surfaces { get; set; }
         public string[] Groups { get; set; } = new string[0];
         public ElementKey[] Elements { get; set; } = new ElementKey[0];
         public bool IncludeDescendants { get; set; } = true;
         public EntityFamily[] Families { get; set; } = new[] { EntityFamily.Beam, EntityFamily.Shell };
 
-        /// <summary>Union of explicit elements and group members. Empty selectors mean all elements in the requested families.</summary>
+        /// <summary>Union of explicit elements, group members and physical surface zones. Empty selectors mean all elements in the requested families.</summary>
         public IReadOnlyList<Element> Resolve(Models.Model model)
         {
             if (model == null || Groups == null || Elements == null || Families == null || Families.Length == 0) throw new ArgumentException("InvalidElementSelection");
             if (Families.Any(f => f != EntityFamily.Node && f != EntityFamily.Beam && f != EntityFamily.Shell)) throw new NotSupportedException("OnlyNodeBeamAndShellSelectionSupported");
             var selected = new HashSet<Element>(ReferenceComparer<Element>.Instance);
+            if(Surfaces!=null && Surfaces.Length!=0)
+            {
+                if(!Families.Contains(EntityFamily.Shell)) throw new ArgumentException("SurfaceSelectionRequiresShellFamily");
+                foreach(var entry in Surfaces)
+                {
+                    if(entry==null || string.IsNullOrWhiteSpace(entry.SurfaceId) || !model.PhysicalSurfaces.TryGetValue(entry.SurfaceId,out var surface))
+                        throw new ArgumentException("UnknownPhysicalSurface");
+                    foreach(var plate in surface.ResolveElements(model,entry.ZoneId)) selected.Add(plate);
+                }
+            }
             foreach (var name in Groups) foreach (var element in model.GetGroupElements(name, IncludeDescendants))
                 if (Families.Contains(Models.Model.FamilyOf(element))) selected.Add(element);
             foreach (var key in Elements)
@@ -38,11 +50,11 @@ namespace GPC.Model.PostProcessing
                 if (element == null) throw new ArgumentException("MissingSelectedElement");
                 selected.Add(element);
             }
-            if (Groups.Length == 0 && Elements.Length == 0)
+            if (Groups.Length == 0 && Elements.Length == 0 && (Surfaces == null || Surfaces.Length == 0))
                 foreach (var element in model.AllElements.Where(e => Families.Contains(Models.Model.FamilyOf(e)))) selected.Add(element);
             return selected.OrderBy(Models.Model.FamilyOf).ThenBy(e => e.Id).ToArray();
         }
-        public ElementSelection Copy() => new ElementSelection { Groups = (string[])Groups.Clone(), IncludeDescendants = IncludeDescendants,
+        public ElementSelection Copy() => new ElementSelection { Surfaces=Surfaces?.Select(s=>s==null ? null : new SurfaceSelection{SurfaceId=s.SurfaceId,ZoneId=s.ZoneId}).ToArray(), Groups = (string[])Groups.Clone(), IncludeDescendants = IncludeDescendants,
             Families = (EntityFamily[])Families.Clone(), Elements = Elements.Select(e => new ElementKey { Family = e.Family, Id = e.Id }).ToArray() };
     }
     [Serializable]

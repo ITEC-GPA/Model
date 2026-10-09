@@ -112,8 +112,13 @@ namespace GPC.Model.Checker
             result.Source = element.Source; result.GroupNames = element.Groups.Keys.OrderBy(g => g, StringComparer.Ordinal).ToArray();
             result.EngineVersion = task.Engine?.Version; result.EngineConfiguration = task.Engine?.Configuration; result.Standard = task.Engine?.Standard;
             result.VerificationRevision = task.Input?.VerificationRevision; result.SampleRevision = task.Input?.SampleRevision;
-            if (task.Input != null) result.ShellInput = new ShellInputSnapshot(ModelArchive.Fingerprint(new object[] { element.PlateProperty, element.Assignments }),
-                task.Input.SampleRevision, ModelArchive.Fingerprint(new object[] { task.Input.LocalForces }), task.Input.LocalForces, task.Input.Thickness);
+            if (task.Input != null)
+            {
+                var physicalSurface = model.SurfaceForElement(element.Id);
+                result.ShellInput = new ShellInputSnapshot(ModelArchive.Fingerprint(new object[] { element.PlateProperty, element.Assignments }),
+                    task.Input.SampleRevision, ModelArchive.Fingerprint(new object[] { task.Input.LocalForces }), task.Input.LocalForces, task.Input.Thickness,
+                    physicalSurface?.Id, physicalSurface?.ZoneAt(element.Id));
+            }
 
             return ConfigurationArchive.CopyData(result);
         }

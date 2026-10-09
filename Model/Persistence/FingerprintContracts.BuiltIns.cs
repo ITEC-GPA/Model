@@ -6,6 +6,19 @@ namespace GPC.Model.Persistence
     {
         private static void RegisterBuiltIns()
         {
+            Register("GPC.Model.Structure.PhysicalSurfaceDefinition", "GPC.Model.Structure.PhysicalSurfaceDefinition",
+                Field("GPC.Model.Structure.PhysicalSurfaceDefinition", "<Id>k__BackingField", "<Id>k__BackingField", false),
+                Field("GPC.Model.Structure.PhysicalSurfaceDefinition", "<Name>k__BackingField", "<Name>k__BackingField", false),
+                Field("GPC.Model.Structure.PhysicalSurfaceDefinition", "<Source>k__BackingField", "<Source>k__BackingField", false),
+                Field("GPC.Model.Structure.PhysicalSurfaceDefinition", "_elements", "_elements", false),
+                Field("GPC.Model.Structure.PhysicalSurfaceDefinition", "_zones", "_zones", false));
+            Register("GPC.Model.Structure.SurfaceZoneDefinition", "GPC.Model.Structure.SurfaceZoneDefinition",
+                Field("GPC.Model.Structure.SurfaceZoneDefinition", "<Id>k__BackingField", "<Id>k__BackingField", false),
+                Field("GPC.Model.Structure.SurfaceZoneDefinition", "<Name>k__BackingField", "<Name>k__BackingField", false),
+                Field("GPC.Model.Structure.SurfaceZoneDefinition", "_elements", "_elements", false));
+            Register("GPC.Model.Checking.SurfaceSelection", "GPC.Model.Checking.SurfaceSelection",
+                Field("GPC.Model.Checking.SurfaceSelection", "<SurfaceId>k__BackingField", "<SurfaceId>k__BackingField", false),
+                Field("GPC.Model.Checking.SurfaceSelection", "<ZoneId>k__BackingField", "<ZoneId>k__BackingField", false));
             Register("GPC.Model.Attributes.BeamDofConnection", "GPC.Model.Attributes.BeamDofConnection",
                 Field("GPC.Model.Attributes.BeamDofConnection", "<Kind>k__BackingField", "<Kind>k__BackingField", false),
                 Field("GPC.Model.Attributes.BeamDofConnection", "<Value>k__BackingField", "<Value>k__BackingField", false));
@@ -277,6 +290,7 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.ElementKey", "<Family>k__BackingField", "<Family>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.ElementKey", "<Id>k__BackingField", "<Id>k__BackingField", false));
             Register("GPC.Model.PostProcessing.ElementSelection", "GPC.Model.PostProcessing.ElementSelection",
+                Field("GPC.Model.PostProcessing.ElementSelection", "<Surfaces>k__BackingField", "<Surfaces>k__BackingField", true),
                 Field("GPC.Model.PostProcessing.ElementSelection", "<Elements>k__BackingField", "<Elements>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.ElementSelection", "<Families>k__BackingField", "<Families>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.ElementSelection", "<Groups>k__BackingField", "<Groups>k__BackingField", false),

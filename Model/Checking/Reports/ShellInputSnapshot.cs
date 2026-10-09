@@ -12,6 +12,8 @@ namespace GPC.Model.PostProcessing
     [Serializable]
     public sealed class ShellInputSnapshot : ISerializable
     {
+        public string PhysicalSurfaceId { get; }
+        public string SurfaceZoneId { get; }
         public string PropertyFingerprint { get; }
         public string SampleFingerprint { get; }
         public string ForcesFingerprint { get; }
@@ -21,7 +23,13 @@ namespace GPC.Model.PostProcessing
         public IReadOnlyList<double> Values => Array.AsReadOnly(_values);
         public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         public ShellInputSnapshot(string propertyFingerprint, string sampleFingerprint, string forcesFingerprint, ResultPlateForces forces, ShellThickness thickness)
+            : this(propertyFingerprint,sampleFingerprint,forcesFingerprint,forces,thickness,null,null) { }
+        public ShellInputSnapshot(string propertyFingerprint,string sampleFingerprint,string forcesFingerprint,ResultPlateForces forces,ShellThickness thickness,
+            string physicalSurfaceId,string surfaceZoneId)
         {
+            if(surfaceZoneId!=null && string.IsNullOrWhiteSpace(physicalSurfaceId) || physicalSurfaceId!=null && string.IsNullOrWhiteSpace(physicalSurfaceId)
+                || surfaceZoneId!=null && string.IsNullOrWhiteSpace(surfaceZoneId)) throw new ArgumentException("InvalidSurfaceEvidence");
+            PhysicalSurfaceId=physicalSurfaceId; SurfaceZoneId=surfaceZoneId;
             if (forces == null) throw new ArgumentNullException(nameof(forces));
             CheckValue.Text(propertyFingerprint, nameof(propertyFingerprint)); CheckValue.Text(sampleFingerprint, nameof(sampleFingerprint)); CheckValue.Text(forcesFingerprint, nameof(forcesFingerprint));
             PropertyFingerprint = propertyFingerprint; SampleFingerprint = sampleFingerprint; ForcesFingerprint = forcesFingerprint;
@@ -32,6 +40,9 @@ namespace GPC.Model.PostProcessing
         }
         private ShellInputSnapshot(SerializationInfo info, StreamingContext context)
         {
+            PhysicalSurfaceId=SerializationFields.Read<string>(info,"PhysicalSurfaceId"); SurfaceZoneId=SerializationFields.Read<string>(info,"SurfaceZoneId");
+            if(SurfaceZoneId!=null && string.IsNullOrWhiteSpace(PhysicalSurfaceId) || PhysicalSurfaceId!=null && string.IsNullOrWhiteSpace(PhysicalSurfaceId)
+                || SurfaceZoneId!=null && string.IsNullOrWhiteSpace(SurfaceZoneId)) throw new SerializationException("InvalidSurfaceEvidence");
             PropertyFingerprint = info.GetString("Property"); SampleFingerprint = info.GetString("Sample"); ForcesFingerprint = info.GetString("Forces");
             CheckValue.Text(PropertyFingerprint, "Property"); CheckValue.Text(SampleFingerprint, "Sample"); CheckValue.Text(ForcesFingerprint, "Forces");
             Thickness = (ShellThickness)info.GetValue("Thickness", typeof(ShellThickness));
@@ -46,6 +57,8 @@ namespace GPC.Model.PostProcessing
             info.AddValue("Property", PropertyFingerprint); info.AddValue("Sample", SampleFingerprint); info.AddValue("Forces", ForcesFingerprint);
             info.AddValue("Values", _values); info.AddValue("Axes", _axes);
             info.AddValue("Thickness", Thickness);
+            if(PhysicalSurfaceId!=null) info.AddValue("PhysicalSurfaceId",PhysicalSurfaceId);
+            if(SurfaceZoneId!=null) info.AddValue("SurfaceZoneId",SurfaceZoneId);
         }
     }
 }

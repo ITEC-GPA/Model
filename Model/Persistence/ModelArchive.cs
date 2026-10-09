@@ -87,7 +87,7 @@ namespace GPC.Model.Persistence
 
         public static void Save(Models.Model model, Stream destination)
         {
-            if (model?.Analysis?.UsesCanonicalFingerprint == true || model != null && CheckReportArchive.RequiresVersion4(model.CheckReports)) { SaveDocument(model, destination); return; }
+            if (model?.PhysicalSurfaces.Count > 0 || model?.Analysis?.UsesCanonicalFingerprint == true || model != null && CheckReportArchive.RequiresVersion4(model.CheckReports)) { SaveDocument(model, destination); return; }
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             // Build the archive before touching the caller's destination on serialization errors.
             using (var memory = new MemoryStream())
@@ -114,6 +114,7 @@ namespace GPC.Model.Persistence
                     : (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
                 reader.ReadEndElement();
                 CheckReportArchive.Validate(model.CheckReports.ToArray());
+                if(version!="4" && model.PhysicalSurfaces.Count!=0) throw new SerializationException("Physical surfaces require archive version 4.");
                 if (version != "4" && CheckReportArchive.RequiresVersion4(model.CheckReports)) throw new SerializationException("Plate task reports require archive version 4.");
                 if (version != "3" && version != "4" && (model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)))
                     throw new SerializationException("Analysis/scenario provenance requires archive version 3.");

@@ -37,7 +37,8 @@ namespace GPC.Model.PostProcessing
         internal static string Design(Models.Model model) => ModelArchive.Fingerprint(model.BeamElements.Values
             .Select(b => (object)new object[] { b.Guid, b.BeamProperty, b.Assignments.Sections.ToArray() })
             .Concat(model.AreaElements.Values.Select(a => (object)new object[] { a.Guid, a.Assignments }))
-            .Concat(model.AreaElements.Values.Where(a=>a.PlateProperty is ReinforcedConcretePlateSection).Select(a=>(object)a.PlateProperty)));
+            .Concat(model.AreaElements.Values.Where(a=>a.PlateProperty is ReinforcedConcretePlateSection).Select(a=>(object)a.PlateProperty))
+            .Concat(model.PhysicalSurfaces.Count==0 ? Array.Empty<object>() : new object[] { model.PhysicalSurfaces }));
         internal static string Reinforcement(Models.Model model) => ModelArchive.Fingerprint(ConcreteSections(model)
             .Select(s => (object)new object[] { s.Rebars.ToArray(), s.ShearData, s.TorsionData }).Concat(model.AreaElements.Values.Select(a => (object)new object[] {
                 a.Guid, a.PlateProperty is ReinforcedConcretePlateSection ? PlateSections.SectionAxes(a) : a.Assignments.LayerAxes, PlateSections.Rebars(a).ToArray() })));

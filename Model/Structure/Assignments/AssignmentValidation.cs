@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.ElementProperties;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
 
@@ -119,6 +120,7 @@ namespace GPC.Model.PostProcessing
                 }
                 catch(ArgumentException ex) { result.Add(ModelDiagnostic.Error(ex.Message,shell)); }
             }
+            result.AddRange(model.ValidatePhysicalSurfaces());
             return result;
         }
         public static IReadOnlyList<ModelDiagnostic> ValidateRebars(ReinforcedConcreteSection section, Element owner = null)

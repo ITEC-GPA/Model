@@ -9,6 +9,9 @@ namespace GPC.Model.Persistence
         internal static readonly Type[] Domain = new Type[]
         {
             typeof(global::GPC.Model.ElementProperties.ShellThickness),
+            typeof(global::GPC.Model.Structure.PhysicalSurfaceDefinition),
+            typeof(global::GPC.Model.Structure.SurfaceZoneDefinition),
+            typeof(global::GPC.Model.Checking.SurfaceSelection),
             typeof(global::GPC.Model.Sections.Concrete.ReinforcedConcretePlateSection),
             typeof(global::GPC.Model.PostProcessing.ShellInputAxes),
             typeof(global::GPC.Model.PostProcessing.ShellInputSnapshot),

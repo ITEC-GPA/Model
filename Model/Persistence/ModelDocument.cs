@@ -1,4 +1,5 @@
 using System;
+using GPC.Model.Structure;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -42,7 +43,10 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 25, IsRequired = true)] internal VerificationScenario[] Scenarios;
         [DataMember(Order = 26, IsRequired = true)] internal CheckReport[] Reports;
 
+        [DataMember(Order=27,EmitDefaultValue=false)] internal PhysicalSurfaceDefinition[] Surfaces;
+
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
+            Schema=model.PhysicalSurfaces.Count==0 ? 1 : 2, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
             Id = model.Guid, Name = model.Name, Nodes = model.NodesElements, Beams = model.BeamElements,
             Plates = model.AreaElements, Solids = model.VolumeElements, Constraints = model.Costrains,
             BeamProperties = model.BeamProperties, PlateProperties = model.PlateProperties, SolidProperties = model.BrickProperties,
@@ -55,7 +59,8 @@ namespace GPC.Model.Persistence
 
         internal Models.Model Restore()
         {
-            if (Schema != 1) throw new SerializationException("Unsupported ModelDocument schema.");
+            if (Schema != 1 && Schema != 2) throw new SerializationException("Unsupported ModelDocument schema.");
+            if (Schema==2 && (Surfaces==null || Surfaces.Length==0) || Schema==1 && Surfaces!=null && Surfaces.Length!=0) throw new SerializationException("PhysicalSurfaceSchemaMismatch");
             if (Nodes == null || Beams == null || Plates == null || Solids == null || Constraints == null || BeamProperties == null
                 || PlateProperties == null || SolidProperties == null || Cases == null || FreedomCases == null || Combinations == null
                 || StageCombinations == null || Groups == null || Stages == null || ModelLoads == null || Datasets == null

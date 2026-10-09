@@ -96,7 +96,8 @@ namespace GPC.Model.PostProcessing
             return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
                 .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))
-                .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))));
+                .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))
+                .Concat(model.PhysicalSurfaces.Count==0 ? System.Array.Empty<object>() : new object[] { model.PhysicalSurfaces })));
         }
 
         private static IEnumerable<object> AssignedPhysicalSection(ElementProperties.BeamProperty property)

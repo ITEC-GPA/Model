@@ -92,3 +92,45 @@ Da chiarire il piano di riferimento dei momenti e il significato di Offset
 prima di attivare un motore resistente. Nessuna formula, API o dipendenza
 modificata. Test non rieseguiti: fase documentale. Metodo ancora da concordare
 secondo il vincolo esplicito del PASSO 6; nessuno shell dichiarato verificato.
+
+Punto 6 - sezioni plate e superfici fisiche implementate dopo il confronto
+Prima fase d33e7bd4: sezione cls con armatura propria, tre spessori distinti,
+validazione e persistenza. Seconda fase 986fea85: recepita la decisione che
+AreaElement rappresenta un singolo plate FEM. Una sola proprieta' per elemento;
+eliminate le assegnazioni spaziali provvisorie interne al plate. Compatibilita'
+legacy esplicita, scenari con sezione acquisita per valore, preparazione e
+resoconti indipendenti, provenienza FEM conservata anche migrando l'armatura.
+Verifica della seconda fase: 972 Model PASS + 2 fixture Straus saltate,
+152 ModelChecker PASS, nessuna nuova rimozione API inattesa.
+
+Terza fase: PhysicalSurfaceDefinition e SurfaceZoneDefinition selezionano plate
+FEM connessi per lati; una sezione autorevole per plate e nessuna seconda copia
+nelle zone. Assegnazione per superficie/zona, validazione preventiva degli assi,
+selezione nel flusso ModelChecker, identita' fisica nel resoconto e documenti
+versionati. Cambiare solo zone/superfici invalida la verifica senza alterare la
+compatibilita' FEM. Gestite appartenenze duplicate, lati non manifold, superfici
+sconnesse, archivi incoerenti e pubblicazione tramite ModelEditSession.
+Versioni: Model 2.0.0.4 / ModelChecker 1.0.16.
+Guida autorevole del modello dati: GUIDA_SEZIONI_PLATE_SUPERFICI.txt.
+
+Verifica finale build/Verify.ps1 sul codice della terza fase: 987 Model/Converter
+PASS + 2 test Straus saltati per fixture native esterne; 155 ModelChecker PASS.
+API: 6268 firme Model (15 rimozioni storiche gia' approvate), 530 ModelChecker,
+2016 Concrete; nessuna rimozione inattesa. Nessuna formula resistente o fixture
+numerica storica modificata. Concrete.Plate e Steel.Plate restano non disponibili;
+il motore di protocollo nei test non costituisce una verifica strutturale.
+Checker e Anthea non modificati da queste tre fasi.
+
+Namespace: le nuove classi di superficie sono in GPC.Model.Structure, la
+selezione in GPC.Model.Checking, la validazione plate in ElementProperties.
+Il riordino precedente delle cartelle non ha ancora migrato tutti i namespace:
+74 file dichiarano PostProcessing, anche per strutture/analisi/contratti.
+La migrazione generale e' da pianificare con API, consumer e archivi; non e'
+stata fatta una rinomina indiscriminata. Sono presenti anche i nomi storici
+Costrains/Restrains e il RootNamespace ModelData diverso da GPC.Model.Data.
+
+Coda approvata aggiunta dall'utente: estrarre GPC.Model.Persistence in un
+progetto I/O separato, dopo aver disaccoppiato copie e fingerprint dal serializer.
+Non e' una libreria UI e non va creata una dipendenza circolare con Model.
+Restano le parti differite del piano: completamento cls (3), scelta condivisa
+ed implementazione dei metodi resistenti plate (6), ulteriori converter (7).

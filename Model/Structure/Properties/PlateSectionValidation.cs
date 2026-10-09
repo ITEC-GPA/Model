@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.ElementProperties;
+using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.ElementProperties
 {
     public static class PlateSectionValidation
     {

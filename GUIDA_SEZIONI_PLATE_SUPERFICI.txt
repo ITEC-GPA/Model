@@ -1,0 +1,144 @@
+SEZIONI PLATE E SUPERFICI FISICHE
+9 ottobre 2026 - Model 2.0.0.4 / ModelChecker 1.0.16
+Branch: codex/model-architecture
+
+1. PROPRIETA' E RESPONSABILITA'
+AreaElement e' un singolo elemento FEM triangolare/quadrangolare. Possiede
+una sola PlateProperty. Non contiene sotto-elementi di calcolo o sezioni
+variabili al proprio interno.
+
+PlateProperty.PhysicalThickness: spessore fisico in mm; null indica ignoto.
+IFemPlateProperty.MembraneThickness e BendingThickness restano gli spessori
+analitici equivalenti, distinti dallo spessore fisico.
+ReinforcedConcretePlateSection deriva da ConcretePlateProperty e possiede
+RebarLayers: materiale, faccia fisica, diametro/passo, direzione e quota.
+L'armatura appartiene alla sezione, come per le sezioni beam.
+SteelPlateProperty usa lo stesso meccanismo di assegnazione. La struttura
+non impone armature agli altri materiali.
+
+PhysicalSurfaceDefinition identifica una soletta/parete fisica formata da
+piu' plate FEM esistenti. SurfaceZoneDefinition seleziona parte di questi
+plate attraverso ID espliciti. Le zone non conservano copie di sezioni:
+l'assegnazione autorevole resta sui singoli AreaElement.
+Le zone sono disgiunte, possono coprire solo parte della superficie e non
+possono suddividere un singolo plate. Una variazione interna a un plate
+richiede una suddivisione della mesh esterna a questa API.
+
+La superficie deve essere connessa attraverso lati condivisi: il solo
+contatto in un vertice non basta. Piu' di due plate sul medesimo lato sono
+rifiutati. Un plate appartiene al massimo a una superficie fisica; gruppi
+ordinari possono continuare a sovrapporsi. Non si inferisce automaticamente
+una superficie fisica da un gruppo.
+Una superficie puo' essere curva: ogni plate mantiene i propri assi locali.
+Appoggi, aperture semantiche, contorni per punzonamento e verifiche globali
+di superficie non sono ancora rappresentati da questi nuovi contratti.
+
+2. API E NAMESPACE DELLE NUOVE CLASSI
+GPC.Model.Structure
+  PhysicalSurfaceDefinition
+  SurfaceZoneDefinition
+GPC.Model.Checking
+  SurfaceSelection
+GPC.Model.Sections.Concrete
+  ReinforcedConcretePlateSection
+GPC.Model.ElementProperties
+  PlateProperty, PlateSections, PlateSectionValidation, ShellThickness
+GPC.Model.Models.Model
+  PhysicalSurfaces, ValidatePhysicalSurfaces, SurfaceForElement,
+  AssignSurfaceSection
+
+ElementSelection e diversi contratti storici restano temporaneamente in
+GPC.Model.PostProcessing; non e' la destinazione architetturale finale.
+
+3. ESEMPIO DI EDITING
+using GPC.Model.Models;
+using GPC.Model.Structure;
+
+// model: documento corrente; section: PlateProperty completa e validata.
+using (var edit = new ModelEditSession(model))
+{
+    edit.Draft.PhysicalSurfaces.Add("parete-1",
+        new PhysicalSurfaceDefinition("parete-1", new[] { 1090, 1130 },
+            new[] { new SurfaceZoneDefinition("bordo", new[] { 1090 }) }));
+    edit.Draft.AssignSurfaceSection("parete-1", section, "bordo");
+    var published = edit.Commit();
+    model = published.Model;
+    // Valutare published.AnalysisCompatibilityAtCommit prima di riusare
+    // risultati FEM; AnalysisChanged da solo non copre il ruolo armatura.
+}
+
+AssignSurfaceSection valida prima di modificare e copia la sezione ricevuta.
+Tutti i plate selezionati condividono quella copia. Non modificare in-place
+la sezione condivisa se si vuole cambiare un solo plate: assegnarne una copia
+indipendente nella bozza. La chiamata non modifica la proprieta' del chiamante.
+Non aggiorna automaticamente il catalogo Model.PlateProperties: il catalogo
+delle proprieta' disponibili e le proprieta' assegnate agli elementi hanno
+ruoli distinti, come nel flusso di editing esistente.
+
+4. ASSI, FACCIA E COMPATIBILITA' FEM
+Si riusa GPC.Geometry.CoordinateSystem. L'assegnazione accetta assi di sezione
+espliciti oppure conserva quelli dell'elemento. Il riferimento deve essere
+ortogonale, nel piano del plate e sul medesimo piano di riferimento.
+Una superficie curva richiede riferimenti locali coerenti per ciascun plate;
+un singolo riferimento globale non e' automaticamente valido ovunque.
+Gli angoli degli strati sono relativi agli assi di sezione. Le azioni restano
+associate al loro piano e al proprio sistema locale. Offset non viene usato
+qui per inventare un trasporto dei momenti: quel comportamento va definito
+insieme al metodo resistente.
+
+Cambiare solo la definizione di superficie/zona invalida lo stato della
+verifica, ma non cambia gli input FEM. Cambiare spessore/materiale/geometria
+richiede di rivalutare l'analisi. Modificare le barre segue il ruolo registrato
+nell'analisi: IncludedInAnalysis / ExcludedFromAnalysis / Unknown.
+Il fingerprint FEM mantiene la politica conservativa precedente, compresa
+l'identita' delle proprieta': una rinomina non e' garantita come innocua.
+Non vengono riscritti fingerprint o revisioni dei risultati storici.
+
+5. COMPATIBILITA' DEI DATI PRECEDENTI
+ShellAssignments.PhysicalThickness e Layers restano leggibili per archivi e
+converter precedenti. La preparazione risolve una copia autonoma della sezione.
+PlateSections.UpgradeLegacy(element), da usare sulla bozza, sposta i dati
+nella proprieta' e svuota i campi legacy. La migrazione senza cambi fisici
+conserva la compatibilita' dei risultati nei tre ruoli dell'armatura.
+Definire contemporaneamente spessori/armature legacy e nella sezione viene
+rifiutato; non viene scelta in silenzio una delle due fonti.
+VerificationScenario.SetShellSection acquisisce la sezione per valore.
+ShellCheckInput.Property/Reinforcement/SectionAxes espongono i dati preparati;
+Assignments e' una proiezione compatibile autonoma per i consumer precedenti.
+
+6. SELEZIONE, RESOCONTI E PERSISTENZA
+ElementSelection.Surfaces contiene SurfaceSelection con SurfaceId e ZoneId;
+ZoneId null seleziona tutta la superficie. La selezione e' l'unione con gruppi
+e ID espliciti, senza duplicare i plate. Richiede la famiglia Shell.
+ShellInputSnapshot conserva PhysicalSurfaceId e SurfaceZoneId per rendere
+leggibile la provenienza. Cambiare assegnazioni o zone rende obsoleti gli esiti.
+
+I modelli con superfici vengono salvati nell'archivio v4, ModelDocument schema
+2. Il lettore conserva il supporto ai documenti precedenti senza superfici.
+La copia/salvataggio conserva connettivita', zone e condivisione delle proprieta'.
+Uno schema dichiarato incompatibile o una collezione richiesta mancante sono
+rifiutati. Non viene introdotta una dipendenza Model -> ModelChecker.
+
+7. LIMITE ATTUALE DELLA VERIFICA
+La superficie e' una struttura di organizzazione e selezione. ModelChecker
+prepara ancora i punti e gli stati concomitanti esportati, non certifica il
+massimo continuo su una superficie. Concrete.Plate e Steel.Plate restano
+esplicitamente non disponibili come motori resistenti qualificati.
+Il checker di protocollo presente nei test prova il flusso, non la resistenza.
+Le strategie resistenti restano da concordare nella proposta del punto 6.
+
+8. LAVORO IN CODA
+Richiesta approvata: separare GPC.Model.Persistence come progetto I/O.
+Prima occorre separare copie/fingerprint usati dal dominio dalla lettura e
+scrittura dei file, evitando dipendenze circolari. Non contiene componenti UI.
+L'estrazione non e' stata eseguita in questo incremento.
+
+Da pianificare insieme ai consumer: migrazione dei namespace storici.
+PostProcessing contiene ancora analisi, assegnazioni, identita', preparazione
+e resoconti. Destinazioni: Analysis, Structure.Assignments, Core, Checking,
+Results e Results.Processing, secondo responsabilita'. Correggere anche
+Costrains/Restrains e allineare il RootNamespace di ModelData ai suoi sorgenti.
+Materiali, sezioni, standard e namespace dei converter sono gia' riconoscibili.
+Un cambio di namespace pubblico cambia l'identita' CLR: aggiornare gli using
+in Checker/Converter/Anthea, versionare le rotture API intenzionali e mantenere
+indipendenti i nomi dei contratti persistiti/fingerprint. Non basta spostare file.
