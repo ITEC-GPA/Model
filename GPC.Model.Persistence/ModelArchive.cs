@@ -3,18 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Security.Cryptography;
 using System.Xml;
-using GPC.Geometry;
-using GPC.Model.Elements;
-using GPC.Model.Collections;
-using GPC.Model.Attributes;
-using GPC.Model.ElementProperties;
-using GPC.Model.LoadCases;
-using GPC.Model.Loads;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
-using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.Persistence
 {
@@ -44,6 +33,8 @@ namespace GPC.Model.Persistence
 
         public static void Save(Models.Model model, Stream destination)
         {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
             if (model?.PhysicalSurfaces.Count > 0 || model?.Analysis?.UsesCanonicalFingerprint == true || model != null && CheckReportArchive.RequiresVersion4(model.CheckReports)) { SaveDocument(model, destination); return; }
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             // Build the archive before touching the caller's destination on serialization errors.

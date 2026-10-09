@@ -148,3 +148,28 @@ richiede la futura DLL Persistence. Nessuna formula o dato atteso cambiato.
 Verify.ps1 PASS: 989 Model/Converter + 2 fixture Straus saltate, 155 ModelChecker;
 nessuna rimozione API inattesa. Due nuove regressioni su copie indipendenti,
 alias, eventi dei gruppi e snapshot storici v3. Segue estrazione del progetto I/O.
+
+Persistence - fase B completata
+Creato il progetto GPC.Model.Persistence, solo I/O, con riferimento a Model.
+Model 3.0.0.0; Persistence 1.0.0; ModelChecker 1.0.17; Converter 1.0.4.
+Spostati ModelArchive, CheckReportArchive e ArchiveContractRegistry conservando
+namespace/firme. ModelDocument ora esterno al dominio; ModelGraph interno
+ricostruisce le relazioni senza conoscere un formato file. Nessun ciclo e
+nessun riferimento a Persistence da Model/ModelChecker/Converter.
+Migrazione consumer e limiti: MIGRAZIONE_MODEL_3.txt. Anthea non aggiornato.
+
+Test finali: 3 Model.Core.Tests (senza DLL I/O), 989 Model/Converter + 2 fixture
+Straus saltate, 155 ModelChecker PASS. 50 Test.Calculation Checker PASS,
+compilazione Test.Concrete storica riuscita con avviso GMsh x64 gia' esistente.
+Esempio MixedModel --without-checker e round-trip riusciti.
+API: Model 6262 firme con 26 rimozioni pianificate (15 precedenti e 11 firme
+spostate), ModelChecker 530, Concrete 2016, Persistence 13; zero rimozioni
+inattese. Il preparatore del bundle ora riusa una cache con hash verificato,
+anche dopo build dei repository fratelli. Quattro regressioni del runner PASS.
+Il manifest delle dipendenze e le fixture numeriche non sono stati modificati.
+
+Commit della fase A: 0a45e9f5. Consumer Checker aggiornati: ce5b82da.
+Il runner finale completo e' stato ripetuto dopo l'allineamento della versione
+NuGet di Model a 3.0.0: tutti gli esiti sopra confermati. Pacchetto Persistence
+costruito solo localmente; nuspec verificato con dipendenza GPCModel 3.0.0.
+Nessuna pubblicazione NuGet o aggiornamento del bundle Anthea effettuato.

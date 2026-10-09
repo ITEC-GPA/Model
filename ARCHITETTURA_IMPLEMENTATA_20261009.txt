@@ -1,3 +1,9 @@
+AGGIORNAMENTO SUCCESSIVO - MODEL 3
+Persistenza ora in GPC.Model.Persistence.dll, dipendente da GPCModel.
+Copie/fingerprint in GPC.Model.Core; nessuna dipendenza inversa del dominio.
+La fotografia storica sotto resta utile per le responsabilita' delle cartelle;
+versioni, API spostate e procedure aggiornate sono in MIGRAZIONE_MODEL_3.txt.
+
 ARCHITETTURA IMPLEMENTATA - 9 OTTOBRE 2026
 
 Versioni: Model 2.0.0.0; ModelChecker 1.0.8; Converter 1.0.3;

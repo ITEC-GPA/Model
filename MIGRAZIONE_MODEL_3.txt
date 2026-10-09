@@ -1,0 +1,101 @@
+MIGRAZIONE MODEL 3 - PERSISTENZA SEPARATA
+9 ottobre 2026 - branch codex/model-architecture
+
+Versioni: GPCModel 3.0.0.0, GPC.Model.Persistence 1.0.0,
+GPCModelChecker 1.0.17, GPC.Converter 1.0.4.
+
+1. DIPENDENZE
+GPC.Model.Persistence -> GPCModel
+GPCModelChecker -> GPCModel + motori Checker
+GPC.Converter -> GPCModel + ModelData
+I consumer che leggono/scrivono modelli o resoconti -> GPC.Model.Persistence
+
+GPCModel non referenzia Persistence; neppure ModelChecker e Converter.
+Nessuna dipendenza UI o WPF e nessun nuovo pacchetto di runtime introdotto.
+La DLL Persistence e' netstandard2.0 e contiene gli adattatori XML e il DTO
+versionato dei file. Non contiene formule, motori o configurazioni normative.
+La persistenza delle configurazioni ModelChecker resta nel suo modulo:
+non e' necessaria per l'estrazione degli archivi Model e non si crea un
+riferimento inverso dal dominio all'orchestrazione.
+
+2. CAMBIO PUBBLICO INTENZIONALE
+Questi tipi si spostano da GPCModel.dll a GPC.Model.Persistence.dll:
+  GPC.Model.Persistence.ModelArchive
+  GPC.Model.Persistence.CheckReportArchive
+  GPC.Model.Persistence.ArchiveContractRegistry
+
+Namespace e firme pubbliche sono conservati. Il progetto chiamante deve
+aggiungere il riferimento alla nuova DLL e ricompilare. Non basta sostituire
+GPCModel.dll in un'applicazione gia' distribuita: e' un cambio di assembly.
+Non esiste un type-forwarder da Model a Persistence, che creerebbe un ciclo.
+La baseline API dichiara soltanto questi tre spostamenti; le firme spostate
+vengono verificate anche nella nuova DLL. Non e' stata rigenerata la baseline
+per nascondere rimozioni accidentali.
+
+Esempio riferimento di progetto:
+  <ProjectReference Include="../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
+
+Il codice I/O conserva:
+  using GPC.Model.Persistence;
+  ModelArchive.Save(model, stream);
+  var restored = ModelArchive.Load(stream);
+  CheckReportArchive.Save(reports, stream);
+
+Il codice di calcolo/editing usa invece:
+  using GPC.Model.Core;
+  var copy = ModelValues.Copy(model);
+  var sectionCopy = ModelValues.CopyValue(section);
+  var revision = ModelValues.Fingerprint(values);
+
+Gli omonimi metodi su ModelArchive rimangono delegati di compatibilita' per
+i consumer che gia' hanno bisogno della DLL I/O; il dominio non li usa.
+ModelDataContracts.SupportedTypes descrive il vocabolario del dominio.
+
+3. COPIE, SNAPSHOT E FORMATO STORICO
+Copie e revisioni non passano dal file ModelDocument o dal suo envelope.
+Gli snapshot di analisi e i valori degli scenari mantengono il codec interno
+in memoria basato su DataContractSerializer. Questo dettaglio conserva le
+evidenze esistenti; non e' una nuova API per caricare file esterni.
+La separazione NON elimina tutti gli attributi ISerializable dal dominio e
+NON sostituisce in questa fase il meccanismo interno di copia con costruttori
+manuali. Il dominio funziona senza installare/caricare la DLL Persistence.
+I fingerprint fisici e il ruolo delle armature nell'analisi sono invariati.
+
+ModelGraph e' un contratto interno di ricostruzione del grafo senza schema
+file; ModelDocument, nella DLL I/O, mantiene nomi, campi e versioni degli
+archivi esistenti. Un accesso interno limitato all'assembly Persistence evita
+di rendere pubblici setter incontrollati soltanto per deserializzare il modello.
+Gli archivi Model v1-v4 e i resoconti conservano le rispettive regole di lettura.
+Nessun risultato storico viene attualizzato modificandone la provenienza.
+
+4. CONSUMER AGGIORNATI E CONSUMER DA DISTRIBUIRE
+Aggiornati UnitTest, ModelChecker.Tests e l'esempio MixedModel nel repository
+Model. Aggiornati i soli progetti Test.Calculation e Test.Concrete di Checker
+che leggono fixture di archivio. I motori Checker non richiedono Persistence.
+Il bundle di Anthea non e' stato sostituito: quando verra' aggiornato a Model 3,
+i tool di cattura che salvano archivi dovranno referenziare anche Persistence.
+La distribuzione Anthea deve rispettare la propria procedura di bundle coerente.
+
+5. VERIFICHE
+build/Verify.ps1 comprende ora Model.Core.Tests: processo privo della DLL I/O
+che prova snapshot, copia, editing, scenari, preparazione shell e vocabolario
+chiuso. Comprende anche tutte le regressioni Model/Converter/ModelChecker e
+la baseline della nuova DLL. Esito: 3 Core, 989 Model/Converter, 155 ModelChecker
+PASS; due fixture native Straus esterne saltate.
+Checker: 50 Test.Calculation PASS; Test.Concrete .NET Framework compila
+(avviso MSB3270 gia' legato al riferimento GMsh.Net x64).
+Esempio MixedModel --without-checker: esecuzione e round-trip PASS.
+
+Il preparatore delle dipendenze riusa la cache solo se l'hash corrisponde al
+manifest. Ricompilare un repository fratello non sostituisce implicitamente
+il bundle testato. Un SourceBundle esplicito viene sempre verificato e un
+hash errato e' rifiutato prima di copiare. Test-PrepareDependencies.ps1 copre
+bundle nuovo, cache valida, stessa directory e rifiuto della sorgente corrotta.
+Manifest e DLL vincolate restano invariati.
+
+6. PROSEGUIMENTO
+L'estrazione Persistence chiude la richiesta aggiunta alla coda. Restano la
+migrazione coordinata dei namespace storici (PostProcessing, Costrains,
+Restrains e allineamento ModelData) e le parti precedentemente differite:
+cls, scelta dei metodi resistenti plate e ulteriori converter. La decisione
+sul metodo resistente plate non e' implicita in questo refactoring.

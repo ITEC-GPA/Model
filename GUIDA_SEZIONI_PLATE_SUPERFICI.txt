@@ -128,10 +128,10 @@ Il checker di protocollo presente nei test prova il flusso, non la resistenza.
 Le strategie resistenti restano da concordare nella proposta del punto 6.
 
 8. LAVORO IN CODA
-Richiesta approvata: separare GPC.Model.Persistence come progetto I/O.
-Prima occorre separare copie/fingerprint usati dal dominio dalla lettura e
-scrittura dei file, evitando dipendenze circolari. Non contiene componenti UI.
-L'estrazione non e' stata eseguita in questo incremento.
+AGGIORNAMENTO SUCCESSIVO: estrazione GPC.Model.Persistence completata con
+Model 3.0.0.0. Il dominio usa ModelValues per copie/fingerprint e non dipende
+dall'adattatore I/O. I consumer degli archivi devono aggiungere un riferimento
+alla nuova DLL: dettagli e test in MIGRAZIONE_MODEL_3.txt.
 
 Da pianificare insieme ai consumer: migrazione dei namespace storici.
 PostProcessing contiene ancora analisi, assegnazioni, identita', preparazione

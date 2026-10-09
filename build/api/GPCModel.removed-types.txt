@@ -1,3 +1,8 @@
 # Model 2.0: abandoned, non-serializable FEM prototypes; use BeamElement and imported FEM results.
 GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.FemBeam
 GPC.Model.FiniteElementAnalysis.FiniteElements.Beam.EulerBeam
+
+# Model 3.0: archive APIs moved to GPC.Model.Persistence.dll; add its explicit reference.
+GPC.Model.Persistence.ArchiveContractRegistry
+GPC.Model.Persistence.CheckReportArchive
+GPC.Model.Persistence.ModelArchive

@@ -66,7 +66,33 @@ namespace GPC.Model.Persistence
                 || StageCombinations == null || Groups == null || Stages == null || ModelLoads == null || Datasets == null
                 || Preserved == null || Members == null || Scenarios == null || Reports == null)
                 throw new SerializationException("Missing ModelDocument collection.");
-            return Models.Model.FromDocument(this);
+            return Models.Model.FromGraph(new Models.ModelGraph {
+                Id = Id,
+                Name = Name,
+                Nodes = Nodes,
+                Beams = Beams,
+                Plates = Plates,
+                Solids = Solids,
+                Constraints = Constraints,
+                BeamProperties = BeamProperties,
+                PlateProperties = PlateProperties,
+                SolidProperties = SolidProperties,
+                Cases = Cases,
+                FreedomCases = FreedomCases,
+                Combinations = Combinations,
+                StageCombinations = StageCombinations,
+                Groups = Groups,
+                Stages = Stages,
+                ModelLoads = ModelLoads,
+                Datasets = Datasets,
+                Source = Source,
+                Preserved = Preserved,
+                Members = Members,
+                Analysis = Analysis,
+                Verification = Verification,
+                Scenarios = Scenarios,
+                Reports = Reports,
+                Surfaces = Surfaces });
         }
     }
 }

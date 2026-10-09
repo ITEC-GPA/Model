@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
-      "coverlet.collector": {
-        "type": "Direct",
-        "requested": "[6.0.0, )",
-        "resolved": "6.0.0",
-        "contentHash": "tW3lsNS+dAEII6YGUX/VMoJjBS1QvsxqJeqLaJXub08y1FSjasFPtQ4UBUsudE9PNrzLjooClMsPtY2cZLdXpQ=="
-      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.8.0, )",
@@ -72,19 +66,6 @@
         "type": "Transitive",
         "resolved": "1.6.0",
         "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ=="
-      },
-      "GPC.Converter": {
-        "type": "Project",
-        "dependencies": {
-          "GPCModel": "[1.0.0, )",
-          "GPCModelData": "[1.0.0, )"
-        }
-      },
-      "gpc.model.persistence": {
-        "type": "Project",
-        "dependencies": {
-          "GPCModel": "[1.0.0, )"
-        }
       },
       "gpcmodel": {
         "type": "Project",

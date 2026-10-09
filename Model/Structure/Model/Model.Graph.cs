@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
-using GPC.Model.Persistence;
 
 namespace GPC.Model.Models
 {
     public partial class Model
     {
-        internal static Model FromDocument(ModelDocument data)
+        internal static Model FromGraph(ModelGraph data)
         {
             var model = new Model(data.Name) {
                 _guid = data.Id, _nodesElements = data.Nodes, _beamElements = data.Beams, _areaElements = data.Plates,
