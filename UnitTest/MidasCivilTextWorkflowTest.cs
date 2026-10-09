@@ -214,11 +214,18 @@ Q,L,synthetic live load
     [DataRow("*ENDDATA", "*ENDDATA\n*NODE\n99,0,0,0")]
     public void InvalidInput_RejectsAtomicallyAndRetainsExactOriginalBytes(string oldValue, string newValue)
     {
-        var data = Encoding.UTF8.GetBytes(Mixed.Replace(oldValue, newValue)); var report = Import(data);
-        Assert.AreEqual(ImportStatus.Rejected, report.Status); Assert.IsNull(report.Model);
-        Assert.IsTrue(report.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error));
-        CollectionAssert.AreEqual(data, Convert.FromBase64String(report.Preserved.Single(p => p.Kind == "MIDAS Civil file").RawData));
-        Assert.IsNotNull(report.SourceHash);
+        // Verbatim literals inherit checkout line endings; mutation targets use explicit LF.
+        var fixture = Mixed.Replace("\r\n", "\n");
+        Assert.IsTrue(fixture.Contains(oldValue), "The invalid-input mutation must match the fixture.");
+        foreach (var newline in new[] { "\n", "\r\n" })
+        {
+            var data = Encoding.UTF8.GetBytes(fixture.Replace(oldValue, newValue).Replace("\n", newline));
+            var report = Import(data);
+            Assert.AreEqual(ImportStatus.Rejected, report.Status); Assert.IsNull(report.Model);
+            Assert.IsTrue(report.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error));
+            CollectionAssert.AreEqual(data, Convert.FromBase64String(report.Preserved.Single(p => p.Kind == "MIDAS Civil file").RawData));
+            Assert.IsNotNull(report.SourceHash);
+        }
     }
 
     [TestMethod]

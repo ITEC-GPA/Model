@@ -31,3 +31,10 @@ Le guide MIGRAZIONE_MODEL_4.txt restano valide per la migrazione dei consumer;
 la tabella sopra aggiorna solo i numeri di versione delle relative fotografie.
 Il bundle applicativo Anthea non viene sostituito; nessun pacchetto NuGet
 viene pubblicato da questa operazione.
+
+Nota di integrazione: master Model aveva un controllo fissato a Concrete
+0.0.18.0; il merge conserva il confronto con la versione reale della DLL.
+Il checkout Windows ha evidenziato tre mutazioni di test MIDAS basate su LF:
+il test ora normalizza solo la fixture prima della mutazione e controlla
+esplicitamente input LF e CRLF, conservando il confronto dei byte originali.
+Il lettore di produzione e i risultati numerici non sono stati modificati.
