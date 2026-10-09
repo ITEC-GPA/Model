@@ -1,10 +1,19 @@
+using GPC.Model.Models;
 using GPC.Converter;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Core.Units;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
 
 namespace UnitTest;
 

@@ -189,6 +189,7 @@ namespace GPC.Model.Sections
         /// </summary>
         public override void SetMechanicalProperties()
         {
+            InvalidateCalculatedProperties();
             _area = CalculateArea();
             _j11 = CalculateJ();
             _j22 = CalculateJ();

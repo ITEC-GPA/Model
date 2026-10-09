@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.2.5</Version>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <RootNamespace>GPC.ModelData</RootNamespace>
+    <RootNamespace>GPC.Model.Data</RootNamespace>
     <Configurations>Debug;Release;DebugLocalLibs</Configurations>
   </PropertyGroup>
 
@@ -20,8 +21,8 @@
 
   <ItemGroup>
     <!-- catalogs of commercial sections, extracted by tools/section-catalogs -->
-    <EmbeddedResource Include="Sections\Catalogs\*.csv" />
-    <EmbeddedResource Include="Sections\TorsionDeviations.csv" />
+    <EmbeddedResource Include="Sections\Catalogs\*.csv" LogicalName="GPC.ModelData.Sections.Catalogs.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Sections\TorsionDeviations.csv" LogicalName="GPC.ModelData.Sections.TorsionDeviations.csv" />
   </ItemGroup>
 
 </Project>

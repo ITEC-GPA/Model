@@ -9,21 +9,26 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Models;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Examples
 {
     /// <summary>Synthetic post-processing fixture. Forces below are assigned analytical data, not FEM analysis output.</summary>
     public static class MixedModelFactory
     {
-        public static GPC.Model.Models.Model Create(Action<GPC.Model.Models.Model>? configureBeforeResults = null)
+        public static GPC.Model.Models.Model Create(Action<GPC.Model.Models.Model>? configureBeforeResults = null,
+            ReinforcementAnalysisRole reinforcementRole = ReinforcementAnalysisRole.ExcludedFromAnalysis)
         {
             var model = new GPC.Model.Models.Model("SYNTHETIC beam and shell fixture");
             int[] ids = { 10, 40, 90, 130 };
@@ -58,6 +63,7 @@ namespace GPC.Examples
             model.NodesElements[40].Loads.Add(new PointLoad(0, 1000, 0, 0, 0, 0, points[1], model.LoadCases["P+"]));
             model.NodesElements[40].Loads.Add(new PointLoad(0, -1000, 0, 0, 0, 0, points[1], model.LoadCases["P-"]));
             configureBeforeResults?.Invoke(model);
+            model.CaptureAnalysis(reinforcementRole, reinforcementRole == ReinforcementAnalysisRole.Unknown ? null : "Declared reinforcement role for the analytical fixture.");
             string fingerprint = model.AnalysisFingerprint();
             model.Datasets.Add("synthetic-static", new AnalysisDataset { Id = "synthetic-static", Program = "Synthetic", ModelRevision = "mixed-v1", AnalysisId = "static", InputFingerprint = fingerprint, NormalizedUnits = "N,mm,rad", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic });
             foreach (var lc in model.LoadCases.Values)

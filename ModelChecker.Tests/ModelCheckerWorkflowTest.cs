@@ -2,10 +2,15 @@ using GPC.Examples;
 using GPC.Model.Checker;
 using GPC.Model.Elements;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
 
 namespace ModelChecker.Tests;
 
@@ -49,11 +54,11 @@ public class ModelCheckerWorkflowTest
         var prepared = Verification.PrepareBeam(model, 250, Verification.BeamSample(model.BeamElements[250], "synthetic-static", "P+", .5, SectionSide.Unspecified), "integration fixture");
         var independent = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, fresh);
         Assert.AreEqual(independent.Utilization!.Value, midpoint.Utilization!.Value, 1e-10);
-        Assert.AreEqual("0.0.18.0", midpoint.EngineVersion);
+        Assert.AreEqual(typeof(GPC.Checkers.Concrete.Checkers.SectionChecker).Assembly.GetName().Version!.ToString(), midpoint.EngineVersion);
     }
 
     [TestMethod]
-    public void RealChecker_MutatedCachedSection_IsNotReusedForAnotherModel()
+    public void RealChecker_SourceEditsDoNotMutateTheCachedSessionForAnEquivalentModel()
     {
         var first = MixedModelFactory.Create(); var second = MixedModelFactory.Create();
         var adapter = Request().Jobs[0].Options.CreateVerifier();
@@ -62,8 +67,11 @@ public class ModelCheckerWorkflowTest
         var original = Verification.Run(Prepare(first), CheckMechanism.UlsBiaxialSection, adapter);
         first.BeamElements[250].Assignments.Sections[0].Section.Rebars.First().Position.Y += 10;
         var result = Verification.Run(Prepare(second), CheckMechanism.UlsBiaxialSection, adapter);
-        Assert.AreEqual(2, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, result.Execution);
+        Assert.AreEqual(1, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, result.Execution);
         Assert.AreEqual(original.Utilization!.Value, result.Utilization!.Value, 1e-10);
+        var changed = Verification.Run(Prepare(first), CheckMechanism.UlsBiaxialSection, adapter);
+        Assert.AreEqual(2, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, changed.Execution);
+        Assert.AreNotEqual(original.Utilization, changed.Utilization);
     }
 
     [TestMethod]

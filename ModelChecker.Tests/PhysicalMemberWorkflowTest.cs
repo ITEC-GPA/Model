@@ -1,16 +1,27 @@
+using GPC.Model.Models;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Geometry;
 using GPC.Model.Checker;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 
@@ -166,7 +177,7 @@ public class PhysicalMemberWorkflowTest
         Assert.IsTrue(report.Jobs[0].Results.All(r => r.Data == DataStatus.Stale));
     }
     [TestMethod]
-    public void Schema2ArchivesRoundTripMembersContextsAndSourceEvidence()
+    public void Schema3ArchivesRoundTripMembersContextsAndAnalysisEvidence()
     {
         var m = Model(); var request = Request(); var engine = new MemberEngine();
         request.Jobs[0].BeamPlan.MemberChecks[0].Context = new MemberDesignContext(new[] {
@@ -174,7 +185,7 @@ public class PhysicalMemberWorkflowTest
             effectiveLength1: 9000, lengthSource: "Explicit fixture parameter", globalStateConfirmed: true);
         var report = new Service(j => j.Options.CreateVerifier(), _ => engine).Verify(m, request);
         using var stream = new MemoryStream(); CheckReportArchive.Save(report.Jobs, stream); stream.Position = 0;
-        Assert.AreEqual("2", XDocument.Load(stream).Root!.Attribute("version")!.Value); stream.Position = 0;
+        Assert.AreEqual("3", XDocument.Load(stream).Root!.Attribute("version")!.Value); stream.Position = 0;
         var restored = CheckReportArchive.Load(stream).Single();
         Assert.IsTrue(restored.Results.All(r => r.HasUnchangedEvidence)); Assert.IsTrue(restored.HasUnchangedScope);
         Assert.AreEqual(report.Outcome, restored.CurrentOutcome(m, request.Jobs[0].Options.CreateVerifier(), engine));
@@ -208,8 +219,11 @@ public class PhysicalMemberWorkflowTest
         var removed = coarse.BeamElements[251]; coarse.UnassignGroup("T1 selection", new[] { removed }); coarse.RemoveElement(removed);
         coarse.ConnectBeam(250, 10, 30); coarse.RemoveNodeChecked(20);
         coarse.PhysicalMembers["T1"] = new PhysicalMemberDefinition("T1", new[] { new BeamMemberPart(250, true) }, "NodeToNode");
-        var b = coarse.BeamElements[250]; b.Results.Clear(); var fingerprint = coarse.AnalysisFingerprint();
-        coarse.Datasets["synthetic-member"].InputFingerprint = fingerprint;
+        var b = coarse.BeamElements[250]; b.Results.Clear();
+        var dataset = coarse.Datasets["synthetic-member"]; coarse.Datasets.Clear();
+        coarse.CaptureAnalysis(ReinforcementAnalysisRole.ExcludedFromAnalysis, "New analytical cantilever calculation after mesh coarsening.");
+        var fingerprint = coarse.AnalysisFingerprint(); dataset.InputFingerprint = fingerprint;
+        coarse.Datasets.Add(dataset.Id, dataset);
         var samples = new[] { 0.0, 500, 1000, 1500, 2000, 3500, 5000 }.Select(d => new StationResultBeamForces(coarse.LoadCases["LC1"],
             new ResultBeamForces(0, 0, 1000, 0, -1000 * (5000 - d), 0, ResultTransformations.AtPoint(CoordinateSystem.Global, new Point3d(0, 0, d))), d / 5000)
             { StationDomain = "NodeToNode", PhysicalDistance = d, Body = ActionBody.PositiveSectionFace,

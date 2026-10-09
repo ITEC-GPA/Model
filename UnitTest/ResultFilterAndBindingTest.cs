@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System.Net;
 using GPC.Converter;
 using GPC.Converter.CivilNx;
@@ -6,8 +7,12 @@ using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
 
 namespace UnitTest;
 
@@ -121,6 +126,11 @@ public class ResultFilterAndBindingTest
         report = CivilNxResults.Import(edited, snapshot, new[] { BeamTable }, "d1");
         Assert.AreEqual(ImportStatus.Completed, report.Status, string.Join("; ", report.Diagnostics.Select(d => d.Message)));
         Assert.AreEqual(DiagnosticSeverity.Warning, report.Diagnostics.Single(d => d.Code == SourceBinding.PropertiesChangedCode).Severity);
+        Assert.AreEqual(imported.Analysis.InputFingerprint, edited.Datasets["d1"].InputFingerprint);
+        Assert.AreNotEqual(edited.AnalysisFingerprint(), edited.Datasets["d1"].InputFingerprint);
+        Assert.IsTrue(edited.BeamElements.Values.SelectMany(b => b.Results).SelectMany(r => r.Results)
+            .All(r => r.State.InputFingerprint == imported.Analysis.InputFingerprint));
+        Assert.AreEqual(AnalysisCompatibility.RequiresReanalysis, AnalysisCompatibilityValidator.Validate(edited).Status);
         Assert.AreEqual(2, edited.BeamElements.Values.Sum(b => b.Results.Sum(r => r.Results.Count)));
 
         var moved = Reopened(imported); moved.NodesElements.Values.First().Position.X += 1;
@@ -128,6 +138,22 @@ public class ResultFilterAndBindingTest
         var loaded = Reopened(imported);
         loaded.NodesElements.Values.First().Loads.Add(new PointLoad(1, 0, 0, 0, 0, 0, loaded.NodesElements.Values.First().Position, loaded.LoadCases["Q"]));
         Assert.AreEqual(ImportStatus.Rejected, CivilNxResults.Import(loaded, snapshot, new[] { BeamTable }, "d3").Status, "Loads changed.");
+    }
+
+    [TestMethod]
+    public void EarlierBindingWithoutSnapshotRetainsOriginalFingerprintAndUnknownHistory()
+    {
+        var snapshot = CivilNxModelWorkflowTest.Snapshot(CivilNxModelWorkflowTest.Json());
+        var imported = CivilNxGeometryReader.Import(snapshot, CivilNxModelWorkflowTest.Identity(), new CivilNxModelProfile()).Model;
+        var original = imported.AnalysisFingerprint();
+        // This is the persisted representation preceding independent analysis snapshots.
+        var legacy = Reopened(imported.AnalysisArchiveView());
+        legacy.AreaElements.Values.First().Assignments.PhysicalThickness = 350;
+        var report = CivilNxResults.Import(legacy, snapshot, new[] { BeamTable }, "historical");
+        Assert.AreEqual(ImportStatus.Completed, report.Status);
+        Assert.AreEqual(original, legacy.Datasets["historical"].InputFingerprint);
+        Assert.IsNull(legacy.Analysis); Assert.IsNull(legacy.Datasets["historical"].AnalysisSnapshotId);
+        Assert.AreEqual(AnalysisCompatibility.Unknown, AnalysisCompatibilityValidator.Validate(legacy).Status);
     }
 
     [TestMethod]

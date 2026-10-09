@@ -1,10 +1,18 @@
+using GPC.Model.Models;
 using GPC.Converter;
 using GPC.Examples;
 using GPC.Geometry;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Core.Units;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
 
 namespace UnitTest;
 
@@ -13,9 +21,10 @@ public class ResultImportWorkflowTest
 {
     private static (GPC.Model.Models.Model model, ResultImportBatch batch) Fixture()
     {
-        var model = MixedModelFactory.Create();
-        model.AnalysisSource = new AnalysisSource { Program = "Synthetic", SolverVersion = "fixture-1", ModelRevision = "mixed-v1", AnalysisId = "static" };
-        model.AreaElements[1090].Source = new SourceIdentity("Synthetic", "mixed-v1", EntityFamily.Shell, "B1"); // Same text ID, different family.
+        var model = MixedModelFactory.Create(value => {
+            value.AnalysisSource = new AnalysisSource { Program = "Synthetic", SolverVersion = "fixture-1", ModelRevision = "mixed-v1", AnalysisId = "static" };
+            value.AreaElements[1090].Source = new SourceIdentity("Synthetic", "mixed-v1", EntityFamily.Shell, "B1"); // Same text ID, different family.
+        });
         var batch = new ResultImportBatch { Source = model.AnalysisSource, DatasetId = "imported", SourceHash = "synthetic-record-hash",
             ReaderVersion = "fixture-reader-1", ExpectedInputFingerprint = model.AnalysisFingerprint(), Units = new ResultUnits(1000, 1000, 1e6),
             ShellDenominatorLengthToMm = 1000, ResolvedConvention = "GPC canonical positive section face / shell tensor", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic };

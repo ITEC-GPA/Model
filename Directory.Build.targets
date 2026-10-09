@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)build/dependencies.props" />
+  <ItemGroup>
+    <!-- GPC binary references come from one verified bundle; NuGet references retain their package paths. -->
+    <Reference Update="@(GpcDependency->'%(Filename)')">
+      <HintPath>$(GpcDependencyDir)/%(Reference.Identity).dll</HintPath>
+    </Reference>
+    <_GpcLockedFile Include="@(GpcDependency->'$(GpcDependencyDir)/%(Identity)')" />
+  </ItemGroup>
+  <Target Name="ValidateGpcDependencyBundle" BeforeTargets="ResolveAssemblyReferences" Condition="'@(Reference)' != ''">
+    <Error Condition="!Exists('%(_GpcLockedFile.Identity)')" Text="Missing GPC dependency %(_GpcLockedFile.Identity). Run build/Prepare-Dependencies.ps1." />
+    <GetFileHash Files="@(_GpcLockedFile)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_GpcHashedFile" />
+    </GetFileHash>
+    <Error Condition="'%(_GpcHashedFile.FileHash)' != '%(_GpcHashedFile.Sha256)'" Text="GPC dependency SHA256 mismatch: %(_GpcHashedFile.Identity). Use the pinned bundle or explicitly update the dependency manifest." />
+  </Target>
+</Project>

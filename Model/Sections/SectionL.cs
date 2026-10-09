@@ -239,6 +239,7 @@ namespace GPC.Model.Sections
         /// </summary>
         public override void SetMechanicalProperties()
         {
+            InvalidateCalculatedProperties();
             _area = CalculateArea();
 
             _centroid = CalculateCentroid();

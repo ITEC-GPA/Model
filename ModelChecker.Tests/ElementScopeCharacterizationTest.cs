@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Examples;
 using GPC.Geometry;
@@ -5,14 +6,24 @@ using GPC.Model.Checker;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
-using GPC.Model.PostProcessing;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Topology;
 
 namespace ModelChecker.Tests;
 
@@ -26,7 +37,8 @@ public class ElementScopeCharacterizationTest
     /// <param name="torque">Constant torque about the member axis in the analytical results, Nmm (0 = the historical fixture).</param>
     /// <param name="axial">Constant axial force, N (compression negative; 0 = the historical fixture).</param>
     /// <param name="shear">Tip load along global Y, N: V2 and M1 = −shear·(5000 − z) (1000 = the historical fixture).</param>
-    internal static GPC.Model.Models.Model Model(double torque = 0, double axial = 0, double shear = 1000)
+    internal static GPC.Model.Models.Model Model(double torque = 0, double axial = 0, double shear = 1000,
+        Action<GPC.Model.Models.Model>? configureBeforeResults = null)
     {
         var model = new GPC.Model.Models.Model("Step 3: two FEM elements, proposed physical member T1");
         foreach (var entry in new[] { (Id: 10, Z: 0.0), (Id: 20, Z: 2000.0), (Id: 30, Z: 5000.0) })
@@ -50,6 +62,8 @@ public class ElementScopeCharacterizationTest
         var loadCase = new LoadCaseBase("LC1"); model.LoadCases.Add(loadCase);
         model.NodesElements[30].Loads.Add(new PointLoad(0, 1000, 0, 0, 0, 0, model.NodesElements[30].Position, loadCase));
         model.NodesElements[10].Assignments.Restrains.Add(new RestrainAssignment { Restrain = NodeRestrain.GetAllFixed(model.NodesElements[10], CoordinateSystem.Global) });
+        configureBeforeResults?.Invoke(model);
+        model.CaptureAnalysis(ReinforcementAnalysisRole.ExcludedFromAnalysis, "Analytical cantilever fixture; forces independent of reinforcement.");
         var fingerprint = model.AnalysisFingerprint();
         model.Datasets.Add("synthetic-member", new AnalysisDataset { Id = "synthetic-member", Program = "Analytical fixture", ModelRevision = "r1",
             InputFingerprint = fingerprint, NormalizedUnits = "N,mm,rad", IsSynthetic = true, Semantics = AnalysisSemantics.LinearStatic });

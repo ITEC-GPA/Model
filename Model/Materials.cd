@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="GPC.Model.Materials.Material" Collapsed="true">
     <Position X="7" Y="2.75" Width="1.5" />
@@ -12,7 +12,7 @@
     <Position X="7" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAIAAAAAAAAAAAgIAAACQgBAAABIBAAAAAAAAAAiA=</HashCode>
-      <FileName>Base\ModelObject.cs</FileName>
+      <FileName>Core\Identity\ModelObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

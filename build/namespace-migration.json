@@ -1,0 +1,1656 @@
+{
+  "Schema": 1,
+  "Files": [
+    {
+      "File": "Model/Analysis/AnalysisCompatibility.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/AnalysisDataset.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/AnalysisSemantics.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/AnalysisSnapshot.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/AnalysisSource.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/AnalysisStorage.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Analysis/BeamAnalysisProfile.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Analysis"
+    },
+    {
+      "File": "Model/Compatibility/MemberVerification.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Compatibility"
+    },
+    {
+      "File": "Model/Compatibility/ResultTransformations.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Compatibility"
+    },
+    {
+      "File": "Model/Compatibility/Verification.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Compatibility"
+    },
+    {
+      "File": "Model/Compatibility/WoodArmer.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Compatibility"
+    },
+    {
+      "File": "Model/Actions/Assignments/BeamLoadAssignment.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Loads.Assignments"
+    },
+    {
+      "File": "Model/Actions/Constraints/Costrain.cs",
+      "OldNamespace": "GPC.Model.Costrains",
+      "NewNamespace": "GPC.Model.Constraints"
+    },
+    {
+      "File": "Model/Actions/Constraints/MultiPointsCostrain.cs",
+      "OldNamespace": "GPC.Model.Costrains",
+      "NewNamespace": "GPC.Model.Constraints"
+    },
+    {
+      "File": "Model/Actions/Constraints/RigidLink.cs",
+      "OldNamespace": "GPC.Model.Costrains",
+      "NewNamespace": "GPC.Model.Constraints"
+    },
+    {
+      "File": "Model/Actions/Restraints/DofRestrain.cs",
+      "OldNamespace": "GPC.Model.Restrains",
+      "NewNamespace": "GPC.Model.Restraints"
+    },
+    {
+      "File": "Model/Actions/Restraints/GeometryRestrain.cs",
+      "OldNamespace": "GPC.Model.Restrains",
+      "NewNamespace": "GPC.Model.Restraints"
+    },
+    {
+      "File": "Model/Actions/Restraints/LineRestrain.cs",
+      "OldNamespace": "GPC.Model.Restrains",
+      "NewNamespace": "GPC.Model.Restraints"
+    },
+    {
+      "File": "Model/Actions/Restraints/NodeRestrain.cs",
+      "OldNamespace": "GPC.Model.Restrains",
+      "NewNamespace": "GPC.Model.Restraints"
+    },
+    {
+      "File": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/EngineeringOutcome.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/ExecutionStatus.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/SectionCheckSpecification.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/ShellDesignMethod.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Contracts/VerificationProvenance.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Contracts"
+    },
+    {
+      "File": "Model/Checking/Execution/BeamCheckExecution.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Execution"
+    },
+    {
+      "File": "Model/Checking/Execution/MemberCheckExecution.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Execution"
+    },
+    {
+      "File": "Model/Checking/Execution/SectionCheckExecution.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Execution"
+    },
+    {
+      "File": "Model/Checking/Preparation/BeamActionPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/BeamCheckPlan.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/BeamCheckPreparation.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/ModelPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/ResultPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/ShellActionPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/ShellInputPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/SurfaceSelection.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/ValidationReadScope.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Preparation/VerificationPreparation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Preparation"
+    },
+    {
+      "File": "Model/Checking/Reports/CheckDetails.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Reports/CheckReport.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Reports/CheckSummary.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Reports/ReportSchema.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Reports/ShellCheckSnapshot.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Reports/ShellInputSnapshot.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Reports"
+    },
+    {
+      "File": "Model/Checking/Scenarios/VerificationScenario.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Checking.Scenarios"
+    },
+    {
+      "File": "Model/Checking/Scenarios/VerificationSnapshot.cs",
+      "OldNamespace": "GPC.Model.Checking",
+      "NewNamespace": "GPC.Model.Checking.Scenarios"
+    },
+    {
+      "File": "Model/Core/Coordinates/Axes.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Coordinates"
+    },
+    {
+      "File": "Model/Core/Diagnostics/DataStatus.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Diagnostics"
+    },
+    {
+      "File": "Model/Core/Diagnostics/DiagnosticSeverity.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Diagnostics"
+    },
+    {
+      "File": "Model/Core/Diagnostics/ModelDiagnostic.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Diagnostics"
+    },
+    {
+      "File": "Model/Core/Identity/EntityFamily.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Identity"
+    },
+    {
+      "File": "Model/Core/Identity/SourceIdentity.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Identity"
+    },
+    {
+      "File": "Model/Core/Units/ResultUnits.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Core.Units"
+    },
+    {
+      "File": "Model/Results/Locations/BrickPointResultDisplacement.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/BrickPointResultForces.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/IBeamResultLocation.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/IBrickResultLocation.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/INodeResultLocation.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/IPlateResultLocation.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/NodeResultDisplacement.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/NodeResultForces.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/PointResultDisplacement.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/PointResultPlateForces.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/PointResultPlateStress.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/ResultCoordinateKind.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/ResultLocation.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/SectionSide.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/ShellResultPointKind.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/StationResultBeamForces.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Locations/StationResultDisplacement.cs",
+      "OldNamespace": "GPC.Model.Results.ResultLocations",
+      "NewNamespace": "GPC.Model.Results.Locations"
+    },
+    {
+      "File": "Model/Results/Processing/CombinationRebuild.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/Equilibrium.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/LinearBeamCombination.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/NodalActions.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/NodalKinematics.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/ResultAlgebra.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Processing/ResultOrientation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Processing"
+    },
+    {
+      "File": "Model/Results/Queries/ResultQueries.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.Queries"
+    },
+    {
+      "File": "Model/Results/State/ActionBody.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.State"
+    },
+    {
+      "File": "Model/Results/State/ComponentAvailability.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.State"
+    },
+    {
+      "File": "Model/Results/State/NodalForceKind.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.State"
+    },
+    {
+      "File": "Model/Results/State/OriginalResultData.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.State"
+    },
+    {
+      "File": "Model/Results/State/ResultState.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Results.State"
+    },
+    {
+      "File": "Model/Results/Storage/BeamResult.cs",
+      "OldNamespace": "GPC.Model.Results.ElementResults",
+      "NewNamespace": "GPC.Model.Results.Storage"
+    },
+    {
+      "File": "Model/Results/Storage/BrickElementResult.cs",
+      "OldNamespace": "GPC.Model.Results.ElementResults",
+      "NewNamespace": "GPC.Model.Results.Storage"
+    },
+    {
+      "File": "Model/Results/Storage/ElementResult.cs",
+      "OldNamespace": "GPC.Model.Results.ElementResults",
+      "NewNamespace": "GPC.Model.Results.Storage"
+    },
+    {
+      "File": "Model/Results/Storage/NodeResult.cs",
+      "OldNamespace": "GPC.Model.Results.ElementResults",
+      "NewNamespace": "GPC.Model.Results.Storage"
+    },
+    {
+      "File": "Model/Results/Storage/PlateElementResult.cs",
+      "OldNamespace": "GPC.Model.Results.ElementResults",
+      "NewNamespace": "GPC.Model.Results.Storage"
+    },
+    {
+      "File": "Model/Structure/Assignments/AssignmentMode.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/AssignmentValidation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/PreservedAssignment.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/SectionLaws.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Members/PhysicalMembers.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Members"
+    },
+    {
+      "File": "Model/Structure/Members/PhysicalSurfaces.cs",
+      "OldNamespace": "GPC.Model.Structure",
+      "NewNamespace": "GPC.Model.Structure.Members"
+    },
+    {
+      "File": "Model/Structure/Model/ModelRevisions.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Models"
+    },
+    {
+      "File": "Model/Structure/Topology/BeamReferenceGeometry.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Topology"
+    },
+    {
+      "File": "Model/Structure/Topology/ModelOrientation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Topology"
+    },
+    {
+      "File": "Model/Structure/Assignments/Beams/BeamAssignments.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Beams/BeamFormulation.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Beams/BeamSectionAssignment.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/NodalLink.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/NodalMass.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/NodeAssignments.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/RestrainAssignment.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/SpringKind.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Nodes/SpringMatrix.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Shells/ShellAssignments.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    },
+    {
+      "File": "Model/Structure/Assignments/Shells/ShellRebarLayer.cs",
+      "OldNamespace": "GPC.Model.PostProcessing",
+      "NewNamespace": "GPC.Model.Structure.Assignments"
+    }
+  ],
+  "Types": [
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisCompatibilityResult",
+      "NewName": "GPC.Model.Analysis.AnalysisCompatibilityResult",
+      "Source": "Model/Analysis/AnalysisCompatibility.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisCompatibilityValidator",
+      "NewName": "GPC.Model.Analysis.AnalysisCompatibilityValidator",
+      "Source": "Model/Analysis/AnalysisCompatibility.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisDataset",
+      "NewName": "GPC.Model.Analysis.AnalysisDataset",
+      "Source": "Model/Analysis/AnalysisDataset.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisSemantics",
+      "NewName": "GPC.Model.Analysis.AnalysisSemantics",
+      "Source": "Model/Analysis/AnalysisSemantics.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisCompatibility",
+      "NewName": "GPC.Model.Analysis.AnalysisCompatibility",
+      "Source": "Model/Analysis/AnalysisSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ReinforcementAnalysisRole",
+      "NewName": "GPC.Model.Analysis.ReinforcementAnalysisRole",
+      "Source": "Model/Analysis/AnalysisSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisSnapshot",
+      "NewName": "GPC.Model.Analysis.AnalysisSnapshot",
+      "Source": "Model/Analysis/AnalysisSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisSource",
+      "NewName": "GPC.Model.Analysis.AnalysisSource",
+      "Source": "Model/Analysis/AnalysisSource.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AnalysisStorage",
+      "NewName": "GPC.Model.Analysis.AnalysisStorage",
+      "Source": "Model/Analysis/AnalysisStorage.cs",
+      "Public": false
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ProfileInterpolation",
+      "NewName": "GPC.Model.Analysis.ProfileInterpolation",
+      "Source": "Model/Analysis/BeamAnalysisProfile.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamAnalysisStation",
+      "NewName": "GPC.Model.Analysis.BeamAnalysisStation",
+      "Source": "Model/Analysis/BeamAnalysisProfile.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamStiffnessModifiers",
+      "NewName": "GPC.Model.Analysis.BeamStiffnessModifiers",
+      "Source": "Model/Analysis/BeamAnalysisProfile.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamAnalysisProfile",
+      "NewName": "GPC.Model.Analysis.BeamAnalysisProfile",
+      "Source": "Model/Analysis/BeamAnalysisProfile.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberVerification",
+      "NewName": "GPC.Model.Compatibility.MemberVerification",
+      "Source": "Model/Compatibility/MemberVerification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultTransformations",
+      "NewName": "GPC.Model.Compatibility.ResultTransformations",
+      "Source": "Model/Compatibility/ResultTransformations.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.Verification",
+      "NewName": "GPC.Model.Compatibility.Verification",
+      "Source": "Model/Compatibility/Verification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellPreparation",
+      "NewName": "GPC.Model.Compatibility.ShellPreparation",
+      "Source": "Model/Compatibility/Verification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.WoodArmerMoments",
+      "NewName": "GPC.Model.Compatibility.WoodArmerMoments",
+      "Source": "Model/Compatibility/WoodArmer.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.WoodArmer",
+      "NewName": "GPC.Model.Compatibility.WoodArmer",
+      "Source": "Model/Compatibility/WoodArmer.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamLoadLengthConvention",
+      "NewName": "GPC.Model.Loads.Assignments.BeamLoadLengthConvention",
+      "Source": "Model/Actions/Assignments/BeamLoadAssignment.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamLoadAssignment",
+      "NewName": "GPC.Model.Loads.Assignments.BeamLoadAssignment",
+      "Source": "Model/Actions/Assignments/BeamLoadAssignment.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Costrains.Costrain",
+      "NewName": "GPC.Model.Constraints.Costrain",
+      "Source": "Model/Actions/Constraints/Costrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Costrains.MultiPointsCostrain",
+      "NewName": "GPC.Model.Constraints.MultiPointsCostrain",
+      "Source": "Model/Actions/Constraints/MultiPointsCostrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Costrains.RigidLink",
+      "NewName": "GPC.Model.Constraints.RigidLink",
+      "Source": "Model/Actions/Constraints/RigidLink.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Restrains.DofRestrain",
+      "NewName": "GPC.Model.Restraints.DofRestrain",
+      "Source": "Model/Actions/Restraints/DofRestrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Restrains.GeometryRestrain",
+      "NewName": "GPC.Model.Restraints.GeometryRestrain",
+      "Source": "Model/Actions/Restraints/GeometryRestrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Restrains.LineRestrain",
+      "NewName": "GPC.Model.Restraints.LineRestrain",
+      "Source": "Model/Actions/Restraints/LineRestrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Restrains.NodeRestrain",
+      "NewName": "GPC.Model.Restraints.NodeRestrain",
+      "Source": "Model/Actions/Restraints/NodeRestrain.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckScope",
+      "NewName": "GPC.Model.Checking.Contracts.CheckScope",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckTargetKind",
+      "NewName": "GPC.Model.Checking.Contracts.CheckTargetKind",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamCoveragePolicy",
+      "NewName": "GPC.Model.Checking.Contracts.BeamCoveragePolicy",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckTargetReference",
+      "NewName": "GPC.Model.Checking.Contracts.CheckTargetReference",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.RequiredBeamLocation",
+      "NewName": "GPC.Model.Checking.Contracts.RequiredBeamLocation",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberCheckSpecification",
+      "NewName": "GPC.Model.Checking.Contracts.MemberCheckSpecification",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamCheckPlanRequest",
+      "NewName": "GPC.Model.Checking.Contracts.BeamCheckPlanRequest",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CoverageAssessment",
+      "NewName": "GPC.Model.Checking.Contracts.CoverageAssessment",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberSampleSnapshot",
+      "NewName": "GPC.Model.Checking.Contracts.MemberSampleSnapshot",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberInputSnapshot",
+      "NewName": "GPC.Model.Checking.Contracts.MemberInputSnapshot",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PhysicalMemberCheckInput",
+      "NewName": "GPC.Model.Checking.Contracts.PhysicalMemberCheckInput",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.IPhysicalMemberVerifier",
+      "NewName": "GPC.Model.Checking.Contracts.IPhysicalMemberVerifier",
+      "Source": "Model/Checking/Contracts/BeamCheckContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckMechanism",
+      "NewName": "GPC.Model.Checking.Contracts.CheckMechanism",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamCheckInput",
+      "NewName": "GPC.Model.Checking.Contracts.BeamCheckInput",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckResult",
+      "NewName": "GPC.Model.Checking.Contracts.CheckResult",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.IConcreteSectionVerifier",
+      "NewName": "GPC.Model.Checking.Contracts.IConcreteSectionVerifier",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.IConfiguredSectionVerifier",
+      "NewName": "GPC.Model.Checking.Contracts.IConfiguredSectionVerifier",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ISectionCheckVerifier",
+      "NewName": "GPC.Model.Checking.Contracts.ISectionCheckVerifier",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamPreparation",
+      "NewName": "GPC.Model.Checking.Contracts.BeamPreparation",
+      "Source": "Model/Checking/Contracts/BeamVerificationContracts.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.EngineeringOutcome",
+      "NewName": "GPC.Model.Checking.Contracts.EngineeringOutcome",
+      "Source": "Model/Checking/Contracts/EngineeringOutcome.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ExecutionStatus",
+      "NewName": "GPC.Model.Checking.Contracts.ExecutionStatus",
+      "Source": "Model/Checking/Contracts/ExecutionStatus.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CombinationCategory",
+      "NewName": "GPC.Model.Checking.Contracts.CombinationCategory",
+      "Source": "Model/Checking/Contracts/SectionCheckSpecification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionCheckDirection",
+      "NewName": "GPC.Model.Checking.Contracts.SectionCheckDirection",
+      "Source": "Model/Checking/Contracts/SectionCheckSpecification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionCheckCriterion",
+      "NewName": "GPC.Model.Checking.Contracts.SectionCheckCriterion",
+      "Source": "Model/Checking/Contracts/SectionCheckSpecification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionCheckSpecification",
+      "NewName": "GPC.Model.Checking.Contracts.SectionCheckSpecification",
+      "Source": "Model/Checking/Contracts/SectionCheckSpecification.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.IShellDesignActionMethod",
+      "NewName": "GPC.Model.Checking.Contracts.IShellDesignActionMethod",
+      "Source": "Model/Checking/Contracts/ShellDesignMethod.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.VerificationProvenance",
+      "NewName": "GPC.Model.Checking.Contracts.VerificationProvenance",
+      "Source": "Model/Checking/Contracts/VerificationProvenance.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.BeamCheckExecution",
+      "NewName": "GPC.Model.Checking.Execution.BeamCheckExecution",
+      "Source": "Model/Checking/Execution/BeamCheckExecution.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.MemberCheckExecution",
+      "NewName": "GPC.Model.Checking.Execution.MemberCheckExecution",
+      "Source": "Model/Checking/Execution/MemberCheckExecution.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.SectionCheckExecution",
+      "NewName": "GPC.Model.Checking.Execution.SectionCheckExecution",
+      "Source": "Model/Checking/Execution/SectionCheckExecution.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamActionInput",
+      "NewName": "GPC.Model.Checking.Preparation.BeamActionInput",
+      "Source": "Model/Checking/Preparation/BeamActionPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamActionPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.BeamActionPreparation",
+      "Source": "Model/Checking/Preparation/BeamActionPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NativeMethodDetails",
+      "NewName": "GPC.Model.Checking.Preparation.NativeMethodDetails",
+      "Source": "Model/Checking/Preparation/BeamActionPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckWorkItem",
+      "NewName": "GPC.Model.Checking.Preparation.CheckWorkItem",
+      "Source": "Model/Checking/Preparation/BeamCheckPlan.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamCheckPlan",
+      "NewName": "GPC.Model.Checking.Preparation.BeamCheckPlan",
+      "Source": "Model/Checking/Preparation/BeamCheckPlan.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.BeamCheckPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.BeamCheckPreparation",
+      "Source": "Model/Checking/Preparation/BeamCheckPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ElementKey",
+      "NewName": "GPC.Model.Checking.Preparation.ElementKey",
+      "Source": "Model/Checking/Preparation/ModelPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ElementSelection",
+      "NewName": "GPC.Model.Checking.Preparation.ElementSelection",
+      "Source": "Model/Checking/Preparation/ModelPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PreparationRequest",
+      "NewName": "GPC.Model.Checking.Preparation.PreparationRequest",
+      "Source": "Model/Checking/Preparation/ModelPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PreparedElementSample",
+      "NewName": "GPC.Model.Checking.Preparation.PreparedElementSample",
+      "Source": "Model/Checking/Preparation/ModelPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ModelPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.ModelPreparation",
+      "Source": "Model/Checking/Preparation/ModelPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.ResultPreparation",
+      "Source": "Model/Checking/Preparation/ResultPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellActionPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.ShellActionPreparation",
+      "Source": "Model/Checking/Preparation/ShellActionPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellInputAxes",
+      "NewName": "GPC.Model.Checking.Preparation.ShellInputAxes",
+      "Source": "Model/Checking/Preparation/ShellInputPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellCheckInput",
+      "NewName": "GPC.Model.Checking.Preparation.ShellCheckInput",
+      "Source": "Model/Checking/Preparation/ShellInputPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellInputPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.ShellInputPreparation",
+      "Source": "Model/Checking/Preparation/ShellInputPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.SurfaceSelection",
+      "NewName": "GPC.Model.Checking.Preparation.SurfaceSelection",
+      "Source": "Model/Checking/Preparation/SurfaceSelection.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.ValidationReadScope",
+      "NewName": "GPC.Model.Checking.Preparation.ValidationReadScope",
+      "Source": "Model/Checking/Preparation/ValidationReadScope.cs",
+      "Public": false
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PreparedVerification",
+      "NewName": "GPC.Model.Checking.Preparation.PreparedVerification",
+      "Source": "Model/Checking/Preparation/VerificationPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.VerificationPreparation",
+      "NewName": "GPC.Model.Checking.Preparation.VerificationPreparation",
+      "Source": "Model/Checking/Preparation/VerificationPreparation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckApplicability",
+      "NewName": "GPC.Model.Checking.Reports.CheckApplicability",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckConvergence",
+      "NewName": "GPC.Model.Checking.Reports.CheckConvergence",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckPointValue",
+      "NewName": "GPC.Model.Checking.Reports.CheckPointValue",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckStandardContext",
+      "NewName": "GPC.Model.Checking.Reports.CheckStandardContext",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckMetric",
+      "NewName": "GPC.Model.Checking.Reports.CheckMetric",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckCalculationValue",
+      "NewName": "GPC.Model.Checking.Reports.CheckCalculationValue",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamForceSnapshot",
+      "NewName": "GPC.Model.Checking.Reports.BeamForceSnapshot",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckInputSnapshot",
+      "NewName": "GPC.Model.Checking.Reports.CheckInputSnapshot",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckDetails",
+      "NewName": "GPC.Model.Checking.Reports.CheckDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionResistanceDetails",
+      "NewName": "GPC.Model.Checking.Reports.SectionResistanceDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShearCheckDetails",
+      "NewName": "GPC.Model.Checking.Reports.ShearCheckDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.TorsionCheckDetails",
+      "NewName": "GPC.Model.Checking.Reports.TorsionCheckDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ServiceabilityCheckDetails",
+      "NewName": "GPC.Model.Checking.Reports.ServiceabilityCheckDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.DetailingCheckDetails",
+      "NewName": "GPC.Model.Checking.Reports.DetailingCheckDetails",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckValue",
+      "NewName": "GPC.Model.Checking.Reports.CheckValue",
+      "Source": "Model/Checking/Reports/CheckDetails.cs",
+      "Public": false
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckReport",
+      "NewName": "GPC.Model.Checking.Reports.CheckReport",
+      "Source": "Model/Checking/Reports/CheckReport.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckRunner",
+      "NewName": "GPC.Model.Checking.Reports.CheckRunner",
+      "Source": "Model/Checking/Reports/CheckReport.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckResultRules",
+      "NewName": "GPC.Model.Checking.Reports.CheckResultRules",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": false
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckSummary",
+      "NewName": "GPC.Model.Checking.Reports.CheckSummary",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.GoverningCheck",
+      "NewName": "GPC.Model.Checking.Reports.GoverningCheck",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckResultGroup",
+      "NewName": "GPC.Model.Checking.Reports.CheckResultGroup",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ElementCheckReport",
+      "NewName": "GPC.Model.Checking.Reports.ElementCheckReport",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CheckReportViews",
+      "NewName": "GPC.Model.Checking.Reports.CheckReportViews",
+      "Source": "Model/Checking/Reports/CheckSummary.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.ReportSchema",
+      "NewName": "GPC.Model.Checking.Reports.ReportSchema",
+      "Source": "Model/Checking/Reports/ReportSchema.cs",
+      "Public": false
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellCheckSnapshot",
+      "NewName": "GPC.Model.Checking.Reports.ShellCheckSnapshot",
+      "Source": "Model/Checking/Reports/ShellCheckSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellInputSnapshot",
+      "NewName": "GPC.Model.Checking.Reports.ShellInputSnapshot",
+      "Source": "Model/Checking/Reports/ShellInputSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.VerificationScenario",
+      "NewName": "GPC.Model.Checking.Scenarios.VerificationScenario",
+      "Source": "Model/Checking/Scenarios/VerificationScenario.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Checking.VerificationSnapshot",
+      "NewName": "GPC.Model.Checking.Scenarios.VerificationSnapshot",
+      "Source": "Model/Checking/Scenarios/VerificationSnapshot.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.Axes",
+      "NewName": "GPC.Model.Core.Coordinates.Axes",
+      "Source": "Model/Core/Coordinates/Axes.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.DataStatus",
+      "NewName": "GPC.Model.Core.Diagnostics.DataStatus",
+      "Source": "Model/Core/Diagnostics/DataStatus.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.DiagnosticSeverity",
+      "NewName": "GPC.Model.Core.Diagnostics.DiagnosticSeverity",
+      "Source": "Model/Core/Diagnostics/DiagnosticSeverity.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ModelDiagnostic",
+      "NewName": "GPC.Model.Core.Diagnostics.ModelDiagnostic",
+      "Source": "Model/Core/Diagnostics/ModelDiagnostic.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.EntityFamily",
+      "NewName": "GPC.Model.Core.Identity.EntityFamily",
+      "Source": "Model/Core/Identity/EntityFamily.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SourceIdentity",
+      "NewName": "GPC.Model.Core.Identity.SourceIdentity",
+      "Source": "Model/Core/Identity/SourceIdentity.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultUnits",
+      "NewName": "GPC.Model.Core.Units.ResultUnits",
+      "Source": "Model/Core/Units/ResultUnits.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.BrickPointResultDisplacement",
+      "NewName": "GPC.Model.Results.Locations.BrickPointResultDisplacement",
+      "Source": "Model/Results/Locations/BrickPointResultDisplacement.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.BrickPointResultForces",
+      "NewName": "GPC.Model.Results.Locations.BrickPointResultForces",
+      "Source": "Model/Results/Locations/BrickPointResultForces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.IBeamResultLocation",
+      "NewName": "GPC.Model.Results.Locations.IBeamResultLocation",
+      "Source": "Model/Results/Locations/IBeamResultLocation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.IBrickResultLocation",
+      "NewName": "GPC.Model.Results.Locations.IBrickResultLocation",
+      "Source": "Model/Results/Locations/IBrickResultLocation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.INodeResultLocation",
+      "NewName": "GPC.Model.Results.Locations.INodeResultLocation",
+      "Source": "Model/Results/Locations/INodeResultLocation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.IPlateResultLocation",
+      "NewName": "GPC.Model.Results.Locations.IPlateResultLocation",
+      "Source": "Model/Results/Locations/IPlateResultLocation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.NodeResultDisplacement",
+      "NewName": "GPC.Model.Results.Locations.NodeResultDisplacement",
+      "Source": "Model/Results/Locations/NodeResultDisplacement.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.NodeResultForces",
+      "NewName": "GPC.Model.Results.Locations.NodeResultForces",
+      "Source": "Model/Results/Locations/NodeResultForces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.PointResultDisplacement",
+      "NewName": "GPC.Model.Results.Locations.PointResultDisplacement",
+      "Source": "Model/Results/Locations/PointResultDisplacement.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.PointResultPlateForces",
+      "NewName": "GPC.Model.Results.Locations.PointResultPlateForces",
+      "Source": "Model/Results/Locations/PointResultPlateForces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.PointResultPlateStress",
+      "NewName": "GPC.Model.Results.Locations.PointResultPlateStress",
+      "Source": "Model/Results/Locations/PointResultPlateStress.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultCoordinateKind",
+      "NewName": "GPC.Model.Results.Locations.ResultCoordinateKind",
+      "Source": "Model/Results/Locations/ResultCoordinateKind.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.ResultLocation",
+      "NewName": "GPC.Model.Results.Locations.ResultLocation",
+      "Source": "Model/Results/Locations/ResultLocation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionSide",
+      "NewName": "GPC.Model.Results.Locations.SectionSide",
+      "Source": "Model/Results/Locations/SectionSide.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellResultPointKind",
+      "NewName": "GPC.Model.Results.Locations.ShellResultPointKind",
+      "Source": "Model/Results/Locations/ShellResultPointKind.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.StationResultBeamForces",
+      "NewName": "GPC.Model.Results.Locations.StationResultBeamForces",
+      "Source": "Model/Results/Locations/StationResultBeamForces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ResultLocations.StationResultDisplacement",
+      "NewName": "GPC.Model.Results.Locations.StationResultDisplacement",
+      "Source": "Model/Results/Locations/StationResultDisplacement.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CombinationAlternative",
+      "NewName": "GPC.Model.Results.Processing.CombinationAlternative",
+      "Source": "Model/Results/Processing/CombinationRebuild.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CombinationRebuildReport",
+      "NewName": "GPC.Model.Results.Processing.CombinationRebuildReport",
+      "Source": "Model/Results/Processing/CombinationRebuild.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.CombinationRebuild",
+      "NewName": "GPC.Model.Results.Processing.CombinationRebuild",
+      "Source": "Model/Results/Processing/CombinationRebuild.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.EquilibriumContribution",
+      "NewName": "GPC.Model.Results.Processing.EquilibriumContribution",
+      "Source": "Model/Results/Processing/Equilibrium.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.EquilibriumScope",
+      "NewName": "GPC.Model.Results.Processing.EquilibriumScope",
+      "Source": "Model/Results/Processing/Equilibrium.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.EquilibriumReport",
+      "NewName": "GPC.Model.Results.Processing.EquilibriumReport",
+      "Source": "Model/Results/Processing/Equilibrium.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.Equilibrium",
+      "NewName": "GPC.Model.Results.Processing.Equilibrium",
+      "Source": "Model/Results/Processing/Equilibrium.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamCombinationResult",
+      "NewName": "GPC.Model.Results.Processing.BeamCombinationResult",
+      "Source": "Model/Results/Processing/LinearBeamCombination.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.LinearBeamCombination",
+      "NewName": "GPC.Model.Results.Processing.LinearBeamCombination",
+      "Source": "Model/Results/Processing/LinearBeamCombination.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodalActions",
+      "NewName": "GPC.Model.Results.Processing.NodalActions",
+      "Source": "Model/Results/Processing/NodalActions.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodalKinematics",
+      "NewName": "GPC.Model.Results.Processing.NodalKinematics",
+      "Source": "Model/Results/Processing/NodalKinematics.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.DerivedResult",
+      "NewName": "GPC.Model.Results.Processing.DerivedResult",
+      "Source": "Model/Results/Processing/ResultAlgebra.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultEnvelope",
+      "NewName": "GPC.Model.Results.Processing.ResultEnvelope",
+      "Source": "Model/Results/Processing/ResultAlgebra.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultAlgebra",
+      "NewName": "GPC.Model.Results.Processing.ResultAlgebra",
+      "Source": "Model/Results/Processing/ResultAlgebra.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultOrientation",
+      "NewName": "GPC.Model.Results.Processing.ResultOrientation",
+      "Source": "Model/Results/Processing/ResultOrientation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultSelection",
+      "NewName": "GPC.Model.Results.Queries.ResultSelection",
+      "Source": "Model/Results/Queries/ResultQueries.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultQueries",
+      "NewName": "GPC.Model.Results.Queries.ResultQueries",
+      "Source": "Model/Results/Queries/ResultQueries.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ActionBody",
+      "NewName": "GPC.Model.Results.State.ActionBody",
+      "Source": "Model/Results/State/ActionBody.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ComponentAvailability",
+      "NewName": "GPC.Model.Results.State.ComponentAvailability",
+      "Source": "Model/Results/State/ComponentAvailability.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodalForceKind",
+      "NewName": "GPC.Model.Results.State.NodalForceKind",
+      "Source": "Model/Results/State/NodalForceKind.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.OriginalResultData",
+      "NewName": "GPC.Model.Results.State.OriginalResultData",
+      "Source": "Model/Results/State/OriginalResultData.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ResultState",
+      "NewName": "GPC.Model.Results.State.ResultState",
+      "Source": "Model/Results/State/ResultState.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ElementResults.BeamResult",
+      "NewName": "GPC.Model.Results.Storage.BeamResult",
+      "Source": "Model/Results/Storage/BeamResult.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ElementResults.BrickElementResult",
+      "NewName": "GPC.Model.Results.Storage.BrickElementResult",
+      "Source": "Model/Results/Storage/BrickElementResult.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ElementResults.ElementResult",
+      "NewName": "GPC.Model.Results.Storage.ElementResult",
+      "Source": "Model/Results/Storage/ElementResult.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ElementResults.NodeResult",
+      "NewName": "GPC.Model.Results.Storage.NodeResult",
+      "Source": "Model/Results/Storage/NodeResult.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Results.ElementResults.PlateElementResult",
+      "NewName": "GPC.Model.Results.Storage.PlateElementResult",
+      "Source": "Model/Results/Storage/PlateElementResult.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AssignmentMode",
+      "NewName": "GPC.Model.Structure.Assignments.AssignmentMode",
+      "Source": "Model/Structure/Assignments/AssignmentMode.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.AssignmentValidation",
+      "NewName": "GPC.Model.Structure.Assignments.AssignmentValidation",
+      "Source": "Model/Structure/Assignments/AssignmentValidation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PreservedAssignment",
+      "NewName": "GPC.Model.Structure.Assignments.PreservedAssignment",
+      "Source": "Model/Structure/Assignments/PreservedAssignment.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamSectionStation",
+      "NewName": "GPC.Model.Structure.Assignments.BeamSectionStation",
+      "Source": "Model/Structure/Assignments/SectionLaws.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SectionLaws",
+      "NewName": "GPC.Model.Structure.Assignments.SectionLaws",
+      "Source": "Model/Structure/Assignments/SectionLaws.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamMemberPart",
+      "NewName": "GPC.Model.Structure.Members.BeamMemberPart",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PhysicalMemberDefinition",
+      "NewName": "GPC.Model.Structure.Members.PhysicalMemberDefinition",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberLocation",
+      "NewName": "GPC.Model.Structure.Members.MemberLocation",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.PhysicalMemberGeometry",
+      "NewName": "GPC.Model.Structure.Members.PhysicalMemberGeometry",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberRestraint",
+      "NewName": "GPC.Model.Structure.Members.MemberRestraint",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.MemberDesignContext",
+      "NewName": "GPC.Model.Structure.Members.MemberDesignContext",
+      "Source": "Model/Structure/Members/PhysicalMembers.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Structure.SurfaceZoneDefinition",
+      "NewName": "GPC.Model.Structure.Members.SurfaceZoneDefinition",
+      "Source": "Model/Structure/Members/PhysicalSurfaces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.Structure.PhysicalSurfaceDefinition",
+      "NewName": "GPC.Model.Structure.Members.PhysicalSurfaceDefinition",
+      "Source": "Model/Structure/Members/PhysicalSurfaces.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ModelRevisions",
+      "NewName": "GPC.Model.Models.ModelRevisions",
+      "Source": "Model/Structure/Model/ModelRevisions.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamReferenceGeometry",
+      "NewName": "GPC.Model.Structure.Topology.BeamReferenceGeometry",
+      "Source": "Model/Structure/Topology/BeamReferenceGeometry.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ModelOrientation",
+      "NewName": "GPC.Model.Structure.Topology.ModelOrientation",
+      "Source": "Model/Structure/Topology/ModelOrientation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamAssignments",
+      "NewName": "GPC.Model.Structure.Assignments.BeamAssignments",
+      "Source": "Model/Structure/Assignments/Beams/BeamAssignments.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamFormulation",
+      "NewName": "GPC.Model.Structure.Assignments.BeamFormulation",
+      "Source": "Model/Structure/Assignments/Beams/BeamFormulation.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.BeamSectionAssignment",
+      "NewName": "GPC.Model.Structure.Assignments.BeamSectionAssignment",
+      "Source": "Model/Structure/Assignments/Beams/BeamSectionAssignment.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodalLink",
+      "NewName": "GPC.Model.Structure.Assignments.NodalLink",
+      "Source": "Model/Structure/Assignments/Nodes/NodalLink.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodalMass",
+      "NewName": "GPC.Model.Structure.Assignments.NodalMass",
+      "Source": "Model/Structure/Assignments/Nodes/NodalMass.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.NodeAssignments",
+      "NewName": "GPC.Model.Structure.Assignments.NodeAssignments",
+      "Source": "Model/Structure/Assignments/Nodes/NodeAssignments.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.RestrainAssignment",
+      "NewName": "GPC.Model.Structure.Assignments.RestrainAssignment",
+      "Source": "Model/Structure/Assignments/Nodes/RestrainAssignment.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SpringKind",
+      "NewName": "GPC.Model.Structure.Assignments.SpringKind",
+      "Source": "Model/Structure/Assignments/Nodes/SpringKind.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.SpringMatrix",
+      "NewName": "GPC.Model.Structure.Assignments.SpringMatrix",
+      "Source": "Model/Structure/Assignments/Nodes/SpringMatrix.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellAssignments",
+      "NewName": "GPC.Model.Structure.Assignments.ShellAssignments",
+      "Source": "Model/Structure/Assignments/Shells/ShellAssignments.cs",
+      "Public": true
+    },
+    {
+      "OldName": "GPC.Model.PostProcessing.ShellRebarLayer",
+      "NewName": "GPC.Model.Structure.Assignments.ShellRebarLayer",
+      "Source": "Model/Structure/Assignments/Shells/ShellRebarLayer.cs",
+      "Public": true
+    }
+  ]
+}

@@ -3,11 +3,13 @@ using GPC.Converter.Straus7;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Results.Processing;
 
 namespace UnitTest;
 

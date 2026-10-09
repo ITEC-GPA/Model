@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="GPC.Model.Results.ElementResults.ElementResult" Collapsed="true">
     <Position X="23.5" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAQAAAAgAAACAAgCAAAAIAAAAAAAIAAAiA=</HashCode>
-      <FileName>Results\ElementResults\ElementResult.cs</FileName>
+      <FileName>Results\Storage\ElementResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -12,7 +12,7 @@
     <Position X="20.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResults\BeamResult.cs</FileName>
+      <FileName>Results\Storage\BeamResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -20,7 +20,7 @@
     <Position X="22.5" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResults\BrickElementResult.cs</FileName>
+      <FileName>Results\Storage\BrickElementResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -28,7 +28,7 @@
     <Position X="24.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResults\NodeResult.cs</FileName>
+      <FileName>Results\Storage\NodeResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -36,7 +36,7 @@
     <Position X="26.5" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ElementResults\PlateElementResult.cs</FileName>
+      <FileName>Results\Storage\PlateElementResult.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -44,7 +44,7 @@
     <Position X="9.25" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AACAAAAAAAAAAAAAgAAAAAAgAAAAAIAAAAAQAQAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\ResultLocation.cs</FileName>
+      <FileName>Results\Locations\ResultLocation.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -52,7 +52,7 @@
     <Position X="1" Y="6.25" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAwAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\BrickPointResultDisplacement.cs</FileName>
+      <FileName>Results\Locations\BrickPointResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -60,7 +60,7 @@
     <Position X="3.75" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAABAAAAAAAAgAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\BrickPointResultForces.cs</FileName>
+      <FileName>Results\Locations\BrickPointResultForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -68,7 +68,7 @@
     <Position X="6" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAwAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\NodeResultDisplacement.cs</FileName>
+      <FileName>Results\Locations\NodeResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -76,7 +76,7 @@
     <Position X="8.25" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAABAAAAAAAAgAAAAAAgAAAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\NodeResultForces.cs</FileName>
+      <FileName>Results\Locations\NodeResultForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -84,7 +84,7 @@
     <Position X="10" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAwAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\PointResultDisplacement.cs</FileName>
+      <FileName>Results\Locations\PointResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -92,7 +92,7 @@
     <Position X="12.25" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAABAAAAAAAAgAIAAAAgAAAAAIAAACAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\PointResultPlateStress.cs</FileName>
+      <FileName>Results\Locations\PointResultPlateStress.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -100,7 +100,7 @@
     <Position X="14.5" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAABAABAAAAAgAAAAAAgACAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\StationResultBeamForces.cs</FileName>
+      <FileName>Results\Locations\StationResultBeamForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -108,7 +108,7 @@
     <Position X="16.75" Y="6.25" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAABAAAAAwAAAAAAgACAAAIAAAAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultLocations\StationResultDisplacement.cs</FileName>
+      <FileName>Results\Locations\StationResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -116,7 +116,7 @@
     <Position X="16.75" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAAAgABAAAAgAAAAAIAIAAAAAAAAAiA=</HashCode>
-      <FileName>Base\ModelObjectId.cs</FileName>
+      <FileName>Core\Identity\ModelObjectId.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -124,7 +124,7 @@
     <Position X="34.75" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAAAAAAAAAgAAAAAAgAAAAAIAAgAAAAAAAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultType.cs</FileName>
+      <FileName>Results\Values\ResultType.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -132,7 +132,7 @@
     <Position X="29.75" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAABABCBAAAAAAAAwAUABCQwAAAAApIAAAAAAhAEAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultBeamForces.cs</FileName>
+      <FileName>Results\Values\ResultBeamForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -140,7 +140,7 @@
     <Position X="32" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAARAgAAAAAAEAIAgAAAAAAgAAAAAIAAAMBiQQgAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultBrickForces.cs</FileName>
+      <FileName>Results\Values\ResultBrickForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -148,7 +148,7 @@
     <Position X="33.75" Y="6.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AIABgCAIAAAAACAA4AVAAAA0AiAgAIAIACgAAAAAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultDisplacement.cs</FileName>
+      <FileName>Results\Values\ResultDisplacement.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -156,7 +156,7 @@
     <Position X="36" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAARAgAAAAAAEAIAgAAAAAAgAAAAAIAAAMBiAAAAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultPlateForces.cs</FileName>
+      <FileName>Results\Values\ResultPlateForces.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -164,7 +164,7 @@
     <Position X="37.75" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAABEAACEAAAAAgA4IEAAAAwAgEIAIAAABARAACAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultPlateStress.cs</FileName>
+      <FileName>Results\Values\ResultPlateStress.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
@@ -172,7 +172,7 @@
     <Position X="39.5" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAABAJACAEAAgAUA4AHAAIAmAgBIAIAAgAAxAAGAAiA=</HashCode>
-      <FileName>Results\ResultTypes\ResultStress.cs</FileName>
+      <FileName>Results\Values\ResultStress.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

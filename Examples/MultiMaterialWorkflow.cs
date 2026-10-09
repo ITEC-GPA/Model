@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System;
 using System.Linq;
 using GPC.Checkers.CompositeBridge;
@@ -8,13 +9,21 @@ using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Standards;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Topology;
 
 namespace GPC.Examples
 {
@@ -49,6 +58,7 @@ namespace GPC.Examples
                 if (i == 0) beam.Assignments.Sections.Add(new BeamSectionAssignment { Start = 0, End = 1, Section = (GPC.Model.Sections.Concrete.ReinforcedConcreteSection)sections[i] });
             }
             foreach (string name in new[] { "ULS", "SLE" }) model.LoadCases.Add(new LoadCaseBase(name));
+            model.CaptureAnalysis(ReinforcementAnalysisRole.ExcludedFromAnalysis, "Assigned analytical actions independent of design reinforcement.");
             string revision = model.AnalysisFingerprint(); model.Datasets.Add("step5", new AnalysisDataset { Id = "step5", Program = "Assigned analytical fixture",
                 ModelRevision = "1", InputFingerprint = revision, NormalizedUnits = "N,mm,rad", Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = true });
             foreach (var beam in model.BeamElements.Values) foreach (string name in new[] { "ULS", "SLE" })

@@ -1,10 +1,17 @@
+using GPC.Model.Models;
 using GPC.Examples;
 using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
 
 internal static class ModelCompletionExample
 {

@@ -1,0 +1,88 @@
+PUNTO 5 - ACCIAIO E COMPOSITEBRIDGE
+ModelChecker 1.0.14, branch codex/model-architecture
+
+Scelte del catalogo
+Steel.EN1993.PlasticShear rimane il percorso precedente per il taglio.
+Steel.EN1993.Section aggiunge la flessione monoassiale, selezionata come
+CheckMechanism.UlsBiaxialSection ma con metodo dettagliato UniaxialBending:
+- sezioni H simmetriche di classe 1/2 anche in compressione uniforme;
+- N=T=0, un solo asse di momento attivo;
+- entrambi i tagli non maggiori di meta' della capacita' plastica in valore assoluto;
+- classificazione, capacita' plastiche e controllo del campo di taglio usano
+  le primitive native EN1993p11Checker. Non si duplicano formule normative;
+- le proprieta' sono risolte al taglio preparato, incluse le assegnazioni di
+  sezione. Il routing rimane per elemento/metodo: il beam deve essere assegnato
+  al verificatore del materiale richiesto. Nessuna verifica globale viene dedotta.
+Le interazioni N-M, flessione biassiale, torsione, taglio elevato, classe 3/4,
+sezioni asimmetriche, instabilita' e altri profili normativi restano non qualificati.
+Il catalogo espone una capacita' del motore; la qualificazione del singolo input
+avviene durante la verifica e puo' restituire NotSupported.
+
+Uso diretto acciaio
+  var checker = new SteelMaterialChecker(new StandardEN1993p11(), "2005",
+      nationalAnnex: null, includeUniaxialBending: true);
+Il costruttore precedente continua a selezionare il solo taglio. L'identita' della
+nuova modalita' e' distinta e puo' essere salvata in EngineDefinition.Kind.
+Resistenze, utilizzi, classe conservativa e rapporti dei tagli sono nei dettagli.
+
+CompositeBridge.Section mantiene il calcolo cumulativo precedente.
+CompositeBridge.HistoryLinear usa HBridgeHistoryResults.Calculate con materiali
+lineari e storia costruttiva, conservando gli stessi limiti SLE nativi. Richiede
+EngineDefinition.BridgeHistory, oltre a BridgeCases e contesto normativo esplicito.
+BridgeHistoryDefinition contiene discretizzazione, sottopassi, limiti di iterazione,
+tolleranze N/M/aree efficaci, rilassamento e scelta istantanea del calcestruzzo.
+Le opzioni sono copiate alla costruzione; History restituisce una copia. Cambiare
+la configurazione richiede un nuovo checker o una nuova compilazione del catalogo.
+Le configurazioni cumulative precedenti, senza BridgeHistory, mantengono il percorso
+precedente. Opzioni storiche assegnate a un altro motore sono rifiutate.
+
+Uso diretto dello storico
+  var checker = new CompositeBridgeMaterialChecker(code, edition, cases, annex,
+      new BridgeHistoryDefinition { WebLayers = 160, SubstepsPerPhase = 2 });
+I casi conservano la storia incrementale esplicita, il taglio FEM, lo stato
+concomitante, gli assi e la quota comune di riduzione. La somma delle azioni della
+storia deve coincidere con N/M1/V2 preparati. Riferimenti o altre componenti non
+collegati impediscono la verifica; non si ricostruisce una storia dalle sole
+azioni finali. Per richiedere verifiche a piu' fasi, associare i rispettivi stati
+FEM a casi con i corrispondenti prefissi della storia.
+
+Tensioni SLE e convergenza
+Si riportano i punti attivi della fase finale; le chiavi includono un indice per
+distinguere estremi di integrazione con lo stesso nome. Si registrano residui N,
+M e aree efficaci per TUTTE le fasi, con le tolleranze dimensionali realmente
+usate dal solver. La convergenza aggregata e' il massimo rapporto residuo/soglia.
+Una HistoryConvergenceException registra fase/sottopasso senza capacita' o utilizzo.
+Anche il metodo cumulativo viene rifiutato se la sua iterazione efficace non
+risulta convergente. Nessun esito favorevole da una sola chiamata terminata.
+La storia lineare non abilita taglio, resistenza SLU, solver non lineare o curve
+momento-curvatura. Questi richiedono un collegamento/metodo resistente dedicato.
+Il motore nativo non esegue l'evoluzione viscosa automatica dipendente dall'eta':
+phi/n agisce sui nuovi incrementi come descritto nella sua guida History/README.md.
+
+Validazione sul bundle vincolato
+- build/Verify.ps1: Model/Converter 960 PASS, 2 fixture Straus esterne saltate;
+  ModelChecker 150 PASS, di cui 20 nuovi casi in questa fase.
+- API: Model 6223 firme, ModelChecker 530, Concrete 2016; nessuna rimozione
+  inattesa (restano le 15 rimozioni FemBeam/EulerBeam gia' approvate).
+- GPCChecker.Test.CompositeBridge: 254 PASS, senza esclusioni.
+- Acciaio storico: 94 test, 77 PASS e 17 FAIL, identici tra ricostruzione sorgente
+  e DLL vincolata. Le aspettative non sono state modificate e i percorsi in
+  questione non vengono abilitati dai nuovi adattatori.
+- Test flessione: primo momento plastico calcolato indipendentemente dai rettangoli
+  di anima/ali, entrambi i segni/assi, sovraccarico, taglio negativo, cambio assi,
+  sezioni assegnate, interazioni escluse e configurazione.
+- Test storia: confronto con API nativa NTC/EC4, residui, mancata convergenza,
+  sensibilita' alla sequenza costruttiva a parita' di azioni finali, cambio assi,
+  salvataggio delle opzioni/resoconti e obsolescenza del risultato.
+
+Fallimenti acciaio preesistenti confermati
+Sap_SectionCHSTest1, Sap_SectionHAsymmetricTest1, Sap_SectionHAsymmetricTest2,
+Sap_SectionLTest, Sap_SectionRHSTest1, Sap_SectionRHSTest2, Sap_SectionTTest,
+Sap_SectionTTest2, SectionCLateralTorsionalBuckling2, SectionHBuckling1,
+SectionHBucklingExample2, SectionHInteraction2, SectionHInteraction3,
+SectionHLateralTorsionalBuckling1, SectionHLateralTorsionalBuckling2,
+SectionRHSClassification, SectionRHSClasstification2.
+
+Nessuna sorgente/formula Checker o DLL distribuita Anthea modificata. Il rebuild
+acciaio dell'audit e' conservato in TestResults; nel bundle e nei test conclusivi
+resta la DLL con SHA256 vincolato dal manifest, senza sostituzioni di dipendenze.

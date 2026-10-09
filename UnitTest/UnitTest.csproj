@@ -24,6 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
@@ -32,6 +33,8 @@
 
   <ItemGroup>
     <Compile Include="..\Examples\MixedModelFactory.cs" Link="Fixtures\MixedModelFactory.cs" />
+    <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\Namespaces-v3\*" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
     <ProjectReference Include="..\Model\GPCModel.csproj" />
     <ProjectReference Include="..\GPC Converter\GPC Converter.csproj" />

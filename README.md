@@ -1,5 +1,7 @@
 # GPC Model: post-processing NODE / BEAM / SHELL
 
+Il riordino attuale usa **Model 4** e richiede la ricompilazione dei consumer. La [guida di migrazione](MIGRAZIONE_MODEL_4.txt) descrive namespace, DLL da aggiornare e compatibilita' degli archivi. Per il controllo completo: `./build/Verify.ps1`.
+
 Il dominio FEM rimane `GPC.Model.Models.Model`. Nodi, beam, shell e solidi condividono identità e registri; gli assi sono sempre i tipi reali `Point3d`, `Vector3d` e **`GPC.Geometry.CoordinateSystem`**.
 
 I convertitori sono nel progetto separato **`GPC Converter/GPC Converter.csproj`**, incluso in `GPCModel.sln`, con assembly/namespace `GPC.Converter`. `Model` non dipende dai convertitori né dal verificatore. L'adattatore al verificatore esistente è opzionale: `ModelChecker/GPCModelChecker.csproj`.

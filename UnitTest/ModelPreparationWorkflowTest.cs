@@ -1,7 +1,13 @@
+using GPC.Model.Models;
 using GPC.Examples;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.Queries;
 
 namespace UnitTest;
 
@@ -54,7 +60,7 @@ public class ModelPreparationWorkflowTest
         sample.State.Phase = "construction";
         Assert.IsTrue(Verification.PrepareBeam(model, 250, sample, "test").Diagnostics.Any(d => d.Code == "IncrementalOrUnknownPhaseState"));
         sample.State.IsCumulative = true; Assert.AreEqual(DataStatus.Ready, Verification.PrepareBeam(model, 250, sample, "test").Status);
-        var shell = (GPC.Model.Results.ResultLocations.PointResultPlateForces)model.AreaElements[1090].Results[0].Results[0];
+        var shell = (global::GPC.Model.Results.Locations.PointResultPlateForces)model.AreaElements[1090].Results[0].Results[0];
         shell.State.IsCumulative = false;
         Assert.IsTrue(ShellInputPreparation.Prepare(model, 1090, shell, "test").Diagnostics.Any(d => d.Code == "IncrementalOrUnknownPhaseState"));
     }

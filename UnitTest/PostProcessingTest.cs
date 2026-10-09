@@ -5,13 +5,15 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
-using GPC.Model.Restrains;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
+using GPC.Model.Restraints;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Units;
+using GPC.Model.Structure.Assignments;
 
 namespace UnitTest
 {

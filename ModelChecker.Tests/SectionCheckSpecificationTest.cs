@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Checkers.Concrete.Attributes;
 using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.Cracking;
@@ -6,16 +7,22 @@ using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Shear;
 using GPC.Checkers.Concrete.Torsion;
 using GPC.Model.Sections.Concrete;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Geometry;
 using GPC.Model.Checker;
 using GPC.Model.Materials;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 
@@ -258,8 +265,10 @@ public class SectionCheckSpecificationTest
             var forces = new ResultBeamForces(f.N, f.V1, f.V2, f.T, f.M1, f.M2, reference);
             var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, SectionSolver.FailureAnalysisTypes.ConstantEccentricity,
                 SectionSolver.FailureDomainTypes.Plastic, SectionSolver.StressAnalysisTypes.NonLinear, 2, 0, false, 64);
-            var point = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, Standard(name), false).CalculateFailureDomainPoint(forces);
-            Assert.AreEqual(point.CalculateWorkingRatio(SectionSolver.FailureAnalysisTypes.ConstantEccentricity, forces, 1e6, 1000), ratios[name], 1e-12, name);
+            var native = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, Standard(name), false);
+            var point = new GPC.Checkers.Concrete.Analysis.LegacySectionCalculation(native).SolveResistance(new(forces));
+            Assert.IsTrue(point.Diagnostics.ResistanceConvergence.Accepted, name);
+            Assert.AreEqual(point.Utilization.Value, ratios[name], 1e-12, name);
         }
         Assert.AreNotEqual(ratios["EN 1992-1-1"], ratios["DS EN 1992-1-1"]);
         Assert.IsTrue(ratios["NTC 2018"] > ratios["Model Code 2010"], "αcc = 0.85 (NTC) reduces the capacity with respect to αcc = 1 (MC2010)");
@@ -275,11 +284,14 @@ public class SectionCheckSpecificationTest
             Options(standard).CreateVerifier()).Details!.Metrics.Single().Capacity!.Value;
         double plain = Capacity(new StandardCNR204()), ec2 = Capacity(new StandardEN1992p11());
         Assert.AreEqual(ec2, plain, 1e-9 * ec2);
-        section.ConcreteMaterial = new ConcreteMaterialModelCode2010("FRC C25/30", 25, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
-            2.0, 1.5, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC, 0.2, 0.0025, 10e-6, ConcreteMaterial.CementTypes.ClassN);
-        // The material enters the analysis revision. The cantilever is statically determinate: the analytical forces stay valid.
-        var fingerprint = m.AnalysisFingerprint(); m.Datasets["synthetic-member"].InputFingerprint = fingerprint;
-        foreach (var state in m.BeamElements.Values.SelectMany(b => b.Results).SelectMany(r => r.Results).OfType<StationResultBeamForces>()) state.State.InputFingerprint = fingerprint;
+        // Generate a new analytical fixture for the changed material, recording its inputs before its results.
+        m = ElementScopeCharacterizationTest.Model(configureBeforeResults: value => {
+            var frcSection = value.BeamElements[250].Assignments.Sections[0].Section;
+            frcSection.ConcreteMaterial = new ConcreteMaterialModelCode2010("FRC C25/30", 25, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
+                2.0, 1.5, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, ConcreteMaterial.ConcreteTypes.FRC, 0.2, 0.0025, 10e-6, ConcreteMaterial.CementTypes.ClassN);
+            frcSection.ShearData = ShearData(frcSection, stirrups: false);
+        });
+        sample = Verification.BeamSample(m.BeamElements[250], "synthetic-member", "LC1", .5, SectionSide.Unspecified);
         double frc = Capacity(new StandardCNR204());
         Assert.IsTrue(frc > 1.5 * plain, frc + " vs " + plain);
         var warned = Verification.Run(Verification.PrepareBeam(m, 250, sample, "frc"), SectionCheckSpecification.ShearAxis2(), Options(new StandardEN1992p11()).CreateVerifier());

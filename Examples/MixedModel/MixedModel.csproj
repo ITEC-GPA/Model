@@ -9,6 +9,7 @@
     <DefineConstants>$(DefineConstants);GPC_CHECKER</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
     <ProjectReference Include="..\..\ModelData\GPCModelData.csproj" />
     <ProjectReference Include="..\..\Model\GPCModel.csproj" />
     <ProjectReference Include="..\..\GPC Converter\GPC Converter.csproj" />

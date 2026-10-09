@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Geometry.Meshes;
 using GPC.Model;
 using GPC.Model.Collections;
@@ -7,10 +7,10 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Materials;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Glass;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -237,7 +237,10 @@ namespace GeneralTest
             NodeElement n2 = new NodeElement(Point3d.Origin, null, "", 2);
             NodeElement n3 = new NodeElement(Point3d.Origin, null, "", 2);
 
-            UniqueIdCollection<NodeElement> dict = new UniqueIdCollection<NodeElement> { n1, n2, n3 };
+            UniqueIdCollection<NodeElement> dict = new UniqueIdCollection<NodeElement> { n1, n2 };
+            // Replacing a FEM entity is now explicit; Add must not invalidate shared references silently.
+            Assert.ThrowsException<InvalidOperationException>(() => dict.Add(n3));
+            dict.Replace(n3.Id, n3);
 
             Assert.IsTrue(dict.ContainsKey(n1.Id));
             Assert.IsTrue(dict.ContainsKey(n2.Id));

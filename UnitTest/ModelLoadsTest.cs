@@ -1,13 +1,17 @@
-﻿using GPC.Geometry;
+using GPC.Model.Models;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Results.Processing;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Topology;
 
 namespace UnitTest;
 

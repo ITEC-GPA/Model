@@ -1,0 +1,236 @@
+CONTINUAZIONE ARCHITETTURA - 9 OTTOBRE 2026
+Ordine autorizzato: 1, 2, 4, 5. In coda: 3, verifica plate (6), converter (7).
+
+Punto 1 concluso
+Concrete 0.0.20.0: commit Checker 4f2786fa. Equilibrio N verificato per
+ConstantN, ConstantNMx, ConstantNMy; rifiuto numerico senza utilizzo resistente.
+ModelChecker 1.0.9 conserva stato, scarto e tolleranza nella diagnostica.
+26 test Calculation e 124 test ModelChecker superati. Controllo API senza
+rimozioni inattese; nessuna modifica alle formule o ai punti del dominio.
+
+Punto 2 concluso
+ModelChecker 1.0.10: scelta numerica persistente (ID, versione, configurazione),
+catalogo esplicito e sessioni controllate prima/dopo ogni chiamata. Le vecchie
+configurazioni senza scelta usano il motore legacy; una scelta esplicita richiede
+versione e configurazione. Motori sconosciuti/cambiati sono rifiutati.
+128 test ModelChecker superati; 4 nuovi casi sul flusso configurato, persistenza,
+versioni/parametri incoerenti e assenza dell'evidenza N. API senza rimozioni inattese.
+Segue integrazione del punto 1 su tutti i cinque criteri richiesta dall'utente.
+
+Punto 1 esteso ai cinque criteri su richiesta dell'utente
+Concrete 0.0.21.0, Checker b3f0fe87. ModelChecker 1.0.11 richiede evidenze
+coerenti con domanda, capacita', criterio e assi per tutti i modi. Registra
+residui/tolleranze di N, momenti, direzione/angolo nella diagnostica persistente.
+48 test Calculation superati. Prima integrazione: 41 test ModelChecker falliti per punti
+legacy fuori soglia angolare; la precedente annotazione di 128 PASS era errata.
+Correzione e nuova validazione riportate sotto. API senza rimozioni inattese.
+
+Correzione e validazione finale del punto 1
+Concrete 0.0.22.0 (27d9cde1), Model 2.0.0.1, ModelChecker 1.0.12.
+Il boundary prova i fallback esistenti se il punto restituito non rispetta le
+soglie. Domanda N-M nulla senza predeformazione: utilizzo zero, nessuna capacita'
+o convergenza inventata. La definizione del rapporto conserva l'aggregazione.
+Esiti finali: 50 test Calculation, 128 ModelChecker superati. Due confronti
+con il punto grezzo ora confrontano la risposta validata; il caso che evidenzia
+il difetto verifica esplicitamente rifiuto del primo punto e accettazione del
+successivo. Nessuna fixture numerica storica rigenerata.
+
+Punto 4 concluso - editing e proprieta' degli input
+Model 2.0.0.2 / ModelChecker 1.0.13. ModelEditSession lavora su una bozza,
+valida topologia/assegnazioni/membrature, rileva modifiche al sorgente e restituisce
+una copia pubblicabile. Revisioni analisi/verifica separate; compatibilita' FEM
+esplicita nel risultato del commit, compreso il ruolo delle armature. Nessuna
+attualizzazione artificiale dei risultati storici. Uso e limiti: GUIDA_EDITING_MODEL.txt.
+Input beam, generici e plate con copie autonome di sezioni, materiali, strati,
+proprieta' e assi; le verifiche di attualita' controllano sorgente e copia.
+La factory Concrete riceve proprie copie di sezione e standard. Adapter acciaio
+ed elementi compositi usano la proprieta' preparata. Assi dei vincoli fisici
+validati; corretto inserimento di barre dopo importazione con contatore ID obsoleto.
+
+Regressioni emerse e risolte nel punto 4:
+- Il test di due sezioni con segno delle azioni opposto presumeva la medesima
+  istanza: ora prova istanze indipendenti con gli stessi valori geometrici.
+- Il detailing usava Distinct per riferimento; la nuova proprieta' autonoma
+  produceva metriche duplicate. Ora raggruppa per contenuto, conserva sezioni
+  differenti omonime e assegna chiavi univoche alle metriche.
+- Il test della cache ora prova che mutare il sorgente non altera la sessione
+  gia' creata, mentre verificare la sezione cambiata crea una nuova sessione.
+Nessuna formula resistente o fixture numerica storica modificata.
+
+Validazione finale del punto 4: build/Verify.ps1 PASS sul codice finale.
+Model/Converter: 960 PASS, 2 test Straus saltati per fixture native esterne.
+ModelChecker: 130 PASS. Aggiunti 23 casi di regressione complessivi.
+API: Model 6223 firme (le 15 rimozioni FemBeam/EulerBeam gia' approvate),
+ModelChecker 495, Concrete 2016; nessuna rimozione inattesa.
+Anthea e Checker non modificati in questa fase; non effettuato un deployment WPF.
+Prossima fase autorizzata: punto 5, acciaio e CompositeBridge. Restano in coda
+punto 3, discussione delle verifiche plate (6), converter (7).
+
+Punto 5 - estensione qualificata degli adattatori
+ModelChecker 1.0.14. Steel.EN1993.Section abilita esplicitamente taglio e flessione
+monoassiale di H simmetriche stocky con N=T=0 e taglio basso; richiama le primitive
+native e usa la sezione preparata al taglio. Il precedente Steel.EN1993.PlasticShear
+resta separato. CompositeBridge.HistoryLinear collega le tensioni SLE al solver
+storico lineare con opzioni persistenti/copiate e diagnostica di convergenza per
+ogni fase; CompositeBridge.Section resta cumulativo. Nessun metodo non lineare,
+resistente plate o globale viene qualificato implicitamente.
+Guida e limiti: GUIDA_ACCIAIO_COMPOSITEBRIDGE_PUNTO5.txt.
+Verifica finale: Model 960 PASS + 2 fixture esterne saltate, ModelChecker 150 PASS
+(20 nuovi casi), CompositeBridge nativo 254 PASS. API senza nuove rimozioni.
+Baseline acciaio ripetuta: 77 PASS / 17 FAIL su 94, stessi singoli fallimenti su
+ricostruzione sorgente e DLL vincolata; nessuna aspettativa storica modificata.
+Le formule native, le dipendenze vincolate e Anthea sono invariati in questa fase.
+Restano da riprendere secondo l'ordine da concordare i punti lasciati in coda:
+3 (completamento cls), 6 (scelta condivisa dei metodi plate), 7 (converter).
+
+Punto 6 - proposta plate per il confronto
+Esaminati i contratti Model/ModelChecker e il codice plate Concrete/Steel.
+PROPOSTA_CHECKER_PLATE_PUNTO6.txt confronta Wood-Armer, equilibrio sandwich
+e risposta non lineare a strati, distingue verifiche locali e di regione,
+propone dati/resoconti, riporta un esempio di equilibrio e il piano dei test.
+Da chiarire il piano di riferimento dei momenti e il significato di Offset
+prima di attivare un motore resistente. Nessuna formula, API o dipendenza
+modificata. Test non rieseguiti: fase documentale. Metodo ancora da concordare
+secondo il vincolo esplicito del PASSO 6; nessuno shell dichiarato verificato.
+
+Punto 6 - sezioni plate e superfici fisiche implementate dopo il confronto
+Prima fase d33e7bd4: sezione cls con armatura propria, tre spessori distinti,
+validazione e persistenza. Seconda fase 986fea85: recepita la decisione che
+AreaElement rappresenta un singolo plate FEM. Una sola proprieta' per elemento;
+eliminate le assegnazioni spaziali provvisorie interne al plate. Compatibilita'
+legacy esplicita, scenari con sezione acquisita per valore, preparazione e
+resoconti indipendenti, provenienza FEM conservata anche migrando l'armatura.
+Verifica della seconda fase: 972 Model PASS + 2 fixture Straus saltate,
+152 ModelChecker PASS, nessuna nuova rimozione API inattesa.
+
+Terza fase: PhysicalSurfaceDefinition e SurfaceZoneDefinition selezionano plate
+FEM connessi per lati; una sezione autorevole per plate e nessuna seconda copia
+nelle zone. Assegnazione per superficie/zona, validazione preventiva degli assi,
+selezione nel flusso ModelChecker, identita' fisica nel resoconto e documenti
+versionati. Cambiare solo zone/superfici invalida la verifica senza alterare la
+compatibilita' FEM. Gestite appartenenze duplicate, lati non manifold, superfici
+sconnesse, archivi incoerenti e pubblicazione tramite ModelEditSession.
+Versioni: Model 2.0.0.4 / ModelChecker 1.0.16.
+Guida autorevole del modello dati: GUIDA_SEZIONI_PLATE_SUPERFICI.txt.
+
+Verifica finale build/Verify.ps1 sul codice della terza fase: 987 Model/Converter
+PASS + 2 test Straus saltati per fixture native esterne; 155 ModelChecker PASS.
+API: 6268 firme Model (15 rimozioni storiche gia' approvate), 530 ModelChecker,
+2016 Concrete; nessuna rimozione inattesa. Nessuna formula resistente o fixture
+numerica storica modificata. Concrete.Plate e Steel.Plate restano non disponibili;
+il motore di protocollo nei test non costituisce una verifica strutturale.
+Checker e Anthea non modificati da queste tre fasi.
+
+Namespace: le nuove classi di superficie sono in GPC.Model.Structure, la
+selezione in GPC.Model.Checking, la validazione plate in ElementProperties.
+Il riordino precedente delle cartelle non ha ancora migrato tutti i namespace:
+74 file dichiarano PostProcessing, anche per strutture/analisi/contratti.
+La migrazione generale e' da pianificare con API, consumer e archivi; non e'
+stata fatta una rinomina indiscriminata. Sono presenti anche i nomi storici
+Costrains/Restrains e il RootNamespace ModelData diverso da GPC.Model.Data.
+
+Coda approvata aggiunta dall'utente: estrarre GPC.Model.Persistence in un
+progetto I/O separato, dopo aver disaccoppiato copie e fingerprint dal serializer.
+Non e' una libreria UI e non va creata una dipendenza circolare con Model.
+Restano le parti differite del piano: completamento cls (3), scelta condivisa
+ed implementazione dei metodi resistenti plate (6), ulteriori converter (7).
+
+Persistence - fase A completata
+Model 2.0.0.5 introduce GPC.Model.Core.ModelValues (Copy, CopyValue,
+Fingerprint e vocabolario chiuso dei dati). Fingerprint e mappe esplicite dei
+contratti sono nel dominio; ReportSchema valida i resoconti senza un file.
+Editing, orientamento, snapshot, scenari, ModelChecker e Converter usano
+queste operazioni. ModelArchive conserva temporaneamente i delegati pubblici.
+Le copie complete non passano piu' dall'envelope del file ModelDocument.
+Il codec in memoria degli snapshot resta DataContractSerializer, per conservare
+il formato delle evidenze storiche: non e' un lettore di file esterni e non
+richiede la futura DLL Persistence. Nessuna formula o dato atteso cambiato.
+Verify.ps1 PASS: 989 Model/Converter + 2 fixture Straus saltate, 155 ModelChecker;
+nessuna rimozione API inattesa. Due nuove regressioni su copie indipendenti,
+alias, eventi dei gruppi e snapshot storici v3. Segue estrazione del progetto I/O.
+
+Persistence - fase B completata
+Creato il progetto GPC.Model.Persistence, solo I/O, con riferimento a Model.
+Model 3.0.0.0; Persistence 1.0.0; ModelChecker 1.0.17; Converter 1.0.4.
+Spostati ModelArchive, CheckReportArchive e ArchiveContractRegistry conservando
+namespace/firme. ModelDocument ora esterno al dominio; ModelGraph interno
+ricostruisce le relazioni senza conoscere un formato file. Nessun ciclo e
+nessun riferimento a Persistence da Model/ModelChecker/Converter.
+Migrazione consumer e limiti: MIGRAZIONE_MODEL_3.txt. Anthea non aggiornato.
+
+Test finali: 3 Model.Core.Tests (senza DLL I/O), 989 Model/Converter + 2 fixture
+Straus saltate, 155 ModelChecker PASS. 50 Test.Calculation Checker PASS,
+compilazione Test.Concrete storica riuscita con avviso GMsh x64 gia' esistente.
+Esempio MixedModel --without-checker e round-trip riusciti.
+API: Model 6262 firme con 26 rimozioni pianificate (15 precedenti e 11 firme
+spostate), ModelChecker 530, Concrete 2016, Persistence 13; zero rimozioni
+inattese. Il preparatore del bundle ora riusa una cache con hash verificato,
+anche dopo build dei repository fratelli. Quattro regressioni del runner PASS.
+Il manifest delle dipendenze e le fixture numeriche non sono stati modificati.
+
+Commit della fase A: 0a45e9f5. Consumer Checker aggiornati: ce5b82da.
+Il runner finale completo e' stato ripetuto dopo l'allineamento della versione
+NuGet di Model a 3.0.0: tutti gli esiti sopra confermati. Pacchetto Persistence
+costruito solo localmente; nuspec verificato con dipendenza GPCModel 3.0.0.
+Nessuna pubblicazione NuGet o aggiornamento del bundle Anthea effettuato.
+
+Namespace - fase A: riferimento prima della migrazione
+Catturato un archivio Model 3.0.0.0 con analisi, scenario, sezioni plate e
+superfici, i fingerprint e i 634 nomi XML del vocabolario attuale. Il tool di
+cattura rifiuta directory esistenti: non rigenera le aspettative dei test.
+Aggiunto un punto esplicito per le identita' CLR storiche nei fingerprint,
+necessario anche per enum, array e tipi generici dopo la rinomina.
+Nessuna API rinominata in questa fase. Nove test mirati su persistenza e
+contratti PASS prima della migrazione; nessuna formula o fixture numerica toccata.
+
+Namespace - fase B: Model 4 e consumer
+Mappa applicata a 184 tipi di primo livello (181 identita' pubbliche comprese
+le annidate); nessun tipo pubblico rimane nei namespace PostProcessing,
+Costrains/Restrains o Results.ElementResults/ResultLocations. Contratti,
+preparazione, scenari e report seguono i moduli Checking; superfici e membri
+sono in Structure.Members. RootNamespace ModelData allineato conservando
+nomi delle risorse CSV. MIGRAZIONE_MODEL_4.txt e' la guida corrente.
+
+I nomi persistiti sono disaccoppiati dai CLR: DataContract espliciti per i
+tipi serializzati per campi; adattatore streaming per ISerializable/enum e
+contenitori con nomi generati dal serializer. Lo stesso codec serve snapshot
+in memoria e Persistence, senza introdurre una dipendenza I/O nel dominio.
+Nessuna sostituzione testuale dentro dati, nessun albero XML aggiuntivo.
+Le fixture Model 3 della fase A e quelle numeriche precedenti sono immutate.
+Aggiunte regressioni su 634 contratti, analisi/scenari/superfici, fingerprint
+con enum e generici, testo opaco, whitespace, prefissi XML preesistenti e
+assenza dei vecchi namespace pubblici.
+
+Versioni: Model 4.0.0.0; Persistence/ModelChecker/Converter 2.0.0;
+ModelData 0.0.2.4; Concrete 0.0.23.0; Steel 2.0.0.0.
+Consumer Checker: commit e78b7818. Solo assi Concrete e tipi risultato Steel,
+nessuna formula cambiata. Aggiornati hash e provenienza del bundle fissato.
+Anthea e il suo bundle non sono stati modificati: migrazione da effettuare
+come task applicativa separata con i relativi test WPF.
+
+Collaudo: 3 core, 996 Model/Converter (+2 Straus saltati per fixture esterne),
+155 ModelChecker, 50 Concrete Calculation, 254 CompositeBridge PASS.
+Steel nativo: 77 PASS e gli stessi 17 FAIL della baseline delle 13:18;
+confrontati anche i nomi dei test. Build Test.Concrete .NET Framework riuscita
+con avviso GMsh AMD64/MSIL gia' presente. Esempio MixedModel senza checker
+riapre l'archivio conservando alias e identita' di analisi.
+API: 6262 firme Model (26 rimozioni storiche pianificate), 530 ModelChecker,
+2016 Concrete, 13 Persistence: nessuna rimozione inattesa dopo l'applicazione
+delle rinomine dichiarate, baseline non rigenerate. Un probe negativo conferma
+che una firma mancante su un tipo rinominato continua a far fallire il controllo.
+
+Coda: completamento cls (punto 3), confronto sui metodi resistenti plate
+(punto 6), ulteriori converter (punto 7). La migrazione dei namespace e
+l'estrazione Persistence sono completate; non iniziare formule plate senza
+la discussione richiesta dall'utente.
+
+Verify.ps1 finale completato: tutti i controlli sopra PASS. Le mappe XML
+sono inizializzate nel costruttore statico per non dipendere dall'ordine
+dei file partial; regressioni mirate su namespace/persistenza riconfermate.
+
+Release di tutte le librerie e integrazione sul ramo principale
+Incrementate tutte le nove librerie di produzione nei due repository;
+versioni/validazioni in RELEASE_LIBRERIE_20261009.txt. Aggiornati hash e
+provenienza del bundle Checker dopo la ricompilazione dal merge 72e9698d.
+L'utente ha chiesto il ramo principale e ha confermato master (main non esiste).
+Anthea non aggiornato. NuGet non pubblicato.

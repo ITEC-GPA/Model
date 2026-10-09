@@ -1,0 +1,424 @@
+CORREZIONI ARCHITETTURALI MODEL - 8 ottobre 2026
+Branch: codex/model-architecture
+Base: 5ad566813a72514251c98fdcb3e0d9bafafaa579
+
+1. Definizione della sezione e cache dei calcoli - COMPLETATO
+GPCModel 1.6.1.2.
+Jt, Jw, centro di taglio e moduli plastici differiti vengono conservati
+in una cache runtime separata dai campi della definizione. Le letture
+non modificano gli input serializzati o il fingerprint. Lazy<T> evita
+esecuzioni duplicate del solutore nelle letture concorrenti; la modifica
+della geometria durante un calcolo resta non supportata.
+SetMechanicalProperties invalida cache e mesh anche negli override.
+Serializzazione v5 ed Equals non eseguono calcoli meccanici differiti.
+Equals confronta la definizione, includendo la geometria delle proprieta
+differite; non e' un confronto fra due risposte numeriche approssimate.
+Le proprieta assegnate esplicitamente restano parte degli input.
+Le sezioni generiche geometriche v1-v4 sono leggibili e i vecchi valori
+calcolati sono normalizzati come proprieta da calcolare. Le impronte
+storiche che includevano la cache possono non coincidere: eventuali
+resoconti diventano obsoleti secondo le verifiche di validita esistenti.
+
+Evidenze (TestResults/Architecture20261008, artefatti locali ignorati):
+- section-before.trx: 3 regressioni falliscono, 2 passano prima del fix.
+- section-after.trx: 253 test di sezioni e archivi superati.
+- model-step1.trx: 898 superati, 0 falliti, 2 fixture native Straus7 mancanti.
+- modelchecker-step1.trx: 106 superati, 0 falliti.
+- anthea-baseline/summary.json e anthea-step1-verified/summary.json:
+  CalculationLibrary.Checks, ConcreteCode.Checks,
+  ConcreteLibraryAdapter.Checks, ConcreteDesign.Checks tutti PASS;
+  4 build + 4 suite, nessuna nuova regressione.
+  ANTHEA 98a21d452a0239b3dbe0720cd09653661790bb60; il candidato sostituisce
+  solamente GPCModel.dll in una copia temporanea delle DLL distribuite.
+  Nessuna modifica a lib/Checker, nessun deployment Anthea, nessun test UI.
+  Il primo avvio candidato e' fallito per un percorso senza separatore
+  finale; il runner e' poi stato rieseguito correttamente nella cartella
+  anthea-step1-verified. Non si tratta di una regressione del prodotto.
+
+2. Identita esplicita e mutazioni coerenti delle collezioni - COMPLETATO
+GPCModel 1.6.1.3.
+ModelObjectIdentityComparer confronta i GUID e mantiene stabili HashSet e
+Dictionary quando nome o contenuto cambiano. Equals/GetHashCode storici
+restano confronti di contenuto: i chiamanti che conservano entita in un
+HashSet devono scegliere esplicitamente il comparatore di identita.
+La rinomina aggiorna atomicamente tutti i registri UniqueNameCollection
+che contengono la stessa istanza, comprese appartenenze ai gruppi e zone
+di armatura, anche dopo deserializzazione. Un conflitto abortisce prima
+di mutare il nome o un indice. AddRange valida tutto prima di aggiungere.
+Per compatibilita binaria le collezioni continuano a derivare dai vecchi
+Dictionary: un registro debole osserva le voci effettive al momento della
+rinomina, inclusi gli inserimenti fatti tramite un cast alla classe base.
+Questo costo riguarda le rinomine, non i normali lookup; non introduce
+garanzie di mutazione concorrente. Il registro non trattiene i modelli.
+SortedCollection e UniqueIdCollection rimuovono per ID e GUID anziche per
+contenuto. Add rifiuta di sostituire implicitamente una diversa istanza
+con lo stesso ID; Replace rende questa intenzione esplicita. Un test
+storico di sostituzione e' stato migrato a Replace, mantenendo i controlli
+di identita. La numerazione osserva anche ID inseriti dalla API Dictionary.
+Gli indexer legacy restano modificabili: per la topologia usare le API
+controllate del Model; non e' stata eliminata l'intera superficie mutabile.
+
+Evidenze:
+- registry-before.trx: 5 regressioni falliscono prima della correzione.
+- registry-after.trx: 18 test mirati superati.
+- model-step2-verified.trx: 907 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- modelchecker-step2.trx: 106 superati, 0 falliti.
+- anthea-step2/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
+  Nessun deployment di DLL nei consumatori.
+
+3. Assegnazioni di sezione generali - COMPLETATO
+GPCModel 1.6.1.4.
+BeamSectionAssignment e BeamSectionStation espongono Property (BeamProperty)
+e EndProperty. Le sezioni cls mantengono i vecchi campi Section/EndSection e
+la medesima rappresentazione persistita; i nuovi campi entrano nel fingerprint
+soltanto quando usati da altri materiali. PropertyAt/EvaluateProperty sono
+le API generali; SectionAt/Evaluate mantengono il contratto cls e rifiutano
+esplicitamente altri materiali. Conflitti fra nuovi e vecchi campi sono errori.
+Le leggi Constant e Tabulated accettano proprieta beam generali; la legge
+LinearRectangular resta qualificata per il cls. Non si inventano interpolazioni
+fra materiali, geometrie o armature incompatibili. Le discontinuita conservano
+stazione e lato e l'inversione I/J conserva proprieta e assi fisici.
+Le proprieta generali entrano nella revisione analitica; l'acciaio incorporato
+nelle assegnazioni composite cls entra anch'esso nella revisione fisica.
+BeamActionInput.Property identifica la proprieta effettiva del taglio, con
+controllo delle modifiche sia degli input sia del dato preparato.
+Questo completa il contratto dati Model: i limiti dichiarati dagli adattatori
+Steel e CompositeBridge restano attivi; non sono state abilitate nuove formule
+di resistenza o verifiche plate.
+
+Evidenze:
+- sections-general-verified.trx: 26 test mirati superati (7 nuovi).
+- model-step3.trx: 914 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- modelchecker-step3.trx: 106 superati, 0 falliti.
+- anthea-step3/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS.
+
+4. Distinzione fra modello analizzato e scenario di verifica - COMPLETATO
+GPCModel 1.6.1.5; GPCModelChecker e GPC.Converter 1.0.1.0.
+
+AnalysisSnapshot conserva una copia serializzata indipendente degli input,
+senza risultati, resoconti o snapshot annidati. OpenModel restituisce ogni
+volta un nuovo grafo. Il digest controlla contenuto e identita al caricamento;
+non e' una firma digitale. CaptureAnalysis deve precedere i risultati e
+rifiuta di ricostruire retroattivamente la provenienza dal progetto corrente.
+
+VerificationScenario conserva override per GUID degli elementi, copiando i
+valori al momento dell'assegnazione. Gestisce proprieta e leggi delle sezioni
+beam, oltre agli input di armatura e spessore dei plate. Le assegnazioni beam
+variabili devono essere specificate esplicitamente con SetBeamSections.
+Model.VerificationScenarios conserva le alternative nell'archivio.
+VerificationPreparation.Prepare copia il modello che contiene i campioni,
+applica una copia dello scenario e produce PreparedVerification. Cambiare
+lo scenario o il modello originali non modifica la preparazione gia' creata.
+Cambiare il grafo preparato o i suoi risultati invalida IsCurrent.
+
+AnalysisCompatibilityValidator distingue Compatible, RequiresReanalysis e
+Unknown. Geometria, sezioni fisiche, materiali, spessori, vincoli, carichi,
+assi e altre proprieta analitiche cambiate richiedono una nuova analisi.
+La precompressione cambiata richiede sempre rianalisi. Una variazione di
+armatura ordinaria, staffe o dati di torsione e' ammissibile soltanto se
+ReinforcementAnalysisRole e' stato dichiarato ExcludedFromAnalysis, con
+riferimento esplicito all'ipotesi del FEM, prima dei risultati. Se incluso
+nell'analisi, il cambiamento richiede rianalisi; se ignoto resta Unknown.
+Le API dei converter non inventano questa ipotesi: il default e' Unknown.
+
+I binding Civil NX e Straus7 registrano lo snapshot all'importazione.
+ResultMapper distingue l'impronta del modello destinatario, usata contro
+mutazioni durante l'importazione, dall'impronta degli input analizzati.
+Anche dopo modifiche di proprieta, dataset e campioni mantengono l'impronta
+originale. I risultati possono essere importati e consultati, ma non usati
+per verificare automaticamente uno scenario incompatibile. La provenienza
+del solver e l'eventuale AnalysisSnapshotId del dataset sono controllati.
+I vecchi binding conservano l'impronta originale senza fabbricare uno snapshot.
+
+Entrambi gli ingressi ModelChecker (cls e multimateriale) accettano anche
+PreparedVerification. Verify(Model, request) resta disponibile come adapter
+al controllo di compatibilita: Unknown e RequiresReanalysis producono un
+esito NotEvaluated prima della creazione dei checker. Un job bloccato prima
+della pianificazione ha un esito diagnostico di job, non un elenco inventato
+di sezioni valutate. Le API storiche di calcolo sezionale senza snapshot
+restano disponibili; non certificano la provenienza di un'analisi FEM.
+CurrentOutcome non dichiara attuale un resoconto su un modello con analisi
+sconosciuta o incompatibile. I resoconti storici restano consultabili.
+
+CheckResult.Provenance conserva identita/impronte di analisi, scenario,
+progetto materializzato e dataset, incluse nel sigillo dell'evidenza.
+Gli archivi Model e resoconti usano il wrapper v3 quando contengono questi
+dati; i vecchi v1/v2 restano leggibili. I vecchi lettori rifiutano v3 anziche
+ignorare la provenienza. Nessuna nuova formula o verifica plate abilitata.
+
+Esempio (modello importato con risultati e Analysis gia' registrata):
+  var analysis = model.Analysis;
+  var alternative = analysis.OpenModel();
+  var scenario = VerificationScenario.Create(analysis.Id, "Armatura B");
+  // Modificare la sezione della copia alternative, poi:
+  scenario.SetBeamDesign(model.BeamElements[id].Guid,
+      alternative.BeamElements[id].BeamProperty);
+  model.VerificationScenarios.Add(scenario.Id, scenario);
+  var prepared = VerificationPreparation.Prepare(model, scenario);
+  var report = checker.Verify(prepared, request);
+Il ruolo dell'armatura nel FEM deve essere dichiarato su input originali,
+prima dei risultati: non si cambia l'impronta di vecchie sollecitazioni per
+rendere verificabile il nuovo progetto. I vecchi modelli senza questi input
+richiedono la riacquisizione della provenienza/analisi originale.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step4-verified.trx: 926 superati, 0 falliti, 2 fixture Straus7 mancanti.
+- legacy-binding-step4.trx: 6 superati, incluso un ulteriore caso per binding
+  storici senza snapshot.
+- scenarios-step4-final.trx: 33 superati, incluso un ulteriore caso di scenario
+  incoerente che invalida IsCurrent senza eccezioni. Complessivamente sono
+  stati verificati 928 test Model distinti, oltre ai 2 nativi non eseguibili.
+- modelchecker-step4-verified.trx: 110 superati, 0 falliti;
+  modelchecker-scenarios-step4-final.trx: 9 controlli di scenario/resoconto
+  superati sull'ultima build dopo la gestione della mutazione incoerente.
+- anthea-step4-final/summary.json: le 4 build e 4 suite Anthea del passo 1 PASS;
+  stesso bundle Checker distribuito, sostituita solo GPCModel.dll in copia.
+  Nessun aggiornamento di lib/Checker o test UI.
+Le fixture analitiche registrano ora gli input prima delle sollecitazioni;
+le prove di cambio materiale e mesh generano esplicitamente una nuova analisi
+sintetica. Gli attesi numerici indipendenti non sono stati cambiati.
+
+Limiti e costo: uno snapshot analitico per modello; gli override non sono
+un nuovo solutore. Preparazione e archivio copiano i grafi; i controlli di
+validita osservano ancora il modello legacy mutabile, con hash ripetuti.
+La suite ModelChecker e' passata da circa 1m56s (passo 3) a 4m44s e 4m22s
+nelle regressioni complete del nuovo flusso. Ottimizzazione e revisioni stabili
+restano il punto 6, senza indebolire il controllo della compatibilita.
+
+5. Confini e responsabilita delle librerie - COMPLETATO
+GPCModel 1.6.1.6; GPCModelChecker e GPC.Converter 1.0.2.0.
+
+Le trasformazioni fisiche vivono in Results/Processing/ActionTransformations.
+La preparazione, i contratti e l'esecuzione con verificatore fornito dal
+chiamante sono separati in Checking/Preparation, Contracts, Execution e Reports.
+Analysis contiene snapshot, persistenza interna e compatibilita dell'analisi.
+Design contiene le politiche normative e le azioni di progetto dei plate.
+NormativeCombinations richiede una politica esplicita; ResultAlgebra continua
+a combinare valori con coefficienti gia' forniti. WoodArmerDesign,
+ShellDesignActions e ShellStripActions distinguono il metodo di progetto
+dalla rotazione tensoriale. Nessuna nuova verifica resistente plate.
+I prototipi FEM non utilizzati sono isolati in Compatibility.
+
+Verification, CheckRunner, MemberVerification, ResultTransformations e
+WoodArmer rimangono facciate compatibili. I contratti persistiti conservano
+assembly, namespace, campi e ordine. Converter e ModelChecker usano i nuovi
+servizi; Model non dipende da motori Checker, Converter o UI. Non e' stato
+introdotto un nuovo assembly che obbligherebbe a dipendenze circolari.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step5.trx: 931 superati, 0 falliti, 2 fixture native Straus7 assenti.
+- modelchecker-step5.trx: 110 superati, 0 falliti, durata 4m46s.
+- ArchitectureBoundaryTest controlla i riferimenti assembly, le chiamate IL
+  delle trasformazioni fisiche e le deleghe delle API storiche.
+- anthea-step5/summary.json: 4 build e 4 suite PASS sul bundle temporaneo.
+
+6. Snapshot preparati stabili e controllo di obsolescenza - COMPLETATO
+GPCModel 1.6.1.7; GPCModelChecker 1.0.3.0.
+
+VerificationSnapshot.Capture(PreparedVerification) conserva privatamente
+gli input compatibili, comprese sollecitazioni e provenienza. OpenModel e
+gli overload Verify(snapshot, request) producono grafi indipendenti per ogni
+esecuzione; IsCurrent confronta lo snapshot con un modello corrente.
+
+ValidationReadScope e' interno, sincrono e limitato a una preparazione o
+validazione. Condivide impronte e diagnostica fra gli input dello stesso
+piano, senza attraversare motori, callback di avanzamento o await. Non e'
+una cache persistente: le proprieta legacy rimangono mutabili e ogni nuovo
+controllo rilegge i valori. BeamCheckPlan.IsCurrentFor confronta richiesta,
+scope e input preparati senza rigenerarli. Il routing multimateriale risolve
+gli elementi prima della preparazione, che avviene una volta sola; Current
+non ricostruisce il piano. I controlli prima/dopo i motori restano attivi.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step6.trx: 933 superati, 0 falliti, 2 fixture Straus7 assenti.
+- modelchecker-step6.trx: gli stessi 110 test passano in 1m03s contro 4m46s
+  del punto 5, sullo stesso ambiente; non e' un benchmark generale del FEM.
+- snapshot-step6.trx: ulteriore test di esecuzione ripetibile dopo una
+  modifica al grafo preparato, superato. Totale ModelChecker: 111 distinti.
+- anthea-step6/summary.json: 4 build e 4 suite PASS.
+Le mutazioni dirette di geometria, configurazioni, campioni, dataset e forze
+preparate continuano a invalidare input e resoconti. Il modello legacy non
+diventa thread-safe: le modifiche concorrenti richiedono snapshot separati.
+
+7. Contratti persistenti e organizzazione dei risultati - COMPLETATO
+GPCModel 1.6.1.8.
+
+ModelDocument e' il contratto radice esplicito del wrapper v4: nomi, ordine,
+schema, collezioni obbligatorie e mapping sono separati da Models.Model.
+SaveDocument lo usa sempre; Save lo seleziona per le nuove analisi con
+impronta canonica. Per grafi storici resta disponibile la scrittura v1-v3.
+Load legge entrambe le famiglie e conserva GUID, oggetti condivisi,
+provenienza, scenari e notifiche di rinomina. I contratti foglia storici
+(sezioni, materiali, ecc.) sono mantenuti per compatibilita, con vocabolario
+chiuso esplicito ArchiveContractRegistry; non sono piu' scoperti riflettendo
+tutte le classi Serializable dell'assembly. Non e' un nuovo formato neutro
+universale di tutte le sezioni: i mapping foglia si evolvono singolarmente.
+
+FingerprintContracts dichiara nomi wire e accessori dei record persistenti,
+inclusi i campi opzionali. Un campo runtime aggiunto non entra implicitamente
+nel digest. I contratti legacy ISerializable mantengono i propri nomi
+espliciti; record esterni dei chiamanti conservano il fallback compatibile.
+Le identita dei tipi generici non includono piu' versioni DLL/runtime.
+Una fixture realmente prodotta da GPCModel 1.6.1.7/.NET 6 ha intercettato
+questa dipendenza, invisibile a un semplice round-trip con la stessa DLL.
+Le vecchie impronte degli snapshot vengono validate sui quattro digest
+originali con i vocabolari delle release 1.6.1.5-7 e runtime .NET 6/8/9/10.
+Solo gli input originali validati conservano l'identita analitica storica;
+modifiche fisiche rimangono RequiresReanalysis. Snapshot di altra provenienza
+non validabile sono rifiutati. Non si rietichettano sollecitazioni usando il
+modello modificato. I resoconti/calcoli derivati storici con digest legacy
+rimangono consultabili e possono richiedere nuova verifica/ricostruzione.
+
+IResultStore e InMemoryResultStore offrono un indice distaccato per GUID
+elemento, dataset/caso, stato e posizione. ResultRecord conserva il campione
+privatamente e restituisce copie. ResultQueries ha l'overload per lo store;
+le liste storiche degli elementi restano disponibili. Tagli sinistro/destro,
+domini, estremi e proprietari delle azioni nodali, punti/regioni dei plate,
+tipi di risultato e stati concomitanti non vengono confusi. Esportazioni
+duplicate restano righe distinte, senza sovrascrittura o interpolazione.
+L'implementazione iniziale e' in memoria: occorre ricatturarla dopo import
+o modifiche; non introduce un database o uno store su disco.
+
+Evidenze (TestResults/Architecture20261008):
+- model-step7-final.trx: 939 superati, 0 falliti, 2 fixture Straus7 assenti.
+- modelchecker-step7-final.trx: 111 superati, 0 falliti, con Concrete 0.0.18.0.
+- ExplicitPersistenceTest: migrazione reale v3-v4, riferimenti condivisi,
+  scenari, versione sconosciuta, isolamento/duplicati nello store e digest
+  identico fra .NET 6 e .NET 10.0.11.
+- anthea-step7/summary.json: 4 build e 4 suite PASS con il bundle precedente.
+Durante la fase Checker esterno e' stato aggiornato indipendentemente a
+0ad8314b (Concrete 0.0.18.0). Il test della provenienza confronta ora la
+versione della DLL caricata, anziche la vecchia costante 0.0.17.0; gli attesi
+numerici sono invariati. Nessun sorgente Checker/Anthea modificato qui.
+
+Passi successivi della revisione (NON ANCORA IMPLEMENTATI):
+8. Configurazioni di verifica, routing per controllo e dipendenze riproducibili.
+
+Checkpoint prima dello spegnimento, 8 ottobre 2026.
+GPCModel 1.6.1.9; GPCModelChecker 1.0.4; GPCConverter invariato.
+
+Implementato e verificato nella parte 8A:
+- VerificationConfiguration: dati persistenti e versionati, contesti normativi
+  riutilizzabili, revisioni, unita, definizioni motore e assegnazioni.
+- EngineCatalog: factory registrate esplicitamente, capacita e limiti;
+  configurazione salvabile per Concrete, Steel e CompositeBridge.
+- Routing beam per meccanismo o specifico controllo, conflitti rilevati prima
+  delle sessioni native. Domini delle sezioni e facce plate espliciti.
+- Plate: selezione elementi/gruppi, preparazione materiale-neutra,
+  CoordinateSystem elemento/armatura/esplicito, stati concomitanti,
+  IPlateChecker/IPlateCheckSession, copertura per punti esportati, progress,
+  cancellazione, invalidazione per modifiche a input, risultati o motori.
+- Verify(model, configuration, catalog) prepara beam e plate prima di
+  creare sessioni e raccoglie i resoconti comuni. Supporta VerificationSnapshot.
+- ShellThickness in ElementProperties: oggetto immutabile, in mm, distinto
+  dal materiale, con spessore fisico, equivalente membranale e flessionale.
+  Nessuna duplicazione dei dati autorevoli di PlateProperty/ShellAssignments.
+  Snapshot dei tre valori nel resoconto, acquisito PRIMA del checker.
+- Resoconti plate schema 3 nel wrapper v4: target 2D, punto, faccia, assi,
+  azioni e spessori usati. Gli archivi beam precedenti rimangono leggibili.
+- Due categorie di verifica sullo stesso stato plate mantengono due task.
+
+Limiti espliciti:
+- Concrete.Plate e Steel.Plate nel catalogo sono capacita NON disponibili:
+  producono NotEvaluated/MissingDependency. Non sono state inventate formule
+  resistenti. I test plate usano un adapter di protocollo dichiaratamente
+  fittizio, separato dai motori resistenti reali dei beam.
+- La rotazione ordinaria conserva la normale. La sua inversione va prima
+  normalizzata esplicitamente con ResultOrientation.Shell/ShellLayers;
+  non viene applicata automaticamente dal piano di verifica.
+- Spessore costante per elemento. Stratificati e campi variabili richiedono
+  contratti dedicati. Copriferro e altezza utile non sono Thickness.
+- Questo checkpoint NON conclude tutto il punto 8.
+
+Ripresa (ordine consigliato):
+1. Revisione finale del nuovo flusso plate: dettaglio direzione/categoria
+   nel resoconto leggibile, capability/context dei plugin e prove miste
+   beam+plate nello stesso model, routing plate per singolo controllo.
+2. Punto 8B: manifest delle DLL esterne con SHA256/versione/provenienza,
+   directory bundle esplicita e verifica in build/CI; baseline automatica
+   delle API pubbliche. Oggi restano i riferimenti alle bin/Release sorelle.
+3. Riordino/pulizia richiesto dall'utente, con COMMIT SEPARATO: inventario
+   dei riferimenti interni ed esterni prima di rimuovere API pubbliche.
+   Gia individuati: vecchi Compile Remove su cartelle FEM ora inesistenti,
+   abbozzi FemBeam/EulerBeam in Model/Compatibility/FiniteElementAnalysis,
+   stub NotImplementedException e TODO in sezioni/carichi/risultati.
+   Non tutti sono codice morto: alcuni fanno parte di API/archivi storici.
+   Non sono state effettuate cancellazioni generiche prima dello stop.
+4. Completare i test aggiuntivi, aggiornare questo resoconto e dichiarare
+   concluso il punto 8 solo quando anche 8B e' completato.
+
+Validazione checkpoint:
+- model-step8-checkpoint.trx: 939 pass, 0 fail, 2 fixture Straus7 assenti.
+- modelchecker-step8-checkpoint.trx: 119 pass, 0 fail.
+- configured-step8-final.trx: 9 pass, 0 fail dopo la correzione di categorie
+  plate (include i precedenti 8 casi e il nuovo caso multicategoria).
+- anthea-step8-checkpoint/summary.json: quattro build e quattro suite PASS
+  con bundle temporaneo; nessuna DLL distribuita Anthea modificata.
+- L'ultima correzione aggiunge un percorso di enumerazione plate;
+  l'enumerazione legacy resta invariata. Nessuna formula nativa modificata.
+
+9 OTTOBRE - FASE CALCOLO COLLEGATA
+ModelChecker 1.0.5 usa ISectionResponseSolver/ISectionResistanceSolver per SLU,
+tensioni e fessurazione. IConcreteCalculationFactory permette di sostituire il
+motore nella stessa classe di verifica. Identita', versione e configurazione
+numerica sono incluse nella configurazione persistita; il metodo normativo resta
+identificato dai dettagli. Le firme precedenti restano utilizzabili. Il lock
+fra sessioni e la validazione degli input non sono stati rimossi.
+Validazione: 120 test preesistenti ModelChecker passati, piu' un test del motore
+alternativo/non convergenza. Checker Concrete 0.0.19.0 richiesto.
+
+9 OTTOBRE - PUNTO 8B: PLATE E CATALOGO COMPLETATI
+Schema risultato 4 / archivio resoconti 5: ShellCheckSnapshot registra ID,
+metodo, direzione, categoria richiesta/effettiva, faccia fisica, segno della
+normale e richiesta di armatura. Vecchi resoconti restano leggibili.
+Catalogo: verifica binding contesto/revisione/unita' anche nelle query di
+capacita'; verifica identita' runtime. Un plugin/configurazione non disponibile
+fa decadere CurrentOutcome a NotEvaluated. Provati beam e plate nello stesso
+run e due motori distinti per due verifiche dello stesso plate.
+Validazione: 12 test plate/configurazione; Model/Converter 939 passati, 2 test
+Straus nativi ignorati per fixture esterne assenti. Warning GMsh architettura
+preesistente. Le formule resistenti plate rimangono da concordare separatamente.
+
+9 OTTOBRE - PUNTO 8C: BUILD E COMPATIBILITA'
+Soluzione completa con ModelChecker e relativi test. Build basata su un bundle
+unico di otto DLL controllate con versione/SHA256, lock NuGet e runner
+build/Verify.ps1. Baseline API dalle DLL originali acquisita e controllata:
+nessuna rottura nelle fasi calcolo/plate. Provato rifiuto di DLL mancanti o
+alterate. Runner completo: Model/Converter 939 passati + 2 saltati; ModelChecker
+124 passati. Punto 8 infrastrutturale completato; plate resistenti restano
+fuori perimetro fino alla scelta condivisa dei metodi.
+
+9 OTTOBRE - PULIZIA CERTA / MODEL 2.0
+Rimossi i due tipi pubblici incompleti FemBeam/EulerBeam e IFiniteElement
+interna, il test interamente commentato e le esclusioni FEM inutili. La rottura
+intenzionale e le sostituzioni sono in MIGRAZIONE_MODEL_2.txt. Versione Model
+2.0.0.0. API check: soltanto 15 firme rimosse appartenenti ai due tipi approvati;
+nessuna altra rottura. Model/Converter: 939 passati, 2 fixture esterne saltate.
+
+9 OTTOBRE - RIORDINO E VALIDAZIONE FINALE
+162 sorgenti riallocati e 53 dichiarazioni estratte da cinque contenitori con
+il parser Roslyn. Classi di pianificazione/report separate dall'esecutore;
+assegnazioni nodi/beam/shell distinte; converter organizzati per provider.
+Namespace e contratti di persistenza preservati. Versioni finali e albero in
+ARCHITETTURA_IMPLEMENTATA_20261009.txt.
+
+Verifiche finali sul codice riorganizzato:
+- build/Verify.ps1: Model/Converter 939 PASS, 2 test Straus saltati per fixture
+  native esterne; ModelChecker 124 PASS; API: 0 rimozioni inattese.
+- Concrete con Model 2.0 e DLL vincolata: 14 PASS, fixture storiche incluse.
+- Anthea commit 98a21d452a0239b3dbe0720cd09653661790bb60, bundle candidato
+  completo con manifest: sette build e sette suite PASS (14 esiti), nessun
+  NEW-FAIL. CalculationLibrary, ConcreteCode, ConcreteLibraryAdapter,
+  ConcreteDesign, BridgeDesign, GlobalStability, RetainingWall.
+- Anthea/lib/Checker e main non modificati. Nessuna prova WPF/full deployment:
+  questo controllo certifica soltanto i percorsi headless selezionati.
+- Le risposte del motore e i metodi normativi esistenti rimangono equivalenti
+  entro le tolleranze delle fixture; nessun atteso e' stato rigenerato.
+
+9 OTTOBRE - CONTROLLO FINALE DEL CONTRATTO NUMERICO
+ModelChecker 1.0.8 conserva EngineVersion della libreria dei metodi normativi;
+NumericalEngine/NumericalEngineVersion e relative opzioni sono separati nella
+configurazione persistita. Le risposte devono corrispondere a motore, versione,
+criterio SLU oppure azioni/assi/modalita'/coefficienti richiesti per SLE e crack.
+Un'incoerenza produce NotEvaluated. Test del motore alternativo esteso ai casi
+motore/criterio errati. Ultima suite: ModelChecker 124 PASS; API 0 rotture inattese.

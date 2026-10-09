@@ -1,17 +1,30 @@
+using GPC.Model.Models;
 using GPC.Examples;
 using GPC.Geometry;
 using GPC.Model.Attributes;
 using GPC.Model.Collections;
-using GPC.Model.Costrains;
+using GPC.Model.Constraints;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Units;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
 namespace UnitTest
 {
@@ -118,7 +131,9 @@ namespace UnitTest
             var model = MixedModelFactory.Create(); var b = model.BeamElements[250]; b.Assignments.Sections[0].Section.Rebars.First().Position.Y = 100;
             var positive = Verification.PrepareBeam(model, 250, Verification.BeamSample(b, "synthetic-static", "P+", .5, SectionSide.Unspecified), "test").Input;
             var negative = Verification.PrepareBeam(model, 250, Verification.BeamSample(b, "synthetic-static", "P-", .5, SectionSide.Unspecified), "test").Input;
-            Assert.AreSame(positive.Section, negative.Section); Assert.AreEqual(100, negative.Section.Rebars.First().Position.Y, 1e-10);
+            Assert.AreNotSame(positive.Section, negative.Section);
+            Assert.AreEqual(ModelArchive.Fingerprint(new object[] { positive.Section }), ModelArchive.Fingerprint(new object[] { negative.Section }));
+            Assert.AreEqual(100, negative.Section.Rebars.First().Position.Y, 1e-10);
             Assert.AreEqual(-1000000, positive.Forces.M1, 1e-7); Assert.AreEqual(1000000, negative.Forces.M1, 1e-7);
         }
 

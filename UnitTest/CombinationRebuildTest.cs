@@ -2,9 +2,13 @@ using GPC.Converter;
 using GPC.Converter.CivilNx;
 using GPC.Model.Elements;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
 
 namespace UnitTest;
 

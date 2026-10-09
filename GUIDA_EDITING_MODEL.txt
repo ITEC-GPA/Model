@@ -1,0 +1,84 @@
+MODEL: MODIFICHE, INPUT DI VERIFICA E MEMBRATURE
+Punto 4 - Model 2.0.0.2 / ModelChecker 1.0.13
+
+Obiettivo
+Il modello rimane modificabile per importatori, editor e migrazione di Anthea.
+Le modifiche applicative possono essere preparate e validate prima di sostituire
+il documento corrente. Gli input numerici preparati non condividono le sezioni
+e le assegnazioni modificabili del documento.
+
+Flusso per l'applicazione
+  using (var edit = new GPC.Model.Models.ModelEditSession(model))
+  {
+      // Cambiare edit.Draft usando i normali servizi del dominio:
+      // ConnectBeam, ConnectShell, assegnazioni, gruppi, sezioni, membrature...
+      var diagnostics = edit.Validate();
+      var result = edit.Commit();
+      model = result.Model;
+      // result.AnalysisChanged e result.VerificationChanged informano l'editor.
+      // result.AnalysisCompatibilityAtCommit riporta se le azioni sono riutilizzabili.
+  }
+
+Draft e documento pubblicato sono copie separate. Commit non modifica il
+modello originale; il chiamante sostituisce il proprio riferimento solo dopo
+il successo. Una modifica successiva a Draft non cambia il documento pubblicato.
+Dispose annulla la sessione; dopo Commit/Dispose non si puo' ricommettere.
+Gli errori di topologia, assegnazioni e membratura impediscono il commit; la
+bozza puo' essere corretta e validata di nuovo. Una modifica al sorgente mentre
+la sessione e' aperta produce ModelEditConflict: non avviene una fusione implicita.
+
+Revisioni e risultati storici
+ModelRevision.Analysis e Verification sono impronte dei valori. Le armature
+escluse esplicitamente dall'analisi FEM possono cambiare senza invalidare le
+azioni FEM; la verifica deve comunque essere rieseguita. Per armature incluse
+o di ruolo ignoto governa AnalysisCompatibilityAtCommit (calcolata con
+AnalysisCompatibilityValidator), anche se la semplice
+impronta geometrica Analysis non cambia. AnalysisChanged da solo NON autorizza
+il riutilizzo dei risultati.
+Geometria, materiali e spessori rilevanti cambiano la compatibilita' analitica.
+Il commit conserva l'analisi acquisita e i risultati: non ne aggiorna le impronte
+per farli apparire correnti. Preparazione e checker li accettano soltanto se
+ancora compatibili. I resoconti storici vanno interrogati con CurrentOutcome.
+ModelRevision.Document e' un token esatto del documento per i conflitti sulla
+stessa istanza; le copie possono rigenerare GUID geometrici interni. Non usarlo
+come confronto semantico fra due copie o come formato persistente di progetto.
+
+Input per i checker
+- BeamCheckInput.Section: copia autonoma della sezione in cls, inclusi materiali,
+  barre, geometria e dati di verifica.
+- BeamActionInput.Property: copia della proprieta' risolta nella sezione di taglio;
+  usata anche dagli adapter acciaio e CompositeBridge.
+- ShellCheckInput.Assignments e Property: copie autonome, con strati, assi e
+  proprieta' plate; Thickness conserva spessori fisico, membranale e flessionale.
+- Le forze locali restano autonome e vengono controllate contro la loro impronta.
+- IsCurrent controlla sia la copia preparata sia sorgente, campione, dataset e
+  compatibilita' analitica. Rimozioni o modifiche rendono l'input obsoleto.
+- Model/Element/Sample, dove esposti dalle API precedenti, rimangono riferimenti
+  al sorgente per identita', tracciamento e compatibilita': i calcoli devono usare
+  Section/Property/Assignments e le forze preparate. Non sono DTO interamente
+  scollegati per il trasferimento ad altri processi.
+- La factory numerica Concrete riceve ulteriori copie di sezione e standard:
+  non puo' alterare il documento o gli input preparati tramite questi argomenti.
+  La cache riusa sessioni per contenuto equivalente, indipendentemente dal modello
+  sorgente; una sezione realmente cambiata richiede una nuova sessione.
+
+Membrature
+PhysicalMemberDefinition conserva il percorso ordinato e il verso IJ dei beam.
+PhysicalMemberGeometry valida connessione, continuita', rettilineita' e domini.
+MemberDesignContext conserva lunghezze efficaci, vincoli espliciti, fonte e
+assunzioni; nessuna lunghezza efficace viene dedotta automaticamente dai gruppi
+o dalle zone rigide. MemberRestraint valida e copia il CoordinateSystem.
+Il detailing raggruppa sezioni equivalenti per contenuto; sezioni differenti
+con lo stesso nome restano distinte e hanno chiavi di resoconto univoche.
+Non sono state introdotte nuove formule di stabilita' o verifiche resistenti plate.
+
+Limiti deliberati
+La sessione copia l'intero documento alle frontiere di modifica: non va aperta
+per ogni iterazione del solver o per ogni campione. I setter legacy restano
+utilizzabili ma non rendono il grafo thread-safe. L'applicazione deve coordinare
+la sostituzione del documento e non modificarlo durante il calcolo. Nessun merge
+automatico o undo globale; il sorgente conservato puo' supportare l'undo dell'UI.
+ModelArchive.CopyValue usa solo i tipi registrati nel contratto di persistenza:
+nuove sezioni/materiali/standard richiedono registrazione e test di serializzazione.
+Le firme API precedenti sono conservate; e' intenzionalmente cambiata la semantica
+di proprieta' degli input: modificare la sezione preparata non modifica il modello.

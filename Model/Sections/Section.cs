@@ -185,7 +185,28 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The torsion solved with the finite elements for the values left to compute (null until the first access to one of them)
         /// </summary>
-        private SectionTorsionProperties _numericalTorsion;
+        // Runtime results never overwrite the serialized section definition.
+        [NonSerialized]
+        private CalculationCache _calculated;
+
+        private sealed class CalculationCache
+        {
+            internal readonly Lazy<SectionTorsionProperties> Torsion;
+            internal readonly Lazy<Point2d> ShearCenter;
+            internal readonly Lazy<double> Wpl1, Wpl2, WplX, WplY;
+
+            internal CalculationCache(Section section)
+            {
+                Torsion = new Lazy<SectionTorsionProperties>(() => section.CalculateTorsionProperties());
+                ShearCenter = new Lazy<Point2d>(() => section.OnTheAxesOfSymmetry(Torsion.Value.ShearCenter));
+                Wpl1 = new Lazy<double>(() => section.PlasticModulus(section._angleX1));
+                Wpl2 = new Lazy<double>(() => section.PlasticModulus(section._angleX1 + Math.PI / 2.0));
+                WplX = new Lazy<double>(() => section.PlasticModulus(0.0));
+                WplY = new Lazy<double>(() => section.PlasticModulus(Math.PI / 2.0));
+            }
+        }
+
+        private CalculationCache Calculated => LazyInitializer.EnsureInitialized(ref _calculated, () => new CalculationCache(this));
 
         #endregion
 
@@ -201,14 +222,14 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
         /// before, 0)</remarks>
-        public double Jt => double.IsNaN(_jt) && SolvesTorsionNumerically ? (_jt = NumericalTorsion.TorsionConstant) : _jt;
+        public double Jt => double.IsNaN(_jt) && SolvesTorsionNumerically ? Calculated.Torsion.Value.TorsionConstant : _jt;
 
         /// <summary>
         /// The warping constant
         /// </summary>
         /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
         /// before, 0); <see cref="double.NaN"/> when not available (see <see cref="GetAvailability"/>)</remarks>
-        public double Jw => double.IsNaN(_jw) && SolvesTorsionNumerically ? (_jw = NumericalTorsion.WarpingConstant) : _jw;
+        public double Jw => double.IsNaN(_jw) && SolvesTorsionNumerically ? Calculated.Torsion.Value.WarpingConstant : _jw;
 
         /// <summary>
         /// The moment of inertia (second moment of area) about the X axis through the centroid
@@ -244,13 +265,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the 1-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl1 => double.IsNaN(_wpl1) ? (_wpl1 = PlasticModulus(_angleX1)) : _wpl1;
+        public double Wpl1 => double.IsNaN(_wpl1) ? Calculated.Wpl1.Value : _wpl1;
 
         /// <summary>
         /// The plastic modulus calculated respect the 2-principal axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double Wpl2 => double.IsNaN(_wpl2) ? (_wpl2 = PlasticModulus(_angleX1 + Math.PI / 2.0)) : _wpl2;
+        public double Wpl2 => double.IsNaN(_wpl2) ? Calculated.Wpl2.Value : _wpl2;
 
         /// <summary>
         /// The elastic modulus calculated respect the 1-principal axes and the minimum (with sign) distance respect the centroid
@@ -316,13 +337,13 @@ namespace GPC.Model.Sections
         /// The plastic modulus calculated respect the X axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, the minimum elastic modulus)</remarks>
-        public double WplX => double.IsNaN(_wplX) ? (_wplX = PlasticModulus(0.0)) : _wplX;
+        public double WplX => double.IsNaN(_wplX) ? Calculated.WplX.Value : _wplX;
 
         /// <summary>
         /// The plastic modulus calculated respect the Y axes
         /// </summary>
         /// <remarks>For a generic shape, the exact plastic modulus is computed at the first access (before, <see cref="Wel2Max"/>)</remarks>
-        public double WplY => double.IsNaN(_wplY) ? (_wplY = PlasticModulus(Math.PI / 2.0)) : _wplY;
+        public double WplY => double.IsNaN(_wplY) ? Calculated.WplY.Value : _wplY;
 
         /// <summary>
         /// The centroid of the section
@@ -334,7 +355,7 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <remarks>For a generic shape it is computed with the finite elements at the first access (see <see cref="CalculateTorsionProperties"/>;
         /// before, the centroid)</remarks>
-        public Point2d ShearCenter => _shearCenter is null && SolvesTorsionNumerically ? (_shearCenter = OnTheAxesOfSymmetry(NumericalTorsion.ShearCenter)) : _shearCenter;
+        public Point2d ShearCenter => _shearCenter is null && SolvesTorsionNumerically ? Calculated.ShearCenter.Value : _shearCenter;
 
         /// <summary>
         /// The shear centre solved with the finite elements, on the axes of symmetry of the section (the mesh is not symmetric: the coordinate
@@ -466,16 +487,13 @@ namespace GPC.Model.Sections
         private protected virtual bool SolvesTorsionNumerically => true;
 
         /// <summary>
-        /// The torsion solved with the finite elements on the region of the section, with the default mesh (computed once)
+        /// Discards runtime calculations after changing the definition. Overrides of <see cref="SetMechanicalProperties"/>
+        /// must call this method if they do not call the base implementation. Mutation during calculation is not supported.
         /// </summary>
-        private SectionTorsionProperties NumericalTorsion
+        protected void InvalidateCalculatedProperties()
         {
-            get
-            {
-                if (_numericalTorsion is null)
-                    Interlocked.CompareExchange(ref _numericalTorsion, CalculateTorsionProperties(), null);
-                return _numericalTorsion;
-            }
+            Interlocked.Exchange(ref _calculated, null);
+            _mesh = null;
         }
 
         #endregion
@@ -596,6 +614,14 @@ namespace GPC.Model.Sections
                 _jw = double.NaN;
                 _shearCenter = null;
             }
+
+            // In old generic sections these values mixed the definition with the last computed results.
+            // A generic section with a shape has no independently supplied torsion or plastic properties.
+            if (version < 5 && GetType() == typeof(Section) && _shape != null)
+            {
+                _jt = _jw = _wpl1 = _wpl2 = _wplX = _wplY = double.NaN;
+                _shearCenter = null;
+            }
         }
 
         #endregion
@@ -655,7 +681,7 @@ namespace GPC.Model.Sections
         /// </summary>
         public virtual void SetMechanicalProperties()
         {
-            _numericalTorsion = null;
+            InvalidateCalculatedProperties();
             _area = CalculateArea();
 
             _centroid = CalculateCentroid();
@@ -1133,8 +1159,8 @@ namespace GPC.Model.Sections
         #region Public override method
 
         /// <summary>
-        /// Serializes the section (version 3: with the shape; the lazy plastic moduli are calculated. Version 4: the torsion constant, the
-        /// warping constant and the shear centre not computed yet are written as NaN and null, computed again after the deserialization)
+        /// Serializes the definition, without running mechanical calculations. Version 5 keeps all deferred properties
+        /// as NaN/null regardless of whether the runtime cache has been populated; older versions are still readable.
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -1142,7 +1168,7 @@ namespace GPC.Model.Sections
         {
             base.GetObjectData(info, context);
 
-            double version = 4;
+            double version = 5;
             info.AddValue("SectionVersion", version);
 
             //info.AddValue("Material", _material); // Removed in version==3.
@@ -1155,14 +1181,14 @@ namespace GPC.Model.Sections
             info.AddValue("Jw", _jw);
             info.AddValue("J11", _j11);
             info.AddValue("J22", _j22);
-            info.AddValue("WPL1", Wpl1); // the property: the lazy value is computed
-            info.AddValue("WPL2", Wpl2);
+            info.AddValue("WPL1", _wpl1);
+            info.AddValue("WPL2", _wpl2);
             info.AddValue("WEL1Max", _wel1Max);
             info.AddValue("WEL1Min", _wel1Min);
             info.AddValue("WEL2Max", _wel2Max);
             info.AddValue("WEL2Min", _wel2Min);
-            info.AddValue("WPLX", WplX);
-            info.AddValue("WPLY", WplY);
+            info.AddValue("WPLX", _wplX);
+            info.AddValue("WPLY", _wplY);
             info.AddValue("WELXMax", _welXMax);
             info.AddValue("WELXMin", _welXMin);
             info.AddValue("WELYMax", _welYMax);
@@ -1176,7 +1202,8 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Equality of the properties and of the name (the plastic moduli are compared by their properties, calculated if needed)
+        /// Equality of the definition and name, independent of runtime calculations. Deferred properties compare as NaN;
+        /// their source geometry is compared as well, without solving torsion or integrating plastic moduli.
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns>True if <paramref name="obj"/> is a section with the same properties</returns>
@@ -1191,29 +1218,33 @@ namespace GPC.Model.Sections
                    _jyy == section._jyy &&
                    _jxy == section._jxy &&
                    _jp == section._jp &&
-                   Jt.Equals(section.Jt) && // the properties: the values computed at the first access are computed (NaN equals NaN)
-                   Jw.Equals(section.Jw) &&
+                   _jt.Equals(section._jt) &&
+                   _jw.Equals(section._jw) &&
                    _j11 == section._j11 &&
                    _j22 == section._j22 &&
-                   Wpl1 == section.Wpl1 && // the properties: the lazy NaN values are calculated (NaN != NaN)
-                   Wpl2 == section.Wpl2 &&
+                   _wpl1.Equals(section._wpl1) &&
+                   _wpl2.Equals(section._wpl2) &&
                    _wel1Max == section._wel1Max &&
                    _wel1Min == section._wel1Min &&
                    _wel2Max == section._wel2Max &&
                    _wel2Min == section._wel2Min &&
-                   WplX == section.WplX &&
-                   WplY == section.WplY &&
+                   _wplX.Equals(section._wplX) &&
+                   _wplY.Equals(section._wplY) &&
                    _welXMax == section._welXMax &&
                    _welXMin == section._welXMin &&
                    _welYMax == section._welYMax &&
                    _welYMin == section._welYMin &&
                    _angleX1 == section._angleX1 &&
                    _centroid == section._centroid &&
-                   SamePoint(ShearCenter, section.ShearCenter) &&
+                   SamePoint(_shearCenter, section._shearCenter) &&
+                   (!HasDeferredProperties || Equals(GetPlasticShape(), section.GetPlasticShape())) &&
                    _isSymmetricAlongXLocalAxis == section._isSymmetricAlongXLocalAxis &&
                    _isSymmetricAlongYLocalAxis == section._isSymmetricAlongYLocalAxis &&
                    base.Equals(obj);
         }
+
+        private bool HasDeferredProperties => double.IsNaN(_jt) || double.IsNaN(_jw) || _shearCenter is null
+            || double.IsNaN(_wpl1) || double.IsNaN(_wpl2) || double.IsNaN(_wplX) || double.IsNaN(_wplY);
 
         /// <summary>
         /// The hash code of the name and of the properties

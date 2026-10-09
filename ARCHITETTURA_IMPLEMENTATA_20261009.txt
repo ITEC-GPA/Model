@@ -1,0 +1,99 @@
+AGGIORNAMENTO MODEL 4 - NAMESPACE
+La migrazione ora e' implementata: responsabilita' e namespace sono allineati.
+Vedere MIGRAZIONE_MODEL_4.txt e build/namespace-migration.json.
+Le versioni e i namespace nelle fotografie storiche sotto sono superati.
+
+AGGIORNAMENTO SUCCESSIVO - MODEL 3
+Persistenza ora in GPC.Model.Persistence.dll, dipendente da GPCModel.
+Copie/fingerprint in GPC.Model.Core; nessuna dipendenza inversa del dominio.
+La fotografia storica sotto resta utile per le responsabilita' delle cartelle;
+versioni, API spostate e procedure aggiornate sono in MIGRAZIONE_MODEL_3.txt.
+
+ARCHITETTURA IMPLEMENTATA - 9 OTTOBRE 2026
+
+Versioni: Model 2.0.0.0; ModelChecker 1.0.8; Converter 1.0.3;
+Checker.Concrete 0.0.19.0. Branch: codex/model-architecture in Model e Checker.
+
+Flusso principale
+  Converter -> Model (struttura, analisi, risultati, unita' e assi)
+  Model -> preparazione/snapshot -> ModelChecker -> Checker -> resoconti
+  Anthea puo' usare direttamente Checker senza costruire un intero modello FEM.
+  Model non referenzia ModelChecker ne' Checker. La UI non contiene formule.
+
+Albero dei moduli reali (cartelle, non nuove DLL)
+  Model
+    Core: identita', collezioni, unita', assi, diagnostica
+    Structure
+      Model / Elements / Groups / Topology / Members
+      Assignments: Nodes / Beams / Shells
+      Properties: proprieta' strutturali e ShellThickness
+    Materials: dati e leggi fisiche condivise esistenti
+    Sections: geometrie e proprieta' cls/acciaio, armature e dettagli
+    Actions: carichi, casi, combinazioni, vincoli, fasi
+    Analysis: snapshot, dataset, profili e compatibilita' dell'analisi
+    Results: State / Values / Locations / Storage / Queries / Processing
+    Design: norme, combinazioni normative e azioni di progetto plate
+    Checking: Contracts / Preparation / Scenarios / Reports / Execution
+    Persistence / Geotechnics / Numerics
+    Compatibility: facciate pubbliche ancora usate, senza nuovi metodi FEM
+  ModelChecker
+    Contracts: porte dei checker e delle sessioni
+    Configuration: opzioni, contesti, catalogo e archivio delle configurazioni
+    Planning: Beam / Plate / Routing
+    Adapters: Concrete / Steel / CompositeBridge / Common
+    Execution: esecuzione, progress, cancellazione, attualita' degli input
+    Reporting: ModelCheckReport
+  GPC Converter
+    Contracts / Mapping / Conventions
+    Providers: MidasCivilNx / MidasCivilMgt / Straus7Api
+    Providers/Sap2000 contiene soltanto le tabelle gia' presenti, NON un
+      connettore SAP2000 completo. GEN NX/GEN restano sviluppi successivi.
+  ModelData
+    Cataloghi materiali e sezioni, come prima; non contiene verificatori.
+  Checker.Concrete
+    Analysis: contratti e adapter del motore numerico corrente
+    Serviceability: contesto di limiti risolti e metodo tensionale
+    Cracking / Shear / Torsion / Detailing / Durability: metodi esistenti
+    Results / Checkers / SectionSolvers: API precedenti per la migrazione
+
+Confine calcolo/verifica
+  IConcreteCalculationFactory crea una sessione per sezione/configurazione.
+  ISectionResponseSolver produce SectionResponse: piano e campioni autonomi.
+  ISectionResistanceSolver produce SectionResistanceResponse: capacita',
+    rapporto, criterio e diagnostica senza un riferimento al solutore.
+  StressLimitContext risolve i limiti normativi separatamente.
+  StressLimitCheck applica lo stesso metodo alle risposte del motore corrente
+    o di un motore alternativo. La firma precedente delega allo stesso percorso.
+  ModelChecker usa le porte per SLU, tensioni e fessurazione. Taglio/torsione
+    conservano i contratti dedicati: non si introduce un solver artificiale.
+  Restano sincronizzazione del motore legacy e cancellazione ai confini delle
+    sue chiamate. Il motore non espone residui/iterazioni: non sono inventati.
+  Le risposte sono campioni espliciti, non un campo interpolabile arbitrario.
+
+Beam, gruppi e plate
+  Group seleziona elementi; PhysicalMemberDefinition descrive una membratura.
+  Nessuna sottoclasse ConcreteBeam/SteelBeam: materiale e proprieta' si compongono.
+  ShellThickness distingue Physical, Membrane, Bending in mm.
+  ShellCheckSnapshot conserva richiesta, categoria, direzione, faccia e normale.
+  ShellInputSnapshot conserva azioni locali, assi e spessori. Il modello non
+    certifica massimi continui non campionati. Facce/normale non sono inferite.
+  Il catalogo supporta routing per elemento e verifica, piu' motori e contesti.
+  Concrete.Plate/Steel.Plate restano esplicitamente indisponibili: le formule
+    resistenti plate richiedono la scelta condivisa dei metodi richiesta dall'utente.
+
+Compatibilita' e pulizia
+  162 spostamenti fisici e 53 dichiarazioni separate con il parser C# del SDK.
+  Namespace, nomi dei tipi conservati e contratti serializzati restano invariati.
+  L'unica rimozione pubblica e' FemBeam/EulerBeam: MIGRAZIONE_MODEL_2.txt.
+  Il vecchio BeamTest interamente commentato e le esclusioni FEM inutili sono rimossi.
+  Baseline API: solo i due tipi rimossi sono autorizzati; ogni altra rimozione fallisce.
+  build/Verify.ps1 verifica DLL a hash vincolato, lock NuGet, test e API.
+
+Limiti della tappa
+  Non e' una riscrittura del motore numerico: il vecchio motore e' adattato alle
+    nuove porte e quello rifattorizzato potra' implementarle con gli stessi metodi.
+  L'estrazione futura di Structural.Core/Checking.Contracts in DLL distinte,
+    ID tipizzati e la chiusura di tutti i setter del grafo restano evoluzioni
+    architetturali ammissibili della proposta, non artefatti vuoti creati ora.
+  Rimangono API materiali/standard storiche usate da Anthea. Gli archivi esistenti
+    continuano a essere letti e verificati con le fixture reali precedenti.

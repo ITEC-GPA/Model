@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Converter;
 using GPC.Examples;
 using GPC.Geometry;
@@ -7,16 +8,23 @@ using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Stages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
 namespace UnitTest
 {

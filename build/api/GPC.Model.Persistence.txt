@@ -1,0 +1,11 @@
+M|GPC.Model.Persistence.ArchiveContractRegistry|get_SupportedTypes()|System.Collections.Generic.IReadOnlyCollection`1<System.Type>|Public, Static, HideBySig, SpecialName|
+M|GPC.Model.Persistence.CheckReportArchive|Load(System.IO.Stream source:None)|System.Collections.Generic.IReadOnlyList`1<GPC.Model.PostProcessing.CheckReport>|Public, Static, HideBySig|
+M|GPC.Model.Persistence.CheckReportArchive|Save(System.Collections.Generic.IEnumerable`1<GPC.Model.PostProcessing.CheckReport> reports:None,System.IO.Stream destination:None)|System.Void|Public, Static, HideBySig|
+M|GPC.Model.Persistence.ModelArchive|Fingerprint(System.Collections.Generic.IEnumerable`1<System.Object> input:None)|System.String|Public, Static, HideBySig|
+M|GPC.Model.Persistence.ModelArchive|Load(System.IO.Stream source:None)|GPC.Model.Models.Model|Public, Static, HideBySig|
+M|GPC.Model.Persistence.ModelArchive|Save(GPC.Model.Models.Model model:None,System.IO.Stream destination:None)|System.Void|Public, Static, HideBySig|
+M|GPC.Model.Persistence.ModelArchive|SaveDocument(GPC.Model.Models.Model model:None,System.IO.Stream destination:None)|System.Void|Public, Static, HideBySig|
+M|GPC.Model.Persistence.ModelArchive|get_DataContracts()|System.Collections.Generic.IReadOnlyCollection`1<System.Type>|Public, Static, HideBySig, SpecialName|
+T|GPC.Model.Persistence.ArchiveContractRegistry|Public, Abstract, Sealed, BeforeFieldInit|base=System.Object|interfaces=|
+T|GPC.Model.Persistence.CheckReportArchive|Public, Abstract, Sealed, BeforeFieldInit|base=System.Object|interfaces=|
+T|GPC.Model.Persistence.ModelArchive|Public, Abstract, Sealed, BeforeFieldInit|base=System.Object|interfaces=|

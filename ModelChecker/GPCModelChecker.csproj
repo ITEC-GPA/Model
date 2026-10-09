@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Version>2.0.1</Version>
     <RootNamespace>GPC.Model.Checker</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
