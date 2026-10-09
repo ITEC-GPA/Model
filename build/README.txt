@@ -7,10 +7,14 @@ Per una macchina senza repository fratelli: -SourceBundle <cartella DLL>.
 Per build dirette e' possibile -p:GpcDependencyDir=<cartella>; gli hash restano
 obbligatori. Non e' previsto un fallback silenzioso a bin/Release.
 
-Il manifest fissa versioni e SHA256 degli otto file. ObservedSourceCommit e'
+Il manifest fissa versioni e SHA256 dei sei file. ObservedSourceCommit e'
 provenienza del checkout osservato: non attesta una ricompilazione di DLL gia'
 esistenti. Un aggiornamento delle dipendenze richiede revisione del manifest e
 nuova validazione, non una rigenerazione automatica durante CI.
+
+Gmsh (GMsh.Net, UnsafeEx, gmsh-*.dll nativa) non fa parte del bundle e non si
+distribuisce con le librerie: va solo negli unit test. UnitTest lo referenzia
+dal repository fratello Gmsh.Net (src/GMsh.Net/bin/Release/netstandard2.0).
 
 Baseline API acquisita dalle DLL del checkpoint precedente al refactoring:
 GPCModel 1.6.1.9, GPCModelChecker 1.0.4, Concrete 0.0.18.0.
