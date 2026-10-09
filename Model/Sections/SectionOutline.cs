@@ -16,6 +16,21 @@ namespace GPC.Model.Sections
         /// </summary>
         internal const int SegmentsPerQuarter = 64;
 
+        internal static ArcCurve3d Circle(double x, double y, double radius) =>
+            new ArcCurve3d(new Point3d(x, y, 0), new Vector3d(0, 0, 1), new Vector3d(1, 0, 0), radius, 2 * Math.PI);
+
+        internal static Curve3d StadiumCurve(double x, double y, double width, double height)
+        {
+            if (width == height) return Circle(x, y, width / 2);
+            double radius = Math.Min(width, height) / 2;
+            double dx = Math.Max(0, (width - height) / 2), dy = Math.Max(0, (height - width) / 2);
+            var direction = width > height ? new Vector3d(0, -1, 0) : new Vector3d(1, 0, 0);
+            var first = new ArcCurve3d(new Point3d(x + dx, y + dy, 0), new Vector3d(0, 0, 1), direction, radius, Math.PI);
+            var second = new ArcCurve3d(new Point3d(x - dx, y - dy, 0), new Vector3d(0, 0, 1), direction * -1, radius, Math.PI);
+            return new PolyCurve3d(new Curve3d[] { first, new LineCurve3d(first.EndPoint, second.StartPoint),
+                second, new LineCurve3d(second.EndPoint, first.StartPoint) });
+        }
+
         /// <summary>
         /// A vertex of the outline with the working of its corner
         /// </summary>
@@ -74,6 +89,56 @@ namespace GPC.Model.Sections
         /// <returns>The shape of the outline</returns>
         /// <exception cref="ArgumentException">If a working does not fit in the sides of its corner</exception>
         internal static Shape2d Create(IReadOnlyList<Vertex> vertices) => new Shape2d(Polygon(vertices));
+
+        /// <summary>Builds the same worked corners analytically, joining them with their straight sides.</summary>
+        internal static Curve3d Curve(IReadOnlyList<Vertex> vertices)
+        {
+            var corners = new Curve3d[vertices.Count];
+            var starts = new Point3d[vertices.Count];
+            var ends = new Point3d[vertices.Count];
+            var offsets = new double[vertices.Count];
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                Vertex v = vertices[i], before = vertices[(i + vertices.Count - 1) % vertices.Count], after = vertices[(i + 1) % vertices.Count];
+                starts[i] = ends[i] = new Point3d(v.X, v.Y, 0);
+                if (v.Size <= 0) continue;
+                double ux = v.X - before.X, uy = v.Y - before.Y, wx = after.X - v.X, wy = after.Y - v.Y;
+                double li = Math.Sqrt(ux * ux + uy * uy), lo = Math.Sqrt(wx * wx + wy * wy);
+                if (li == 0 || lo == 0) throw new ArgumentException("Coincident outline vertices.", nameof(vertices));
+                ux /= li; uy /= li; wx /= lo; wy /= lo;
+                double theta = Math.Acos(Math.Max(-1, Math.Min(1, -(ux * wx + uy * wy))));
+                if (Math.Sin(theta) < 1e-12) continue;
+                double distance = v.Cut ? v.Size : v.Size / Math.Tan(theta / 2);
+                offsets[i] = distance;
+                starts[i] = new Point3d(v.X - ux * distance, v.Y - uy * distance, 0);
+                ends[i] = new Point3d(v.X + wx * distance, v.Y + wy * distance, 0);
+                if (v.Cut) corners[i] = new LineCurve3d(starts[i], ends[i]);
+                else
+                {
+                    double bx = wx - ux, by = wy - uy, lb = Math.Sqrt(bx * bx + by * by);
+                    double d = v.Size / Math.Sin(theta / 2);
+                    var center = new Point3d(v.X + bx / lb * d, v.Y + by / lb * d, 0);
+                    double sweep = Math.Atan2(uy * -wx + ux * wy, ux * wx + uy * wy);
+                    corners[i] = new ArcCurve3d(center, new Vector3d(0, 0, 1), starts[i] - center, v.Size, sweep);
+                    starts[i] = corners[i].StartPoint;
+                    ends[i] = corners[i].EndPoint;
+                }
+            }
+            var pieces = new List<Curve3d>();
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                int next = (i + 1) % vertices.Count;
+                double dx = vertices[next].X - vertices[i].X, dy = vertices[next].Y - vertices[i].Y;
+                double side = Math.Sqrt(dx * dx + dy * dy);
+                if (offsets[i] + offsets[next] > side * (1 + 1e-9))
+                    throw new ArgumentException("Adjacent corner workings overlap.", nameof(vertices));
+                if (corners[i] != null) pieces.Add(corners[i]);
+                // Skip only round-off sized joins where two tangent corners exactly meet.
+                if (ends[i].DistanceTo(starts[next]) > 1e-12 * side)
+                    pieces.Add(new LineCurve3d(ends[i], starts[next]));
+            }
+            return new PolyCurve3d(pieces);
+        }
 
         /// <summary>
         /// Creates the polygon of an outline (e.g. a hole of a hollow section)

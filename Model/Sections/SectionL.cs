@@ -1,4 +1,4 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -441,8 +441,22 @@ namespace GPC.Model.Sections
             if (_edgeWorking == EdgeType.Sharp)
                 return Shape;
 
+            return SectionOutline.Create(GetCurveVertices());
+        }
+
+        /// <summary>The worked boundary as tangent lines and circular arcs.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            if (_edgeWorking == EdgeType.Sharp)
+                return base.GetCurveOutlines();
+
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(GetCurveVertices())) };
+        }
+
+        private SectionOutline.Vertex[] GetCurveVertices()
+        {
             double toe = _edgeWorking == EdgeType.Fillet ? _r2 : 0.0;
-            return SectionOutline.Create(new[]
+            return new[]
             {
                 new SectionOutline.Vertex(0.0, 0.0),
                 new SectionOutline.Vertex(0.0, _verticalLegLength),
@@ -450,7 +464,7 @@ namespace GPC.Model.Sections
                 SectionOutline.Inside(_verticalLegThickness, _horizontalLegThickness, _edgeWorking, _r),
                 new SectionOutline.Vertex(_horizontalLegLength, _horizontalLegThickness, toe),
                 new SectionOutline.Vertex(_horizontalLegLength, 0.0),
-            });
+            };
         }
 
         /// <summary>

@@ -229,6 +229,10 @@ namespace GPC.Model.Sections
         /// <returns>The outlines</returns>
         public IReadOnlyList<Shape2d> GetOutlines() => _parts.Select(p => p.PlacedOutline()).ToArray();
 
+        /// <summary>The curves of each part, translated and mirrored without tessellating its arcs.</summary>
+        public override IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => _parts.SelectMany(p =>
+            p.Section.GetCurveOutlines().Select(o => o.Placed(p.X, p.Y, p.MirrorX, p.MirrorY))).ToArray();
+
         /// <summary>
         /// The thin walls of the parts placed in the section (the parts without thin walls, e.g. circular bars, have none); before, not
         /// implemented (<see cref="NotImplementedException"/>)

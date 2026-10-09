@@ -197,6 +197,20 @@ namespace GPC.Model.Sections
             return new Shape2d(new Polygon2d(points.ToArray()));
         }
 
+        /// <summary>The boundary with the four web-to-flange fillets or welds.</summary>
+        public override IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            if (_edgeWorking == EdgeType.Sharp || R <= 0) return base.GetCurveOutlines();
+            double left = Width / 2 - _tw / 2, right = Width / 2 + _tw / 2;
+            var vertices = new List<SectionOutline.Vertex>();
+            foreach (Point3d point in Shape.Fill)
+            {
+                bool corner = (point.X == left || point.X == right) && (point.Y == _t2 + _t1 || point.Y == _h - _ttop);
+                vertices.Add(corner ? SectionOutline.Inside(point.X, point.Y, _edgeWorking, R) : new SectionOutline.Vertex(point.X, point.Y));
+            }
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(vertices)) };
+        }
+
         /// <summary>
         /// The product of inertia: 0 (symmetric section)
         /// </summary>

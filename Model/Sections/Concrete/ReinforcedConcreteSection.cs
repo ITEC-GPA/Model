@@ -17,7 +17,7 @@ namespace GPC.Model.Sections.Concrete
     /// A reinforced concrete section: a concrete shape with rebars and, for composite sections, steel sections. The properties of the shape are the ones of the concrete only; the homogenized ones include the rebars and the steel sections
     /// </summary>
     [Serializable]
-    public partial class ReinforcedConcreteSection : BeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
+    public partial class ReinforcedConcreteSection : BeamProperty, IConcreteSection, ISectionCurveShape, IEquatable<ReinforcedConcreteSection>, ISerializable
     {
         #region Variables
 
@@ -331,6 +331,9 @@ namespace GPC.Model.Sections.Concrete
         /// properties subtract it)
         /// </summary>
         public Shape2d ConcreteShape => _sectionShape.Shape;
+
+        /// <summary>The concrete regions in local coordinates; reinforcement is represented separately.</summary>
+        public System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => _sectionShape.GetCurveOutlines();
 
         /// <summary>
         /// The shape of the concrete as member of <see cref="ISectionShape"/>: <see cref="ConcreteShape"/>. Before, the public property Shape

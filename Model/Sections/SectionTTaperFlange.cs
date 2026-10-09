@@ -89,8 +89,19 @@ namespace GPC.Model.Sections
         /// <returns>The shape</returns>
         protected override Shape2d GetShape()
         {
+            return SectionOutline.Create(GetCurveVertices());
+        }
+
+        /// <summary>The worked boundary as tangent lines and circular arcs.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(GetCurveVertices())) };
+        }
+
+        private SectionOutline.Vertex[] GetCurveVertices()
+        {
             double b = LenghtFlange, h = Height, tw = ThicknessWeb, t0 = TipThickness, t1 = RootThickness;
-            return SectionOutline.Create(new[]
+            return new[]
             {
                 new SectionOutline.Vertex(0.0, h),
                 new SectionOutline.Vertex(b, h),
@@ -100,7 +111,7 @@ namespace GPC.Model.Sections
                 new SectionOutline.Vertex((b - tw) / 2.0, 0.0),
                 new SectionOutline.Vertex((b - tw) / 2.0, h - t1, R),
                 new SectionOutline.Vertex(0.0, h - t0, _r2),
-            });
+            };
         }
 
         /// <summary>The region of the plastic moduli: the exact outline</summary>

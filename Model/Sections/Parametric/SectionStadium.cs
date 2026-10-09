@@ -52,6 +52,13 @@ namespace GPC.Model.Sections
         /// <summary>True if hollow</summary>
         public bool IsHollow => _thickness > 0;
 
+        /// <summary>Semicircles joined by straight lines, including the inner loop when hollow.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => new[]
+        {
+            new SectionCurveOutline(SectionOutline.StadiumCurve(_width / 2, _height / 2, _width, _height),
+                IsHollow ? new[] { SectionOutline.StadiumCurve(_width / 2, _height / 2, _width - 2 * _thickness, _height - 2 * _thickness) } : null)
+        };
+
         /// <summary>
         /// The oval, and the inner one if hollow
         /// </summary>

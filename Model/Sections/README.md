@@ -11,6 +11,38 @@ precompressione, confinamento) non sono in Model: sono dei verificatori.
 
 ## Tipologie
 
+### Contorni parametrici
+
+`section.GetCurveOutlines()` restituisce copie dei contorni nel piano XY, con `Boundary`, `Holes` e `Children`.
+Il contratto opzionale `ISectionCurveShape` e l'estensione su `ISectionShape` permettono lo stesso accesso da
+`SteelSection` e `ReinforcedConcreteSection` (per quest'ultima, alla geometria del calcestruzzo).
+Cerchi, CHS, ellissi, stadi, alveoli, raccordi dei profili laminati, RHS arrotondati e pieghe dei sagomati a freddo
+mantengono curve analitiche. Le sezioni composte conservano le curve nelle traslazioni e nelle riflessioni delle parti.
+I cordoni restano segmenti. Le geometrie già poligonali usano `PolylineCurve3d`.
+
+`outline.ToShape(chordTolerance, maxSegmentLength)` discretizza esplicitamente per i calcoli e Delaunay.
+La tolleranza è espressa nelle unità della sezione e controlla lo scostamento delle corde dalle curve.
+Le curve aperte sono rifiutate; la conversione verifica che il contorno sia nel piano XY. Il chiamante resta
+responsabile della disposizione di fori e isole e dell'assenza di auto-intersezioni, come per `Shape2d`.
+`IsApproximation` può segnalare una geometria di origine già campionata: una tolleranza più piccola
+non recupera la curva originaria.
+
+L'accesso ai nuovi contorni non cambia `Shape`, proprietà meccaniche, mesh e serializzazioni delle sezioni
+esistenti. Gli snapshot sono indipendenti e serializzabili anche tramite `ModelArchive.CopyValue`.
+Le sezioni definite solo da proprietà restituiscono una lista vuota; quelle composte una regione per parte.
+
+```csharp
+ISectionShape tube = new SectionCHS(100, 5);
+SectionCurveOutline outline = tube.GetCurveOutlines()[0];
+Curve3d outer = outline.Boundary;
+Point3d point = outer.PointAt(outer.Domain.ParameterAt(0.25));
+Shape2d polygonForMesh = outline.ToShape(chordTolerance: 0.01, maxSegmentLength: 5);
+```
+
+La categoria di test `SectionCurves100` verifica 20 famiglie su cinque scale. Le ulteriori regressioni
+coprono ellissi, mesh Delaunay, proprietà preesistenti, copie, salvataggio, sezioni composte riflesse,
+cordoni e pieghe a raggio interno nullo che occupano l'intera lunghezza disponibile.
+
 | Famiglia | Classe o metodo | Note |
 | --- | --- | --- |
 | Generiche | `Section(Shape2d)` | Contorno arbitrario con fori e isole (`Childs`) |

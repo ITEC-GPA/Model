@@ -266,7 +266,21 @@ namespace GPC.Model.Sections
             if (!HasWorkedCorners)
                 return Shape;
 
-            return SectionOutline.Create(new[]
+            return SectionOutline.Create(GetCurveVertices());
+        }
+
+        /// <summary>The worked boundary as tangent lines and circular arcs.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            if (!HasWorkedCorners)
+                return base.GetCurveOutlines();
+
+            return new[] { new SectionCurveOutline(SectionOutline.Curve(GetCurveVertices())) };
+        }
+
+        private SectionOutline.Vertex[] GetCurveVertices()
+        {
+            return new[]
             {
                 new SectionOutline.Vertex(0.0, 0.0),
                 new SectionOutline.Vertex(0.0, _h),
@@ -276,7 +290,7 @@ namespace GPC.Model.Sections
                 SectionOutline.Inside(_tw, _tBottom, _edgeWorking, R1),
                 new SectionOutline.Vertex(_lengthBottom, _tBottom, R2),
                 new SectionOutline.Vertex(_lengthBottom, 0.0),
-            });
+            };
         }
 
         /// <summary>

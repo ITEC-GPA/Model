@@ -136,6 +136,10 @@ namespace GPC.Model.Sections
             return new Shape2d(new Polygon2d(_diameter, 32, _centroid));
         }
 
+        /// <summary>The exact circular boundary, independent of the mesh discretization.</summary>
+        public override System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() =>
+            new[] { new SectionCurveOutline(SectionOutline.Circle(_diameter / 2, _diameter / 2, _diameter / 2)) };
+
         /// <summary>
         /// The exact outline: the circle as a polygon of <see cref="SectionOutline.SegmentsPerQuarter"/> sides every 90° (area within 1e-4), used
         /// by the numerical torsion and the overlaps with the concrete. The properties are the closed formulas; the shape (32 sides) is the one of

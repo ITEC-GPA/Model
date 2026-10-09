@@ -14,7 +14,7 @@ namespace GPC.Model.Sections
     /// +90° from it
     /// </summary>
     [Serializable]
-    public class Section : ModelObjectId, ISectionShape, ISerializable
+    public class Section : ModelObjectId, ISectionShape, ISectionCurveShape, ISerializable
     {
         #region Enumerator
 
@@ -933,6 +933,11 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <returns>The region</returns>
         internal virtual Shape2d GetPlasticShape() => Shape;
+
+        /// <summary>Snapshots of the section boundary including worked corners. Existing calculations continue
+        /// to use the polygonal shape; use ToShape on a snapshot to choose a different mesh tolerance.</summary>
+        public virtual System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() =>
+            SectionCurveExtensions.FromShape(GetPlasticShape());
 
         /// <summary>
         /// The extreme distance of the vertices of the shape from an axis through the centroid

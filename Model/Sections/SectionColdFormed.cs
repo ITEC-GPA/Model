@@ -206,6 +206,60 @@ namespace GPC.Model.Sections
         /// <summary>The width of the bounding box</summary>
         public override double Width => _width;
 
+        /// <summary>The two offsets of the bent middle line: exact arcs of radius r and r+t, joined at the ends.</summary>
+        public override IReadOnlyList<SectionCurveOutline> GetCurveOutlines()
+        {
+            double half = _thickness / 2, rm = _innerRadius + half;
+            Vector3d Direction(int i)
+            {
+                double dx = _middleLine[i + 1].X - _middleLine[i].X, dy = _middleLine[i + 1].Y - _middleLine[i].Y;
+                double length = Math.Sqrt(dx * dx + dy * dy);
+                return new Vector3d(dx / length, dy / length, 0);
+            }
+            Point3d Offset(Point2d p, Vector3d d, double offset) => new Point3d(p.X - d.Y * offset, p.Y + d.X * offset, 0);
+            var pieces = new List<Curve3d>();
+            List<Curve3d> Side(double offset)
+            {
+                var side = new List<Curve3d>();
+                Point3d current = Offset(_middleLine[0], Direction(0), offset);
+                void LineTo(Point3d end)
+                {
+                    if (current.DistanceTo(end) > 1e-12 * _thickness) side.Add(new LineCurve3d(current, end));
+                    current = end;
+                }
+                for (int i = 1; i < _middleLine.Length - 1; i++)
+                {
+                    Vector3d u = Direction(i - 1), w = Direction(i);
+                    double cross = u.X * w.Y - u.Y * w.X, dot = u.X * w.X + u.Y * w.Y;
+                    double phi = Math.Atan2(Math.Abs(cross), dot);
+                    if (phi < 1e-9) continue;
+                    double sign = cross > 0 ? 1 : -1, distance = rm * Math.Tan(phi / 2);
+                    var tangent = new Point2d(_middleLine[i].X - u.X * distance, _middleLine[i].Y - u.Y * distance);
+                    var center = Offset(tangent, u, sign * rm);
+                    double radius = rm - sign * offset;
+                    if (radius == 0) LineTo(center);
+                    else
+                    {
+                        var arc = new ArcCurve3d(center, new Vector3d(0, 0, 1), new Vector3d(sign * u.Y, -sign * u.X, 0), radius, sign * phi);
+                        LineTo(arc.StartPoint);
+                        side.Add(arc);
+                        current = arc.EndPoint;
+                    }
+                }
+                LineTo(Offset(_middleLine[_middleLine.Length - 1], Direction(_middleLine.Length - 2), offset));
+                return side;
+            }
+            var left = Side(half);
+            var right = Side(-half);
+            // A zero inside radius can collapse one entire side to a point. End caps still exist in that case.
+            int last = _middleLine.Length - 1;
+            pieces.AddRange(left);
+            pieces.Add(new LineCurve3d(Offset(_middleLine[last], Direction(last - 1), half), Offset(_middleLine[last], Direction(last - 1), -half)));
+            pieces.AddRange(right.AsEnumerable().Reverse().Select(c => c.Reversed()));
+            pieces.Add(new LineCurve3d(Offset(_middleLine[0], Direction(0), -half), Offset(_middleLine[0], Direction(0), half)));
+            return new[] { new SectionCurveOutline(new PolyCurve3d(pieces)) };
+        }
+
         /// <summary>
         /// The outline of a middle line: the samples of the middle line with the bends (points and directions), offset by half the thickness on
         /// each side; the flat parts as thin walls

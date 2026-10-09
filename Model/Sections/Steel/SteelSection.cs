@@ -13,7 +13,7 @@ namespace GPC.Model.Sections.Steel
     /// A steel section: a section shape with the steel and the type (rolled or welded, hot finished or cold formed); the properties are the ones of the shape
     /// </summary>
     [Serializable]
-    public class SteelSection : BeamProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
+    public class SteelSection : BeamProperty, ISteelSection, ISectionCurveShape, ISerializable, IEquatable<SteelSection>
     {
         #region Varibles
 
@@ -52,6 +52,9 @@ namespace GPC.Model.Sections.Steel
         /// The minimum elastic modulus respect to X
         /// </summary>
         public Shape2d Shape => _sectionShape.Shape;
+
+        /// <summary>The section's native curved regions in its local coordinates.</summary>
+        public System.Collections.Generic.IReadOnlyList<SectionCurveOutline> GetCurveOutlines() => _sectionShape.GetCurveOutlines();
 
         /// <summary>
         /// True if the shape is symmetric respect to X
