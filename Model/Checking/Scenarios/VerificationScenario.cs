@@ -19,6 +19,7 @@ namespace GPC.Model.PostProcessing
     {
         private readonly Dictionary<Guid, byte[]> _beams = new Dictionary<Guid, byte[]>();
         private readonly Dictionary<Guid, byte[]> _sections = new Dictionary<Guid, byte[]>();
+        [OptionalField, FingerprintWhenSet] private Dictionary<Guid, byte[]> _plateSections;
         private readonly Dictionary<Guid, byte[]> _shells = new Dictionary<Guid, byte[]>();
         public string Id { get; private set; }
         public string AnalysisId { get; private set; }
@@ -30,7 +31,7 @@ namespace GPC.Model.PostProcessing
             return new VerificationScenario { Id = Guid.NewGuid().ToString("D"), AnalysisId = analysisId, Name = name };
         }
         public string Fingerprint => ModelArchive.Fingerprint(new object[] { Id, AnalysisId, Name,
-            _beams.OrderBy(p => p.Key).ToArray(), _sections.OrderBy(p => p.Key).ToArray(), _shells.OrderBy(p => p.Key).ToArray() });
+            _beams.OrderBy(p => p.Key).ToArray(), _sections.OrderBy(p => p.Key).ToArray(), _shells.OrderBy(p => p.Key).ToArray() }.Concat(_plateSections == null ? Array.Empty<object>() : new object[] { _plateSections.OrderBy(p=>p.Key).ToArray() }));
         public void SetBeamDesign(Guid element, BeamProperty property)
         {
             if (element == Guid.Empty || property is null) throw new ArgumentException("Element GUID and beam property required.");
@@ -47,6 +48,15 @@ namespace GPC.Model.PostProcessing
         {
             if (element == Guid.Empty || assignments == null) throw new ArgumentException("Element GUID and shell assignments required.");
             _shells[element] = AnalysisStorage.Write(assignments);
+        }
+        /// <summary>Captures a complete plate section, including reinforcement. Replaces legacy element-owned resistant data.</summary>
+        public void SetShellSection(Guid element, PlateProperty property)
+        {
+            if(element==Guid.Empty || property is null) throw new ArgumentException("Element GUID and plate property required.");
+            PlateSectionValidation.ValidateProperty(property);
+            var bytes=AnalysisStorage.Write(property);
+            if(_plateSections==null) _plateSections=new Dictionary<Guid,byte[]>();
+            _plateSections[element]=bytes;
         }
         internal void Apply(Models.Model model)
         {
@@ -80,6 +90,14 @@ namespace GPC.Model.PostProcessing
                 shell.Assignments.PhysicalThickness = value.PhysicalThickness; shell.Assignments.Offset = value.Offset;
                 shell.Assignments.LayerAxes = value.LayerAxes; shell.Assignments.ReinforcementZone = value.ReinforcementZone;
                 shell.Assignments.Layers.Clear(); shell.Assignments.Layers.AddRange(value.Layers);
+            }
+            if(_plateSections!=null) foreach(var item in _plateSections)
+            {
+                var shell=model.AreaElements.Values.SingleOrDefault(a=>a.Guid==item.Key) ?? throw new ArgumentException("ScenarioShellNotFound: "+item.Key);
+                if(_shells.ContainsKey(item.Key) && (shell.Assignments.Layers.Count!=0 || shell.Assignments.PhysicalThickness.HasValue))
+                    throw new ArgumentException("ConflictingScenarioPlateStorage");
+                shell.PlateProperty=AnalysisStorage.Read<PlateProperty>(item.Value);
+                shell.Assignments.Layers.Clear(); shell.Assignments.PhysicalThickness=null;
             }
         }
     }

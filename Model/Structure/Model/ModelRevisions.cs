@@ -80,7 +80,7 @@ namespace GPC.Model.PostProcessing
                 if (e is AreaElement a)
                 {
                     yield return a.Points;
-                    if (properties) { yield return a.PlateProperty; yield return a.Assignments.PhysicalThickness; }
+                    if (properties) { yield return ElementProperties.PlateSections.AnalysisProperty(a); yield return ElementProperties.PlateSections.PhysicalThickness(a); }
                     yield return a.Assignments.Offset;
                     foreach (var n2 in a.Nodes) yield return n2.Guid;
                 }
@@ -95,7 +95,8 @@ namespace GPC.Model.PostProcessing
         {
             return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
-                .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))));
+                .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))
+                .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))));
         }
 
         private static IEnumerable<object> AssignedPhysicalSection(ElementProperties.BeamProperty property)

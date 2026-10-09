@@ -133,7 +133,7 @@ namespace GPC.Model.PostProcessing
                 {
                     if (cancellationToken.IsCancellationRequested) { row.Cancelled = true; continue; }
                     var element = model.AreaElements[row.Element.Id];
-                    var target = axesKind == ShellInputAxes.Explicit ? axes : axesKind == ShellInputAxes.Reinforcement ? element.Assignments.LayerAxes : element.CoordinateSystem;
+                    var target = axesKind == ShellInputAxes.Explicit ? axes : axesKind == ShellInputAxes.Reinforcement ? GPC.Model.ElementProperties.PlateSections.SectionAxes(element) : element.CoordinateSystem;
                     row.Shell = ShellInputPreparation.PrepareActions(model, element.Id, (PointResultPlateForces)row.Sample, target, snapshot.Settings);
                 }
                 return new ModelPreparation { Request = snapshot, ScopeFingerprint = scope, Samples = rows };

@@ -36,10 +36,11 @@ namespace GPC.Model.PostProcessing
         }
         internal static string Design(Models.Model model) => ModelArchive.Fingerprint(model.BeamElements.Values
             .Select(b => (object)new object[] { b.Guid, b.BeamProperty, b.Assignments.Sections.ToArray() })
-            .Concat(model.AreaElements.Values.Select(a => (object)new object[] { a.Guid, a.Assignments })));
+            .Concat(model.AreaElements.Values.Select(a => (object)new object[] { a.Guid, a.Assignments }))
+            .Concat(model.AreaElements.Values.Where(a=>a.PlateProperty is ReinforcedConcretePlateSection).Select(a=>(object)a.PlateProperty)));
         internal static string Reinforcement(Models.Model model) => ModelArchive.Fingerprint(ConcreteSections(model)
             .Select(s => (object)new object[] { s.Rebars.ToArray(), s.ShearData, s.TorsionData }).Concat(model.AreaElements.Values.Select(a => (object)new object[] {
-                a.Guid, a.Assignments.LayerAxes, a.Assignments.Layers.ToArray() })));
+                a.Guid, a.PlateProperty is ReinforcedConcretePlateSection ? PlateSections.SectionAxes(a) : a.Assignments.LayerAxes, PlateSections.Rebars(a).ToArray() })));
         internal static string Prestress(Models.Model model) => ModelArchive.Fingerprint(ConcreteSections(model)
             .Select(s => (object)s.Rebars.Where(r => r.EpsilonP != 0).ToArray()));
         private static IEnumerable<ReinforcedConcreteSection> ConcreteSections(Models.Model model) => model.BeamElements.Values

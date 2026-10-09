@@ -136,6 +136,37 @@ public class ConfiguredPlateWorkflowTest
         Assert.AreEqual(300, saved[0].Results[0].ShellInput.Thickness.Physical);
     }
     [TestMethod]
+    public void SectionOwnedPlateReinforcementFlowsThroughPreparationAndEvidence()
+    {
+        var model=MixedModelFactory.Create(m=> { foreach(var shell in m.AreaElements.Values) PlateSections.UpgradeLegacy(shell); });
+        var configuration=PlateConfiguration(); var engine=new ProtocolPlate(); var catalog=Catalog(engine);
+        engine.BeforeReturn=input=> {
+            Assert.IsInstanceOfType(input.Property,typeof(ReinforcedConcretePlateSection));
+            Assert.AreEqual(0,input.Element.Assignments.Layers.Count);
+            Assert.AreEqual(2,input.Reinforcement.Count);
+            Assert.AreEqual("ground",input.Reinforcement[0].PhysicalFace);
+            Assert.AreNotSame(((ReinforcedConcretePlateSection)input.Element.PlateProperty).RebarLayers[0],input.Reinforcement[0]);
+        };
+        var report=new Service().Verify(model,configuration,catalog);
+        Assert.AreEqual(2,report.Executed,Diagnostics(report));
+        Assert.AreEqual(EngineeringOutcome.Satisfied,Service.CurrentOutcome(report,model,configuration,catalog));
+        model.CheckReports.AddRange(report.Jobs); var copy=ModelArchive.Copy(model);
+        Assert.IsTrue(copy.CheckReports.All(r=>r.Results.All(v=>v.HasUnchangedEvidence)));
+        ((ReinforcedConcretePlateSection)model.AreaElements[1090].PlateProperty).RebarLayers[0].Pitch=200;
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated,Service.CurrentOutcome(report,model,configuration,catalog));
+    }
+    [TestMethod]
+    public void PreparedPlateSectionMutationCannotProduceACurrentSuccessfulReport()
+    {
+        var model=MixedModelFactory.Create(m=> { foreach(var shell in m.AreaElements.Values) PlateSections.UpgradeLegacy(shell); });
+        var engine=new ProtocolPlate(); var configuration=PlateConfiguration();
+        engine.BeforeReturn=input=>((ReinforcedConcretePlateSection)input.Property).RebarLayers[0].Pitch+=1;
+        var report=new Service().Verify(model,configuration,Catalog(engine));
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated,report.Outcome);
+        Assert.IsTrue(report.Jobs.SelectMany(j=>j.Results).Any(r=>r.Data==DataStatus.Stale));
+        Assert.AreEqual(150,((ReinforcedConcretePlateSection)model.AreaElements[1090].PlateProperty).RebarLayers[0].Pitch);
+    }
+    [TestMethod]
     public void BuiltInPlateMethodsAreExplicitlyUnavailableAndKeepRequestedCoverage()
     {
         var model = MixedModelFactory.Create(); var config = PlateConfiguration("Concrete.Plate");

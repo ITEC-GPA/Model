@@ -24,7 +24,7 @@ namespace GPC.Model.Sections.Concrete
         }
         public void Validate()
         {
-            ShellSectionValidation.ValidateProperty(this);
+            PlateSectionValidation.ValidateProperty(this);
         }
         private ReinforcedConcretePlateSection(SerializationInfo info, StreamingContext context) : base(info, context)
         { RebarLayers = ((ShellRebarLayer[])info.GetValue("RebarLayers", typeof(ShellRebarLayer[]))).ToList(); Validate(); }

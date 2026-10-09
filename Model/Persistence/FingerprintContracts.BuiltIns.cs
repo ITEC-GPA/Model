@@ -477,7 +477,6 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.CheckDetails", "_points", "_points", false),
                 Field("GPC.Model.PostProcessing.CheckDetails", "_trace", "_trace", false));
             Register("GPC.Model.PostProcessing.ShellAssignments", "GPC.Model.PostProcessing.ShellAssignments",
-                Field("GPC.Model.PostProcessing.ShellAssignments", "_sections", "_sections", true),
                 Field("GPC.Model.PostProcessing.ShellAssignments", "<LayerAxes>k__BackingField", "<LayerAxes>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.ShellAssignments", "<Layers>k__BackingField", "<Layers>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.ShellAssignments", "<Offset>k__BackingField", "<Offset>k__BackingField", false),
@@ -517,6 +516,7 @@ namespace GPC.Model.Persistence
                 Field("GPC.Model.PostProcessing.VerificationProvenance", "<ScenarioId>k__BackingField", "<ScenarioId>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.VerificationProvenance", "_datasets", "_datasets", false));
             Register("GPC.Model.PostProcessing.VerificationScenario", "GPC.Model.PostProcessing.VerificationScenario",
+                Field("GPC.Model.PostProcessing.VerificationScenario", "_plateSections", "_plateSections", true),
                 Field("GPC.Model.PostProcessing.VerificationScenario", "<AnalysisId>k__BackingField", "<AnalysisId>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.VerificationScenario", "<Id>k__BackingField", "<Id>k__BackingField", false),
                 Field("GPC.Model.PostProcessing.VerificationScenario", "<Name>k__BackingField", "<Name>k__BackingField", false),

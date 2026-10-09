@@ -22,6 +22,9 @@ namespace GPC.Model.PostProcessing
         /// <summary>Detached assignments. Element is retained only for source identity/currentness and compatibility.</summary>
         public ShellAssignments Assignments { get; internal set; }
         public PlateProperty Property { get; internal set; }
+        public IReadOnlyList<ShellRebarLayer> Reinforcement => Property is Sections.Concrete.ReinforcedConcretePlateSection rc
+            ? rc.RebarLayers.AsReadOnly() : (IReadOnlyList<ShellRebarLayer>)Array.Empty<ShellRebarLayer>();
+        public GPC.Geometry.CoordinateSystem SectionAxes => Assignments.LayerAxes;
         internal string AssignmentsFingerprint { get; set; }
         internal string PropertyFingerprint { get; set; }
         public ShellThickness Thickness { get; internal set; }
@@ -49,7 +52,7 @@ namespace GPC.Model.PostProcessing
         public IReadOnlyList<ModelDiagnostic> Diagnostics { get; private set; }
 
         public static ShellInputPreparation Prepare(Models.Model model, int shellId, PointResultPlateForces sample, string settings)
-            => PrepareCore(model, shellId, sample, model.AreaElements[shellId].Assignments.LayerAxes, settings, true);
+            => PrepareCore(model, shellId, sample, PlateSections.SectionAxes(model.AreaElements[shellId]), settings, true);
         /// <summary>Material-neutral shell actions in an explicitly supplied coordinate system. Reinforcement requirements belong to the selected verifier.</summary>
         public static ShellInputPreparation PrepareActions(Models.Model model, int shellId, PointResultPlateForces sample, GPC.Geometry.CoordinateSystem axes, string settings)
             => PrepareCore(model, shellId, sample, axes, settings, false);
@@ -62,9 +65,10 @@ namespace GPC.Model.PostProcessing
             var state = sample?.State;
             if (state != null && !ResultAlgebra.HasCurrentDerivation(model, shell, state)) { errors.Add(ModelDiagnostic.Error("StaleDerivedSources", shell)); status = DataStatus.Stale; }
             if (sample == null || !shell.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))) errors.Add(ModelDiagnostic.Error("MissingShellSample", shell));
-            if (!shell.Assignments.PhysicalThickness.HasValue) errors.Add(ModelDiagnostic.Error("MissingPhysicalThickness", shell));
+            try { if (!PlateSections.PhysicalThickness(shell).HasValue) errors.Add(ModelDiagnostic.Error("MissingPhysicalThickness",shell)); }
+            catch (ArgumentException ex) { errors.Add(ModelDiagnostic.Error(ex.Message,shell)); }
             if (shell.PlateProperty is null) errors.Add(ModelDiagnostic.Error("MissingShellProperty", shell));
-            if (reinforcementRequired && (shell.Assignments.Layers.Count == 0 || shell.Assignments.Layers.Any(l => l.Steel == null || string.IsNullOrWhiteSpace(l.PhysicalFace)))) errors.Add(ModelDiagnostic.Error("MissingShellReinforcement", shell));
+
             if (state == null || state.Components == null || state.Components.Length != 8 || state.Components.Any(c => c != ComponentAvailability.Available)
                 || sample.Case == null || string.IsNullOrWhiteSpace(state.ConcomitantStateId)) errors.Add(ModelDiagnostic.Error("IncompleteShellState", shell));
             if (state == null || string.IsNullOrEmpty(state.DatasetId) || !model.Datasets.TryGetValue(state.DatasetId, out var dataset)
@@ -81,7 +85,12 @@ namespace GPC.Model.PostProcessing
                 if (sample.Forces == null) throw new ArgumentException("MissingShellForces");
                 var target = ActionTransformations.AtPoint(axes, sample.Forces.CoordinateSystem.Origin);
                 var local = ActionTransformations.RotateShell(sample, target).Forces;
-                var assignments = ModelArchive.CopyValue(shell.Assignments); var property = ModelArchive.CopyValue(shell.PlateProperty);
+                var property = PlateSections.CopyForChecking(shell);
+                var assignments = ModelArchive.CopyValue(shell.Assignments);
+                assignments.LayerAxes=ActionTransformations.AtPoint(PlateSections.SectionAxes(shell),PlateSections.SectionAxes(shell).Origin);
+                assignments.PhysicalThickness=property.PhysicalThickness; assignments.Layers.Clear();
+                if(property is Sections.Concrete.ReinforcedConcretePlateSection rc) assignments.Layers.AddRange(rc.RebarLayers);
+                if(reinforcementRequired && assignments.Layers.Count==0) throw new ArgumentException("MissingShellReinforcement");
                 result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings, Thickness = ShellThickness.From(shell),
                     Assignments = assignments, Property = property,
                     AssignmentsFingerprint = ModelArchive.Fingerprint(new object[] { assignments }), PropertyFingerprint = ModelArchive.Fingerprint(new object[] { property }),

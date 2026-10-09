@@ -106,11 +106,18 @@ namespace GPC.Model.PostProcessing
             foreach (var shell in model.AreaElements.Values)
             {
                 var a = shell.Assignments;
-                if (a.PhysicalThickness.HasValue && (!Finite(a.PhysicalThickness.Value) || a.PhysicalThickness.Value <= 0)) result.Add(ModelDiagnostic.Error("InvalidPhysicalThickness", shell));
-                foreach (var layer in a.Layers)
-                    if (!Finite(layer.Diameter) || layer.Diameter <= 0 || !Finite(layer.Pitch) || layer.Pitch <= 0 || !Finite(layer.DirectionRadians) || !Finite(layer.AxisPositionThroughThickness)
-                        || (a.PhysicalThickness.HasValue && Math.Abs(layer.AxisPositionThroughThickness) + layer.Diameter / 2 > a.PhysicalThickness.Value / 2))
-                        result.Add(ModelDiagnostic.Error("InvalidShellRebarLayer", shell));
+                try
+                {
+                    GPC.Model.ElementProperties.PlateSections.ValidateStorage(shell);
+                    PlateSectionValidation.ValidateProperty(shell.PlateProperty);
+                    var thickness=GPC.Model.ElementProperties.PlateSections.PhysicalThickness(shell);
+                    if (thickness.HasValue && (!Finite(thickness.Value) || thickness.Value<=0)) throw new ArgumentException("InvalidPhysicalThickness");
+                    foreach(var layer in GPC.Model.ElementProperties.PlateSections.Rebars(shell))
+                        if(layer==null || !Finite(layer.Diameter) || layer.Diameter<=0 || !Finite(layer.Pitch) || layer.Pitch<=0 || !Finite(layer.DirectionRadians)
+                            || !Finite(layer.AxisPositionThroughThickness) || thickness.HasValue && Math.Abs(layer.AxisPositionThroughThickness)+layer.Diameter/2>thickness.Value/2)
+                            throw new ArgumentException("InvalidShellRebarLayer");
+                }
+                catch(ArgumentException ex) { result.Add(ModelDiagnostic.Error(ex.Message,shell)); }
             }
             return result;
         }

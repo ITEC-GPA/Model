@@ -204,7 +204,7 @@ namespace GPC.Model.PostProcessing
             {
                 var points = shell.Points;
                 if (!(shell.PlateProperty is ElementProperties.IFemPlateProperty plate) || plate.Material == null || points.Length < 3 || points.Length > 4) { Missing(shell); continue; }
-                double thickness = shell.Assignments.PhysicalThickness ?? plate.MembraneThickness, area = 0; var first = new Vector3d(0, 0, 0);
+                double thickness = GPC.Model.ElementProperties.PlateSections.PhysicalThickness(shell) ?? plate.MembraneThickness, area = 0; var first = new Vector3d(0, 0, 0);
                 for (int i = 1; i < points.Length - 1; i++)
                 {
                     Vector3d v = points[i] - points[0], w = points[i + 1] - points[0]; double a = Axes.Length(v.CrossProduct(w)) / 2;

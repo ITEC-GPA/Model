@@ -22,9 +22,10 @@ namespace GPC.Model.ElementProperties
         public static ShellThickness From(AreaElement element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            if (!element.Assignments.PhysicalThickness.HasValue) throw new ArgumentException("MissingPhysicalThickness");
+            var physical=PlateSections.PhysicalThickness(element);
+            if (!physical.HasValue) throw new ArgumentException("MissingPhysicalThickness");
             if (!(element.PlateProperty is IFemPlateProperty property)) throw new NotSupportedException("UnsupportedPlateThickness");
-            return new ShellThickness(element.Assignments.PhysicalThickness.Value, property.MembraneThickness, property.BendingThickness);
+            return new ShellThickness(physical.Value, property.MembraneThickness, property.BendingThickness);
         }
         private ShellThickness(SerializationInfo info, StreamingContext context)
             : this(info.GetDouble("Physical"), info.GetDouble("Membrane"), info.GetDouble("Bending")) { }

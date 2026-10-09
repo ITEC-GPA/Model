@@ -119,13 +119,13 @@ namespace GPC.Model.Checker
         }
         private static ModelDiagnostic PlateFaceDiagnostic(PlateCheckTask task)
         {
-            var check = task.Specification; var input = task.Input; var layers = input.Assignments.Layers;
+            var check = task.Specification; var input = task.Input; var layers = input.Reinforcement;
             if (check.ReinforcementRequired && (layers.Count == 0 || layers.Any(l => l.Steel == null))) return ModelDiagnostic.Error("MissingPlateReinforcement", input.Element);
             if (check.Face == null || layers.Count == 0 && !check.ReinforcementRequired) return null;
             var face = layers.Where(l => l.PhysicalFace == check.Face.PhysicalName).ToArray();
             if (face.Length == 0) return ModelDiagnostic.Error("UnknownPhysicalPlateFace", input.Element);
-            Axes.Validate(input.Assignments.LayerAxes);
-            double alignment = Axes.Dot(input.Assignments.LayerAxes.V3, input.LocalForces.CoordinateSystem.V3);
+            Axes.Validate(input.SectionAxes);
+            double alignment = Axes.Dot(input.SectionAxes.V3, input.LocalForces.CoordinateSystem.V3);
             double sign = check.Face.NormalFace == ShellNormalFace.Positive ? 1 : -1;
             return Math.Abs(alignment) < 1 - 1e-8 || face.Any(l => l.AxisPositionThroughThickness * alignment * sign <= 0)
                 ? ModelDiagnostic.Error("PlateFaceNormalMismatch", input.Element) : null;

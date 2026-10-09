@@ -21,7 +21,7 @@ namespace GPC.Model.Design.Plate
             try
             {
                 var target = prepared.Input.LocalForces.CoordinateSystem;
-                var design = method.DesignActions(prepared.Input.LocalForces, shell.Assignments);
+                var design = method.DesignActions(prepared.Input.LocalForces, prepared.Input.Assignments);
                 CheckFinite(design); Axes.Validate(design.CoordinateSystem);
                 if (string.IsNullOrWhiteSpace(method.NameAndVersion) || Axes.Length(design.CoordinateSystem.Origin - target.Origin) > 1e-8
                     || Axes.Dot(design.CoordinateSystem.V1, target.V1) < 1 - 1e-10 || Axes.Dot(design.CoordinateSystem.V2, target.V2) < 1 - 1e-10)
