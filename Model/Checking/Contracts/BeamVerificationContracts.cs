@@ -19,6 +19,8 @@ namespace GPC.Model.PostProcessing
         internal string SampleFingerprint { get; set; }
         internal string PreparedForcesFingerprint { get; set; }
         internal string PreparedSectionFingerprint { get; set; }
+        internal string SourceSectionFingerprint { get; set; }
+        internal string DatasetFingerprint { get; set; }
         public int BeamId { get; internal set; }
         public StationResultBeamForces Sample { get; internal set; }
         public ReinforcedConcreteSection Section { get; internal set; }

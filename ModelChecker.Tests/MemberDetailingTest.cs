@@ -43,6 +43,25 @@ public class MemberDetailingTest
         + " | " + string.Join(", ", r.Details?.Metrics.Select(x => x.Key + " " + x.Demand + "/" + x.Capacity + " " + x.Passed) ?? new string[0]);
 
     [TestMethod]
+    public void EquivalentCopiesAreDeduplicatedButDifferentSectionsWithTheSameNameRemainDistinct()
+    {
+        var model = Model();
+        var original = model.BeamElements[250].Assignments.Sections[0].Section;
+        var different = ModelArchive.CopyValue(original);
+        different.ShearData = new ConcreteShearData(new ConcreteShearReinforcement(8, 100, different.Rebars.First().RebarMaterial),
+            new ConcreteShearDirection(500, 250, 402, true, 2), new ConcreteShearDirection(300, 450, 402, true, 2), "fixture drawings", 20);
+        model.BeamElements[251].Assignments.Sections[0].Section = different;
+        Assert.AreEqual(original.Name, different.Name);
+        var result = Run(model, ConcreteSectionVerifier.BeamDetailingMethod);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, result.Outcome, Describe(result));
+        var metrics = result.Details!.Metrics;
+        Assert.AreEqual(metrics.Count, metrics.Select(m => m.Key).Distinct().Count());
+        var links = metrics.Where(m => m.Key.StartsWith("MinimumLinks:Bottom@")).OrderBy(m => m.Demand).ToArray();
+        Assert.AreEqual(2, links.Length, "Every distinct section is checked once, regardless of the number of samples or common names.");
+        Assert.AreEqual(2 * links[0].Demand!.Value, links[1].Demand!.Value, 1e-9);
+    }
+
+    [TestMethod]
     public void BeamDetailingIsOneMemberTaskAndSatisfiesNtc()
     {
         var m = Model(); var plan = BeamCheckPlan.Prepare(m, Request(ConcreteSectionVerifier.BeamDetailingMethod).Jobs[0].BeamPlan);

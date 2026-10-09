@@ -237,7 +237,7 @@ namespace GPC.Model.Checker
             var key = ModelArchive.Fingerprint(new object[] { section, Configuration, stress });
             if (!_checkers.TryGetValue(key, out var entry) || ModelArchive.Fingerprint(new object[] { entry.Item1, Configuration, stress }) != key)
             {
-                var created = _calculationFactory.Create(section, _standard, new ConcreteCalculationOptions(reference,
+                var created = _calculationFactory.Create(ModelArchive.CopyValue(section), ModelArchive.CopyValue(_standard), new ConcreteCalculationOptions(reference,
                     _criterion, stress, _considerTension, _angularDivisions, _psiRebar, _psiTendon))
                     ?? throw new InvalidOperationException("NullNumericalSession");
                 entry = Tuple.Create(section, created); _checkers[key] = entry; _createdCheckers++;

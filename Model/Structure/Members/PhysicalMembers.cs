@@ -135,6 +135,7 @@ namespace GPC.Model.PostProcessing
             CheckValue.Finite(distance, nameof(distance)); CheckValue.Text(source, nameof(source));
             _restrained = (restrained ?? throw new ArgumentNullException(nameof(restrained))).ToArray();
             if (distance < 0 || _restrained.Length != 6) throw new ArgumentException("Six explicit nullable restraint flags required.");
+            GPC.Model.PostProcessing.Axes.Validate(axes);
             _axes = ActionTransformations.AtPoint(axes, axes.Origin); Distance = distance; Source = source; Phase = phase;
         }
     }

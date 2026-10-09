@@ -619,7 +619,7 @@ namespace GPC.Model.Sections.Concrete
             else
             {
                 if (rebar.Id < 1)
-                    rebar.Id = _rebars.MaxId + 1;
+                    rebar.Id = Math.Max(_rebars.MaxId, _rebars.Count == 0 ? 0 : _rebars.Keys.Max()) + 1;
 
                 _rebars.Add(rebar);
                 id = rebar.Id;

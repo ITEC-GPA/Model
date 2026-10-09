@@ -53,7 +53,7 @@ namespace GPC.Model.Checker
                 token.ThrowIfCancellationRequested();
                 if (_owner.Edition != "2005") return NativeResults.Unavailable("SteelEditionNotQualified");
                 if (mechanism != CheckMechanism.Shear) return NativeResults.Unavailable("SteelMethodNotQualified", "EN1993 legacy stability/classification/interaction regressions remain open; this adapter enables only the qualified shear primitives.");
-                var section = input.Element.BeamProperty as SteelSection;
+                var section = input.Property as SteelSection;
                 if (!(section?.SectionShape is SectionH h) || h.GetType() != typeof(SectionH) || input.Element.Assignments.Sections.Count != 0)
                     return NativeResults.Unavailable("SteelRequiresConstantHSection");
                 if (h.LenghtTopFlange != h.LenghtBottomFlange || h.ThicknessTopFlange != h.ThicknessBottomFlange)

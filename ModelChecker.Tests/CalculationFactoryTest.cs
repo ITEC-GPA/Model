@@ -19,13 +19,14 @@ public class CalculationFactoryTest
         public string Version => RuntimeVersion;
         public string Configuration => "contract-test-only";
         public int Calls, Sessions;
+        public Action<ReinforcedConcreteSection, StandardModelCode2010>? OnCreate;
         public bool Converged = true;
         public bool RejectedEquilibrium;
         public bool OmitEquilibrium;
         public string ReportedEngine = "TEST-NUMERICAL-PORT";
         public string ReportedCriterion = "ConstantN";
         public ConcreteCalculationSession Create(ReinforcedConcreteSection section, StandardModelCode2010 standard, ConcreteCalculationOptions options)
-        { Sessions++; return new(this, this); }
+        { Sessions++; OnCreate?.Invoke(section, standard); return new(this, this); }
         public SectionResponse Solve(SectionAnalysisInput input, CancellationToken token) => throw new NotSupportedException();
         public SectionResistanceResponse SolveResistance(SectionAnalysisInput input, CancellationToken token)
         {
@@ -40,6 +41,28 @@ public class CalculationFactoryTest
                 : new(new(CalculationStatus.NotConverged, Id, Version), "ConstantN");
         }
     }
+    [TestMethod]
+    public void ExternalFactoryReceivesOwnedCopiesOfTheSectionAndStandard()
+    {
+        var model = MixedModelFactory.Create(); var standard = new StandardNTC2018Concrete();
+        var prepared = Verification.PrepareBeam(model, 250,
+            Verification.BeamSample(model.BeamElements[250], "synthetic-static", "P+", .5, SectionSide.Unspecified), "factory ownership");
+        var factory = new Alternative();
+        factory.OnCreate = (section, receivedStandard) =>
+        {
+            Assert.AreNotSame(prepared.Input.Section, section);
+            Assert.AreNotSame(standard, receivedStandard);
+            section.Rebars.First().Position.Y += 100;
+        };
+        var verifier = new ConcreteSectionVerifier(factory, standard, SectionSolver.FailureAnalysisTypes.ConstantN,
+            false, 32, 0, 0, "2018", null, SectionSolver.StressAnalysisTypes.Linear, 1);
+        var result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
+        Assert.AreEqual(EngineeringOutcome.Satisfied, result.Outcome);
+        Assert.AreEqual(50, prepared.Input.Section.Rebars.First().Position.Y);
+        Assert.AreEqual(50, ((ReinforcedConcreteSection)model.BeamElements[250].BeamProperty).Rebars.First().Position.Y);
+        Assert.IsTrue(prepared.Input.IsCurrent);
+    }
+
     [TestMethod]
     public void AlternativeCalculationUsesExistingMethodAndKeepsFailureUnevaluated()
     {

@@ -34,3 +34,34 @@ Esiti finali: 50 test Calculation, 128 ModelChecker superati. Due confronti
 con il punto grezzo ora confrontano la risposta validata; il caso che evidenzia
 il difetto verifica esplicitamente rifiuto del primo punto e accettazione del
 successivo. Nessuna fixture numerica storica rigenerata.
+
+Punto 4 concluso - editing e proprieta' degli input
+Model 2.0.0.2 / ModelChecker 1.0.13. ModelEditSession lavora su una bozza,
+valida topologia/assegnazioni/membrature, rileva modifiche al sorgente e restituisce
+una copia pubblicabile. Revisioni analisi/verifica separate; compatibilita' FEM
+esplicita nel risultato del commit, compreso il ruolo delle armature. Nessuna
+attualizzazione artificiale dei risultati storici. Uso e limiti: GUIDA_EDITING_MODEL.txt.
+Input beam, generici e plate con copie autonome di sezioni, materiali, strati,
+proprieta' e assi; le verifiche di attualita' controllano sorgente e copia.
+La factory Concrete riceve proprie copie di sezione e standard. Adapter acciaio
+ed elementi compositi usano la proprieta' preparata. Assi dei vincoli fisici
+validati; corretto inserimento di barre dopo importazione con contatore ID obsoleto.
+
+Regressioni emerse e risolte nel punto 4:
+- Il test di due sezioni con segno delle azioni opposto presumeva la medesima
+  istanza: ora prova istanze indipendenti con gli stessi valori geometrici.
+- Il detailing usava Distinct per riferimento; la nuova proprieta' autonoma
+  produceva metriche duplicate. Ora raggruppa per contenuto, conserva sezioni
+  differenti omonime e assegna chiavi univoche alle metriche.
+- Il test della cache ora prova che mutare il sorgente non altera la sessione
+  gia' creata, mentre verificare la sezione cambiata crea una nuova sessione.
+Nessuna formula resistente o fixture numerica storica modificata.
+
+Validazione finale del punto 4: build/Verify.ps1 PASS sul codice finale.
+Model/Converter: 960 PASS, 2 test Straus saltati per fixture native esterne.
+ModelChecker: 130 PASS. Aggiunti 23 casi di regressione complessivi.
+API: Model 6223 firme (le 15 rimozioni FemBeam/EulerBeam gia' approvate),
+ModelChecker 495, Concrete 2016; nessuna rimozione inattesa.
+Anthea e Checker non modificati in questa fase; non effettuato un deployment WPF.
+Prossima fase autorizzata: punto 5, acciaio e CompositeBridge. Restano in coda
+punto 3, discussione delle verifiche plate (6), converter (7).

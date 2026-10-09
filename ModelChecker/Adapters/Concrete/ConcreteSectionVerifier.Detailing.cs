@@ -6,6 +6,7 @@ using GPC.Checkers.Concrete.Cracking;
 using GPC.Checkers.Concrete.Detailing;
 using GPC.Checkers.Concrete.Durability;
 using GPC.Model.Materials;
+using GPC.Model.Persistence;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
@@ -38,7 +39,9 @@ namespace GPC.Model.Checker
             if (notSupported != null) return Unavailable(DataStatus.NotSupported, "DetailingMethodNotImplemented", notSupported);
             var profile = DetailingProfiles.Resolve(_standard);
             var kind = input.MethodId == ColumnDetailingMethod ? MemberDetailingKind.Column : MemberDetailingKind.Beam;
-            var sections = input.Sections.Select(s => s.Section).Where(s => s != null).Distinct().ToArray();
+            // Prepared cuts own independent copies; equivalent physical inputs must be checked only once.
+            var sections = input.Sections.Select(s => s.Section).Where(s => s != null)
+                .GroupBy(s => ModelArchive.Fingerprint(new object[] { s }), StringComparer.Ordinal).Select(g => g.First()).ToArray();
             if (sections.Length == 0) return Unavailable(DataStatus.Insufficient, "MissingMemberSections", null);
             double compression = input.Sections.Select(s => Math.Max(0, -s.Forces.N)).DefaultIfEmpty(0).Max();
             var metrics = new List<CheckMetric>(); var trace = new List<CheckCalculationValue>
@@ -49,7 +52,9 @@ namespace GPC.Model.Checker
             for (int k = 0; k < sections.Length; k++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var section = sections[k]; string suffix = sections.Length > 1 ? "@" + (string.IsNullOrWhiteSpace(section.Name) ? k.ToString() : section.Name) : "";
+                var section = sections[k];
+                // Names are labels, not keys: different sections may legitimately share a name.
+                string suffix = sections.Length > 1 ? "@" + k.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + section.Name : "";
                 if (section.SteelSections.Count > 0) return Unavailable(DataStatus.NotSupported, "CompositeDetailingNotImplemented", "Steel sections inside the concrete.");
                 if (section.Rebars.Any(r => r.EpsilonP != 0 || r.RebarMaterial.SteelType == SteelMaterial.SteelTypes.Tendon))
                     return Unavailable(DataStatus.NotSupported, "PrestressedDetailingNotImplemented", "Detailing of prestressed sections is not implemented.");

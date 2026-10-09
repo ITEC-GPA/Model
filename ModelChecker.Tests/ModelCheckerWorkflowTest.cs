@@ -53,7 +53,7 @@ public class ModelCheckerWorkflowTest
     }
 
     [TestMethod]
-    public void RealChecker_MutatedCachedSection_IsNotReusedForAnotherModel()
+    public void RealChecker_SourceEditsDoNotMutateTheCachedSessionForAnEquivalentModel()
     {
         var first = MixedModelFactory.Create(); var second = MixedModelFactory.Create();
         var adapter = Request().Jobs[0].Options.CreateVerifier();
@@ -62,8 +62,11 @@ public class ModelCheckerWorkflowTest
         var original = Verification.Run(Prepare(first), CheckMechanism.UlsBiaxialSection, adapter);
         first.BeamElements[250].Assignments.Sections[0].Section.Rebars.First().Position.Y += 10;
         var result = Verification.Run(Prepare(second), CheckMechanism.UlsBiaxialSection, adapter);
-        Assert.AreEqual(2, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, result.Execution);
+        Assert.AreEqual(1, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, result.Execution);
         Assert.AreEqual(original.Utilization!.Value, result.Utilization!.Value, 1e-10);
+        var changed = Verification.Run(Prepare(first), CheckMechanism.UlsBiaxialSection, adapter);
+        Assert.AreEqual(2, adapter.CreatedCheckers); Assert.AreEqual(ExecutionStatus.Completed, changed.Execution);
+        Assert.AreNotEqual(original.Utilization, changed.Utilization);
     }
 
     [TestMethod]

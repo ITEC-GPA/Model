@@ -89,9 +89,15 @@ public class GeneralSectionAssignmentTest
         var sample = beam.Results.SelectMany(r => r.Results).OfType<StationResultBeamForces>().First();
         var prepared = BeamActionPreparation.Prepare(model, 250, sample, "settings");
         Assert.AreEqual(DataStatus.Ready, prepared.Status, string.Join(",", prepared.Diagnostics.Select(d => d.Code)));
-        Assert.AreSame(steel, prepared.Input.Property);
+        Assert.AreNotSame(steel, prepared.Input.Property);
+        Assert.AreEqual(ModelArchive.Fingerprint(new object[] { steel }), ModelArchive.Fingerprint(new object[] { prepared.Input.Property }));
         Assert.IsTrue(prepared.Input.IsCurrent);
         double modulus = steel.Wpl1;
+        Assert.IsTrue(prepared.Input.IsCurrent);
+        prepared.Input.Property.Name = "Changed prepared property";
+        Assert.AreEqual("H 300", steel.Name);
+        Assert.IsFalse(prepared.Input.IsCurrent);
+        prepared.Input.Property.Name = steel.Name;
         Assert.IsTrue(prepared.Input.IsCurrent);
         beam.Assignments.Sections[0].Property = Steel(500);
         Assert.IsFalse(prepared.Input.IsCurrent);

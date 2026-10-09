@@ -76,6 +76,8 @@ namespace GPC.Model.Checking
                 preparedForces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(orientation, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
             }
             catch (ArgumentException ex) { return new BeamPreparation { BeamId = beamId, Sample = sample, Status = DataStatus.Insufficient, Diagnostics = new[] { ModelDiagnostic.Error("InvalidResultAxes", b, ex.Message) } }; }
+            var sourceSectionFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { section });
+            var detachedSection = Persistence.ModelArchive.CopyValue(section);
             return new BeamPreparation
             {
                 BeamId = beamId,
@@ -87,10 +89,12 @@ namespace GPC.Model.Checking
                     Model = model,
                     SampleFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { sample }),
                     PreparedForcesFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { preparedForces }),
-                    PreparedSectionFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { section }),
+                    PreparedSectionFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { detachedSection }),
+                    SourceSectionFingerprint = sourceSectionFingerprint,
+                    DatasetFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { model.Datasets[sample.State.DatasetId] }),
                     BeamId = beamId,
                     Sample = sample,
-                    Section = section,
+                    Section = detachedSection,
                     Forces = preparedForces,
                     Settings = settings,
                     VerificationRevision = model.VerificationFingerprint(settings)
@@ -102,11 +106,25 @@ namespace GPC.Model.Checking
         {
             using (ValidationReadScope.Enter(input.Model)) return IsCurrentCore(input);
         }
-        private static bool IsCurrentCore(BeamCheckInput input) => input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
-            && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
-            && ResultAlgebra.HasCurrentDerivation(input.Model, input.Model.BeamElements[input.BeamId], input.Sample.State)
-            && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })
-            && input.SampleFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Sample })
-            && input.PreparedForcesFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Forces });
+        private static bool IsCurrentCore(BeamCheckInput input)
+        {
+            try
+            {
+                if (!input.Model.BeamElements.TryGetValue(input.BeamId, out var beam) || input.Sample?.State?.DatasetId == null
+                    || !beam.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, input.Sample))
+                    || !input.Model.Datasets.TryGetValue(input.Sample.State.DatasetId, out var dataset)) return false;
+                var source = beam.Assignments.SectionAt(new BeamReferenceGeometry(beam).ConvertStation(input.Sample.ParametricDistance,
+                    input.Sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), input.Sample.Side);
+                return input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
+                    && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
+                    && ResultAlgebra.HasCurrentDerivation(input.Model, beam, input.Sample.State)
+                    && input.SourceSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { source })
+                    && input.DatasetFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { dataset })
+                    && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })
+                    && input.SampleFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Sample })
+                    && input.PreparedForcesFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Forces });
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
+        }
     }
 }

@@ -52,6 +52,23 @@ namespace GPC.Model.Persistence
         internal static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
         { KnownTypes = KnownTypes, PreserveObjectReferences = true, MaxItemsInObjectGraph = 2000000 });
 
+        /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
+        public static T CopyValue<T>(T value) where T : class
+        {
+            if (value == null) return null;
+            if (!KnownTypes.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
+            if (value is Sections.ISectionShape section) { var shape = section.Shape; }
+            var serializer = Serializer(value.GetType());
+            using (var stream = new MemoryStream())
+            { serializer.WriteObject(stream, value); stream.Position = 0; return (T)serializer.ReadObject(stream); }
+        }
+        /// <summary>Copies the complete document, preserving entity IDs and internal relationships.</summary>
+        public static Models.Model Copy(Models.Model model)
+        {
+            using (var stream = new MemoryStream())
+            { SaveDocument(model, stream); stream.Position = 0; return Load(stream); }
+        }
+
         /// <summary>Explicit document contract for new applications, including models without an analysis snapshot.</summary>
         public static void SaveDocument(Models.Model model, Stream destination)
         {

@@ -19,7 +19,11 @@ namespace GPC.Model.PostProcessing
         public AreaElement Element { get; internal set; }
         public PointResultPlateForces Sample { get; internal set; }
         public ResultPlateForces LocalForces { get; internal set; }
-        public ShellAssignments Assignments => Element.Assignments;
+        /// <summary>Detached assignments. Element is retained only for source identity/currentness and compatibility.</summary>
+        public ShellAssignments Assignments { get; internal set; }
+        public PlateProperty Property { get; internal set; }
+        internal string AssignmentsFingerprint { get; set; }
+        internal string PropertyFingerprint { get; set; }
         public ShellThickness Thickness { get; internal set; }
         public string Settings { get; internal set; }
         public string VerificationRevision { get; internal set; }
@@ -31,6 +35,8 @@ namespace GPC.Model.PostProcessing
             && VerificationRevision == Model.VerificationFingerprint(Settings)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && SampleRevision == ModelArchive.Fingerprint(new object[] { Sample })
+            && AssignmentsFingerprint == ModelArchive.Fingerprint(new object[] { Assignments })
+            && PropertyFingerprint == ModelArchive.Fingerprint(new object[] { Property })
             && PreparedFingerprint == ModelArchive.Fingerprint(new object[] { LocalForces });
     }
     /// <summary>Physical inputs for a shell verifier. Ready here does not assert that a structural design method or engine is available.</summary>
@@ -75,7 +81,10 @@ namespace GPC.Model.PostProcessing
                 if (sample.Forces == null) throw new ArgumentException("MissingShellForces");
                 var target = ActionTransformations.AtPoint(axes, sample.Forces.CoordinateSystem.Origin);
                 var local = ActionTransformations.RotateShell(sample, target).Forces;
+                var assignments = ModelArchive.CopyValue(shell.Assignments); var property = ModelArchive.CopyValue(shell.PlateProperty);
                 result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings, Thickness = ShellThickness.From(shell),
+                    Assignments = assignments, Property = property,
+                    AssignmentsFingerprint = ModelArchive.Fingerprint(new object[] { assignments }), PropertyFingerprint = ModelArchive.Fingerprint(new object[] { property }),
                     VerificationRevision = model.VerificationFingerprint(settings), SampleRevision = ModelArchive.Fingerprint(new object[] { sample }),
                     DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
                     PreparedFingerprint = ModelArchive.Fingerprint(new object[] { local }) };

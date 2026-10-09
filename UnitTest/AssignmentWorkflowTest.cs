@@ -118,7 +118,9 @@ namespace UnitTest
             var model = MixedModelFactory.Create(); var b = model.BeamElements[250]; b.Assignments.Sections[0].Section.Rebars.First().Position.Y = 100;
             var positive = Verification.PrepareBeam(model, 250, Verification.BeamSample(b, "synthetic-static", "P+", .5, SectionSide.Unspecified), "test").Input;
             var negative = Verification.PrepareBeam(model, 250, Verification.BeamSample(b, "synthetic-static", "P-", .5, SectionSide.Unspecified), "test").Input;
-            Assert.AreSame(positive.Section, negative.Section); Assert.AreEqual(100, negative.Section.Rebars.First().Position.Y, 1e-10);
+            Assert.AreNotSame(positive.Section, negative.Section);
+            Assert.AreEqual(ModelArchive.Fingerprint(new object[] { positive.Section }), ModelArchive.Fingerprint(new object[] { negative.Section }));
+            Assert.AreEqual(100, negative.Section.Rebars.First().Position.Y, 1e-10);
             Assert.AreEqual(-1000000, positive.Forces.M1, 1e-7); Assert.AreEqual(1000000, negative.Forces.M1, 1e-7);
         }
 

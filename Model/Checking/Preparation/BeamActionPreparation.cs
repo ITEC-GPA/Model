@@ -16,7 +16,7 @@ namespace GPC.Model.PostProcessing
         public BeamElement Element { get; internal set; }
         public StationResultBeamForces Sample { get; internal set; }
         public ResultBeamForces Forces { get; internal set; }
-        /// <summary>The property resolved at this cut, from an assignment or the element's constant property.</summary>
+        /// <summary>Owned copy of the property at this cut. Use this for calculation; Element identifies the source.</summary>
         public ElementProperties.BeamProperty Property { get; internal set; }
         public string Settings { get; internal set; }
         public CheckInputSnapshot Snapshot { get; internal set; }
@@ -83,8 +83,9 @@ namespace GPC.Model.PostProcessing
                 var forces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
                 var property = beam.Assignments.Sections.Count == 0 ? beam.BeamProperty : beam.Assignments.PropertyAt(
                     new BeamReferenceGeometry(beam).ConvertStation(sample.ParametricDistance, sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), sample.Side);
-                result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Property = property, Settings = settings,
-                    PreparedPropertyFingerprint = ModelArchive.Fingerprint(new object[] { property }),
+                var detachedProperty = ModelArchive.CopyValue(property);
+                result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Property = detachedProperty, Settings = settings,
+                    PreparedPropertyFingerprint = ModelArchive.Fingerprint(new object[] { detachedProperty }),
                     DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
                     Revision = model.VerificationFingerprint(settings), Snapshot = new CheckInputSnapshot(
                         ModelArchive.Fingerprint(new object[] { beam.BeamProperty, beam.Assignments.Sections.ToArray() }),

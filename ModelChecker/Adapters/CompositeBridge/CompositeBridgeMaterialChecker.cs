@@ -83,7 +83,7 @@ namespace GPC.Model.Checker
                     || !Close(loads.Sum(p => p.ShearKN) * 1000, input.Forces.V2)) return NativeResults.Missing("BridgeHistoryDoesNotMatchFemState");
                 if (input.Element.Assignments.Sections.Count != 0) return NativeResults.Unavailable("BridgeVariableSectionBindingNotConnected");
                 var expected = HBridgeSection.NativeSection(data);
-                if (ModelArchive.Fingerprint(new object[] { expected }) != ModelArchive.Fingerprint(new object[] { input.Element.BeamProperty }))
+                if (ModelArchive.Fingerprint(new object[] { expected }) != ModelArchive.Fingerprint(new object[] { input.Property }))
                     return NativeResults.Missing("BridgeSectionDoesNotMatchModel");
                 if (mechanism == CheckMechanism.Serviceability && data.Options.LimitState == BridgeLimitState.Ultimate)
                     return NativeResults.Missing("BridgeSleCategoryRequired");
