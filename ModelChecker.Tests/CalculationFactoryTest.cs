@@ -32,8 +32,11 @@ public class CalculationFactoryTest
             Calls++;
             if (RejectedEquilibrium) return new(new(CalculationStatus.NotConverged, Id, Version, "Outside axial tolerance",
                 new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N + 2000, 1000)), "ConstantN");
+            var capacity = input.Forces; capacity.M1 /= .9; capacity.M2 /= .9;
+            var convergence = OmitEquilibrium ? null : ResistanceConvergence.Evaluate(SectionSolver.FailureAnalysisTypes.ConstantN,
+                input, new SectionAnalysisInput(capacity), capacity.CoordinateSystem, 1, 1, 1, .00025);
             return Converged
-                ? new(new(CalculationStatus.Completed, ReportedEngine, Version, null, OmitEquilibrium ? null : new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N, 1)), ReportedCriterion, new(0, 0, -.001, 0, 0), input.Forces.N, 1e8, 0, .9, "test")
+                ? new(new(CalculationStatus.Completed, ReportedEngine, Version, null, OmitEquilibrium ? null : new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N, 1), convergence), ReportedCriterion, new(0, 0, -.001, 0, 0), capacity.N, capacity.M1, capacity.M2, .9, "test")
                 : new(new(CalculationStatus.NotConverged, Id, Version), "ConstantN");
         }
     }

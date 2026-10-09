@@ -51,7 +51,7 @@ public class ConfiguredCalculationTest
         var f = Setup(); f.engine.OmitEquilibrium = true;
         var report = new Service().Verify(f.model, f.config, f.catalog);
         Assert.AreEqual(EngineeringOutcome.NotEvaluated, report.Outcome);
-        Assert.IsTrue(report.Jobs.Single().Results.Single().Diagnostics.Any(d => d.Code == "NumericalAxialEquilibriumContractMismatch"));
+        Assert.IsTrue(report.Jobs.Single().Results.Single().Diagnostics.Any(d => d.Code == "NumericalResistanceConvergenceContractMismatch"));
     }
     [TestMethod]
     public void EngineChangesAfterCompilationAreRejected()

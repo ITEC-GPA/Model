@@ -16,3 +16,9 @@ versione e configurazione. Motori sconosciuti/cambiati sono rifiutati.
 128 test ModelChecker superati; 4 nuovi casi sul flusso configurato, persistenza,
 versioni/parametri incoerenti e assenza dell'evidenza N. API senza rimozioni inattese.
 Segue integrazione del punto 1 su tutti i cinque criteri richiesta dall'utente.
+
+Punto 1 esteso ai cinque criteri su richiesta dell'utente
+Concrete 0.0.21.0, Checker b3f0fe87. ModelChecker 1.0.11 richiede evidenze
+coerenti con domanda, capacita', criterio e assi per tutti i modi. Registra
+residui/tolleranze di N, momenti, direzione/angolo nella diagnostica persistente.
+48 test Calculation e 128 test ModelChecker superati. API senza rimozioni inattese.

@@ -144,12 +144,17 @@ namespace GPC.Model.Checker
                 if (point == null) return Failure("CheckerDomainPointMissing");
                 if (point.Diagnostics.Status != CalculationStatus.Completed)
                     return WithNumericalDiagnostics(Failure(point.Diagnostics.AxialEquilibrium?.Accepted == false
-                        ? "CheckerAxialEquilibriumRejected" : "CheckerCalculationIncomplete"), point.Diagnostics);
+                        ? "CheckerAxialEquilibriumRejected" : point.Diagnostics.ResistanceConvergence?.Accepted == false
+                            ? "CheckerSearchConstraintsRejected" : "CheckerCalculationIncomplete"), point.Diagnostics);
                 if (!MatchesEngine(point.Diagnostics) || point.Criterion != _criterion.ToString()) return Failure("NumericalResistanceContractMismatch");
-                if ((_criterion == SectionSolver.FailureAnalysisTypes.ConstantN || _criterion == SectionSolver.FailureAnalysisTypes.ConstantNMx
-                    || _criterion == SectionSolver.FailureAnalysisTypes.ConstantNMy)
-                    && (point.Diagnostics.AxialEquilibrium == null || point.Diagnostics.AxialEquilibrium.Requested != forces.N
-                        || point.Diagnostics.AxialEquilibrium.Actual != point.N)) return Failure("NumericalAxialEquilibriumContractMismatch");
+                var convergence = point.Diagnostics.ResistanceConvergence;
+                if (convergence == null || !convergence.Accepted || convergence.Criterion != _criterion
+                    || !SameForces(convergence.Demand.Forces, forces)
+                    || convergence.Capacity.Forces.N != point.N || convergence.Capacity.Forces.M1 != point.M1
+                    || convergence.Capacity.Forces.M2 != point.M2
+                    || ModelArchive.Fingerprint(new object[] { convergence.Capacity.Forces.CoordinateSystem })
+                        != ModelArchive.Fingerprint(new object[] { forces.CoordinateSystem }))
+                    return Failure("NumericalResistanceConvergenceContractMismatch");
                 double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
                 var strain = point.Strain;
@@ -173,8 +178,20 @@ namespace GPC.Model.Checker
                     : string.Format(CultureInfo.InvariantCulture, "{0}: Nrequested={1:R} N; Nactual={2:R} N; residual={3:R} N; tolerance={4:R} N; accepted={5}",
                         diagnostics.Status, evidence.Requested, evidence.Actual, evidence.Residual, evidence.Tolerance, evidence.Accepted)
             });
+            if (diagnostics.ResistanceConvergence != null)
+                foreach (var residual in diagnostics.ResistanceConvergence.Residuals)
+                    result.Diagnostics.Add(new ModelDiagnostic {
+                        Code = "NumericalSearchConstraint." + residual.Quantity,
+                        Severity = residual.Accepted ? DiagnosticSeverity.Information : DiagnosticSeverity.Error,
+                        Message = string.Format(CultureInfo.InvariantCulture, "{0}: residual={1:R} {2}; tolerance={3:R} {2}; accepted={4}",
+                            diagnostics.ResistanceConvergence.Criterion, residual.Residual, residual.Unit, residual.Tolerance, residual.Accepted)
+                    });
             return result;
         }
+        private static bool SameForces(ResultBeamForces actual, ResultBeamForces expected) =>
+            actual.N == expected.N && actual.V1 == expected.V1 && actual.V2 == expected.V2 && actual.T == expected.T
+                && actual.M1 == expected.M1 && actual.M2 == expected.M2
+                && ModelArchive.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelArchive.Fingerprint(new object[] { expected.CoordinateSystem });
         private bool MatchesEngine(SolverDiagnostics diagnostics) => diagnostics != null && diagnostics.Engine == _calculationFactory.Id
             && diagnostics.Version == _calculationFactory.Version;
         private bool MatchesResponse(SectionResponse response, ResultBeamForces forces, SectionSolver.StressAnalysisTypes analysis)
