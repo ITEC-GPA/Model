@@ -48,3 +48,15 @@ committati); GPCChecker.Concrete 0.0.25.0, Steel 2.0.2.0, CompositeBridge
 1.4.0.7 (Checker 0ff71a2e, ricompilati contro questo Model e la Geometry nuova).
 Verify.ps1: Model.Core.Tests 6/6, UnitTest 1016 PASS (2 ignorati come prima),
 ModelChecker.Tests 166/166; API senza rimozioni inattese.
+
+Riproducibilita' delle DLL di Checker fissate (SHA256): ogni DLL contiene l'id
+del suo PDB, e il PDB registra percorso, commit (SourceLink) e MVID delle DLL
+referenziate, compresa GPCModel. I valori fissati nascono da questa ricetta,
+verificata con due compilazioni da zero che danno lo stesso SHA256:
+radice %LOCALAPPDATA%\Temp\gpc-s4-dev con i fratelli Utilities c0466b0
+(worktree), Geometry 1f901ef (git archive), Model bea56136 (worktree, cache
+.dependencies con i Checker 0.0.24.0 e Prepare-Dependencies; dotnet build
+Release di GPCModel, GPCModelData, GPC.Model.Persistence) e Checker 0ff71a2e
+(worktree; dotnet build Release delle librerie), SDK 9.0.318.
+La prima fissatura (52bfd2e1) usava una GPCModel non riproducibile ed e'
+sostituita da questa.
