@@ -356,3 +356,13 @@ Validazione checkpoint:
   con bundle temporaneo; nessuna DLL distribuita Anthea modificata.
 - L'ultima correzione aggiunge un percorso di enumerazione plate;
   l'enumerazione legacy resta invariata. Nessuna formula nativa modificata.
+
+9 OTTOBRE - FASE CALCOLO COLLEGATA
+ModelChecker 1.0.5 usa ISectionResponseSolver/ISectionResistanceSolver per SLU,
+tensioni e fessurazione. IConcreteCalculationFactory permette di sostituire il
+motore nella stessa classe di verifica. Identita', versione e configurazione
+numerica sono incluse nella configurazione persistita; il metodo normativo resta
+identificato dai dettagli. Le firme precedenti restano utilizzabili. Il lock
+fra sessioni e la validazione degli input non sono stati rimossi.
+Validazione: 120 test preesistenti ModelChecker passati, piu' un test del motore
+alternativo/non convergenza. Checker Concrete 0.0.19.0 richiesto.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using GPC.Checkers.Concrete.Attributes;
+using GPC.Checkers.Concrete.Analysis;
 using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.Cracking;
 using GPC.Checkers.Concrete.SectionSolvers;
@@ -26,7 +26,7 @@ namespace GPC.Model.Checker
     {
         private readonly CrackLoadDuration _crackLoadDuration;
         private readonly double? _crackDesignLimit;
-        private readonly Dictionary<string, SectionCheckerModelCode2010> _crackCheckers = new Dictionary<string, SectionCheckerModelCode2010>();
+        private readonly Dictionary<string, ConcreteCalculationSession> _crackCheckers = new Dictionary<string, ConcreteCalculationSession>();
 
         private bool SupportsCracking(SectionCheckSpecification check)
             => (check.Category == CombinationCategory.Characteristic || check.Category == CombinationCategory.Frequent || check.Category == CombinationCategory.QuasiPermanent)
@@ -40,14 +40,14 @@ namespace GPC.Model.Checker
         }
 
         /// <summary>Linear stress analysis with or without tensile concrete, cached per section and configuration. Call under <see cref="Sync"/>.</summary>
-        private SectionCheckerModelCode2010 LinearChecker(ReinforcedConcreteSection section, CoordinateSystem reference, bool tensileConcrete)
+        private ConcreteCalculationSession LinearChecker(ReinforcedConcreteSection section, CoordinateSystem reference, bool tensileConcrete)
         {
             var key = ModelArchive.Fingerprint(new object[] { section, Configuration, "linear-crack", tensileConcrete });
             if (!_crackCheckers.TryGetValue(key, out var checker))
             {
-                var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, _criterion, SectionSolver.FailureDomainTypes.Plastic,
-                    SectionSolver.StressAnalysisTypes.Linear, _psiRebar, _psiTendon, tensileConcrete, _angularDivisions);
-                checker = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, _standard, tensileConcrete);
+                checker = _calculationFactory.Create(section, _standard, new ConcreteCalculationOptions(reference, _criterion,
+                    SectionSolver.StressAnalysisTypes.Linear, tensileConcrete, _angularDivisions, _psiRebar, _psiTendon))
+                    ?? throw new InvalidOperationException("NullNumericalSession");
                 _crackCheckers[key] = checker; _createdCheckers++;
             }
             return checker;
@@ -74,18 +74,19 @@ namespace GPC.Model.Checker
             lock (Sync)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var stress = LinearChecker(section, reference, false).GetTensionAnalysisResult(forces);
+                var stress = LinearChecker(section, reference, false).Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
-                if (stress?.StrainPlane == null) return Failure("CheckerStressAnalysisNotConverged");
+                if (stress == null || stress.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerStressAnalysisNotConverged");
                 try
                 {
                     var crackInput = new SectionCrackInput(_standard, combination, data.Exposure, data.SensitiveReinforcement, _crackDesignLimit,
-                        CrackSectionGeometry.From(section, data.ConcentricRings), stress.StrainPlane, SectionCrackInput.OrdinaryBarStresses(stress, section), true, false, false,
+                        CrackSectionGeometry.From(section, data.ConcentricRings), stress.Strain.ToStrainPlane(), stress.Bars.Select(b => b.Stress).ToArray(), true, false, false,
                         section.Rebars.First().RebarMaterial.E, Math.Abs(concrete.Ecm), Math.Abs(concrete.Fctm), _crackLoadDuration == CrackLoadDuration.ShortTerm, data.RibbedBars,
                         data.Cover, null, data.MaximumBarSpacing, () =>
                         {
-                            var uncracked = LinearChecker(section, reference, true).GetTensionAnalysisResult(forces);
-                            return uncracked.GetConcreteVerticesTension(_psiRebar).Max(v => v.tension);
+                            var uncracked = LinearChecker(section, reference, true).Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
+                            if (uncracked == null || uncracked.Diagnostics.Status != CalculationStatus.Completed) throw new InvalidOperationException("Uncracked analysis not completed.");
+                            return uncracked.Concrete.Max(v => v.Stress);
                         });
                     r = SectionCrackCheck.Evaluate(crackInput);
                 }

@@ -4,7 +4,7 @@ using System.Threading;
 using System.Linq;
 using System.Globalization;
 using System.Runtime.Serialization;
-using GPC.Checkers.Concrete.Attributes;
+using GPC.Checkers.Concrete.Analysis;
 using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Geometry;
@@ -29,10 +29,11 @@ namespace GPC.Model.Checker
         private readonly SectionSolver.StressAnalysisTypes _serviceabilityAnalysis;
         private readonly double _concreteStressLimitFactor;
         private CheckStandardContext _standardSnapshot;
-        private readonly Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>> _checkers = new Dictionary<string, Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010>>();
+        private readonly IConcreteCalculationFactory _calculationFactory;
+        private readonly Dictionary<string, Tuple<ReinforcedConcreteSection, ConcreteCalculationSession>> _checkers = new Dictionary<string, Tuple<ReinforcedConcreteSection, ConcreteCalculationSession>>();
         private int _createdCheckers;
         public int CreatedCheckers { get { lock (Sync) return _createdCheckers; } }
-        public string Version => typeof(SectionCheckerModelCode2010).Assembly.GetName().Version.ToString();
+        public string Version => _calculationFactory.Version;
         public IReadOnlyCollection<CheckMechanism> Capabilities { get; } = Array.AsReadOnly(new[] {CheckMechanism.UlsBiaxialSection});
         public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
             int angularDivisions, double psiRebar, double psiTendon)
@@ -58,6 +59,7 @@ namespace GPC.Model.Checker
             if (!Enum.IsDefined(typeof(CrackLoadDuration), crackLoadDuration)) throw new ArgumentOutOfRangeException(nameof(crackLoadDuration));
             if (crackDesignLimit.HasValue && (double.IsNaN(crackDesignLimit.Value) || double.IsInfinity(crackDesignLimit.Value) || crackDesignLimit <= 0))
                 throw new ArgumentOutOfRangeException(nameof(crackDesignLimit));
+            _calculationFactory = new LegacyConcreteCalculationFactory();
             _shearCotTheta = shearCotTheta; _crackLoadDuration = crackLoadDuration; _crackDesignLimit = crackDesignLimit;
             _standard=standard ?? throw new ArgumentNullException(nameof(standard));_criterion=criterion;_considerTension=considerTension;
             _edition = standardEdition ?? DeclaredEdition(standard.GetType()); _nationalAnnex = nationalAnnex;
@@ -68,6 +70,20 @@ namespace GPC.Model.Checker
             if(double.IsNaN(psiRebar)||double.IsInfinity(psiRebar)||double.IsNaN(psiTendon)||double.IsInfinity(psiTendon)) throw new ArgumentException("Finite psi values required.");
             _angularDivisions=angularDivisions;_psiRebar=psiRebar;_psiTendon=psiTendon;
             _serviceabilityAnalysis = serviceabilityAnalysis; _concreteStressLimitFactor = concreteStressLimitFactor;
+        }
+
+        /// <summary>Uses the same verification methods with an explicitly supplied numerical implementation.</summary>
+        public ConcreteSectionVerifier(IConcreteCalculationFactory calculationFactory, StandardModelCode2010 standard,
+            SectionSolver.FailureAnalysisTypes criterion, bool considerTension, int angularDivisions, double psiRebar, double psiTendon,
+            string standardEdition, string nationalAnnex, SectionSolver.StressAnalysisTypes serviceabilityAnalysis,
+            double concreteStressLimitFactor, double? shearCotTheta = null, CrackLoadDuration crackLoadDuration = CrackLoadDuration.LongTerm,
+            double? crackDesignLimit = null)
+            : this(standard, criterion, considerTension, angularDivisions, psiRebar, psiTendon, standardEdition, nationalAnnex,
+                  serviceabilityAnalysis, concreteStressLimitFactor, shearCotTheta, crackLoadDuration, crackDesignLimit)
+        {
+            _calculationFactory = calculationFactory ?? throw new ArgumentNullException(nameof(calculationFactory));
+            if (string.IsNullOrWhiteSpace(calculationFactory.Id) || string.IsNullOrWhiteSpace(calculationFactory.Version))
+                throw new ArgumentException("Numerical engine identity/version required.", nameof(calculationFactory));
         }
 
         // Only editions explicitly documented by these concrete source types are inferred. Subclasses may differ.
@@ -100,6 +116,8 @@ namespace GPC.Model.Checker
                 entries["StandardType"]=_standard.GetType().FullName;entries["Criterion"]=_criterion.ToString();
                 entries["ConsiderTensileConcrete"]=_considerTension.ToString();entries["AngularDivisions"]=_angularDivisions.ToString(CultureInfo.InvariantCulture);
                 entries["PsiRebar"]=_psiRebar.ToString("R",CultureInfo.InvariantCulture);entries["PsiTendon"]=_psiTendon.ToString("R",CultureInfo.InvariantCulture);
+                entries["NumericalEngine"] = _calculationFactory.Id; entries["NumericalEngineVersion"] = _calculationFactory.Version;
+                entries["NumericalOptions"] = _calculationFactory.Configuration;
                 entries["FailureDomain"]="Plastic";entries["StressAnalysis"]="NonLinear";entries["WorkingRatioForceScaleN"]="1000000";entries["WorkingRatioLengthScaleMm"]="1000";
                 entries["StandardEdition"] = _edition ?? "undeclared"; entries["NationalAnnex"] = _nationalAnnex ?? "undeclared";
                 entries["ServiceabilityStressAnalysis"] = _serviceabilityAnalysis.ToString();
@@ -120,19 +138,19 @@ namespace GPC.Model.Checker
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var entry = Checker(input.Section, reference, SectionSolver.StressAnalysisTypes.NonLinear);
-                var point=entry.Item2.CalculateFailureDomainPoint(forces);
+                var point=entry.Item2.Resistance.SolveResistance(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
-                if(point==null) return Failure("CheckerDomainPointMissing");
-                double ratio=point.CalculateWorkingRatio(_criterion,forces,1e6,1000);
+                if(point == null || point.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerDomainPointMissing");
+                double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
-                var strain = point.StrainPlane;
-                if (strain?.ReferencePoint == null) return Failure("CheckerStrainPlaneMissing");
+                var strain = point.Strain;
+                if (strain == null) return Failure("CheckerStrainPlaneMissing");
                 var result = new CheckResult {Execution=ExecutionStatus.Completed,Data=DataStatus.Ready,
                     Outcome=ratio<=1 ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotSatisfied,Utilization=ratio,EngineVersion=Version,
                     Standard = StandardContext,
                     Details = new SectionResistanceDetails("Concrete.PlasticSectionDomain", _criterion.ToString(), new BeamForceSnapshot(forces),
-                        point.NRd, point.MxRd, point.MyRd, ratio, point.FailureIndex.ToString(),
-                        strain.ReferencePoint.X, strain.ReferencePoint.Y, strain.StrainReferencePoint, strain.ChiX, strain.ChiY) };
+                        point.N.Value, point.M1.Value, point.M2.Value, ratio, point.FailureMode,
+                        strain.X, strain.Y, strain.Epsilon, strain.ChiX, strain.ChiY) };
                 return WithEdition(result);
             }
         }
@@ -155,14 +173,14 @@ namespace GPC.Model.Checker
         }
 
         /// <summary>Cached native checker per section, configuration and stress analysis type. Call under <see cref="Sync"/>.</summary>
-        private Tuple<ReinforcedConcreteSection, SectionCheckerModelCode2010> Checker(ReinforcedConcreteSection section, CoordinateSystem reference, SectionSolver.StressAnalysisTypes stress)
+        private Tuple<ReinforcedConcreteSection, ConcreteCalculationSession> Checker(ReinforcedConcreteSection section, CoordinateSystem reference, SectionSolver.StressAnalysisTypes stress)
         {
             var key = ModelArchive.Fingerprint(new object[] { section, Configuration, stress });
             if (!_checkers.TryGetValue(key, out var entry) || ModelArchive.Fingerprint(new object[] { entry.Item1, Configuration, stress }) != key)
             {
-                var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, _criterion,
-                    SectionSolver.FailureDomainTypes.Plastic, stress, _psiRebar, _psiTendon, _considerTension, _angularDivisions);
-                var created = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, _standard, _considerTension);
+                var created = _calculationFactory.Create(section, _standard, new ConcreteCalculationOptions(reference,
+                    _criterion, stress, _considerTension, _angularDivisions, _psiRebar, _psiTendon))
+                    ?? throw new InvalidOperationException("NullNumericalSession");
                 entry = Tuple.Create(section, created); _checkers[key] = entry; _createdCheckers++;
             }
             return entry;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Checkers.Concrete.Serviceability;
+using GPC.Checkers.Concrete.Analysis;
 using GPC.Model.PostProcessing;
 
 namespace GPC.Model.Checker
@@ -59,11 +60,11 @@ namespace GPC.Model.Checker
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var entry = Checker(input.Section, reference, _serviceabilityAnalysis);
-                var analysis = entry.Item2.GetTensionAnalysisResult(forces);
+                var analysis = entry.Item2.Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
-                if (analysis?.StrainPlane == null) return Failure("CheckerStressAnalysisNotConverged");
+                if (analysis == null || analysis.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerStressAnalysisNotConverged");
                 StressLimitResult limits;
-                try { limits = StressLimitCheck.Evaluate(analysis, combination, _concreteStressLimitFactor); }
+                try { limits = StressLimitCheck.Evaluate(analysis, StressLimitContext.Resolve(_standard, input.Section), combination, _concreteStressLimitFactor); }
                 catch (NotSupportedException ex) { return new CheckResult { Data = DataStatus.NotSupported, Outcome = EngineeringOutcome.NotEvaluated,
                     Diagnostics = new List<ModelDiagnostic> { ModelDiagnostic.Error("UnsupportedStressLimits", message: ex.Message) } }; }
                 catch (InvalidOperationException ex) { var failed = Failure("CheckerStressAnalysisNotConverged"); failed.Diagnostics[0].Message = ex.Message; return failed; }

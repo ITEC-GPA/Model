@@ -1,0 +1,1903 @@
+MODEL: SITUAZIONE E PROPOSTA DI ORGANIZZAZIONE
+9 ottobre 2026 - analisi del checkpoint bb58d374, branch codex/model-architecture
+
+Questa e' una proposta, non un riordino gia' applicato. Nessun sorgente e'
+stato spostato o cancellato durante questa analisi.
+
+AGGIORNAMENTO DEL VINCOLO DI COMPATIBILITA' - 9 OTTOBRE 2026
+
+Anthea e' a sua volta in refactoring. L'utente consente di prevedere rotture
+delle API esistenti se producono un'architettura piu' solida e riutilizzabile.
+La conservazione delle API descritta piu' avanti e' quindi una possibile
+tappa di migrazione, NON un requisito permanente dell'architettura finale.
+Non e' una richiesta di rompere subito indiscriminatamente le API.
+
+Priorita': correttezza del dominio, confini chiari, riuso dei motori e
+semplicita' della nuova API. La compatibilita' diventa un costo di migrazione
+da rendere esplicito. Non deve imporre duplicazioni indefinite nel dominio.
+
+CAMBIAMENTI STRUTTURALI ORA AMMISSIBILI
+
+1. Collezioni e mutazioni controllate.
+   Esporre viste di lettura e operazioni esplicite di modifica, non dizionari
+   e liste liberamente mutabili. Un builder gestisce l'import massivo e un
+   editor applica modifiche coerenti a nodi, collegamenti, gruppi e proprieta'.
+   La revisione cambia insieme alla modifica; i consumer non devono
+   ricostruire a posteriori la coerenza del grafo. I checker usano input
+   immutabili acquisiti prima dell'esecuzione.
+
+2. Identita' distinte da nomi e codici esterni.
+   Identificatori stabili e tipizzati per elementi/proprieta'/dataset;
+   Name resta un'etichetta modificabile. L'ID di MIDAS/Straus/SAP e' una
+   mappatura di provenienza, non l'identita' universale dell'oggetto.
+
+3. Composizione delle proprieta' strutturali.
+   Distinguere geometria della sezione, materiali/regioni, armature,
+   proprieta' analitiche e opzioni di progetto. Evitare che una singola
+   ReinforcedConcreteSection diventi anche contenitore FEM, configurazione
+   normativa e stato del solutore. Lo stesso principio vale per plate e
+   spessori: geometria fisica e rigidezze equivalenti hanno ruoli diversi.
+
+4. Confine multinormativa esplicito.
+   Separare dati caratteristici del materiale, modello costitutivo adottato
+   e profilo normativo della verifica. Le classi materiali attuali derivate
+   per norma possono essere adapter/factory di migrazione; non obbligano
+   tutte le nuove API a perpetuare la stessa ereditarieta'. Conservare
+   provenienza, parametri e convenzioni fisiche del modello analitico.
+
+5. Porte dei checker indipendenti dal modello FEM completo.
+   Un motore riceve input locali espliciti e una specifica e restituisce un
+   risultato; non deve conoscere Groups, Model mutabile, importatori o UI.
+   Distinguere input sezione, membratura 1D e pannello/punto 2D, mantenendo
+   un formato di esito comune. Non forzare tutto in un DTO con campi opzionali.
+
+6. Persistenza e storico delle verifiche fuori dalle entita' fisiche.
+   I contratti dei file devono poter evolvere indipendentemente dai nomi CLR.
+   Una descrizione di progetto/workspace collega modello, analisi, scenari,
+   configurazioni e VerificationRun; Model non deve possedere ogni dato
+   dell'applicazione. I formati storici hanno lettori/migratori dedicati.
+   Rompere una API C# non significa abbandonare gli archivi degli utenti.
+
+7. Rimozione effettiva del debito storico.
+   I facade duplicati e gli abbozzi FEM possono essere rimossi dalla nuova
+   API dopo aver migrato i consumer conosciuti. Un eventuale adapter legacy
+   deve stare al confine, con perimetro e termine di migrazione dichiarati.
+   Non aggiungere wrapper permanenti per ogni vecchio setter/metodo.
+
+POSSIBILE ARCHITETTURA DI ARRIVO DELLE LIBRERIE
+
+I nomi seguenti sono proposti, non progetti gia' creati. L'estrazione va
+eseguita solo con un confine dimostrato dai consumer e verificato dai test.
+
+GPC.Structural.Core [proposto]
+  Materiali, geometrie di sezione, proprieta' strutturali, unita', assi e
+  grandezze fisiche condivise; indipendente dal grafo FEM e dall'orchestrazione.
+GPCModel
+  Nodi/elementi, gruppi/membrature, carichi, analisi, risultati, trasformazioni
+  e preparazione fisica; dipende dal dominio strutturale.
+GPC.Checking.Contracts [proposto]
+  Input di verifica, specifiche, contesti normativi, porte e resoconti;
+  dipende dal dominio comune, non da ModelChecker o dal modello FEM completo.
+Checker.Concrete/Steel/CompositeBridge/Geotechnics
+  Dipendono dal dominio e dai contratti; contengono i metodi resistenti.
+GPCModelChecker
+  Collega GPCModel ai contratti/motori: configurazione, pianificazione,
+  routing, sessioni e raccolta dei risultati.
+GPCModelData
+  Cataloghi del dominio, senza dipendenza dal grafo FEM.
+GPC Converter
+  Lettura/normalizzazione dei software e costruzione di GPCModel.
+Persistenza del progetto [modulo al livello applicativo, collocazione da definire]
+  DTO e migratori collegano modello, configurazioni e resoconti. Non impone
+  a GPCModel un riferimento inverso a ModelChecker o Checking.Contracts.
+Anthea / futura UI
+  Possono usare i motori su input locali senza costruire un modello FEM;
+  usano ModelChecker quando devono verificare un modello completo.
+
+Questa destinazione sostituisce il vincolo "nessuna nuova DLL" come regola
+assoluta. Non implica creare subito tutti i progetti: prima si fissano i
+contratti e si prova una sezione cls/acciaio fuori dal FEM, poi un percorso
+beam/plate completo, infine si spostano le implementazioni.
+
+MIGRAZIONE E CRITERI DI ACCETTAZIONE
+
+- Versionare le rotture intenzionali; per ciascuna elencare API vecchia,
+  sostituzione, consumer coinvolti e motivo del cambiamento.
+- La baseline API segnala tutte le differenze. Le rotture pianificate
+  hanno una lista esplicita/versionata; quelle accidentali restano errori.
+- Mantenere test numerici indipendenti dai refactoring: gli stessi input
+  fisici devono produrre gli stessi risultati entro le tolleranze dichiarate.
+- Verificare archivi storici, significato di assi/unita'/segni e provenienza;
+  nessuna conversione silenziosa o falsa attualizzazione di risultati vecchi.
+- Usare bundle coerenti delle DLL fra Model, Checker e Anthea; un controllo
+  su un bundle precedente non certifica automaticamente l'integrazione nuova.
+- Modifiche ai consumer in fasi coordinate e commit distinti. Il consenso
+  a cambiare API non autorizza a sovrascrivere lavoro concorrente in Anthea.
+
+Il resto del documento conserva la fotografia attuale e una prima tappa
+di organizzazione compatibile. Non limita le evoluzioni strutturali sopra.
+
+OBIETTIVO CHE GUIDA LE SCELTE
+
+PRECISAZIONE SU CHECKER: CAMBIA IL CALCOLO INTERNO, NON I METODI
+
+Il refactoring del calcolo non richiede di riscrivere le formule normative
+o sostituire tutti i metodi pubblici. Il primo obiettivo e' rendere
+sostituibile l'implementazione numerica sotto i metodi esistenti. Le API
+si cambiano quando espongono lo stato interno del solutore o impediscono
+input/risultati coerenti, non per uniformare superficialmente i nomi.
+
+Riscontri nei sorgenti Checker letti il 9 ottobre (HEAD 0ad8314b):
+- Concrete.SectionChecker possiede ed espone SectionSolver, modifica opzioni
+  del solver e combina operazioni numeriche, batch e wrapper Task.Run.
+- StressAnalysisResult mantiene un legame con il solutore. StressLimitCheck
+  accede a result.SectionSolver.ConcreteMaterial e usa metodi del risultato
+  che ricavano tensioni e rapporti di verifica.
+- SectionSolver contiene sia operazioni numeriche sia punti di estensione
+  per leggi/proprieta' di progetto dipendenti dalla norma.
+- SectionShearInput/Result e SectionTorsionInput/Result sono gia' contratti
+  dedicati: questi metodi richiedono interventi piu' limitati.
+- L'adapter ConcreteSectionVerifier in ModelChecker conosce classi ed enum
+  concreti del solutore e applica un lock statico. Il nuovo contratto dovra'
+  dichiarare isolamento/sessioni; il lock non si elimina senza prove.
+
+Struttura logica proposta dentro Checker.Concrete (nomi nuovi indicativi):
+
+Contracts
+  SectionAnalysisInput, SectionResponse, SectionResistanceResult,
+  SolverDiagnostics; dati immutabili senza riferimento al solutore vivo.
+Analysis
+  ISectionResponseSolver: risposta a uno stato di carico.
+  ISectionResistanceSolver: ricerca capacita'/dominio richiesta dal metodo.
+  Implementazioni lineari/non lineari, integrazione, convergenza e cache
+  confinate alla sessione. Il solver numerico consuma leggi e parametri
+  risolti esplicitamente, senza scegliere implicitamente una normativa.
+DesignContext
+  Profilo normativo, coefficienti, modello costitutivo e parametri richiesti
+  dal metodo. Conservarne il significato anche cambiando il solver.
+Checks
+  Metodi esistenti: pressoflessione, taglio, torsione, tensioni, fessurazione,
+  dettagli costruttivi. Leggono dati/risposte stabili, non oggetti solver.
+Results
+  Esito e passaggi della verifica separati da convergenza e diagnostica
+  numerica; norma/metodo e motore numerico hanno identita' distinte.
+Compatibility
+  Punti d'ingresso precedenti che delegano al percorso unico, ove utili.
+
+Non tutti i metodi richiedono un'analisi iterativa: taglio/torsione possono
+consumare direttamente i loro input. Non introdurre un solver artificiale
+per obbligare tutte le verifiche a seguire lo stesso percorso.
+
+La risposta deve contenere i dati davvero necessari: piano di deformazione,
+tensioni nei punti/armature pertinenti, risultanti di equilibrio, riferimento
+locale e convenzioni, stato lineare/non lineare e parametri, diagnostica
+di convergenza. Per campi interrogabili serve una rappresentazione immutabile
+autonoma, non un callback verso il solver mutabile. Una verifica non puo'
+diventare positiva perche' il calcolo non e' riuscito: non convergenza e
+mancata verifica sono condizioni diverse.
+
+Migrazione raccomandata: adattare prima il motore attuale al contratto,
+poi collegare quello rifattorizzato allo stesso contratto. Confrontare le
+risposte numeriche, l'equilibrio e gli esiti degli stessi metodi su casi
+lineari/non lineari, prossimi ai limiti e non convergenti. Un diverso motore
+non garantisce uguaglianza bit-a-bit; scostamenti entro tolleranza vanno
+giustificati, e i cambi di esito vicino a utilizzo 1 vanno esaminati.
+
+Model prepara dati e azioni locali; ModelChecker coordina i lavori; Anthea
+puo' chiamare direttamente il servizio di verifica di sezione. Nessuno dei
+tre dovrebbe configurare discretizzazioni private o leggere stato mutabile
+del solver. Non e' necessario creare nuove DLL per attuare questo confine.
+
+Importare beam e plate da software diversi, conservare origine/unita/assi,
+organizzare nodi, elementi, gruppi e membri fisici, leggere gli stati di
+risultato, convertirli senza perdere la concomitanza, preparare input locali
+e tracciabili, eseguire verifiche multinormativa con i motori Checker e
+fornire resoconti a una futura interfaccia.
+
+Model serve anche come dominio strutturale comune: Checker e Anthea usano
+direttamente Material, Section, ReinforcedConcreteSection, SteelSection,
+Standard e altri contratti. Non e' soltanto un contenitore FEM.
+
+STATO
+
+- Punti 1-7 completati; punto 8A salvato e pubblicato.
+- Restano il completamento dei contratti/resoconti plate, dipendenze
+  riproducibili, baseline API e il riordino richiesto.
+- Plate: preparazione e infrastruttura disponibili; Concrete.Plate e
+  Steel.Plate NON contengono ancora formule resistenti qualificate.
+- Converter presenti: Civil NX, Civil tramite MGT, Straus7 tramite API.
+  SAP2000, GEN NX e GEN restano estensioni successive del piano originale.
+- La validazione precedente e' descritta in MODEL_ARCHITETTURA_20261008.txt.
+  In questa analisi non sono state eseguite nuove suite, non essendoci
+  modifiche al codice.
+
+1. DIPENDENZE DA RISPETTARE
+
+La freccia significa "dipende da"; non rappresenta il flusso dei dati.
+
+GPCModel --------------------> Geometry, DelaunayMesh, Utilities, MathNet
+GPCModelData ----------------> GPCModel, Geometry
+GPC Converter ---------------> GPCModel, GPCModelData, Geometry
+Checker.Concrete ------------> GPCModel
+Checker.Steel ---------------> GPCModel
+Checker.CompositeBridge -----> GPCModel
+Checker.Geotechnics ---------> GPCModel
+GPCModelChecker -------------> GPCModel + Checker.Concrete/Steel/CompositeBridge
+Anthea ----------------------> Model, ModelData e Checker, secondo il modulo
+Futura UI di gestione -------> Converter + ModelChecker + lettura del dominio
+
+Sono indicati i rapporti rilevanti, non tutti i riferimenti tecnici di ogni
+progetto. Anthea usa un bundle di DLL con manifest; Model/ModelChecker
+referenziano ancora varie bin/Release dei repository fratelli.
+
+Model NON deve acquisire un riferimento a ModelChecker o ai motori Checker.
+Un facade pubblico dentro Model non puo' delegare a ModelChecker senza
+creare un ciclo. Questo limita gli spostamenti immediati degli esecutori
+generici gia' pubblici in Model.
+
+2. GERARCHIA REALE PRINCIPALE: EREDITARIETA'
+
+Il seguente albero indica ereditarieta' reale, con rami rappresentativi.
+L'inventario dei sorgenti in appendice riporta anche le dichiarazioni.
+
+ModelObject
+|-- Model
+|-- Material
+|   |-- ConcreteMaterial
+|   |   |-- ConcreteMaterialACI318
+|   |   `-- ConcreteMaterialEuropeanCommon
+|   |       |-- ConcreteMaterialEN1992
+|   |       `-- ConcreteMaterialModelCode2010
+|   |-- SteelMaterial
+|   |   |-- SteelMaterialEN1992 / EN1993 / ACI318 / AISC360 / DM1996
+|   |   `-- BoltMaterialEN1993 / BoltMaterialEN1993Inox
+|   |-- AluminiumMaterial -> AluminiumMaterialEN1999
+|   |-- FRP
+|   `-- famiglie storiche Glass/Interlayer/Silicon
+|-- Standard
+|   |-- StandardModelCode2010 -> StandardEN1992p11 -> varianti nazionali
+|   |-- StandardACI318 -> edizioni ACI e AASHTO
+|   |-- StandardEN1993p11 -> varianti nazionali
+|   |-- StandardAISC -> edizioni AISC
+|   `-- altre famiglie: EN1990, geotecnica, alluminio, vetro, ecc.
+|-- LoadCaseBase -> LoadCase / ClimateLoadCase
+|-- Combination
+`-- ModelObjectId
+    |-- Element
+    |   |-- NodeElement
+    |   |-- BeamElement
+    |   |   `-- FemBeam -> EulerBeam [abbozzo storico di solutore]
+    |   |-- AreaElement [plate/shell]
+    |   `-- VolumeElement [fuori dal percorso beam/plate corrente]
+    |-- ElementProperty
+    |   |-- BeamProperty
+    |   |   |-- ReinforcedConcreteSection
+    |   |   `-- SteelSection
+    |   |-- PlateProperty
+    |   |   |-- ConcretePlateProperty
+    |   |   |-- SteelPlateProperty
+    |   |   `-- GlassPlateProperty [storico]
+    |   `-- BrickProperty
+    |-- Section [geometria della sezione]
+    |   |-- ThinWallSection -> H/C/L/T/CHS/RHS/Rectangular/altre
+    |   |-- SectionCircular -> RebarSectionCircular / BoltSection
+    |   |-- SectionParametric -> BoxGirder/HaunchedI/HollowCore/altre
+    |   `-- SectionBuiltUp -> SectionWelded
+    |-- Group
+    |-- Stage
+    |-- Load -> PointLoad / LineLoad / AreaLoad / Gravity / altre
+    `-- ResultLocation
+        |-- NodeResultForces / NodeResultDisplacement
+        |-- StationResultBeamForces / StationResultDisplacement
+        |-- PointResultPlateForces / PointResultPlateStress / PointResultDisplacement
+        `-- BrickPointResultForces / BrickPointResultDisplacement
+
+Distinzione essenziale: Section e' una geometria; BeamProperty e' una
+proprieta' strutturale assegnabile a un elemento. SteelSection e
+ReinforcedConcreteSection combinano geometria, materiali e dati specifici.
+Non renderei BeamElement derivato da ConcreteBeam o SteelBeam: la scelta
+del materiale resta una composizione tramite la proprieta' assegnata.
+Analogamente AreaElement non deve avere una sottoclasse per ogni materiale.
+
+ShellThickness NON deriva da Material o PlateProperty: e' un oggetto
+immutabile indipendente con Physical, Membrane, Bending, espressi in mm.
+
+3. ORGANIZZAZIONE ATTUALE PER RESPONSABILITA'
+
+Qui i rientri significano "appartiene al modulo", NON "eredita da".
+
+GPCModel
+|-- Base: ModelObject, ModelObjectId, collezioni, unita'
+|-- Models: Model e partial Topology/Groups/Analysis/Document
+|-- Elements: NodeElement, BeamElement, AreaElement, VolumeElement
+|-- ElementProperties: BeamProperty, PlateProperty, IFemPlateProperty, ShellThickness
+|-- Materials: cls, acciaio, alluminio, FRP e famiglie storiche
+|-- Sections: geometrie, proprieta' cls/acciaio, armature, bulloni, compositi
+|-- Attributes: Group e attributi FEM
+|-- Loads / LoadCases / Combinations / Stages / Restrains / Costrains
+|-- Results
+|   |-- ElementResults: NodeResult, BeamResult, PlateElementResult, BrickElementResult
+|   |-- ResultLocations: nodo, stazione beam, punto plate/brick
+|   |-- ResultTypes: ResultBeamForces, ResultPlateForces, stress, spostamenti
+|   |-- ResultAddress, ResultRecord, IResultStore, InMemoryResultStore
+|   `-- Processing: ActionTransformations
+|-- Analysis: AnalysisSnapshot, AnalysisCompatibilityValidator
+|-- Checking
+|   |-- Contracts: CheckResult, richieste, specifiche, scenari, provenienza, porte
+|   |-- Preparation: BeamCheckPlan, preparazione beam/shell, VerificationSnapshot
+|   |-- Execution: SectionCheckExecution, BeamCheckExecution, MemberCheckExecution
+|   `-- Reports: CheckReport, CheckSummary, CheckDetails, snapshot degli input
+|-- Design: Standards, combinazioni normative, WoodArmerDesign e azioni plate
+|-- Persistence: ModelDocument, ModelArchive, CheckReportArchive, contratti/hash
+|-- Geotechnics: Soil, SoilLayer, SoilProfile
+|-- Maths
+|-- Compatibility: abbozzi FEM storici
+`-- PostProcessing [ancora troppo eterogeneo]
+    |-- SourceIdentity, ModelDiagnostic, ResultState, AnalysisSource
+    |-- NodeAssignments, BeamAssignments, ShellAssignments
+    |-- PhysicalMemberDefinition, MemberRestraint, MemberDesignContext
+    |-- BeamReferenceGeometry, BeamAnalysisProfile, SectionLaws
+    |-- ResultQueries, ResultSelection, ResultUnits, ResultAlgebra, ResultOrientation
+    |-- BeamActionPreparation, ShellActionPreparation, equilibrio
+    `-- facade storici: ResultTransformations, Verification, WoodArmer, ecc.
+
+GPCModelData
+|-- cataloghi dei materiali per famiglia/norma
+`-- Sections: SectionCatalog, SectionCatalogs, CatalogProfile, SectionMappings
+
+GPC Converter
+|-- ImportBatch/ImportReport, NodeRecord/BeamRecord/ShellRecord/ThicknessRecord
+|-- ResultImportBatch/ResultImportReport, ForceRecord e varianti
+|-- ModelMapper, PropertyMapper, filtri e convenzioni
+|-- CivilNx: client API, profili geometrici/modello, tabelle e risultati
+|-- MidasCivil: lettore MGT, sintassi e risultati
+`-- Straus7: contratti API, implementazione nativa, import
+
+GPCModelChecker
+|-- Configuration: contesti, motori, route, lavori beam/plate, archivio e catalogo
+|-- ModelChecker [partial: concrete, multi-material, plate, scenari, snapshot]
+|-- richieste/piani/task/sessioni e ModelCheckReport
+|-- ConcreteMaterialChecker + ConcreteSectionVerifier [adapter verso Checker]
+|-- SteelMaterialChecker
+`-- CompositeBridgeMaterialChecker
+
+Le cartelle Checking/Analysis/Design sono gia' separate, ma diversi nomi
+CLR restano sotto GPC.Model.PostProcessing per compatibilita'. Spostare un
+file non cambia il contratto; cambiare namespace, assembly o tipo base si'.
+
+4. COME ORGANIZZEREI I MODULI
+
+Prima fase: stesse DLL e stessi nomi pubblici; cambia la collocazione dei
+sorgenti e si riducono i contenitori eterogenei. I nomi delle cartelle qui
+sotto sono la proposta, non nuove classi da creare automaticamente.
+
+GPCModel
+|-- Core
+|   |-- Identity: ModelObject, ModelObjectId, SourceIdentity, comparer
+|   |-- Collections: SortedCollection, UniqueIdCollection, UniqueNameCollection
+|   |-- Units: Units, UnitsSystem, ResultUnits
+|   `-- Diagnostics: ModelDiagnostic, stati e validazione comune
+|-- Structure
+|   |-- Model: collezioni e API di modifica del modello
+|   |-- Topology: collegamenti nodi/elementi e geometrie di riferimento
+|   |-- Elements: NodeElement, BeamElement, AreaElement, VolumeElement
+|   |-- Groups: Group e gestione gerarchica/membership
+|   |-- Members: PhysicalMemberDefinition, BeamMemberPart, MemberLocation
+|   |-- Assignments
+|   |   |-- Nodes: NodeAssignments, RestrainAssignment, NodalMass/Link, SpringMatrix
+|   |   |-- Beams: BeamAssignments, BeamSectionAssignment, BeamSectionStation
+|   |   `-- Shells: ShellAssignments, ShellRebarLayer
+|   `-- Properties: ElementProperty, BeamProperty, PlateProperty, ShellThickness
+|-- Materials: definizioni e leggi fisiche gia' condivise con i consumer
+|-- Sections
+|   |-- Shapes: Section e famiglie geometriche
+|   |-- Concrete: ReinforcedConcreteSection e dati armature/taglio/torsione
+|   |-- Steel: SteelSection e geometrie composte
+|   |-- Reinforcement / Bolts
+|   `-- ShellProperties: ConcretePlateProperty, SteelPlateProperty, storico vetro
+|-- Actions
+|   |-- Loads / Restraints / Constraints
+|   `-- LoadCases / Combinations / Stages
+|-- Analysis
+|   |-- AnalysisSnapshot, AnalysisSource, AnalysisDataset
+|   |-- BeamAnalysisProfile e modificatori di rigidezza
+|   `-- compatibilita' input-risultati e ruolo delle armature nell'analisi
+|-- Results
+|   |-- State: ResultState, disponibilita', concomitanza, provenienza
+|   |-- Values: forze, momenti, tensioni, spostamenti
+|   |-- Locations: Node / BeamStation / ShellPoint / SolidPoint
+|   |-- Storage: aggregati legacy, IResultStore, InMemoryResultStore
+|   |-- Queries: ResultSelection, ResultQueries
+|   `-- Processing: unita', ActionTransformations, ResultOrientation, algebra,
+|                     equilibrio e controllo di validita' dei risultati
+|-- Design
+|   |-- Standards: definizioni normative e coefficienti condivisi
+|   |-- Combinations: generazione normativa esplicita
+|   |-- Members: vincoli e contesti della membratura
+|   `-- ShellActions: Wood-Armer/strisce/metodi di derivazione dichiarati
+|-- Checking
+|   |-- Contracts: target, specifiche, coverage, input e porte del verificatore
+|   |-- Preparation: input fisici neutrali, adattamento cls, piani beam/shell
+|   |-- Scenarios: VerificationScenario, PreparedVerification, VerificationSnapshot
+|   |-- Reports: CheckResult, CheckReport, CheckSummary, dettagli e input congelati
+|   `-- Execution: soli servizi elementari gia' pubblici, senza dipendere da Checker
+|-- Persistence: DTO espliciti, serializzazione, migrazioni, impronte
+|-- Geotechnics: contratti necessari al Checker.Geotechnics
+|-- Numerics: algoritmi realmente condivisi e utilizzati
+`-- Compatibility: facade e contratti storici conservati con motivazione
+
+GPCModelData
+|-- Materials: valori/cataloghi, separati dalle definizioni di Model
+`-- Sections: cataloghi, profili, mapping e dati di origine
+
+GPC Converter
+|-- Contracts: batch, record, report, capability e diagnostica d'importazione
+|-- Mapping: proprieta', materiali, gruppi, topologia, risultati
+|-- Conventions: unita', assi, segni, riferimenti e spessori di origine
+`-- Providers
+    |-- MidasCivilNx / MidasCivilMgt / Straus7Api [esistenti]
+    `-- Sap2000 / MidasGenNx / MidasGen [successivi, non ancora dichiarati pronti]
+
+GPCModelChecker
+|-- Configuration: definizioni persistenti, contesti, catalogo dei motori
+|-- Planning
+|   |-- Beam / Plate: selezioni, punti richiesti, specifiche
+|   `-- Routing: assegnazione del motore per elemento E controllo
+|-- Adapters
+|   |-- Concrete: ConcreteMaterialChecker, ConcreteSectionVerifier
+|   |-- Steel: SteelMaterialChecker
+|   |-- CompositeBridge: CompositeBridgeMaterialChecker
+|   `-- Plate: adapter futuri per metodi resistenti qualificati
+|-- Execution: gestione delle sessioni, cancellazione, progress, errori, stale
+`-- Reporting: ModelCheckReport e aggregazione dei risultati comuni
+
+Checker (repository dipendente)
+|-- Concrete: formule e metodi resistenti cls, sezionali e di elemento
+|-- Steel: formule acciaio
+|-- CompositeBridge: storia/costruzione e metodi per sezioni composte
+`-- Geotechnics: consumer gia' presente da preservare
+
+Nessun motore deve decidere quali gruppi del modello verificare. Riceve un
+input esplicito e una specifica; ModelChecker seleziona e coordina. La UI
+modifica la configurazione, avvia il servizio e legge i resoconti, senza
+duplicare trasformazioni o formule.
+
+5. SCELTE SULLE CLASSI
+
+a) Separare rappresentazione del modello, stato di analisi e scenario di
+   verifica. AnalysisSnapshot conserva gli input analitici; gli interventi
+   di progetto non devono rietichettare come attuali risultati incompatibili.
+b) Tenere distinti BeamActionInput e ShellCheckInput. Uno usa una sezione
+   e azioni concentrate; l'altro un punto, risultanti per unita' di lunghezza,
+   normale, spessore e facce. L'esito comune resta CheckResult.
+c) IConcreteSectionVerifier e BeamCheckInput sono porte storiche specifiche
+   del cls: i nuovi percorsi neutri usano IMaterialChecker/BeamActionInput
+   e IPlateChecker/ShellCheckInput. Non estendere tutto attraverso il cls.
+d) Group seleziona; PhysicalMemberDefinition descrive una membratura fisica.
+   Un gruppo di beam non equivale automaticamente a un'asta continua.
+   Per i plate un futuro pannello fisico deve avere un proprio contratto,
+   separato dal semplice gruppo di elementi della mesh.
+e) ShellThickness descrive Physical/Membrane/Bending; non contiene materiale,
+   normativa, copriferro o altezza utile. I valori equivalenti FEM non sono
+   automaticamente spessori resistenti. Per laminati o spessori variabili
+   servira' una descrizione esplicita di strati/distribuzione, non una nuova
+   sottoclasse di AreaElement per ogni materiale.
+f) Un solo esito con stato dati, stato esecuzione, giudizio ingegneristico,
+   utilizzo, metodo, norma, motore e input usati. Estendere i dettagli dei
+   plate con direzione/categoria/faccia leggibili oltre all'impronta.
+g) Non introdurre ora altre DLL per soli spostamenti di cartelle. Un eventuale
+   GPC.Structural.Core richiederebbe una migrazione coordinata di Model,
+   Checker, Converter e Anthea, non un intervento di pulizia.
+
+6. CODICE INATTIVO E COMPATIBILITA'
+
+Evidenza concreta: UnitTest/FEM/Beam/BeamTest.cs ha 4195 righe e ZERO righe
+non vuote diverse dai commenti //. E' un candidato alla rimozione: la storia
+resta in Git e non contiene test eseguiti.
+
+Model/GPCModel.csproj mantiene sei voci Remove per cartelle FEM Brick/Plate
+prive di sorgenti correnti: eliminabili dopo controllo del diff di build.
+
+FemBeam/EulerBeam sono abbozzi, gia' in Compatibility. Nei sorgenti applicativi
+esaminati di Model, Converter, ModelChecker, Checker e Anthea non risultano
+altri usi attivi oltre alle dichiarazioni stesse. Sono pero' API pubbliche:
+prima separazione/documentazione; eventuale rimozione con cambio compatibile
+esplicitamente pianificato, non cancellazione durante un riordino ordinario.
+
+ResultTransformations, Verification e gli altri facade non sono automaticamente
+spazzatura: preservano vecchi punti di ingresso. Anche vetro e solidi sono
+fuori dallo sviluppo corrente, ma la loro cancellazione potrebbe rompere
+archivi/consumer. Non aggiungere nuove funzioni a quei rami per questo lavoro.
+
+Un TODO o NotImplementedException puo' indicare una funzionalita' incompleta,
+non un codice inutilizzato. L'inventario deve classificare ogni candidato:
+attivo, compatibilita', incompleto, realmente morto.
+
+7. SEQUENZA DELLE MODIFICHE
+
+1) Chiudere punto 8: resoconti/capability plate, prove beam+plate, dipendenze
+   vincolate e baseline delle API. Registrare versioni/hash delle DLL.
+2) Commit di pulizia certa: file interamente commentati, configurazioni morte
+   e duplicati privati confermati. Nessun cambio a formule o API pubbliche.
+3) Commit di organizzazione: spostamenti fisici, una classe principale per
+   file quando utile, suddivisione di PostProcessing e delle responsabilita'
+   di ModelChecker. Mantenere namespace e nomi serializzati.
+4) Test Model/Converter/ModelChecker, verifica API e compatibilita' Anthea;
+   push delle fasi verificate. I cambi di ereditarieta'/DLL vengono discussi
+   separatamente se davvero necessari.
+
+APPENDICE - INVENTARIO DELLE DICHIARAZIONI NEI SORGENTI TRACCIATI
+
+Segue un indice per progetto/file delle dichiarazioni class/interface/struct/
+enum. E' un inventario testuale, non un'analisi di raggiungibilita'. I partial
+possono comparire in piu' file e le dichiarazioni annidate restano nel file
+del contenitore. I blocchi di commento non costituiscono prova di uso attivo.
+
+GPC Converter/CivilNx/CivilNxApiClient.cs
+    L13: public sealed class CivilNxResponse
+    L24: public sealed class CivilNxSnapshot
+    L39: public sealed class CivilNxHttpStatusException : HttpRequestException
+    L46: public sealed class CivilNxApiClient : IDisposable
+
+GPC Converter/CivilNx/CivilNxGeometryReader.cs
+    L15: public interface ICivilNxGeometryProfile
+    L22: public static class CivilNxGeometryReader
+    L60: public sealed class CivilNxCommonGeometryProfile : ICivilNxGeometryProfile
+
+GPC Converter/CivilNx/CivilNxModelProfile.cs
+    L19: public sealed class CivilNxModelProfile : ICivilNxGeometryProfile
+    L53: private sealed class Reader
+
+GPC Converter/CivilNx/CivilNxResults.cs
+    L20: public static class CivilNxResults
+
+GPC Converter/CivilNx/CivilNxTableRequest.cs
+    L11: public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength, DisplacementGlobal, ReactionGlobal, SectionProperties, MaterialProperties }
+    L13: public sealed class CivilNxTableRequest
+    L66: internal static class CivilNxJson
+    L103: public sealed class CivilNxResultTableData
+
+GPC Converter/CombinationExpansion.cs
+    L15: public sealed class LinearAlternative
+    L27: public static class CombinationExpansion
+    L114: private sealed class Alternative
+
+GPC Converter/CombinationResults.cs
+    L15: public static class CombinationResults
+
+GPC Converter/ImportContracts.cs
+    L13: public enum ImportStatus { Completed, Partial, Rejected, Cancelled }
+    L14: public enum CapabilityStatus { ImplementedSyntheticTests, InterpretedWithoutRealFileTest, PreservedOnly, NotSupported }
+    L16: public sealed class ModelFileReadException : FormatException
+    L23: public sealed class NodeRecord
+    L30: public sealed class BeamRecord
+    L54: public sealed class ShellRecord
+    L67: public enum MaterialKind { Unknown, Steel, Concrete, Other }
+    L69: public sealed class MaterialRecord
+    L83: public enum SectionShapeKind { Unknown, I, Channel, Angle, Tee, Box, Pipe, SolidRectangle, SolidCircle }
+    L84: public enum SectionHorizontalReference { Centroid, Center, MinimumV1, MaximumV1 }
+    L85: public enum SectionVerticalReference { Centroid, Center, MinimumV2, MaximumV2 }
+    L88: public sealed class SectionReference
+    L97: public sealed class SectionValues
+    L106: public sealed class SectionRecord
+    L119: public sealed class ThicknessRecord
+    L131: public sealed class BeamLoadRecord
+    L151: public sealed class ShellLoadRecord
+    L165: public enum CombinationKind { Linear, Envelope, Absolute, Srss }
+    L169: public sealed class CombinationTermRecord
+    L179: public sealed class CombinationRecord
+    L191: public sealed class GravityRecord
+    L197: public sealed class GroupRecord
+    L204: public sealed class LoadCaseRecord
+    L209: public sealed class NodeLoadRecord
+    L218: public sealed class NodeRestrainRecord
+    L225: public sealed class ImportBatch
+    L249: public sealed class ImportReport
+    L258: public interface IModelFileReader
+    L264: public static class SourceEvidence
+
+GPC Converter/MidasCivil/MidasCivilTextReader.cs
+    L18: public sealed class MidasCivilTextReader : IModelFileReader
+
+GPC Converter/MidasCivil/MidasCivilTextSyntax.cs
+    L9: internal sealed class CivilTextLine
+    L17: internal sealed class CivilTextBlock
+    L26: internal static class MidasCivilTextSyntax
+
+GPC Converter/MidasConventions.cs
+    L7: internal static class Frames
+    L16: internal static class MidasConventions
+
+GPC Converter/ModelMapper.cs
+    L22: public static class ModelMapper
+    L289: private sealed class SameInstance : IEqualityComparer<ElementProperty>
+
+GPC Converter/PropertyMapper.cs
+    L22: public sealed class MappingOptions
+    L30: internal sealed class PropertyMapper
+
+GPC Converter/ResultFilter.cs
+    L12: public sealed class ResultFilter
+    L81: public sealed class ResultReadPlan
+
+GPC Converter/ResultImportContracts.cs
+    L10: public abstract class ResultRecord
+    L19: public abstract class ForceRecord : ResultRecord { }
+    L20: public sealed class NodeForceRecord : ForceRecord
+    L29: public sealed class NodeDisplacementRecord : ResultRecord
+    L33: public sealed class BeamForceRecord : ForceRecord
+    L42: public sealed class ShellForceRecord : ForceRecord
+    L51: public sealed class ResultImportBatch
+    L71: public sealed class ResultImportReport
+    L77: public interface IResultFileReader
+
+GPC Converter/ResultMapper.cs
+    L17: public static class ResultMapper
+
+GPC Converter/SapEditingTables.cs
+    L13: public static class SapEditingTables
+
+GPC Converter/SolverFileAdapter.cs
+    L12: public sealed class SolverFileAdapter
+
+GPC Converter/SourceBinding.cs
+    L14: public static class SourceBinding
+
+GPC Converter/Straus7/Straus7ApiConverter.cs
+    L17: public sealed class Straus7ApiConverter
+
+GPC Converter/Straus7/Straus7Assignments.cs
+    L15: internal sealed class Straus7Assignments
+    L203: private sealed class LoadPoint { public double Station; public double Value; }
+
+GPC Converter/Straus7/Straus7Contracts.cs
+    L8: public enum Straus7Entity { Node = 0, Beam = 1, Plate = 2, Brick = 3, Link = 4 }
+    L9: public sealed class Straus7Node
+    L15: public sealed class Straus7Element
+    L26: public sealed class Straus7Property
+    L46: public sealed class Straus7Attribute
+    L53: public sealed class Straus7Restraint
+    L59: public sealed class Straus7Ucs
+    L64: public enum Straus7LoadFrame { Principal, Global, PrincipalMoment }
+    L66: public sealed class Straus7DistributedLoad
+    L72: public sealed class Straus7LoadCaseData
+    L81: public static class Straus7Attributes
+    L88: public interface IStraus7AssignmentReadApi
+    L104: public sealed class Straus7Group
+    L110: public sealed class Straus7ResultFile
+    L117: public sealed class Straus7ResultCase
+    L123: public sealed class Straus7ResultTable
+    L138: public interface IStraus7ReadApi : IDisposable
+    L161: public sealed class Straus7ApiException : Exception
+    L168: public interface IStraus7ElementNodeReadApi
+    L172: public sealed class Straus7ImportRequest
+    L178: public sealed class Straus7ResultsRequest
+    L190: public sealed class Straus7ResultsReport
+
+GPC Converter/Straus7/Straus7LinearStaticResults.cs
+    L14: public static class Straus7LinearStaticResults
+
+GPC Converter/Straus7/Straus7NativeApi.cs
+    L12: public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi
+
+Model/Analysis/AnalysisCompatibility.cs
+    L16: public sealed class AnalysisCompatibilityResult
+    L24: public static class AnalysisCompatibilityValidator
+
+Model/Analysis/AnalysisSnapshot.cs
+    L16: public enum AnalysisCompatibility { Unknown, Compatible, RequiresReanalysis }
+    L17: public enum ReinforcementAnalysisRole { Unknown, ExcludedFromAnalysis, IncludedInAnalysis }
+    L22: public sealed class AnalysisSnapshot
+    L30: private sealed class CanonicalInputs
+
+Model/Analysis/AnalysisStorage.cs
+    L16: internal static class AnalysisStorage
+
+Model/Attributes/Attribute.cs
+    L10: public abstract class Attribute : ModelObjectId, ISerializable
+
+Model/Attributes/BeamReleasesAttribute.cs
+    L7: public enum BeamConnectionKind { Continuous, Released, AbsoluteStiffness, RelativeFixity }
+    L10: public sealed class BeamDofConnection
+    L31: public class BeamReleasesAttribute : Attribute
+
+Model/Attributes/Group.cs
+    L14: public sealed class Group : ModelObjectId, IEquatable<Group>
+
+Model/Base/Collections/NameIndexRegistry.cs
+    L7: internal sealed class NameIndexChange
+    L13: internal interface INameIndex
+    L24: internal static class NameIndexRegistry
+
+Model/Base/Collections/SortedCollection.cs
+    L13: public class SortedCollection<T> : SortedDictionary<int, T>, ISerializable, IDeserializationCallback where T : ModelObjectId
+
+Model/Base/Collections/UniqueIdCollection.cs
+    L13: public class UniqueIdCollection<T> : Dictionary<int, T>, IEquatable<UniqueIdCollection<T>> where T : ModelObjectId, ISerializable
+
+Model/Base/Collections/UniqueNameCollection.cs
+    L13: public class UniqueNameCollection<T> : Dictionary<string, T>, INameIndex where T : ModelObject, ISerializable
+
+Model/Base/ModelObject.cs
+    L11: public abstract class ModelObject : ISerializable
+    L210: public class ModelObjectNameEqualityComparer : IEqualityComparer<ModelObject>
+
+Model/Base/ModelObjectId.cs
+    L11: public abstract class ModelObjectId : ModelObject, ISerializable
+    L186: public class ModelObjectIdEqualityComparer : IEqualityComparer<ModelObjectId>
+
+Model/Base/ModelObjectIdentityComparer.cs
+    L12: public sealed class ModelObjectIdentityComparer : IEqualityComparer<ModelObject>
+
+Model/Base/ReferenceComparer.cs
+    L6: internal sealed class ReferenceComparer<T> : IEqualityComparer<T> where T : class
+
+Model/Base/SerializationFields.cs
+    L6: internal static class SerializationFields
+    L21: internal static class NumericGuard
+
+Model/Base/Units.cs
+    L15: public static class Units
+
+Model/Base/UnitsSystem.cs
+    L14: public class UnitsSystem
+
+Model/Checking/Contracts/BeamCheckContracts.cs
+    L11: public enum CheckScope { SectionSample, PhysicalMember, ShellPoint }
+    L12: public enum CheckTargetKind { FemElement, PhysicalMember }
+    L13: public enum BeamCoveragePolicy { ExportedSamples, RequiredLocations }
+    L16: public sealed class CheckTargetReference
+    L33: public sealed class RequiredBeamLocation
+    L44: public sealed class MemberCheckSpecification
+    L56: public sealed class BeamCheckPlanRequest
+    L79: public sealed class CoverageAssessment
+    L94: public sealed class MemberSampleSnapshot
+    L110: public sealed class MemberInputSnapshot
+    L129: public sealed class PhysicalMemberCheckInput
+    L137: public interface IPhysicalMemberVerifier
+
+Model/Checking/Contracts/BeamVerificationContracts.cs
+    L14: public enum CheckMechanism { UlsBiaxialSection, Shear, Torsion, Serviceability, Stability, Detailing }
+    L16: public sealed class BeamCheckInput
+    L32: public sealed class CheckResult
+    L102: public interface IConcreteSectionVerifier
+    L109: public interface IConfiguredSectionVerifier : IConcreteSectionVerifier
+    L117: public interface ISectionCheckVerifier : IConfiguredSectionVerifier
+    L123: public sealed class BeamPreparation
+
+Model/Checking/Contracts/SectionCheckSpecification.cs
+    L7: public enum CombinationCategory { Unspecified, Ultimate, UltimateSeismic, UltimateAccidental, Characteristic, Frequent, QuasiPermanent }
+    L10: public enum SectionCheckDirection { None, Axis1, Axis2 }
+    L13: public enum SectionCheckCriterion { Default, StressLimits, CrackWidth }
+    L20: public sealed class SectionCheckSpecification
+
+Model/Checking/Contracts/ShellDesignMethod.cs
+    L16: public interface IShellDesignActionMethod
+
+Model/Checking/Contracts/VerificationProvenance.cs
+    L18: public sealed class VerificationProvenance
+
+Model/Checking/Contracts/VerificationScenario.cs
+    L18: public sealed class VerificationScenario
+
+Model/Checking/Execution/BeamCheckExecution.cs
+    L10: public static class BeamCheckExecution
+
+Model/Checking/Execution/MemberCheckExecution.cs
+    L9: public static class MemberCheckExecution
+
+Model/Checking/Execution/SectionCheckExecution.cs
+    L16: public static class SectionCheckExecution
+
+Model/Checking/Preparation/BeamCheckPlan.cs
+    L12: public sealed class CheckWorkItem
+    L35: public sealed class BeamCheckPlan
+    L60: private sealed class Scope
+
+Model/Checking/Preparation/BeamCheckPreparation.cs
+    L17: public static class BeamCheckPreparation
+
+Model/Checking/Preparation/ModelPreparation.cs
+    L13: public sealed class ElementKey
+    L19: public sealed class ElementSelection
+    L49: public sealed class PreparationRequest
+    L58: public sealed class PreparedElementSample
+    L67: public sealed class ModelPreparation
+
+Model/Checking/Preparation/ShellInputPreparation.cs
+    L13: public enum ShellInputAxes { Element, Reinforcement, Explicit }
+    L14: public sealed class ShellCheckInput
+    L37: public sealed class ShellInputPreparation
+
+Model/Checking/Preparation/ValidationReadScope.cs
+    L10: internal sealed class ValidationReadScope : IDisposable
+    L28: private sealed class NestedScope : IDisposable { public void Dispose() { } }
+
+Model/Checking/Preparation/VerificationPreparation.cs
+    L16: public sealed class PreparedVerification
+    L30: public static class VerificationPreparation
+
+Model/Checking/Preparation/VerificationSnapshot.cs
+    L8: public sealed class VerificationSnapshot
+
+Model/Checking/Reports/CheckDetails.cs
+    L10: public enum CheckApplicability { Required, NotApplicable, Excluded }
+    L14: public sealed class CheckConvergence
+    L31: public sealed class CheckPointValue
+    L50: public sealed class CheckStandardContext
+    L71: public sealed class CheckMetric
+    L92: public sealed class CheckCalculationValue
+    L107: public sealed class BeamForceSnapshot
+    L128: public sealed class CheckInputSnapshot
+    L145: public abstract class CheckDetails
+    L171: public sealed class SectionResistanceDetails : CheckDetails
+    L197: public sealed class ShearCheckDetails : CheckDetails
+    L210: public sealed class TorsionCheckDetails : CheckDetails
+    L223: public sealed class ServiceabilityCheckDetails : CheckDetails
+    L233: public sealed class DetailingCheckDetails : CheckDetails
+    L239: internal static class CheckValue
+
+Model/Checking/Reports/CheckReport.cs
+    L9: public sealed class CheckReport
+    L124: public static class CheckRunner
+
+Model/Checking/Reports/CheckSummary.cs
+    L7: internal static class CheckResultRules
+    L46: public sealed class CheckSummary
+    L91: public sealed class GoverningCheck
+    L99: public sealed class CheckResultGroup
+    L108: public sealed class ElementCheckReport
+    L119: public static class CheckReportViews
+
+Model/Checking/Reports/ShellInputSnapshot.cs
+    L13: public sealed class ShellInputSnapshot : ISerializable
+
+Model/Combinations/Combination.cs
+    L20: public class Combination : ModelObject, ILoadCase, ICloneable, ISerializable
+    L575: public sealed class LoadCaseCoefficient : IComparable<LoadCaseCoefficient>, IEquatable<LoadCaseCoefficient>, ISerializable
+    L754: public class CombinationCoefficientEqualityComparer : IEqualityComparer<Combination>
+
+Model/Compatibility/FiniteElementAnalysis/FiniteElements/Beam/EulerBeam.cs
+    L8: public class EulerBeam : FemBeam, IFiniteElement
+
+Model/Compatibility/FiniteElementAnalysis/FiniteElements/Beam/FemBeam.cs
+    L12: public abstract class FemBeam : BeamElement
+
+Model/Compatibility/FiniteElementAnalysis/FiniteElements/IFiniteElement.cs
+    L9: internal interface IFiniteElement
+
+Model/Costrains/Costrain.cs
+    L13: public abstract class Costrain : ModelObjectId
+
+Model/Costrains/MultiPointsCostrain.cs
+    L20: public class MultiPointsCostrain : ModelObject
+    L115: public struct Equation
+
+Model/Costrains/RigidLink.cs
+    L14: public class RigidLink : Costrain
+
+Model/Design/Combinations/NormativeCombinations.cs
+    L11: public static class NormativeCombinations
+
+Model/Design/Plate/ShellDesignActions.cs
+    L11: public static class ShellDesignActions
+
+Model/Design/Plate/ShellStripActions.cs
+    L15: public static class ShellStripActions
+
+Model/Design/Plate/WoodArmerDesign.cs
+    L12: public static class WoodArmerDesign
+
+Model/Design/Standards/Standard.cs
+    L13: public enum StandardGroupType
+    L34: public abstract class Standard : ModelObject
+    L127: public interface ICombinationsGenerator
+    L144: public abstract class CombinationsOptions
+
+Model/Design/Standards/StandardAASHTO.cs
+    L10: public class StandardAASHTO : StandardACI318, IEquatable<StandardACI318>
+
+Model/Design/Standards/StandardACI318.cs
+    L10: public abstract class StandardACI318 : Standard, IEquatable<StandardACI318>
+
+Model/Design/Standards/StandardACI318p08.cs
+    L10: public class StandardACI318p08 : StandardACI318, IEquatable<StandardACI318>
+
+Model/Design/Standards/StandardACI318p14.cs
+    L10: public class StandardACI318p14 : StandardACI318, IEquatable<StandardACI318>
+
+Model/Design/Standards/StandardACI318p19.cs
+    L10: public class StandardACI318p19 : StandardACI318, IEquatable<StandardACI318>
+
+Model/Design/Standards/StandardAISC.cs
+    L12: public abstract class StandardAISC : Standard, IEquatable<StandardAISC>, ISerializable
+
+Model/Design/Standards/StandardAISC360p05.cs
+    L10: public class StandardAISC360p05 : StandardAISC
+
+Model/Design/Standards/StandardAISC360p10.cs
+    L10: public class StandardAISC360p10 : StandardAISC
+
+Model/Design/Standards/StandardAISC360p16.cs
+    L10: public class StandardAISC360p16 : StandardAISC
+
+Model/Design/Standards/StandardASCE16.cs
+    L15: public class StandardASCE16 : Standard, Standard.ICombinationsGenerator
+    L22: public enum LimitStates
+    L415: public class ASCE16CombinationsOptions : CombinationsOptions
+
+Model/Design/Standards/StandardCNR200.cs
+    L16: public class StandardCNR200 : StandardNTC2018Concrete, ISerializable
+
+Model/Design/Standards/StandardCNR204.cs
+    L16: public class StandardCNR204 : StandardModelCode2010, ISerializable
+
+Model/Design/Standards/StandardCSTR34.cs
+    L11: public class StandardCSTR34 : StandardModelCode2010, ISerializable
+
+Model/Design/Standards/StandardCopSuos2011.cs
+    L13: public class StandardCopSuos2011 : Standard, Standard.ICombinationsGenerator, ISerializable
+    L20: public enum LimitStates
+
+Model/Design/Standards/StandardDINEN1992p11.cs
+    L12: public class StandardDINEN1992p11 : StandardEN1992p11, ISerializable
+
+Model/Design/Standards/StandardDSEN1992p11.cs
+    L17: public class StandardDSEN1992p11 : StandardEN1992p11, ISerializable
+
+Model/Design/Standards/StandardEN16612.cs
+    L15: public class StandardEN16612 : StandardEN1990, Standard.ICombinationsGenerator, ISerializable
+    L136: public class EN16612CombinationsOptions : EN1990CombinationsOptions
+
+Model/Design/Standards/StandardEN1990.cs
+    L17: public class StandardEN1990 : Standard, Standard.ICombinationsGenerator, ISerializable
+    L24: public enum ULSStructuralGeotechicalCombinationSets
+    L39: public enum LimitStates
+    L82: public enum ImposedLoadCategories
+    L795: public class EN1990CombinationsOptions : CombinationsOptions
+
+Model/Design/Standards/StandardEN1997p1.cs
+    L9: public enum GeotechnicalDesignApproach { DA1, DA2, DA3 }
+    L12: public enum PileExecution { Driven, Bored, ContinuousFlightAuger }
+    L21: public class StandardEN1997p1 : StandardGeotechnical
+
+Model/Design/Standards/StandardEN1999p11.cs
+    L10: public class StandardEN1999p11 : Standard, ISerializable
+
+Model/Design/Standards/StandardEn1992p11.cs
+    L11: public class StandardEN1992p11 : StandardModelCode2010, ISerializable
+
+Model/Design/Standards/StandardEn1993p11.cs
+    L10: public class StandardEN1993p11 : Standard, ISerializable
+
+Model/Design/Standards/StandardGeotechnical.cs
+    L10: public enum GeotechnicalCheck
+    L17: public enum GeotechnicalSituation { PersistentTransient, Seismic }
+    L21: public sealed class GeotechnicalActionFactors : IEquatable<GeotechnicalActionFactors>
+    L48: public sealed class GeotechnicalMaterialFactors : IEquatable<GeotechnicalMaterialFactors>
+    L71: public sealed class GeotechnicalCombination
+    L95: public abstract class StandardGeotechnical : Standard, ISerializable
+
+Model/Design/Standards/StandardModelCode2010.cs
+    L11: public class StandardModelCode2010 : Standard, ISerializable
+
+Model/Design/Standards/StandardNSEN1992p11.cs
+    L12: public class StandardNSEN1992p11 : StandardEN1992p11, ISerializable
+
+Model/Design/Standards/StandardNTC2018Concrete.cs
+    L20: public class StandardNTC2018Concrete : StandardEN1992p11, ISerializable
+
+Model/Design/Standards/StandardNTC2018Geotechnics.cs
+    L17: public class StandardNTC2018Geotechnics : StandardGeotechnical
+
+Model/Design/Standards/StandardNTC2018Steel.cs
+    L11: public class StandardNTC2018Steel : StandardEN1993p11, ISerializable
+
+Model/Design/Standards/StandardUNIEN1990.cs
+    L10: public class StandardUNIEN1990 : StandardEN1990, ISerializable, IEquatable<StandardUNIEN1990>
+
+Model/Design/Standards/StandardUNIEn1992p11.cs
+    L16: public class StandardUNIEN1992p11 : StandardEN1992p11, ISerializable
+
+Model/Design/Standards/StandardUNIEn1993p11.cs
+    L10: public class StandardUNIEN1993p11 : StandardEN1993p11, ISerializable
+
+Model/ElementProperties/BeamProperty.cs
+    L12: public abstract class BeamProperty : ElementProperty, ISerializable
+
+Model/ElementProperties/BrickProperty.cs
+    L12: public abstract class BrickProperty : ElementProperty, ISerializable
+
+Model/ElementProperties/ElementProperty.cs
+    L10: public abstract class ElementProperty : ModelObjectId, ISerializable
+
+Model/ElementProperties/IFemPlateProperty.cs
+    L8: public interface IFemPlateProperty
+
+Model/ElementProperties/PlateProperty.cs
+    L12: public abstract class PlateProperty : ElementProperty, ISerializable
+
+Model/ElementProperties/ShellThickness.cs
+    L10: public sealed class ShellThickness : ISerializable
+
+Model/Elements/AreaElement.cs
+    L14: public class AreaElement : Element
+
+Model/Elements/BeamElement.cs
+    L12: public class BeamElement : Element, ISerializable, IEquatable<BeamElement>
+
+Model/Elements/Element.cs
+    L17: public abstract class Element : ModelObjectId, ISerializable, IEquatable<Element>
+
+Model/Elements/NodeElement.cs
+    L12: public class NodeElement : Element, ISerializable, IEquatable<NodeElement>
+
+Model/Elements/VolumeElement.cs
+    L11: public class VolumeElement : Element
+
+Model/FreedomCases/FreedomCase.cs
+    L10: public class FreedomCase : ModelObject, ISerializable
+
+Model/Geotechnics/Soil.cs
+    L10: public sealed class Soil : IEquatable<Soil>
+    L65: public static class SoilUnits
+
+Model/Geotechnics/SoilProfile.cs
+    L9: public sealed class SoilLayer : IEquatable<SoilLayer>
+    L33: public sealed class SoilProfile : IEquatable<SoilProfile>
+
+Model/LoadCases/ClimateLoadCase.cs
+    L12: public class ClimateLoadCase : LoadCaseBase
+    L19: public enum Seasons
+    L30: public enum ClimateTypes
+
+Model/LoadCases/ILoadCase.cs
+    L6: public interface ILoadCase
+
+Model/LoadCases/LoadCase.cs
+    L13: public class LoadCase : LoadCaseBase
+    L20: public enum LoadCaseTypes
+
+Model/LoadCases/LoadCaseBase.cs
+    L12: public class LoadCaseBase : ModelObject, ISerializable, ILoadCase
+
+Model/LoadCases/LoadCaseEn16612.cs
+    L11: public class LoadCaseEn16612 : LoadCase, ISerializable
+    L18: public enum LoadCaseEn16612Types
+
+Model/Loads/AreaLoad.cs
+    L13: public class AreaLoad : Load, IAreaLoad
+
+Model/Loads/IAreaLoad.cs
+    L8: public interface IAreaLoad
+
+Model/Loads/IConvertibleLoad.cs
+    L8: public interface IConvertibleLoad
+
+Model/Loads/ILineLoad.cs
+    L8: public interface ILineLoad
+
+Model/Loads/IPointLoad.cs
+    L8: public interface IPointLoad
+
+Model/Loads/LineLoad.cs
+    L13: public class LineLoad : Load, ILineLoad, IConvertibleLoad
+
+Model/Loads/Load.cs
+    L13: public abstract class Load : ModelObjectId
+
+Model/Loads/ModelAccelerationLoad.cs
+    L13: public class ModelAccelerationLoad : Load, ISerializable
+
+Model/Loads/ModelGravityLoad.cs
+    L13: public class ModelGravityLoad : Load, ISerializable
+
+Model/Loads/NonUniformPlatePressure.cs
+    L16: public class NonUniformPlatePressure : Load, IAreaLoad
+
+Model/Loads/NormalAreaLoad.cs
+    L13: public class NormalAreaLoad : Load, IAreaLoad
+
+Model/Loads/PointLoad.cs
+    L13: public class PointLoad : Load, IPointLoad, IConvertibleLoad
+
+Model/Materials/Aluminium/AluminiumMaterial.cs
+    L13: public class AluminiumMaterial : Material
+    L20: public enum AluminiumTypes
+    L33: public enum StressStrainCurveType
+
+Model/Materials/Aluminium/AluminiumMaterialEN1999.cs
+    L12: public class AluminiumMaterialEN1999 : AluminiumMaterial
+
+Model/Materials/Concrete/ConcreteMaterial.cs
+    L12: public abstract class ConcreteMaterial : Material, ISerializable
+    L19: public enum ConcreteTypes
+    L30: public enum CompressionStressStrainDiagrams
+    L47: public enum TensionStressStrainDiagrams
+    L62: public enum CementTypes
+
+Model/Materials/Concrete/ConcreteMaterialACI318.cs
+    L15: public class ConcreteMaterialACI318 : ConcreteMaterial, ISerializable
+
+Model/Materials/Concrete/ConcreteMaterialEN1992.cs
+    L12: public class ConcreteMaterialEN1992 : ConcreteMaterialEuropeanCommon, ISerializable
+
+Model/Materials/Concrete/ConcreteMaterialEuropeanCommon.cs
+    L14: public abstract class ConcreteMaterialEuropeanCommon : ConcreteMaterial, ISerializable
+
+Model/Materials/Concrete/ConcreteMaterialModelCode2010.cs
+    L12: public class ConcreteMaterialModelCode2010 : ConcreteMaterialEuropeanCommon, ISerializable
+
+Model/Materials/FRP/FRP.cs
+    L13: public class FRP : Material
+    L20: public enum StressStrainCurveType
+
+Model/Materials/Glass/GlassMaterial.cs
+    L10: public abstract class GlassMaterial : Material
+
+Model/Materials/Glass/GlassMaterialAstm.cs
+    L13: public sealed class GlassMaterialAstm : GlassMaterial, IEquatable<GlassMaterialAstm>
+
+Model/Materials/Glass/GlassMaterialEn16612.cs
+    L13: public sealed class GlassMaterialEn16612 : GlassMaterial, IEquatable<GlassMaterialEn16612>
+    L21: public enum GlassTypes
+    L43: public enum SurfaceTreatments
+    L55: public enum PrestressTypes
+    L71: public enum ManufactoringProcesses
+
+Model/Materials/Glass/InterlayerMaterial.cs
+    L16: public sealed class InterlayerMaterial : Material, IEquatable<InterlayerMaterial>
+    L24: public enum InterlayerType
+    L292: public sealed class LoadDurationShearModules : IComparable<LoadDurationShearModules>, IEquatable<LoadDurationShearModules>
+    L537: public sealed class TemperatureShearModule : IComparable<TemperatureShearModule>, IEquatable<TemperatureShearModule>
+
+Model/Materials/Glass/SiliconMaterial.cs
+    L12: public class SiliconMaterial : Material
+
+Model/Materials/Material.cs
+    L13: public class Material : ModelObject, ISerializable
+
+Model/Materials/Steel/BoltMaterialEN1993.cs
+    L12: public class BoltMaterialEN1993 : SteelMaterial
+
+Model/Materials/Steel/BoltMaterialEN1993Inox.cs
+    L12: public class BoltMaterialEN1993Inox : SteelMaterial
+
+Model/Materials/Steel/SteelMaterial.cs
+    L16: public class SteelMaterial : Material
+    L23: public enum SteelTypes
+    L42: public enum StressStrainCurveType
+
+Model/Materials/Steel/SteelMaterialACI318.cs
+    L13: public class SteelMaterialACI318 : SteelMaterial
+
+Model/Materials/Steel/SteelMaterialAISC360.cs
+    L12: public class SteelMaterialAISC360 : SteelMaterial
+
+Model/Materials/Steel/SteelMaterialDM1996.cs
+    L13: public class SteelMaterialDM1996 : SteelMaterial
+
+Model/Materials/Steel/SteelMaterialEN1992.cs
+    L12: public class SteelMaterialEN1992 : SteelMaterial
+
+Model/Materials/Steel/SteelMaterialEN1993.cs
+    L12: public class SteelMaterialEN1993 : SteelMaterial
+
+Model/Materials/StressStrainTable.cs
+    L17: public struct StressStrainTable
+
+Model/Maths/GaussIntegration/GaussIntegration.cs
+    L17: public static class GaussIntegration
+    L1569: public struct GlobalCoordinateGaussPoint
+    L1657: protected static class GaussPointCalculator
+    L1688: private static class CalculatorOf<T>
+    L1706: protected interface ICalculator<T> : IGaussPointCalculator
+    L1738: protected interface IGaussPointCalculator
+    L1746: protected class DoubleCalculator : ICalculator<double>
+    L1787: protected class TupleOneDoubleCalculator : ICalculator<Tuple<double>>
+    L1834: protected class TupleTwoDoubleCalculator : ICalculator<Tuple<double, double>>
+    L1914: protected class ValueTupleTwoDoubleCalculator : ICalculator<(double, double)>
+    L1994: protected class TupleThreeDoubleCalculator : ICalculator<Tuple<double, double, double>>
+    L2083: protected class ValueTupleThreeDoubleCalculator : ICalculator<(double, double, double)>
+
+Model/Maths/GaussIntegration/GaussPoints.cs
+    L8: public class GaussPoint : ModelObjectId
+
+Model/Maths/GaussIntegration/HexahedronGaussPoints.cs
+    L8: public static class HexahedronGaussPoints
+    L13: public enum GaussPointNumber
+
+Model/Maths/GaussIntegration/LineGaussPoints.cs
+    L9: public static class LineGaussPoints
+    L14: public enum GaussPointNumber
+
+Model/Maths/GaussIntegration/PentahedronGaussPoints.cs
+    L8: public static class PentahedronGaussPoints
+    L13: public enum GaussPointNumber
+
+Model/Maths/GaussIntegration/QuadrangleGaussPoints.cs
+    L8: public static class QuadrangleGaussPoints
+    L13: public enum GaussPointNumber
+
+Model/Maths/GaussIntegration/TriangleGaussPoints.cs
+    L8: public class TriangleGaussPoints
+    L13: public enum GaussPointNumber
+
+Model/Models/Model.Analysis.cs
+    L7: public partial class Model
+
+Model/Models/Model.Document.cs
+    L7: public partial class Model
+
+Model/Models/Model.Groups.cs
+    L10: public enum GroupRemovalPolicy { RequireEmpty, DetachMemberships }
+    L12: public partial class Model
+
+Model/Models/Model.Topology.cs
+    L10: public partial class Model
+
+Model/Models/Model.cs
+    L29: public partial class Model : ModelObject, ISerializable
+
+Model/Persistence/ArchiveContractRegistry.cs
+    L7: public static class ArchiveContractRegistry
+
+Model/Persistence/CheckReportArchive.cs
+    L12: public static class CheckReportArchive
+
+Model/Persistence/FingerprintContracts.BuiltIns.cs
+    L5: internal static partial class FingerprintContracts
+
+Model/Persistence/FingerprintContracts.cs
+    L9: internal static partial class FingerprintContracts
+    L11: internal sealed class Member
+    L17: private sealed class Contract { internal string WireName; internal Member[] Members; }
+    L44: private sealed class LegacyScope : IDisposable
+
+Model/Persistence/InputFingerprint.cs
+    L19: internal sealed class FingerprintWhenSetAttribute : Attribute { }
+    L22: internal static class InputFingerprint
+    L102: private sealed class ReferenceComparer : IEqualityComparer<object>
+
+Model/Persistence/ModelArchive.cs
+    L22: public static class ModelArchive
+
+Model/Persistence/ModelDocument.cs
+    L16: internal sealed class ModelDocument
+
+Model/PostProcessing/AnalysisDataset.cs
+    L7: public sealed class AnalysisDataset
+
+Model/PostProcessing/AssignmentValidation.cs
+    L11: public static class AssignmentValidation
+
+Model/PostProcessing/Assignments.cs
+    L13: public enum BeamFormulation { Unknown, StraightTwoNode, Truss, Cable, Link, Curved, HigherOrder, TensionOnly }
+    L14: public enum NodalForceKind { Unknown, SupportReaction, SpringForce, LinkForce, ElementEndForce, ElementNodeForce }
+    L15: public enum ActionBody { Unknown, OnNode, OnSupport, OnElement, PositiveSectionFace }
+    L16: public enum SpringKind { GeneralLinear, SymmetricElastic, Gap, CompressionOnly, Nonlinear }
+    L17: public enum AssignmentMode { Add, ReplaceScope }
+    L20: public sealed class RestrainAssignment
+    L29: public sealed class NodeAssignments
+    L54: public sealed class NodalMass
+    L63: public sealed class NodalLink
+    L78: public sealed class SpringMatrix
+    L140: public sealed class BeamSectionAssignment
+    L171: public sealed class BeamAssignments
+    L210: public sealed class ShellRebarLayer
+    L222: public sealed class ShellAssignments
+    L232: public sealed class PreservedAssignment
+
+Model/PostProcessing/Axes.cs
+    L6: public static class Axes
+
+Model/PostProcessing/BeamActionPreparation.cs
+    L13: public sealed class BeamActionInput
+    L38: public sealed class BeamActionPreparation
+    L103: public sealed class NativeMethodDetails : CheckDetails
+
+Model/PostProcessing/BeamAnalysisProfile.cs
+    L7: public enum ProfileInterpolation { Constant, Linear }
+    L12: public sealed class BeamAnalysisStation
+    L29: public sealed class BeamStiffnessModifiers
+    L42: public sealed class BeamAnalysisProfile
+
+Model/PostProcessing/BeamLoadAssignment.cs
+    L7: public enum BeamLoadLengthConvention { Unknown, ActualLength, ProjectedLength }
+    L11: public sealed class BeamLoadAssignment
+
+Model/PostProcessing/BeamReferenceGeometry.cs
+    L11: public sealed class BeamReferenceGeometry
+
+Model/PostProcessing/CombinationRebuild.cs
+    L17: public sealed class CombinationAlternative
+    L29: public sealed class CombinationRebuildReport
+    L49: public static class CombinationRebuild
+
+Model/PostProcessing/Contracts.cs
+    L8: public enum EntityFamily { Node, Beam, Shell, Solid, Link }
+    L9: public enum DiagnosticSeverity { Information, Warning, Error }
+    L10: public enum SectionSide { Unspecified, Left, Right }
+    L11: public enum AnalysisSemantics { Unknown, LinearStatic, NonlinearStatic, ConcomitantEnvelopeState, IndependentExtrema, Modal, ResponseSpectrum }
+    L12: public enum ComponentAvailability { Available, Missing, NotExported, NotApplicable }
+    L13: public enum ShellResultPointKind { Unknown, Centroid, IntegrationPoint, ElementNodeExtrapolated, Averaged }
+    L14: public enum ResultCoordinateKind { Unknown, Natural, LocalPhysical, Global }
+    L15: public enum ExecutionStatus { NotExecuted, Completed, Cancelled, Error }
+    L16: public enum DataStatus { Ready, Insufficient, NotSupported, MissingDependency, Stale }
+    L17: public enum EngineeringOutcome { NotEvaluated, Satisfied, NotSatisfied }
+    L20: public sealed class SourceIdentity : IEquatable<SourceIdentity>
+    L38: public sealed class ModelDiagnostic
+    L63: public sealed class ResultState
+    L102: public sealed class OriginalResultData
+    L124: public sealed class AnalysisSource
+
+Model/PostProcessing/Equilibrium.cs
+    L14: public sealed class EquilibriumContribution
+    L31: public sealed class EquilibriumScope
+    L43: public sealed class EquilibriumReport
+    L53: public static class Equilibrium
+
+Model/PostProcessing/LinearBeamCombination.cs
+    L11: public sealed class BeamCombinationResult
+    L18: public static class LinearBeamCombination
+
+Model/PostProcessing/MemberVerification.cs
+    L5: public static class MemberVerification
+
+Model/PostProcessing/ModelOrientation.cs
+    L15: public static class ModelOrientation
+
+Model/PostProcessing/ModelRevisions.cs
+    L8: public static class ModelRevisions
+
+Model/PostProcessing/NodalActions.cs
+    L9: public static class NodalActions
+
+Model/PostProcessing/NodalKinematics.cs
+    L8: public static class NodalKinematics
+
+Model/PostProcessing/PhysicalMembers.cs
+    L11: public sealed class BeamMemberPart
+    L20: public sealed class PhysicalMemberDefinition
+    L41: public sealed class MemberLocation
+    L54: public sealed class PhysicalMemberGeometry
+    L56: private sealed class Part
+    L123: public sealed class MemberRestraint
+    L142: public sealed class MemberDesignContext
+
+Model/PostProcessing/ResultAlgebra.cs
+    L17: public sealed class DerivedResult
+    L28: public sealed class ResultEnvelope
+    L40: public static class ResultAlgebra
+
+Model/PostProcessing/ResultOrientation.cs
+    L12: public static class ResultOrientation
+
+Model/PostProcessing/ResultPreparation.cs
+    L15: public sealed class ResultPreparation
+
+Model/PostProcessing/ResultQueries.cs
+    L11: public sealed class ResultSelection
+    L29: public static class ResultQueries
+
+Model/PostProcessing/ResultTransformations.cs
+    L8: public static class ResultTransformations
+
+Model/PostProcessing/ResultUnits.cs
+    L6: public sealed class ResultUnits
+
+Model/PostProcessing/SectionLaws.cs
+    L13: public sealed class BeamSectionStation
+    L26: public static class SectionLaws
+
+Model/PostProcessing/ShellActionPreparation.cs
+    L10: public sealed class ShellActionPreparation
+
+Model/PostProcessing/Verification.cs
+    L12: public static class Verification
+    L27: public static class ShellPreparation
+
+Model/PostProcessing/WoodArmer.cs
+    L8: public sealed class WoodArmerMoments
+    L17: public static class WoodArmer
+
+Model/Restrains/DofRestrain.cs
+    L11: public sealed class DofRestrain : ModelObject, IEquatable<DofRestrain>
+
+Model/Restrains/GeometryRestrain.cs
+    L14: public abstract class GeometryRestrain : Attributes.Attribute
+    L19: public enum DOF
+
+Model/Restrains/LineRestrain.cs
+    L12: public class LineRestrain : GeometryRestrain
+
+Model/Restrains/NodeRestrain.cs
+    L14: public class NodeRestrain : GeometryRestrain
+
+Model/Results/ElementResults/BeamResult.cs
+    L13: public sealed class BeamResult : ElementResult, ISerializable, IEquatable<BeamResult>
+
+Model/Results/ElementResults/BrickElementResult.cs
+    L13: public sealed class BrickElementResult : ElementResult, ISerializable, IEquatable<BrickElementResult>
+
+Model/Results/ElementResults/ElementResult.cs
+    L13: public abstract class ElementResult : ModelObjectId, ISerializable
+
+Model/Results/ElementResults/NodeResult.cs
+    L13: public sealed class NodeResult : ElementResult, ISerializable, IEquatable<NodeResult>
+
+Model/Results/ElementResults/PlateElementResult.cs
+    L13: public sealed class PlateElementResult : ElementResult, ISerializable, IEquatable<PlateElementResult>
+
+Model/Results/Processing/ActionTransformations.cs
+    L12: public static class ActionTransformations
+
+Model/Results/ResultLocations/BrickPointResultDisplacement.cs
+    L12: public sealed class BrickPointResultDisplacement : ResultLocation, ISerializable, IEquatable<BrickPointResultDisplacement>, IBrickResultLocation
+
+Model/Results/ResultLocations/BrickPointResultForces.cs
+    L12: public sealed class BrickPointResultForces : ResultLocation, ISerializable, IEquatable<BrickPointResultForces>, IBrickResultLocation
+
+Model/Results/ResultLocations/IBeamResultLocation.cs
+    L8: public interface IBeamResultLocation
+
+Model/Results/ResultLocations/IBrickResultLocation.cs
+    L9: public interface IBrickResultLocation
+
+Model/Results/ResultLocations/INodeResultLocation.cs
+    L8: public interface INodeResultLocation
+
+Model/Results/ResultLocations/IPlateResultLocation.cs
+    L9: public interface IPlateResultLocation
+
+Model/Results/ResultLocations/NodeResultDisplacement.cs
+    L11: public class NodeResultDisplacement : ResultLocation, ISerializable, INodeResultLocation
+
+Model/Results/ResultLocations/NodeResultForces.cs
+    L11: public class NodeResultForces : ResultLocation, ISerializable, INodeResultLocation
+
+Model/Results/ResultLocations/PointResultDisplacement.cs
+    L12: public sealed class PointResultDisplacement : ResultLocation, ISerializable, IEquatable<PointResultDisplacement>, IPlateResultLocation
+
+Model/Results/ResultLocations/PointResultPlateForces.cs
+    L9: public sealed class PointResultPlateForces : ResultLocation, IPlateResultLocation
+
+Model/Results/ResultLocations/PointResultPlateStress.cs
+    L12: public sealed class PointResultPlateStress : ResultLocation, ISerializable, IEquatable<PointResultPlateStress>, IPlateResultLocation
+
+Model/Results/ResultLocations/ResultLocation.cs
+    L11: public abstract class ResultLocation : ModelObjectId, ISerializable
+
+Model/Results/ResultLocations/StationResultBeamForces.cs
+    L11: public class StationResultBeamForces : ResultLocation, ISerializable, IBeamResultLocation
+
+Model/Results/ResultLocations/StationResultDisplacement.cs
+    L11: public class StationResultDisplacement : ResultLocation, ISerializable, IBeamResultLocation
+
+Model/Results/ResultStore.cs
+    L12: public sealed class ResultAddress : IEquatable<ResultAddress>
+    L67: public sealed class ResultRecord
+    L84: public interface IResultStore
+    L92: public sealed class InMemoryResultStore : IResultStore
+
+Model/Results/ResultTypes/IBeamResult.cs
+    L6: public interface IBeamResult
+
+Model/Results/ResultTypes/IBrickResult.cs
+    L6: public interface IBrickResult
+
+Model/Results/ResultTypes/INodeResult.cs
+    L6: public interface INodeResult
+
+Model/Results/ResultTypes/IPlateResult.cs
+    L6: public interface IPlateResult
+
+Model/Results/ResultTypes/IResult.cs
+    L9: internal interface IResult<T>
+
+Model/Results/ResultTypes/ResultBeamForces.cs
+    L12: public class ResultBeamForces : ResultType, ISerializable, IBeamResult, IResult<ResultBeamForces>
+
+Model/Results/ResultTypes/ResultBrickForces.cs
+    L11: public sealed class ResultBrickForces : ResultType, IEquatable<ResultBrickForces>, ISerializable, IBrickResult, IResult<ResultBrickForces>
+
+Model/Results/ResultTypes/ResultDisplacement.cs
+    L12: public sealed class ResultDisplacement : ResultType, IEquatable<ResultDisplacement>, ISerializable, INodeResult, IPlateResult, IBrickResult, IBeamResult, IResult<ResultDisplacement>
+
+Model/Results/ResultTypes/ResultPlateForces.cs
+    L11: public sealed class ResultPlateForces : ResultType, IEquatable<ResultPlateForces>, ISerializable, IPlateResult, IResult<ResultPlateForces>
+
+Model/Results/ResultTypes/ResultPlateStress.cs
+    L16: public sealed class ResultPlateStress : ResultType, IEquatable<ResultPlateStress>, ISerializable, IPlateResult, IResult<ResultPlateStress>
+
+Model/Results/ResultTypes/ResultStress.cs
+    L14: public sealed class ResultStress : ResultType, IEquatable<ResultStress>, ISerializable, IBrickResult, IResult<ResultStress>
+
+Model/Results/ResultTypes/ResultType.cs
+    L11: public abstract class ResultType : ModelObjectId, ISerializable
+
+Model/Sections/Bolt/BoltGrid.cs
+    L15: public partial class BoltGrid : ModelObject, ISerializable
+
+Model/Sections/Bolt/BoltPosition.cs
+    L12: public class BoltPosition : ModelObjectId, ISerializable
+
+Model/Sections/Bolt/BoltSection.cs
+    L13: public class BoltSection : SectionCircular, ISerializable
+
+Model/Sections/Bolt/Hole.cs
+    L11: public class Hole : IEquatable<Hole>, ISerializable
+
+Model/Sections/Bolt/PlateWithBolts.cs
+    L16: public class PlateWithBolts : ShapeEx, IEquatable<PlateWithBolts>, ISerializable
+
+Model/Sections/Bolt/RectangularBoltGrid.cs
+    L11: public class RectangularBoltGrid : BoltGrid
+
+Model/Sections/Bolt/RectangularPlateWithBolts.cs
+    L15: public class RectangularPlateWithBolts : PlateWithBolts
+
+Model/Sections/Concrete/ConcreteCrackData.cs
+    L11: public sealed class ConcreteCrackData : IEquatable<ConcreteCrackData>
+
+Model/Sections/Concrete/ConcreteDetailingData.cs
+    L11: public sealed class ConcreteDetailingData : IEquatable<ConcreteDetailingData>
+
+Model/Sections/Concrete/ConcreteDurabilityData.cs
+    L14: public sealed class ConcreteDurabilityData : IEquatable<ConcreteDurabilityData>
+
+Model/Sections/Concrete/ConcretePlateProperty.cs
+    L15: public class ConcretePlateProperty : PlateProperty, ISerializable, IFemPlateProperty
+
+Model/Sections/Concrete/ConcreteSectionHelper.cs
+    L15: internal static class ConcreteSectionHelper
+
+Model/Sections/Concrete/ConcreteShearData.cs
+    L8: public sealed class ConcreteShearReinforcement : IEquatable<ConcreteShearReinforcement>
+    L38: public sealed class ConcreteShearDirection : IEquatable<ConcreteShearDirection>
+    L81: public sealed class ConcreteShearData : IEquatable<ConcreteShearData>
+
+Model/Sections/Concrete/ConcreteTorsionData.cs
+    L11: public sealed class ConcreteTorsionData : IEquatable<ConcreteTorsionData>
+
+Model/Sections/Concrete/IConcreteSection.cs
+    L11: public interface IConcreteSection : ISectionShape
+
+Model/Sections/Concrete/ReinforcedConcreteRebar.cs
+    L13: public class ReinforcedConcreteRebar : ModelObjectId, ISerializable
+
+Model/Sections/Concrete/ReinforcedConcreteSection.Composite.cs
+    L16: public partial class ReinforcedConcreteSection
+
+Model/Sections/Concrete/ReinforcedConcreteSection.cs
+    L20: public partial class ReinforcedConcreteSection : BeamProperty, IConcreteSection, IEquatable<ReinforcedConcreteSection>, ISerializable
+
+Model/Sections/Glass/AirChamber.cs
+    L9: public sealed class AirChamber : ModelObjectId, IEquatable<AirChamber>, IGlassLayer
+
+Model/Sections/Glass/GlassPlateProperty.cs
+    L13: public class GlassPlateProperty : PlateProperty, IEquatable<GlassPlateProperty>
+
+Model/Sections/Glass/IGlassLayer.cs
+    L6: public interface IGlassLayer
+
+Model/Sections/Glass/Interlayer.cs
+    L14: public sealed class Interlayer : ModelObjectId, IEquatable<Interlayer>, IGlassLayer
+
+Model/Sections/Glass/MonolithicGlass.cs
+    L14: public sealed class MonolithicGlass : ModelObjectId, IEquatable<MonolithicGlass>, IGlassLayer
+
+Model/Sections/ISectionShape.cs
+    L9: public interface ISectionShape
+
+Model/Sections/Parametric/SectionBoxGirder.cs
+    L17: public class SectionBoxGirder : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionEllipse.cs
+    L13: public class SectionEllipse : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionHaunchedI.cs
+    L14: public class SectionHaunchedI : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionHollowCore.cs
+    L14: public class SectionHollowCore : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionMultiWebDeck.cs
+    L15: public class SectionMultiWebDeck : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionParametric.cs
+    L17: public abstract class SectionParametric : Section, ISerializable
+
+Model/Sections/Parametric/SectionRegularPolygon.cs
+    L14: public class SectionRegularPolygon : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionStadium.cs
+    L13: public class SectionStadium : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionTrapezoid.cs
+    L12: public class SectionTrapezoid : SectionParametric, ISerializable
+
+Model/Sections/Parametric/SectionUBeam.cs
+    L15: public class SectionUBeam : SectionParametric, ISerializable
+
+Model/Sections/Rebar/IRebarSection.cs
+    L9: public interface IRebarSection
+
+Model/Sections/Rebar/RebarSectionCircular.cs
+    L11: public class RebarSectionCircular : SectionCircular, IRebarSection, ISerializable
+
+Model/Sections/Section.cs
+    L17: public class Section : ModelObjectId, ISectionShape, ISerializable
+    L24: public enum FormedTypes
+    L39: public enum SectionTypes
+    L192: private sealed class CalculationCache
+    L844: protected enum PrincipalAxes
+
+Model/Sections/SectionAvailability.cs
+    L9: public enum SectionProperty
+    L32: public enum PropertyAvailability
+    L59: public static class SectionAvailability
+
+Model/Sections/SectionBuiltUp.cs
+    L24: public class SectionBuiltUp : Section, ISerializable
+    L31: public sealed class Part
+
+Model/Sections/SectionC.cs
+    L12: public class SectionC : ThinWallSection, ISerializable, IEquatable<SectionC>
+
+Model/Sections/SectionCHS.cs
+    L14: public class SectionCHS : ThinWallSection, ISerializable, IEquatable<SectionCHS>
+
+Model/Sections/SectionCTaperFlange.cs
+    L15: public class SectionCTaperFlange : SectionC, ISerializable
+
+Model/Sections/SectionCircular.cs
+    L12: public class SectionCircular : Section, ISerializable
+
+Model/Sections/SectionColdFormed.cs
+    L19: public class SectionColdFormed : ThinWallSection, ISerializable
+
+Model/Sections/SectionCorner.cs
+    L10: internal readonly struct SectionCorner
+    L15: internal readonly struct Profile
+
+Model/Sections/SectionH.cs
+    L13: public class SectionH : ThinWallSection, ISerializable, IEquatable<SectionH>
+
+Model/Sections/SectionHDoubleBottomFlange.cs
+    L15: public class SectionHDoubleBottomFlange : ThinWallSection, ISerializable, IEquatable<SectionHDoubleBottomFlange>
+
+Model/Sections/SectionHInclinedWeb.cs
+    L16: public class SectionHInclinedWeb : ThinWallSection, ISerializable, IEquatable<SectionHInclinedWeb>
+
+Model/Sections/SectionHTaperFlange.cs
+    L15: public class SectionHTaperFlange : SectionH, ISerializable
+
+Model/Sections/SectionHelper.cs
+    L15: internal static class SectionHelper
+
+Model/Sections/SectionL.cs
+    L12: public class SectionL : ThinWallSection, ISerializable, IEquatable<SectionL>
+
+Model/Sections/SectionOutline.cs
+    L12: internal static class SectionOutline
+    L22: internal readonly struct Vertex
+
+Model/Sections/SectionRHS.cs
+    L12: public class SectionRHS : ThinWallSection, ISerializable, IEquatable<SectionRHS>
+
+Model/Sections/SectionRHSRoundedCorners.cs
+    L14: public class SectionRHSRoundedCorners : SectionRHS, ISerializable
+
+Model/Sections/SectionRectangular.cs
+    L12: public class SectionRectangular : ThinWallSection, ISerializable, IEquatable<SectionRectangular>
+
+Model/Sections/SectionSteelBox.cs
+    L17: public class SectionSteelBox : ThinWallSection, ISerializable, IEquatable<SectionSteelBox>
+
+Model/Sections/SectionT.cs
+    L12: public class SectionT : ThinWallSection, ISerializable, IEquatable<SectionT>
+
+Model/Sections/SectionTTaperFlange.cs
+    L15: public class SectionTTaperFlange : SectionT, ISerializable
+
+Model/Sections/SectionTorsion.cs
+    L15: public sealed class SectionTorsionProperties
+    L112: internal readonly struct TorsionRegion
+    L149: internal static class SectionTorsion
+
+Model/Sections/SectionVariation.cs
+    L10: public enum VariationLaw
+    L30: public sealed class SectionVariation
+
+Model/Sections/SectionWelded.cs
+    L17: public class SectionWelded : SectionBuiltUp, ISerializable
+
+Model/Sections/ShapeEx.cs
+    L12: public class ShapeEx : Shape2d, ISerializable
+
+Model/Sections/Steel/ConcreteOverlap.cs
+    L11: internal sealed class ConcreteOverlap
+
+Model/Sections/Steel/ISteelSection.cs
+    L8: public interface ISteelSection : ISectionShape
+
+Model/Sections/Steel/SteelPlateProperty.cs
+    L15: public class SteelPlateProperty : PlateProperty, ISerializable, IFemPlateProperty
+
+Model/Sections/Steel/SteelSection.cs
+    L16: public class SteelSection : BeamProperty, ISteelSection, ISerializable, IEquatable<SteelSection>
+
+Model/Sections/Steel/SteelSectionPosition.cs
+    L13: public enum InsertionPointType
+    L64: public enum MiddleCenterType
+    L90: public class SteelSectionPosition : ISerializable
+
+Model/Sections/ThinWallSection.cs
+    L14: public enum EdgeType
+    L36: public abstract class ThinWallSection : Section, ISerializable
+    L743: public class ThinWall : ICloneable
+
+Model/Stages/Stage.cs
+    L10: public sealed class Stage : ModelObjectId, ISerializable
+
+ModelChecker/CompositeBridgeMaterialChecker.cs
+    L15: public sealed class CompositeBridgeCase
+    L29: public sealed class CompositeBridgeMaterialChecker : IMaterialChecker
+    L48: private sealed class Session : IMaterialCheckSession
+
+ModelChecker/ConcreteMaterialChecker.cs
+    L11: public sealed class ConcreteMaterialChecker : IMaterialChecker
+    L21: private sealed class Session : ISectionCheckSession
+
+ModelChecker/ConcreteSectionVerifier.Checks.cs
+    L11: public sealed partial class ConcreteSectionVerifier
+
+ModelChecker/ConcreteSectionVerifier.Cracking.cs
+    L25: public sealed partial class ConcreteSectionVerifier
+
+ModelChecker/ConcreteSectionVerifier.Detailing.cs
+    L20: public sealed partial class ConcreteSectionVerifier : IPhysicalMemberVerifier
+
+ModelChecker/ConcreteSectionVerifier.Shear.cs
+    L19: public sealed partial class ConcreteSectionVerifier
+    L36: private sealed class ShearPreparation
+
+ModelChecker/ConcreteSectionVerifier.Torsion.cs
+    L19: public sealed partial class ConcreteSectionVerifier
+
+ModelChecker/ConcreteSectionVerifier.cs
+    L20: public sealed partial class ConcreteSectionVerifier : ISectionCheckVerifier
+
+ModelChecker/Configuration/BridgeCaseDefinition.cs
+    L11: public sealed class BridgeCaseDefinition
+    L36: public sealed class BridgeInputDefinition
+
+ModelChecker/Configuration/ConfigurationArchive.cs
+    L10: public static class ConfigurationArchive
+
+ModelChecker/Configuration/EngineCatalog.cs
+    L10: public sealed class EngineCapability
+    L28: public sealed partial class EngineCatalog
+
+ModelChecker/Configuration/PlateConfiguration.cs
+    L11: public sealed class PlateCheckSpecification
+    L33: public sealed class ConfiguredPlateJob
+    L42: public sealed class PlateEngineCapability
+    L57: public sealed partial class EngineCatalog
+
+ModelChecker/Configuration/VerificationConfiguration.cs
+    L10: public enum CheckUnitConvention { N_Mm_Rad }
+    L11: public enum BeamStationDomain { NodeToNode, OffsetToOffset, Deformable }
+    L12: public enum ShellNormalFace { Positive, Negative }
+    L15: public sealed class BeamCut
+    L30: public sealed class PlateFaceReference
+    L36: public sealed class DesignContextDefinition
+    L54: public sealed class EngineDefinition
+    L67: public sealed class CheckRouteDefinition
+    L76: public sealed class ConfiguredCheckJob
+    L85: public sealed class VerificationConfiguration
+
+ModelChecker/ConfiguredChecking.cs
+    L11: public sealed partial class ModelChecker
+    L52: private sealed class CombinedProgress : IProgress<VerificationProgress>
+
+ModelChecker/ModelChecker.cs
+    L13: public sealed class ConcreteVerificationOptions
+    L54: public enum CrackLoadDuration { LongTerm, ShortTerm }
+    L55: public sealed class ModelCheckJob
+    L62: public sealed class ModelCheckRequest
+    L66: public sealed class VerificationProgress
+    L75: public sealed class ModelCheckReport
+    L102: public sealed partial class ModelChecker
+
+ModelChecker/MultiMaterialChecking.cs
+    L12: public interface IMaterialChecker
+    L21: public interface IMaterialCheckSession
+    L27: public interface ISectionCheckSession : IMaterialCheckSession
+    L32: public sealed class MaterialCheckerAssignment
+    L44: public sealed class MultiMaterialCheckJob
+    L50: public sealed class MultiMaterialCheckRequest
+    L54: public sealed partial class ModelChecker
+    L56: private sealed class MaterialPlan
+    L215: internal static class NativeResults
+
+ModelChecker/PlannedBeamChecking.cs
+    L10: internal static class PlannedBeamChecking
+
+ModelChecker/PlateChecking.cs
+    L14: public interface IPlateChecker
+    L24: public interface IPlateCheckSession
+    L29: public sealed class PlateCheckerAssignment
+    L37: public sealed class PlateCheckJob
+    L46: public sealed class PlateCheckRequest { public List<PlateCheckJob> Jobs { get; } = new List<PlateCheckJob>(); }
+    L47: public sealed class PlateCheckTask
+    L62: public sealed class PlateCheckPlan
+    L72: public sealed partial class ModelChecker
+    L74: private sealed class PlateRouting
+
+ModelChecker/ScenarioChecking.cs
+    L9: public sealed partial class ModelChecker
+
+ModelChecker/SnapshotChecking.cs
+    L7: public sealed partial class ModelChecker
+
+ModelChecker/SteelMaterialChecker.cs
+    L16: public sealed class SteelMaterialChecker : IMaterialChecker
+    L34: private sealed class NativeShear : EN1993p11Checker
+    L45: private sealed class Session : IMaterialCheckSession
+
+ModelData/AluminiumMaterialEN1999Data.cs
+    L8: public class AluminiumMaterialEN1999Data
+
+ModelData/BoltMaterialEN1993Data.cs
+    L8: public class BoltMaterialEN1993Data
+
+ModelData/BoltMaterialEN1993InoxData.cs
+    L8: public class BoltMaterialEN1993InoxData
+
+ModelData/ConcreteMaterialACI318Data.cs
+    L8: public class ConcreteMaterialACI318Data
+
+ModelData/ConcreteMaterialEN1992Data.cs
+    L8: public class ConcreteMaterialEN1992Data
+
+ModelData/ConcreteMaterialModelCode2010Data.cs
+    L8: public class ConcreteMaterialModelCode2010Data
+
+ModelData/Sections/CatalogProfile.cs
+    L10: public sealed class CatalogProfile
+
+ModelData/Sections/SectionCatalog.cs
+    L14: public sealed class SectionCatalog
+
+ModelData/Sections/SectionCatalogs.cs
+    L14: public static class SectionCatalogs
+
+ModelData/Sections/SectionFamily.cs
+    L7: public enum SectionFamily
+    L51: public enum MappingFidelity
+
+ModelData/Sections/SectionMappings.cs
+    L14: public sealed class SectionMapping
+    L84: public static class SectionMappings
+
+ModelData/Sections/TorsionDeviations.cs
+    L15: public sealed class TorsionDeviation
+    L88: public static class TorsionDeviations
+
+ModelData/SteelMaterialACI318Data.cs
+    L8: public class SteelMaterialACI318Data
+
+ModelData/SteelMaterialAISC360Data.cs
+    L8: public class SteelMaterialAISC360Data
+
+ModelData/SteelMaterialDM1996Data.cs
+    L11: public class SteelMaterialDM1996Data
+    L52: public sealed class HistoricRebar
+
+ModelData/SteelMaterialEN1992Data.cs
+    L8: public class SteelMaterialEN1992Data
+
+ModelData/SteelMaterialEN1993Data.cs
+    L8: public class SteelMaterialEN1993Data
