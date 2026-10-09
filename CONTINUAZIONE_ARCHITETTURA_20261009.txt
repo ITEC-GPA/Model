@@ -1,0 +1,9 @@
+CONTINUAZIONE ARCHITETTURA - 9 OTTOBRE 2026
+Ordine autorizzato: 1, 2, 4, 5. In coda: 3, verifica plate (6), converter (7).
+
+Punto 1 concluso
+Concrete 0.0.20.0: commit Checker 4f2786fa. Equilibrio N verificato per
+ConstantN, ConstantNMx, ConstantNMy; rifiuto numerico senza utilizzo resistente.
+ModelChecker 1.0.9 conserva stato, scarto e tolleranza nella diagnostica.
+26 test Calculation e 124 test ModelChecker superati. Controllo API senza
+rimozioni inattese; nessuna modifica alle formule o ai punti del dominio.

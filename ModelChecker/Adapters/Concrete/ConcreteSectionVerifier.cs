@@ -141,7 +141,10 @@ namespace GPC.Model.Checker
                 var entry = Checker(input.Section, reference, SectionSolver.StressAnalysisTypes.NonLinear);
                 var point=entry.Item2.Resistance.SolveResistance(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
-                if(point == null || point.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerDomainPointMissing");
+                if (point == null) return Failure("CheckerDomainPointMissing");
+                if (point.Diagnostics.Status != CalculationStatus.Completed)
+                    return WithNumericalDiagnostics(Failure(point.Diagnostics.AxialEquilibrium?.Accepted == false
+                        ? "CheckerAxialEquilibriumRejected" : "CheckerCalculationIncomplete"), point.Diagnostics);
                 if (!MatchesEngine(point.Diagnostics) || point.Criterion != _criterion.ToString()) return Failure("NumericalResistanceContractMismatch");
                 double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
@@ -153,8 +156,20 @@ namespace GPC.Model.Checker
                     Details = new SectionResistanceDetails("Concrete.PlasticSectionDomain", _criterion.ToString(), new BeamForceSnapshot(forces),
                         point.N.Value, point.M1.Value, point.M2.Value, ratio, point.FailureMode,
                         strain.X, strain.Y, strain.Epsilon, strain.ChiX, strain.ChiY) };
-                return WithEdition(result);
+                return WithEdition(WithNumericalDiagnostics(result, point.Diagnostics));
             }
+        }
+        private static CheckResult WithNumericalDiagnostics(CheckResult result, SolverDiagnostics diagnostics)
+        {
+            var evidence = diagnostics.AxialEquilibrium;
+            result.Diagnostics.Add(new ModelDiagnostic {
+                Code = evidence == null ? "NumericalCalculationStatus" : "NumericalAxialEquilibrium",
+                Severity = diagnostics.Status == CalculationStatus.Completed ? DiagnosticSeverity.Information : DiagnosticSeverity.Error,
+                Message = evidence == null ? diagnostics.Status + ": " + diagnostics.Message
+                    : string.Format(CultureInfo.InvariantCulture, "{0}: Nrequested={1:R} N; Nactual={2:R} N; residual={3:R} N; tolerance={4:R} N; accepted={5}",
+                        diagnostics.Status, evidence.Requested, evidence.Actual, evidence.Residual, evidence.Tolerance, evidence.Accepted)
+            });
+            return result;
         }
         private bool MatchesEngine(SolverDiagnostics diagnostics) => diagnostics != null && diagnostics.Engine == _calculationFactory.Id
             && diagnostics.Version == _calculationFactory.Version;

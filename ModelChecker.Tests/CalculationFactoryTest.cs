@@ -19,6 +19,7 @@ public class CalculationFactoryTest
         public string Configuration => "contract-test-only";
         public int Calls, Sessions;
         public bool Converged = true;
+        public bool RejectedEquilibrium;
         public string ReportedEngine = "TEST-NUMERICAL-PORT";
         public string ReportedCriterion = "ConstantN";
         public ConcreteCalculationSession Create(ReinforcedConcreteSection section, StandardModelCode2010 standard, ConcreteCalculationOptions options)
@@ -27,6 +28,8 @@ public class CalculationFactoryTest
         public SectionResistanceResponse SolveResistance(SectionAnalysisInput input, CancellationToken token)
         {
             Calls++;
+            if (RejectedEquilibrium) return new(new(CalculationStatus.NotConverged, Id, Version, "Outside axial tolerance",
+                new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N + 2000, 1000)), "ConstantN");
             return Converged
                 ? new(new(CalculationStatus.Completed, ReportedEngine, Version), ReportedCriterion, new(0, 0, -.001, 0, 0), -500000, 1e8, 0, .9, "test")
                 : new(new(CalculationStatus.NotConverged, Id, Version), "ConstantN");
@@ -49,6 +52,13 @@ public class CalculationFactoryTest
         result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
         Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome); Assert.IsNull(result.Utilization);
         Assert.AreEqual(1, factory.Sessions); Assert.AreEqual(2, factory.Calls);
+        factory.RejectedEquilibrium = true;
+        result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome);
+        Assert.IsNull(result.Utilization);
+        Assert.IsTrue(result.Diagnostics.Any(d => d.Code == "CheckerAxialEquilibriumRejected"));
+        StringAssert.Contains(result.Diagnostics.Single(d => d.Code == "NumericalAxialEquilibrium").Message, "residual=2000 N; tolerance=1000 N");
+        factory.RejectedEquilibrium = false;
         factory.Converged = true; factory.ReportedEngine = "wrong-engine";
         result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
         Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome);
