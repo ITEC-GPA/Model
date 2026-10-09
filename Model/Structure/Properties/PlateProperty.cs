@@ -11,6 +11,9 @@ namespace GPC.Model.ElementProperties
     [Serializable]
     public abstract class PlateProperty : ElementProperty, ISerializable
     {
+        /// <summary>Physical thickness in mm, independent of equivalent FEM stiffness thicknesses. Null means unknown.</summary>
+        public double? PhysicalThickness { get; set; }
+
         #region Variables
 
         #endregion
@@ -40,6 +43,7 @@ namespace GPC.Model.ElementProperties
         protected PlateProperty(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            PhysicalThickness = SerializationFields.Read<double?>(info, "PhysicalThickness");
         }
 
         #endregion
@@ -54,6 +58,7 @@ namespace GPC.Model.ElementProperties
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            if (PhysicalThickness.HasValue) info.AddValue("PhysicalThickness", PhysicalThickness);
         }
 
         /// <summary>
@@ -63,7 +68,7 @@ namespace GPC.Model.ElementProperties
         /// <returns>True if <paramref name="obj"/> is a plate property with the same name</returns>
         public override bool Equals(object obj)
         {
-            return (obj is PlateProperty objCasted) &&
+            return (obj is PlateProperty objCasted) && GetType() == obj.GetType() && PhysicalThickness == objCasted.PhysicalThickness &&
                 base.Equals(objCasted);
         }
 

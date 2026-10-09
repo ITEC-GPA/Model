@@ -83,7 +83,7 @@ namespace GPC.Model.Persistence
                     foreach (var member in members)
                     {
                         var fieldValue = member.Accessor.GetValue(value);
-                        if (fieldValue == null && member.OmitNull) continue;
+                        if (member.OmitNull && (fieldValue == null || value is PostProcessing.ShellAssignments && member.WireName == "_sections" && fieldValue is ICollection collection && collection.Count == 0)) continue;
                         w.Write(member.WireName); Write(w, fieldValue, path);
                     }
                     return;
