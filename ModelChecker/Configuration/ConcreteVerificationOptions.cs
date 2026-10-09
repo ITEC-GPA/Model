@@ -46,7 +46,18 @@ namespace GPC.Model.Checker
         /// <summary>Design wlim, mm, of the crack checks where the standard admits it (Eurocode family, Model Code 2010); null = limit of the standard.</summary>
         [System.Runtime.Serialization.DataMember(Order = 13)]
         public double? CrackDesignLimit { get; set; }
-        public ConcreteSectionVerifier CreateVerifier() => new ConcreteSectionVerifier(Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon,
-            StandardEdition, NationalAnnex, ServiceabilityAnalysis, ConcreteStressLimitFactor, ShearCotTheta, CrackLoadDuration, CrackDesignLimit);
+        /// <summary>Null selects the legacy engine for historical configurations. Explicit selections require version and configuration.</summary>
+        [System.Runtime.Serialization.DataMember(Order = 14)] public string CalculationEngineId { get; set; }
+        [System.Runtime.Serialization.DataMember(Order = 15)] public string CalculationEngineVersion { get; set; }
+        [System.Runtime.Serialization.DataMember(Order = 16)] public string CalculationEngineConfiguration { get; set; }
+        public ConcreteSectionVerifier CreateVerifier() => CreateVerifier(new Configuration.ConcreteCalculationCatalog());
+        public ConcreteSectionVerifier CreateVerifier(Configuration.ConcreteCalculationCatalog calculations)
+            => CreateVerifier((calculations ?? throw new ArgumentNullException(nameof(calculations))).Resolve(this));
+        public ConcreteSectionVerifier CreateVerifier(IConcreteCalculationFactory calculationFactory)
+        {
+            Configuration.ConcreteCalculationCatalog.ValidateSelection(this, calculationFactory);
+            return new ConcreteSectionVerifier(calculationFactory, Standard, Criterion, ConsiderTensileConcrete, AngularDivisions, PsiRebar, PsiTendon,
+                StandardEdition, NationalAnnex, ServiceabilityAnalysis, ConcreteStressLimitFactor, ShearCotTheta, CrackLoadDuration, CrackDesignLimit);
+        }
     }
 }

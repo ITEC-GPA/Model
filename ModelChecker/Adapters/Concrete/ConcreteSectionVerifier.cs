@@ -146,6 +146,10 @@ namespace GPC.Model.Checker
                     return WithNumericalDiagnostics(Failure(point.Diagnostics.AxialEquilibrium?.Accepted == false
                         ? "CheckerAxialEquilibriumRejected" : "CheckerCalculationIncomplete"), point.Diagnostics);
                 if (!MatchesEngine(point.Diagnostics) || point.Criterion != _criterion.ToString()) return Failure("NumericalResistanceContractMismatch");
+                if ((_criterion == SectionSolver.FailureAnalysisTypes.ConstantN || _criterion == SectionSolver.FailureAnalysisTypes.ConstantNMx
+                    || _criterion == SectionSolver.FailureAnalysisTypes.ConstantNMy)
+                    && (point.Diagnostics.AxialEquilibrium == null || point.Diagnostics.AxialEquilibrium.Requested != forces.N
+                        || point.Diagnostics.AxialEquilibrium.Actual != point.N)) return Failure("NumericalAxialEquilibriumContractMismatch");
                 double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
                 var strain = point.Strain;

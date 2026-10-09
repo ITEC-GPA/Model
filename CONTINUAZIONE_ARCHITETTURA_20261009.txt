@@ -7,3 +7,12 @@ ConstantN, ConstantNMx, ConstantNMy; rifiuto numerico senza utilizzo resistente.
 ModelChecker 1.0.9 conserva stato, scarto e tolleranza nella diagnostica.
 26 test Calculation e 124 test ModelChecker superati. Controllo API senza
 rimozioni inattese; nessuna modifica alle formule o ai punti del dominio.
+
+Punto 2 concluso
+ModelChecker 1.0.10: scelta numerica persistente (ID, versione, configurazione),
+catalogo esplicito e sessioni controllate prima/dopo ogni chiamata. Le vecchie
+configurazioni senza scelta usano il motore legacy; una scelta esplicita richiede
+versione e configurazione. Motori sconosciuti/cambiati sono rifiutati.
+128 test ModelChecker superati; 4 nuovi casi sul flusso configurato, persistenza,
+versioni/parametri incoerenti e assenza dell'evidenza N. API senza rimozioni inattese.
+Segue integrazione del punto 1 su tutti i cinque criteri richiesta dall'utente.

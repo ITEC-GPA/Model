@@ -89,8 +89,10 @@ namespace GPC.Model.Checker.Configuration
             }
             return request;
         }
-        public static EngineCatalog BuiltIn()
+        public static EngineCatalog BuiltIn() => BuiltIn(new ConcreteCalculationCatalog());
+        public static EngineCatalog BuiltIn(ConcreteCalculationCatalog calculations)
         {
+            if (calculations == null) throw new ArgumentNullException(nameof(calculations));
             var catalog = new EngineCatalog();
             catalog.Register(new EngineCapability("Concrete.Section", 1, "Concrete section checks", "Explicit standard/edition; detailed checks retain the native profile's applicability.",
                 (definition, context) => {
@@ -101,9 +103,9 @@ namespace GPC.Model.Checker.Configuration
                         || options.StandardEdition != null && options.StandardEdition != context.Edition
                         || options.NationalAnnex != null && options.NationalAnnex != context.NationalAnnex) throw new ArgumentException("ConflictingConcreteContext");
                     options.Standard = code; options.StandardEdition = context.Edition; options.NationalAnnex = context.NationalAnnex;
-                    return new ConcreteMaterialChecker(options);
+                    return new ConcreteMaterialChecker(options, calculations.Resolve(options));
                 }, (engine, mechanism, check) => {
-                    var verifier = ((ConcreteMaterialChecker)engine).Options.CreateVerifier();
+                    var verifier = ((ConcreteMaterialChecker)engine).CreateVerifier();
                     return check == null ? verifier.Capabilities.Contains(mechanism) : check.Mechanism == mechanism && verifier.Supports(check);
                 }));
             catalog.Register(new EngineCapability("Steel.EN1993.PlasticShear", 1, "Steel section shear", "Qualified stocky symmetric H sections, EN1993-1-1:2005, no torsion/global stability.",

@@ -12,14 +12,16 @@ namespace ModelChecker.Tests;
 [TestClass]
 public class CalculationFactoryTest
 {
-    private sealed class Alternative : IConcreteCalculationFactory, ISectionResponseSolver, ISectionResistanceSolver
+    internal sealed class Alternative : IConcreteCalculationFactory, ISectionResponseSolver, ISectionResistanceSolver
     {
         public string Id => "TEST-NUMERICAL-PORT";
-        public string Version => "test1";
+        public string RuntimeVersion = "test1";
+        public string Version => RuntimeVersion;
         public string Configuration => "contract-test-only";
         public int Calls, Sessions;
         public bool Converged = true;
         public bool RejectedEquilibrium;
+        public bool OmitEquilibrium;
         public string ReportedEngine = "TEST-NUMERICAL-PORT";
         public string ReportedCriterion = "ConstantN";
         public ConcreteCalculationSession Create(ReinforcedConcreteSection section, StandardModelCode2010 standard, ConcreteCalculationOptions options)
@@ -31,7 +33,7 @@ public class CalculationFactoryTest
             if (RejectedEquilibrium) return new(new(CalculationStatus.NotConverged, Id, Version, "Outside axial tolerance",
                 new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N + 2000, 1000)), "ConstantN");
             return Converged
-                ? new(new(CalculationStatus.Completed, ReportedEngine, Version), ReportedCriterion, new(0, 0, -.001, 0, 0), -500000, 1e8, 0, .9, "test")
+                ? new(new(CalculationStatus.Completed, ReportedEngine, Version, null, OmitEquilibrium ? null : new AxialEquilibriumEvidence(input.Forces.N, input.Forces.N, 1)), ReportedCriterion, new(0, 0, -.001, 0, 0), input.Forces.N, 1e8, 0, .9, "test")
                 : new(new(CalculationStatus.NotConverged, Id, Version), "ConstantN");
         }
     }

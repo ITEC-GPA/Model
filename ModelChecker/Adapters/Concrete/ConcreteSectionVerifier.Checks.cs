@@ -95,7 +95,7 @@ namespace GPC.Model.Checker
                     Outcome = ratio <= 1 ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotSatisfied, Utilization = ratio, EngineVersion = Version,
                     Standard = StandardContext,
                     Details = new ServiceabilityCheckDetails(StressLimitCheck.MethodId, "stress/limit", category.ToString(), metrics, trace, points) };
-                return WithEdition(result);
+                return WithEdition(WithNumericalDiagnostics(result, analysis.Diagnostics));
             }
         }
     }
