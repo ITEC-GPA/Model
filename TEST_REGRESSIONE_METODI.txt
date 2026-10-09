@@ -1,0 +1,51 @@
+TEST DI REGRESSIONE PER METODO - 9 ottobre 2026
+
+Scopo: metodi significativi delle librerie GPC, integrando le coperture esistenti.
+Ogni test ha un caso piccolo e un contratto osservabile; nessuna rigenerazione
+Golden/attese numeriche e nessuna modifica a codice o versioni di produzione.
+
+Model: Model.Core.Tests/MethodRegressionTests.cs, 3 nuovi casi:
+- ModelValues.CopyValue: coordinate system copiato, assi indipendenti;
+- ModelValues.Copy: rifiuto modello null;
+- ModelValues.Fingerprint: sensibilita' all'ordine e alla modifica dei valori.
+Eseguiti nel test host senza GPC.Model.Persistence.
+
+ModelData: UnitTest/CatalogMethodRegressionTests.cs, 7 nuovi casi:
+SectionCatalogs.Normalize (cultura turca e decimali), FindAll (assenza);
+SectionCatalog.Find (nessun fallback); SectionMapping.Create (famiglia errata);
+SectionMappings.CreateSection (nome sconosciuto e copie indipendenti);
+CatalogProfile.Has (dato mancante distinto da zero).
+
+GPC.Model.Persistence: UnitTest/PersistenceMethodRegressionTests.cs, 6 casi:
+ModelArchive.SaveDocument (posizione dello stream), Load (ownership dello stream,
+rifiuto DTD), Save (errore senza modificare la destinazione);
+CheckReportArchive.Save/Load (archivio vuoto, stream aperto, versione sconosciuta).
+
+GPC Converter: UnitTest/ConverterMethodRegressionTests.cs, 7 casi:
+CivilNxTableRequest.ToJson (elementi distinti, parti beam, stadi, unita', centro
+plate/nodi esclusivi, tabelle proprieta' senza filtri risultati);
+ResultFilter.Resolve (ordine dei casi senza duplicati), All (nodi, beam, shell,
+soli supporti vincolati). Nessuna chiamata a solver/licenza/API remota.
+
+ModelChecker: ModelChecker.Tests/MethodRegressionTests.cs, 11 casi:
+BeamCut.ToLocation (estremi, dominio, lato, parametri fuori intervallo/NaN/infinito);
+ConfigurationArchive.Copy/Fingerprint (indipendenza del piano e revisioni),
+Save (schema invalido senza modificare lo stream);
+ConcreteCalculationCatalog.Register/Resolve (duplicati e identita' cambiata);
+EngineCatalog.Register (un duplicato non sostituisce il descriptor esistente).
+
+Validazione completa: build/Verify.ps1 PASS.
+Model.Core.Tests: 6 PASS.
+UnitTest: 1016 PASS, 2 test nativi Straus saltati per fixture esterne.
+ModelChecker.Tests: 166 PASS.
+Controllo contratti API: zero rimozioni inattese.
+Incremento repository Model: 34 casi, tutti PASS.
+
+Suite preesistenti mantenute per topologia, gruppi, sezioni, assegnazioni lungo
+beam, plate/superfici fisiche, sollecitazioni/nodi, unita', trasformazioni,
+combinazioni, revisioni, converter Midas/Straus, orchestrazione multinormativa.
+I test di protocollo plate non qualificano un metodo resistente ancora da concordare.
+
+Altri repository: Utilities e Geometry hanno TEST_REGRESSIONE_METODI.txt;
+Checker riceve i test dei motori Concrete/Steel/CompositeBridge/Geotechnics.
+Non inclusi applicazioni UI, copie archiviate o progetti di terze parti Gmsh.Net.
