@@ -19,6 +19,8 @@ public class CalculationFactoryTest
         public string Configuration => "contract-test-only";
         public int Calls, Sessions;
         public bool Converged = true;
+        public string ReportedEngine = "TEST-NUMERICAL-PORT";
+        public string ReportedCriterion = "ConstantN";
         public ConcreteCalculationSession Create(ReinforcedConcreteSection section, StandardModelCode2010 standard, ConcreteCalculationOptions options)
         { Sessions++; return new(this, this); }
         public SectionResponse Solve(SectionAnalysisInput input, CancellationToken token) => throw new NotSupportedException();
@@ -26,7 +28,7 @@ public class CalculationFactoryTest
         {
             Calls++;
             return Converged
-                ? new(new(CalculationStatus.Completed, Id, Version), "ConstantN", new(0, 0, -.001, 0, 0), -500000, 1e8, 0, .9, "test")
+                ? new(new(CalculationStatus.Completed, ReportedEngine, Version), ReportedCriterion, new(0, 0, -.001, 0, 0), -500000, 1e8, 0, .9, "test")
                 : new(new(CalculationStatus.NotConverged, Id, Version), "ConstantN");
         }
     }
@@ -40,10 +42,19 @@ public class CalculationFactoryTest
             Verification.BeamSample(model.BeamElements[250], "synthetic-static", "P+", .5, SectionSide.Unspecified), "alternative solver");
         var result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
         Assert.AreEqual(EngineeringOutcome.Satisfied, result.Outcome); Assert.AreEqual(.9, result.Utilization);
-        Assert.AreEqual("test1", result.EngineVersion); StringAssert.Contains(result.EngineConfiguration, factory.Id);
+        Assert.AreEqual(typeof(GPC.Checkers.Concrete.Checkers.SectionChecker).Assembly.GetName().Version!.ToString(), result.EngineVersion);
+        StringAssert.Contains(result.EngineConfiguration, factory.Id);
+        StringAssert.Contains(result.EngineConfiguration, "NumericalEngineVersion=test1");
         factory.Converged = false;
         result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
         Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome); Assert.IsNull(result.Utilization);
         Assert.AreEqual(1, factory.Sessions); Assert.AreEqual(2, factory.Calls);
+        factory.Converged = true; factory.ReportedEngine = "wrong-engine";
+        result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome);
+        Assert.IsTrue(result.Diagnostics.Any(d => d.Code == "NumericalResistanceContractMismatch"));
+        factory.ReportedEngine = factory.Id; factory.ReportedCriterion = "ConstantEccentricity";
+        result = Verification.Run(prepared, CheckMechanism.UlsBiaxialSection, verifier);
+        Assert.AreEqual(EngineeringOutcome.NotEvaluated, result.Outcome);
     }
 }

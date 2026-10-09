@@ -1,6 +1,6 @@
 ARCHITETTURA IMPLEMENTATA - 9 OTTOBRE 2026
 
-Versioni: Model 2.0.0.0; ModelChecker 1.0.7; Converter 1.0.3;
+Versioni: Model 2.0.0.0; ModelChecker 1.0.8; Converter 1.0.3;
 Checker.Concrete 0.0.19.0. Branch: codex/model-architecture in Model e Checker.
 
 Flusso principale

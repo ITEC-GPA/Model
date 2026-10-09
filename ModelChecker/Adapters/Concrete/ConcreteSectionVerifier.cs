@@ -33,7 +33,7 @@ namespace GPC.Model.Checker
         private readonly Dictionary<string, Tuple<ReinforcedConcreteSection, ConcreteCalculationSession>> _checkers = new Dictionary<string, Tuple<ReinforcedConcreteSection, ConcreteCalculationSession>>();
         private int _createdCheckers;
         public int CreatedCheckers { get { lock (Sync) return _createdCheckers; } }
-        public string Version => _calculationFactory.Version;
+        public string Version => typeof(SectionCheckerModelCode2010).Assembly.GetName().Version.ToString();
         public IReadOnlyCollection<CheckMechanism> Capabilities { get; } = Array.AsReadOnly(new[] {CheckMechanism.UlsBiaxialSection});
         public ConcreteSectionVerifier(StandardModelCode2010 standard, SectionSolver.FailureAnalysisTypes criterion, bool considerTension,
             int angularDivisions, double psiRebar, double psiTendon)
@@ -116,6 +116,7 @@ namespace GPC.Model.Checker
                 entries["StandardType"]=_standard.GetType().FullName;entries["Criterion"]=_criterion.ToString();
                 entries["ConsiderTensileConcrete"]=_considerTension.ToString();entries["AngularDivisions"]=_angularDivisions.ToString(CultureInfo.InvariantCulture);
                 entries["PsiRebar"]=_psiRebar.ToString("R",CultureInfo.InvariantCulture);entries["PsiTendon"]=_psiTendon.ToString("R",CultureInfo.InvariantCulture);
+                entries["VerificationImplementationVersion"] = Version;
                 entries["NumericalEngine"] = _calculationFactory.Id; entries["NumericalEngineVersion"] = _calculationFactory.Version;
                 entries["NumericalOptions"] = _calculationFactory.Configuration;
                 entries["FailureDomain"]="Plastic";entries["StressAnalysis"]="NonLinear";entries["WorkingRatioForceScaleN"]="1000000";entries["WorkingRatioLengthScaleMm"]="1000";
@@ -141,6 +142,7 @@ namespace GPC.Model.Checker
                 var point=entry.Item2.Resistance.SolveResistance(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 if(point == null || point.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerDomainPointMissing");
+                if (!MatchesEngine(point.Diagnostics) || point.Criterion != _criterion.ToString()) return Failure("NumericalResistanceContractMismatch");
                 double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
                 var strain = point.Strain;
@@ -153,6 +155,17 @@ namespace GPC.Model.Checker
                         strain.X, strain.Y, strain.Epsilon, strain.ChiX, strain.ChiY) };
                 return WithEdition(result);
             }
+        }
+        private bool MatchesEngine(SolverDiagnostics diagnostics) => diagnostics != null && diagnostics.Engine == _calculationFactory.Id
+            && diagnostics.Version == _calculationFactory.Version;
+        private bool MatchesResponse(SectionResponse response, ResultBeamForces forces, SectionSolver.StressAnalysisTypes analysis)
+        {
+            if (response == null || !MatchesEngine(response.Diagnostics) || response.Linear != (analysis == SectionSolver.StressAnalysisTypes.Linear)
+                || response.Linear && (response.PsiRebar != _psiRebar || response.PsiTendon != _psiTendon)) return false;
+            var actual = response.Input.Forces;
+            return actual.N == forces.N && actual.V1 == forces.V1 && actual.V2 == forces.V2 && actual.T == forces.T
+                && actual.M1 == forces.M1 && actual.M2 == forces.M2
+                && ModelArchive.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelArchive.Fingerprint(new object[] { forces.CoordinateSystem });
         }
         private CheckResult WithEdition(CheckResult result)
         {

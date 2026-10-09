@@ -77,6 +77,7 @@ namespace GPC.Model.Checker
                 var stress = LinearChecker(section, reference, false).Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 if (stress == null || stress.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerStressAnalysisNotConverged");
+                if (!MatchesResponse(stress, forces, SectionSolver.StressAnalysisTypes.Linear)) return Failure("NumericalResponseContractMismatch");
                 try
                 {
                     var crackInput = new SectionCrackInput(_standard, combination, data.Exposure, data.SensitiveReinforcement, _crackDesignLimit,
@@ -86,6 +87,7 @@ namespace GPC.Model.Checker
                         {
                             var uncracked = LinearChecker(section, reference, true).Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
                             if (uncracked == null || uncracked.Diagnostics.Status != CalculationStatus.Completed) throw new InvalidOperationException("Uncracked analysis not completed.");
+                            if (!MatchesResponse(uncracked, forces, SectionSolver.StressAnalysisTypes.Linear)) throw new InvalidOperationException("NumericalResponseContractMismatch");
                             return uncracked.Concrete.Max(v => v.Stress);
                         });
                     r = SectionCrackCheck.Evaluate(crackInput);

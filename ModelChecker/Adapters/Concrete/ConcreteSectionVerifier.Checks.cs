@@ -63,6 +63,7 @@ namespace GPC.Model.Checker
                 var analysis = entry.Item2.Response.Solve(new SectionAnalysisInput(forces), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 if (analysis == null || analysis.Diagnostics.Status != CalculationStatus.Completed) return Failure("CheckerStressAnalysisNotConverged");
+                if (!MatchesResponse(analysis, forces, _serviceabilityAnalysis)) return Failure("NumericalResponseContractMismatch");
                 StressLimitResult limits;
                 try { limits = StressLimitCheck.Evaluate(analysis, StressLimitContext.Resolve(_standard, input.Section), combination, _concreteStressLimitFactor); }
                 catch (NotSupportedException ex) { return new CheckResult { Data = DataStatus.NotSupported, Outcome = EngineeringOutcome.NotEvaluated,

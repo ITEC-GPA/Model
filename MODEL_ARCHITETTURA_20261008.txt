@@ -414,3 +414,11 @@ Verifiche finali sul codice riorganizzato:
   questo controllo certifica soltanto i percorsi headless selezionati.
 - Le risposte del motore e i metodi normativi esistenti rimangono equivalenti
   entro le tolleranze delle fixture; nessun atteso e' stato rigenerato.
+
+9 OTTOBRE - CONTROLLO FINALE DEL CONTRATTO NUMERICO
+ModelChecker 1.0.8 conserva EngineVersion della libreria dei metodi normativi;
+NumericalEngine/NumericalEngineVersion e relative opzioni sono separati nella
+configurazione persistita. Le risposte devono corrispondere a motore, versione,
+criterio SLU oppure azioni/assi/modalita'/coefficienti richiesti per SLE e crack.
+Un'incoerenza produce NotEvaluated. Test del motore alternativo esteso ai casi
+motore/criterio errati. Ultima suite: ModelChecker 124 PASS; API 0 rotture inattese.
