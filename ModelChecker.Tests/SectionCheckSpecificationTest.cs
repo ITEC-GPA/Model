@@ -258,8 +258,10 @@ public class SectionCheckSpecificationTest
             var forces = new ResultBeamForces(f.N, f.V1, f.V2, f.T, f.M1, f.M2, reference);
             var options = new SectionCheckerModelCode2010.SectionOptionsModelCode2010(reference, SectionSolver.FailureAnalysisTypes.ConstantEccentricity,
                 SectionSolver.FailureDomainTypes.Plastic, SectionSolver.StressAnalysisTypes.NonLinear, 2, 0, false, 64);
-            var point = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, Standard(name), false).CalculateFailureDomainPoint(forces);
-            Assert.AreEqual(point.CalculateWorkingRatio(SectionSolver.FailureAnalysisTypes.ConstantEccentricity, forces, 1e6, 1000), ratios[name], 1e-12, name);
+            var native = new SectionCheckerModelCode2010(new SectionCheckerAttribute(section), options, Standard(name), false);
+            var point = new GPC.Checkers.Concrete.Analysis.LegacySectionCalculation(native).SolveResistance(new(forces));
+            Assert.IsTrue(point.Diagnostics.ResistanceConvergence.Accepted, name);
+            Assert.AreEqual(point.Utilization.Value, ratios[name], 1e-12, name);
         }
         Assert.AreNotEqual(ratios["EN 1992-1-1"], ratios["DS EN 1992-1-1"]);
         Assert.IsTrue(ratios["NTC 2018"] > ratios["Model Code 2010"], "αcc = 0.85 (NTC) reduces the capacity with respect to αcc = 1 (MC2010)");

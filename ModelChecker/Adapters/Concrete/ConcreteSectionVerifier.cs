@@ -147,6 +147,16 @@ namespace GPC.Model.Checker
                         ? "CheckerAxialEquilibriumRejected" : point.Diagnostics.ResistanceConvergence?.Accepted == false
                             ? "CheckerSearchConstraintsRejected" : "CheckerCalculationIncomplete"), point.Diagnostics);
                 if (!MatchesEngine(point.Diagnostics) || point.Criterion != _criterion.ToString()) return Failure("NumericalResistanceContractMismatch");
+                if (point.IsZeroDemand)
+                {
+                    if (!SameForces(point.ZeroDemandInput.Forces, forces) || forces.N != 0 || forces.M1 != 0 || forces.M2 != 0
+                        || input.Section.Rebars.Any(r => r.EpsilonP != 0)) return Failure("NumericalZeroDemandContractMismatch");
+                    var zero = NativeResults.Decision(new NativeMethodDetails("Concrete.PlasticSectionDomain",
+                        "Zero N-M1-M2 demand without initial rebar strain; no resistant point, shear/torsion excluded.",
+                        ModelArchive.Fingerprint(new object[] { input.Section }), new[] { new CheckMetric("N-M1-M2", 0, null, "1", 0, true) }, null, null, null, null, _criterion.ToString()));
+                    zero.EngineVersion = Version; zero.Standard = StandardContext;
+                    return WithEdition(WithNumericalDiagnostics(zero, point.Diagnostics));
+                }
                 var convergence = point.Diagnostics.ResistanceConvergence;
                 if (convergence == null || !convergence.Accepted || convergence.Criterion != _criterion
                     || !SameForces(convergence.Demand.Forces, forces)

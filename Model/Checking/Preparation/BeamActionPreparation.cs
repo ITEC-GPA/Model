@@ -109,7 +109,11 @@ namespace GPC.Model.PostProcessing
         public NativeMethodDetails(string method, string scope, string fingerprint, IEnumerable<CheckMetric> metrics,
             IEnumerable<CheckCalculationValue> trace = null, IEnumerable<string> warnings = null,
             IEnumerable<CheckPointValue> points = null, CheckConvergence convergence = null)
-            : base(method, method + ":normalized-limit-1", metrics, trace, points, convergence)
+            : this(method, scope, fingerprint, metrics, trace, warnings, points, convergence, method + ":normalized-limit-1") { }
+        public NativeMethodDetails(string method, string scope, string fingerprint, IEnumerable<CheckMetric> metrics,
+            IEnumerable<CheckCalculationValue> trace, IEnumerable<string> warnings, IEnumerable<CheckPointValue> points,
+            CheckConvergence convergence, string utilizationDefinition)
+            : base(method, utilizationDefinition, metrics, trace, points, convergence)
         { ScopeDescription = scope; NativeInputFingerprint = fingerprint; _warnings = (warnings ?? Enumerable.Empty<string>()).ToArray(); }
     }
 }

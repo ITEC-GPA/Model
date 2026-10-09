@@ -21,4 +21,16 @@ Punto 1 esteso ai cinque criteri su richiesta dell'utente
 Concrete 0.0.21.0, Checker b3f0fe87. ModelChecker 1.0.11 richiede evidenze
 coerenti con domanda, capacita', criterio e assi per tutti i modi. Registra
 residui/tolleranze di N, momenti, direzione/angolo nella diagnostica persistente.
-48 test Calculation e 128 test ModelChecker superati. API senza rimozioni inattese.
+48 test Calculation superati. Prima integrazione: 41 test ModelChecker falliti per punti
+legacy fuori soglia angolare; la precedente annotazione di 128 PASS era errata.
+Correzione e nuova validazione riportate sotto. API senza rimozioni inattese.
+
+Correzione e validazione finale del punto 1
+Concrete 0.0.22.0 (27d9cde1), Model 2.0.0.1, ModelChecker 1.0.12.
+Il boundary prova i fallback esistenti se il punto restituito non rispetta le
+soglie. Domanda N-M nulla senza predeformazione: utilizzo zero, nessuna capacita'
+o convergenza inventata. La definizione del rapporto conserva l'aggregazione.
+Esiti finali: 50 test Calculation, 128 ModelChecker superati. Due confronti
+con il punto grezzo ora confrontano la risposta validata; il caso che evidenzia
+il difetto verifica esplicitamente rifiuto del primo punto e accettazione del
+successivo. Nessuna fixture numerica storica rigenerata.
