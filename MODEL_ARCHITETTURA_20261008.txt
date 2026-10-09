@@ -394,3 +394,23 @@ interna, il test interamente commentato e le esclusioni FEM inutili. La rottura
 intenzionale e le sostituzioni sono in MIGRAZIONE_MODEL_2.txt. Versione Model
 2.0.0.0. API check: soltanto 15 firme rimosse appartenenti ai due tipi approvati;
 nessuna altra rottura. Model/Converter: 939 passati, 2 fixture esterne saltate.
+
+9 OTTOBRE - RIORDINO E VALIDAZIONE FINALE
+162 sorgenti riallocati e 53 dichiarazioni estratte da cinque contenitori con
+il parser Roslyn. Classi di pianificazione/report separate dall'esecutore;
+assegnazioni nodi/beam/shell distinte; converter organizzati per provider.
+Namespace e contratti di persistenza preservati. Versioni finali e albero in
+ARCHITETTURA_IMPLEMENTATA_20261009.txt.
+
+Verifiche finali sul codice riorganizzato:
+- build/Verify.ps1: Model/Converter 939 PASS, 2 test Straus saltati per fixture
+  native esterne; ModelChecker 124 PASS; API: 0 rimozioni inattese.
+- Concrete con Model 2.0 e DLL vincolata: 14 PASS, fixture storiche incluse.
+- Anthea commit 98a21d452a0239b3dbe0720cd09653661790bb60, bundle candidato
+  completo con manifest: sette build e sette suite PASS (14 esiti), nessun
+  NEW-FAIL. CalculationLibrary, ConcreteCode, ConcreteLibraryAdapter,
+  ConcreteDesign, BridgeDesign, GlobalStability, RetainingWall.
+- Anthea/lib/Checker e main non modificati. Nessuna prova WPF/full deployment:
+  questo controllo certifica soltanto i percorsi headless selezionati.
+- Le risposte del motore e i metodi normativi esistenti rimangono equivalenti
+  entro le tolleranze delle fixture; nessun atteso e' stato rigenerato.

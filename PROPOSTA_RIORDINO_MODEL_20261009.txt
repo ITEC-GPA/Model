@@ -1901,3 +1901,9 @@ ModelData/SteelMaterialEN1992Data.cs
 
 ModelData/SteelMaterialEN1993Data.cs
     L8: public class SteelMaterialEN1993Data
+
+AGGIORNAMENTO: IMPLEMENTAZIONE DELLA TAPPA
+Il riordino e il confine calcolo/verifica di questa proposta sono implementati.
+Per l'albero reale, versioni, limiti e migrazione usare
+ARCHITETTURA_IMPLEMENTATA_20261009.txt e MIGRAZIONE_MODEL_2.txt.
+L'inventario sopra resta la fotografia iniziale, non i percorsi correnti.
