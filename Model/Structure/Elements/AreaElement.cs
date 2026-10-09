@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.Elements
 {
@@ -13,7 +14,7 @@ namespace GPC.Model.Elements
     [Serializable]
     public class AreaElement : Element
     {
-        public GPC.Model.PostProcessing.ShellAssignments Assignments { get; private set; } = new GPC.Model.PostProcessing.ShellAssignments();
+        public global::GPC.Model.Structure.Assignments.ShellAssignments Assignments { get; private set; } = new global::GPC.Model.Structure.Assignments.ShellAssignments();
         #region VARIABLES
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace GPC.Model.Elements
         protected AreaElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Assignments = SerializationFields.Read(info, "AreaAssignments", new GPC.Model.PostProcessing.ShellAssignments());
+            Assignments = SerializationFields.Read(info, "AreaAssignments", new global::GPC.Model.Structure.Assignments.ShellAssignments());
             _shape = (Shape)info.GetValue("Shape", typeof(Shape));
             _plateProperty = (PlateProperty)info.GetValue("PlateProperty", typeof(PlateProperty));
             _nodes = SerializationFields.Read<NodeElement[]>(info, "ConnectedNodes");

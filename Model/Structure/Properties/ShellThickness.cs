@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
 
 namespace GPC.Model.ElementProperties
 {

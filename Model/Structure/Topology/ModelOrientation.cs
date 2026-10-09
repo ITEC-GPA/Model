@@ -6,9 +6,14 @@ using GPC.Geometry;
 using GPC.Model.Attributes;
 using GPC.Model.Loads;
 using GPC.Model.Core;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Structure.Assignments;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Structure.Topology
 {
     /// <summary>Atomic editing operations returning a separate Model. Source datasets retain their original input fingerprints:
     /// an edited model requires source revalidation/reimport before any result becomes current again.</summary>

@@ -1,9 +1,10 @@
+using GPC.Model.Structure.Assignments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
 
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Preparation
 {
     // Synchronous read-only checkpoints only. Never span a checker, progress callback, await or user code.
     // No public scope: legacy mutable setters cannot notify a long-lived revision cache reliably.

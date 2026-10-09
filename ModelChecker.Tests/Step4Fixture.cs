@@ -1,8 +1,10 @@
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Model.Checker;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Results.Queries;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 

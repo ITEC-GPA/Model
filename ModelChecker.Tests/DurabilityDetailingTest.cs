@@ -1,11 +1,16 @@
+using GPC.Model.Models;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Model.Checker;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 

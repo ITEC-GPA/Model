@@ -9,9 +9,7 @@ using GPC.Model.ElementProperties;
 using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Analysis
 {
     internal static class AnalysisStorage
     {

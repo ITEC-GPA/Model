@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter
 {

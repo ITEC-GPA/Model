@@ -1,6 +1,11 @@
+using GPC.Model.Models;
 using GPC.Converter.Straus7;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
 
 namespace GPC.Examples;
 

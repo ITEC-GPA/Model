@@ -1,13 +1,16 @@
-﻿using GPC.Converter;
+using GPC.Converter;
 using GPC.Converter.CivilNx;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.State;
 
 namespace UnitTest;
 

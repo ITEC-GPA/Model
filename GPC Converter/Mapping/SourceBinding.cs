@@ -1,7 +1,9 @@
+using GPC.Model.Models;
 using System;
 using System.IO;
 using System.Linq;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter
 {

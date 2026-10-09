@@ -4,8 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Checkers.Concrete.SectionSolvers;
-using GPC.Model.PostProcessing;
 using GPC.Model.Standards;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Execution;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Locations;
 
 namespace GPC.Model.Checker
 {
@@ -101,8 +107,8 @@ namespace GPC.Model.Checker
                         result.ConcomitantStateId = row.Sample?.State?.ConcomitantStateId ?? row.Selection.ConcomitantState;
                         result.Mode = row.Sample?.State?.Mode ?? row.Selection.Mode; result.MovingLoadPosition = row.Sample?.State?.MovingLoadPosition ?? row.Selection.MovingLoadPosition;
                         result.Coverage = row.Sample?.State?.Coverage;
-                        if (row.Sample is Results.ResultLocations.StationResultBeamForces beam) { result.Station = beam.ParametricDistance; result.Side = beam.Side; }
-                        if (row.Sample is Results.ResultLocations.PointResultPlateForces shell)
+                        if (row.Sample is global::GPC.Model.Results.Locations.StationResultBeamForces beam) { result.Station = beam.ParametricDistance; result.Side = beam.Side; }
+                        if (row.Sample is global::GPC.Model.Results.Locations.PointResultPlateForces shell)
                         { result.ShellPoint = shell.Location; result.ShellPointKind = shell.PointKind; result.ShellCoordinateKind = shell.CoordinateKind; }
                         foreach (var diagnostic in result.Diagnostics) { diagnostic.Family = result.Family; diagnostic.ElementId = result.ElementId;
                             diagnostic.Dataset = result.Dataset; diagnostic.Case = result.Case; diagnostic.Station = result.Station; }

@@ -3,15 +3,15 @@ using System.Runtime.Serialization;
 using GPC.Geometry;
 using GPC.Model.LoadCases;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     [Serializable]
     public sealed class PointResultPlateForces : ResultLocation, IPlateResultLocation
     {
         public Point2d Location { get; private set; }
         public string LocationKind { get; set; }
-        public PostProcessing.ShellResultPointKind PointKind { get; set; }
-        public PostProcessing.ResultCoordinateKind CoordinateKind { get; set; }
+        public global::GPC.Model.Results.Locations.ShellResultPointKind PointKind { get; set; }
+        public global::GPC.Model.Results.Locations.ResultCoordinateKind CoordinateKind { get; set; }
         public Point3d GlobalLocation { get; set; }
         public int? SourceNodeId { get; set; }
         public string AveragingRegion { get; set; }
@@ -21,8 +21,8 @@ namespace GPC.Model.Results.ResultLocations
         private PointResultPlateForces(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             Location = (Point2d)info.GetValue("Location", typeof(Point2d)); LocationKind = info.GetString("LocationKind");
-            PointKind = SerializationFields.Read<PostProcessing.ShellResultPointKind>(info, "PointKind");
-            CoordinateKind = SerializationFields.Read<PostProcessing.ResultCoordinateKind>(info, "CoordinateKind");
+            PointKind = SerializationFields.Read<global::GPC.Model.Results.Locations.ShellResultPointKind>(info, "PointKind");
+            CoordinateKind = SerializationFields.Read<global::GPC.Model.Results.Locations.ResultCoordinateKind>(info, "CoordinateKind");
             GlobalLocation = SerializationFields.Read<Point3d>(info, "GlobalLocation"); SourceNodeId = SerializationFields.Read<int?>(info, "SourceNodeId");
             AveragingRegion = SerializationFields.Read<string>(info, "AveragingRegion");
         }

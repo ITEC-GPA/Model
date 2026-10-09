@@ -2,7 +2,7 @@ using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// The displacements of a beam element at a station
@@ -16,7 +16,7 @@ namespace GPC.Model.Results.ResultLocations
         /// The position of the station along the beam: 0 at the start point, 1 at the end point
         /// </summary>
         private double _parametricCoordinate;
-        public GPC.Model.PostProcessing.SectionSide Side { get; set; }
+        public global::GPC.Model.Results.Locations.SectionSide Side { get; set; }
         private double? _physicalDistance;
         public double? PhysicalDistance { get => _physicalDistance; set => _physicalDistance = value.HasValue ? NumericGuard.Finite(value.Value, nameof(value)) : (double?)null; }
         public string StationDomain { get; set; }
@@ -62,7 +62,7 @@ namespace GPC.Model.Results.ResultLocations
         protected StationResultDisplacement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Side = SerializationFields.Read<GPC.Model.PostProcessing.SectionSide>(info, "Side");
+            Side = SerializationFields.Read<global::GPC.Model.Results.Locations.SectionSide>(info, "Side");
             PhysicalDistance = SerializationFields.Read<double?>(info, "PhysicalDistance");
             StationDomain = SerializationFields.Read<string>(info, "StationDomain");
             ParametricDistance = info.GetDouble(SerializationFields.Has(info, "ParametricDistance") ? "ParametricDistance" : "DistanceFromStartPoint");

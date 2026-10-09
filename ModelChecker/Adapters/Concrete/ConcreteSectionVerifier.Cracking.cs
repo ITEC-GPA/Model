@@ -11,8 +11,10 @@ using GPC.Checkers.Concrete.Serviceability;
 using GPC.Geometry;
 using GPC.Model.Materials;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Model.Checker
 {

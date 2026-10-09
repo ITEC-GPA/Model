@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,15 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Topology;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Preparation
 {
     /// <summary>Canonical actions/kinematics ready for consumption, independent of reinforcement or a design code.
     /// Ready here is not a structural check outcome. ModelPreparation remains the design-check gate.</summary>

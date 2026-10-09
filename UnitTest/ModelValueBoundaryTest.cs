@@ -1,9 +1,11 @@
+using GPC.Model.Models;
 using System.IO.Compression;
 using GPC.Examples;
 using GPC.Model.Core;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Structure;
+using GPC.Model.Analysis;
+using GPC.Model.Structure.Members;
 
 namespace UnitTest;
 

@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using GPC.Model.Elements;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Locations
 {
-    public enum SectionSide { Unspecified, Left, Right }
+    [System.Runtime.Serialization.DataContract(Name = "SectionSide", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
+    public enum SectionSide { [System.Runtime.Serialization.EnumMember] Unspecified, [System.Runtime.Serialization.EnumMember] Left, [System.Runtime.Serialization.EnumMember] Right }
 }

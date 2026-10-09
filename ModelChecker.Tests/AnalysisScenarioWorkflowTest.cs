@@ -1,10 +1,16 @@
 using GPC.Examples;
 using GPC.Model.Checker;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
 
 namespace ModelChecker.Tests;
 
@@ -16,7 +22,7 @@ public class AnalysisScenarioWorkflowTest
     {
         var model = MixedModelFactory.Create();
         var prepared = VerificationPreparation.Prepare(model, VerificationScenario.Create(model.Analysis.Id, "Frozen"));
-        var snapshot = GPC.Model.Checking.VerificationSnapshot.Capture(prepared);
+        var snapshot = global::GPC.Model.Checking.Scenarios.VerificationSnapshot.Capture(prepared);
         prepared.Model.NodesElements[40].Position.Z += 1;
         Assert.IsFalse(prepared.IsCurrent);
         var service = new Service(_ => new Verifier());

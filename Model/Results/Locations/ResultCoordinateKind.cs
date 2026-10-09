@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using GPC.Model.Elements;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Locations
 {
-    public enum ResultCoordinateKind { Unknown, Natural, LocalPhysical, Global }
+    [System.Runtime.Serialization.DataContract(Name = "ResultCoordinateKind", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
+    public enum ResultCoordinateKind { [System.Runtime.Serialization.EnumMember] Unknown, [System.Runtime.Serialization.EnumMember] Natural, [System.Runtime.Serialization.EnumMember] LocalPhysical, [System.Runtime.Serialization.EnumMember] Global }
 }

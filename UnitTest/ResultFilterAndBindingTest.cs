@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System.Net;
 using GPC.Converter;
 using GPC.Converter.CivilNx;
@@ -6,8 +7,12 @@ using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
 
 namespace UnitTest;
 

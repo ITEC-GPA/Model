@@ -3,7 +3,7 @@ using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// The stresses of a plate (area) element at a point of its plane

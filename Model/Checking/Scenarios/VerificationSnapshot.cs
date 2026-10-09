@@ -1,7 +1,9 @@
 using System;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
 
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Scenarios
 {
     /// <summary>Immutable execution input, including analysis provenance, design and result values.
     /// Each execution receives its own graph; editing the source or a previously opened graph cannot alter it.</summary>

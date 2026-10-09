@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
 namespace GPC.Model.ElementProperties

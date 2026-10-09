@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Attributes;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
 
 namespace GPC.Model.Models
 {

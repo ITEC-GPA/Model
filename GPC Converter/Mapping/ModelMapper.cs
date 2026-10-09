@@ -10,11 +10,17 @@ using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using GPC.Model.Models;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Topology;
 
 namespace GPC.Converter
 {

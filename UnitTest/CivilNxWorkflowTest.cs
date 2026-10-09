@@ -1,9 +1,9 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using GPC.Converter;
 using GPC.Converter.CivilNx;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
 
 namespace UnitTest;
 

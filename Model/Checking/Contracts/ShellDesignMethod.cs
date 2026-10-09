@@ -5,12 +5,11 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Structure.Assignments;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Contracts
 {
     /// <summary>Structural design method must be provided and benchmarked separately from axis and unit conversions.</summary>
     public interface IShellDesignActionMethod

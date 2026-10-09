@@ -1,6 +1,6 @@
 using System;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Coordinates;
 
 namespace GPC.Converter
 {

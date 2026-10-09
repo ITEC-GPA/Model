@@ -2,10 +2,12 @@ using GPC.Checkers.Concrete.Analysis;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Examples;
 using GPC.Model.Checker;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Compatibility;
+using GPC.Model.Results.Locations;
 
 namespace ModelChecker.Tests;
 

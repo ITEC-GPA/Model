@@ -1,7 +1,7 @@
 using System;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Compatibility
 {
     /// <summary>Design moments for orthogonal reinforcement along the plate x, y axes, per face, in N mm/mm: each value is the moment the
     /// reinforcement of that face must resist (positive, stretching that face); zero when the face needs no reinforcement.</summary>

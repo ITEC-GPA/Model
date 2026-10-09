@@ -4,10 +4,12 @@ using System.Threading;
 using GPC.Checkers.Steel.Checkers;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Standards;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
 
 namespace GPC.Model.Checker
 {

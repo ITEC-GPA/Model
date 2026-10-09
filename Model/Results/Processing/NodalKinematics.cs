@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
-using GPC.Model.Costrains;
-using GPC.Model.Restrains;
+using GPC.Model.Constraints;
+using GPC.Model.Restraints;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Structure.Assignments;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     public static class NodalKinematics
     {

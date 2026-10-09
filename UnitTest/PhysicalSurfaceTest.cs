@@ -7,11 +7,14 @@ using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Structure;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Steel;
 using GPC.Model.Data.Steel;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Identity;
+using GPC.Model.Structure.Members;
 
 namespace UnitTest;
 

@@ -2,7 +2,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Core.Units;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.State;
 
 namespace GPC.Converter
 {

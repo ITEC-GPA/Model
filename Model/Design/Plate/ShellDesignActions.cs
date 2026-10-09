@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
-using GPC.Model.PostProcessing;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Model.Design.Plate
 {

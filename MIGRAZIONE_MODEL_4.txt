@@ -1,0 +1,101 @@
+MIGRAZIONE MODEL 4 - NAMESPACE E CONTRATTI STORICI
+9 ottobre 2026 - branch codex/model-architecture
+
+1. PACCHETTO COERENTE
+Model 4.0.0.0; ModelChecker 2.0.0; Converter 2.0.0;
+Persistence 2.0.0; ModelData 0.0.2.4;
+Checker.Concrete 0.0.23.0; Checker.Steel 2.0.0.0.
+I riferimenti a Model sono cambiati: ricompilare i consumer con lo stesso
+insieme di DLL. Non sostituire soltanto GPCModel.dll in un'applicazione che
+usa i vecchi tipi. La compatibilita' sorgente/binaria dei namespace e'
+intenzionalmente interrotta; firme e comportamenti restano verificati con
+una mappa esplicita delle rinomine, senza rigenerare le baseline API.
+
+2. MAPPA PRINCIPALE
+GPC.Model.PostProcessing era un contenitore trasversale. Ora:
+  Analysis                     snapshot, dataset, fonti e profili di analisi
+  Core.Coordinates             Axes (CoordinateSystem resta GPC.Geometry)
+  Core.Diagnostics             diagnostica e stato dei dati
+  Core.Identity                SourceIdentity, EntityFamily
+  Core.Units                   ResultUnits
+  Structure.Assignments        assegnazioni beam, nodali e shell
+  Structure.Members            membri e superfici fisiche, zone
+  Structure.Topology           orientamento e riferimenti delle beam
+  Models                       ModelRevisions ed estensioni fingerprint
+  Loads.Assignments            assegnazione dei carichi alle beam
+  Results.State                stato, provenienza e disponibilita'
+  Results.Locations            campioni/localizzazioni e relativi enum
+  Results.Storage              contenitori di risultati degli elementi
+  Results.Queries              interrogazioni
+  Results.Processing           trasformazioni, algebra e combinazioni
+  Checking.Contracts           specifiche di verifica condivise
+  Checking.Preparation         selezioni, piani e preparazione
+  Checking.Scenarios           scenari e relativo snapshot
+  Checking.Reports             report, dettagli e snapshot leggibili
+  Checking.Execution           contratti d'esecuzione
+  Compatibility                facciate storiche di delega
+Tutti i nomi sopra hanno prefisso GPC.Model.
+
+GPC.Model.Results.ResultLocations -> GPC.Model.Results.Locations
+GPC.Model.Results.ElementResults  -> GPC.Model.Results.Storage
+GPC.Model.Costrains               -> GPC.Model.Constraints
+GPC.Model.Restrains               -> GPC.Model.Restraints
+I nomi dei tipi/proprieta' Costrain, DofRestrain, Model.Costrains ecc. restano
+quelli esistenti: questa fase non rinomina anche le API dei singoli oggetti.
+Il RootNamespace di ModelData e' GPC.Model.Data. Gli identificatori delle
+risorse CSV sono espliciti e conservati, per non perdere i cataloghi sezioni.
+
+Inventario completo: build/namespace-migration.json (184 tipi di primo livello)
+e build/api/type-renames.tsv (181 identita' pubbliche incluse le annidate).
+Le cartelle non determinano automaticamente nuovi progetti: Model resta il
+dominio, Persistence il progetto I/O; Checker non referenzia Persistence.
+
+Esempio di import:
+  using GPC.Model.Models;
+  using GPC.Model.Analysis;
+  using GPC.Model.Structure.Members;
+  using GPC.Model.Checking.Preparation;
+  using GPC.Model.Checking.Contracts;
+  using GPC.Model.Checking.Reports;
+  using GPC.Model.Results.Locations;
+Aggiungere GPC.Model.Models anche quando si chiamano le estensioni
+AnalysisFingerprint, VerificationFingerprint o SolverBindingFingerprint.
+ValidateAssignments richiede GPC.Model.Structure.Assignments.
+
+3. ARCHIVI E IDENTITA'
+Il nome CLR pubblico non e' piu' assunto come identita' persistita.
+Le classi serializzabili per campi hanno contratti espliciti che conservano
+nomi XML, campi opzionali e nomi storici dei backing field. Per ISerializable,
+enum e contenitori generati dal serializer, un adattatore XML streaming
+traduce solo nomi qualificati e dichiarazioni di namespace. Nessuna
+sostituzione dentro stringhe utente, byte degli snapshot o valori numerici.
+Non si caricano tipi CLR specificati da un file; il vocabolario resta chiuso.
+Non viene creato un albero XML aggiuntivo in memoria durante lettura/scrittura.
+
+HistoricalTypeNames mantiene l'identita' dei fingerprint anche per array,
+generici ed enum. Gli snapshot storici sono controllati sui byte originali
+prima dell'apertura; non si rietichetta un'analisi come corrente dopo modifiche.
+Le stringhe che ricordano vecchi namespace nelle mappe e nei DataContract
+sono intenzionali: non vanno sostituite durante futuri riordini.
+Usare ModelArchive/CheckReportArchive per I/O e ModelValues per copie/digest.
+Un DataContractSerializer creato direttamente dal consumer non applica
+l'adattatore dei contratti storici della libreria.
+
+4. CONSUMER E LIMITI
+Converter, ModelChecker, esempi e test sono migrati. In Checker sono aggiornati
+gli assi di convergenza Concrete e i tipi di risultati usati da Steel.
+Non sono state cambiate formule, tolleranze, metodi resistenti o attesi numerici.
+Le norme e i cinque modi di verifica restano quelli gia' implementati.
+
+Anthea mantiene il proprio bundle precedente. Questo incremento non migra
+ne' collauda la sua applicazione WPF: aggiornare sorgenti/import e poi l'intero
+bundle durante la task Anthea, con le verifiche previste dal suo AGENTS.md.
+I metodi resistenti plate restano da concordare; un report del protocollo
+plate non costituisce automaticamente una verifica strutturale implementata.
+
+5. VALIDAZIONE
+Le fixture Namespaces-v3 sono state catturate e committate prima della migrazione:
+archivio Model 3 con analisi, scenario, sezioni plate e superfici; fingerprint;
+634 nomi XML. Non sono state rigenerate per accettare il nuovo codice.
+Il runner resta build/Verify.ps1. Esiti finali e commit sono riportati in
+CONTINUAZIONE_ARCHITETTURA_20261009.txt.

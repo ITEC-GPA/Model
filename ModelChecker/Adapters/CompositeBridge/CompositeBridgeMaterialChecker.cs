@@ -8,8 +8,14 @@ using GPC.Model.Checker.Configuration;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.Queries;
 
 namespace GPC.Model.Checker
 {
@@ -75,7 +81,7 @@ namespace GPC.Model.Checker
                 var matches = _owner.Cases.Where(c => c.BeamId == input.Element.Id && c.StationDomain == input.Sample.StationDomain
                     && c.Station == input.Sample.ParametricDistance && c.Side == input.Sample.Side && c.State != null
                     && !string.IsNullOrWhiteSpace(c.State.ConcomitantState)
-                    && ResultQueries.Samples<GPC.Model.Results.ResultLocations.StationResultBeamForces>(input.Element, c.State).Contains(input.Sample)).ToArray();
+                    && ResultQueries.Samples<global::GPC.Model.Results.Locations.StationResultBeamForces>(input.Element, c.State).Contains(input.Sample)).ToArray();
                 if (matches.Length != 1) return NativeResults.Missing("MissingOrAmbiguousBridgeHistory");
                 var binding = matches[0]; var data = binding.Input;
                 if (data == null || !binding.HistoryAndReferenceConfirmed || string.IsNullOrWhiteSpace(binding.Source) || !binding.ActionReferenceY.HasValue || binding.SectionAxes == null)

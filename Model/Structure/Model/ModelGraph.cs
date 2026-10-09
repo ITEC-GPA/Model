@@ -6,7 +6,14 @@ using GPC.Model.Collections;
 using GPC.Model.Attributes;
 using GPC.Model.Elements;
 using GPC.Model.ElementProperties;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Compatibility;
+using GPC.Model.Constraints;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Models
 {
@@ -19,7 +26,7 @@ namespace GPC.Model.Models
         internal SortedCollection<BeamElement> Beams;
         internal SortedCollection<AreaElement> Plates;
         internal SortedCollection<VolumeElement> Solids;
-        internal UniqueIdCollection<Costrains.Costrain> Constraints;
+        internal UniqueIdCollection<global::GPC.Model.Constraints.Costrain> Constraints;
         internal UniqueNameCollection<BeamProperty> BeamProperties;
         internal UniqueNameCollection<PlateProperty> PlateProperties;
         internal UniqueNameCollection<BrickProperty> SolidProperties;

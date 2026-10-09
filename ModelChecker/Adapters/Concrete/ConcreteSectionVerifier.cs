@@ -8,11 +8,14 @@ using GPC.Checkers.Concrete.Analysis;
 using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
 using GPC.Model.Core;
 using GPC.Model.Results;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Model.Checker
 {

@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Checkers.Concrete.Attributes;
 using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.Cracking;
@@ -6,16 +7,22 @@ using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Shear;
 using GPC.Checkers.Concrete.Torsion;
 using GPC.Model.Sections.Concrete;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Geometry;
 using GPC.Model.Checker;
 using GPC.Model.Materials;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 

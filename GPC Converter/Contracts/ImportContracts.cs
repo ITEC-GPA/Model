@@ -6,7 +6,9 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using GPC.Model.Models;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter
 {

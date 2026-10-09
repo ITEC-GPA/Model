@@ -4,14 +4,18 @@ using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Elements;
 
-namespace GPC.Model.Structure
+namespace GPC.Model.Structure.Members
 {
     /// <summary>A named subset of complete FEM plates. It does not own a second copy of their section properties.</summary>
     [Serializable]
+    [System.Runtime.Serialization.DataContract(Name = "SurfaceZoneDefinition", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Structure")]
     public sealed class SurfaceZoneDefinition
     {
+        [System.Runtime.Serialization.DataMember(IsRequired = true)]
         private readonly int[] _elements;
+        [field: System.Runtime.Serialization.DataMember(Name = "<Id>k__BackingField", IsRequired = true)]
         public string Id { get; private set; }
+        [field: System.Runtime.Serialization.DataMember(Name = "<Name>k__BackingField", IsRequired = true)]
         public string Name { get; private set; }
         public IReadOnlyList<int> ElementIds => Array.AsReadOnly(_elements);
         public SurfaceZoneDefinition(string id, IEnumerable<int> elementIds, string name=null)
@@ -27,12 +31,18 @@ namespace GPC.Model.Structure
     /// <summary>A physical wall/slab assembled from complete FEM plates. It can be curved; each plate retains its own axes and one property.
     /// Zones partition explicit element IDs, without inferring boundaries from a group or generating mesh elements.</summary>
     [Serializable]
+    [System.Runtime.Serialization.DataContract(Name = "PhysicalSurfaceDefinition", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Structure")]
     public sealed class PhysicalSurfaceDefinition
     {
+        [System.Runtime.Serialization.DataMember(IsRequired = true)]
         private readonly int[] _elements;
+        [System.Runtime.Serialization.DataMember(IsRequired = true)]
         private readonly SurfaceZoneDefinition[] _zones;
+        [field: System.Runtime.Serialization.DataMember(Name = "<Id>k__BackingField", IsRequired = true)]
         public string Id { get; private set; }
+        [field: System.Runtime.Serialization.DataMember(Name = "<Name>k__BackingField", IsRequired = true)]
         public string Name { get; private set; }
+        [field: System.Runtime.Serialization.DataMember(Name = "<Source>k__BackingField", IsRequired = true)]
         public string Source { get; private set; }
         public IReadOnlyList<int> ElementIds => Array.AsReadOnly(_elements);
         public IReadOnlyList<SurfaceZoneDefinition> Zones => Array.AsReadOnly(_zones);

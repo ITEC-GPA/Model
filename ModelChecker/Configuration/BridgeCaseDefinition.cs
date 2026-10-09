@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using GPC.Checkers.CompositeBridge;
 using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Model.PostProcessing;
+using GPC.Model.Results.Queries;
 
 namespace GPC.Model.Checker.Configuration
 {

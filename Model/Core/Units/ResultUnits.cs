@@ -1,6 +1,6 @@
 using System;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Core.Units
 {
     /// <summary>Explicit factors to N/mm/rad, allowing mixed units for different exported columns.</summary>
     public sealed class ResultUnits

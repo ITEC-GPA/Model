@@ -1,11 +1,11 @@
-﻿using GPC.Model.Elements;
-using GPC.Model.Restrains;
+using GPC.Model.Elements;
+using GPC.Model.Restraints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Costrains
+namespace GPC.Model.Constraints
 {
     /// <summary>
     /// A rigid link between a master node and other nodes: 6 equations for each node (translations of a rigid body and equal rotations)

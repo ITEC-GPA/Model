@@ -4,7 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Converter.Straus7
 {

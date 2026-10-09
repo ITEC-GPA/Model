@@ -1,10 +1,10 @@
-﻿using GPC.Model.Elements;
+using GPC.Model.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Costrains
+namespace GPC.Model.Constraints
 {
     /// <summary>
     /// A constraint between a node and other nodes, expressed by linear equations between their degrees of freedom (see <see cref="MultiPointsCostrain"/>)

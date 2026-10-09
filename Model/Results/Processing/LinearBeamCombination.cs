@@ -1,12 +1,18 @@
+using GPC.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using GPC.Model.Combinations;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     public sealed class BeamCombinationResult
     {

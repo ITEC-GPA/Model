@@ -2,6 +2,7 @@ using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.Elements
 {
@@ -11,7 +12,7 @@ namespace GPC.Model.Elements
     [Serializable]
     public class BeamElement : Element, ISerializable, IEquatable<BeamElement>
     {
-        public GPC.Model.PostProcessing.BeamAssignments Assignments { get; private set; } = new GPC.Model.PostProcessing.BeamAssignments();
+        public global::GPC.Model.Structure.Assignments.BeamAssignments Assignments { get; private set; } = new global::GPC.Model.Structure.Assignments.BeamAssignments();
         #region Variables
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace GPC.Model.Elements
         protected BeamElement(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Assignments = SerializationFields.Read(info, "BeamAssignments", new GPC.Model.PostProcessing.BeamAssignments());
+            Assignments = SerializationFields.Read(info, "BeamAssignments", new global::GPC.Model.Structure.Assignments.BeamAssignments());
             int version = info.GetInt32("BeamVersion");
 
             _startNode = (Point3d)info.GetValue("StartNode", typeof(Point3d));

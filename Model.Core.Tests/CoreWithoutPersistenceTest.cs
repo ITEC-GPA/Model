@@ -2,10 +2,16 @@ using GPC.Examples;
 using GPC.Model.Core;
 using GPC.Model.ElementProperties;
 using GPC.Model.Models;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Structure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
+using GPC.Model.Structure.Members;
 
 namespace Model.Core.Tests;
 

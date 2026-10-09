@@ -2,9 +2,10 @@ using GPC.Model.Results.Processing;
 using System;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Core.Coordinates;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Structure.Topology
 {
     /// <summary>Physical reference lines. All stations are normalized on the explicitly named domain.
     /// Offsets are vectors from connectivity nodes to the reference line, never translations of the nodes.</summary>

@@ -6,8 +6,11 @@ using GPC.Geometry;
 using GPC.Model.Checker.Configuration;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
 
 namespace GPC.Model.Checker
 {

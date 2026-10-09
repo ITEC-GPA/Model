@@ -1,8 +1,8 @@
 using GPC.Geometry;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Results.Processing;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Compatibility
 {
     /// <summary>Compatibility entry points. Physical transformations are implemented by ActionTransformations.</summary>
     public static class ResultTransformations

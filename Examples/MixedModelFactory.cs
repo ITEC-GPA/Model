@@ -9,14 +9,18 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Models;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Examples
 {

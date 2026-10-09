@@ -1,10 +1,10 @@
-﻿using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Results.ElementResults
+namespace GPC.Model.Results.Storage
 {
     /// <summary>
     /// The results of a node for a load case or combination, at its locations

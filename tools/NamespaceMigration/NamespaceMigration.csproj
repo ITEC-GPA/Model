@@ -5,8 +5,6 @@
     <ProjectReference Include="../../ModelData/GPCModelData.csproj" />
     <ProjectReference Include="../../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
     <Reference Include="GPCGeometry"><HintPath>../../../Geometry/GPCGeometry/bin/Release/netstandard2.0/GPCGeometry.dll</HintPath></Reference>
-    <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath></Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
     <Compile Include="../../Examples/MixedModelFactory.cs" Link="MixedModelFactory.cs" />
   </ItemGroup>
 </Project>

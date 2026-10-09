@@ -1,5 +1,5 @@
 SEZIONI PLATE E SUPERFICI FISICHE
-9 ottobre 2026 - Model 2.0.0.4 / ModelChecker 1.0.16
+9 ottobre 2026 - Model 4.0.0 / ModelChecker 2.0.0
 Branch: codex/model-architecture
 
 1. PROPRIETA' E RESPONSABILITA'
@@ -34,10 +34,10 @@ Appoggi, aperture semantiche, contorni per punzonamento e verifiche globali
 di superficie non sono ancora rappresentati da questi nuovi contratti.
 
 2. API E NAMESPACE DELLE NUOVE CLASSI
-GPC.Model.Structure
+GPC.Model.Structure.Members
   PhysicalSurfaceDefinition
   SurfaceZoneDefinition
-GPC.Model.Checking
+GPC.Model.Checking.Preparation
   SurfaceSelection
 GPC.Model.Sections.Concrete
   ReinforcedConcretePlateSection
@@ -47,12 +47,12 @@ GPC.Model.Models.Model
   PhysicalSurfaces, ValidatePhysicalSurfaces, SurfaceForElement,
   AssignSurfaceSection
 
-ElementSelection e diversi contratti storici restano temporaneamente in
-GPC.Model.PostProcessing; non e' la destinazione architetturale finale.
+ElementSelection e' in GPC.Model.Checking.Preparation; specifiche e report
+sono in Checking.Contracts e Checking.Reports. Mappa: MIGRAZIONE_MODEL_4.txt.
 
 3. ESEMPIO DI EDITING
 using GPC.Model.Models;
-using GPC.Model.Structure;
+using GPC.Model.Structure.Members;
 
 // model: documento corrente; section: PlateProperty completa e validata.
 using (var edit = new ModelEditSession(model))

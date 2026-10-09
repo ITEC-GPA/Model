@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,13 @@ using GPC.Model.Elements;
 using GPC.Model.ElementProperties;
 using GPC.Model.Core;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Preparation
 {
     public enum ShellInputAxes { Element, Reinforcement, Explicit }
     public sealed class ShellCheckInput
@@ -59,7 +64,7 @@ namespace GPC.Model.PostProcessing
         private static ShellInputPreparation PrepareCore(Models.Model model, int shellId, PointResultPlateForces sample, GPC.Geometry.CoordinateSystem axes, string settings, bool reinforcementRequired)
         {
             var shell = model.AreaElements[shellId]; var status = DataStatus.Insufficient;
-            var errors = Checking.ValidationReadScope.Errors(model).ToList();
+            var errors = global::GPC.Model.Checking.Preparation.ValidationReadScope.Errors(model).ToList();
             var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
             if (compatibility != null) { errors.Add(compatibility); status = compatibilityStatus; }
             var state = sample?.State;

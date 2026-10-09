@@ -1,9 +1,9 @@
 using GPC.Examples;
 using GPC.Model.Checker;
 using GPC.Model.Checker.Configuration;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
 
 namespace ModelChecker.Tests;
 [TestClass]

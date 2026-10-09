@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading;
 using GPC.Checkers.Concrete.Serviceability;
 using GPC.Checkers.Concrete.Analysis;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Model.Checker
 {

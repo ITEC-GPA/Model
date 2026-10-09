@@ -1,8 +1,9 @@
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.Results.State;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// A result (values of a <see cref="ResultType"/>) of a load case or combination at a location of an element
@@ -20,7 +21,7 @@ namespace GPC.Model.Results.ResultLocations
         /// The load case or combination
         /// </summary>
         protected ILoadCase _case;
-        public GPC.Model.PostProcessing.ResultState State { get; set; }
+        public global::GPC.Model.Results.State.ResultState State { get; set; }
 
         #endregion
 
@@ -63,7 +64,7 @@ namespace GPC.Model.Results.ResultLocations
             : base(info, context)
         {
             _resultTypes = (ResultType)info.GetValue("ResultType", typeof(ResultType));
-            State = SerializationFields.Read<GPC.Model.PostProcessing.ResultState>(info, "State");
+            State = SerializationFields.Read<global::GPC.Model.Results.State.ResultState>(info, "State");
             _case = (ILoadCase)info.GetValue("ILoadCase", typeof(ILoadCase));
         }
 
@@ -120,7 +121,7 @@ namespace GPC.Model.Results.ResultLocations
             }
         }
 
-        private static bool SameState(PostProcessing.ResultState left, PostProcessing.ResultState right)
+        private static bool SameState(global::GPC.Model.Results.State.ResultState left, global::GPC.Model.Results.State.ResultState right)
         {
             if (ReferenceEquals(left, right)) return true;
             if (left == null || right == null) return false;

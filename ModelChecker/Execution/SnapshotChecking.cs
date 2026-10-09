@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using GPC.Model.Checking;
+using GPC.Model.Checking.Scenarios;
 
 namespace GPC.Model.Checker
 {

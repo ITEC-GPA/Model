@@ -1,6 +1,6 @@
-﻿using GPC.Model.LoadCases;
+using GPC.Model.LoadCases;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// A result of a node

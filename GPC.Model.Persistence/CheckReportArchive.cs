@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Reports;
 
 namespace GPC.Model.Persistence
 {
@@ -17,7 +17,7 @@ namespace GPC.Model.Persistence
             Validate(rows);
             using (var memory = new MemoryStream())
             {
-                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
+                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
                 {
                     writer.WriteStartElement("GpcCheckReports"); writer.WriteAttributeString("version", RequiresVersion5(rows) ? "5" : RequiresVersion4(rows) ? "4" : RequiresVersion3(rows) ? "3" : RequiresVersion2(rows) ? "2" : "1");
                     ModelArchive.Serializer(typeof(CheckReport[])).WriteObject(writer, rows); writer.WriteEndElement();
@@ -43,10 +43,10 @@ namespace GPC.Model.Persistence
                 return Array.AsReadOnly(reports);
             }
         }
-        internal static bool RequiresVersion2(IEnumerable<CheckReport> reports) => Checking.ReportSchema.RequiresVersion2(reports);
-        internal static bool RequiresVersion3(IEnumerable<CheckReport> reports) => Checking.ReportSchema.RequiresVersion3(reports);
-        internal static bool RequiresVersion4(IEnumerable<CheckReport> reports) => Checking.ReportSchema.RequiresVersion4(reports);
-        internal static bool RequiresVersion5(IEnumerable<CheckReport> reports) => Checking.ReportSchema.RequiresVersion5(reports);
-        internal static void Validate(CheckReport[] reports) => Checking.ReportSchema.Validate(reports);
+        internal static bool RequiresVersion2(IEnumerable<CheckReport> reports) => global::GPC.Model.Checking.Reports.ReportSchema.RequiresVersion2(reports);
+        internal static bool RequiresVersion3(IEnumerable<CheckReport> reports) => global::GPC.Model.Checking.Reports.ReportSchema.RequiresVersion3(reports);
+        internal static bool RequiresVersion4(IEnumerable<CheckReport> reports) => global::GPC.Model.Checking.Reports.ReportSchema.RequiresVersion4(reports);
+        internal static bool RequiresVersion5(IEnumerable<CheckReport> reports) => global::GPC.Model.Checking.Reports.ReportSchema.RequiresVersion5(reports);
+        internal static void Validate(CheckReport[] reports) => global::GPC.Model.Checking.Reports.ReportSchema.Validate(reports);
     }
 }

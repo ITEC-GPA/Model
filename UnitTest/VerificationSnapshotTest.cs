@@ -1,8 +1,12 @@
 using GPC.Examples;
 using GPC.Model.Checking;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
 
 namespace UnitTest;
 

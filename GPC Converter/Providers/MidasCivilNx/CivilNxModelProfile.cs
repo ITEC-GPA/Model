@@ -7,7 +7,11 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter.CivilNx
 {

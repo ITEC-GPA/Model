@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
@@ -6,12 +7,16 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Topology;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Preparation
 {
     /// <summary>Concrete section input validation, independent of engine creation and execution.</summary>
     public static class BeamCheckPreparation

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Restrains
+namespace GPC.Model.Restraints
 {
     /// <summary>
     /// Restrains of the degrees of freedom of a geometry (node, line), in a coordinate system

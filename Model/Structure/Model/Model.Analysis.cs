@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Checking.Scenarios;
 
 namespace GPC.Model.Models
 {

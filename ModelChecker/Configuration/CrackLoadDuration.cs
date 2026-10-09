@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Checkers.Concrete.SectionSolvers;
-using GPC.Model.PostProcessing;
 using GPC.Model.Standards;
 
 namespace GPC.Model.Checker

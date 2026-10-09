@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Constraints;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.Models
 {
@@ -66,12 +71,12 @@ namespace GPC.Model.Models
             NodesElements.RemoveById(nodeId);
         }
 
-        private static IEnumerable<NodeElement> ConstraintNodes(Costrains.Costrain constraint)
+        private static IEnumerable<NodeElement> ConstraintNodes(global::GPC.Model.Constraints.Costrain constraint)
         {
             yield return constraint.StartNode;
             foreach (var node in constraint.EndNodes ?? new NodeElement[0]) yield return node;
-            foreach (var link in constraint.Links ?? new Costrains.MultiPointsCostrain[0])
-                foreach (var term in link.Equations ?? new Costrains.MultiPointsCostrain.Equation[0]) yield return term.NodeSlave;
+            foreach (var link in constraint.Links ?? new global::GPC.Model.Constraints.MultiPointsCostrain[0])
+                foreach (var term in link.Equations ?? new global::GPC.Model.Constraints.MultiPointsCostrain.Equation[0]) yield return term.NodeSlave;
         }
 
         public IReadOnlyList<ModelDiagnostic> ValidateTopology()

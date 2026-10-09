@@ -3,21 +3,27 @@ using GPC.Geometry.Meshes;
 using GPC.Model.Attributes;
 using GPC.Model.Collections;
 using GPC.Model.Combinations;
-using GPC.Model.Costrains;
+using GPC.Model.Constraints;
 using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
 using GPC.Model.FreedomCases;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
-using GPC.Model.Restrains;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Restraints;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections;
 using GPC.Model.Stages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Models
 {
@@ -28,9 +34,9 @@ namespace GPC.Model.Models
     [Serializable]
     public partial class Model : ModelObject, ISerializable
     {
-        public Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset> Datasets { get; private set; } = new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>();
-        public GPC.Model.PostProcessing.AnalysisSource AnalysisSource { get; set; }
-        public Dictionary<string, GPC.Model.PostProcessing.PhysicalMemberDefinition> PhysicalMembers { get; private set; } = new Dictionary<string, GPC.Model.PostProcessing.PhysicalMemberDefinition>(StringComparer.Ordinal);
+        public Dictionary<string, global::GPC.Model.Analysis.AnalysisDataset> Datasets { get; private set; } = new Dictionary<string, global::GPC.Model.Analysis.AnalysisDataset>();
+        public global::GPC.Model.Analysis.AnalysisSource AnalysisSource { get; set; }
+        public Dictionary<string, global::GPC.Model.Structure.Members.PhysicalMemberDefinition> PhysicalMembers { get; private set; } = new Dictionary<string, global::GPC.Model.Structure.Members.PhysicalMemberDefinition>(StringComparer.Ordinal);
         #region Variables
 
         /// <summary>
@@ -221,15 +227,15 @@ namespace GPC.Model.Models
         {
             int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
             if (schemaVersion < 0 || schemaVersion > 3) throw new SerializationException("Unsupported Model schema version.");
-            Analysis = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSnapshot>(info, "AnalysisSnapshot");
-            VerificationContext = SerializationFields.Read<GPC.Model.PostProcessing.VerificationProvenance>(info, "VerificationContext");
-            VerificationScenarios = SerializationFields.Read(info, "VerificationScenarios", new GPC.Model.PostProcessing.VerificationScenario[0]).ToDictionary(s => s.Id, StringComparer.Ordinal);
-            Datasets = SerializationFields.Read(info, "Datasets", new Dictionary<string, GPC.Model.PostProcessing.AnalysisDataset>());
-            AnalysisSource = SerializationFields.Read<GPC.Model.PostProcessing.AnalysisSource>(info, "AnalysisSource");
-            CheckReports = SerializationFields.Read(info, "CheckReports", new GPC.Model.PostProcessing.CheckReport[0]).ToList();
-            PhysicalSurfaces = SerializationFields.Read(info,"PhysicalSurfaces",Array.Empty<GPC.Model.Structure.PhysicalSurfaceDefinition>()).ToDictionary(s=>s.Id,StringComparer.Ordinal);
-            PhysicalMembers = SerializationFields.Read(info, "PhysicalMembers", new GPC.Model.PostProcessing.PhysicalMemberDefinition[0]).ToDictionary(m => m.Id, StringComparer.Ordinal);
-            PreservedSourceData = SerializationFields.Read(info, "PreservedSourceData", new GPC.Model.PostProcessing.PreservedAssignment[0]).ToList();
+            Analysis = SerializationFields.Read<global::GPC.Model.Analysis.AnalysisSnapshot>(info, "AnalysisSnapshot");
+            VerificationContext = SerializationFields.Read<global::GPC.Model.Checking.Contracts.VerificationProvenance>(info, "VerificationContext");
+            VerificationScenarios = SerializationFields.Read(info, "VerificationScenarios", new global::GPC.Model.Checking.Scenarios.VerificationScenario[0]).ToDictionary(s => s.Id, StringComparer.Ordinal);
+            Datasets = SerializationFields.Read(info, "Datasets", new Dictionary<string, global::GPC.Model.Analysis.AnalysisDataset>());
+            AnalysisSource = SerializationFields.Read<global::GPC.Model.Analysis.AnalysisSource>(info, "AnalysisSource");
+            CheckReports = SerializationFields.Read(info, "CheckReports", new global::GPC.Model.Checking.Reports.CheckReport[0]).ToList();
+            PhysicalSurfaces = SerializationFields.Read(info,"PhysicalSurfaces",Array.Empty<global::GPC.Model.Structure.Members.PhysicalSurfaceDefinition>()).ToDictionary(s=>s.Id,StringComparer.Ordinal);
+            PhysicalMembers = SerializationFields.Read(info, "PhysicalMembers", new global::GPC.Model.Structure.Members.PhysicalMemberDefinition[0]).ToDictionary(m => m.Id, StringComparer.Ordinal);
+            PreservedSourceData = SerializationFields.Read(info, "PreservedSourceData", new global::GPC.Model.Structure.Assignments.PreservedAssignment[0]).ToList();
             _nodesElements = (SortedCollection<NodeElement>)info.GetValue("Nodes", typeof(SortedCollection<NodeElement>));
             _beamElements = (SortedCollection<BeamElement>)info.GetValue("Beams", typeof(SortedCollection<BeamElement>));
             _areaElements = (SortedCollection<AreaElement>)info.GetValue("Areas", typeof(SortedCollection<AreaElement>));

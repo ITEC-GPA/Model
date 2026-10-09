@@ -7,9 +7,12 @@ using GPC.Model.Elements;
 using GPC.Model.Loads;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
 
 namespace UnitTest;
 

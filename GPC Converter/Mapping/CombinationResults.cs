@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using GPC.Model.Combinations;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Processing;
 
 namespace GPC.Converter
 {

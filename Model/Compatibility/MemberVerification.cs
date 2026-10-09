@@ -1,10 +1,13 @@
 using System.Threading;
-namespace GPC.Model.PostProcessing
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Execution;
+using GPC.Model.Checking.Preparation;
+namespace GPC.Model.Compatibility
 {
     /// <summary>Compatibility facade over the member execution service.</summary>
     public static class MemberVerification
     {
         public static CheckResult Run(BeamCheckPlan plan, CheckWorkItem item, IPhysicalMemberVerifier verifier, CancellationToken token = default(CancellationToken))
-            => Checking.MemberCheckExecution.Run(plan, item, verifier, token);
+            => global::GPC.Model.Checking.Execution.MemberCheckExecution.Run(plan, item, verifier, token);
     }
 }

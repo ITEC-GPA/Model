@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,10 +7,16 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Core.Units;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.State;
 
 namespace GPC.Converter
 {

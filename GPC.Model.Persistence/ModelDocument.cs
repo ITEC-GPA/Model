@@ -7,7 +7,14 @@ using GPC.Model.Collections;
 using GPC.Model.Attributes;
 using GPC.Model.Elements;
 using GPC.Model.ElementProperties;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Compatibility;
+using GPC.Model.Constraints;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Persistence
 {
@@ -23,7 +30,7 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 5, IsRequired = true)] internal SortedCollection<BeamElement> Beams;
         [DataMember(Order = 6, IsRequired = true)] internal SortedCollection<AreaElement> Plates;
         [DataMember(Order = 7, IsRequired = true)] internal SortedCollection<VolumeElement> Solids;
-        [DataMember(Order = 8, IsRequired = true)] internal UniqueIdCollection<Costrains.Costrain> Constraints;
+        [DataMember(Order = 8, IsRequired = true)] internal UniqueIdCollection<global::GPC.Model.Constraints.Costrain> Constraints;
         [DataMember(Order = 9, IsRequired = true)] internal UniqueNameCollection<BeamProperty> BeamProperties;
         [DataMember(Order = 10, IsRequired = true)] internal UniqueNameCollection<PlateProperty> PlateProperties;
         [DataMember(Order = 11, IsRequired = true)] internal UniqueNameCollection<BrickProperty> SolidProperties;

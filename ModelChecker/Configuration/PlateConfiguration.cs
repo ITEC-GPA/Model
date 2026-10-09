@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
 
 namespace GPC.Model.Checker.Configuration
 {

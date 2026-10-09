@@ -1,8 +1,10 @@
 using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.State;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// The forces of a node (e.g. reactions)
@@ -24,10 +26,10 @@ namespace GPC.Model.Results.ResultLocations
         public double Mx => ResultBeamForces.M1;
         public double My => ResultBeamForces.M2;
         public double Mz => ResultBeamForces.T;
-        public PostProcessing.NodalForceKind Kind { get; set; }
-        public PostProcessing.ActionBody Body { get; set; }
+        public global::GPC.Model.Results.State.NodalForceKind Kind { get; set; }
+        public global::GPC.Model.Results.State.ActionBody Body { get; set; }
         public int? OwnerElementId { get; set; }
-        public PostProcessing.EntityFamily? OwnerElementFamily { get; set; }
+        public global::GPC.Model.Core.Identity.EntityFamily? OwnerElementFamily { get; set; }
         public string ElementEnd { get; set; }
         public string AggregationSet { get; set; }
 
@@ -56,10 +58,10 @@ namespace GPC.Model.Results.ResultLocations
         protected NodeResultForces(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Kind = SerializationFields.Read<PostProcessing.NodalForceKind>(info, "Kind");
-            Body = SerializationFields.Read<PostProcessing.ActionBody>(info, "Body");
+            Kind = SerializationFields.Read<global::GPC.Model.Results.State.NodalForceKind>(info, "Kind");
+            Body = SerializationFields.Read<global::GPC.Model.Results.State.ActionBody>(info, "Body");
             OwnerElementId = SerializationFields.Read<int?>(info, "OwnerElementId");
-            OwnerElementFamily = SerializationFields.Read<PostProcessing.EntityFamily?>(info, "OwnerElementFamily");
+            OwnerElementFamily = SerializationFields.Read<global::GPC.Model.Core.Identity.EntityFamily?>(info, "OwnerElementFamily");
             ElementEnd = SerializationFields.Read<string>(info, "ElementEnd");
             AggregationSet = SerializationFields.Read<string>(info, "AggregationSet");
         }

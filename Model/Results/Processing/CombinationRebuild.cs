@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
@@ -8,10 +9,15 @@ using GPC.Geometry;
 using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Topology;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     /// <summary>One linear combination of static load cases: the only alternative of a linear combination, or one alternative of an envelope.</summary>
     public sealed class CombinationAlternative

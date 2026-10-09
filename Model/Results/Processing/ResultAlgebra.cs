@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using GPC.Model.Results.Processing;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,17 @@ using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Core;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
-using GPC.Model.Results.ElementResults;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Topology;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     public sealed class DerivedResult
     {

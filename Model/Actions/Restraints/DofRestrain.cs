@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Restrains
+namespace GPC.Model.Restraints
 {
     /// <summary>
     /// External restrain or stiffness applied to a Dof

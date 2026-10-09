@@ -1,10 +1,10 @@
-﻿using GPC.Geometry;
+using GPC.Geometry;
 using GPC.Model.Elements;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Restrains
+namespace GPC.Model.Restraints
 {
     /// <summary>
     /// Restrains of the degrees of freedom along a line

@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
-
-using GPC.Model.PostProcessing;
+using GPC.Model.Results.Locations;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Results.State;
 
 namespace GPC.Model.Results.Processing
 {

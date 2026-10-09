@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -9,6 +10,12 @@ Directory.CreateDirectory(baseline);
 var context = new AssemblyLoadContext("api-inspection", true);
 context.Resolving += (_, name) => File.Exists(Path.Combine(directory, name.Name + ".dll"))
     ? context.LoadFromAssemblyPath(Path.Combine(directory, name.Name + ".dll")) : null;
+var renameFile = Path.Combine(baseline, "type-renames.tsv");
+var renames = File.Exists(renameFile) ? File.ReadAllLines(renameFile).Where(l => l.Length > 0 && !l.StartsWith('#'))
+    .Select(l => l.Split('\t')).ToDictionary(p => p[0], p => p.Length == 2 && p[0] != p[1] ? p[1] : throw new InvalidOperationException("Invalid type rename."), StringComparer.Ordinal)
+    : new Dictionary<string,string>(StringComparer.Ordinal);
+var renamePattern = renames.Count == 0 ? null : new Regex("(?:" + string.Join("|", renames.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape)) + @")(?=[+\[<>,| )&*]|$)");
+string ApplyRenames(string line) => renamePattern == null ? line : renamePattern.Replace(line, m => renames[m.Value]);
 int failures = 0;
 foreach (var name in args.Skip(3))
 {
@@ -18,7 +25,7 @@ foreach (var name in args.Skip(3))
     if (args[0] == "capture") { File.WriteAllLines(file, lines); Console.WriteLine($"{name}: captured {lines.Length} signatures"); continue; }
     var allowedFile = Path.Combine(baseline, name + ".removed-types.txt");
     var allowed = File.Exists(allowedFile) ? File.ReadAllLines(allowedFile).Where(l => l.Length > 0 && !l.StartsWith('#')).ToHashSet(StringComparer.Ordinal) : new();
-    var removed = File.ReadAllLines(file).Except(lines, StringComparer.Ordinal).ToArray();
+    var removed = File.ReadAllLines(file).Select(ApplyRenames).Except(lines, StringComparer.Ordinal).ToArray();
     var unexpected = removed.Where(l => !allowed.Contains(l.Split('|')[1])).ToArray();
     foreach (var line in unexpected) Console.Error.WriteLine("Unexpected removal: " + line);
     foreach (var type in allowed.Where(t => !removed.Any(l => l.Split('|')[1] == t))) { Console.Error.WriteLine("Unused removal allowance: " + type); failures++; }

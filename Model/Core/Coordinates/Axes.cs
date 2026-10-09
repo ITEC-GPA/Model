@@ -1,7 +1,7 @@
 using System;
 using GPC.Geometry;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Core.Coordinates
 {
     public static class Axes
     {

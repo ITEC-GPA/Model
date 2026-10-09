@@ -11,7 +11,7 @@ namespace GPC.Model.Persistence
     public static class ModelArchive
     {
         public static IReadOnlyCollection<Type> DataContracts => Core.ModelValues.DataContracts;
-        internal static DataContractSerializer Serializer(Type type) => Core.ModelValues.Serializer(type);
+        internal static Core.DomainXmlSerializer Serializer(Type type) => Core.ModelValues.Serializer(type);
         public static T CopyValue<T>(T value) where T : class => Core.ModelValues.CopyValue(value);
         public static Models.Model Copy(Models.Model model) => Core.ModelValues.Copy(model);
 
@@ -22,7 +22,7 @@ namespace GPC.Model.Persistence
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             using (var memory = new MemoryStream())
             {
-                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
+                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
                 {
                     writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", "4");
                     Serializer(typeof(ModelDocument)).WriteObject(writer, ModelDocument.Capture(model)); writer.WriteEndElement();
@@ -40,7 +40,7 @@ namespace GPC.Model.Persistence
             // Build the archive before touching the caller's destination on serialization errors.
             using (var memory = new MemoryStream())
             {
-                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { Indent = true, CloseOutput = false }))
+                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
                 {
                     writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)
                         ? "3" : model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports) ? "2" : "1");

@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,10 +9,10 @@ using System.Xml;
 using GPC.Model.ElementProperties;
 using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Diagnostics;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Analysis
 {
     public sealed class AnalysisCompatibilityResult
     {
@@ -25,7 +26,7 @@ namespace GPC.Model.PostProcessing
     {
         // Low-level legacy section preparation remains usable without a Model analysis record.
         // ModelChecker always requires the strict Validate gate, including for legacy models.
-        internal static bool KnownAnalysisIsCompatible(Models.Model model) => Checking.ValidationReadScope.Read(model, "known-analysis", () => model.Analysis == null
+        internal static bool KnownAnalysisIsCompatible(Models.Model model) => global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "known-analysis", () => model.Analysis == null
             || Validate(model).Status == AnalysisCompatibility.Compatible && (model.VerificationContext == null || model.VerificationContext.IsCurrent(model)));
         internal static ModelDiagnostic KnownAnalysisDiagnostic(Models.Model model, out DataStatus status)
         {
@@ -38,7 +39,7 @@ namespace GPC.Model.PostProcessing
         public static AnalysisCompatibilityResult Validate(Models.Model model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
-            try { return Checking.ValidationReadScope.Read(model, "analysis-compatibility", () => ValidateInputs(model)); }
+            try { return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "analysis-compatibility", () => ValidateInputs(model)); }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
             { return Unknown("InvalidAnalysisInputs", ex.Message); }
         }

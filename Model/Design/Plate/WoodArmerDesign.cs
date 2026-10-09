@@ -1,6 +1,6 @@
 using System;
-using GPC.Model.Results.ResultLocations;
-using GPC.Model.PostProcessing;
+using GPC.Model.Results.Locations;
+using GPC.Model.Compatibility;
 
 namespace GPC.Model.Design.Plate
 {

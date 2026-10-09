@@ -3,9 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Queries;
 
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Execution
 {
     public static class BeamCheckExecution
     {

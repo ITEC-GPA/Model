@@ -2,11 +2,12 @@ using GPC.Geometry;
 using GPC.Model.Attributes;
 using GPC.Model.Collections;
 using GPC.Model.Loads;
-using GPC.Model.Results.ElementResults;
+using GPC.Model.Results.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using GPC.Model.Core.Identity;
 
 namespace GPC.Model.Elements
 {
@@ -20,7 +21,7 @@ namespace GPC.Model.Elements
         /// The local coordinate system
         /// </summary>
         protected CoordinateSystem _coordinateSystem;
-        public GPC.Model.PostProcessing.SourceIdentity Source { get; set; }
+        public global::GPC.Model.Core.Identity.SourceIdentity Source { get; set; }
         /// <summary>
         /// The groups of the element, by name
         /// </summary>
@@ -105,7 +106,7 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Source = SerializationFields.Read<GPC.Model.PostProcessing.SourceIdentity>(info, "Source");
+            Source = SerializationFields.Read<global::GPC.Model.Core.Identity.SourceIdentity>(info, "Source");
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));
             _attributes = SerializationFields.Read(info, "Attributes", new UniqueIdCollection<Attributes.Attribute>());

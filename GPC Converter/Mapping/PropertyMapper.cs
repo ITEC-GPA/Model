@@ -9,10 +9,10 @@ using GPC.Model.Data.Sections;
 using GPC.Model.Data.Steel;
 using GPC.Model.ElementProperties;
 using GPC.Model.Materials;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Steel;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Converter
 {

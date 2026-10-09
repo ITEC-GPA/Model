@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using GPC.Model.PostProcessing;
 using GPC.Model.Standards;
 using GPC.Checkers.CompositeBridge;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Results.Locations;
 
 namespace GPC.Model.Checker.Configuration
 {

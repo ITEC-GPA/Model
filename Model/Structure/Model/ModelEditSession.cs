@@ -1,10 +1,14 @@
+using GPC.Model.Structure.Assignments;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
+using GPC.Model.Analysis;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Models
 {

@@ -1,8 +1,11 @@
 using GPC.Examples;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Core.Diagnostics;
 
 namespace UnitTest;
 

@@ -2,15 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
 using GPC.Model.Core;
+using GPC.Model.Checking.Preparation;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Models
 {
     public static class ModelRevisions
     {
         /// <summary>Evaluated on demand. Observes legacy mutable points, properties, attributes, loads and collections.</summary>
         public static string AnalysisFingerprint(this Models.Model model)
         {
-            return Checking.ValidationReadScope.Read(model, "analysis", () => {
+            return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "analysis", () => {
                 var canonical = ModelValues.Fingerprint(AnalysisInputs(model, true));
                 return model.Analysis == null ? canonical : model.Analysis.OriginalIdentityFor(canonical);
             });
@@ -93,7 +94,7 @@ namespace GPC.Model.PostProcessing
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {
-            return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelValues.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
+            return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelValues.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
                 .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))
                 .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Standards;
+using GPC.Model.Checking.Contracts;
 
 namespace GPC.Model.Checker.Configuration
 {

@@ -5,8 +5,9 @@ using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using GPC.Model.Results;
 using GPC.Model.Results.Processing;
+using GPC.Model.Core.Coordinates;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Reports
 {
     /// <summary>Canonical shell evidence: membrane/shear N/mm, moments Nmm/mm, coordinates mm.</summary>
     [Serializable]
@@ -50,7 +51,7 @@ namespace GPC.Model.PostProcessing
             _values = (double[])info.GetValue("Values", typeof(double[])); _axes = (CoordinateSystem)info.GetValue("Axes", typeof(CoordinateSystem));
             if (_values == null || _values.Length != 8) throw new SerializationException("InvalidShellEvidence");
             foreach (var value in _values) NumericGuard.Finite(value, "shell action");
-            PostProcessing.Axes.Validate(_axes);
+            global::GPC.Model.Core.Coordinates.Axes.Validate(_axes);
         }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {

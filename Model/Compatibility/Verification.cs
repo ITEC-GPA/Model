@@ -4,9 +4,13 @@ using GPC.Geometry;
 using GPC.Model.Checking;
 using GPC.Model.Elements;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Execution;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Results.Queries;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Compatibility
 {
     /// <summary>Compatibility facade over result queries, input preparation and verifier execution.</summary>
     public static class Verification

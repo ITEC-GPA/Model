@@ -5,10 +5,9 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
-
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Coordinates;
 
 namespace GPC.Model.Design.Plate
 {

@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using System.Threading;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Execution
 {
     public static class MemberCheckExecution
     {

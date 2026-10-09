@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using GPC.Model.Elements;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Core.Identity
 {
     public enum EntityFamily { Node, Beam, Shell, Solid, Link }
 }

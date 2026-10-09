@@ -182,3 +182,48 @@ Aggiunto un punto esplicito per le identita' CLR storiche nei fingerprint,
 necessario anche per enum, array e tipi generici dopo la rinomina.
 Nessuna API rinominata in questa fase. Nove test mirati su persistenza e
 contratti PASS prima della migrazione; nessuna formula o fixture numerica toccata.
+
+Namespace - fase B: Model 4 e consumer
+Mappa applicata a 184 tipi di primo livello (181 identita' pubbliche comprese
+le annidate); nessun tipo pubblico rimane nei namespace PostProcessing,
+Costrains/Restrains o Results.ElementResults/ResultLocations. Contratti,
+preparazione, scenari e report seguono i moduli Checking; superfici e membri
+sono in Structure.Members. RootNamespace ModelData allineato conservando
+nomi delle risorse CSV. MIGRAZIONE_MODEL_4.txt e' la guida corrente.
+
+I nomi persistiti sono disaccoppiati dai CLR: DataContract espliciti per i
+tipi serializzati per campi; adattatore streaming per ISerializable/enum e
+contenitori con nomi generati dal serializer. Lo stesso codec serve snapshot
+in memoria e Persistence, senza introdurre una dipendenza I/O nel dominio.
+Nessuna sostituzione testuale dentro dati, nessun albero XML aggiuntivo.
+Le fixture Model 3 della fase A e quelle numeriche precedenti sono immutate.
+Aggiunte regressioni su 634 contratti, analisi/scenari/superfici, fingerprint
+con enum e generici, testo opaco, whitespace, prefissi XML preesistenti e
+assenza dei vecchi namespace pubblici.
+
+Versioni: Model 4.0.0.0; Persistence/ModelChecker/Converter 2.0.0;
+ModelData 0.0.2.4; Concrete 0.0.23.0; Steel 2.0.0.0.
+Consumer Checker: commit e78b7818. Solo assi Concrete e tipi risultato Steel,
+nessuna formula cambiata. Aggiornati hash e provenienza del bundle fissato.
+Anthea e il suo bundle non sono stati modificati: migrazione da effettuare
+come task applicativa separata con i relativi test WPF.
+
+Collaudo: 3 core, 996 Model/Converter (+2 Straus saltati per fixture esterne),
+155 ModelChecker, 50 Concrete Calculation, 254 CompositeBridge PASS.
+Steel nativo: 77 PASS e gli stessi 17 FAIL della baseline delle 13:18;
+confrontati anche i nomi dei test. Build Test.Concrete .NET Framework riuscita
+con avviso GMsh AMD64/MSIL gia' presente. Esempio MixedModel senza checker
+riapre l'archivio conservando alias e identita' di analisi.
+API: 6262 firme Model (26 rimozioni storiche pianificate), 530 ModelChecker,
+2016 Concrete, 13 Persistence: nessuna rimozione inattesa dopo l'applicazione
+delle rinomine dichiarate, baseline non rigenerate. Un probe negativo conferma
+che una firma mancante su un tipo rinominato continua a far fallire il controllo.
+
+Coda: completamento cls (punto 3), confronto sui metodi resistenti plate
+(punto 6), ulteriori converter (punto 7). La migrazione dei namespace e
+l'estrazione Persistence sono completate; non iniziare formule plate senza
+la discussione richiesta dall'utente.
+
+Verify.ps1 finale completato: tutti i controlli sopra PASS. Le mappe XML
+sono inizializzate nel costruttore statico per non dipendere dall'ordine
+dei file partial; regressioni mirate su namespace/persistenza riconfermate.

@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.Checking.Contracts;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Reports
 {
     /// <summary>Readable, immutable specification of a shell task, independent of runtime checker types.</summary>
     [Serializable]

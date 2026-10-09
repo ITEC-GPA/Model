@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
 
 namespace GPC.Model.Checker
 {

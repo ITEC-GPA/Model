@@ -1,9 +1,11 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using GPC.Model.Checking;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results.Processing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
 
 namespace UnitTest;
 
@@ -32,7 +34,7 @@ public class ArchitectureBoundaryTest
     {
         Assert.IsTrue(Calls(typeof(Verification).GetMethod("PrepareBeam")!).Any(m => m.DeclaringType == typeof(BeamCheckPreparation)));
         Assert.IsTrue(Calls(typeof(ResultTransformations).GetMethod("RotateBeam")!).Any(m => m.DeclaringType == typeof(ActionTransformations)));
-        Assert.AreEqual("GPC.Model.PostProcessing.CheckResult", typeof(CheckResult).FullName);
+        Assert.AreEqual("GPC.Model.Checking.Contracts.CheckResult", typeof(CheckResult).FullName);
         Assert.AreEqual(typeof(GPC.Model.Models.Model).Assembly, typeof(CheckResult).Assembly);
     }
 

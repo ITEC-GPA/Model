@@ -5,8 +5,10 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.ElementProperties;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Results.Processing;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Models
 {
@@ -48,11 +50,11 @@ namespace GPC.Model.Models
             foreach(var element in elements)
             {
                 var frame=sectionAxes ?? element.Assignments.LayerAxes ?? element.CoordinateSystem;
-                PostProcessing.Axes.Validate(frame); PostProcessing.Axes.Validate(element.CoordinateSystem);
-                if(Math.Abs(PostProcessing.Axes.Dot(frame.V3,element.CoordinateSystem.V3))<1-1e-8)
+                global::GPC.Model.Core.Coordinates.Axes.Validate(frame); global::GPC.Model.Core.Coordinates.Axes.Validate(element.CoordinateSystem);
+                if(Math.Abs(global::GPC.Model.Core.Coordinates.Axes.Dot(frame.V3,element.CoordinateSystem.V3))<1-1e-8)
                     throw new ArgumentException("SurfaceSectionAxesNotInPlatePlane");
                 // Origins locate the same reference plane; physical offset remains an explicit element assignment.
-                if(Math.Abs(PostProcessing.Axes.Dot(frame.Origin-element.CoordinateSystem.Origin,element.CoordinateSystem.V3))>1e-6)
+                if(Math.Abs(global::GPC.Model.Core.Coordinates.Axes.Dot(frame.Origin-element.CoordinateSystem.Origin,element.CoordinateSystem.V3))>1e-6)
                     throw new ArgumentException("SurfaceSectionReferencePlaneMismatch");
                 axes.Add(ActionTransformations.AtPoint(frame,frame.Origin));
             }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using GPC.Model.PostProcessing;
+using GPC.Model.Core.Diagnostics;
 
 namespace GPC.Converter.Straus7
 {

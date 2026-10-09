@@ -2,7 +2,7 @@ using GPC.Model.LoadCases;
 using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Results.ResultLocations
+namespace GPC.Model.Results.Locations
 {
     /// <summary>
     /// The displacements of a node

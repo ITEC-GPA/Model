@@ -4,8 +4,8 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.ElementProperties
 {

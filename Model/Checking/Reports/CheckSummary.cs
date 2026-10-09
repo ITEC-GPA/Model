@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Reports
 {
     internal static class CheckResultRules
     {

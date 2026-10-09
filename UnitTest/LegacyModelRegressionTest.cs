@@ -3,14 +3,14 @@ using GPC.Model.Collections;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Restrains;
+using GPC.Model.Restraints;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using GPC.Model.Structure.Assignments;
 
 #pragma warning disable SYSLIB0011
 namespace UnitTest

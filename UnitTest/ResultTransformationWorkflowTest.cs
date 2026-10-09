@@ -1,8 +1,9 @@
 using GPC.Examples;
 using GPC.Geometry;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Compatibility;
+using GPC.Model.Results.State;
 
 namespace UnitTest;
 

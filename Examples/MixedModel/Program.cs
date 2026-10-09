@@ -1,7 +1,13 @@
+using GPC.Model.Results.Queries;
+using GPC.Model.Models;
 using GPC.Examples;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Identity;
 
 if (args.Length > 0 && args[0] == "--model-only")
 {

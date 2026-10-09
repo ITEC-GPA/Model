@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System.IO.Compression;
 using System.Runtime.Serialization;
 using System.Text.Json;
@@ -5,8 +6,12 @@ using GPC.Examples;
 using GPC.Model.Core;
 using GPC.Model.ElementProperties;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Structure;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Scenarios;
+using GPC.Model.Results.Locations;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Members;
 
 if (args.Length != 2 || args[0] != "capture") throw new ArgumentException("capture <new-output-directory>; never overwrite an existing reference");
 var folder = Path.GetFullPath(args[1]);

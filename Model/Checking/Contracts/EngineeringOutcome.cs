@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using GPC.Model.Elements;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Contracts
 {
     public enum EngineeringOutcome { NotEvaluated, Satisfied, NotSatisfied }
 }

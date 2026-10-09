@@ -1,6 +1,7 @@
 using GPC.Geometry;
 using System;
 using System.Runtime.Serialization;
+using GPC.Model.Core.Coordinates;
 
 namespace GPC.Model.Results
 {
@@ -145,14 +146,14 @@ namespace GPC.Model.Results
         /// <returns>Nothing</returns>
         public ResultPlateForces ToCoordinateSystem(CoordinateSystem coordinateSystem)
         {
-            PostProcessing.Axes.Validate(CoordinateSystem);
-            PostProcessing.Axes.Validate(coordinateSystem);
+            global::GPC.Model.Core.Coordinates.Axes.Validate(CoordinateSystem);
+            global::GPC.Model.Core.Coordinates.Axes.Validate(coordinateSystem);
             // Same physical point and normal. A normal reversal requires explicit face/sign mapping.
-            if (PostProcessing.Axes.Length(CoordinateSystem.Origin - coordinateSystem.Origin) > 1e-8 ||
-                PostProcessing.Axes.Dot(CoordinateSystem.V3, coordinateSystem.V3) < 1 - 1e-10)
+            if (global::GPC.Model.Core.Coordinates.Axes.Length(CoordinateSystem.Origin - coordinateSystem.Origin) > 1e-8 ||
+                global::GPC.Model.Core.Coordinates.Axes.Dot(CoordinateSystem.V3, coordinateSystem.V3) < 1 - 1e-10)
                 throw new NotSupportedException("ShellPlaneChange: only in-plane rotation at the same point with the same normal is supported.");
-            double c = PostProcessing.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V1);
-            double s = PostProcessing.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V2);
+            double c = global::GPC.Model.Core.Coordinates.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V1);
+            double s = global::GPC.Model.Core.Coordinates.Axes.Dot(coordinateSystem.V1, CoordinateSystem.V2);
             double cc = c * c, ss = s * s, cs = c * s;
             return new ResultPlateForces(coordinateSystem,
                 cc * Fxx + ss * Fyy + 2 * cs * Fxy, ss * Fxx + cc * Fyy - 2 * cs * Fxy,

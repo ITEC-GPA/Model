@@ -1,9 +1,10 @@
 using System;
 using System.Linq;
 using GPC.Model.Elements;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.State;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     /// <summary>Physical identity of nodal actions, independent of their numerical representation.</summary>
     public static class NodalActions

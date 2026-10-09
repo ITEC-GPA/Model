@@ -1,3 +1,4 @@
+using GPC.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,9 +6,17 @@ using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
 using GPC.Model.Core;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Core.Identity;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Topology;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     /// <summary>A contribution to an explicit free body, in global N and Nmm. One physical action may have several parts
     /// (e.g. equivalent nodal loads), but only one representation may appear in a balance.</summary>

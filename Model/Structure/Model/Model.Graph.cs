@@ -1,5 +1,8 @@
 using System;
 using System.Linq;
+using GPC.Model.Analysis;
+using GPC.Model.Compatibility;
+using GPC.Model.Structure.Members;
 
 namespace GPC.Model.Models
 {
@@ -15,7 +18,7 @@ namespace GPC.Model.Models
                 _groups = data.Groups, _stages = data.Stages, ModelLoads = data.ModelLoads, Datasets = data.Datasets,
                 AnalysisSource = data.Source, PreservedSourceData = data.Preserved.ToList(),
                 PhysicalMembers = data.Members.ToDictionary(m => m.Id, StringComparer.Ordinal),
-                PhysicalSurfaces=(data.Surfaces??Array.Empty<GPC.Model.Structure.PhysicalSurfaceDefinition>()).ToDictionary(s=>s.Id,StringComparer.Ordinal),
+                PhysicalSurfaces=(data.Surfaces??Array.Empty<global::GPC.Model.Structure.Members.PhysicalSurfaceDefinition>()).ToDictionary(s=>s.Id,StringComparer.Ordinal),
                 Analysis = data.Analysis, VerificationContext = data.Verification,
                 VerificationScenarios = data.Scenarios.ToDictionary(s => s.Id, StringComparer.Ordinal), CheckReports = data.Reports.ToList() };
             model._groups.ItemRenamed += model.OnGroupRenamed;

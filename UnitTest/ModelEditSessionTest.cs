@@ -1,8 +1,10 @@
 using GPC.Examples;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Members;
 
 namespace UnitTest;
 

@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Identity;
 
 namespace GPC.Converter
 {

@@ -1,13 +1,17 @@
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Model.Checker;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
 using static ModelChecker.Tests.Step4Fixture;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Members;
 
 namespace ModelChecker.Tests;
 

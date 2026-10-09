@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
-using GPC.Model.PostProcessing;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter
 {

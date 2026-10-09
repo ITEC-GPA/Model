@@ -3,9 +3,13 @@ using GPC.Checkers.CompositeBridge.History;
 using GPC.Examples;
 using GPC.Model.Checker;
 using GPC.Model.Checker.Configuration;
-using GPC.Model.PostProcessing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Service = GPC.Model.Checker.ModelChecker;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
 
 namespace ModelChecker.Tests;
 
@@ -52,7 +56,7 @@ public class BridgeHistoryWorkflowTest
         var second = new Service().Verify(model, request);
         Assert.AreEqual(EngineeringOutcome.Satisfied, second.Outcome);
         Assert.AreNotEqual(initialStress, second.Jobs[0].Results[0].Details.Metrics[0].Demand);
-        var sample = GPC.Model.PostProcessing.ResultQueries.Samples<GPC.Model.Results.ResultLocations.StationResultBeamForces>(model.BeamElements[30], MultiMaterialWorkflow.State("SLE")).Single();
+        var sample = global::GPC.Model.Results.Queries.ResultQueries.Samples<GPC.Model.Results.Locations.StationResultBeamForces>(model.BeamElements[30], MultiMaterialWorkflow.State("SLE")).Single();
         var axes = new GPC.Geometry.CoordinateSystem(sample.ResultBeamForces.CoordinateSystem.Origin, new GPC.Geometry.Vector3d(0, 1, 0), new GPC.Geometry.Vector3d(-1, 0, 0));
         sample.ResultBeamForces = ResultOrientation.Beam(sample, axes).ResultBeamForces;
         var rotated = new Service().Verify(model, request);

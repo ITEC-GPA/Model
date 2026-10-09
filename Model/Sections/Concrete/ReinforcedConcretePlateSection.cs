@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using GPC.Model.Materials;
 using GPC.Model.ElementProperties;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.Sections.Concrete
 {

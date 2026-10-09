@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
 using GPC.Model.Core;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Analysis;
+using GPC.Model.Core.Identity;
+using GPC.Model.Results.Queries;
 
 namespace GPC.Model.Results
 {

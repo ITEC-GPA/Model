@@ -1,3 +1,8 @@
+AGGIORNAMENTO MODEL 4 - NAMESPACE
+La migrazione ora e' implementata: responsabilita' e namespace sono allineati.
+Vedere MIGRAZIONE_MODEL_4.txt e build/namespace-migration.json.
+Le versioni e i namespace nelle fotografie storiche sotto sono superati.
+
 AGGIORNAMENTO SUCCESSIVO - MODEL 3
 Persistenza ora in GPC.Model.Persistence.dll, dipendente da GPCModel.
 Copie/fingerprint in GPC.Model.Core; nessuna dipendenza inversa del dominio.

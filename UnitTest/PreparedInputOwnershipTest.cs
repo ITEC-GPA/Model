@@ -2,9 +2,13 @@ using GPC.Examples;
 using GPC.Geometry;
 using GPC.Model.Collections;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Checking.Preparation;
+using GPC.Model.Compatibility;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Structure.Members;
 
 namespace UnitTest;
 

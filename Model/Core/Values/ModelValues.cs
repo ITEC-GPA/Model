@@ -12,9 +12,15 @@ using GPC.Model.Attributes;
 using GPC.Model.ElementProperties;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
-using GPC.Model.Results.ElementResults;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Storage;
+using GPC.Model.Results.Locations;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Reports;
+using GPC.Model.Constraints;
+using GPC.Model.Restraints;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Model.Core
 {
@@ -34,23 +40,22 @@ namespace GPC.Model.Core
                 typeof(UniqueNameCollection<Group>), typeof(UniqueIdCollection<Attributes.Attribute>), typeof(UniqueIdCollection<Load>),
                 typeof(UniqueNameCollection<BeamProperty>), typeof(UniqueNameCollection<PlateProperty>), typeof(UniqueNameCollection<BrickProperty>),
                 typeof(UniqueNameCollection<LoadCaseBase>), typeof(UniqueNameCollection<FreedomCases.FreedomCase>), typeof(UniqueNameCollection<Combinations.Combination>),
-                typeof(UniqueIdCollection<Stages.Stage>), typeof(UniqueIdCollection<Costrains.Costrain>), typeof(UniqueIdCollection<ReinforcedConcreteRebar>),
-                typeof(Dictionary<int, HashSet<string>>), typeof(List<ElementResult>), typeof(List<ResultLocation>), typeof(List<Restrains.DofRestrain>),
+                typeof(UniqueIdCollection<Stages.Stage>), typeof(UniqueIdCollection<global::GPC.Model.Constraints.Costrain>), typeof(UniqueIdCollection<ReinforcedConcreteRebar>),
+                typeof(Dictionary<int, HashSet<string>>), typeof(List<ElementResult>), typeof(List<ResultLocation>), typeof(List<global::GPC.Model.Restraints.DofRestrain>),
                 typeof(object[]), typeof(double[]), typeof(int[]), typeof(string[]), typeof(NodeElement[]), typeof(KeyValuePair<int,NodeElement>[]),
                 typeof(KeyValuePair<int,BeamElement>[]), typeof(KeyValuePair<int,AreaElement>[]), typeof(KeyValuePair<int,VolumeElement>[]) };
-            return domain.Concat(domain.Where(t => t != typeof(Group) && t != typeof(Restrains.DofRestrain) && t != typeof(Combinations.Combination.LoadCaseCoefficient)).Select(t => t.MakeArrayType()))
+            return domain.Concat(domain.Where(t => t != typeof(Group) && t != typeof(global::GPC.Model.Restraints.DofRestrain) && t != typeof(Combinations.Combination.LoadCaseCoefficient)).Select(t => t.MakeArrayType()))
                 .Concat(geometry).Concat(new[] { typeof(Polygon3d[]), typeof(Shape[]), typeof(Shape2d[]), typeof(Polygon2d[]) }).Concat(collections).Concat(new[] {
                 typeof(MathNet.Numerics.LinearAlgebra.Double.DenseMatrix),
                 typeof(MathNet.Numerics.LinearAlgebra.Storage.DenseColumnMajorMatrixStorage<double>),
-                typeof(BeamDofConnection[]), typeof(List<Group>), typeof(Dictionary<string,PostProcessing.AnalysisDataset>),
-                typeof(PostProcessing.SpringMatrix[]), typeof(PostProcessing.NodalLink[]),
-                typeof(PostProcessing.ComponentAvailability[]), typeof(PostProcessing.BeamSectionAssignment[]),
+                typeof(BeamDofConnection[]), typeof(List<Group>), typeof(Dictionary<string,global::GPC.Model.Analysis.AnalysisDataset>),
+                typeof(global::GPC.Model.Structure.Assignments.SpringMatrix[]), typeof(global::GPC.Model.Structure.Assignments.NodalLink[]),
+                typeof(global::GPC.Model.Results.State.ComponentAvailability[]), typeof(global::GPC.Model.Structure.Assignments.BeamSectionAssignment[]),
                 typeof(List<Combinations.Combination.LoadCaseCoefficient>),
-                typeof(PostProcessing.PreservedAssignment[]), typeof(Point3d[])
+                typeof(global::GPC.Model.Structure.Assignments.PreservedAssignment[]), typeof(Point3d[])
             }).Distinct().ToArray();
         }
-        internal static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
-        { KnownTypes = KnownTypes, PreserveObjectReferences = true, MaxItemsInObjectGraph = 2000000 });
+        internal static DomainXmlSerializer Serializer(Type type) => new DomainXmlSerializer(type, KnownTypes);
 
         /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
         public static T CopyValue<T>(T value) where T : class
@@ -66,14 +71,14 @@ namespace GPC.Model.Core
         public static Models.Model Copy(Models.Model model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
-            Checking.ReportSchema.Validate(model.CheckReports.ToArray());
-            var copy = PostProcessing.AnalysisStorage.Read<Models.Model>(CaptureModel(model));
-            Checking.ReportSchema.Validate(copy.CheckReports.ToArray());
+            global::GPC.Model.Checking.Reports.ReportSchema.Validate(model.CheckReports.ToArray());
+            var copy = global::GPC.Model.Analysis.AnalysisStorage.Read<Models.Model>(CaptureModel(model));
+            global::GPC.Model.Checking.Reports.ReportSchema.Validate(copy.CheckReports.ToArray());
             copy.Analysis?.OpenModel();
             return copy;
         }
         // Internal snapshot bytes are not a public file format. Kept stable for existing analysis/scenario provenance.
-        internal static byte[] CaptureModel(Models.Model model) => PostProcessing.AnalysisStorage.Write(model);
+        internal static byte[] CaptureModel(Models.Model model) => global::GPC.Model.Analysis.AnalysisStorage.Write(model);
         public static string Fingerprint(IEnumerable<object> input) => InputFingerprint.Compute(input);
     }
 }

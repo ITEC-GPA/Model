@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Core.Diagnostics;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Preparation
 {
     public sealed class ShellActionPreparation
     {

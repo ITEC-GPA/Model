@@ -1,10 +1,16 @@
+using GPC.Model.Models;
 using GPC.Examples;
 using GPC.Geometry;
 using GPC.Model.Loads;
 using GPC.Model.Persistence;
-using GPC.Model.PostProcessing;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Results.Processing;
+using GPC.Model.Results.Queries;
+using GPC.Model.Results.State;
 
 namespace UnitTest;
 

@@ -1,10 +1,10 @@
-﻿using GPC.Model.Elements;
-using GPC.Model.Restrains;
+using GPC.Model.Elements;
+using GPC.Model.Restraints;
 using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
-namespace GPC.Model.Costrains
+namespace GPC.Model.Constraints
 {
     /// <summary>
     /// A multipoint constraint: a linear equation between degrees of freedom, sum(Value_k * dof_k) = const (e.g. gdl_i = f(gdl_1, ... , gdl_N) + const).
@@ -112,19 +112,23 @@ namespace GPC.Model.Costrains
         /// A term of the equation: Value * degree of freedom of a node
         /// </summary>
         [Serializable]
+        [DataContract(Name = "MultiPointsCostrain.Equation", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Costrains")]
         public struct Equation
         {
             /// <summary>
             /// The node
             /// </summary>
+            [DataMember(IsRequired = true)]
             public NodeElement NodeSlave;
             /// <summary>
             /// The degree of freedom of the node
             /// </summary>
+            [DataMember(IsRequired = true)]
             public GeometryRestrain.DOF GdlNode;
             /// <summary>
             /// The coefficient
             /// </summary>
+            [DataMember(IsRequired = true)]
             public double Value;
 
             /// <summary>

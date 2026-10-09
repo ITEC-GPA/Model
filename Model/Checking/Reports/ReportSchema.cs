@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using GPC.Model.PostProcessing;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Structure.Members;
 
-namespace GPC.Model.Checking
+namespace GPC.Model.Checking.Reports
 {
     internal static class ReportSchema
     {

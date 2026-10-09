@@ -3,9 +3,12 @@ using System;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Results;
-using GPC.Model.Results.ResultLocations;
+using GPC.Model.Results.Locations;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Results.State;
+using GPC.Model.Structure.Assignments;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Results.Processing
 {
     /// <summary>Explicit source convention conversions. Topology and source assignments remain authoritative;
     /// these methods return detached data in the requested physical frame.</summary>

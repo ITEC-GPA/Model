@@ -8,10 +8,11 @@ using System.Xml;
 using GPC.Model.ElementProperties;
 using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
+using GPC.Model.Analysis;
+using GPC.Model.Checking.Contracts;
+using GPC.Model.Checking.Scenarios;
 
-using GPC.Model.PostProcessing;
-
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Checking.Preparation
 {
     public sealed class PreparedVerification
     {

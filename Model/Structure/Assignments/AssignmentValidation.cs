@@ -6,8 +6,13 @@ using GPC.Model.Elements;
 using GPC.Model.ElementProperties;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Sections.Rebar;
+using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Loads.Assignments;
+using GPC.Model.Results.Locations;
+using GPC.Model.Structure.Topology;
 
-namespace GPC.Model.PostProcessing
+namespace GPC.Model.Structure.Assignments
 {
     public static class AssignmentValidation
     {
