@@ -173,3 +173,12 @@ Il runner finale completo e' stato ripetuto dopo l'allineamento della versione
 NuGet di Model a 3.0.0: tutti gli esiti sopra confermati. Pacchetto Persistence
 costruito solo localmente; nuspec verificato con dipendenza GPCModel 3.0.0.
 Nessuna pubblicazione NuGet o aggiornamento del bundle Anthea effettuato.
+
+Namespace - fase A: riferimento prima della migrazione
+Catturato un archivio Model 3.0.0.0 con analisi, scenario, sezioni plate e
+superfici, i fingerprint e i 634 nomi XML del vocabolario attuale. Il tool di
+cattura rifiuta directory esistenti: non rigenera le aspettative dei test.
+Aggiunto un punto esplicito per le identita' CLR storiche nei fingerprint,
+necessario anche per enum, array e tipi generici dopo la rinomina.
+Nessuna API rinominata in questa fase. Nove test mirati su persistenza e
+contratti PASS prima della migrazione; nessuna formula o fixture numerica toccata.

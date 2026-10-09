@@ -34,6 +34,7 @@
   <ItemGroup>
     <Compile Include="..\Examples\MixedModelFactory.cs" Link="Fixtures\MixedModelFactory.cs" />
     <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\Namespaces-v3\*" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
     <ProjectReference Include="..\Model\GPCModel.csproj" />
     <ProjectReference Include="..\GPC Converter\GPC Converter.csproj" />

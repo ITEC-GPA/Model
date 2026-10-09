@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net9.0": {
+      "MathNet.Numerics": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "pg1W2VwaEQMAiTpGK840hZgzavnqjlCMTVSbtVCXVyT+7AX4mc1o89SPv4TBlAjhgCOo9c1Y+jZ5m3ti2YgGgA=="
+      },
+      "gpc.model.persistence": {
+        "type": "Project",
+        "dependencies": {
+          "GPCModel": "[3.0.0, )"
+        }
+      },
+      "gpcmodel": {
+        "type": "Project",
+        "dependencies": {
+          "MathNet.Numerics": "[5.0.0, )"
+        }
+      },
+      "gpcmodeldata": {
+        "type": "Project",
+        "dependencies": {
+          "GPCModel": "[3.0.0, )"
+        }
+      }
+    }
+  }
+}

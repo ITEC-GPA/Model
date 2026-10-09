@@ -30,7 +30,7 @@ namespace GPC.Model.Core
         internal static string WireName(Type type)
         {
             if (_legacyModel == null && CanonicalNames.TryGetValue(type, out var cached)) return cached;
-            string name = Contracts.TryGetValue(type, out var contract) ? contract.WireName : type.FullName;
+            string name = Contracts.TryGetValue(type, out var contract) ? contract.WireName : HistoricalTypeNames.For(type);
             if (_legacyModel != null)
             {
                 name = Regex.Replace(name, @"GPCModel, Version=[^,\]]+", "GPCModel, Version=" + _legacyModel);
