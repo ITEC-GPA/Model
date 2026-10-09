@@ -4,7 +4,7 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
@@ -25,7 +25,7 @@ namespace GPC.Model.PostProcessing
         public string SourceRecord { get; internal set; }
         internal Func<bool> Current { get; set; }
         internal string ValueFingerprint { get; set; }
-        internal string Fingerprint() => ModelArchive.Fingerprint(new object[] { Case, State, Point, Force, Moment, SourceRecord });
+        internal string Fingerprint() => ModelValues.Fingerprint(new object[] { Case, State, Point, Force, Moment, SourceRecord });
         public bool IsCurrent => ValueFingerprint == Fingerprint() && (Current == null || Current());
     }
     public sealed class EquilibriumScope
@@ -72,7 +72,7 @@ namespace GPC.Model.PostProcessing
             if (load == null) throw new ArgumentNullException(nameof(load));
             var c = Explicit(physicalAction, representation, load.LoadCase?.Name, load.Point,
                 Global(load.CoordinateSystem, load.F1, load.F2, load.F3), Global(load.CoordinateSystem, load.M1, load.M2, load.M3), "PointLoad:" + load.Guid);
-            string hash = ModelArchive.Fingerprint(new object[] { load }); c.Current = () => hash == ModelArchive.Fingerprint(new object[] { load }); return c;
+            string hash = ModelValues.Fingerprint(new object[] { load }); c.Current = () => hash == ModelValues.Fingerprint(new object[] { load }); return c;
         }
         /// <summary>Uses reported nodal forces; never computes spring/link reactions from incomplete displacements.</summary>
         public static EquilibriumContribution NodalAction(Models.Model model, int nodeId, NodeResultForces sample, ActionBody bodyOnFreeBody,
@@ -90,10 +90,10 @@ namespace GPC.Model.PostProcessing
             var axes = sample.ResultBeamForces.CoordinateSystem;
             var c = Explicit(physicalAction, representation, sample.Case.Name, axes.Origin,
                 Global(axes, sample.Fx, sample.Fy, sample.Fz) * sign, Global(axes, sample.Mx, sample.My, sample.Mz) * sign, sample.State.SourceRecord ?? sample.State.ConcomitantStateId);
-            c.State = sample.State.Copy(); string input = model.AnalysisFingerprint(); string hash = ModelArchive.Fingerprint(new object[] { sample, model.Datasets[sample.State.DatasetId] });
+            c.State = sample.State.Copy(); string input = model.AnalysisFingerprint(); string hash = ModelValues.Fingerprint(new object[] { sample, model.Datasets[sample.State.DatasetId] });
             c.Current = () => input == model.AnalysisFingerprint() && model.NodesElements.ContainsKey(nodeId)
                 && model.NodesElements[nodeId].Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))
-                && sample.State?.DatasetId != null && model.Datasets.TryGetValue(sample.State.DatasetId, out var ds) && hash == ModelArchive.Fingerprint(new object[] { sample, ds });
+                && sample.State?.DatasetId != null && model.Datasets.TryGetValue(sample.State.DatasetId, out var ds) && hash == ModelValues.Fingerprint(new object[] { sample, ds });
             c.ValueFingerprint = c.Fingerprint(); return c;
         }
         /// <summary>Exact resultant of a point or linearly varying beam load, including eccentricity and distributed couples.</summary>
@@ -131,9 +131,9 @@ namespace GPC.Model.PostProcessing
                 var moment = (m0 + m1) * (length / 2) + eccentricity.CrossProduct(force) + delta.CrossProduct((f0 / 6 + f1 / 3) * length);
                 result = Explicit(load.OriginalAssignmentId, representation, p.LoadCase.Name, start, force, moment, load.SourceRecord ?? "BeamLoad:" + beam.Id);
             }
-            string hash = ModelArchive.Fingerprint(new object[] { beam.StartPoint, beam.EndPoint, beam.Assignments.OffsetI, beam.Assignments.OffsetJ, beam.Assignments.OffsetAxes,
+            string hash = ModelValues.Fingerprint(new object[] { beam.StartPoint, beam.EndPoint, beam.Assignments.OffsetI, beam.Assignments.OffsetJ, beam.Assignments.OffsetAxes,
                 beam.Assignments.RigidLengthI, beam.Assignments.RigidLengthJ, load });
-            result.Current = () => hash == ModelArchive.Fingerprint(new object[] { beam.StartPoint, beam.EndPoint, beam.Assignments.OffsetI, beam.Assignments.OffsetJ, beam.Assignments.OffsetAxes,
+            result.Current = () => hash == ModelValues.Fingerprint(new object[] { beam.StartPoint, beam.EndPoint, beam.Assignments.OffsetI, beam.Assignments.OffsetJ, beam.Assignments.OffsetAxes,
                 beam.Assignments.RigidLengthI, beam.Assignments.RigidLengthJ, load });
             result.ValueFingerprint = result.Fingerprint(); return result;
         }
@@ -157,7 +157,7 @@ namespace GPC.Model.PostProcessing
                 var f = globalTraction * area; force += f; moment += ((v + w) / 3).CrossProduct(f);
             }
             var c = Explicit(physicalAction, "area", caseName, points[0], force, moment, sourceRecord);
-            string hash = ModelArchive.Fingerprint(new object[] { shell.Points, globalTraction }); c.Current = () => hash == ModelArchive.Fingerprint(new object[] { shell.Points, globalTraction }); return c;
+            string hash = ModelValues.Fingerprint(new object[] { shell.Points, globalTraction }); c.Current = () => hash == ModelValues.Fingerprint(new object[] { shell.Points, globalTraction }); return c;
         }
         /// <summary>Exact resultant of a pressure varying linearly/bilinearly over its own vertices, in global N and Nmm.</summary>
         public static EquilibriumContribution PlatePressure(NonUniformPlatePressure load, string physicalAction, string representation = "applied")
@@ -165,7 +165,7 @@ namespace GPC.Model.PostProcessing
             if (load == null) throw new ArgumentNullException(nameof(load));
             var origin = new Point3d(0, 0, 0); var (force, moment) = load.GetGlobalResultant(origin);
             var c = Explicit(physicalAction, representation, load.LoadCase?.Name, origin, force, moment, "NonUniformPlatePressure:" + load.Guid);
-            string hash = ModelArchive.Fingerprint(new object[] { load }); c.Current = () => hash == ModelArchive.Fingerprint(new object[] { load });
+            string hash = ModelValues.Fingerprint(new object[] { load }); c.Current = () => hash == ModelValues.Fingerprint(new object[] { load });
             c.ValueFingerprint = c.Fingerprint(); return c;
         }
 

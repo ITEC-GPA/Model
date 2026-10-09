@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Xml;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 
 using GPC.Model.PostProcessing;

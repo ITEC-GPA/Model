@@ -7,7 +7,7 @@ using GPC.Checkers.CompositeBridge.History;
 using GPC.Model.Checker.Configuration;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
@@ -38,7 +38,7 @@ namespace GPC.Model.Checker
         public BridgeHistoryDefinition History => _history == null ? null : ConfigurationArchive.CopyData(_history);
         public string Id => _history == null ? "CompositeBridge.Section" : "CompositeBridge.HistoryLinear";
         public string Version => NativeResults.Version(typeof(HBridgeSection));
-        public string Configuration => ModelArchive.Fingerprint(_history == null
+        public string Configuration => ModelValues.Fingerprint(_history == null
             ? new object[] { Id, Code, Edition, NationalAnnex, Cases }
             : new object[] { Id, Code, Edition, NationalAnnex, Cases, _history });
         public CheckStandardContext Standard => new CheckStandardContext(Code.ToString(), Edition, NationalAnnex, Id, Configuration);
@@ -96,13 +96,13 @@ namespace GPC.Model.Checker
                     || !Close(loads.Sum(p => p.ShearKN) * 1000, input.Forces.V2)) return NativeResults.Missing("BridgeHistoryDoesNotMatchFemState");
                 if (input.Element.Assignments.Sections.Count != 0) return NativeResults.Unavailable("BridgeVariableSectionBindingNotConnected");
                 var expected = HBridgeSection.NativeSection(data);
-                if (ModelArchive.Fingerprint(new object[] { expected }) != ModelArchive.Fingerprint(new object[] { input.Property }))
+                if (ModelValues.Fingerprint(new object[] { expected }) != ModelValues.Fingerprint(new object[] { input.Property }))
                     return NativeResults.Missing("BridgeSectionDoesNotMatchModel");
                 if (mechanism == CheckMechanism.Serviceability && data.Options.LimitState == BridgeLimitState.Ultimate)
                     return NativeResults.Missing("BridgeSleCategoryRequired");
                 if (mechanism == CheckMechanism.Shear && data.Options.LimitState != BridgeLimitState.Ultimate)
                     return NativeResults.Missing("BridgeUlsCategoryRequired");
-                string fingerprint = ModelArchive.Fingerprint(new object[] { data, _owner._history });
+                string fingerprint = ModelValues.Fingerprint(new object[] { data, _owner._history });
                 if (!_analyses.TryGetValue(fingerprint, out var analysis))
                 {
                     try { analysis = _owner._history == null ? HBridgeSection.Calculate(data, token)

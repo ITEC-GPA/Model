@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using GPC.Geometry;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 
 namespace GPC.Converter.CivilNx

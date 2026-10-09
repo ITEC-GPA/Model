@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Standards;
 
@@ -99,7 +99,7 @@ namespace GPC.Model.Checker.Configuration
                     NoExtraParameters(definition);
                     if (!(context.Code is StandardModelCode2010 code) || context.BridgeCode.HasValue) throw new ArgumentException("ConcreteCodeRequired");
                     var options = definition.Concrete ?? new ConcreteVerificationOptions();
-                    if (options.Standard != null && ModelArchive.Fingerprint(new object[] { options.Standard }) != ModelArchive.Fingerprint(new object[] { code })
+                    if (options.Standard != null && ModelValues.Fingerprint(new object[] { options.Standard }) != ModelValues.Fingerprint(new object[] { code })
                         || options.StandardEdition != null && options.StandardEdition != context.Edition
                         || options.NationalAnnex != null && options.NationalAnnex != context.NationalAnnex) throw new ArgumentException("ConflictingConcreteContext");
                     options.Standard = code; options.StandardEdition = context.Edition; options.NationalAnnex = context.NationalAnnex;

@@ -6,7 +6,7 @@ using GPC.Checkers.Concrete.Cracking;
 using GPC.Checkers.Concrete.Detailing;
 using GPC.Checkers.Concrete.Durability;
 using GPC.Model.Materials;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
@@ -41,7 +41,7 @@ namespace GPC.Model.Checker
             var kind = input.MethodId == ColumnDetailingMethod ? MemberDetailingKind.Column : MemberDetailingKind.Beam;
             // Prepared cuts own independent copies; equivalent physical inputs must be checked only once.
             var sections = input.Sections.Select(s => s.Section).Where(s => s != null)
-                .GroupBy(s => ModelArchive.Fingerprint(new object[] { s }), StringComparer.Ordinal).Select(g => g.First()).ToArray();
+                .GroupBy(s => ModelValues.Fingerprint(new object[] { s }), StringComparer.Ordinal).Select(g => g.First()).ToArray();
             if (sections.Length == 0) return Unavailable(DataStatus.Insufficient, "MissingMemberSections", null);
             double compression = input.Sections.Select(s => Math.Max(0, -s.Forces.N)).DefaultIfEmpty(0).Max();
             var metrics = new List<CheckMetric>(); var trace = new List<CheckCalculationValue>

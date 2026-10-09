@@ -32,7 +32,7 @@ namespace GPC.Model.PostProcessing
         public string Transformation { get; set; }
         public string Coverage { get; set; }
         public OriginalResultData Original { get; set; }
-        /// <summary>Authoritative source samples for a derived result; retained as shared references by ModelArchive.</summary>
+        /// <summary>Authoritative source samples for a derived result; retained as shared references by ModelValues.</summary>
         [field: System.Runtime.Serialization.OptionalField] public Results.ResultLocations.ResultLocation[] DerivedFrom { get; set; }
         [field: System.Runtime.Serialization.OptionalField] public string DerivedSourceFingerprint { get; set; }
 

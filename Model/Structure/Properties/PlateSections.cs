@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
@@ -30,14 +30,14 @@ namespace GPC.Model.ElementProperties
         internal static PlateProperty CopyForChecking(AreaElement element)
         {
             ValidateStorage(element);
-            var copy=ModelArchive.CopyValue(element.PlateProperty);
+            var copy=ModelValues.CopyValue(element.PlateProperty);
             copy.PhysicalThickness=PhysicalThickness(element);
             if (!(copy is ReinforcedConcretePlateSection) && element.Assignments.Layers.Count!=0)
             {
                 var concrete=(ConcretePlateProperty)copy;
                 if (!copy.PhysicalThickness.HasValue) throw new ArgumentException("MissingPhysicalThickness");
                 copy=new ReinforcedConcretePlateSection(concrete.ConcreteMaterial,copy.PhysicalThickness.Value,
-                    concrete.BendingThickness,concrete.MembraneThickness,element.Assignments.Layers.Select(ModelArchive.CopyValue),copy.Name){Id=copy.Id};
+                    concrete.BendingThickness,concrete.MembraneThickness,element.Assignments.Layers.Select(ModelValues.CopyValue),copy.Name){Id=copy.Id};
             }
             PlateSectionValidation.ValidateProperty(copy);
             return copy;
@@ -59,7 +59,7 @@ namespace GPC.Model.ElementProperties
             if(element.PlateProperty is ReinforcedConcretePlateSection rc)
                 return new ConcretePlateProperty(rc.ConcreteMaterial,rc.BendingThickness,rc.MembraneThickness,rc.Name){Id=rc.Id};
             if(!element.PlateProperty.PhysicalThickness.HasValue) return element.PlateProperty;
-            var copy=ModelArchive.CopyValue(element.PlateProperty); copy.PhysicalThickness=null; return copy;
+            var copy=ModelValues.CopyValue(element.PlateProperty); copy.PhysicalThickness=null; return copy;
         }
     }
 }

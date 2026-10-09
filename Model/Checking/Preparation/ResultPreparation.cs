@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
@@ -28,10 +28,10 @@ namespace GPC.Model.PostProcessing
         private bool HasCurrentSamples => Status == DataStatus.Ready && LocalSample != null
             && ResultAlgebra.HasCurrentDerivation(model, owner, source.State)
             && owner.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, source))
-            && ModelArchive.Fingerprint(new object[] { source }) == sourceFingerprint
-            && ModelArchive.Fingerprint(new object[] { Element, Selection, LocalSample }) == preparedFingerprint
+            && ModelValues.Fingerprint(new object[] { source }) == sourceFingerprint
+            && ModelValues.Fingerprint(new object[] { Element, Selection, LocalSample }) == preparedFingerprint
             && model.Datasets.TryGetValue(source.State.DatasetId, out var dataset)
-            && ModelArchive.Fingerprint(new object[] { dataset }) == datasetFingerprint;
+            && ModelValues.Fingerprint(new object[] { dataset }) == datasetFingerprint;
 
         public static ResultPreparation Prepare(Models.Model model, ElementKey key, ResultLocation sample,
             CoordinateSystem targetOrientation = null, CancellationToken cancellationToken = default)
@@ -67,8 +67,8 @@ namespace GPC.Model.PostProcessing
                 if (state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState)
                     throw new NotSupportedException("NonConcomitantOrNonPhysicalResultState");
                 if (state.IsCumulative == false || state.Phase != null && state.IsCumulative != true) throw new NotSupportedException("IncrementalOrUnknownPhaseState");
-                result.sourceFingerprint = ModelArchive.Fingerprint(new object[] { sample });
-                result.datasetFingerprint = ModelArchive.Fingerprint(new object[] { dataset });
+                result.sourceFingerprint = ModelValues.Fingerprint(new object[] { sample });
+                result.datasetFingerprint = ModelValues.Fingerprint(new object[] { dataset });
                 if (element is NodeElement node)
                 {
                     var target = ActionTransformations.AtPoint(targetOrientation ?? node.CoordinateSystem, node.Position);
@@ -103,7 +103,7 @@ namespace GPC.Model.PostProcessing
                 }
                 else throw new NotSupportedException("UnsupportedElementResult");
                 cancellationToken.ThrowIfCancellationRequested();
-                result.preparedFingerprint = ModelArchive.Fingerprint(new object[] { result.Element, result.Selection, result.LocalSample });
+                result.preparedFingerprint = ModelValues.Fingerprint(new object[] { result.Element, result.Selection, result.LocalSample });
                 result.Status = DataStatus.Ready;
                 if (!(sharedInputFingerprint == null ? result.IsCurrent : result.HasCurrentSamples))
                 { result.LocalSample = null; result.Status = DataStatus.Stale; throw new InvalidOperationException("ResultsChangedDuringPreparation"); }

@@ -56,7 +56,7 @@ namespace GPC.Model.PostProcessing
         public string Parameters { get; private set; }
         public string Reference { get; private set; }
         public bool HasDeclaredEdition => !string.IsNullOrWhiteSpace(Edition);
-        public string Identity => Persistence.ModelArchive.Fingerprint(new object[] { Code, Edition, NationalAnnex, Implementation, Parameters });
+        public string Identity => Core.ModelValues.Fingerprint(new object[] { Code, Edition, NationalAnnex, Implementation, Parameters });
 
         public CheckStandardContext(string code, string edition, string nationalAnnex, string implementation, string parameters, string reference = null)
         {

@@ -5,7 +5,7 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Checker.Configuration;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Results.ResultLocations;
 
@@ -18,7 +18,7 @@ namespace GPC.Model.Checker
             internal PreparationRequest Request;
             internal Dictionary<string, IPlateChecker> Engines;
         }
-        private static string PlateEngineKey(IPlateChecker checker) => checker == null ? null : ModelArchive.Fingerprint(new object[] {
+        private static string PlateEngineKey(IPlateChecker checker) => checker == null ? null : ModelValues.Fingerprint(new object[] {
             checker.GetType().AssemblyQualifiedName, checker.Id, checker.Version, checker.Configuration, checker.Standard?.Identity });
         private static string PlateRouteKey(int element, string check) => element.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + check;
         private static PlateRouting ResolvePlateJob(Models.Model model, PlateCheckJob job)
@@ -54,7 +54,7 @@ namespace GPC.Model.Checker
                 routes.Add(PlateRouteKey(element.Id, check.Id), matches.SingleOrDefault()?.Checker);
             }
             var request = job.Preparation.Copy(); request.Mechanisms = job.Checks.Select(c => c.Mechanism).Distinct().ToArray();
-            request.Settings = (request.Settings ?? "") + "\nPlateRouting:" + ModelArchive.Fingerprint(new object[] { job.Name, job.AxesKind, job.Axes, job.Checks,
+            request.Settings = (request.Settings ?? "") + "\nPlateRouting:" + ModelValues.Fingerprint(new object[] { job.Name, job.AxesKind, job.Axes, job.Checks,
                 job.Assignments.Select(a => new object[] { a.EngineId, a.Selection, a.Mechanisms, a.CheckIds, PlateEngineKey(a.Checker) }).ToArray(),
                 routes.OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => new object[] { r.Key, PlateEngineKey(r.Value) }).ToArray() });
             return new PlateRouting { Request = request, Engines = routes };
@@ -74,7 +74,7 @@ namespace GPC.Model.Checker
                 {
                     var engine = routing.Engines[PlateRouteKey(row.Element.Id, check.Id)];
                     var task = new PlateCheckTask { Row = row, Specification = check.Copy(), Engine = engine, EngineKey = PlateEngineKey(engine),
-                        Id = ModelArchive.Fingerprint(new object[] { "PlateTask-v1", tasks.Count, row.Element, row.Selection, check }) };
+                        Id = ModelValues.Fingerprint(new object[] { "PlateTask-v1", tasks.Count, row.Element, row.Selection, check }) };
                     task.Evidence = CapturePlateEvidence(model, plan, task); tasks.Add(task);
                 }
                 plan.WorkItems = tasks.AsReadOnly();
@@ -115,8 +115,8 @@ namespace GPC.Model.Checker
             if (task.Input != null)
             {
                 var physicalSurface = model.SurfaceForElement(element.Id);
-                result.ShellInput = new ShellInputSnapshot(ModelArchive.Fingerprint(new object[] { element.PlateProperty, element.Assignments }),
-                    task.Input.SampleRevision, ModelArchive.Fingerprint(new object[] { task.Input.LocalForces }), task.Input.LocalForces, task.Input.Thickness,
+                result.ShellInput = new ShellInputSnapshot(ModelValues.Fingerprint(new object[] { element.PlateProperty, element.Assignments }),
+                    task.Input.SampleRevision, ModelValues.Fingerprint(new object[] { task.Input.LocalForces }), task.Input.LocalForces, task.Input.Thickness,
                     physicalSurface?.Id, physicalSurface?.ZoneAt(element.Id));
             }
 

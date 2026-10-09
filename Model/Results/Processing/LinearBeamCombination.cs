@@ -77,9 +77,9 @@ namespace GPC.Model.PostProcessing
                     IsSynthetic = terms.Any(t => t.State.IsSynthetic),
                     Components = Enumerable.Repeat(ComponentAvailability.Available, 6).ToArray(),
                     Transformation = trace,
-                    SourceHash = Persistence.ModelArchive.Fingerprint(terms.Cast<object>()),
+                    SourceHash = Core.ModelValues.Fingerprint(terms.Cast<object>()),
                     DerivedFrom = terms.Cast<ResultLocation>().ToArray(),
-                    DerivedSourceFingerprint = Persistence.ModelArchive.Fingerprint(terms.Cast<object>()),
+                    DerivedSourceFingerprint = Core.ModelValues.Fingerprint(terms.Cast<object>()),
                     Coverage = "Exact shared station and side only; no interpolation or continuous-maximum claim."
                 }
             };

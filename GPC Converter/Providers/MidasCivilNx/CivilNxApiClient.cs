@@ -32,7 +32,7 @@ namespace GPC.Converter.CivilNx
             Unavailable = (unavailable ?? new string[0]).ToList().AsReadOnly();
         }
         /// <summary>Identity of the acquired source: table names and response hashes, independent of acquisition order.</summary>
-        public string Hash => GPC.Model.Persistence.ModelArchive.Fingerprint(Responses.OrderBy(p => p.Key, StringComparer.Ordinal).SelectMany(p => new object[] { p.Key, p.Value.Sha256 })
+        public string Hash => GPC.Model.Core.ModelValues.Fingerprint(Responses.OrderBy(p => p.Key, StringComparer.Ordinal).SelectMany(p => new object[] { p.Key, p.Value.Sha256 })
             .Concat(Unavailable.OrderBy(t => t, StringComparer.Ordinal).Select(t => (object)("unavailable:" + t))));
     }
 

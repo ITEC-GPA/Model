@@ -83,7 +83,7 @@ namespace GPC.Model.PostProcessing
         [field: System.Runtime.Serialization.OptionalField] public SectionCheckSpecification Check { get; set; }
         [field: System.Runtime.Serialization.OptionalField] public VerificationProvenance Provenance { get; set; }
         [field: System.Runtime.Serialization.OptionalField] public ShellInputSnapshot ShellInput { get; set; }
-        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Persistence.FingerprintWhenSet] public ShellCheckSnapshot ShellCheck { get; set; }
+        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Core.FingerprintWhenSet] public ShellCheckSnapshot ShellCheck { get; set; }
 
         /// <summary>Detects subsequent edits to stored evidence; it is not a digital signature. Legacy results have no seal.</summary>
         public bool HasUnchangedEvidence => EvidenceFingerprint == null || EvidenceFingerprint == Evidence();
@@ -97,7 +97,7 @@ namespace GPC.Model.PostProcessing
             // The specification enters only when present, so seals written before it existed remain valid.
             var evidence = SchemaVersion < 2 ? fields : fields.Concat(new object[] {
                 Target, Scope, PlanItemId, MethodId, MemberLocation, MemberInput, CoverageAssessment }).Concat(Check == null ? new object[0] : new object[] { Check });
-            return Persistence.ModelArchive.Fingerprint(evidence.Concat(Provenance == null ? new object[0] : new object[] { Provenance })
+            return Core.ModelValues.Fingerprint(evidence.Concat(Provenance == null ? new object[0] : new object[] { Provenance })
                 .Concat(ShellInput == null ? new object[0] : new object[] { ShellInput })
                 .Concat(ShellCheck == null ? new object[0] : new object[] { ShellCheck }));
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 
 namespace GPC.Model.Models
@@ -22,16 +22,12 @@ namespace GPC.Model.Models
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             string analysis = model.AnalysisFingerprint();
-            string verification = ModelArchive.Fingerprint(new object[] { "VerificationInputs-v1", model.VerificationFingerprint(null),
+            string verification = ModelValues.Fingerprint(new object[] { "VerificationInputs-v1", model.VerificationFingerprint(null),
                 model.BeamElements.Values.Select(b => b.BeamProperty).ToArray(), model.PhysicalMembers, model.Datasets,
                 model.VerificationContext, model.VerificationScenarios,
                 model.AllElements.Select(e => new object[] { e.Id, e.Guid, e.Groups.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray(), e.Results.ToArray() }).ToArray() });
-            using (var stream = new MemoryStream())
             using (var sha = SHA256.Create())
-            {
-                ModelArchive.SaveDocument(model, stream);
-                return new ModelRevision(BitConverter.ToString(sha.ComputeHash(stream.ToArray())).Replace("-", ""), analysis, verification);
-            }
+                return new ModelRevision(BitConverter.ToString(sha.ComputeHash(ModelValues.CaptureModel(model))).Replace("-", ""), analysis, verification);
         }
     }
     public sealed class ModelEditResult
@@ -62,7 +58,7 @@ namespace GPC.Model.Models
         public ModelEditSession(Model source)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
-            _baseline = ModelRevision.Capture(source); Draft = ModelArchive.Copy(source);
+            _baseline = ModelRevision.Capture(source); Draft = ModelValues.Copy(source);
             RequireCurrentSource();
         }
         private void RequireCurrentSource()
@@ -90,7 +86,7 @@ namespace GPC.Model.Models
             var errors = Validate().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
             if (errors.Length != 0) throw new InvalidOperationException("InvalidModelEdit: " + string.Join(", ", errors.Select(d => d.Code)));
             // A retained Draft reference cannot modify the published document after commit.
-            var published = ModelArchive.Copy(Draft); var revision = ModelRevision.Capture(published);
+            var published = ModelValues.Copy(Draft); var revision = ModelRevision.Capture(published);
             RequireCurrentSource(); _closed = true;
             return new ModelEditResult(published, _baseline, revision);
         }

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Xml;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 
 using GPC.Model.PostProcessing;
@@ -47,7 +47,7 @@ namespace GPC.Model.PostProcessing
             var analysis = model.Analysis;
             if (analysis == null) return Unknown("UnknownAnalysisProvenance", "Record the original analysis inputs before results; legacy provenance is insufficient for automatic verification.");
             if (model.Guid != analysis.ModelGuid) return Unknown("ForeignAnalysisSnapshot", "The snapshot belongs to another model.");
-            if (ModelArchive.Fingerprint(new object[] { model.AnalysisSource }) != analysis.CanonicalSource)
+            if (ModelValues.Fingerprint(new object[] { model.AnalysisSource }) != analysis.CanonicalSource)
                 return Unknown("AnalysisSourceChanged", "The solver provenance changed since the recorded analysis.");
             if (model.AnalysisFingerprint() != analysis.InputFingerprint)
                 return new AnalysisCompatibilityResult(AnalysisCompatibility.RequiresReanalysis, "RequiresReanalysis", "Physical analysis inputs changed. Reanalyse the scenario before verification.");

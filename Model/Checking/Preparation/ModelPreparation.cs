@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
@@ -111,7 +111,7 @@ namespace GPC.Model.PostProcessing
                     }
                     var values = element is BeamElement beam ? ResultQueries.Samples<StationResultBeamForces>(beam, selection).Cast<ResultLocation>().ToArray()
                         : ResultQueries.Samples<PointResultPlateForces>(element, selection).Cast<ResultLocation>().ToArray();
-                    if (values.Length == 0 && missing.Add(ModelArchive.Fingerprint(new object[] { selection }))) values = new ResultLocation[] { null };
+                    if (values.Length == 0 && missing.Add(ModelValues.Fingerprint(new object[] { selection }))) values = new ResultLocation[] { null };
                     foreach (var sample in values)
                         if (sample == null || seen.Add(sample)) rows.Add(new PreparedElementSample { Element = new ElementKey { Family = Models.Model.FamilyOf(element), Id = element.Id }, Selection = selection, Sample = sample });
                 }
@@ -125,7 +125,7 @@ namespace GPC.Model.PostProcessing
         private static string FingerprintScopeCore(Models.Model model, PreparationRequest request, bool preserveCategories)
         {
             var entries = Enumerate(model, request, preserveCategories);
-            return ModelArchive.Fingerprint(new object[] { request }.Concat(entries.SelectMany(e => new object[] { e.Element, e.Selection, e.Sample })));
+            return ModelValues.Fingerprint(new object[] { request }.Concat(entries.SelectMany(e => new object[] { e.Element, e.Selection, e.Sample })));
         }
         public static ModelPreparation Prepare(Models.Model model, PreparationRequest request, CancellationToken cancellationToken = default)
         {

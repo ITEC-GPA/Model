@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using GPC.Model.Materials;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 
 namespace GPC.Model.Sections.Concrete
@@ -32,7 +32,7 @@ namespace GPC.Model.Sections.Concrete
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         { base.GetObjectData(info, context); info.AddValue("RebarLayers", RebarLayers.ToArray()); }
         public override bool Equals(object obj) => obj is ReinforcedConcretePlateSection other && base.Equals(other)
-            && ModelArchive.Fingerprint(RebarLayers.Cast<object>()) == ModelArchive.Fingerprint(other.RebarLayers.Cast<object>());
+            && ModelValues.Fingerprint(RebarLayers.Cast<object>()) == ModelValues.Fingerprint(other.RebarLayers.Cast<object>());
         public override int GetHashCode() => base.GetHashCode();
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Results.ResultLocations;
 
@@ -30,8 +30,8 @@ namespace GPC.Model.Results
             Dataset = value.State?.DatasetId; Case = value.Case?.Name; Phase = value.State?.Phase; Step = value.State?.Step;
             ConcomitantState = value.State?.ConcomitantStateId; MovingLoadPosition = value.State?.MovingLoadPosition; Mode = value.State?.Mode;
             ResultKind = value.GetType().FullName;
-            PositionKey = ModelArchive.Fingerprint(Position(value));
-            _key = ModelArchive.Fingerprint(new object[] { "ResultAddress-v1", element, family, id, Dataset, Case, Phase, Step,
+            PositionKey = ModelValues.Fingerprint(Position(value));
+            _key = ModelValues.Fingerprint(new object[] { "ResultAddress-v1", element, family, id, Dataset, Case, Phase, Step,
                 ConcomitantState, MovingLoadPosition, Mode, ResultKind, PositionKey });
         }
         internal bool Matches(ResultSelection selection) => Dataset == selection.Dataset && Case == selection.Case
@@ -74,7 +74,7 @@ namespace GPC.Model.Results
         {
             _payload = AnalysisStorage.Write(sample); _type = sample.GetType();
             var copy = Read(); Address = new ResultAddress(element, family, id, copy);
-            ContentFingerprint = ModelArchive.Fingerprint(new object[] { copy });
+            ContentFingerprint = ModelValues.Fingerprint(new object[] { copy });
         }
         public ResultLocation Read() => AnalysisStorage.Read<ResultLocation>(_payload);
         public T Read<T>() where T : ResultLocation => Read() as T ?? throw new InvalidOperationException("DifferentResultType");

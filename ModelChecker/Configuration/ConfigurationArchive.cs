@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 
 namespace GPC.Model.Checker.Configuration
 {
@@ -11,7 +11,7 @@ namespace GPC.Model.Checker.Configuration
     {
         public const string Namespace = "urn:gpc:modelchecker:configuration:1";
         private static DataContractSerializer Serializer() => new DataContractSerializer(typeof(VerificationConfiguration),
-            new DataContractSerializerSettings { KnownTypes = ModelArchive.DataContracts, PreserveObjectReferences = true, MaxItemsInObjectGraph = 500000 });
+            new DataContractSerializerSettings { KnownTypes = ModelValues.DataContracts, PreserveObjectReferences = true, MaxItemsInObjectGraph = 500000 });
         public static void Save(VerificationConfiguration configuration, Stream destination)
         {
             Validate(configuration);
@@ -37,11 +37,11 @@ namespace GPC.Model.Checker.Configuration
         internal static T CopyData<T>(T value)
         {
             var serializer = new DataContractSerializer(typeof(T), new DataContractSerializerSettings {
-                KnownTypes = ModelArchive.DataContracts, PreserveObjectReferences = true, MaxItemsInObjectGraph = 500000 });
+                KnownTypes = ModelValues.DataContracts, PreserveObjectReferences = true, MaxItemsInObjectGraph = 500000 });
             using (var stream = new MemoryStream()) { serializer.WriteObject(stream, value); stream.Position = 0; return (T)serializer.ReadObject(stream); }
         }
         public static string Fingerprint(VerificationConfiguration configuration)
-        { Validate(configuration); return ModelArchive.Fingerprint(new object[] { "VerificationConfiguration-v1", configuration }); }
+        { Validate(configuration); return ModelValues.Fingerprint(new object[] { "VerificationConfiguration-v1", configuration }); }
         internal static void Validate(VerificationConfiguration value)
         {
             if (value == null || value.Schema != 1) throw new SerializationException("UnsupportedVerificationConfigurationSchema");

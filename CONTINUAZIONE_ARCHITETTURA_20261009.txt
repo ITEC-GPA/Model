@@ -134,3 +134,17 @@ progetto I/O separato, dopo aver disaccoppiato copie e fingerprint dal serialize
 Non e' una libreria UI e non va creata una dipendenza circolare con Model.
 Restano le parti differite del piano: completamento cls (3), scelta condivisa
 ed implementazione dei metodi resistenti plate (6), ulteriori converter (7).
+
+Persistence - fase A completata
+Model 2.0.0.5 introduce GPC.Model.Core.ModelValues (Copy, CopyValue,
+Fingerprint e vocabolario chiuso dei dati). Fingerprint e mappe esplicite dei
+contratti sono nel dominio; ReportSchema valida i resoconti senza un file.
+Editing, orientamento, snapshot, scenari, ModelChecker e Converter usano
+queste operazioni. ModelArchive conserva temporaneamente i delegati pubblici.
+Le copie complete non passano piu' dall'envelope del file ModelDocument.
+Il codec in memoria degli snapshot resta DataContractSerializer, per conservare
+il formato delle evidenze storiche: non e' un lettore di file esterni e non
+richiede la futura DLL Persistence. Nessuna formula o dato atteso cambiato.
+Verify.ps1 PASS: 989 Model/Converter + 2 fixture Straus saltate, 155 ModelChecker;
+nessuna rimozione API inattesa. Due nuove regressioni su copie indipendenti,
+alias, eventi dei gruppi e snapshot storici v3. Segue estrazione del progetto I/O.

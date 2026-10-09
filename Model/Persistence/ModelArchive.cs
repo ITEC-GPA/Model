@@ -21,53 +21,10 @@ namespace GPC.Model.Persistence
     /// <summary>Versioned XML with a closed set of locally compiled data contracts. No CLR type names from files are resolved.</summary>
     public static class ModelArchive
     {
-        private static readonly Type[] KnownTypes = DataTypes();
-        /// <summary>Closed leaf vocabulary shared by document/configuration codecs; caller files cannot add CLR types.</summary>
-        public static IReadOnlyCollection<Type> DataContracts => Array.AsReadOnly(KnownTypes);
-        private static Type[] DataTypes()
-        {
-            // The assemblies and namespaces are fixed here, never selected by an input file.
-            var domain = ArchiveContractRegistry.Domain;
-            var geometry = new[] { typeof(Point3d), typeof(Point2d), typeof(Vector3d), typeof(Vector2d), typeof(CoordinateSystem),
-                typeof(Shape), typeof(Shape2d), typeof(Polygon3d), typeof(Polygon2d), typeof(Line3d), typeof(Line2d) };
-            var collections = new[] { typeof(SortedCollection<NodeElement>), typeof(SortedCollection<BeamElement>), typeof(SortedCollection<AreaElement>), typeof(SortedCollection<VolumeElement>),
-                typeof(UniqueNameCollection<Group>), typeof(UniqueIdCollection<Attributes.Attribute>), typeof(UniqueIdCollection<Load>),
-                typeof(UniqueNameCollection<BeamProperty>), typeof(UniqueNameCollection<PlateProperty>), typeof(UniqueNameCollection<BrickProperty>),
-                typeof(UniqueNameCollection<LoadCaseBase>), typeof(UniqueNameCollection<FreedomCases.FreedomCase>), typeof(UniqueNameCollection<Combinations.Combination>),
-                typeof(UniqueIdCollection<Stages.Stage>), typeof(UniqueIdCollection<Costrains.Costrain>), typeof(UniqueIdCollection<ReinforcedConcreteRebar>),
-                typeof(Dictionary<int, HashSet<string>>), typeof(List<ElementResult>), typeof(List<ResultLocation>), typeof(List<Restrains.DofRestrain>),
-                typeof(object[]), typeof(double[]), typeof(int[]), typeof(string[]), typeof(NodeElement[]), typeof(KeyValuePair<int,NodeElement>[]),
-                typeof(KeyValuePair<int,BeamElement>[]), typeof(KeyValuePair<int,AreaElement>[]), typeof(KeyValuePair<int,VolumeElement>[]) };
-            return domain.Concat(domain.Where(t => t != typeof(Group) && t != typeof(Restrains.DofRestrain) && t != typeof(Combinations.Combination.LoadCaseCoefficient)).Select(t => t.MakeArrayType()))
-                .Concat(geometry).Concat(new[] { typeof(Polygon3d[]), typeof(Shape[]), typeof(Shape2d[]), typeof(Polygon2d[]) }).Concat(collections).Concat(new[] {
-                typeof(MathNet.Numerics.LinearAlgebra.Double.DenseMatrix),
-                typeof(MathNet.Numerics.LinearAlgebra.Storage.DenseColumnMajorMatrixStorage<double>),
-                typeof(BeamDofConnection[]), typeof(List<Group>), typeof(Dictionary<string,PostProcessing.AnalysisDataset>),
-                typeof(PostProcessing.SpringMatrix[]), typeof(PostProcessing.NodalLink[]),
-                typeof(PostProcessing.ComponentAvailability[]), typeof(PostProcessing.BeamSectionAssignment[]),
-                typeof(List<Combinations.Combination.LoadCaseCoefficient>),
-                typeof(PostProcessing.PreservedAssignment[]), typeof(Point3d[])
-            }).Distinct().ToArray();
-        }
-        internal static DataContractSerializer Serializer(Type type) => new DataContractSerializer(type, new DataContractSerializerSettings
-        { KnownTypes = KnownTypes, PreserveObjectReferences = true, MaxItemsInObjectGraph = 2000000 });
-
-        /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
-        public static T CopyValue<T>(T value) where T : class
-        {
-            if (value == null) return null;
-            if (!KnownTypes.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
-            if (value is Sections.ISectionShape section) { var shape = section.Shape; }
-            var serializer = Serializer(value.GetType());
-            using (var stream = new MemoryStream())
-            { serializer.WriteObject(stream, value); stream.Position = 0; return (T)serializer.ReadObject(stream); }
-        }
-        /// <summary>Copies the complete document, preserving entity IDs and internal relationships.</summary>
-        public static Models.Model Copy(Models.Model model)
-        {
-            using (var stream = new MemoryStream())
-            { SaveDocument(model, stream); stream.Position = 0; return Load(stream); }
-        }
+        public static IReadOnlyCollection<Type> DataContracts => Core.ModelValues.DataContracts;
+        internal static DataContractSerializer Serializer(Type type) => Core.ModelValues.Serializer(type);
+        public static T CopyValue<T>(T value) where T : class => Core.ModelValues.CopyValue(value);
+        public static Models.Model Copy(Models.Model model) => Core.ModelValues.Copy(model);
 
         /// <summary>Explicit document contract for new applications, including models without an analysis snapshot.</summary>
         public static void SaveDocument(Models.Model model, Stream destination)
@@ -127,7 +84,7 @@ namespace GPC.Model.Persistence
         /// <summary>Deterministic value digest for Model data and geometry; independent of XML reference numbering.</summary>
         public static string Fingerprint(IEnumerable<object> input)
         {
-            return InputFingerprint.Compute(input);
+            return Core.ModelValues.Fingerprint(input);
         }
     }
 }

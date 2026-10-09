@@ -10,7 +10,7 @@ using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Checkers.Concrete.Serviceability;
 using GPC.Geometry;
 using GPC.Model.Materials;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections.Concrete;
 
@@ -42,7 +42,7 @@ namespace GPC.Model.Checker
         /// <summary>Linear stress analysis with or without tensile concrete, cached per section and configuration. Call under <see cref="Sync"/>.</summary>
         private ConcreteCalculationSession LinearChecker(ReinforcedConcreteSection section, CoordinateSystem reference, bool tensileConcrete)
         {
-            var key = ModelArchive.Fingerprint(new object[] { section, Configuration, "linear-crack", tensileConcrete });
+            var key = ModelValues.Fingerprint(new object[] { section, Configuration, "linear-crack", tensileConcrete });
             if (!_crackCheckers.TryGetValue(key, out var checker))
             {
                 checker = _calculationFactory.Create(section, _standard, new ConcreteCalculationOptions(reference, _criterion,

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 
 namespace GPC.Model.PostProcessing
 {
@@ -11,7 +11,7 @@ namespace GPC.Model.PostProcessing
         public static string AnalysisFingerprint(this Models.Model model)
         {
             return Checking.ValidationReadScope.Read(model, "analysis", () => {
-                var canonical = ModelArchive.Fingerprint(AnalysisInputs(model, true));
+                var canonical = ModelValues.Fingerprint(AnalysisInputs(model, true));
                 return model.Analysis == null ? canonical : model.Analysis.OriginalIdentityFor(canonical);
             });
         }
@@ -20,8 +20,8 @@ namespace GPC.Model.PostProcessing
         /// without changing which results belong to which element, case and point.</summary>
         public static string SolverBindingFingerprint(this Models.Model model)
         {
-            return model.Analysis == null ? ModelArchive.Fingerprint(AnalysisInputs(model, false))
-                : model.Analysis.InOriginalVocabulary(() => ModelArchive.Fingerprint(AnalysisInputs(model, false)));
+            return model.Analysis == null ? ModelValues.Fingerprint(AnalysisInputs(model, false))
+                : model.Analysis.InOriginalVocabulary(() => ModelValues.Fingerprint(AnalysisInputs(model, false)));
         }
         private static IEnumerable<object> AnalysisInputs(Models.Model model, bool properties)
         {
@@ -93,7 +93,7 @@ namespace GPC.Model.PostProcessing
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {
-            return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelArchive.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
+            return Checking.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelValues.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
                 .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))
                 .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))

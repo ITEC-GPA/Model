@@ -7,7 +7,7 @@ using GPC.Geometry;
 using GPC.Model.Combinations;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results;
 using GPC.Model.Results.ResultLocations;
 using GPC.Model.Results.ElementResults;
@@ -94,14 +94,14 @@ namespace GPC.Model.PostProcessing
                 minima.Add(Rotate(normalized[low], Frame(first))); maxima.Add(Rotate(normalized[high], Frame(first)));
                 minimumSources.Add(samples[low]); maximumSources.Add(samples[high]);
             }
-            var sources = samples.ToArray(); var digest = ModelArchive.Fingerprint(sources.Cast<object>().Concat(minima).Concat(maxima));
-            var datasets = ModelArchive.Fingerprint(sources.Select(s => (object)model.Datasets[s.State.DatasetId]));
+            var sources = samples.ToArray(); var digest = ModelValues.Fingerprint(sources.Cast<object>().Concat(minima).Concat(maxima));
+            var datasets = ModelValues.Fingerprint(sources.Select(s => (object)model.Datasets[s.State.DatasetId]));
             return new ResultEnvelope { Minima = minima.AsReadOnly(), Maxima = maxima.AsReadOnly(), Components = Names(first),
                 MinimumSources = minimumSources.AsReadOnly(), MaximumSources = maximumSources.AsReadOnly(),
                 Current = () => input == model.AnalysisFingerprint() && sources.All(s => owner.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, s))
                     && s.State?.DatasetId != null && model.Datasets.ContainsKey(s.State.DatasetId) && HasCurrentDerivation(model, owner, s.State))
-                    && digest == ModelArchive.Fingerprint(sources.Cast<object>().Concat(minima).Concat(maxima))
-                    && datasets == ModelArchive.Fingerprint(sources.Select(s => (object)model.Datasets[s.State.DatasetId])),
+                    && digest == ModelValues.Fingerprint(sources.Cast<object>().Concat(minima).Concat(maxima))
+                    && datasets == ModelValues.Fingerprint(sources.Select(s => (object)model.Datasets[s.State.DatasetId])),
                 Coverage = "Only the supplied discrete states at this location. Each extreme points to a complete original state; no continuous-maximum claim." };
         }
 
@@ -136,13 +136,13 @@ namespace GPC.Model.PostProcessing
             => model.AllElements.Single(e => e.Id == key.Id && Models.Model.FamilyOf(e) == key.Family);
         private static DerivedResult Derived(Models.Model model, ElementKey key, ResultLocation sample)
         {
-            string input = model.AnalysisFingerprint(); string output = ModelArchive.Fingerprint(new object[] { sample });
-            var owner = Owner(model, key); string datasets = ModelArchive.Fingerprint(sample.State.DerivedFrom.Select(s => (object)model.Datasets[s.State.DatasetId]));
+            string input = model.AnalysisFingerprint(); string output = ModelValues.Fingerprint(new object[] { sample });
+            var owner = Owner(model, key); string datasets = ModelValues.Fingerprint(sample.State.DerivedFrom.Select(s => (object)model.Datasets[s.State.DatasetId]));
             return new DerivedResult { Sample = sample, Model = model, OwnerKey = new ElementKey { Family = key.Family, Id = key.Id },
-                Current = () => input == model.AnalysisFingerprint() && output == ModelArchive.Fingerprint(new object[] { sample })
+                Current = () => input == model.AnalysisFingerprint() && output == ModelValues.Fingerprint(new object[] { sample })
                     && HasCurrentDerivation(model, owner, sample.State)
                     && sample.State.DerivedFrom.All(s => model.Datasets.ContainsKey(s.State.DatasetId))
-                    && datasets == ModelArchive.Fingerprint(sample.State.DerivedFrom.Select(s => (object)model.Datasets[s.State.DatasetId])) };
+                    && datasets == ModelValues.Fingerprint(sample.State.DerivedFrom.Select(s => (object)model.Datasets[s.State.DatasetId])) };
         }
         public static bool HasCurrentDerivation(Models.Model model, Element owner, ResultState state)
         {
@@ -153,7 +153,7 @@ namespace GPC.Model.PostProcessing
             return state.DerivedFrom.All(s => s?.State != null && registered.Any(r => ReferenceEquals(r, s)) && s.State.DerivedFrom == null
                 && s.State.DatasetId != null && model.Datasets.TryGetValue(s.State.DatasetId, out var ds) && ds.InputFingerprint == state.InputFingerprint && ds.ModelRevision == s.State.ModelRevision
                 && ds.NormalizedUnits == "N,mm,rad" && ds.Semantics == s.State.Semantics)
-                && state.DerivedSourceFingerprint == ModelArchive.Fingerprint(state.DerivedFrom.Cast<object>());
+                && state.DerivedSourceFingerprint == ModelValues.Fingerprint(state.DerivedFrom.Cast<object>());
         }
         /// <summary>Attaches a checked derivation atomically to the same owner. Declare output cases/combinations before importing analysis results.</summary>
         public static void Attach(DerivedResult derived)
@@ -256,8 +256,8 @@ namespace GPC.Model.PostProcessing
             }
             var state = first.State.Copy(); state.Original = null; state.SourceRecord = null;
             if (terms.Any(t => t.State.DerivedFrom != null)) throw new NotSupportedException("NestedDerivationRequiresOriginalSources");
-            state.DerivedFrom = terms.ToArray(); state.DerivedSourceFingerprint = ModelArchive.Fingerprint(terms.Cast<object>());
-            state.SourceHash = ModelArchive.Fingerprint(terms.Cast<object>()); state.IsSynthetic = terms.Any(t => t.State.IsSynthetic);
+            state.DerivedFrom = terms.ToArray(); state.DerivedSourceFingerprint = ModelValues.Fingerprint(terms.Cast<object>());
+            state.SourceHash = ModelValues.Fingerprint(terms.Cast<object>()); state.IsSynthetic = terms.Any(t => t.State.IsSynthetic);
             state.Transformation = string.Join("; ", terms.Select((t, i) => factors[i].ToString("R", CultureInfo.InvariantCulture) + " * " + t.Case.Name + " [" + t.State.ConcomitantStateId + "]"));
             var result = Create(first, sum, axes, outputCase);
             result.State = state; return result;

@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace GPC.Model.Persistence
+namespace GPC.Model.Core
 {
     internal static partial class FingerprintContracts
     {

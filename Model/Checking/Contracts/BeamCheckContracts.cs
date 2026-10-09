@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Geometry;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 
 namespace GPC.Model.PostProcessing
 {

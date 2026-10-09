@@ -24,7 +24,7 @@ namespace GPC.Model.PostProcessing
                 r.Mode, r.MovingLoadPosition, r.ShellPoint, r.ShellPointKind, r.ShellCoordinateKind, r.Face, r.Layer };
             return r.SchemaVersion < 2 ? fields : fields.Concat(new object[] { r.Target, r.Scope, r.PlanItemId, r.MemberLocation, r.MethodId }).ToArray();
         }
-        private string ResultSlots() => Persistence.ModelArchive.Fingerprint(new object[] { Required, Job, Results.Select(ResultSlot).ToArray() });
+        private string ResultSlots() => Core.ModelValues.Fingerprint(new object[] { Required, Job, Results.Select(ResultSlot).ToArray() });
         public static CheckReport ForPlan(string job, BeamCheckPlan plan, IEnumerable<CheckResult> results)
         {
             if (plan == null || results == null) throw new ArgumentNullException();
@@ -114,7 +114,7 @@ namespace GPC.Model.PostProcessing
                     .Where(r => r.State?.DatasetId == result.Dataset && r.Case?.Name == result.Case && r.ParametricDistance == result.Station && r.Side == result.Side
                         && r.State.Phase == result.Phase && r.State.Step == result.Step && r.State.ConcomitantStateId == result.ConcomitantStateId
                         && r.State.Mode == result.Mode && r.State.MovingLoadPosition == result.MovingLoadPosition).ToArray();
-                if (samples.Length != 1 || Persistence.ModelArchive.Fingerprint(new object[] { samples[0] }) != result.SampleRevision) return EngineeringOutcome.NotEvaluated;
+                if (samples.Length != 1 || Core.ModelValues.Fingerprint(new object[] { samples[0] }) != result.SampleRevision) return EngineeringOutcome.NotEvaluated;
             }
             return Outcome;
         }

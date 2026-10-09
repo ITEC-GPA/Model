@@ -5,7 +5,7 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Results;
 using GPC.Model.Results.ElementResults;
@@ -95,7 +95,7 @@ namespace GPC.Converter
                     {
                         sample = new StationResultBeamForces(loadCase, new ResultBeamForces(values[0], values[1], values[2], values[3], values[4], values[5], axes), beam.Station)
                         { Side = beam.Side, Body = beam.Body, StationDomain = beam.StationDomain, PhysicalDistance = beam.PhysicalDistance.HasValue ? batch.Units.Length(beam.PhysicalDistance.Value) : (double?)null, State = state };
-                        var key = ModelArchive.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
+                        var key = ModelValues.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
                             state.ConcomitantStateId, beam.Station, beam.Side });
                         if (!keys.Add(key)) throw new ArgumentException("DuplicateResultStateAndLocation");
                         staged.Add(Tuple.Create(element, (ElementResult)new BeamResult(new[] { (IBeamResultLocation)sample })));
@@ -116,7 +116,7 @@ namespace GPC.Converter
                         }
                         sample = new PointResultPlateForces(loadCase, new ResultPlateForces(axes, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7]), location, shell.PointKind.ToString())
                         { PointKind = shell.PointKind, CoordinateKind = shell.CoordinateKind, SourceNodeId = nodeId, AveragingRegion = shell.AveragingRegion, State = state };
-                        var key = ModelArchive.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
+                        var key = ModelValues.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
                             state.ConcomitantStateId, location, shell.PointKind, shell.CoordinateKind, nodeId, shell.AveragingRegion });
                         if (!keys.Add(key)) throw new ArgumentException("DuplicateResultStateAndLocation");
                         staged.Add(Tuple.Create(element, (ElementResult)new PlateElementResult(new List<IPlateResultLocation> { (IPlateResultLocation)sample })));
@@ -139,7 +139,7 @@ namespace GPC.Converter
                         }
                         else sample = new NodeResultDisplacement(loadCase, new ResultDisplacement(axes, values[0], values[1], values[2], values[3], values[4], values[5])) { State = state };
                         var forceSample = sample as NodeResultForces;
-                        var key = ModelArchive.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
+                        var key = ModelValues.Fingerprint(new object[] { family, element.Id, row.Case, state.Phase, state.Step, state.Mode, state.MovingLoadPosition,
                             state.ConcomitantStateId, row is NodeDisplacementRecord, forceSample?.Kind, forceSample?.Body,
                             forceSample?.OwnerElementFamily, forceSample?.OwnerElementId, forceSample?.ElementEnd, forceSample?.AggregationSet });
                         if (!keys.Add(key)) throw new ArgumentException("DuplicateResultStateAndLocation");

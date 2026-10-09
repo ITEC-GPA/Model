@@ -5,7 +5,7 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Checker.Configuration;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Results.ResultLocations;
 

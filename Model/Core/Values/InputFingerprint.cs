@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using GPC.Geometry;
 using GPC.Model.Elements;
 
-namespace GPC.Model.Persistence
+namespace GPC.Model.Core
 {
     /// <summary>A field added after fingerprints were archived: it enters the fingerprint only when not null,
     /// so requests and selections that do not use it keep their historical identity.</summary>

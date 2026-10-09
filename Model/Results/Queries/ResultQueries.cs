@@ -19,7 +19,7 @@ namespace GPC.Model.PostProcessing
         public int? Mode { get; set; }
         /// <summary>Combination category declared by the designer for this state. Null means undeclared; it is never deduced
         /// from the case name and does not take part in matching the samples.</summary>
-        [field: System.Runtime.Serialization.OptionalField, Persistence.FingerprintWhenSet] public CombinationCategory? Category { get; set; }
+        [field: System.Runtime.Serialization.OptionalField, Core.FingerprintWhenSet] public CombinationCategory? Category { get; set; }
         public ResultSelection Copy() => (ResultSelection)MemberwiseClone();
         internal bool Matches(ResultLocation value) => value.State != null && value.State.DatasetId == Dataset && value.Case?.Name == Case
             && value.State.Phase == Phase && value.State.Step == Step && value.State.MovingLoadPosition == MovingLoadPosition && value.State.Mode == Mode

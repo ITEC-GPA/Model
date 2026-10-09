@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Xml;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 
 using GPC.Model.PostProcessing;
@@ -30,7 +30,7 @@ namespace GPC.Model.PostProcessing
             if (string.IsNullOrWhiteSpace(analysisId) || string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Analysis identity and scenario name required.");
             return new VerificationScenario { Id = Guid.NewGuid().ToString("D"), AnalysisId = analysisId, Name = name };
         }
-        public string Fingerprint => ModelArchive.Fingerprint(new object[] { Id, AnalysisId, Name,
+        public string Fingerprint => ModelValues.Fingerprint(new object[] { Id, AnalysisId, Name,
             _beams.OrderBy(p => p.Key).ToArray(), _sections.OrderBy(p => p.Key).ToArray(), _shells.OrderBy(p => p.Key).ToArray() }.Concat(_plateSections == null ? Array.Empty<object>() : new object[] { _plateSections.OrderBy(p=>p.Key).ToArray() }));
         public void SetBeamDesign(Guid element, BeamProperty property)
         {

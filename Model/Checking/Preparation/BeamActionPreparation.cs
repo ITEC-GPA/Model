@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results;
 using GPC.Model.Results.ResultLocations;
 
@@ -27,12 +27,12 @@ namespace GPC.Model.PostProcessing
         private bool IsCurrentCore() => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
             && beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, Sample))
-            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
+            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelValues.Fingerprint(new object[] { dataset })
             && Revision == Model.VerificationFingerprint(Settings)
-            && Snapshot.SampleFingerprint == ModelArchive.Fingerprint(new object[] { Sample })
-            && Snapshot.ForcesFingerprint == ModelArchive.Fingerprint(new object[] { Forces })
-            && PreparedPropertyFingerprint == ModelArchive.Fingerprint(new object[] { Property })
-            && Snapshot.SectionFingerprint == ModelArchive.Fingerprint(new object[] { Element.BeamProperty, Element.Assignments.Sections.ToArray() })
+            && Snapshot.SampleFingerprint == ModelValues.Fingerprint(new object[] { Sample })
+            && Snapshot.ForcesFingerprint == ModelValues.Fingerprint(new object[] { Forces })
+            && PreparedPropertyFingerprint == ModelValues.Fingerprint(new object[] { Property })
+            && Snapshot.SectionFingerprint == ModelValues.Fingerprint(new object[] { Element.BeamProperty, Element.Assignments.Sections.ToArray() })
             && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State);
     }
     public sealed class BeamActionPreparation
@@ -83,13 +83,13 @@ namespace GPC.Model.PostProcessing
                 var forces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
                 var property = beam.Assignments.Sections.Count == 0 ? beam.BeamProperty : beam.Assignments.PropertyAt(
                     new BeamReferenceGeometry(beam).ConvertStation(sample.ParametricDistance, sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), sample.Side);
-                var detachedProperty = ModelArchive.CopyValue(property);
+                var detachedProperty = ModelValues.CopyValue(property);
                 result.Input = new BeamActionInput { Model = model, Element = beam, Sample = sample, Forces = forces, Property = detachedProperty, Settings = settings,
-                    PreparedPropertyFingerprint = ModelArchive.Fingerprint(new object[] { detachedProperty }),
-                    DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
+                    PreparedPropertyFingerprint = ModelValues.Fingerprint(new object[] { detachedProperty }),
+                    DatasetFingerprint = ModelValues.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
                     Revision = model.VerificationFingerprint(settings), Snapshot = new CheckInputSnapshot(
-                        ModelArchive.Fingerprint(new object[] { beam.BeamProperty, beam.Assignments.Sections.ToArray() }),
-                        ModelArchive.Fingerprint(new object[] { sample }), ModelArchive.Fingerprint(new object[] { forces }), new BeamForceSnapshot(forces)) };
+                        ModelValues.Fingerprint(new object[] { beam.BeamProperty, beam.Assignments.Sections.ToArray() }),
+                        ModelValues.Fingerprint(new object[] { sample }), ModelValues.Fingerprint(new object[] { forces }), new BeamForceSnapshot(forces)) };
                 result.Status = DataStatus.Ready;
             }
             catch (NotSupportedException ex) { if (result.Status != DataStatus.Stale) result.Status = DataStatus.NotSupported; diagnostics.Add(ModelDiagnostic.Error("UnsupportedBeamActions", beam, ex.Message)); }

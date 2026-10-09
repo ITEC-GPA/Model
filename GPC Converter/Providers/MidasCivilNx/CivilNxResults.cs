@@ -226,6 +226,6 @@ namespace GPC.Converter.CivilNx
             ConcomitantStateId = "Civil NX static case " + loadCase, IsCombined = false, IsCumulative = true,
             Components = Enumerable.Repeat(ComponentAvailability.Available, count).ToArray(), Coverage = "Explicit post/TABLE selection; beams at I, 1/4, 2/4, 3/4, J; plates at the centre." };
         private static string SourceHash(IReadOnlyList<CivilNxResponse> tables) =>
-            GPC.Model.Persistence.ModelArchive.Fingerprint(tables.Select(t => (object)t.Sha256));
+            GPC.Model.Core.ModelValues.Fingerprint(tables.Select(t => (object)t.Sha256));
     }
 }

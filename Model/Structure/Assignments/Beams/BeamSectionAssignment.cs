@@ -14,9 +14,9 @@ namespace GPC.Model.PostProcessing
     [Serializable]
     public sealed class BeamSectionAssignment
     {
-        [OptionalField, GPC.Model.Persistence.FingerprintWhenSet]
+        [OptionalField, GPC.Model.Core.FingerprintWhenSet]
         private GPC.Model.ElementProperties.BeamProperty _property;
-        [OptionalField, GPC.Model.Persistence.FingerprintWhenSet]
+        [OptionalField, GPC.Model.Core.FingerprintWhenSet]
         private GPC.Model.ElementProperties.BeamProperty _endProperty;
 
         public double Start { get; set; }

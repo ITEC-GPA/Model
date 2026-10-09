@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using GPC.Checkers.Steel.Checkers;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
@@ -21,7 +21,7 @@ namespace GPC.Model.Checker
         public bool IncludeUniaxialBending { get; }
         public string Id => IncludeUniaxialBending ? "Steel.EN1993.Section" : "Steel.EN1993.PlasticShear";
         public string Version => NativeResults.Version(typeof(EN1993p11Checker));
-        public string Configuration => ModelArchive.Fingerprint(new object[] { Id, Code, Edition, NationalAnnex });
+        public string Configuration => ModelValues.Fingerprint(new object[] { Id, Code, Edition, NationalAnnex });
         public CheckStandardContext Standard => new CheckStandardContext(Code.Name, Edition, NationalAnnex, Id, Configuration,
             "Native section shear and, when explicitly selected, uniaxial bending; no N-M interaction or global stability.");
         public SteelMaterialChecker(StandardEN1993p11 code, string edition, string nationalAnnex = null)
@@ -69,7 +69,7 @@ namespace GPC.Model.Checker
                 if (!(_owner.Code.GammaM0 > 0) || double.IsInfinity(_owner.Code.GammaM0)) return NativeResults.Missing("InvalidGammaM0");
                 if (input.Forces.T != 0) return NativeResults.Unavailable("SteelTorsionInteractionNotQualified");
                 // The native compressed-section classification provides a conservative stockiness gate for both flange directions.
-                string key = ModelArchive.Fingerprint(new object[] { input.Property, _owner.Configuration });
+                string key = ModelValues.Fingerprint(new object[] { input.Property, _owner.Configuration });
                 if (!_native.TryGetValue(key, out var checker))
                 {
                     checker = new NativeShear(new BeamElement(input.Element.StartPoint, input.Element.EndPoint, section), _owner.Code);

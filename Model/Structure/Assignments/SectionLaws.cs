@@ -3,7 +3,7 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Concrete;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.ElementProperties;
 using System.Runtime.Serialization;
 
@@ -58,7 +58,7 @@ namespace GPC.Model.PostProcessing
             var first = RequireConcrete(a.Property); var last = RequireConcrete(a.EndProperty);
             if (!(first?.SectionShape is SectionRectangular x) || !(last?.SectionShape is SectionRectangular y)
                 || x.Angle != 0 || y.Angle != 0 || first.SteelSections.Count != 0 || last.SteelSections.Count != 0
-                || ModelArchive.Fingerprint(new object[] { first.ConcreteMaterial }) != ModelArchive.Fingerprint(new object[] { last.ConcreteMaterial }))
+                || ModelValues.Fingerprint(new object[] { first.ConcreteMaterial }) != ModelValues.Fingerprint(new object[] { last.ConcreteMaterial }))
                 throw new NotSupportedException("IncompatibleRectangularSectionLaw");
             double t = (station - a.Start) / (a.End - a.Start);
             var result = new ReinforcedConcreteSection(new SectionRectangular((1 - t) * x.Height + t * y.Height, (1 - t) * x.Width + t * y.Width), first.ConcreteMaterial);
@@ -67,7 +67,7 @@ namespace GPC.Model.PostProcessing
             for (int i = 0; i < bars.Length; i++)
             {
                 var b = bars[i]; var e = ends[i];
-                if (b.Id != e.Id || b.EpsilonP != 0 || e.EpsilonP != 0 || ModelArchive.Fingerprint(new object[] { b.RebarSection }) != ModelArchive.Fingerprint(new object[] { e.RebarSection }))
+                if (b.Id != e.Id || b.EpsilonP != 0 || e.EpsilonP != 0 || ModelValues.Fingerprint(new object[] { b.RebarSection }) != ModelValues.Fingerprint(new object[] { e.RebarSection }))
                     throw new NotSupportedException("IncompatibleRebarTopologyOrPrestress");
                 result.AddRebar(new ReinforcedConcreteRebar(b.RebarSection,
                     new Point2d((1 - t) * b.Position.X + t * e.Position.X, (1 - t) * b.Position.Y + t * e.Position.Y), id: b.Id));

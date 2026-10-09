@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Elements;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results;
 using GPC.Model.Results.ResultLocations;
 
@@ -33,14 +33,14 @@ namespace GPC.Model.PostProcessing
         public string SampleRevision { get; internal set; }
         public bool IsCurrent => !string.IsNullOrEmpty(Sample?.State?.DatasetId) && Model.AreaElements.TryGetValue(Element.Id, out var current) && ReferenceEquals(current, Element)
             && Element.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, Sample))
-            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelArchive.Fingerprint(new object[] { dataset })
+            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelValues.Fingerprint(new object[] { dataset })
             && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State)
             && VerificationRevision == Model.VerificationFingerprint(Settings)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
-            && SampleRevision == ModelArchive.Fingerprint(new object[] { Sample })
-            && AssignmentsFingerprint == ModelArchive.Fingerprint(new object[] { Assignments })
-            && PropertyFingerprint == ModelArchive.Fingerprint(new object[] { Property })
-            && PreparedFingerprint == ModelArchive.Fingerprint(new object[] { LocalForces });
+            && SampleRevision == ModelValues.Fingerprint(new object[] { Sample })
+            && AssignmentsFingerprint == ModelValues.Fingerprint(new object[] { Assignments })
+            && PropertyFingerprint == ModelValues.Fingerprint(new object[] { Property })
+            && PreparedFingerprint == ModelValues.Fingerprint(new object[] { LocalForces });
     }
     /// <summary>Physical inputs for a shell verifier. Ready here does not assert that a structural design method or engine is available.</summary>
     public sealed class ShellInputPreparation
@@ -86,17 +86,17 @@ namespace GPC.Model.PostProcessing
                 var target = ActionTransformations.AtPoint(axes, sample.Forces.CoordinateSystem.Origin);
                 var local = ActionTransformations.RotateShell(sample, target).Forces;
                 var property = PlateSections.CopyForChecking(shell);
-                var assignments = ModelArchive.CopyValue(shell.Assignments);
+                var assignments = ModelValues.CopyValue(shell.Assignments);
                 assignments.LayerAxes=ActionTransformations.AtPoint(PlateSections.SectionAxes(shell),PlateSections.SectionAxes(shell).Origin);
                 assignments.PhysicalThickness=property.PhysicalThickness; assignments.Layers.Clear();
                 if(property is Sections.Concrete.ReinforcedConcretePlateSection rc) assignments.Layers.AddRange(rc.RebarLayers);
                 if(reinforcementRequired && assignments.Layers.Count==0) throw new ArgumentException("MissingShellReinforcement");
                 result.Input = new ShellCheckInput { Model = model, Element = shell, Sample = sample, LocalForces = local, Settings = settings, Thickness = ShellThickness.From(shell),
                     Assignments = assignments, Property = property,
-                    AssignmentsFingerprint = ModelArchive.Fingerprint(new object[] { assignments }), PropertyFingerprint = ModelArchive.Fingerprint(new object[] { property }),
-                    VerificationRevision = model.VerificationFingerprint(settings), SampleRevision = ModelArchive.Fingerprint(new object[] { sample }),
-                    DatasetFingerprint = ModelArchive.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
-                    PreparedFingerprint = ModelArchive.Fingerprint(new object[] { local }) };
+                    AssignmentsFingerprint = ModelValues.Fingerprint(new object[] { assignments }), PropertyFingerprint = ModelValues.Fingerprint(new object[] { property }),
+                    VerificationRevision = model.VerificationFingerprint(settings), SampleRevision = ModelValues.Fingerprint(new object[] { sample }),
+                    DatasetFingerprint = ModelValues.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
+                    PreparedFingerprint = ModelValues.Fingerprint(new object[] { local }) };
                 result.Status = DataStatus.Ready;
             }
             catch (NotSupportedException ex) { errors.Add(ModelDiagnostic.Error("UnsupportedShellTransformation", shell, ex.Message)); result.Status = DataStatus.NotSupported; }

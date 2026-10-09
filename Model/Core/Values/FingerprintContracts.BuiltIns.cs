@@ -1,6 +1,6 @@
 // Frozen v1 fingerprint vocabulary. Wire names are independent of CLR names.
 // Change the CLR mapping deliberately; retain the wire name for a compatible refactor.
-namespace GPC.Model.Persistence
+namespace GPC.Model.Core
 {
     internal static partial class FingerprintContracts
     {

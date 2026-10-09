@@ -121,10 +121,10 @@ namespace GPC.Model.PostProcessing
     public static class CheckReportViews
     {
         // An undeclared standard stays segregated by engine; legacy metadata is never inferred.
-        public static string StandardKey(CheckResult r) => r.Standard?.Identity ?? "Undeclared:" + Persistence.ModelArchive.Fingerprint(new object[] { r.EngineVersion, r.EngineConfiguration });
+        public static string StandardKey(CheckResult r) => r.Standard?.Identity ?? "Undeclared:" + Core.ModelValues.Fingerprint(new object[] { r.EngineVersion, r.EngineConfiguration });
         public static IReadOnlyList<GoverningCheck> Governing(IEnumerable<CheckResult> results) => Array.AsReadOnly(results
             .Where(r => CheckResultRules.Evaluated(r) && r.Utilization.HasValue)
-            .GroupBy(r => Persistence.ModelArchive.Fingerprint(new object[] { r.Mechanism, StandardKey(r), r.Details?.MethodId,
+            .GroupBy(r => Core.ModelValues.Fingerprint(new object[] { r.Mechanism, StandardKey(r), r.Details?.MethodId,
                 r.Details?.UtilizationDefinition, r.EngineVersion, r.EngineConfiguration, r.Settings, r.Scope, r.MethodId }
                 .Concat(r.Check == null ? new object[0] : new object[] { r.Check.Key })))
             .Select(g => new GoverningCheck(g.Key, g.OrderByDescending(r => r.Utilization).First())).ToArray());

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
@@ -53,7 +53,7 @@ namespace GPC.Model.PostProcessing
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
             }
         }
-        private string PreparedFingerprint() => ModelArchive.Fingerprint(WorkItems.SelectMany(w => new object[] { w.Id, w.Target, w.Scope, w.Mechanism,
+        private string PreparedFingerprint() => ModelValues.Fingerprint(WorkItems.SelectMany(w => new object[] { w.Id, w.Target, w.Scope, w.Mechanism,
             w.MethodId, w.Selection, w.MemberLocation, w.Station, w.StationDomain, w.Side, w.Data, w.Coverage, w.Member?.Snapshot }
             .Concat(w.Check == null ? new object[0] : new object[] { w.Check })));
 
@@ -109,8 +109,8 @@ namespace GPC.Model.PostProcessing
                 if (spec.Start < 0 || (spec.End ?? member.Length) > member.Length || spec.Start >= (spec.End ?? member.Length)
                     || spec.Context.Restraints.Any(b => b.Distance > member.Length)) throw new ArgumentException("InvalidMemberSpanOrRestraintPosition");
             }
-            if (r.MemberChecks.GroupBy(s => ModelArchive.Fingerprint(new object[] { s.MemberId, s.MethodId, s.Mechanism, s.Start, s.End }))
-                .Any(g => g.Select(s => ModelArchive.Fingerprint(new object[] { s.Context })).Distinct().Count() > 1))
+            if (r.MemberChecks.GroupBy(s => ModelValues.Fingerprint(new object[] { s.MemberId, s.MethodId, s.Mechanism, s.Start, s.End }))
+                .Any(g => g.Select(s => ModelValues.Fingerprint(new object[] { s.Context })).Distinct().Count() > 1))
                 throw new ArgumentException("ConflictingMemberCheckContexts: use distinct explicit jobs.");
             if (r.CoveragePolicy == BeamCoveragePolicy.ExportedSamples && r.Locations.Length != 0) throw new ArgumentException("LocationsRequireExplicitCoveragePolicy");
             return scope;
@@ -118,7 +118,7 @@ namespace GPC.Model.PostProcessing
         public static string FingerprintScope(Models.Model model, BeamCheckPlanRequest request)
         {
             var scope = Resolve(model, request);
-            return ModelArchive.Fingerprint(new object[] { request, model.VerificationFingerprint(request.Settings) }
+            return ModelValues.Fingerprint(new object[] { request, model.VerificationFingerprint(request.Settings) }
                 .Concat(request.Results.Select(s => s.Dataset).Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal)
                     .SelectMany(id => new object[] { id, model.Datasets.TryGetValue(id, out var dataset) ? dataset : null }))
                 .Concat(scope.Members.Values.OrderBy(m => m.Definition.Id, StringComparer.Ordinal).Select(m => (object)m.Definition))
@@ -126,7 +126,7 @@ namespace GPC.Model.PostProcessing
                     request.Results.SelectMany(s => ResultQueries.Samples<StationResultBeamForces>(b, s)).ToArray() })));
         }
         private static string ScopeDigest(Models.Model model, BeamCheckPlanRequest request, bool actionsOnly)
-            => !actionsOnly ? FingerprintScope(model, request) : ModelArchive.Fingerprint(new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
+            => !actionsOnly ? FingerprintScope(model, request) : ModelValues.Fingerprint(new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
                 .Concat(Resolve(model, request).Beams.Values.OrderBy(b => b.Id).SelectMany(b => new object[] { b.Id, b.BeamProperty })));
 
         /// <summary>Resolves only the selected elements, without preparing samples or invoking an engine.</summary>
@@ -147,7 +147,7 @@ namespace GPC.Model.PostProcessing
             Resolve(model, request); var r = request.Copy(); var scope = Resolve(model, r);
             var plan = new BeamCheckPlan { _model = model, _actionsOnly = actionsOnly, Request = r, ScopeFingerprint = ScopeDigest(model, r, actionsOnly) };
             var rows = new List<CheckWorkItem>();
-            var selections = r.Results.GroupBy(s => ModelArchive.Fingerprint(new object[] { s })).Select(g => g.First()).ToArray();
+            var selections = r.Results.GroupBy(s => ModelValues.Fingerprint(new object[] { s })).Select(g => g.First()).ToArray();
             var requested = ResolveLocations(scope, r);
             foreach (var selection in selections)
             {
@@ -158,7 +158,7 @@ namespace GPC.Model.PostProcessing
                         {
                             var samples = ResultQueries.Samples<StationResultBeamForces>(beam, selection);
                             if (samples.Count == 0) AddSection(rows, model, scope, r, selection, beam.Id, null, null, beam.Assignments.StationDomain, SectionSide.Unspecified, token, actionsOnly);
-                            foreach (var group in samples.GroupBy(s => ModelArchive.Fingerprint(new object[] { State(s), s.ParametricDistance, s.StationDomain, s.Side })))
+                            foreach (var group in samples.GroupBy(s => ModelValues.Fingerprint(new object[] { State(s), s.ParametricDistance, s.StationDomain, s.Side })))
                             {
                                 var sample = group.First();
                                 AddSection(rows, model, scope, r, group.Count() == 1 ? selection : State(sample, selection.Category), beam.Id,
@@ -233,7 +233,7 @@ namespace GPC.Model.PostProcessing
                     Station = sample?.ParametricDistance ?? station, StationDomain = sample?.StationDomain ?? domain, Side = sample?.Side ?? side,
                     Data = prepared?.Status ?? actions?.Status ?? DataStatus.Insufficient, Coverage = new CoverageAssessment(r.CoveragePolicy, 1, sample == null ? 0 : 1),
                     Diagnostics = diagnostics.AsReadOnly() };
-                item.Id = ModelArchive.Fingerprint(new object[] { item.Scope, item.Target, mechanism, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
+                item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, mechanism, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
             }
             // Explicit tasks: only for the selections declared with the requested category (Unspecified: every selection).
             foreach (var check in r.SectionChecks ?? new SectionCheckSpecification[0])
@@ -246,7 +246,7 @@ namespace GPC.Model.PostProcessing
                     Station = sample?.ParametricDistance ?? station, StationDomain = sample?.StationDomain ?? domain, Side = sample?.Side ?? side,
                     Data = prepared?.Status ?? actions?.Status ?? DataStatus.Insufficient, Coverage = new CoverageAssessment(r.CoveragePolicy, 1, sample == null ? 0 : 1),
                     Diagnostics = diagnostics.AsReadOnly() };
-                item.Id = ModelArchive.Fingerprint(new object[] { item.Scope, item.Target, "SectionCheck", check, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
+                item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, "SectionCheck", check, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
             }
         }
         internal static ResultSelection State(StationResultBeamForces sample) => new ResultSelection { Dataset = sample.State?.DatasetId, Case = sample.Case?.Name,
@@ -270,7 +270,7 @@ namespace GPC.Model.PostProcessing
                     catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
                     { errors.Add(ModelDiagnostic.Error("InvalidMemberSampleLocation", model.BeamElements[part.BeamId], ex.Message)); }
                 var samples = located.ToArray();
-                if (samples.GroupBy(s => ModelArchive.Fingerprint(new object[] { State(s), s.ParametricDistance, s.StationDomain, s.Side })).Any(g => g.Count() > 1))
+                if (samples.GroupBy(s => ModelValues.Fingerprint(new object[] { State(s), s.ParametricDistance, s.StationDomain, s.Side })).Any(g => g.Count() > 1))
                     errors.Add(ModelDiagnostic.Error("AmbiguousMemberSamples", model.BeamElements[part.BeamId]));
                 required += Math.Max(1, samples.Length); available += samples.Length;
                 if (samples.Length == 0) errors.Add(ModelDiagnostic.Error("MissingMemberElementState", model.BeamElements[part.BeamId]));
@@ -283,7 +283,7 @@ namespace GPC.Model.PostProcessing
                 }
             }
             if (!spec.Context.GlobalStateConfirmed || string.IsNullOrWhiteSpace(selection.ConcomitantState)) errors.Add(ModelDiagnostic.Error("GlobalMemberStateNotConfirmed"));
-            if (inputs.Select(i => ModelArchive.Fingerprint(new object[] { State(i.Sample) })).Distinct().Count() > 1) errors.Add(ModelDiagnostic.Error("IncoherentMemberStates"));
+            if (inputs.Select(i => ModelValues.Fingerprint(new object[] { State(i.Sample) })).Distinct().Count() > 1) errors.Add(ModelDiagnostic.Error("IncoherentMemberStates"));
             var snapshot = new MemberInputSnapshot(geometry, spec, inputs);
             foreach (var boundary in new[] { spec.Start, end })
                 if (!snapshot.Samples.Any(s => Math.Abs(s.Location.Distance - boundary) <= 1e-7)) errors.Add(ModelDiagnostic.Error("MissingMemberSpanBoundary"));
@@ -291,7 +291,7 @@ namespace GPC.Model.PostProcessing
                 MethodId = spec.MethodId, Selection = selection.Copy(), Data = stale ? DataStatus.Stale : errors.Count == 0 ? DataStatus.Ready : DataStatus.Insufficient,
                 Member = new PhysicalMemberCheckInput { Snapshot = snapshot, Sections = inputs.AsReadOnly(), MethodId = spec.MethodId, Mechanism = spec.Mechanism },
                 Diagnostics = errors.AsReadOnly(), Coverage = new CoverageAssessment(BeamCoveragePolicy.ExportedSamples, required, available) };
-            item.Id = ModelArchive.Fingerprint(new object[] { item.Scope, item.Target, spec, selection }); rows.Add(item);
+            item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, spec, selection }); rows.Add(item);
         }
     }
 }

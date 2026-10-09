@@ -7,7 +7,7 @@ using System.Threading;
 using GPC.Geometry;
 using GPC.Model.Combinations;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ElementResults;
 using GPC.Model.Results.ResultLocations;
 
@@ -155,7 +155,7 @@ namespace GPC.Model.PostProcessing
                     var sources = t.Length != 0 ? t.Select(x => samples[x.Case]).ToArray() : new[] { template };
                     var sample = ResultAlgebra.Create(template, vectors[pair.Key].Select(v => NumericGuard.Finite(v, "combined result")).ToArray(), axes, output);
                     var state = template.State.Copy(); state.Original = null; state.SourceRecord = null;
-                    state.DerivedFrom = sources; state.DerivedSourceFingerprint = ModelArchive.Fingerprint(sources.Cast<object>()); state.SourceHash = state.DerivedSourceFingerprint;
+                    state.DerivedFrom = sources; state.DerivedSourceFingerprint = ModelValues.Fingerprint(sources.Cast<object>()); state.SourceHash = state.DerivedSourceFingerprint;
                     state.IsSynthetic = sources.Any(s => s.State.IsSynthetic); state.IsCombined = true;
                     state.Transformation = t.Length == 0 ? "0 * " + cases[0] : string.Join("; ", t.Select(x => x.Factor.ToString("R", CultureInfo.InvariantCulture) + " * " + cases[x.Case]
                         + " [" + samples[x.Case].State.ConcomitantStateId + "]"));

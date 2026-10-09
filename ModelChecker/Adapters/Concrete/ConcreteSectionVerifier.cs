@@ -9,7 +9,7 @@ using GPC.Checkers.Concrete.Checkers;
 using GPC.Checkers.Concrete.SectionSolvers;
 using GPC.Geometry;
 using GPC.Model.PostProcessing;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Standards;
@@ -153,7 +153,7 @@ namespace GPC.Model.Checker
                         || input.Section.Rebars.Any(r => r.EpsilonP != 0)) return Failure("NumericalZeroDemandContractMismatch");
                     var zero = NativeResults.Decision(new NativeMethodDetails("Concrete.PlasticSectionDomain",
                         "Zero N-M1-M2 demand without initial rebar strain; no resistant point, shear/torsion excluded.",
-                        ModelArchive.Fingerprint(new object[] { input.Section }), new[] { new CheckMetric("N-M1-M2", 0, null, "1", 0, true) }, null, null, null, null, _criterion.ToString()));
+                        ModelValues.Fingerprint(new object[] { input.Section }), new[] { new CheckMetric("N-M1-M2", 0, null, "1", 0, true) }, null, null, null, null, _criterion.ToString()));
                     zero.EngineVersion = Version; zero.Standard = StandardContext;
                     return WithEdition(WithNumericalDiagnostics(zero, point.Diagnostics));
                 }
@@ -162,8 +162,8 @@ namespace GPC.Model.Checker
                     || !SameForces(convergence.Demand.Forces, forces)
                     || convergence.Capacity.Forces.N != point.N || convergence.Capacity.Forces.M1 != point.M1
                     || convergence.Capacity.Forces.M2 != point.M2
-                    || ModelArchive.Fingerprint(new object[] { convergence.Capacity.Forces.CoordinateSystem })
-                        != ModelArchive.Fingerprint(new object[] { forces.CoordinateSystem }))
+                    || ModelValues.Fingerprint(new object[] { convergence.Capacity.Forces.CoordinateSystem })
+                        != ModelValues.Fingerprint(new object[] { forces.CoordinateSystem }))
                     return Failure("NumericalResistanceConvergenceContractMismatch");
                 double ratio=point.Utilization.Value;
                 if(double.IsNaN(ratio)||double.IsInfinity(ratio)||ratio<0) return Failure("CheckerInvalidRatio");
@@ -201,7 +201,7 @@ namespace GPC.Model.Checker
         private static bool SameForces(ResultBeamForces actual, ResultBeamForces expected) =>
             actual.N == expected.N && actual.V1 == expected.V1 && actual.V2 == expected.V2 && actual.T == expected.T
                 && actual.M1 == expected.M1 && actual.M2 == expected.M2
-                && ModelArchive.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelArchive.Fingerprint(new object[] { expected.CoordinateSystem });
+                && ModelValues.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelValues.Fingerprint(new object[] { expected.CoordinateSystem });
         private bool MatchesEngine(SolverDiagnostics diagnostics) => diagnostics != null && diagnostics.Engine == _calculationFactory.Id
             && diagnostics.Version == _calculationFactory.Version;
         private bool MatchesResponse(SectionResponse response, ResultBeamForces forces, SectionSolver.StressAnalysisTypes analysis)
@@ -211,7 +211,7 @@ namespace GPC.Model.Checker
             var actual = response.Input.Forces;
             return actual.N == forces.N && actual.V1 == forces.V1 && actual.V2 == forces.V2 && actual.T == forces.T
                 && actual.M1 == forces.M1 && actual.M2 == forces.M2
-                && ModelArchive.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelArchive.Fingerprint(new object[] { forces.CoordinateSystem });
+                && ModelValues.Fingerprint(new object[] { actual.CoordinateSystem }) == ModelValues.Fingerprint(new object[] { forces.CoordinateSystem });
         }
         private CheckResult WithEdition(CheckResult result)
         {
@@ -234,10 +234,10 @@ namespace GPC.Model.Checker
         /// <summary>Cached native checker per section, configuration and stress analysis type. Call under <see cref="Sync"/>.</summary>
         private Tuple<ReinforcedConcreteSection, ConcreteCalculationSession> Checker(ReinforcedConcreteSection section, CoordinateSystem reference, SectionSolver.StressAnalysisTypes stress)
         {
-            var key = ModelArchive.Fingerprint(new object[] { section, Configuration, stress });
-            if (!_checkers.TryGetValue(key, out var entry) || ModelArchive.Fingerprint(new object[] { entry.Item1, Configuration, stress }) != key)
+            var key = ModelValues.Fingerprint(new object[] { section, Configuration, stress });
+            if (!_checkers.TryGetValue(key, out var entry) || ModelValues.Fingerprint(new object[] { entry.Item1, Configuration, stress }) != key)
             {
-                var created = _calculationFactory.Create(ModelArchive.CopyValue(section), ModelArchive.CopyValue(_standard), new ConcreteCalculationOptions(reference,
+                var created = _calculationFactory.Create(ModelValues.CopyValue(section), ModelValues.CopyValue(_standard), new ConcreteCalculationOptions(reference,
                     _criterion, stress, _considerTension, _angularDivisions, _psiRebar, _psiTendon))
                     ?? throw new InvalidOperationException("NullNumericalSession");
                 entry = Tuple.Create(section, created); _checkers[key] = entry; _createdCheckers++;

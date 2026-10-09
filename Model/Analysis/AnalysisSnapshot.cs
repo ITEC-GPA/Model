@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Xml;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 
 using GPC.Model.PostProcessing;
@@ -32,7 +32,7 @@ namespace GPC.Model.PostProcessing
             internal string Physical, Source, Reinforcement, Prestress;
             internal CanonicalInputs(Models.Model model)
             {
-                Physical = model.AnalysisFingerprint(); Source = ModelArchive.Fingerprint(new object[] { model.AnalysisSource });
+                Physical = model.AnalysisFingerprint(); Source = ModelValues.Fingerprint(new object[] { model.AnalysisSource });
                 Reinforcement = AnalysisStorage.Reinforcement(model); Prestress = AnalysisStorage.Prestress(model);
             }
         }
@@ -58,7 +58,7 @@ namespace GPC.Model.PostProcessing
             var copy = AnalysisStorage.Read<Models.Model>(bytes);
             return new AnalysisSnapshot { Id = Guid.NewGuid().ToString("D"), ModelGuid = copy.Guid, _model = bytes, _fingerprintSchema = 2,
                 _contentHash = AnalysisStorage.Digest(bytes), InputFingerprint = copy.AnalysisFingerprint(),
-                SourceFingerprint = ModelArchive.Fingerprint(new object[] { copy.AnalysisSource }),
+                SourceFingerprint = ModelValues.Fingerprint(new object[] { copy.AnalysisSource }),
                 ReinforcementFingerprint = AnalysisStorage.Reinforcement(copy), PrestressFingerprint = AnalysisStorage.Prestress(copy),
                 ReinforcementRole = reinforcementRole, AssumptionReference = assumptionReference };
         }

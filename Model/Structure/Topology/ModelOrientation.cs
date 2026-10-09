@@ -5,7 +5,7 @@ using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Attributes;
 using GPC.Model.Loads;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.Results.ResultLocations;
 
 namespace GPC.Model.PostProcessing
@@ -17,7 +17,7 @@ namespace GPC.Model.PostProcessing
         private static Models.Model Copy(Models.Model source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
-            using (var stream = new MemoryStream()) { ModelArchive.Save(source, stream); stream.Position = 0; return ModelArchive.Load(stream); }
+            return ModelValues.Copy(source);
         }
         private static CoordinateSystem Flip(CoordinateSystem axes, Point3d origin)
         { Axes.Validate(axes); return new CoordinateSystem(new Point3d(origin.X, origin.Y, origin.Z), axes.V1, axes.V2 * -1, axes.V3 * -1); }

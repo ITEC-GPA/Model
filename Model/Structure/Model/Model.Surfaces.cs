@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.ElementProperties;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 using GPC.Model.Results.Processing;
 
@@ -56,7 +56,7 @@ namespace GPC.Model.Models
                     throw new ArgumentException("SurfaceSectionReferencePlaneMismatch");
                 axes.Add(ActionTransformations.AtPoint(frame,frame.Origin));
             }
-            var owned=ModelArchive.CopyValue(property);
+            var owned=ModelValues.CopyValue(property);
             for(int i=0;i<elements.Count;i++)
             {
                 elements[i].PlateProperty=owned; elements[i].Assignments.LayerAxes=axes[i];

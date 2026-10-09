@@ -12,7 +12,7 @@ namespace GPC.Model.PostProcessing
         public string ModelRevision { get; set; }
         public string AnalysisId { get; set; }
         public string InputFingerprint { get; set; }
-        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Persistence.FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Core.FingerprintWhenSet]
         public string AnalysisSnapshotId { get; set; }
         public string NormalizedUnits { get; set; }
         public AnalysisSemantics Semantics { get; set; }

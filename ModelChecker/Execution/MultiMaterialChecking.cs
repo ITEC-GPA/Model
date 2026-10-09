@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using GPC.Model.Elements;
-using GPC.Model.Persistence;
+using GPC.Model.Core;
 using GPC.Model.PostProcessing;
 
 namespace GPC.Model.Checker
@@ -19,7 +19,7 @@ namespace GPC.Model.Checker
             internal Dictionary<string, string> Keys;
             internal string Settings;
         }
-        private static string EngineKey(IMaterialChecker c) => c == null ? null : ModelArchive.Fingerprint(new object[] {
+        private static string EngineKey(IMaterialChecker c) => c == null ? null : ModelValues.Fingerprint(new object[] {
             c.GetType().AssemblyQualifiedName, c.Id, c.Version, c.Configuration, c.Standard?.Identity });
         private static string RouteId(int beam, CheckMechanism mechanism, SectionCheckSpecification check)
             => beam.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":" + (check?.Key ?? mechanism.ToString());
@@ -53,7 +53,7 @@ namespace GPC.Model.Checker
             }
             var keys = routes.ToDictionary(p => p.Key, p => EngineKey(p.Value));
             // Persist a digest of selectors AND resolved configurations through the existing scope/settings contract.
-            planRequest.Settings = (planRequest.Settings ?? "") + "\nMaterialRouting:" + ModelArchive.Fingerprint(new object[] {
+            planRequest.Settings = (planRequest.Settings ?? "") + "\nMaterialRouting:" + ModelValues.Fingerprint(new object[] {
                 job.Assignments.Select(a => new object[] { a.Selection, EngineKey(a.Checker), a.Mechanisms, a.Checks }).ToArray(),
                 keys.OrderBy(p => p.Key, StringComparer.Ordinal).Select(p => new object[] { p.Key, p.Value }).ToArray() });
             return new MaterialPlan { Job = job, Routes = routes, Keys = keys, Settings = job.Plan.Settings, Request = planRequest };

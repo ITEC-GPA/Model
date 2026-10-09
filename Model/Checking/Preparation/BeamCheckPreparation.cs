@@ -76,8 +76,8 @@ namespace GPC.Model.Checking
                 preparedForces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(orientation, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
             }
             catch (ArgumentException ex) { return new BeamPreparation { BeamId = beamId, Sample = sample, Status = DataStatus.Insufficient, Diagnostics = new[] { ModelDiagnostic.Error("InvalidResultAxes", b, ex.Message) } }; }
-            var sourceSectionFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { section });
-            var detachedSection = Persistence.ModelArchive.CopyValue(section);
+            var sourceSectionFingerprint = Core.ModelValues.Fingerprint(new object[] { section });
+            var detachedSection = Core.ModelValues.CopyValue(section);
             return new BeamPreparation
             {
                 BeamId = beamId,
@@ -87,11 +87,11 @@ namespace GPC.Model.Checking
                 Input = new BeamCheckInput
                 {
                     Model = model,
-                    SampleFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { sample }),
-                    PreparedForcesFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { preparedForces }),
-                    PreparedSectionFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { detachedSection }),
+                    SampleFingerprint = Core.ModelValues.Fingerprint(new object[] { sample }),
+                    PreparedForcesFingerprint = Core.ModelValues.Fingerprint(new object[] { preparedForces }),
+                    PreparedSectionFingerprint = Core.ModelValues.Fingerprint(new object[] { detachedSection }),
                     SourceSectionFingerprint = sourceSectionFingerprint,
-                    DatasetFingerprint = Persistence.ModelArchive.Fingerprint(new object[] { model.Datasets[sample.State.DatasetId] }),
+                    DatasetFingerprint = Core.ModelValues.Fingerprint(new object[] { model.Datasets[sample.State.DatasetId] }),
                     BeamId = beamId,
                     Sample = sample,
                     Section = detachedSection,
@@ -118,11 +118,11 @@ namespace GPC.Model.Checking
                 return input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
                     && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
                     && ResultAlgebra.HasCurrentDerivation(input.Model, beam, input.Sample.State)
-                    && input.SourceSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { source })
-                    && input.DatasetFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { dataset })
-                    && input.PreparedSectionFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Section })
-                    && input.SampleFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Sample })
-                    && input.PreparedForcesFingerprint == Persistence.ModelArchive.Fingerprint(new object[] { input.Forces });
+                    && input.SourceSectionFingerprint == Core.ModelValues.Fingerprint(new object[] { source })
+                    && input.DatasetFingerprint == Core.ModelValues.Fingerprint(new object[] { dataset })
+                    && input.PreparedSectionFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Section })
+                    && input.SampleFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Sample })
+                    && input.PreparedForcesFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Forces });
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
         }
