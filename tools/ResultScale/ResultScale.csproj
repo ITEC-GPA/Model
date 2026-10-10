@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Scale measurement of models with results (review point R1). Development tool, outside GPCModel.sln. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\GPC Converter\GPC Converter.csproj" />
+    <ProjectReference Include="..\..\GPC.Model.Persistence\GPC.Model.Persistence.csproj" />
+    <Reference Include="GPCGeometry"><HintPath>..\..\..\Geometry\GPCGeometry\bin\Release\netstandard2.0\GPCGeometry.dll</HintPath></Reference>
+    <Reference Include="GPCUtilities"><HintPath>..\..\..\Utilities\GPCUtilities\bin\Release\netstandard2.0\GPCUtilities.dll</HintPath></Reference>
+    <Reference Include="DelaunayMesh"><HintPath>..\..\..\Geometry\DelaunayMesh\bin\Release\netstandard2.0\DelaunayMesh.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

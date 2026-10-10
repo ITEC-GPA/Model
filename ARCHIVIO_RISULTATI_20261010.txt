@@ -1,0 +1,104 @@
+ARCHIVIO DEI RISULTATI FUORI DAL GRAFO
+Progetto del 10/10/2026 (revisione di architettura, punto R1)
+
+1. PROBLEMA
+Salvataggio dell'archivio, copia del modello, preparazione della verifica, snapshot di
+verifica e revisione di ModelEditSession serializzano in XML (DataContract) l'intero
+grafo, campioni dei risultati compresi. Due tetti fissi: 2.000.000 di oggetti nel grafo
+(DomainXmlSerializer) e 256 milioni di caratteri in lettura. Ogni campione importato porta
+con se' circa 65 oggetti (stato, valori originali, sistemi di riferimento, ElementResult
+proprio) e circa 7,5 KB di XML. L'impronta dei risultati (IsCurrent) attraversa tutti i
+campioni e tiene l'intero flusso in memoria prima dello SHA-256.
+
+Misure: griglia sintetica (revisione del 9/10) e spalla MIDAS reale (tools/ResultScale,
+paragrafo 6). Sulla griglia il modello si salva e si prepara fino a circa 30.000 campioni;
+sulla spalla reale non si salva ne' si prepara nemmeno con un solo caso, e senza alcun
+risultato l'archivio pesa gia' 319 MB e non si rilegge: anche il grafo degli input e'
+troppo verboso in XML (paragrafo 6).
+
+2. REQUISITI (decisione dell'utente del 10/10/2026)
+- Modelli anche piu' grandi della spalla d'esempio (3.435 plate, 181 beam, 49 casi e
+  73 combinazioni: circa 1,7 milioni di campioni) e con piu' risultati.
+- Salvataggio, lettura, copia, preparazione, snapshot e attualita' lineari nel numero di
+  campioni, senza tetti fissi; memoria proporzionale ai dati compatti.
+- API pubbliche invariate: Element.Results, AddResult, ElementResult, ResultLocation,
+  ResultState restano quelli di oggi.
+- Gli archivi 1-4 si leggono come prima; le impronte storiche (analisi, scenari,
+  resoconti) non cambiano.
+
+3. PROGETTO
+3.0 Immagini binarie del grafo degli input. Copie, preparazione, snapshot dell'analisi e
+pacchetto d'archivio scrivono il grafo con lo stesso DataContractSerializer e gli stessi
+contratti (nomi storici compresi), ma in XML binario con un dizionario dei nomi scritto in
+testa all'immagine: nomi, namespace e attributi diventano indici, i numeri restano binari.
+La semantica della serializzazione non cambia. Le immagini interne non hanno tetto di
+oggetti; il testo XML (SaveDocument, archivi 1-4) resta com'e'.
+3.1 Blocchi per elemento. I risultati di un elemento (la sua lista di ElementResult)
+diventano un blocco binario immutabile:
+- codec a schema: per ogni tipo i nomi dei campi (quelli di GetObjectData o dei membri
+  DataContract) si scrivono una volta per blocco, poi solo i valori; stringhe in tabella;
+  riferimenti condivisi preservati come nella serializzazione XML;
+- casi e combinazioni come riferimenti (GUID e nome) risolti sul modello che materializza;
+  un campione di un altro elemento (DerivedFrom) come GUID dell'elemento e ordinale;
+- vocabolario chiuso: tipi di GPCModel e GPCGeometry, primitivi, enumerativi, array e
+  liste; nessun nome di tipo letto da file viene risolto fuori da questo insieme;
+- compressione deflate e digest SHA-256 dei byte non compressi.
+3.2 Materializzazione pigra. Un elemento tiene il blocco finche' qualcuno legge Results o
+aggiunge un risultato; allora il blocco si decodifica in oggetti nuovi, legati ai casi del
+proprio modello, e da li' la lista e' quella di sempre.
+3.3 Copie solo degli input. Copia, preparazione e snapshot serializzano il grafo senza
+risultati (immagine binaria, 3.0); ogni elemento della copia riceve lo stesso blocco
+immutabile dell'originale (un elemento gia' materializzato viene prima codificato). Nessun
+campione viene copiato.
+3.4 Impronta dei risultati. Digest per elemento: quello del blocco se l'elemento non e'
+materializzato, altrimenti ricalcolato codificando la lista. Il digest del modello combina
+GUID e digest degli elementi in ordine. Le impronte con InputFingerprint usano un hash
+incrementale senza copiare il flusso in memoria; i valori non cambiano.
+3.5 Archivio versione 5. ModelArchive.Save scrive un pacchetto ZIP con model.bin
+(immagine binaria del ModelDocument senza risultati e senza resoconti), results.bin (i
+blocchi con GUID dell'elemento e digest) e reports/NNNN.xml (resoconti a gruppi, formato
+CheckReportArchive). SaveDocument continua a scrivere il documento XML versione 4. Load
+legge tutte le versioni. Un lettore precedente rifiuta il pacchetto (non e' XML): nessuna
+lettura parziale silenziosa.
+3.6 Resoconti. In archivio a gruppi; nelle copie copiati a gruppi e validati una volta.
+3.7 Revisioni. ModelRevision usa il grafo senza risultati e i digest dei risultati.
+
+4. SCELTE
+- Righe per elemento e non colonne: chi legge i risultati (verifiche, visualizzatore,
+  combinazioni) lavora per elemento, e la materializzazione pigra richiede blocchi
+  indipendenti. La ripetizione dei valori di stato tra campioni e' assorbita dalla tabella
+  delle stringhe e dalla compressione.
+- Lo stato resta un oggetto per campione in memoria, perche' contiene campi propri del
+  campione (record di origine, valori originali). Nel blocco i suoi campi testuali comuni
+  sono indici della tabella.
+
+5. LIMITI E PASSI SUCCESSIVI
+- Un elemento materializzato occupa in memoria quanto oggi: per scorrere tutti i risultati
+  di un modello molto grande servira' una lettura che non materializza (copia temporanea
+  del blocco) o la de-materializzazione dopo l'uso.
+- Il blocco intero si tiene in memoria compresso; un archivio molto grande potra' leggere i
+  blocchi dal file su richiesta.
+
+6. MISURE SULLA SPALLA MIDAS
+Strumento: tools/ResultScale (--midas <cartella delle tabelle> --cases <n,...>). Ricostruisce
+il modello con il Converter (CivilNxModelProfile, ModelMapper) e importa con
+CivilNxResults.Import le righe reali di SLU_Q1_1(max), riprodotte per i primi N casi e
+combinazioni del modello con un fattore di scala per caso: ogni campione ha la struttura di
+un'importazione vera. Le tabelle MIDAS sono dati privati e non sono nel repository.
+
+Prima della correzione (Model 4.1.0, commit 4e6be9d4; 3.435 plate, 181 beam, 3.755 nodi):
+  campioni   archivio   salvataggio   lettura   copia   preparazione   snapshot
+  0          319 MB     2,3 s         fallisce  fallisce  6,7 s        fallisce
+  14.623     -          fallisce      -         fallisce  fallisce     -
+  29.246     -          fallisce      -         fallisce  fallisce     -
+  73.115     -          fallisce      -         fallisce  fallisce     -
+Senza risultati la lettura, la copia e lo snapshot superano i 256 milioni di caratteri;
+con un caso salvataggio, copia e preparazione superano i 2 milioni di oggetti. Picco di
+memoria 1,5-2,5 GB. Composizione dell'archivio senza risultati: snapshot dell'analisi
+154 MB (il grafo degli input in base64), plate 136 MB (circa 40 KB l'una, di cui 43 KB di
+carichi di pressione: ogni carico ripete sistema di riferimento, matrice di trasformazione
+MathNet e GUID di ogni punto), nodi 41 MB (link di 9 KB), beam 3,5 MB, dati originali
+conservati 3,3 MB. Un valore ISerializable in XML porta con se' tipo, identificativo e
+namespace: circa 100 caratteri per un numero.
+
+La misura dopo la correzione e' nel paragrafo 7 (punto 4 della revisione).
