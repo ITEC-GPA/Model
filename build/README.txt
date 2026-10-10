@@ -2,12 +2,22 @@ BUILD RIPRODUCIBILE E BASELINE API
 
 Eseguire: ./build/Verify.ps1
 Il runner prepara .dependencies da build/dependencies.props, ripristina NuGet
-con --locked-mode, esegue Model.Core.Tests, UnitTest e ModelChecker.Tests e confronta le API.
+con --locked-mode, esegue Model.Core.Tests e UnitTest e confronta le API di
+GPCModel e GPC.Model.Persistence.
+
+Dal 10/10/2026 GPCModelChecker e ModelChecker.Tests stanno nel repository Checker,
+a valle di Model (revisione di architettura, punto R3): Model fissa solo Geometry e
+Utilities e non dipende piu' da nessuna DLL di Checker. Le baseline API di
+GPCModelChecker e di GPCChecker.Concrete sono in Checker/build/api.
+
+Build deterministiche: in Release (Directory.Build.props) ContinuousIntegrationBuild
+mappa la radice del checkout su /_/, quindi lo SHA-256 di una DLL dipende dai
+sorgenti, dal commit e dalle DLL referenziate, non dalla cartella di compilazione.
 Per una macchina senza repository fratelli: -SourceBundle <cartella DLL>.
 Per build dirette e' possibile -p:GpcDependencyDir=<cartella>; gli hash restano
 obbligatori. Non e' previsto un fallback silenzioso a bin/Release.
 
-Il manifest fissa versioni e SHA256 dei sei file. ObservedSourceCommit e'
+Il manifest fissa versioni e SHA256 dei tre file (DelaunayMesh, GPCGeometry, GPCUtilities). ObservedSourceCommit e'
 provenienza del checkout osservato: non attesta una ricompilazione di DLL gia'
 esistenti. Un aggiornamento delle dipendenze richiede revisione del manifest e
 nuova validazione, non una rigenerazione automatica durante CI.

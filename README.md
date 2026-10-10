@@ -25,14 +25,12 @@ Il riordino attuale usa **Model 4** e richiede la ricompilazione dei consumer. L
 
 Il dominio FEM rimane `GPC.Model.Models.Model`. Nodi, beam, shell e solidi condividono identità e registri; gli assi sono sempre i tipi reali `Point3d`, `Vector3d` e **`GPC.Geometry.CoordinateSystem`**.
 
-I convertitori sono nel progetto separato **`GPC Converter/GPC Converter.csproj`**, incluso in `GPCModel.sln`, con assembly/namespace `GPC.Converter`. `Model` non dipende dai convertitori né dal verificatore. L'adattatore al verificatore esistente è opzionale: `ModelChecker/GPCModelChecker.csproj`.
+I convertitori sono nel progetto separato **`GPC Converter/GPC Converter.csproj`**, incluso in `GPCModel.sln`, con assembly/namespace `GPC.Converter`. `Model` non dipende dai convertitori né dal verificatore. L'adattatore ai motori di verifica, `GPCModelChecker`, sta nel repository **Checker** (`Checker/ModelChecker`), a valle di Model: dal 10/10/2026 Model fissa solo Geometry e Utilities e nessuna DLL di Checker (revisione di architettura, R3).
 
 ```powershell
 dotnet build GPCModel.sln --no-restore
 dotnet test UnitTest/UnitTest.csproj --no-restore
-dotnet test ModelChecker.Tests/ModelChecker.Tests.csproj
 dotnet run --project Examples/MixedModel/MixedModel.csproj --no-restore
-dotnet run --project Examples/MixedModel/MixedModel.csproj --no-restore -- --without-checker
 dotnet run --project Examples/MixedModel/MixedModel.csproj --no-restore -- --model-only
 dotnet run --project Examples/MixedModel/MixedModel.csproj -- --civil-file Examples/CivilTextSynthetic.mct synthetic-revision
 dotnet run --project Examples/MixedModel/MixedModel.csproj -- --straus-api-file 'C:\modelli\modello.st7' rev-1

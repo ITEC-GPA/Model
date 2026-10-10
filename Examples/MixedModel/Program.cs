@@ -38,35 +38,14 @@ Console.WriteLine($"Elements incident to node 10: {model.GetAdjacency()[10].Coun
 Console.WriteLine($"Source B1 resolves to ID {model.FindBySource(new SourceIdentity("Synthetic","mixed-v1",EntityFamily.Beam,"B1")).Id}");
 var sample=Verification.BeamSample(model.BeamElements[250],"synthetic-static","P+",.5,SectionSide.Unspecified);
 var prepared=Verification.PrepareBeam(model,250,sample,"Synthetic demonstration; NTC2018 defaults; constant eccentricity; tensile concrete excluded");
+// The engines and ModelChecker are downstream of Model (Checker repository): without a verifier the check is NotEvaluated.
 IConcreteSectionVerifier? verifier=null;
-#if GPC_CHECKER
-if(!args.Contains("--without-checker")) verifier=new GPC.Model.Checker.ConcreteSectionVerifier(new GPC.Model.Standards.StandardNTC2018Concrete(),
-    GPC.Checkers.Concrete.SectionSolvers.SectionSolver.FailureAnalysisTypes.ConstantEccentricity,false,64,0,0);
-#endif
 var result=Verification.Run(prepared,CheckMechanism.UlsBiaxialSection,verifier);
 model.CheckReports.Add(CheckReport.ForSingleResult(result));
 Console.WriteLine($"Midspan: V2={sample.ResultBeamForces.V2} N; M1={sample.ResultBeamForces.M1} Nmm; preparation={prepared.Status}");
 Console.WriteLine($"Section check: {result.Execution}/{result.Data}/{result.Outcome}; ratio={result.Utilization}; engine={result.EngineVersion}");
 foreach(var d in result.Diagnostics) Console.WriteLine(d.Code+": "+d.Message);
-#if GPC_CHECKER
-if (verifier != null)
-{
-    var request = new GPC.Model.Checker.ModelCheckRequest();
-    request.Jobs.Add(new GPC.Model.Checker.ModelCheckJob
-    {
-        Name = "All beam and plate samples",
-        Options = new GPC.Model.Checker.ConcreteVerificationOptions { Standard = new GPC.Model.Standards.StandardNTC2018Concrete(),
-            Criterion = GPC.Checkers.Concrete.SectionSolvers.SectionSolver.FailureAnalysisTypes.ConstantEccentricity },
-        Preparation = new PreparationRequest { Results = new[] { new ResultSelection { Dataset = "synthetic-static", Case = "P+" } },
-            Settings = "Synthetic mixed model demonstration" }
-    });
-    var batch = new GPC.Model.Checker.ModelChecker().Verify(model, request);
-    model.CheckReports.AddRange(batch.Jobs);
-    Console.WriteLine($"ModelChecker: required={batch.Required}; executed={batch.Executed}; native checkers={batch.CreatedCheckers}; outcome={batch.Outcome}");
-    foreach (var item in batch.Jobs.SelectMany(j => j.Results).Where(r => r.Outcome == EngineeringOutcome.NotEvaluated))
-        Console.WriteLine($"  {item.Family} {item.ElementId}: {item.Data}; {string.Join(", ", item.Diagnostics.Select(d => d.Code))}");
-}
-#endif
+// The ModelChecker demonstration on this model (ConcreteSectionVerifier, ModelCheckRequest) is ModelCheckerWorkflowTest in Checker.
 var shell=(PointResultPlateForces)model.AreaElements.Values.First().Results[0].Results[0];
 Console.WriteLine($"Shell Fxx={shell.Forces.Fxx} N/mm, Mxx={shell.Forces.Mxx} Nmm/mm; structural design method not selected.");
 var shellPreparation=ShellActionPreparation.Prepare(model,model.AreaElements.Values.First().Id,shell,null);

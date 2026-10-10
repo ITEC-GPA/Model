@@ -10,14 +10,14 @@
       "GPC.Converter": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )",
-          "GPCModelData": "[1.0.0, )"
+          "GPCModel": "[4.1.0, )",
+          "GPCModelData": "[0.0.2.6, )"
         }
       },
       "gpc.model.persistence": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )"
+          "GPCModel": "[4.1.0, )"
         }
       },
       "gpcmodel": {
@@ -26,16 +26,10 @@
           "MathNet.Numerics": "[5.0.0, )"
         }
       },
-      "gpcmodelchecker": {
-        "type": "Project",
-        "dependencies": {
-          "GPCModel": "[1.0.0, )"
-        }
-      },
       "gpcmodeldata": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )"
+          "GPCModel": "[4.1.0, )"
         }
       }
     }
