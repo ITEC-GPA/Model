@@ -10,6 +10,10 @@ a valle di Model (revisione di architettura, punto R3): Model fissa solo Geometr
 Utilities e non dipende piu' da nessuna DLL di Checker. Le baseline API di
 GPCModelChecker e di GPCChecker.Concrete sono in Checker/build/api.
 
+Rilascio: treno unico di Utilities, Geometry, Model e Checker in Checker/build/RILASCIO.txt.
+Le versioni le assegna l'utente; il set coerente lo produce Checker/build/Release-Set.ps1,
+che esegue anche questo Verify (-Results <cartella> per un risultato separato per suite).
+
 Build deterministiche: in Release (Directory.Build.props) ContinuousIntegrationBuild
 mappa la radice del checkout su /_/, quindi lo SHA-256 di una DLL dipende dai
 sorgenti, dal commit e dalle DLL referenziate, non dalla cartella di compilazione.
