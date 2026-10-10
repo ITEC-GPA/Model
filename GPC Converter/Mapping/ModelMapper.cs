@@ -242,6 +242,35 @@ namespace GPC.Converter
                         Restrain = new NodeRestrain(node, r.CoordinateSystem, dofs), SourceRecord = r.Record
                     }, AssignmentMode.Add);
                 }
+                foreach (var r in batch.BeamReleases)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = r.Record;
+                    var release = r.Release ?? throw new ArgumentException("MissingBeamRelease");
+                    if (release.I == null || release.J == null || release.I.Length != 6 || release.J.Length != 6 || release.I.Concat(release.J).Any(d => d == null))
+                        throw new ArgumentException("InvalidBeamRelease");
+                    Axes.Validate(release.CoordinateSystem);
+                    if (beams[r.BeamId].Attributes.Values.OfType<GPC.Model.Attributes.BeamReleasesAttribute>().Any())
+                        throw new ArgumentException("ConflictingBeamRelease");
+                    beams[r.BeamId].Attributes.Add(release);
+                }
+                foreach (var r in batch.NodeLinks)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = r.Record;
+                    var first = nodes[r.I]; var second = nodes[r.J];
+                    if (ReferenceEquals(first, second) || (r.Spring == null) == (r.RigidDofs == null)) throw new ArgumentException("InvalidNodeLink");
+                    var link = new NodalLink { OtherNodeId = second.Id, SourceRecord = r.Record, Spring = r.Spring };
+                    if (r.RigidDofs != null)
+                    {
+                        if (r.RigidDofs.Length != 6 || !r.RigidDofs.Any(v => v)) throw new ArgumentException("InvalidRigidLinkDofs");
+                        var equations = GPC.Model.Constraints.RigidLink.GetRigidLink(first, second).Where((e, index) => r.RigidDofs[index]).ToArray();
+                        link.KinematicCoefficients = new double[equations.Length * 12]; link.RightHandSide = equations.Select(e => e.ConstValue).ToArray();
+                        link.LeverArm = second.Position - first.Position;
+                        for (int row = 0; row < equations.Length; row++)
+                            foreach (var term in equations[row].Equations)
+                                link.KinematicCoefficients[row * 12 + (ReferenceEquals(term.NodeSlave, first) ? 0 : 6) + (int)term.GdlNode] += term.Value;
+                    }
+                    first.Assignments.Links.Add(link);
+                }
                 report.Diagnostics.AddRange(model.ValidateTopology());
                 if (report.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error)) return report;
                 report.Model = model; report.Status = ImportStatus.Partial;

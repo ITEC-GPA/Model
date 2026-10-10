@@ -34,6 +34,7 @@
   <ItemGroup>
     <Compile Include="..\Examples\MixedModelFactory.cs" Link="Fixtures\MixedModelFactory.cs" />
     <Compile Include="..\tools\ApiSurface\ApiCompatibility.cs" Link="Tools\ApiCompatibility.cs" />
+    <Compile Include="../tests/CivilNxBoundaryTest.cs" Link="CivilNxBoundaryTest.cs" />
     <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\Namespaces-v3\*" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
