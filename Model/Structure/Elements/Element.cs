@@ -122,7 +122,9 @@ namespace GPC.Model.Elements
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));
             _attributes = SerializationFields.Read(info, "Attributes", new UniqueIdCollection<Attributes.Attribute>());
+            _attributes.ReadCounter(info, "AttributesMaxId");
             _loads = SerializationFields.Read(info, "Loads", new UniqueIdCollection<Load>());
+            _loads.ReadCounter(info, "LoadsMaxId");
             _results = SerializationFields.Read(info, "Results", new List<ElementResult>());
         }
 
@@ -341,6 +343,9 @@ namespace GPC.Model.Elements
             info.AddValue("ElementVersion", 1);
             info.AddValue("Attributes", _attributes);
             info.AddValue("Loads", _loads);
+            // The id counters only when a removed item had the largest id: the data contracts write the collections as dictionaries
+            _attributes.WriteCounter(info, "AttributesMaxId");
+            _loads.WriteCounter(info, "LoadsMaxId");
             // Images of the model carry the results apart, in compact form (ModelImage).
             if (!ResultScope.Skips(this)) info.AddValue("Results", Results);
         }

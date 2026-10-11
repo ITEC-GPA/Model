@@ -546,6 +546,7 @@ namespace GPC.Model.Sections.Concrete
 
             _sectionShape = (ISectionShape)info.GetValue("SectionShape", typeof(ISectionShape));
             _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("RebarCollection", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
+            _rebars.ReadCounter(info, "RebarMaxId");
             _steelSections = new List<SteelSectionPosition>();
             if (version > 2)
             {
@@ -1243,6 +1244,8 @@ namespace GPC.Model.Sections.Concrete
             info.AddValue("SectionShape", _sectionShape);
             info.AddValue("ConcreteMaterial", _concreteMaterial);
             info.AddValue("RebarCollection", _rebars, typeof(UniqueIdCollection<ReinforcedConcreteRebar>));
+            // The id counter only when a removed rebar had the largest id: the data contracts write the collection as a dictionary
+            _rebars.WriteCounter(info, "RebarMaxId");
 
             info.AddValue("SteelSectionsCount", _steelSections != null ? _steelSections.Count : 0);
             if (_steelSections != null)

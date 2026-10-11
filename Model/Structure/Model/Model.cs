@@ -241,6 +241,7 @@ namespace GPC.Model.Models
             _areaElements = (SortedCollection<AreaElement>)info.GetValue("Areas", typeof(SortedCollection<AreaElement>));
             _volumeElements = (SortedCollection<VolumeElement>)info.GetValue("Volumes", typeof(SortedCollection<VolumeElement>)) ?? new SortedCollection<VolumeElement>();
             _costrains = (UniqueIdCollection<Costrain>)info.GetValue("Costrains", typeof(UniqueIdCollection<Costrain>));
+            _costrains?.ReadCounter(info, "CostrainsMaxId");
 
             _beamProperties = (UniqueNameCollection<BeamProperty>)info.GetValue("BeamProperties", typeof(UniqueNameCollection<BeamProperty>));
             _areaProperties = (UniqueNameCollection<PlateProperty>)info.GetValue("PlateProperties", typeof(UniqueNameCollection<PlateProperty>));
@@ -255,7 +256,9 @@ namespace GPC.Model.Models
             _groups.ItemRenamed += OnGroupRenamed;
             _groups.ItemRenaming += OnGroupRenaming;
             _stages = (UniqueIdCollection<Stage>)info.GetValue("Stages", typeof(UniqueIdCollection<Stage>));
+            _stages?.ReadCounter(info, "StagesMaxId");
             ModelLoads = SerializationFields.Read(info, "ModelLoads", new UniqueIdCollection<Load>());
+            ModelLoads.ReadCounter(info, "ModelLoadsMaxId");
         }
 
         #endregion
@@ -1754,6 +1757,8 @@ namespace GPC.Model.Models
             info.AddValue("Areas", _areaElements, typeof(SortedCollection<AreaElement>));
             info.AddValue("Volumes", _volumeElements, typeof(SortedCollection<VolumeElement>));
             info.AddValue("Costrains", _costrains, typeof(UniqueIdCollection<Costrain>));
+            // The id counters only when a removed item had the largest id: the data contracts write the collections as dictionaries
+            _costrains.WriteCounter(info, "CostrainsMaxId");
 
             info.AddValue("BeamProperties", _beamProperties, typeof(UniqueNameCollection<BeamProperty>));
             info.AddValue("PlateProperties", _areaProperties, typeof(UniqueNameCollection<PlateProperty>));
@@ -1765,9 +1770,11 @@ namespace GPC.Model.Models
 
             info.AddValue("StageCombinationsMap", _stageCombinationsMap, typeof(Dictionary<int, HashSet<string>>));
             info.AddValue("Stages", _stages, typeof(UniqueIdCollection<Stage>));
+            _stages.WriteCounter(info, "StagesMaxId");
             info.AddValue("Groups", _groups, typeof(UniqueNameCollection<Group>));
             // Written only when present, so that archives of models without them are unchanged.
             if (ModelLoads.Count != 0) info.AddValue("ModelLoads", ModelLoads, typeof(UniqueIdCollection<Load>));
+            ModelLoads.WriteCounter(info, "ModelLoadsMaxId");
         }
 
         /// <summary>

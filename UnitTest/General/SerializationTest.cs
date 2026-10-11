@@ -1234,8 +1234,7 @@ namespace GeneralTest
                 var casted = formatter.Deserialize(ms);
                 UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
-                // The pairs id - rebar: the data contract writes the collection as a dictionary and MaxId is lost (ArchiveDefectsTest)
-                if (s.Equals((object)oggettoDeserializzato))
+                if (s.Equals(oggettoDeserializzato))
                 {
                     if (s.Count != oggettoDeserializzato.Count)
                         check = false;
@@ -1323,8 +1322,7 @@ namespace GeneralTest
                 var casted = formatter.Deserialize(ms);
                 UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
-                // The pairs id - rebar: the data contract writes the collection as a dictionary and MaxId is lost (ArchiveDefectsTest)
-                if (s.Equals((object)oggettoDeserializzato))
+                if (s.Equals(oggettoDeserializzato))
                 {
                     if (s.Count != oggettoDeserializzato.Count)
                         check = false;

@@ -23,6 +23,8 @@ namespace GPC.Model.Core
             "SectionSteelBoxVersion", "SectionTVersion", "SectionTTaperFlangeVersion", "SectionEllipseVersion", "SectionHaunchedIVersion",
             "SectionBoxGirderVersion", "SectionMultiWebDeckVersion", "SectionHollowCoreVersion", "SectionRegularPolygonVersion", "SectionStadiumVersion",
             "SectionTrapezoidVersion", "SectionUBeamVersion",
+            // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
+            "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
         };
 
         private static void RegisterBuiltIns()

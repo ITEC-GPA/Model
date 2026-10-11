@@ -26,7 +26,30 @@ namespace GPC.Model.Collections
         /// <summary>
         /// The largest id assigned or added (not decreased by the removals)
         /// </summary>
-        public int MaxId { get => _maxId; protected set => _maxId = value; }
+        public int MaxId { get => Count == 0 ? _maxId : Math.Max(_maxId, Keys.Max()); protected set => _maxId = value; }
+
+        /// <summary>
+        /// The counter when a removed item had an id larger than the present ones, otherwise 0. The data contracts write the collection
+        /// as a dictionary, without it: the owners save it (<see cref="WriteCounter"/>, <see cref="ReadCounter"/>), so that an archive
+        /// does not let a removed id be reused (defect reported on 11/10/2026).
+        /// </summary>
+        internal int CounterBeyondIds => Count == 0 ? _maxId : (_maxId > Keys.Max() ? _maxId : 0);
+
+        /// <summary>Writes the counter, only when the ids do not say it (archives and fingerprints of the other models do not change).</summary>
+        internal void WriteCounter(SerializationInfo info, string name)
+        {
+            int counter = CounterBeyondIds;
+            if (counter > 0) info.AddValue(name, counter);
+        }
+
+        /// <summary>Reads the counter written by <see cref="WriteCounter"/>; without it the largest present id.</summary>
+        internal void ReadCounter(SerializationInfo info, string name) => RestoreCounter(SerializationFields.Read(info, name, 0));
+
+        /// <summary>Restores a counter saved by an owner (it never decreases).</summary>
+        internal void RestoreCounter(int counter)
+        {
+            if (counter > _maxId) _maxId = counter;
+        }
 
         #endregion
 
@@ -162,13 +185,11 @@ namespace GPC.Model.Collections
         /// <returns>True if the item was removed, false if no item has the id</returns>
         public new bool Remove(int id)
         {
-            if (ContainsKey(id))
-            {
-                if (id == _maxId)
-                    _maxId = Keys.Max();
-                return base.Remove(id);
-            }
-            return false;
+            if (!ContainsKey(id))
+                return false;
+            // The removed id stays counted, also in a collection read from an archive (where only the owner kept the counter)
+            _maxId = MaxId;
+            return base.Remove(id);
         }
 
         /// <summary>
@@ -254,7 +275,7 @@ namespace GPC.Model.Collections
                 Count == other.Count &&
                 Keys.SequenceEqual(other.Keys) &&
                 Values.SequenceEqual(other.Values) &&
-                _maxId == other._maxId;
+                MaxId == other.MaxId;
         }
 
         /// <summary>

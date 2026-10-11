@@ -51,6 +51,10 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 26, IsRequired = true)] internal CheckReport[] Reports;
 
         [DataMember(Order=27,EmitDefaultValue=false)] internal PhysicalSurfaceDefinition[] Surfaces;
+        // Id counters of the collections, only when a removed item had the largest id (the collections are written as dictionaries).
+        [DataMember(Order = 28, EmitDefaultValue = false)] internal int ConstraintsMaxId;
+        [DataMember(Order = 29, EmitDefaultValue = false)] internal int StagesMaxId;
+        [DataMember(Order = 30, EmitDefaultValue = false)] internal int ModelLoadsMaxId;
 
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
             Schema=model.PhysicalSurfaces.Count==0 ? 1 : 2, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
@@ -62,7 +66,9 @@ namespace GPC.Model.Persistence
             ModelLoads = model.ModelLoads, Datasets = model.Datasets, Source = model.AnalysisSource,
             Preserved = model.PreservedSourceData.ToArray(), Members = model.PhysicalMembers.Values.ToArray(),
             Analysis = model.Analysis, Verification = model.VerificationContext,
-            Scenarios = model.VerificationScenarios.Values.ToArray(), Reports = model.CheckReports.ToArray() };
+            Scenarios = model.VerificationScenarios.Values.ToArray(), Reports = model.CheckReports.ToArray(),
+            ConstraintsMaxId = model.Costrains.CounterBeyondIds, StagesMaxId = model.Stages.CounterBeyondIds,
+            ModelLoadsMaxId = model.ModelLoads.CounterBeyondIds };
 
         internal Models.Model Restore()
         {
@@ -73,6 +79,9 @@ namespace GPC.Model.Persistence
                 || StageCombinations == null || Groups == null || Stages == null || ModelLoads == null || Datasets == null
                 || Preserved == null || Members == null || Scenarios == null || Reports == null)
                 throw new SerializationException("Missing ModelDocument collection.");
+            Constraints.RestoreCounter(ConstraintsMaxId);
+            Stages.RestoreCounter(StagesMaxId);
+            ModelLoads.RestoreCounter(ModelLoadsMaxId);
             return Models.Model.FromGraph(new Models.ModelGraph {
                 Id = Id,
                 Name = Name,
