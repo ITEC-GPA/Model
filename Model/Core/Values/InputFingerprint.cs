@@ -72,9 +72,16 @@ namespace GPC.Model.Core
                     var entries = new List<SerializationEntry>(); foreach (SerializationEntry e in info) entries.Add(e);
                     foreach (var e in entries.OrderBy(e => e.Name, StringComparer.Ordinal))
                     {
-                        if (e.Name.EndsWith("Version", StringComparison.Ordinal) || e.Name == "Guid") continue;
+                        if (FingerprintContracts.SkipsEntry(type, e.Name)) continue;
                         w.Write(e.Name); Write(w, e.Value, path);
                     }
+                    return;
+                }
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                {
+                    // The bytes of the historical reflection of its private fields "key" and "value", without reading them.
+                    w.Write("key"); Write(w, type.GetProperty("Key").GetValue(value), path);
+                    w.Write("value"); Write(w, type.GetProperty("Value").GetValue(value), path);
                     return;
                 }
                 var members = FingerprintContracts.Members(type);
@@ -88,7 +95,10 @@ namespace GPC.Model.Core
                     }
                     return;
                 }
-                // Compatibility for caller-owned records. Persisted Model records use the explicit vocabulary above.
+                // Historical path of the records without an explicit contract (architecture review R8): the tests refuse it.
+                if (FingerprintContracts.Strict)
+                    throw new InvalidOperationException("UnregisteredFingerprintType: " + type.FullName + ". Declare its fingerprint contract: "
+                        + (type.Assembly == typeof(InputFingerprint).Assembly ? "FingerprintContracts.RegisterBuiltIns." : "FingerprintVocabularyAttribute in its assembly."));
                 for (Type current = type; current != null; current = current.BaseType)
                     foreach (var field in current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(f => !f.IsNotSerialized).OrderBy(f => f.Name, StringComparer.Ordinal))
                     {

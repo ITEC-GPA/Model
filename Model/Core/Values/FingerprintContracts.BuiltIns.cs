@@ -1,11 +1,45 @@
 // Frozen v1 fingerprint vocabulary. Wire names are independent of CLR names.
 // Change the CLR mapping deliberately; retain the wire name for a compatible refactor.
+using System;
+using System.Collections.Generic;
+
 namespace GPC.Model.Core
 {
     internal static partial class FingerprintContracts
     {
+        // GetObjectData entries that are identities or serialization versions (see SkipsEntry). Frozen with the architecture review (R8).
+        private static readonly HashSet<string> IdentityEntries = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "Guid", "Version", "SerializationVersion", "ModelSchemaVersion", "CollectionVersion", "ElementVersion", "NodeElementVersion", "BeamVersion",
+            "MaterialVersion", "ConcreteMaterialVersion", "ConcreteMaterialEuropeanCommonVersion", "ConcreteMaterialEN1992Version", "ConcreteMaterialACIVersion",
+            "SteelMaterialVersion", "AluminiumMaterialVersion", "FRPMaterialVersion", "StandardModelCode2010Version", "StandardACI318Version",
+            "StandardAISCVersion", "StandardAISC360_05Version", "StandardAISC360_10Version", "StandardAISC360_16Version",
+            "ShapeExVersion", "SectionVersion", "SteelSectionVersion",
+            "SteelSectionPositionVersion", "ReinforcedConcreteSectionVersion", "RebarSectionCircularVersion", "ThinWallSectionVersion", "ThinWallVersion",
+            "BoltSectionVersion", "BoltOptionsVersion", "EN1993BoltOptionsVersion", "EN1999BoltOptionsVersion",
+            "SectionCVersion", "SectionCVersionVersion", "SectionCTaperFlangeVersion", "SectionCHSVersion", "SectionCircularVersion",
+            "SectionColdFormedVersion", "SectionBuiltUpVersion", "SectionHVersion", "SectionHDoubleBottomFlangeVersion", "SectionHInclinedWebVersion",
+            "SectionHTaperFlangeVersion", "SectionLVersion", "SectionRectangularVersion", "SectionRHSVersion", "SectionRHSRoundedCornersVersion",
+            "SectionSteelBoxVersion", "SectionTVersion", "SectionTTaperFlangeVersion", "SectionEllipseVersion", "SectionHaunchedIVersion",
+            "SectionBoxGirderVersion", "SectionMultiWebDeckVersion", "SectionHollowCoreVersion", "SectionRegularPolygonVersion", "SectionStadiumVersion",
+            "SectionTrapezoidVersion", "SectionUBeamVersion",
+        };
+
         private static void RegisterBuiltIns()
         {
+            // Records that entered the fingerprints through the reflection of their fields until the architecture review (R8): same names, same bytes.
+            Register("GPC.Model.Sections.ThinWallSection+ThinWall", "GPC.Model.Sections.ThinWallSection+ThinWall",
+                Field("GPC.Model.Sections.ThinWallSection+ThinWall", "<IsInsideConcrete>k__BackingField", "<IsInsideConcrete>k__BackingField", false),
+                Field("GPC.Model.Sections.ThinWallSection+ThinWall", "_angle", "_angle", false),
+                Field("GPC.Model.Sections.ThinWallSection+ThinWall", "_l", "_l", false),
+                Field("GPC.Model.Sections.ThinWallSection+ThinWall", "_point", "_point", false),
+                Field("GPC.Model.Sections.ThinWallSection+ThinWall", "_t", "_t", false));
+            Register("GPC.Model.Constraints.MultiPointsCostrain+Equation", "GPC.Model.Costrains.MultiPointsCostrain+Equation",
+                Field("GPC.Model.Constraints.MultiPointsCostrain+Equation", "GdlNode", "GdlNode", false),
+                Field("GPC.Model.Constraints.MultiPointsCostrain+Equation", "NodeSlave", "NodeSlave", false),
+                Field("GPC.Model.Constraints.MultiPointsCostrain+Equation", "Value", "Value", false));
+            Exclude("GPC.Model.Analysis.AnalysisSnapshot", "_fingerprintSchema", "the schema of the fingerprints of the snapshot, not an input");
+
             Register("GPC.Model.Structure.Members.PhysicalSurfaceDefinition", "GPC.Model.Structure.PhysicalSurfaceDefinition",
                 Field("GPC.Model.Structure.Members.PhysicalSurfaceDefinition", "<Id>k__BackingField", "<Id>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.PhysicalSurfaceDefinition", "<Name>k__BackingField", "<Name>k__BackingField", false),
