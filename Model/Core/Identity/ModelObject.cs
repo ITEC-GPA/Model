@@ -5,7 +5,9 @@ using System.Runtime.Serialization;
 namespace GPC.Model
 {
     /// <summary>
-    /// Base of the objects of the model: a <see cref="Guid"/> and a <see cref="Name"/>. Two objects are equal if they have the same name
+    /// Base of the objects of the model: a <see cref="Guid"/> and a <see cref="Name"/>. Two objects are equal if they have the same concrete type
+    /// and the same name (derived classes add their content). To state the intent explicitly use <see cref="ModelObjectIdentityComparer"/> for
+    /// entities (identity) and <see cref="ContentEquals"/> for content comparisons (architecture review R4)
     /// </summary>
     [Serializable]
     public abstract class ModelObject : ISerializable
@@ -147,16 +149,28 @@ namespace GPC.Model
         }
 
         /// <summary>
-        /// Equality of the names
+        /// Equality of the concrete types and of the names. Before the architecture review R4 objects of different types with the same name
+        /// were equal (for example two kinds of grid or of result with the same name)
         /// </summary>
         /// <param name="obj">The object to compare</param>
-        /// <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="ModelObject"/> with the same <see cref="Name"/> of this object</returns>
+        /// <returns><see langword="true"/> if <paramref name="obj"/> is a <see cref="ModelObject"/> of the same type with the same <see cref="Name"/></returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
                 return false;
 
-            return (obj is ModelObject objCasted) && objCasted._name == _name;
+            return (obj is ModelObject objCasted) && objCasted.GetType() == GetType() && objCasted._name == _name;
+        }
+
+        /// <summary>
+        /// Explicit content comparison: the same as <see cref="Equals(object)"/> today. Callers that mean the content use this method, so that
+        /// <see cref="Equals(object)"/> of the entities can move to identity in a major version without changing them (architecture review R4)
+        /// </summary>
+        /// <param name="other">The object to compare</param>
+        /// <returns><see langword="true"/> if <paramref name="other"/> has the same type and content</returns>
+        public virtual bool ContentEquals(ModelObject other)
+        {
+            return Equals(other);
         }
 
         /// <summary>

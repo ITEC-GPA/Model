@@ -18,4 +18,7 @@ try {
     # GPCModelChecker, its tests and its API baseline live in the Checker repository (Checker/build/Verify.ps1).
     dotnet run --project tools/ApiSurface -c Release -- check UnitTest/bin/Release/net6.0 build/api GPCModel GPC.Model.Persistence
     if ($LASTEXITCODE) { throw 'Public API compatibility check failed.' }
+    # Architecture review R4: default equality on model objects only where build/equality-allowlist.json gives the reason.
+    dotnet run --project tools/EqualityAudit -c Release -- check build/equality-allowlist.json Model/GPCModel.csproj "GPC Converter/GPC Converter.csproj" GPC.Model.Persistence/GPC.Model.Persistence.csproj ModelData/GPCModelData.csproj
+    if ($LASTEXITCODE) { throw 'Equality audit failed (build/equality-allowlist.json).' }
 } finally { Pop-Location }

@@ -162,7 +162,9 @@ namespace GeneralTest
 
             LoadCase lc3 = new LoadCaseEn16612("SDL", GPC.Model.LoadCases.LoadCase.LoadCaseTypes.SuperImposedDeadLoad, LoadCaseEn16612.LoadCaseEn16612Types.SnowCanopies);
 
-            Assert.IsTrue(sdl1.Equals(ldpr));
+            // Architecture review R4: equality requires the same concrete type and is symmetric. Before, a LoadCase was equal to a derived
+            // LoadCaseEn16612 with the same name, but not the other way round.
+            Assert.IsFalse(sdl1.Equals(ldpr));
             Assert.IsFalse(ldpr.Equals(sdl1));
 
             //Assert.IsTrue(sdl1.Equals(sdl2));

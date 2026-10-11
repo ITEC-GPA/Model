@@ -1,0 +1,41 @@
+{
+  "description": "Architecture review R4. Uses of the default equality (Equals, ==, keyed collections and LINQ operators without a comparer) on types derived from GPC.Model.ModelObject, outside the equality members, checked by tools/EqualityAudit in build/Verify.ps1. A new use states its intent instead: ModelObjectIdentityComparer for identity, ContentEquals for content. Count is the number of uses in the member.",
+  "entries": [
+    {
+      "file": "Model/Actions/Combinations/Combination.cs", "member": "ContainsLoadCase", "kind": "linq/Contains", "type": "GPC.Model.LoadCases.LoadCaseBase", "count": 1,
+      "reason": "A load case is identified by type and name inside a model (unique names); the combinations of a copied model find their cases by name."
+    },
+    {
+      "file": "Model/Actions/Combinations/Combination.cs", "member": "ContainsLoadCases", "kind": "linq/Intersect", "type": "GPC.Model.LoadCases.LoadCaseBase", "count": 1,
+      "reason": "A load case is identified by type and name inside a model (unique names); the combinations of a copied model find their cases by name."
+    },
+    {
+      "file": "Model/Actions/Combinations/Combination.cs", "member": "GetLoadCaseCoefficientsTuple", "kind": "linq/Contains", "type": "GPC.Model.LoadCases.LoadCaseBase", "count": 1,
+      "reason": "A load case is identified by type and name inside a model (unique names); the combinations of a copied model find their cases by name."
+    },
+    {
+      "file": "Model/Actions/Combinations/Combination.cs", "member": "RemoveLoadCaseCoefficients", "kind": "Equals", "type": "GPC.Model.LoadCases.LoadCaseBase", "count": 1,
+      "reason": "A load case is identified by type and name inside a model (unique names); the combinations of a copied model find their cases by name."
+    },
+    {
+      "file": "Model/Actions/Combinations/Combination.cs", "member": "this[]", "kind": "operator==", "type": "GPC.Model.LoadCases.LoadCaseBase", "count": 2,
+      "reason": "A load case is identified by type and name inside a model (unique names); the combinations of a copied model find their cases by name."
+    },
+    {
+      "file": "Model/Sections/Bolt/BoltGrid.cs", "member": "CalculateShearForcesElastic", "kind": "collection", "type": "GPC.Model.Sections.Bolt.BoltPosition", "count": 1,
+      "reason": "Bolts keyed by content: two bolts with the same position, hole and bolt collapse into one entry. Input of the Steel bolt verifier, deferred by the user on 11/10/2026 to the ANTHEA developments of November: to be decided with the rewritten calculation."
+    },
+    {
+      "file": "Model/Sections/Bolt/BoltGrid.cs", "member": "CheckShearForcesElastic", "kind": "operator==", "type": "GPC.Model.Results.ResultBeamForces", "count": 1,
+      "reason": "Value comparison of forces within the geometric tolerance (equilibrium of the elastic distribution): content is meant."
+    },
+    {
+      "file": "Model/Sections/Bolt/PlateWithBolts.cs", "member": "GetOtherBolts", "kind": "operator!=", "type": "GPC.Model.Sections.Bolt.BoltPosition", "count": 1,
+      "reason": "The other bolts by content: a bolt equal in content to the given one is excluded too. Steel bolt verifier, deferred by the user on 11/10/2026: to be decided with the rewritten calculation."
+    },
+    {
+      "file": "Model/Structure/Model/Model.cs", "member": "AddMesh", "kind": "Equals", "type": "GPC.Model.Elements.NodeElement", "count": 2,
+      "reason": "DEFECT reported to the user on 11/10/2026, not corrected: node.Equals(line.Start) compares a NodeElement with a Point3d and is always false, so the end nodes of a meshed line load receive the whole share instead of half (total load times n/(n-1))."
+    }
+  ]
+}

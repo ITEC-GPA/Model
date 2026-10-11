@@ -1303,7 +1303,7 @@ namespace GPC.Model.Models
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);
-                        if (!loadCase.Equals(lc))
+                        if (!loadCase.ContentEquals(lc))
                             throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
                     }
                     else
@@ -1347,7 +1347,7 @@ namespace GPC.Model.Models
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);
-                        if (!loadCase.Equals(lc))
+                        if (!loadCase.ContentEquals(lc))
                             throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
                     }
                     else
@@ -1403,7 +1403,7 @@ namespace GPC.Model.Models
                     if (LoadCaseExist(lc.Name))
                     {
                         loadCase = GetLoadCaseByName(lc.Name);
-                        if (!loadCase.Equals(lc))
+                        if (!loadCase.ContentEquals(lc))
                             throw new ArgumentException($"LoadCase {lc.Name} is not equal to the one inside the FemModel");
                     }
                     else

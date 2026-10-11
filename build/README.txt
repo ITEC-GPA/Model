@@ -47,3 +47,12 @@ baseline prima del confronto. Non autorizza rimozioni di metodi o modifiche
 a parametri/default. La baseline storica non e' stata sovrascritta.
 Namespaces-v3 conserva i contratti XML e i fingerprint prima della migrazione;
 le stringhe dei vecchi namespace nelle mappe sono identita' wire intenzionali.
+
+Uguaglianza degli oggetti del modello (revisione di architettura R4, 11/10/2026):
+tools/EqualityAudit (Roslyn) cerca nei sorgenti di GPCModel, Converter, Persistence e
+GPCModelData gli usi dell'uguaglianza predefinita (Equals, ==, HashSet/Dictionary e
+operatori LINQ senza comparatore) sui tipi derivati da ModelObject, fuori dai membri di
+uguaglianza. Ogni uso deve stare in equality-allowlist.json con il motivo e il numero di
+occorrenze; un uso nuovo dichiara invece l'intento: ModelObjectIdentityComparer per
+l'identita', ContentEquals per il contenuto. 'list' stampa gli usi nel formato
+dell'elenco. Verify.ps1 esegue 'check' dopo il controllo dell'API.
