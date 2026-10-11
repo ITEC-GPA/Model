@@ -32,10 +32,6 @@
     {
       "file": "Model/Sections/Bolt/PlateWithBolts.cs", "member": "GetOtherBolts", "kind": "operator!=", "type": "GPC.Model.Sections.Bolt.BoltPosition", "count": 1,
       "reason": "The other bolts by content: a bolt equal in content to the given one is excluded too. Steel bolt verifier, deferred by the user on 11/10/2026: to be decided with the rewritten calculation."
-    },
-    {
-      "file": "Model/Structure/Model/Model.cs", "member": "AddMesh", "kind": "Equals", "type": "GPC.Model.Elements.NodeElement", "count": 2,
-      "reason": "DEFECT reported to the user on 11/10/2026, not corrected: node.Equals(line.Start) compares a NodeElement with a Point3d and is always false, so the end nodes of a meshed line load receive the whole share instead of half (total load times n/(n-1))."
     }
   ]
 }

@@ -1373,12 +1373,14 @@ namespace GPC.Model.Models
                             // carico è F/L (FL/L nel caso di momento)
                             // carico su nodo intermedio: F/L / (nnodi - 1)
                             // carico su nodo estremità: F/L / (nnodi - 1) / 2.0
-                            // se per qualche motivo l'equals start/end non funziona, viene applicato più carico
+                            // Le estremità si riconoscono dalla posizione del nodo. Fino all'11/10/2026 il confronto era tra il nodo e un
+                            // punto, sempre falso: le estremità ricevevano il carico pieno e il totale era F/L · L · n / (n - 1).
 
                             var line = ll.GetGeometry();
                             var factor = lineLenght / (indexes.Count() - 1);
+                            double tolerance = 1e-9 * Math.Max(1.0, lineLenght);
 
-                            if (node.Equals(line.Start) || node.Equals(line.End))
+                            if (node.Position.DistanceTo(line.Start) <= tolerance || node.Position.DistanceTo(line.End) <= tolerance)
                                 factor /= 2.0;
 
                             PointLoad pointLoad = new PointLoad(ll.F1 * factor, ll.F2 * factor, ll.F3 * factor,
