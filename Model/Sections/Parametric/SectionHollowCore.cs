@@ -54,6 +54,7 @@ namespace GPC.Model.Sections
         protected SectionHollowCore(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionHollowCoreVersion", 1, 1);
             _width = info.GetDouble("HollowCoreWidth");
             _height = info.GetDouble("HollowCoreHeight");
             _voids = info.GetInt32("HollowCoreVoids");

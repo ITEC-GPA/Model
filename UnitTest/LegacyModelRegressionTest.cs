@@ -8,11 +8,9 @@ using GPC.Model.Results;
 using GPC.Model.Results.Locations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using GPC.Model.Structure.Assignments;
 
-#pragma warning disable SYSLIB0011
 namespace UnitTest
 {
     [TestClass]
@@ -21,7 +19,7 @@ namespace UnitTest
         [TestMethod]
         public void TrustedLegacyRoundTripRestoresCollectionItemsAndSharedNodes()
         {
-            var m = PostProcessingTest.Mixed(); using var stream = new MemoryStream(); var formatter = new BinaryFormatter();
+            var m = PostProcessingTest.Mixed(); using var stream = new MemoryStream(); var formatter = new ContractFormatter();
             formatter.Serialize(stream, m); stream.Position = 0; var copy = (GPC.Model.Models.Model)formatter.Deserialize(stream);
             Assert.AreEqual(4, copy.NodesElements.Count); Assert.AreSame(copy.NodesElements[10], copy.BeamElements[10].NodeI);
         }

@@ -118,15 +118,7 @@ namespace GPC.Model.Standards
         protected StandardAISC(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("StandardAISCVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "StandardAISCVersion", 1, 1);
             PhiBending = info.GetDouble("PhiBending");
             PhiCompression = info.GetDouble("PhiCompression");
             PhiTensionYielding = info.GetDouble("PhiTensionYielding");

@@ -52,6 +52,7 @@ namespace GPC.Model.Sections
         protected SectionUBeam(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionUBeamVersion", 1, 1);
             _height = info.GetDouble("UHeight");
             _bottomWidth = info.GetDouble("UBottomWidth");
             _topWidth = info.GetDouble("UTopWidth");

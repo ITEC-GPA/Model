@@ -94,7 +94,7 @@ namespace GPC.Model.Sections.Bolt
         protected BoltPosition(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            double version = info.GetInt32("Version");
+            double version = SerializationVersions.Read(info, "Version", 1);
 
             Position = (Point2d)info.GetValue("Position", typeof(Point2d));
             BoltDef = (BoltSection)info.GetValue("BoltDef", typeof(BoltSection));

@@ -48,6 +48,7 @@ namespace GPC.Model.Sections
         protected SectionRHSRoundedCorners(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionRHSRoundedCornersVersion", 1, 1);
             _ro = info.GetDouble("OutsideRadius");
             _ri = info.GetDouble("InsideRadius");
         }

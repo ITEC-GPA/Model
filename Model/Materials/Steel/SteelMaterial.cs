@@ -254,15 +254,7 @@ namespace GPC.Model.Materials
         protected SteelMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SteelMaterialVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SteelMaterialVersion", 3, 1);
 
             _fu = info.GetDouble("Fu");
             _fyk = info.GetDouble("Fyk");

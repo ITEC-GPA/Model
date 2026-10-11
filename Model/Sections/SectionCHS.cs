@@ -127,15 +127,7 @@ namespace GPC.Model.Sections
         protected SectionCHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionCHSVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionCHSVersion", 2, 1);
 
             _externalDiameter = info.GetDouble("D");
             _thickness = info.GetDouble("T");

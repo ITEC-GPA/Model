@@ -264,7 +264,7 @@ namespace GPC.Model.Sections.Steel
         protected SteelSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version = info.GetInt32("SteelSectionVersion");
+            int version = SerializationVersions.Read(info, "SteelSectionVersion", 1);
 
             _sectionShape = (ISectionShape)info.GetValue("SectionShape", typeof(ISectionShape));
             _steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));

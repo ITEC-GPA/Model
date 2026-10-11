@@ -208,7 +208,7 @@ namespace GPC.Model.Materials
         protected AluminiumMaterial(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
-            int version = info.GetInt32("AluminiumMaterialVersion");
+            int version = SerializationVersions.Read(info, "AluminiumMaterialVersion", 1);
             _fu = info.GetDouble("Fu");
             _fo = info.GetDouble("Fo");
             AluminiumType = (AluminiumTypes)info.GetInt32("AluminiumType");

@@ -169,15 +169,7 @@ namespace GPC.Model.Materials
         protected ConcreteMaterialACI318(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("ConcreteMaterialACIVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "ConcreteMaterialACIVersion", 4, 1);
 
             if (version == 2)
             {

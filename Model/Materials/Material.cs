@@ -357,15 +357,7 @@ namespace GPC.Model.Materials
         protected Material(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            double version;
-            try
-            {
-                version = info.GetInt64("MaterialVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            double version = SerializationVersions.Read(info, "MaterialVersion", 5, 1);
 
             if (version >= 2)
             {

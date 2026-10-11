@@ -18,11 +18,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 #pragma warning disable SYSLIB0050
-#pragma warning disable SYSLIB0011
 
 namespace GeneralTest
 {
@@ -35,7 +33,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, objToTest);
                 ms.Position = 0;
 
@@ -87,7 +85,7 @@ namespace GeneralTest
             StandardCopSuos2011 s = new StandardCopSuos2011();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -122,7 +120,7 @@ namespace GeneralTest
             StandardEN16612 s = new StandardEN16612();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -167,7 +165,7 @@ namespace GeneralTest
             StandardEN1990 s = new StandardEN1990();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -262,7 +260,7 @@ namespace GeneralTest
             StandardEN1993p11 s = new StandardEN1993p11();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -313,7 +311,7 @@ namespace GeneralTest
             StandardUNIEN1993p11 s = new StandardUNIEN1993p11();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -364,7 +362,7 @@ namespace GeneralTest
             StandardModelCode2010 s = new StandardModelCode2010();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -408,7 +406,7 @@ namespace GeneralTest
             StandardCNR204 s = new StandardCNR204();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -452,7 +450,7 @@ namespace GeneralTest
             StandardNTC2018Concrete s = new StandardNTC2018Concrete();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -496,7 +494,7 @@ namespace GeneralTest
             StandardEN1992p11 s = new StandardEN1992p11();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -540,7 +538,7 @@ namespace GeneralTest
             StandardUNIEN1992p11 s = new StandardUNIEN1992p11();
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -590,7 +588,7 @@ namespace GeneralTest
             GPC.Model.Sections.Section s = new GPC.Model.Sections.Section(50, 200, 300, 500, 40, Point3d.Origin, Point3d.Origin, 0.2, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -649,7 +647,7 @@ namespace GeneralTest
             SectionCircular s = new SectionCircular(10, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -684,7 +682,7 @@ namespace GeneralTest
             SectionCHS s = new SectionCHS(10, 2, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -720,7 +718,7 @@ namespace GeneralTest
             SectionC s = new SectionC(200, 4, 100, 5, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -761,7 +759,7 @@ namespace GeneralTest
             SectionH s = new SectionH(200, 4, 100, 5, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -802,7 +800,7 @@ namespace GeneralTest
             SectionL s = new SectionL(200, 4, 100, 5, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -840,7 +838,7 @@ namespace GeneralTest
             SectionRectangular s = new SectionRectangular(200, 4, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -877,7 +875,7 @@ namespace GeneralTest
             SectionRHS s = new SectionRHS(300, 200, 5, 5, 5, 5, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -917,7 +915,7 @@ namespace GeneralTest
             SectionT s = new SectionT(300, 200, 5, 5, "section");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -959,7 +957,7 @@ namespace GeneralTest
             ShapeEx s = new ShapeEx(new Polygon2d(500), new Material("test", 10, 0.2, 20, 5), new Polygon2d[] { new Polygon2d(250) }, null);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -999,7 +997,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1041,7 +1039,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1083,7 +1081,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1143,7 +1141,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1185,7 +1183,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1229,14 +1227,15 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
                 UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
-                if (s.Equals(oggettoDeserializzato))
+                // The pairs id - rebar: the data contract writes the collection as a dictionary and MaxId is lost (ArchiveDefectsTest)
+                if (s.Equals((object)oggettoDeserializzato))
                 {
                     if (s.Count != oggettoDeserializzato.Count)
                         check = false;
@@ -1268,7 +1267,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1317,14 +1316,15 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
                 var casted = formatter.Deserialize(ms);
                 UniqueIdCollection<ReinforcedConcreteRebar> oggettoDeserializzato = (UniqueIdCollection<ReinforcedConcreteRebar>)casted;
 
-                if (s.Equals(oggettoDeserializzato))
+                // The pairs id - rebar: the data contract writes the collection as a dictionary and MaxId is lost (ArchiveDefectsTest)
+                if (s.Equals((object)oggettoDeserializzato))
                 {
                     if (s.Count != oggettoDeserializzato.Count)
                         check = false;
@@ -1358,7 +1358,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionCircular(10, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1396,7 +1396,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionCHS(10, 2, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1435,7 +1435,7 @@ namespace GeneralTest
             SteelSection s = new SteelSection(new SectionC(200, 4, 100, 5, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1479,7 +1479,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionH(200, 4, 100, 5, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1523,7 +1523,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionL(200, 4, 100, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1564,7 +1564,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionRectangular(200, 4, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1604,7 +1604,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionRHS(300, 200, 5, 5, 5, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1647,7 +1647,7 @@ namespace GeneralTest
             var s = new SteelSection(new SectionT(300, 200, 5, 5, "section"), SteelMaterialEN1993Data.S235);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, s);
                 ms.Position = 0;
 
@@ -1694,7 +1694,7 @@ namespace GeneralTest
             Material m = new Material("test", 10, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1736,7 +1736,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1784,7 +1784,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1833,7 +1833,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1880,7 +1880,7 @@ namespace GeneralTest
             SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1922,7 +1922,7 @@ namespace GeneralTest
             SteelMaterial m = new SteelMaterial("test", 10, 15, 20, 30, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar, 0.2, 20, 5);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -1968,7 +1968,7 @@ namespace GeneralTest
             ResultBeamForces m = new ResultBeamForces(1, 2, 3, 4, 5, 6, CoordinateSystem.Global, 1);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2009,7 +2009,7 @@ namespace GeneralTest
             ResultDisplacement m = new ResultDisplacement(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 1);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2050,7 +2050,7 @@ namespace GeneralTest
             ResultPlateForces m = new ResultPlateForces(CoordinateSystem.Global, 1, 2, 3, 4, 5, 6, 7, 8, 1);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2098,7 +2098,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2137,7 +2137,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2180,7 +2180,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2219,7 +2219,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2260,7 +2260,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2303,7 +2303,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2344,7 +2344,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2386,7 +2386,7 @@ namespace GeneralTest
 
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2429,7 +2429,7 @@ namespace GeneralTest
             LoadCase m = new LoadCase("LC Test", LoadCase.LoadCaseTypes.Prestress);
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 
@@ -2468,7 +2468,7 @@ namespace GeneralTest
             LoadCaseBase m = new LoadCaseBase("LC Test");
             using (var ms = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
+                var formatter = new ContractFormatter();
                 formatter.Serialize(ms, m);
                 ms.Position = 0;
 

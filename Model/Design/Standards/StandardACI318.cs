@@ -148,15 +148,7 @@ namespace GPC.Model.Standards
 		protected StandardACI318(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
-			int version;
-			try
-			{
-				version = info.GetInt32("StandardACI318Version");
-			}
-			catch (Exception)
-			{
-				version = 1;
-			}
+			int version = SerializationVersions.Read(info, "StandardACI318Version", 3, 1);
 
 			_phiCSpiral = info.GetDouble("PhiCSpiral");
 			_phiCTied = info.GetDouble("PhiCTied");

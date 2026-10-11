@@ -113,6 +113,7 @@ namespace GPC.Model.Sections
         protected SectionBuiltUp(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionBuiltUpVersion", 1, 1);
             _parts = (Part[])info.GetValue("Parts", typeof(Part[]));
         }
 

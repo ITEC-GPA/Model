@@ -305,7 +305,7 @@ namespace GPC.Model.Sections.Steel
         /// <param name="context">The serialization context</param>
         protected SteelSectionPosition(SerializationInfo info, StreamingContext context)
         {
-            int version = info.GetInt32("SteelSectionPositionVersion");
+            int version = SerializationVersions.Read(info, "SteelSectionPositionVersion", 3);
 
             IsInsideConcrete = info.GetBoolean("IsInsideConcrete");
             Rotation = info.GetDouble("Rotation");

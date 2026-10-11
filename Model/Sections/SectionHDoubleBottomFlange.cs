@@ -137,6 +137,7 @@ namespace GPC.Model.Sections
         protected SectionHDoubleBottomFlange(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionHDoubleBottomFlangeVersion", 1, 1);
             _h = info.GetDouble("Height");
             _tw = info.GetDouble("ThicknessWeb");
             _btop = info.GetDouble("LengthTopFlange");

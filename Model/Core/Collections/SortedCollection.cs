@@ -41,6 +41,7 @@ namespace GPC.Model.Collections
         /// <param name="context">The serialization context</param>
         protected SortedCollection(SerializationInfo info, StreamingContext context)
         {
+            SerializationVersions.Read(info, "CollectionVersion", 1, 1);
             _lastId = info.GetInt32("LastId");
             _pendingItems = SerializationFields.Read<KeyValuePair<int, T>[]>(info, "Items");
             MissingLegacyPayload = SerializationFields.Read(info, "MissingLegacyPayload", _pendingItems == null);

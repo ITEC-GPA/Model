@@ -99,7 +99,7 @@ namespace GPC.Model.Sections.Bolt
         public PlateWithBolts(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            double version = info.GetInt32("Version");
+            double version = SerializationVersions.Read(info, "Version", 1);
 
             _boltGrid = (BoltGrid)info.GetValue("BoltGrid", typeof(BoltGrid));
             _thickness = info.GetDouble("Thickness");

@@ -201,15 +201,7 @@ namespace GPC.Model.Sections
         protected SectionRHS(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionRHSVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionRHSVersion", 2, 1);
 
             _h = info.GetDouble("Height");
             _b = info.GetDouble("Base");

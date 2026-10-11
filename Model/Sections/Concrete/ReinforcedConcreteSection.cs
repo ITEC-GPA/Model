@@ -542,15 +542,7 @@ namespace GPC.Model.Sections.Concrete
         protected ReinforcedConcreteSection(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("ReinforcedConcreteSectionVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "ReinforcedConcreteSectionVersion", 4, 1);
 
             _sectionShape = (ISectionShape)info.GetValue("SectionShape", typeof(ISectionShape));
             _rebars = (UniqueIdCollection<ReinforcedConcreteRebar>)info.GetValue("RebarCollection", typeof(UniqueIdCollection<ReinforcedConcreteRebar>));

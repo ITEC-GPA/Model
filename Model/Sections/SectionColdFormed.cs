@@ -65,6 +65,7 @@ namespace GPC.Model.Sections
         protected SectionColdFormed(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionColdFormedVersion", 1, 1);
             _middleLine = (Point2d[])info.GetValue("ColdFormedMiddleLine", typeof(Point2d[]));
             _thickness = info.GetDouble("ColdFormedThickness");
             _innerRadius = info.GetDouble("ColdFormedInnerRadius");

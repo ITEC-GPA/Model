@@ -566,15 +566,7 @@ namespace GPC.Model.Sections
         protected Section(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionVersion", 5, 1);
 
             _area = info.GetDouble("Area");
             _jxx = info.GetDouble("Jxx");

@@ -70,6 +70,7 @@ namespace GPC.Model.Sections
         protected SectionBoxGirder(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionBoxGirderVersion", 1, 1);
             _height = info.GetDouble("BoxHeight");
             _topWidth = info.GetDouble("BoxTopWidth");
             _topThickness = info.GetDouble("BoxTopThickness");

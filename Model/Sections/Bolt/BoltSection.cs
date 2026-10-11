@@ -124,15 +124,7 @@ namespace GPC.Model.Sections.Bolt
         /// <param name="context">The serialization context</param>
         public BoltSection(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("BoltSectionVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "BoltSectionVersion", 2, 1);
 
             if (version > 1)
                 _boltMaterial = (SteelMaterial)info.GetValue("BoltMaterial", typeof(SteelMaterial));

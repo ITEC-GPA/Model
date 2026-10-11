@@ -131,15 +131,7 @@ namespace GPC.Model.Sections
         protected SectionRectangular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionRectangularVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionRectangularVersion", 2, 1);
 
             _height = info.GetDouble("Height");
             _width = info.GetDouble("Width");

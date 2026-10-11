@@ -165,15 +165,7 @@ namespace GPC.Model.Sections
         protected SectionT(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionTVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionTVersion", 2, 1);
 
             _h = info.GetDouble("Height");
             _tw = info.GetDouble("ThicknessWeb");

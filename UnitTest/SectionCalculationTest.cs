@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Geometry;
 using GPC.Model.Data.Steel;
 using GPC.Model.Sections;
@@ -131,14 +130,12 @@ namespace UnitTest
         public void PlasticModulusIsKeptBySerialization()
         {
             Section section = Generic(Q(0, 0), Q(300, 0), Q(300, 500), Q(0, 500));
-            var formatter = new BinaryFormatter();
+            var formatter = new ContractFormatter();
             using (var stream = new MemoryStream())
             {
-#pragma warning disable SYSLIB0011
                 formatter.Serialize(stream, section);
                 stream.Position = 0;
                 var copy = (Section)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011
                 Assert.AreEqual(300 * 500 * 500 / 4.0, copy.Wpl1, 1e-6);
             }
         }

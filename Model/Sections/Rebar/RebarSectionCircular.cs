@@ -56,15 +56,7 @@ namespace GPC.Model.Sections.Rebar
         protected RebarSectionCircular(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("RebarSectionCircularVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "RebarSectionCircularVersion", 2, 1);
 
             if (version > 1)
                 _steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));

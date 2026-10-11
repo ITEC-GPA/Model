@@ -167,9 +167,8 @@ namespace UnitTest
         [TestMethod]
         public void SerializedGenericSectionsKeepTheTorsionToCompute()
         {
-#pragma warning disable SYSLIB0011
             var section = Generic(Rectangle(0, 0, 200, 100));
-            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            var formatter = new ContractFormatter();
             using (var stream = new System.IO.MemoryStream())
             {
                 formatter.Serialize(stream, section);
@@ -179,7 +178,6 @@ namespace UnitTest
                 Assert.AreEqual(100, copy.ShearCenter.X, 1e-4);
                 Assert.IsTrue(section.Equals(copy));
             }
-#pragma warning restore SYSLIB0011
         }
 
         [TestMethod]

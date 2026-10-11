@@ -55,6 +55,7 @@ namespace GPC.Model.Sections
         protected SectionHaunchedI(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionHaunchedIVersion", 1, 1);
             _height = info.GetDouble("HaunchedIHeight");
             _webThickness = info.GetDouble("HaunchedIWebThickness");
             _topWidth = info.GetDouble("HaunchedITopWidth");

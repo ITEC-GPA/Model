@@ -41,6 +41,7 @@ namespace GPC.Model.Sections
         protected SectionEllipse(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionEllipseVersion", 1, 1);
             _width = info.GetDouble("EllipseWidth");
             _height = info.GetDouble("EllipseHeight");
             _thickness = info.GetDouble("EllipseThickness");

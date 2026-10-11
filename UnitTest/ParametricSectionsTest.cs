@@ -194,9 +194,8 @@ namespace UnitTest
             var steel = new SteelSection(new SectionEllipse(200, 100, 8, "EHS"), SteelMaterialEN1993Data.S355);
             Assert.IsTrue(steel.Area > 0);
 
-#pragma warning disable SYSLIB0011
             var polygon = SectionRegularPolygon.FromAcrossFlats(12, 400, 6, "POLE");
-            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            var formatter = new ContractFormatter();
             using (var stream = new System.IO.MemoryStream())
             {
                 formatter.Serialize(stream, polygon);
@@ -207,7 +206,6 @@ namespace UnitTest
                 Rel(polygon.Jt, copy.Jt, 1e-12);
                 Assert.IsTrue(polygon.Equals(copy));
             }
-#pragma warning restore SYSLIB0011
         }
     }
 }

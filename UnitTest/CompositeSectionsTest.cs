@@ -248,8 +248,7 @@ namespace UnitTest
             Rel(rotated.PositionToGlobal(new Point2d(30, 70)).X, both.PositionToGlobal(new Point2d(30, 70)).X, 1e-12);
             Rel(rotated.PositionToGlobal(new Point2d(30, 70)).Y, both.PositionToGlobal(new Point2d(30, 70)).Y, 1e-12);
 
-#pragma warning disable SYSLIB0011
-            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            var formatter = new ContractFormatter();
             using (var stream = new System.IO.MemoryStream())
             {
                 formatter.Serialize(stream, left);
@@ -259,7 +258,6 @@ namespace UnitTest
                 Assert.IsFalse(copy.MirrorY);
                 Rel(140, copy.PositionToGlobal(new Point2d(10, 50)).X);
             }
-#pragma warning restore SYSLIB0011
         }
 
         [TestMethod]

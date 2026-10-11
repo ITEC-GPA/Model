@@ -60,6 +60,7 @@ namespace GPC.Model.Sections
         protected SectionMultiWebDeck(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionMultiWebDeckVersion", 1, 1);
             _slabWidth = info.GetDouble("DeckSlabWidth");
             _slabThickness = info.GetDouble("DeckSlabThickness");
             _webs = info.GetInt32("DeckWebs");

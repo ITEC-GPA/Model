@@ -117,6 +117,7 @@ namespace GPC.Model.Elements
         protected Element(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "ElementVersion", 1, 1);
             Source = SerializationFields.Read<global::GPC.Model.Core.Identity.SourceIdentity>(info, "Source");
             _coordinateSystem = (CoordinateSystem)info.GetValue("CoordinateSystem", typeof(CoordinateSystem));
             _groups = (UniqueNameCollection<Group>)info.GetValue("Groups", typeof(UniqueNameCollection<Group>));

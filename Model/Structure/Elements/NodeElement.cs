@@ -55,7 +55,8 @@ namespace GPC.Model.Elements
             : base(info, context)
         {
             Assignments = SerializationFields.Read(info, "NodeAssignments", new global::GPC.Model.Structure.Assignments.NodeAssignments());
-            int version = info.GetInt32(SerializationFields.Has(info, "NodeElementVersion") ? "NodeElementVersion" : "BeamVersion");
+            // The legacy writer key "BeamVersion" is not checked: it carried the version of the beams.
+            int version = SerializationFields.Has(info, "NodeElementVersion") ? SerializationVersions.Read(info, "NodeElementVersion", 0) : info.GetInt32("BeamVersion");
             _position = (Point3d)info.GetValue("Point", typeof(Point3d));
         }
 

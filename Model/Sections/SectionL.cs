@@ -210,15 +210,7 @@ namespace GPC.Model.Sections
         protected SectionL(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionLVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "SectionLVersion", 3, 1);
 
             _horizontalLegLength = info.GetDouble("HorizontalLegLength");
             _horizontalLegThickness = info.GetDouble("HorizontalLegThickness");

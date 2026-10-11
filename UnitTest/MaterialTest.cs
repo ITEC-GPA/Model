@@ -2,7 +2,6 @@ using GPC.Model.Data.Concrete;
 using GPC.Model.Data.Steel;
 using GPC.Model.Materials;
 using GPC.Model.Standards;
-using GPC.Utilities.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -24,8 +23,7 @@ namespace ModelObjectTest
 
             SteelMaterial steel = new SteelMaterial("nome", E, fy, fu, strainU, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural, ni, density);
 
-            byte[] bytes = Serialization.SerializeToBytes<SteelMaterial>(steel);
-            SteelMaterial steelDeserialized = (SteelMaterial)Serialization.DeserializeFromBytes(bytes);
+            SteelMaterial steelDeserialized = ContractFormatter.Copy(steel);
 
             Assert.AreEqual(steelDeserialized.Name, steel.Name, "Nome diverso");
             Assert.AreEqual(steelDeserialized.AlfaThermalExpansion, steel.AlfaThermalExpansion, "Alfa expansion diverso");

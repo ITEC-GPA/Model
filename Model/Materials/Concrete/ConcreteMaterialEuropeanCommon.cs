@@ -252,6 +252,8 @@ namespace GPC.Model.Materials
         protected ConcreteMaterialEuropeanCommon(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            // Refuses only its own newer versions; without its entry the old data use the version of the material (below).
+            SerializationVersions.Read(info, "ConcreteMaterialEuropeanCommonVersion", 3, 1);
             int version;
             try
             {

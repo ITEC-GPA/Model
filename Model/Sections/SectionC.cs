@@ -210,15 +210,8 @@ namespace GPC.Model.Sections
         protected SectionC(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("SectionCVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            // The entry written by GetObjectData ("SectionCVersion" was never written). The layout does not depend on it.
+            SerializationVersions.Read(info, "SectionCVersionVersion", 2, 1);
 
             _h = info.GetDouble("Height");
             _tw = info.GetDouble("ThicknessWeb");

@@ -4,7 +4,6 @@ using GPC.Model.Data.Steel;
 using GPC.Model.Geotechnics;
 using GPC.Model.Loads;
 using GPC.Model.Materials;
-using GPC.Utilities.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -91,12 +90,12 @@ namespace ModelObjectTest
         public void SerializationKeepsTheDensity()
         {
             SteelMaterial steel = SteelMaterialEN1993Data.S355;
-            var copy = (SteelMaterial)Serialization.DeserializeFromBytes(Serialization.SerializeToBytes(steel));
+            var copy = ContractFormatter.Copy(steel);
             Assert.AreEqual(Material.SteelDensity, copy.Density);
             Assert.AreEqual(steel.AlfaThermalExpansion, copy.AlfaThermalExpansion);
             // values not converted in the version 5, also the impossible ones
             var odd = new SteelMaterial("s", 210000, 355, 510, density: 0.00785);
-            Assert.AreEqual(0.00785, ((SteelMaterial)Serialization.DeserializeFromBytes(Serialization.SerializeToBytes(odd))).Density);
+            Assert.AreEqual(0.00785, ContractFormatter.Copy(odd).Density);
         }
 
         [TestMethod]

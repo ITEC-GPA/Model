@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using GPC.Geometry;
 using GPC.Model.Persistence;
 using GPC.Model.Sections;
@@ -91,13 +90,11 @@ public class SectionInputStabilityTest
         section.SetMechanicalProperties();
         string before = Fingerprint(section);
         double jt = section.Jt, wx = section.WplX;
-#pragma warning disable SYSLIB0011
         using var stream = new MemoryStream();
-        var formatter = new BinaryFormatter();
+        var formatter = new ContractFormatter();
         formatter.Serialize(stream, section);
         stream.Position = 0;
         var copy = (Section)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011
         Assert.AreEqual(before, Fingerprint(copy));
         Assert.IsTrue(section.Equals(copy));
         Assert.AreEqual(jt, copy.Jt);

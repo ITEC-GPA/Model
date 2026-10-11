@@ -41,6 +41,7 @@ namespace GPC.Model.Sections
         protected SectionStadium(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionStadiumVersion", 1, 1);
             _width = info.GetDouble("StadiumWidth");
             _height = info.GetDouble("StadiumHeight");
             _thickness = info.GetDouble("StadiumThickness");

@@ -52,6 +52,7 @@ namespace GPC.Model.Sections
         protected SectionCTaperFlange(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionCTaperFlangeVersion", 1, 1);
             _slope = info.GetDouble("Slope");
             _thicknessPoint = info.GetDouble("ThicknessPoint");
         }

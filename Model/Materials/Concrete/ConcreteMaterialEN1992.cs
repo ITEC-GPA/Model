@@ -68,15 +68,8 @@ namespace GPC.Model.Materials
         protected ConcreteMaterialEN1992(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
-			int version;
-			try
-			{
-				version = info.GetInt32("ConcreteMaterialEN1992Version");
-			}
-			catch (Exception)
-			{
-				version = 1;
-			}
+			// GetObjectData does not write this entry: version 1. A newer GPCModel that writes it is refused.
+			SerializationVersions.Read(info, "ConcreteMaterialEN1992Version", 1, 1);
 		}
 
 		#endregion

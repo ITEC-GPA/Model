@@ -201,15 +201,7 @@ namespace GPC.Model.Standards
         protected StandardModelCode2010(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("StandardModelCode2010Version");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "StandardModelCode2010Version", 1, 1);
 
             if (version == 1)
             {

@@ -51,6 +51,7 @@ namespace GPC.Model.Sections
         protected SectionTrapezoid(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionTrapezoidVersion", 1, 1);
             _bottomWidth = info.GetDouble("TrapezoidBottomWidth");
             _topWidth = info.GetDouble("TrapezoidTopWidth");
             _height = info.GetDouble("TrapezoidHeight");

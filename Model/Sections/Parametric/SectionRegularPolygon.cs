@@ -54,6 +54,7 @@ namespace GPC.Model.Sections
         protected SectionRegularPolygon(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionRegularPolygonVersion", 1, 1);
             _sides = info.GetInt32("PolygonSides");
             _diameter = info.GetDouble("PolygonDiameter");
             _thickness = info.GetDouble("PolygonThickness");

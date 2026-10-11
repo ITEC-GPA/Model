@@ -112,7 +112,7 @@ namespace GPC.Model.Elements
             : base(info, context)
         {
             Assignments = SerializationFields.Read(info, "BeamAssignments", new global::GPC.Model.Structure.Assignments.BeamAssignments());
-            int version = info.GetInt32("BeamVersion");
+            int version = SerializationVersions.Read(info, "BeamVersion", 1);
 
             _startNode = (Point3d)info.GetValue("StartNode", typeof(Point3d));
             _endNode = (Point3d)info.GetValue("EndNode", typeof(Point3d));

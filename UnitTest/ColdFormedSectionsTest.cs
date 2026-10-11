@@ -85,20 +85,13 @@ namespace UnitTest
         [TestMethod]
         public void SerializationKeepsTheOutline()
         {
-#pragma warning disable SYSLIB0011
             var c = SectionColdFormed.LippedChannel(200, 75, 20, 2, 3, "C");
-            var formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            using (var stream = new System.IO.MemoryStream())
-            {
-                formatter.Serialize(stream, c);
-                stream.Position = 0;
-                var copy = (SectionColdFormed)formatter.Deserialize(stream);
-                Rel(200, copy.Height, 1e-12);
-                Rel(75, copy.Width, 1e-12);
-                Rel(c.Area, copy.Area);
-                Assert.AreEqual(6, copy.MiddleLine.Count);
-            }
-#pragma warning restore SYSLIB0011
+            // The serialization data of the class: the data contracts of the archives cannot write it (ArchiveDefectsTest)
+            var copy = ContractFormatter.ThroughSerializationData(c);
+            Rel(200, copy.Height, 1e-12);
+            Rel(75, copy.Width, 1e-12);
+            Rel(c.Area, copy.Area);
+            Assert.AreEqual(6, copy.MiddleLine.Count);
         }
     }
 }

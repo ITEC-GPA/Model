@@ -55,15 +55,7 @@ namespace GPC.Model.Standards
         protected StandardAISC360p16(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("StandardAISC360_16Version");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "StandardAISC360_16Version", 1, 1);
         }
 
         #endregion

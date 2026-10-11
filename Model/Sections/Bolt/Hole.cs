@@ -66,7 +66,7 @@ namespace GPC.Model.Sections.Bolt
         public Hole(SerializationInfo info, StreamingContext context)
         {
             double version;
-            version = info.GetInt32("Version");
+            version = SerializationVersions.Read(info, "Version", 1);
             Diameter = info.GetDouble("Diameter");
             Rotation = info.GetDouble("Rotation");
             SlotLength = info.GetDouble("SlotLength");

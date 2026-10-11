@@ -152,6 +152,7 @@ namespace GPC.Model.Sections
         protected SectionHInclinedWeb(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            SerializationVersions.Read(info, "SectionHInclinedWebVersion", 1, 1);
             _h = info.GetDouble("Height");
             _tw = info.GetDouble("ThicknessWeb");
             _btop = info.GetDouble("LengthTopFlange");

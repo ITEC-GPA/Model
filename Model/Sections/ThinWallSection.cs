@@ -89,15 +89,7 @@ namespace GPC.Model.Sections
         protected ThinWallSection(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version;
-            try
-            {
-                version = info.GetInt32("ThinWallSectionVersion");
-            }
-            catch (Exception)
-            {
-                version = 1;
-            }
+            int version = SerializationVersions.Read(info, "ThinWallSectionVersion", 2, 1);
 
             if (version == 1)
             {
@@ -852,15 +844,7 @@ namespace GPC.Model.Sections
             /// <param name="_">The serialization context</param>
             protected ThinWall(SerializationInfo info, StreamingContext _)
             {
-                int version;
-                try
-                {
-                    version = info.GetInt32("ThinWallVersion");
-                }
-                catch (Exception)
-                {
-                    version = 1;
-                }
+                int version = SerializationVersions.Read(info, "ThinWallVersion", 2, 1);
 
                 _t = info.GetDouble("T");
                 _l = info.GetDouble("L");
