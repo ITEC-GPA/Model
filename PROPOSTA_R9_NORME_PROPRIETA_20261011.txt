@@ -1,0 +1,66 @@
+PROPOSTA R9: SEDE UNICA DELLE NORME E CALCOLO DELLE PROPRIETA' COME SERVIZIO (11/10/2026)
+
+Revisione di architettura del 10/10/2026, punto R9. Solo proposta: spostare norme e calcolo delle
+proprieta' cambia l'API pubblica di GPCModel e i chiamanti (Checker, ANTHEA). Si procede dopo la
+decisione dell'utente (punto 4).
+
+1. STATO (misurato sul branch claude/revisione-architettura)
+
+Norme
+- Model/Design/Standards: 32 classi di norma, circa 8.600 righe. Sono dati: ISerializable, nel
+  vocabolario chiuso degli archivi e nelle impronte. I coefficienti si possono modificare
+  (GammaC, AlphaCC, GammaS, ...) e sono salvati con il modello.
+- Le stesse classi contengono anche metodi normativi:
+  - generazione delle combinazioni: StandardEN1990 (1.847 righe), StandardEN16612 (1.952),
+    StandardASCE16 (1.483), StandardCopSuos2011;
+  - coefficienti per caso: GetGammaG/P/Q (favorevole e sfavorevole), GetPsi0/1/2;
+  - limiti SLE della precompressione: StandardModelCode2010, StandardNTC2018Concrete;
+  - combinazioni e fattori di correlazione dei pali in geotecnica: StandardEN1997p1,
+    StandardNTC2018Geotechnics, StandardGeotechnical.
+- Checker usa le norme di Model in 68 file: Concrete 30, Steel 20, ModelChecker 13,
+  Geotechnics 4, CompositeBridge 1. Una revisione normativa tocca quindi due repository e due
+  versioni.
+
+Proprieta' delle sezioni
+- Model/Sections: 19.737 righe. Section.CalculateTorsionProperties risolve la torsione agli
+  elementi finiti (SectionTorsion); GetMesh e SectionHelper.GenerateMesh generano le mesh. Per
+  questo GPCModel referenzia DelaunayMesh e MathNet.
+- Le proprieta' calcolate sono gia' in cache e salvate (Calculated): la definizione e il calcolo
+  si possono separare senza cambiare gli archivi.
+
+2. PROPOSTA A (norme): i dati restano in Model, i metodi passano in Checker (consigliata)
+- Model conserva la norma come dato: codice, edizione, annesso nazionale e coefficienti
+  modificabili. Archivi e impronte non cambiano.
+- I metodi normativi passano in Checker per famiglia, come servizi scelti dal tipo di norma.
+  Model non puo' chiamare Checker (ciclo R3), quindi in Model restano [Obsolete] con il codice
+  attuale finche' i chiamanti, ANTHEA compreso, non sono migrati; si tolgono alla versione
+  maggiore successiva.
+- Ogni famiglia si sposta con cattura prima e dopo: combinazioni, coefficienti e limiti identici
+  su un corpus di casi (le regole di ANTHEA sul codice spostato).
+- Ordine proposto: limiti SLE del c.a., poi combinazioni EN 1990, poi geotecnica. L'acciaio
+  (EN 1993) resta fermo fino agli sviluppi di novembre.
+- Alternativa scartata: spostare le classi di norma in Checker e lasciare in Model solo il
+  codice. Rompe gli archivi (nomi dei tipi), le impronte e l'API usata da ANTHEA.
+
+3. PROPOSTA B (proprieta'): calcolo delle sezioni in un assembly a parte
+- Un nuovo assembly (per esempio GPCModel.SectionCalculation) contiene mesh, torsione FE e
+  calcolo delle proprieta'. Section conserva la definizione e le proprieta' calcolate.
+- GPCModel non referenzia piu' DelaunayMesh: un importatore o una vista leggono e scrivono
+  modelli senza le dipendenze numeriche.
+- Vincoli:
+  - le mesh DelaunayMesh delle sezioni usuali devono restare identiche bit per bit (catture
+    congelate in Checker e ANTHEA);
+  - molti chiamanti leggono Jt e Jw in modo pigro, quindi serve un servizio registrato
+    all'avvio (Checker, ANTHEA) oppure il calcolo esplicito prima dell'uso.
+
+4. DECISIONI RICHIESTE ALL'UTENTE
+- A: dati in Model e metodi in Checker? L'ordine delle famiglie va bene?
+- B: nuovo assembly per il calcolo delle sezioni? Proposta: dopo la migrazione di c.a. e
+  geotecnica in ANTHEA, perche' tocca tutte le sezioni.
+- Versioni: entrambe cambiano l'API pubblica di GPCModel (versione maggiore, assegnata
+  dall'utente).
+
+5. STIMA
+- A: due o tre sessioni per famiglia, catture comprese.
+- B: tre o quattro sessioni, piu' l'aggiornamento di lib/Checker e la verifica completa di
+  ANTHEA.
