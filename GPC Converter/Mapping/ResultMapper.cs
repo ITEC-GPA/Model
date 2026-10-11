@@ -41,10 +41,9 @@ namespace GPC.Converter
                 if (batch.ExpectedInputFingerprint != fingerprint) throw new ArgumentException("InputFingerprintMismatch");
                 var analysisFingerprint = batch.AnalysisInputFingerprint ?? model.Analysis?.InputFingerprint ?? fingerprint;
                 if (model.Analysis != null && (analysisFingerprint != model.Analysis.InputFingerprint
-                    || model.SolverBindingFingerprint() != model.Analysis.OpenModel().SolverBindingFingerprint()))
+                    || model.SolverBindingFingerprint() != model.Analysis.SolverBindingFingerprint()))
                     throw new ArgumentException("AnalysisSnapshotMismatch");
-                if (string.IsNullOrWhiteSpace(batch.DatasetId) || model.Datasets.ContainsKey(batch.DatasetId)
-                    || model.AllElements.SelectMany(e => e.Results).SelectMany(r => r.Results).Any(r => r.State?.DatasetId == batch.DatasetId))
+                if (string.IsNullOrWhiteSpace(batch.DatasetId) || model.Datasets.ContainsKey(batch.DatasetId) || model.ContainsResultsOf(batch.DatasetId))
                     throw new ArgumentException("MissingOrDuplicateDataset");
                 if (batch.Units == null || string.IsNullOrWhiteSpace(batch.SourceHash) || string.IsNullOrWhiteSpace(batch.ReaderVersion)
                     || string.IsNullOrWhiteSpace(batch.ResolvedConvention)) throw new ArgumentException("MissingResultProvenance");

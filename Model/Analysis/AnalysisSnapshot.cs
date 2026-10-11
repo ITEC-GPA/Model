@@ -48,6 +48,8 @@ namespace GPC.Model.Analysis
         private sealed class CanonicalInputs
         {
             internal string Physical, Source, Reinforcement, Prestress;
+            internal CanonicalInputs(string physical, string source, string reinforcement, string prestress)
+            { Physical = physical; Source = source; Reinforcement = reinforcement; Prestress = prestress; }
             internal CanonicalInputs(Models.Model model)
             {
                 Physical = model.AnalysisFingerprint();
@@ -93,11 +95,12 @@ namespace GPC.Model.Analysis
                 throw new ArgumentOutOfRangeException(nameof(reinforcementRole));
             if (reinforcementRole != ReinforcementAnalysisRole.Unknown && string.IsNullOrWhiteSpace(assumptionReference))
                 throw new ArgumentException("An explicit analysis assumption and its source are required.", nameof(assumptionReference));
-            if (model.Datasets.Count != 0 || model.AllElements.Any(e => e.Results.Any()))
+            if (model.Datasets.Count != 0 || model.AllElements.Any(e => e.HasResults))
                 throw new InvalidOperationException("Capture analysis inputs before results. Historical provenance cannot be inferred from the current design.");
-            var bytes = AnalysisStorage.Write(model.AnalysisArchiveView());
-            var copy = AnalysisStorage.Read<Models.Model>(bytes);
-            return new AnalysisSnapshot
+            // Compact image of the inputs; snapshots written before the images hold the XML of the graph and are still read.
+            var bytes = ModelImage.Capture(model.AnalysisArchiveView()).ToBytes();
+            var copy = AnalysisStorage.ReadModel(bytes);
+            var snapshot = new AnalysisSnapshot
             {
                 Id = Guid.NewGuid().ToString("D"),
                 ModelGuid = copy.Guid,
@@ -111,17 +114,63 @@ namespace GPC.Model.Analysis
                 ReinforcementRole = reinforcementRole,
                 AssumptionReference = assumptionReference
             };
+            // The fingerprints were just computed on the graph read back from the bytes, as OpenModel would.
+            snapshot._validated = new CanonicalInputs(snapshot.InputFingerprint, snapshot.SourceFingerprint, snapshot.ReinforcementFingerprint, snapshot.PrestressFingerprint);
+            snapshot.Remember();
+            return snapshot;
         }
 
         public Models.Model OpenModel()
         {
-            if (_model == null || _contentHash != AnalysisStorage.Digest(_model) || string.IsNullOrWhiteSpace(Id) || !Enum.IsDefined(typeof(ReinforcementAnalysisRole), ReinforcementRole) || ReinforcementRole != ReinforcementAnalysisRole.Unknown && string.IsNullOrWhiteSpace(AssumptionReference))
-                throw new SerializationException("Invalid analysis snapshot.");
-            var model = AnalysisStorage.Read<Models.Model>(_model);
-            if (model.Analysis != null || model.VerificationContext != null || model.Datasets.Count != 0 || model.AllElements.Any(e => e.Results.Any()) || model.Guid != ModelGuid || !ValidateFingerprints(model))
+            CheckDeclaration();
+            var model = AnalysisStorage.ReadModel(_model);
+            if (model.Analysis != null || model.VerificationContext != null || model.Datasets.Count != 0 || model.AllElements.Any(e => e.HasResults) || model.Guid != ModelGuid || !ValidateFingerprints(model))
                 throw new SerializationException("Analysis snapshot inputs disagree with their provenance.");
             _validated = new CanonicalInputs(model);
+            Remember();
             return model;
+        }
+
+        // Snapshots validated in this process, by content and declared provenance: the same bytes with the same declared fingerprints
+        // always give the same outcome, so the copies of a model (preparations, archives) do not read their snapshot again.
+        private sealed class Validation { internal CanonicalInputs Inputs; internal string LegacyModel, LegacyCore, SolverBinding; }
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Validation> Validations = new System.Collections.Concurrent.ConcurrentDictionary<string, Validation>(StringComparer.Ordinal);
+        private string ValidationKey => string.Join("\n", _contentHash, Id, ModelGuid.ToString("D"), InputFingerprint, SourceFingerprint, ReinforcementFingerprint,
+            PrestressFingerprint, _fingerprintSchema.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ((int)ReinforcementRole).ToString(System.Globalization.CultureInfo.InvariantCulture), AssumptionReference ?? "\0");
+        private void Remember()
+        {
+            if (Validations.Count < 1024) Validations[ValidationKey] = new Validation { Inputs = _validated, LegacyModel = _legacyModelVersion, LegacyCore = _legacyCoreVersion };
+        }
+
+        private void CheckDeclaration()
+        {
+            if (_model == null || _contentHash != AnalysisStorage.Digest(_model) || string.IsNullOrWhiteSpace(Id) || !Enum.IsDefined(typeof(ReinforcementAnalysisRole), ReinforcementRole) || ReinforcementRole != ReinforcementAnalysisRole.Unknown && string.IsNullOrWhiteSpace(AssumptionReference))
+                throw new SerializationException("Invalid analysis snapshot.");
+        }
+
+        /// <summary>
+        /// The solver binding fingerprint of the recorded inputs (see ModelRevisions.SolverBindingFingerprint), after the checks of
+        /// <see cref="OpenModel"/>. Computed once per content in the process: importing several datasets does not read the inputs again.
+        /// </summary>
+        public string SolverBindingFingerprint()
+        {
+            Validate();
+            Validations.TryGetValue(ValidationKey, out var known);
+            if (known?.SolverBinding != null) return known.SolverBinding;
+            var binding = OpenModel().SolverBindingFingerprint();
+            if (Validations.TryGetValue(ValidationKey, out known)) known.SolverBinding = binding;
+            return binding;
+        }
+
+        /// <summary>The checks of <see cref="OpenModel"/>, without reading the inputs again when the same content was already
+        /// validated in this process.</summary>
+        internal void Validate()
+        {
+            CheckDeclaration();
+            if (Validations.TryGetValue(ValidationKey, out var known))
+            { _validated = known.Inputs; _legacyModelVersion = known.LegacyModel; _legacyCoreVersion = known.LegacyCore; return; }
+            OpenModel();
         }
 
         private bool Matches(CanonicalInputs values) => values.Physical == InputFingerprint && values.Source == SourceFingerprint && values.Reinforcement == ReinforcementFingerprint && values.Prestress == PrestressFingerprint;

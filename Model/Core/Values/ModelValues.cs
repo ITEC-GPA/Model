@@ -57,6 +57,8 @@ namespace GPC.Model.Core
             }).Distinct().ToArray();
         }
         internal static DomainXmlSerializer Serializer(Type type) => new DomainXmlSerializer(type, KnownTypes);
+        /// <summary>Same contracts, no ceiling of objects: for the graphs of the images, whose results are carried apart.</summary>
+        internal static DomainXmlSerializer ImageSerializer(Type type) => new DomainXmlSerializer(type, KnownTypes, int.MaxValue);
 
         /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
         public static T CopyValue<T>(T value) where T : class
@@ -68,18 +70,17 @@ namespace GPC.Model.Core
             using (var stream = new MemoryStream())
             { serializer.WriteObject(stream, value); stream.Position = 0; return (T)serializer.ReadObject(stream); }
         }
-        /// <summary>Copies the complete graph, preserving IDs, aliases and group event wiring.</summary>
+        /// <summary>Copies the complete graph, preserving IDs, aliases and group event wiring. The results are shared in compact
+        /// form and decoded, as new objects, on the first access to the results of each element of the copy.</summary>
         public static Models.Model Copy(Models.Model model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(model.CheckReports.ToArray());
-            var copy = global::GPC.Model.Analysis.AnalysisStorage.Read<Models.Model>(CaptureModel(model));
+            var copy = ModelImage.Capture(model).Open();
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(copy.CheckReports.ToArray());
-            copy.Analysis?.OpenModel();
+            copy.Analysis?.Validate();
             return copy;
         }
-        // Internal snapshot bytes are not a public file format. Kept stable for existing analysis/scenario provenance.
-        internal static byte[] CaptureModel(Models.Model model) => global::GPC.Model.Analysis.AnalysisStorage.Write(model);
         public static string Fingerprint(IEnumerable<object> input) => InputFingerprint.Compute(input);
     }
 }

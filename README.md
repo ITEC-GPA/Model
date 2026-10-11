@@ -27,6 +27,13 @@ Il dominio FEM rimane `GPC.Model.Models.Model`. Nodi, beam, shell e solidi condi
 
 I convertitori sono nel progetto separato **`GPC Converter/GPC Converter.csproj`**, incluso in `GPCModel.sln`, con assembly/namespace `GPC.Converter`. `Model` non dipende dai convertitori né dal verificatore. L'adattatore ai motori di verifica, `GPCModelChecker`, sta nel repository **Checker** (`Checker/ModelChecker`), a valle di Model: dal 10/10/2026 Model fissa solo Geometry e Utilities e nessuna DLL di Checker (revisione di architettura, R3).
 
+**Risultati compatti** (revisione di architettura, R1; progetto e misure in [ARCHIVIO_RISULTATI_20261010.txt](ARCHIVIO_RISULTATI_20261010.txt)):
+
+- copie, preparazioni, snapshot e archivi non serializzano più i campioni dentro il grafo. I risultati di ogni elemento sono un blocco binario compresso e immutabile, condiviso dalle copie e decodificato al primo accesso a `Element.Results` (API invariata);
+- `Model.CompactResults()` comprime i risultati e rilascia gli oggetti: dopo un import grande va chiamato a ogni dataset. `Model.ContainsResultsOf(dataset)` interroga i risultati senza decodificarli;
+- `ModelArchive.Save` scrive il documento XML (versioni 1-4) per i modelli senza risultati fino a 64 MB, altrimenti il pacchetto versione 5 (ZIP con `model.xml` e `results.bin`). `SaveDocument` scrive sempre il documento XML versione 4 con i risultati in linea, adatto ai modelli piccoli. `Load` legge tutte le versioni. Le versioni precedenti della libreria rifiutano il pacchetto: non lo leggono a metà;
+- un risultato che punta a un campione di un altro elemento (DerivedFrom) non è copiabile: la copia lo rifiuta con `NotSupportedException`.
+
 ```powershell
 dotnet build GPCModel.sln --no-restore
 dotnet test UnitTest/UnitTest.csproj --no-restore

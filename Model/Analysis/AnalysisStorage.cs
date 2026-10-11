@@ -28,6 +28,14 @@ namespace GPC.Model.Analysis
                 XmlResolver = null, MaxCharactersInDocument = 256L * 1024 * 1024 }))
                 return (T)ModelValues.Serializer(typeof(T)).ReadObject(reader);
         }
+        /// <summary>A model from snapshot bytes: a compact image, or the XML of the snapshots written before the images (read
+        /// without ceilings: the bytes are internal and checked against their digest by the caller).</summary>
+        internal static Models.Model ReadModel(byte[] bytes)
+        {
+            if (ModelImage.IsImage(bytes)) return ModelImage.FromBytes(bytes).Open();
+            using (var stream = new MemoryStream(bytes, false))
+                return (Models.Model)ModelImage.ReadGraph(stream, typeof(Models.Model));
+        }
         internal static string Digest(byte[] bytes)
         {
             using (var sha = SHA256.Create()) return Convert.ToBase64String(sha.ComputeHash(bytes));
@@ -46,7 +54,22 @@ namespace GPC.Model.Analysis
             .SelectMany(b => new[] { b.BeamProperty }.Concat(b.Assignments.Sections.SelectMany(s =>
                 new[] { s.Property, s.EndProperty }.Concat(s.Stations.Select(p => p.Property)))))
             .OfType<ReinforcedConcreteSection>();
-        internal static string Results(Models.Model model) => ModelValues.Fingerprint(model.AllElements
-            .Select(e => (object)new object[] { e.Guid, e.Results.ToArray() }));
+        /// <summary>Digest of the results of all elements, from their compact form: results not read since the copy are not decoded,
+        /// read ones are encoded again (an unchanged list gives the same segments). Runtime token, never persisted.</summary>
+        internal static string Results(Models.Model model)
+        {
+            var elements = model.AllElements.ToArray();
+            var results = ModelImage.CaptureResults(model, elements);
+            using (var sha = SHA256.Create())
+            {
+                for (int i = 0; i < elements.Length; i++)
+                {
+                    var guid = elements[i].Guid.ToByteArray(); sha.TransformBlock(guid, 0, guid.Length, null, 0);
+                    var digest = results[i].Digest; sha.TransformBlock(digest, 0, digest.Length, null, 0);
+                }
+                sha.TransformFinalBlock(new byte[0], 0, 0);
+                return Convert.ToBase64String(sha.Hash);
+            }
+        }
     }
 }

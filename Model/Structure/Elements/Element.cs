@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using GPC.Model.Core.Identity;
 
 namespace GPC.Model.Elements
@@ -35,9 +36,18 @@ namespace GPC.Model.Elements
         /// </summary>
         protected UniqueIdCollection<Load> _loads;
         /// <summary>
-        /// The results of the analyses
+        /// The results of the analyses (null while they are still in their compact form: read them through <see cref="Results"/>)
         /// </summary>
         protected List<ElementResult> _results;
+        // Compact results not read yet, decoded on the first access to Results with the cases of _resultModel; results added in the
+        // meantime wait in _addedResults. After the decoding, _resultOrigin and _resultOriginItems remember where the list came from,
+        // so that an unchanged list encodes again to the same segments.
+        [NonSerialized] private ResultStorage _storedResults;
+        [NonSerialized] private List<ElementResult> _addedResults;
+        [NonSerialized] private Models.Model _resultModel;
+        [NonSerialized] private ResultStorage _resultOrigin;
+        [NonSerialized] private ElementResult[] _resultOriginItems;
+        [NonSerialized] private object _resultLock;
 
         /// <summary>
         /// The local coordinate system (<see cref="CoordinateSystem.Global"/> by default)
@@ -56,9 +66,10 @@ namespace GPC.Model.Elements
         /// </summary>
         public UniqueIdCollection<Load> Loads { get => _loads; set => _loads = value; }
         /// <summary>
-        /// The results of the analyses (the list of the element)
+        /// The results of the analyses (the list of the element). Results kept in compact form (copies, archives) are decoded on the
+        /// first access, in new objects bound to the cases of the model
         /// </summary>
-        public List<ElementResult> Results => _results;
+        public List<ElementResult> Results => Volatile.Read(ref _results) ?? LoadResults();
 
         /// <summary>
         /// Creates an element without id, in the global coordinate system
@@ -182,7 +193,7 @@ namespace GPC.Model.Elements
         public virtual void AddResult(ElementResult result)
         {
             if (result != null)
-                _results.Add(result);
+                AppendResults(new[] { result });
         }
 
         /// <summary>
@@ -192,7 +203,125 @@ namespace GPC.Model.Elements
         public virtual void AddResults(IEnumerable<ElementResult> results)
         {
             if (results != null)
-                _results.AddRange(results);
+                AppendResults(results);
+        }
+
+        #endregion
+
+        #region Compact results
+
+        private object ResultLock
+        {
+            get
+            {
+                if (_resultLock == null) Interlocked.CompareExchange(ref _resultLock, new object(), null);
+                return _resultLock;
+            }
+        }
+
+        private List<ElementResult> LoadResults()
+        {
+            lock (ResultLock)
+            {
+                if (_results != null) return _results;
+                var list = ResultCodec.Decode(_storedResults, _resultModel);
+                _resultOrigin = _storedResults; _resultOriginItems = list.ToArray();
+                if (_addedResults != null) list.AddRange(_addedResults);
+                _storedResults = null; _addedResults = null; _resultModel = null;
+                Volatile.Write(ref _results, list);
+                return list;
+            }
+        }
+
+        /// <summary>Adds to the list, or after the compact results without decoding them.</summary>
+        internal void AppendResults(IEnumerable<ElementResult> results)
+        {
+            lock (ResultLock)
+            {
+                if (_results != null) _results.AddRange(results);
+                else (_addedResults ?? (_addedResults = new List<ElementResult>())).AddRange(results);
+            }
+        }
+
+        /// <summary>False while the results are still in compact form.</summary>
+        internal bool ResultsLoaded => Volatile.Read(ref _results) != null;
+
+        /// <summary>True if the element has results, without decoding them.</summary>
+        internal bool HasResults
+        {
+            get { lock (ResultLock) return _results != null ? _results.Count != 0 : _storedResults.Count != 0 || _addedResults?.Count > 0; }
+        }
+
+        /// <summary>True if a result belongs to the dataset, without decoding the compact results.</summary>
+        internal bool ContainsResultsOf(string dataset)
+        {
+            lock (ResultLock)
+            {
+                IEnumerable<ElementResult> scan = _results;
+                if (scan == null) { if (_storedResults.ContainsDataset(dataset)) return true; scan = _addedResults ?? Enumerable.Empty<ElementResult>(); }
+                return scan.Where(r => r?.Results != null).SelectMany(r => r.Results).Any(s => s?.State?.DatasetId == dataset);
+            }
+        }
+
+        /// <summary>The compact form of the current results, without changing the element. An unchanged decoded list gives back the
+        /// segments it was read from, so that the digest of the results does not depend on whether they were read.</summary>
+        /// <exception cref="NotSupportedException">If a result references a sample of another element or a value outside the
+        /// vocabulary of the model</exception>
+        internal ResultStorage CaptureResults(ResultCaseTable cases)
+        {
+            lock (ResultLock)
+            {
+                if (_results == null)
+                    return _addedResults == null || _addedResults.Count == 0 ? _storedResults
+                        : _storedResults.Append(ResultCodec.Encode(_addedResults, 0, _addedResults.Count, cases));
+                var list = _results;
+                if (list.Count == 0) return ResultStorage.Empty;
+                if (_resultOrigin != null && list.Count >= _resultOriginItems.Length && StartsWithOrigin(list))
+                {
+                    try
+                    {
+                        var segments = new List<ResultSegment>(); int at = 0;
+                        foreach (var original in _resultOrigin.Segments)
+                        {
+                            var segment = ResultCodec.Encode(list, at, original.Count, cases);
+                            segments.Add(segment.SameContent(original) ? original : segment); at += original.Count;
+                        }
+                        if (at < list.Count) segments.Add(ResultCodec.Encode(list, at, list.Count - at, cases));
+                        return new ResultStorage(segments.ToArray());
+                    }
+                    // A result added after the reading references earlier samples: the list is encoded as a whole.
+                    catch (ResultEncodingException ex) when (ex.Foreign) { }
+                }
+                return new ResultStorage(new[] { ResultCodec.Encode(list, 0, list.Count, cases) });
+            }
+        }
+
+        private bool StartsWithOrigin(List<ElementResult> list)
+        {
+            for (int i = 0; i < _resultOriginItems.Length; i++) if (!ReferenceEquals(list[i], _resultOriginItems[i])) return false;
+            return true;
+        }
+
+        /// <summary>Replaces the results with compact ones, decoded on the first access with the cases of <paramref name="model"/>.</summary>
+        internal void AttachResults(ResultStorage storage, Models.Model model)
+        {
+            lock (ResultLock)
+            {
+                _resultOrigin = null; _resultOriginItems = null; _addedResults = null;
+                if (storage == null || storage.Count == 0) { _storedResults = null; _resultModel = null; Volatile.Write(ref _results, new List<ElementResult>()); return; }
+                _storedResults = storage; _resultModel = model; Volatile.Write(ref _results, null);
+            }
+        }
+
+        /// <summary>Encodes the results and releases the decoded objects.</summary>
+        internal ResultStorage CompactResults(ResultCaseTable cases, Models.Model model)
+        {
+            lock (ResultLock)
+            {
+                var storage = CaptureResults(cases);
+                AttachResults(storage, model);
+                return storage;
+            }
         }
 
         #endregion
@@ -211,7 +340,8 @@ namespace GPC.Model.Elements
             info.AddValue("ElementVersion", 1);
             info.AddValue("Attributes", _attributes);
             info.AddValue("Loads", _loads);
-            info.AddValue("Results", _results);
+            // Images of the model carry the results apart, in compact form (ModelImage).
+            if (!ResultScope.Skips(this)) info.AddValue("Results", Results);
         }
 
         /// <summary>

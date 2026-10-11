@@ -6,8 +6,10 @@
 //          of the model, each with its own scale factor, through CivilNxResults.Import: the production import path, so every
 //          sample has the object structure of a real import. Ten cases per dataset, as separate acquisitions would give.
 // --grid:  synthetic n x n grid of quadrilateral plates, 4 samples per plate and case; no private data needed.
+// --load:  an archive saved with --archive, read in a fresh process (no snapshot validated yet), then copied and prepared.
 // Measures import, ModelArchive.Save/Load, ModelValues.Copy, VerificationPreparation.Prepare, PreparedVerification.IsCurrent,
-// VerificationSnapshot.Capture, archive size and peak working set. A failing operation is recorded with its error.
+// VerificationSnapshot.Capture, the decoding of all the results of a copy, archive size and peak working set. A failing operation
+// is recorded with its error. After each dataset the results are compacted (Model.CompactResults), as a large import should do.
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
@@ -31,7 +33,7 @@ using GPC.Model.Results.State;
 using GPC.Model.Results.Storage;
 using GPC.Model.Sections.Concrete;
 
-string midas = null, output = null, keep = null; int grid = 30; int[] caseRuns = { 2, 10 };
+string midas = null, output = null, keep = null, load = null; int grid = 30; int[] caseRuns = { 2, 10 };
 for (int i = 0; i < args.Length; i++)
 {
     switch (args[i])
@@ -41,20 +43,39 @@ for (int i = 0; i < args.Length; i++)
         case "--cases": caseRuns = args[++i].Split(',').Select(c => int.Parse(c, CultureInfo.InvariantCulture)).ToArray(); break;
         case "--out": output = args[++i]; break;
         case "--archive": keep = args[++i]; break; // folder: the saved archive of each run is written there as <cases>.gpcmodel
+        case "--load": load = args[++i]; break;
         default: throw new ArgumentException("Opzioni: --midas <dir> | --grid <n>, --cases <n,...>, --out <file.json>, --archive <dir>");
     }
 }
 var runs = new List<Dictionary<string, object>>();
+if (load != null)
+{
+    var row = new Dictionary<string, object> { ["source"] = load, ["archiveBytes"] = new FileInfo(load).Length };
+    GPC.Model.Models.Model loaded = null;
+    Console.WriteLine($"\n== {load}: {new FileInfo(load).Length / 1048576.0:N1} MB, lettura a freddo");
+    Measure(row, "load", () => { using var s = File.OpenRead(load); loaded = ModelArchive.Load(s); });
+    if (loaded != null)
+    {
+        Measure(row, "copy", () => ModelValues.Copy(loaded));
+        PreparedVerification prepared = null;
+        Measure(row, "prepare", () => prepared = VerificationPreparation.Prepare(loaded, VerificationScenario.Create(loaded.Analysis.Id, "misura")));
+        if (prepared != null) { Measure(row, "isCurrent", () => { if (!prepared.IsCurrent) throw new InvalidOperationException("NotCurrent"); }); Measure(row, "snapshot", () => VerificationSnapshot.Capture(prepared)); }
+    }
+    row["peakWorkingSetMB"] = Math.Round(Process.GetCurrentProcess().PeakWorkingSet64 / 1048576.0);
+    Console.WriteLine($"   picco memoria {row["peakWorkingSetMB"]:N0} MB");
+    runs.Add(row); caseRuns = new int[0];
+}
 foreach (int cases in caseRuns)
 {
     GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
     var row = new Dictionary<string, object> { ["source"] = midas != null ? "midas" : "grid " + grid, ["cases"] = cases };
     var clock = Stopwatch.StartNew();
-    var model = midas != null ? MidasModel(midas, cases, row) : GridModel(grid, cases);
+    var (model, samples) = midas != null ? MidasModel(midas, cases, row) : GridModel(grid, cases);
     row["importSeconds"] = clock.Elapsed.TotalSeconds;
-    long samples = model.AllElements.Sum(e => e.Results.Sum(r => (long)r.Results.Count));
-    row["samples"] = samples; row["plates"] = model.AreaElements.Count; row["beams"] = model.BeamElements.Count;
+    long compact = model.CompactResults();
+    row["samples"] = samples; row["plates"] = model.AreaElements.Count; row["beams"] = model.BeamElements.Count; row["compactBytes"] = compact;
     Console.WriteLine($"\n== {cases} casi: {model.AreaElements.Count} plate, {model.BeamElements.Count} beam, {samples:N0} campioni, import {clock.Elapsed.TotalSeconds:N1} s");
+    Console.WriteLine($"   risultati compatti {compact / 1048576.0:N1} MB, {compact / (double)Math.Max(1, samples):N0} byte per campione");
     byte[] archive = null;
     Measure(row, "save", () => { using var s = new MemoryStream(); ModelArchive.Save(model, s); archive = s.ToArray(); });
     if (archive != null)
@@ -66,6 +87,8 @@ foreach (int cases in caseRuns)
         archive = null;
     }
     Measure(row, "copy", () => ModelValues.Copy(model));
+    // Decoding every result of a copy: the cost of a verification that reads all the samples (kept to sizes that fit in memory).
+    if (samples <= 300000) Measure(row, "readAll", () => { var copy = ModelValues.Copy(model); if (copy.AllElements.Sum(e => e.Results.Sum(r => (long)r.Results.Count)) != samples) throw new InvalidOperationException("SampleCount"); });
     PreparedVerification prepared = null;
     Measure(row, "prepare", () => prepared = VerificationPreparation.Prepare(model, VerificationScenario.Create(model.Analysis.Id, "misura")));
     if (prepared != null)
@@ -93,7 +116,7 @@ static void Measure(Dictionary<string, object> row, string name, Action action)
     }
 }
 
-static GPC.Model.Models.Model MidasModel(string directory, int cases, Dictionary<string, object> row)
+static (GPC.Model.Models.Model, long) MidasModel(string directory, int cases, Dictionary<string, object> row)
 {
     var tables = CivilNxModelProfile.RequiredTables.Concat(CivilNxModelProfile.OptionalTables).Distinct()
         .Where(t => File.Exists(Path.Combine(directory, t + ".json")))
@@ -109,6 +132,7 @@ static GPC.Model.Models.Model MidasModel(string directory, int cases, Dictionary
     row["caseNames"] = names.Length;
     var sources = Directory.GetFiles(directory, "plate-results-*.json").Concat(Directory.GetFiles(directory, "beam-results-*.json"))
         .Select(f => JsonNode.Parse(File.ReadAllText(f))).ToArray();
+    long samples = 0;
     for (int first = 0; first < names.Length; first += 10)
     {
         var responses = new List<CivilNxResponse>();
@@ -117,8 +141,10 @@ static GPC.Model.Models.Model MidasModel(string directory, int cases, Dictionary
         var report = CivilNxResults.Import(model, snapshot, responses, "misura-" + (first / 10 + 1).ToString(CultureInfo.InvariantCulture));
         if (report.Status != ImportStatus.Completed && report.Status != ImportStatus.Partial)
             throw new InvalidDataException("Import rifiutato: " + string.Join("; ", report.Diagnostics.Select(d => d.Code + " " + d.Message)));
+        samples += report.ImportedSamples;
+        model.CompactResults();
     }
-    return model;
+    return (model, samples);
 }
 
 // The rows of one post/TABLE response for another case: case name replaced, every value column scaled.
@@ -140,7 +166,7 @@ static string Replay(JsonNode source, string caseName, double factor)
     return root.ToJsonString();
 }
 
-static GPC.Model.Models.Model GridModel(int side, int cases)
+static (GPC.Model.Models.Model, long) GridModel(int side, int cases)
 {
     var model = new GPC.Model.Models.Model("griglia");
     int n = side + 1;
@@ -171,5 +197,5 @@ static GPC.Model.Models.Model GridModel(int side, int cases)
                         ConcomitantStateId = lc.Name, Components = Enumerable.Repeat(ComponentAvailability.Available, 8).ToArray(), IsSynthetic = true, IsCombined = false,
                         SourceRecord = "Grid", Coverage = "Exported samples only." },
                       PointKind = ShellResultPointKind.ElementNodeExtrapolated, CoordinateKind = ResultCoordinateKind.Natural } }));
-    return model;
+    return (model, (long)cases * model.AreaElements.Count * 4);
 }

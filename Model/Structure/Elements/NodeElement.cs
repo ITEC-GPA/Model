@@ -68,7 +68,7 @@ namespace GPC.Model.Elements
         public void AddResult(NodeResult result)
         {
             if (result != null)
-                _results.Add(result);
+                AppendResults(new ElementResult[] { result });
         }
 
 

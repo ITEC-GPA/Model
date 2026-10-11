@@ -26,12 +26,17 @@ namespace GPC.Model.Models
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             string analysis = model.AnalysisFingerprint();
-            string verification = ModelValues.Fingerprint(new object[] { "VerificationInputs-v1", model.VerificationFingerprint(null),
+            // The results enter through the digest of their compact form, without decoding the results not read yet.
+            var elements = model.AllElements.ToArray();
+            var results = ModelImage.CaptureResults(model, elements);
+            string verification = ModelValues.Fingerprint(new object[] { "VerificationInputs-v2", model.VerificationFingerprint(null),
                 model.BeamElements.Values.Select(b => b.BeamProperty).ToArray(), model.PhysicalMembers, model.Datasets,
                 model.VerificationContext, model.VerificationScenarios,
-                model.AllElements.Select(e => new object[] { e.Id, e.Guid, e.Groups.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray(), e.Results.ToArray() }).ToArray() });
-            using (var sha = SHA256.Create())
-                return new ModelRevision(BitConverter.ToString(sha.ComputeHash(ModelValues.CaptureModel(model))).Replace("-", ""), analysis, verification);
+                elements.Select((e, i) => new object[] { e.Id, e.Guid, e.Groups.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray(),
+                    Convert.ToBase64String(results[i].Digest) }).ToArray() });
+            // After the fingerprints, which complete lazy values (e.g. section shapes) that the graph then writes.
+            var image = ModelImage.Capture(model, elements, results);
+            return new ModelRevision(BitConverter.ToString(image.Digest()).Replace("-", ""), analysis, verification);
         }
     }
     public sealed class ModelEditResult

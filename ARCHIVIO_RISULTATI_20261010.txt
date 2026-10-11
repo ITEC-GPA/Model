@@ -26,13 +26,16 @@ troppo verboso in XML (paragrafo 6).
 - Gli archivi 1-4 si leggono come prima; le impronte storiche (analisi, scenari,
   resoconti) non cambiano.
 
-3. PROGETTO
-3.0 Immagini binarie del grafo degli input. Copie, preparazione, snapshot dell'analisi e
+3. PROGETTO (realizzato l'11/10/2026; le differenze dal piano sono segnate "[realizzato]")
+3.0 Immagini del grafo degli input. Copie, preparazione, snapshot dell'analisi e
 pacchetto d'archivio scrivono il grafo con lo stesso DataContractSerializer e gli stessi
-contratti (nomi storici compresi), ma in XML binario con un dizionario dei nomi scritto in
-testa all'immagine: nomi, namespace e attributi diventano indici, i numeri restano binari.
-La semantica della serializzazione non cambia. Le immagini interne non hanno tetto di
-oggetti; il testo XML (SaveDocument, archivi 1-4) resta com'e'.
+contratti (nomi storici compresi), senza i risultati degli elementi. Le immagini interne
+non hanno tetto di oggetti ne' di caratteri; il testo XML (SaveDocument, archivi 1-4)
+resta com'e'.
+[realizzato] Il grafo resta XML testuale compresso con deflate (Core/Values/ModelImage.cs).
+L'XML binario e' stato misurato sulla spalla e scartato: con l'adattatore dei nomi la
+scrittura passa da 5,7 a 4,9 s, la lettura peggiora da 6,4 a 9,3 s. Il costo che resta e'
+quello del serializzatore a contratti sul grafo (paragrafo 7).
 3.1 Blocchi per elemento. I risultati di un elemento (la sua lista di ElementResult)
 diventano un blocco binario immutabile:
 - codec a schema: per ogni tipo i nomi dei campi (quelli di GetObjectData o dei membri
@@ -43,6 +46,21 @@ diventano un blocco binario immutabile:
 - vocabolario chiuso: tipi di GPCModel e GPCGeometry, primitivi, enumerativi, array e
   liste; nessun nome di tipo letto da file viene risolto fuori da questo insieme;
 - compressione deflate e digest SHA-256 dei byte non compressi.
+[realizzato] Results/Storage/ResultCodec.cs. Differenze dal piano:
+- un campione che punta a un campione di un altro elemento non viene copiato: la codifica
+  lo rifiuta (ResultEncodingException, una NotSupportedException). Nessun produttore della
+  libreria crea riferimenti tra elementi: le derivazioni richiedono lo stesso proprietario;
+- gli oggetti del modello (elementi, gruppi, materiali...) dentro i risultati sono
+  rifiutati; i casi e le combinazioni diventano riferimenti, risolti per nome e GUID sul
+  modello che legge;
+- i GUID delle geometrie dei risultati (punti, vettori, assi) non sono identita': non si
+  scrivono e si rigenerano alla lettura, come nelle copie della geometria. I GUID degli
+  oggetti del modello (ElementResult, campioni) si conservano;
+- un blocco e' fatto di segmenti: i risultati aggiunti a un elemento ancora compatto
+  attendono senza decodificarlo e diventano un nuovo segmento alla compattazione;
+- il digest dei risultati di un elemento e' quello dei suoi segmenti: una lista letta e
+  non cambiata si codifica di nuovo negli stessi segmenti, quindi leggere i risultati non
+  rende non corrente una preparazione, cambiarli si'.
 3.2 Materializzazione pigra. Un elemento tiene il blocco finche' qualcuno legge Results o
 aggiunge un risultato; allora il blocco si decodifica in oggetti nuovi, legati ai casi del
 proprio modello, e da li' la lista e' quella di sempre.
@@ -60,8 +78,21 @@ blocchi con GUID dell'elemento e digest) e reports/NNNN.xml (resoconti a gruppi,
 CheckReportArchive). SaveDocument continua a scrivere il documento XML versione 4. Load
 legge tutte le versioni. Un lettore precedente rifiuta il pacchetto (non e' XML): nessuna
 lettura parziale silenziosa.
+[realizzato] Il pacchetto ha due voci: model.xml (ModelDocument senza i risultati degli
+elementi, resoconti compresi, letto senza tetti) e results.bin (blocchi gia' compressi,
+salvati senza ricompressione). Save scrive il documento XML 1-4 come prima per i modelli
+senza risultati fino a 64 MB, il pacchetto per gli altri. Date fisse nelle voci: lo stesso
+modello da' gli stessi byte.
 3.6 Resoconti. In archivio a gruppi; nelle copie copiati a gruppi e validati una volta.
+[realizzato] I resoconti restano nel grafo (model.xml e immagini), che non ha piu' tetti.
 3.7 Revisioni. ModelRevision usa il grafo senza risultati e i digest dei risultati.
+[realizzato] L'immagine si cattura dopo le impronte, come prima: le impronte completano
+valori pigri (le forme delle sezioni) che il grafo poi scrive.
+3.8 [aggiunto] Snapshot dell'analisi. I nuovi snapshot contengono l'immagine compatta
+degli input (circa 30 MB invece di 154 MB sulla spalla); i vecchi, in XML, si leggono come
+prima. Copie, letture e preparazioni non riaprono lo snapshot quando lo stesso contenuto,
+con le stesse impronte dichiarate, e' gia' stato validato nel processo: l'esito e' lo
+stesso per costruzione, e il digest dei byte si ricontrolla sempre.
 
 4. SCELTE
 - Righe per elemento e non colonne: chi legge i risultati (verifiche, visualizzatore,
@@ -78,6 +109,13 @@ lettura parziale silenziosa.
   del blocco) o la de-materializzazione dopo l'uso.
 - Il blocco intero si tiene in memoria compresso; un archivio molto grande potra' leggere i
   blocchi dal file su richiesta.
+- Il grafo degli input costa ancora circa 6 s per verso sulla spalla (130 MB di XML, quasi
+  tutti carichi di pressione: ciascuno ripete sistema di riferimento, matrice MathNet e GUID
+  dei punti). Passi possibili: rappresentazione compatta dei carichi di superficie nel
+  Converter, oppure lo stesso codec dei risultati esteso al grafo.
+- La decodifica dei risultati usa la riflessione (circa 60 microsecondi per campione di
+  plate): leggere tutti gli 1,7 milioni di campioni della spalla costerebbe circa 2 minuti
+  e qualche GB di memoria.
 
 6. MISURE SULLA SPALLA MIDAS
 Strumento: tools/ResultScale (--midas <cartella delle tabelle> --cases <n,...>). Ricostruisce
@@ -102,3 +140,36 @@ conservati 3,3 MB. Un valore ISerializable in XML porta con se' tipo, identifica
 namespace: circa 100 caratteri per un numero.
 
 La misura dopo la correzione e' nel paragrafo 7 (punto 4 della revisione).
+
+7. MISURE DOPO LA CORREZIONE (11/10/2026)
+Stessa spalla e stesso strumento (tools/ResultScale, che ora compatta i risultati dopo ogni
+dataset come deve fare un import grande). Tutte le righe di MIDAS di SLU_Q1_1(max) riprodotte
+sui primi N casi e combinazioni, dieci casi per dataset. Tempi in secondi, stesso PC.
+
+  casi  campioni   compatti  archivio  salv.  lettura  copia  prep.  attual.  snapshot  picco
+  0     0          -         192 MB*   6,7    15,3     23,0   21,4   0,9      18,0      1,2 GB
+  1     14.623     8,8 MB    40 MB     7,8    17,9     25,6   25,9   0,9      18,0      1,2 GB
+  10    146.230    25,7 MB   57 MB     8,1    7,7      14,9   14,5   1,3      17,4      1,4 GB
+  49    716.527    127 MB    159 MB    8,5    8,8      15,0   17,0   0,7      19,9      2,1 GB
+  122   1.784.006  321 MB    354 MB    8,0    10,3     18,0   17,6   1,0      20,3      3,4 GB
+  (*) documento XML della prima versione, prima della soglia di 64 MB e prima che le copie
+  smettessero di riaprire lo snapshot gia' validato: righe 0 e 1 dalla prima misura.
+
+Lettura a freddo, in un processo nuovo, dell'archivio da 122 casi (354 MB): lettura 19,0 s
+(compreso il controllo completo dello snapshot), copia 16,1, preparazione 14,4, attualita'
+0,9, snapshot 18,6; picco di memoria 1,3 GB con 1,78 milioni di campioni caricati, perche'
+restano compatti fino alla lettura.
+
+Prima della correzione la stessa spalla non si salvava con un caso (oltre 2 milioni di
+oggetti) e non si rileggeva nemmeno senza risultati (oltre 256 milioni di caratteri).
+Osservazioni:
+- risultati compatti: circa 185 byte per campione contro circa 7,5 KB di XML; lineari nel
+  numero dei campioni;
+- copia, preparazione e snapshot non dipendono piu' dai risultati (15-20 s con 10 o con
+  122 casi): il loro costo e' il grafo degli input (paragrafo 5);
+- decodificare tutti i risultati di una copia costa circa 65 microsecondi per campione
+  (10 casi: 9,5 s su 146.230 campioni);
+- il picco di memoria della misura con 122 casi viene dall'import (ogni dataset di dieci
+  casi si costruisce in oggetti prima della compattazione), non dalle copie.
+Dati: risultati\r1-dopo-midas.json e r1-dopo-freddo-122.json nella cartella di lavoro
+della revisione (non versionati, come le tabelle MIDAS).

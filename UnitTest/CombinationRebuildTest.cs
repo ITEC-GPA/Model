@@ -18,7 +18,7 @@ namespace UnitTest;
 public class CombinationRebuildTest
 {
     // SLU_1 = 1.35 G1 + 1.5 Q; ENV = envelope of Q and SLU_1.
-    private static Dictionary<string, string> Json()
+    internal static Dictionary<string, string> Json()
     {
         var json = CivilNxModelWorkflowTest.Json();
         json["LCOM-CONC"] = "{\"LCOM-CONC\":{\"1\":{\"NAME\":\"SLU_1\",\"ACTIVE\":\"STRENGTH\",\"iTYPE\":0,\"vCOMB\":[{\"ANAL\":\"ST\",\"LCNAME\":\"G1\",\"FACTOR\":1.35},{\"ANAL\":\"ST\",\"LCNAME\":\"Q\",\"FACTOR\":1.5}]},"
@@ -29,7 +29,7 @@ public class CombinationRebuildTest
         new("post/table", "{\"T\":{\"FORCE\":\"KN\",\"DIST\":\"M\",\"HEAD\":[" + head + "],\"DATA\":[" + string.Join(",", rows) + "]}}");
     private const string BeamHead = "\"Index\",\"Elem\",\"Load\",\"Part\",\"Axial\",\"Shear-y\",\"Shear-z\",\"Torsion\",\"Moment-y\",\"Moment-z\"";
     private static string Beam(string load, string part, string values) => "[\"1\",\"3\",\"" + load + "\",\"" + part + "\"," + values + "]";
-    private static CivilNxResponse[] Tables(bool withQOnBeam = true)
+    internal static CivilNxResponse[] Tables(bool withQOnBeam = true)
     {
         var beamRows = new List<string>();
         foreach (var part in new[] { "I[2]", "1/4", "J[3]" })
@@ -48,7 +48,7 @@ public class CombinationRebuildTest
                 "[\"2\",\"3\",\"Q\",\"-0.001\",\"0.002\",\"0\",\"0\",\"0\",\"0.0002\"]"),
         };
     }
-    private static GPC.Model.Models.Model Imported(Dictionary<string, string>? json = null, bool withQOnBeam = true)
+    internal static GPC.Model.Models.Model Imported(Dictionary<string, string>? json = null, bool withQOnBeam = true)
     {
         json ??= Json();
         var m = CivilNxGeometryReader.Import(CivilNxModelWorkflowTest.Snapshot(json), CivilNxModelWorkflowTest.Identity(), new CivilNxModelProfile()).Model;

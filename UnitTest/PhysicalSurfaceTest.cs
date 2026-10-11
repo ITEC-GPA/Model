@@ -149,7 +149,8 @@ public class PhysicalSurfaceTest
     [DataRow(false)]
     public void SurfaceDocumentsRejectDowngradedSchemaOrMissingSurfaceData(bool downgradeSchema)
     {
-        using var stream = new MemoryStream(); ModelArchive.Save(Model(), stream); stream.Position = 0;
+        // The XML document of a model with results: Save writes it as a package (version 5).
+        using var stream = new MemoryStream(); ModelArchive.SaveDocument(Model(), stream); stream.Position = 0;
         var xml = XDocument.Load(stream);
         var document = xml.Root!.Elements().Single();
         Assert.AreEqual("2", document.Elements().Single(e => e.Name.LocalName == "Schema").Value);

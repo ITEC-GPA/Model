@@ -2,6 +2,7 @@ using System;
 using GPC.Model.Analysis;
 using GPC.Model.Checking.Contracts;
 using GPC.Model.Checking.Preparation;
+using GPC.Model.Core;
 
 namespace GPC.Model.Checking.Scenarios
 {
@@ -9,7 +10,7 @@ namespace GPC.Model.Checking.Scenarios
     /// Each execution receives its own graph; editing the source or a previously opened graph cannot alter it.</summary>
     public sealed class VerificationSnapshot
     {
-        private readonly byte[] _content;
+        private readonly ModelImage _content;
         private readonly string _results;
         private readonly VerificationProvenance _provenance;
         public string AnalysisId => _provenance.AnalysisSnapshotId;
@@ -18,7 +19,7 @@ namespace GPC.Model.Checking.Scenarios
         {
             if (!prepared.IsCurrent || prepared.Compatibility.Status != AnalysisCompatibility.Compatible)
                 throw new InvalidOperationException("CompatibleCurrentPreparationRequired");
-            _content = AnalysisStorage.Write(prepared.Model);
+            _content = ModelImage.Capture(prepared.Model);
             var copy = OpenModel();
             _provenance = copy.VerificationContext;
             _results = AnalysisStorage.Results(copy);
@@ -26,7 +27,7 @@ namespace GPC.Model.Checking.Scenarios
         }
         public static VerificationSnapshot Capture(PreparedVerification prepared)
             => new VerificationSnapshot(prepared ?? throw new ArgumentNullException(nameof(prepared)));
-        public Models.Model OpenModel() => AnalysisStorage.Read<Models.Model>(_content);
+        public Models.Model OpenModel() => _content.Open();
         public bool IsCurrent(Models.Model model)
         {
             if (model == null) return false;

@@ -210,7 +210,8 @@ public class ModelPhysicalCompletionTest
     public void Archive_WithAbsentNewOptionalFields_StillLoadsLegacyAssignments()
     {
         var model = MixedModelFactory.Create(); model.BeamElements[250].Assignments.RigidLengthI = 25;
-        using var stream = new MemoryStream(); ModelArchive.Save(model, stream); stream.Position = 0;
+        // The XML document of a model with results: Save writes it as a package (version 5).
+        using var stream = new MemoryStream(); ModelArchive.SaveDocument(model, stream); stream.Position = 0;
         var xml = System.Xml.Linq.XDocument.Load(stream);
         var optional = new[] { "RigidLengthI", "RigidLengthJ", "SectionCentroidOffset", "SectionGeometryAxes", "AnalysisProfile", "EndSection", "Stations", "DerivedFrom", "DerivedSourceFingerprint", "HistoryId", "IncrementIndex", "IncrementsStartAtZero" };
         var fields = xml.Descendants().Where(e => optional.Any(n => e.Name.LocalName == "_x003C_" + n + "_x003E_k__BackingField")).ToArray();
