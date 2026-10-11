@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
@@ -13,11 +12,6 @@ using GPC.Model.Elements;
 
 namespace GPC.Model.Core
 {
-    /// <summary>A field added after fingerprints were archived: it enters the fingerprint only when not null,
-    /// so requests and selections that do not use it keep their historical identity.</summary>
-    [AttributeUsage(AttributeTargets.Field)]
-    internal sealed class FingerprintWhenSetAttribute : Attribute { }
-
     /// <summary>Value canonicalization for revision comparison, independent of XML object-reference numbering and geometric GUIDs.</summary>
     internal static class InputFingerprint
     {
@@ -95,17 +89,9 @@ namespace GPC.Model.Core
                     }
                     return;
                 }
-                // Historical path of the records without an explicit contract (architecture review R8): the tests refuse it.
-                if (FingerprintContracts.Strict)
-                    throw new InvalidOperationException("UnregisteredFingerprintType: " + type.FullName + ". Declare its fingerprint contract: "
-                        + (type.Assembly == typeof(InputFingerprint).Assembly ? "FingerprintContracts.RegisterBuiltIns." : "FingerprintVocabularyAttribute in its assembly."));
-                for (Type current = type; current != null; current = current.BaseType)
-                    foreach (var field in current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(f => !f.IsNotSerialized).OrderBy(f => f.Name, StringComparer.Ordinal))
-                    {
-                        var fieldValue = field.GetValue(value);
-                        if (fieldValue == null && field.IsDefined(typeof(FingerprintWhenSetAttribute), false)) continue;
-                        w.Write(field.Name); Write(w, fieldValue, path);
-                    }
+                // No reflection of private fields (architecture review R8): a record without an explicit contract is refused.
+                throw new InvalidOperationException("UnregisteredFingerprintType: " + type.FullName + ". Declare its fingerprint contract: "
+                    + (type.Assembly == typeof(InputFingerprint).Assembly ? "FingerprintContracts.RegisterBuiltIns." : "FingerprintVocabularyAttribute in its assembly."));
             }
             finally { path.Remove(value); }
         }

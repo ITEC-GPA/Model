@@ -22,7 +22,7 @@ namespace GPC.Model.Checking.Scenarios
         private readonly Dictionary<Guid, byte[]> _beams = new Dictionary<Guid, byte[]>();
         [System.Runtime.Serialization.DataMember(IsRequired = true)]
         private readonly Dictionary<Guid, byte[]> _sections = new Dictionary<Guid, byte[]>();
-        [OptionalField, FingerprintWhenSet]
+        [OptionalField]
         [System.Runtime.Serialization.DataMember(IsRequired = false)]
         private Dictionary<Guid, byte[]> _plateSections;
         [System.Runtime.Serialization.DataMember(IsRequired = true)]

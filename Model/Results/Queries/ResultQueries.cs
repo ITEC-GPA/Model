@@ -37,7 +37,7 @@ namespace GPC.Model.Results.Queries
 
         /// <summary>Combination category declared by the designer for this state. Null means undeclared; it is never deduced
         /// from the case name and does not take part in matching the samples.</summary>
-        [field: System.Runtime.Serialization.OptionalField, Core.FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<Category>k__BackingField", IsRequired = false)]
         public CombinationCategory? Category { get; set; }
 

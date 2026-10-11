@@ -25,7 +25,7 @@ namespace GPC.Model.Analysis
         [field: System.Runtime.Serialization.DataMember(Name = "<InputFingerprint>k__BackingField", IsRequired = true)]
         public string InputFingerprint { get; set; }
 
-        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Core.FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<AnalysisSnapshotId>k__BackingField", IsRequired = false)]
         public string AnalysisSnapshotId { get; set; }
 

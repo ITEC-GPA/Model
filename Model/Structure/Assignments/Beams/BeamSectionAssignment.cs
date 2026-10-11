@@ -14,10 +14,10 @@ namespace GPC.Model.Structure.Assignments
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class BeamSectionAssignment
     {
-        [OptionalField, GPC.Model.Core.FingerprintWhenSet]
+        [OptionalField]
         [System.Runtime.Serialization.DataMember(IsRequired = false)]
         private GPC.Model.ElementProperties.BeamProperty _property;
-        [OptionalField, GPC.Model.Core.FingerprintWhenSet]
+        [OptionalField]
         [System.Runtime.Serialization.DataMember(IsRequired = false)]
         private GPC.Model.ElementProperties.BeamProperty _endProperty;
         [field: System.Runtime.Serialization.DataMember(Name = "<Start>k__BackingField", IsRequired = true)]

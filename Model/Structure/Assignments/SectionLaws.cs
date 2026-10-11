@@ -14,7 +14,7 @@ namespace GPC.Model.Structure.Assignments
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class BeamSectionStation
     {
-        [OptionalField, FingerprintWhenSet]
+        [OptionalField]
         [System.Runtime.Serialization.DataMember(IsRequired = false)]
         private BeamProperty _property;
         [field: System.Runtime.Serialization.DataMember(Name = "<Station>k__BackingField", IsRequired = true)]

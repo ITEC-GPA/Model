@@ -82,19 +82,12 @@ public class FingerprintContractTest
     }
 
     [TestMethod]
-    public void StrictModeRefusesTheReflectionAndUndeclaredVersionEntries()
+    public void UndeclaredRecordsAndVersionEntriesAreRefused()
     {
+        // No switch: production refuses them too (decision of 11/10/2026, before the first release of the refactored ANTHEA).
         StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => ModelValues.Fingerprint(new object[] { new UndeclaredRecord() })).Message,
             "UnregisteredFingerprintType");
         StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => ModelValues.Fingerprint(new object[] { new PhantomVersionEntry() })).Message,
             "UndeclaredFingerprintEntry");
-        // Outside the tests the historical rules still apply, so the stored fingerprints of undeclared caller records stay valid.
-        AppContext.SetSwitch(FingerprintVocabulary.StrictSwitch, false);
-        try
-        {
-            Assert.AreEqual(64, ModelValues.Fingerprint(new object[] { new UndeclaredRecord() }).Length);
-            Assert.AreEqual(64, ModelValues.Fingerprint(new object[] { new PhantomVersionEntry() }).Length);
-        }
-        finally { AppContext.SetSwitch(FingerprintVocabulary.StrictSwitch, true); }
     }
 }

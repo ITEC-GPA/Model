@@ -213,7 +213,7 @@ namespace GPC.Model.Checking.Contracts
         [field: System.Runtime.Serialization.DataMember(Name = "<ShellInput>k__BackingField", IsRequired = false)]
         public ShellInputSnapshot ShellInput { get; set; }
 
-        [field: System.Runtime.Serialization.OptionalField, GPC.Model.Core.FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<ShellCheck>k__BackingField", IsRequired = false)]
         public ShellCheckSnapshot ShellCheck { get; set; }
         /// <summary>Detects subsequent edits to stored evidence; it is not a digital signature. Legacy results have no seal.</summary>

@@ -47,11 +47,11 @@ namespace GPC.Model.Checking.Contracts
         [field: System.Runtime.Serialization.DataMember(Name = "<MemberId>k__BackingField", IsRequired = true)]
         public string MemberId { get; private set; }
 
-        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<Family>k__BackingField", IsRequired = false)]
         public EntityFamily? Family { get; private set; }
 
-        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<ElementId>k__BackingField", IsRequired = false)]
         public int? ElementId { get; private set; }
 
@@ -152,7 +152,7 @@ namespace GPC.Model.Checking.Contracts
 
         /// <summary>Local tasks with direction, sub-check and combination category. A specification with a category is planned only
         /// for the result selections declared with that category. Null keeps the historical scope fingerprint.</summary>
-        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<SectionChecks>k__BackingField", IsRequired = false)]
         public SectionCheckSpecification[] SectionChecks { get; set; }
 

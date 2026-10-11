@@ -112,17 +112,15 @@ namespace GPC.Model.Core
             }
         }
 
-        internal static bool Strict => AppContext.TryGetSwitch(FingerprintVocabulary.StrictSwitch, out bool on) && on;
         /// <summary>Identity and serialization-version entries of GetObjectData, which are never inputs. Before the architecture review (R8)
-        /// the rule was only the name: "Guid" or any name ending in "Version". An unlisted "...Version" entry still follows that rule,
-        /// so the fingerprints do not change, but the strict mode refuses it: a real input named so would be left out without a word.</summary>
+        /// the rule was only the name: "Guid" or any name ending in "Version". An unlisted "...Version" entry is refused: a real input
+        /// named so would be left out without a word.</summary>
         internal static bool SkipsEntry(Type type, string name)
         {
             if (IdentityEntries.Contains(name)) return true;
             if (!name.EndsWith("Version", StringComparison.Ordinal)) return false;
-            if (Strict) throw new InvalidOperationException("UndeclaredFingerprintEntry: " + type.FullName + " writes \"" + name
+            throw new InvalidOperationException("UndeclaredFingerprintEntry: " + type.FullName + " writes \"" + name
                 + "\". Add it to the identity entries of FingerprintContracts if it is a serialization version; an input needs a name not ending in Version.");
-            return true;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace GPC.Model.Checking.Preparation
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class ElementSelection
     {
-        [field: System.Runtime.Serialization.OptionalField, FingerprintWhenSet]
+        [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<Surfaces>k__BackingField", IsRequired = false)]
         public SurfaceSelection[] Surfaces { get; set; }
 

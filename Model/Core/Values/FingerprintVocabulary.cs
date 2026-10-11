@@ -8,8 +8,7 @@ using System.Runtime.Serialization;
 namespace GPC.Model.Core
 {
     /// <summary>Names the class that declares the fingerprint contracts of the records of this assembly (architecture review R8).
-    /// Without a declared contract a record enters a revision fingerprint through the historical reflection of its fields,
-    /// which the strict mode of the tests refuses (<see cref="FingerprintVocabulary.StrictSwitch"/>).</summary>
+    /// A record without a declared contract cannot enter a revision fingerprint: the fingerprint is refused (UnregisteredFingerprintType).</summary>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
     public sealed class FingerprintVocabularyAttribute : Attribute
     {
@@ -54,10 +53,6 @@ namespace GPC.Model.Core
     /// </summary>
     public sealed class FingerprintVocabulary
     {
-        /// <summary>AppContext switch. When on, a value without an explicit contract, or a GetObjectData entry named "...Version" outside the
-        /// declared identity entries, refuses to enter a fingerprint instead of using the historical rule. The test suites turn it on.</summary>
-        public const string StrictSwitch = "GPC.Model.Fingerprints.Strict";
-
         private readonly Assembly _owner;
         private readonly Dictionary<Type, FingerprintContracts.Declared> _records = new Dictionary<Type, FingerprintContracts.Declared>();
         private readonly HashSet<string> _wireNames = new HashSet<string>(StringComparer.Ordinal);
