@@ -1,10 +1,14 @@
 using GPC.Geometry;
+using GPC.Model.Core;
 using GPC.Model.Data.Steel;
+using GPC.Model.Persistence;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace UnitTest
 {
@@ -83,15 +87,35 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void SerializationKeepsTheOutline()
+        public void TheArchivesKeepTheOutline()
         {
+            // Until 11/10/2026 the middle line was a Point2d[], outside the vocabulary of the archives: a model with these sections did not save
             var c = SectionColdFormed.LippedChannel(200, 75, 20, 2, 3, "C");
-            // The serialization data of the class: the data contracts of the archives cannot write it (ArchiveDefectsTest)
-            var copy = ContractFormatter.ThroughSerializationData(c);
+            var copy = ModelArchive.CopyValue(c);
             Rel(200, copy.Height, 1e-12);
             Rel(75, copy.Width, 1e-12);
             Rel(c.Area, copy.Area);
-            Assert.AreEqual(6, copy.MiddleLine.Count);
+            CollectionAssert.AreEqual(c.MiddleLine.ToArray(), copy.MiddleLine.ToArray());
+            Assert.AreEqual(ModelValues.Fingerprint(new object[] { c }), ModelValues.Fingerprint(new object[] { copy }));
+        }
+
+        [TestMethod]
+        public void TheSerializationDataOfVersion1AreRead()
+        {
+            // Version 1 wrote the middle line as Point2d[] under "ColdFormedMiddleLine"
+            var c = SectionColdFormed.LippedChannel(200, 75, 20, 2, 3, "C");
+            var context = new StreamingContext(StreamingContextStates.All);
+            var current = new SerializationInfo(typeof(SectionColdFormed), new FormatterConverter());
+            c.GetObjectData(current, context);
+            var old = new SerializationInfo(typeof(SectionColdFormed), new FormatterConverter());
+            foreach (SerializationEntry entry in current)
+                if (entry.Name != "SectionColdFormedVersion" && entry.Name != "ColdFormedMiddleLineXY") old.AddValue(entry.Name, entry.Value, entry.ObjectType);
+            old.AddValue("SectionColdFormedVersion", 1);
+            old.AddValue("ColdFormedMiddleLine", c.MiddleLine.ToArray(), typeof(Point2d[]));
+            var read = (SectionColdFormed)Activator.CreateInstance(typeof(SectionColdFormed), BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { old, context }, null)!;
+            CollectionAssert.AreEqual(c.MiddleLine.ToArray(), read.MiddleLine.ToArray());
+            Rel(c.Area, read.Area);
         }
     }
 }

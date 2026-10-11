@@ -65,8 +65,17 @@ namespace GPC.Model.Sections
         protected SectionColdFormed(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            SerializationVersions.Read(info, "SectionColdFormedVersion", 1, 1);
-            _middleLine = (Point2d[])info.GetValue("ColdFormedMiddleLine", typeof(Point2d[]));
+            int version = SerializationVersions.Read(info, "SectionColdFormedVersion", 2, 1);
+            // Version 1 wrote a Point2d[], which the archives cannot hold (same data contract name as Polygon2d, ArrayOfPoint2d).
+            if (version < 2)
+                _middleLine = (Point2d[])info.GetValue("ColdFormedMiddleLine", typeof(Point2d[]));
+            else
+            {
+                var xy = (double[])info.GetValue("ColdFormedMiddleLineXY", typeof(double[]));
+                if (xy == null || xy.Length < 4 || xy.Length % 2 != 0)
+                    throw new SerializationException("SectionColdFormed: the middle line needs pairs of coordinates of at least 2 vertices.");
+                _middleLine = Enumerable.Range(0, xy.Length / 2).Select(i => new Point2d(xy[2 * i], xy[2 * i + 1])).ToArray();
+            }
             _thickness = info.GetDouble("ColdFormedThickness");
             _innerRadius = info.GetDouble("ColdFormedInnerRadius");
             var (_, _, maxX, maxY) = SectionHelper.Bounds(_shape);
@@ -439,8 +448,9 @@ namespace GPC.Model.Sections
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("SectionColdFormedVersion", 1);
-            info.AddValue("ColdFormedMiddleLine", _middleLine, typeof(Point2d[]));
+            info.AddValue("SectionColdFormedVersion", 2);
+            // The vertices as x0, y0, x1, y1, ...: double[] belongs to the vocabulary of the archives
+            info.AddValue("ColdFormedMiddleLineXY", _middleLine.SelectMany(p => new[] { p.X, p.Y }).ToArray(), typeof(double[]));
             info.AddValue("ColdFormedThickness", _thickness);
             info.AddValue("ColdFormedInnerRadius", _innerRadius);
         }

@@ -188,8 +188,7 @@ namespace UnitTest
                 return formatter.Deserialize(stream);
             }
             var source = Create(18, 1);
-            // A cold-formed section: the data contracts of the archives cannot write it (ArchiveDefectsTest)
-            var restored = ContractFormatter.ThroughSerializationData(source);
+            var restored = (Section)RoundTrip(source);
             Assert.AreEqual(source.GetCurveOutlines()[0].Boundary.Length, restored.GetCurveOutlines()[0].Boundary.Length, 1e-9);
             var outline = (SectionCurveOutline)RoundTrip(new SectionCHS(100, 5).GetCurveOutlines()[0]);
             Assert.IsInstanceOfType(outline.Boundary, typeof(ArcCurve3d));

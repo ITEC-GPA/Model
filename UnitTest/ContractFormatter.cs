@@ -33,18 +33,6 @@ internal sealed class ContractFormatter
         formatter.Serialize(stream, value); stream.Position = 0; return (T)formatter.Deserialize(stream);
     }
 
-    /// <summary>
-    /// A copy through the serialization data of the class only (GetObjectData and the deserialization constructor; the nested objects are
-    /// shared). For the classes that the data contracts cannot write, as the cold-formed sections (see ArchiveDefectsTest).
-    /// </summary>
-    public static T ThroughSerializationData<T>(T value) where T : ISerializable
-    {
-        var context = new StreamingContext(StreamingContextStates.All);
-        var info = new SerializationInfo(value.GetType(), new FormatterConverter()); value.GetObjectData(info, context);
-        return (T)Activator.CreateInstance(value.GetType(), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public
-            | System.Reflection.BindingFlags.NonPublic, null, new object[] { info, context }, null)!;
-    }
-
     private static DataContractSerializer Serializer(Type type) => new(type, new DataContractSerializerSettings
     {
         KnownTypes = ModelValues.DataContracts.Append(type).Distinct(), PreserveObjectReferences = true, MaxItemsInObjectGraph = int.MaxValue

@@ -16,16 +16,6 @@ namespace UnitTest;
 public class ArchiveDefectsTest
 {
     [TestMethod]
-    [Ignore("Difetto segnalato: SectionColdFormed scrive la linea media come Point2d[], che non puo' entrare nel vocabolario degli archivi (stesso nome di contratto di Polygon2d, ArrayOfPoint2d); un modello con sezioni sagomate a freddo non si salva.")]
-    public void ColdFormedSectionsCanBeArchived()
-    {
-        var section = SectionColdFormed.LippedChannel(200, 75, 20, 2, 3, "C");
-        var copy = ModelArchive.CopyValue(section);
-        Assert.AreEqual(section.Area, copy.Area, 1e-9 * section.Area);
-        Assert.AreEqual(section.MiddleLine.Count, copy.MiddleLine.Count);
-    }
-
-    [TestMethod]
     [Ignore("Difetto segnalato: il contratto dati scrive UniqueIdCollection come dizionario e MaxId si perde; dopo il salvataggio un id cancellato puo' essere riusato.")]
     public void IdCollectionsKeepTheirLargestIdThroughTheArchive()
     {
