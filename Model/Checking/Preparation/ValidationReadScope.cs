@@ -8,6 +8,8 @@ namespace GPC.Model.Checking.Preparation
 {
     // Synchronous read-only checkpoints only. Never span a checker, progress callback, await or user code.
     // No public scope: legacy mutable setters cannot notify a long-lived revision cache reliably.
+    // ThreadStatic on purpose (architecture review R7): the scope is only a cache with a writable dictionary; work on another thread
+    // does not see it and reads directly, which costs time but cannot race on the dictionary.
     internal sealed class ValidationReadScope : IDisposable
     {
         [ThreadStatic] private static ValidationReadScope _current;
