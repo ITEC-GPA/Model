@@ -1,0 +1,56 @@
+VISTA DEL MODELLO PER I VISUALIZZATORI (revisione di architettura R6, 11/10/2026)
+
+Decisione dell'utente del 10/10/2026: il visualizzatore di ANTHEA diventa un client di GPC Model, non di
+una proiezione preparata offline (.antheamodel). L'11/10 l'utente ha autorizzato la parte Model e
+Converter, senza toccare il lavoro in corso sul visualizzatore (ANTHEA, branch codex/model-viewer-draft).
+
+1. COSA C'E' IN GPCModel (namespace GPC.Model.Presentation)
+
+ModelView.Open(model) copia una volta la geometria e legge i risultati su richiesta.
+- Nodes: id, GUID, id del programma sorgente (SourceId, per esempio il numero MIDAS), posizione,
+  terna nodale.
+- Elements: famiglia (Beam, Plate, Solid), id, GUID, SourceId, nodi, nome della proprieta', terna,
+  gruppi. Aste: formulazione, offset di estremita' in coordinate globali, offset del baricentro.
+  Piastre: spessore fisico e offset della superficie media lungo V3.
+- Properties: sezioni delle aste con contorno (poligono pieno, poi i fori) nelle coordinate della
+  sezione, baricentro, altezza e larghezza; spessore delle piastre.
+- Groups, Boundaries (vincoli, molle a terra, svincoli, link rigidi ed elastici, constraint), Cases
+  (casi e combinazioni), Datasets (provenienza: programma, versione, analisi, snapshot, impronta).
+- Revision: l'impronta degli input (la stessa dei resoconti di ModelChecker); IsCurrent dice se il
+  modello e' cambiato dopo l'apertura.
+- Results(dataset): decodifica una volta tutti i casi del dataset in colonne compatte, in parallelo,
+  senza decomprimere i risultati del modello; Release(dataset) le libera. Field(caso, famiglia,
+  componente) da' i valori con unita' e assi.
+
+Convenzioni: quelle di GPC Model, applicate una volta dal Converter per ogni programma (Civil NX:
+CivilNxResults, convenzioni verificate sul modello reale).
+- Aste: N, V1, V2, T, M1, M2 nelle assi di sezione (V3 da I a J), sulla faccia positiva; stazione
+  0-1 da I e lato alle discontinuita'. Civil NX: M1 = -Moment-y.
+- Piastre: Fxx, Fyy, Fxy, Fxz, Fyz, Mxx, Myy, Mxy per unita' di larghezza negli assi dell'elemento;
+  punto al centro o al nodo dell'elemento (Node = id GPC del nodo). Civil NX: Mxx, Myy, Mxy = -MIDAS.
+- Nodi: spostamenti D1, D2, D3, R1, R2, R3 e reazioni Fx, Fy, Fz, Mx, My, Mz; Axes dice se globali.
+- Unita' del modello: N, mm, rad (N/mm e N·mm/mm per unita' di larghezza). Nessun valore mediato,
+  interpolato, combinato o trasformato. I valori di fasi, passi, modi e carichi mobili non sono
+  letti e sono contati in Skipped.
+
+2. MISURA SULLA SPALLA REALE (risultati\t7-vista-122.json)
+
+Archivio della revisione R1, 122 casi in 13 dataset, 3.755 nodi e 3.616 elementi:
+- lettura dell'archivio 7,8 s; ModelView.Open 0,17 s, con l'impronta severa degli input;
+- lettura dei 13 dataset 16,9 s, cioe' 1,3 s per dataset di 10 casi; 17 MB per dataset in memoria;
+- 1.708 campi e 14.051.228 valori; i risultati del modello restano compatti.
+Comando: dotnet tools\ResultScale\bin\Release\net8.0\ResultScale.dll --load <archivio.gpcmodel>
+
+3. COSA RESTA AL VISUALIZZATORE (ANTHEA, da concordare al merge del 12/10)
+
+- Leggere il .gpcmodel (ModelArchive.Load) o il modello del Converter con ModelView, al posto di
+  ModelSnapshot e delle tabelle MIDAS grezze (MidasResultTables): i segni diventano quelli di GPC,
+  in particolare il momento locale delle aste.
+- Mappatura verso i contratti attuali della vista: ModelNode <- ViewNode (mm -> m), ModelElement <-
+  ViewElement (Type: Beam -> BEAM o Formulation, Plate -> PLATE), PlateProperty <- Thickness e
+  Offset, SectionProperty <- Properties (il contorno permette anche le sezioni non rettangolari),
+  ModelLocalFrame <- Axes (aste: V3 lungo l'asse), ModelBoundary <- Boundaries, ResultField <-
+  ViewField (unita' da convertire, componenti con i nomi GPC).
+- Riferimenti fra fogli e modello: GUID dell'elemento, dataset e Revision, come ModelChecker.
+- Da confermare con una sezione asimmetrica nella prova del visualizzatore: il contorno della sezione
+  si disegna con x lungo V1 e y lungo V2, attorno al baricentro.

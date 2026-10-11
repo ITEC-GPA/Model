@@ -236,6 +236,23 @@ namespace GPC.Model.Elements
             }
         }
 
+        /// <summary>The results without keeping them decoded: compact results are decoded in new objects and stay compact in the element
+        /// (model views read every element of a dataset once, architecture review R6). With a dataset, only the compact segments that contain
+        /// it are decoded; the caller still filters the samples.</summary>
+        internal IReadOnlyList<ElementResult> PeekResults(string dataset = null)
+        {
+            lock (ResultLock)
+            {
+                if (_results != null) return _results.ToArray();
+                var list = new List<ElementResult>();
+                if (_storedResults != null)
+                    foreach (var segment in _storedResults.Segments)
+                        if (dataset == null || Array.IndexOf(segment.Datasets, dataset) >= 0) list.AddRange(ResultCodec.Decode(segment, _resultModel));
+                if (_addedResults != null) list.AddRange(_addedResults);
+                return list;
+            }
+        }
+
         /// <summary>Adds to the list, or after the compact results without decoding them.</summary>
         internal void AppendResults(IEnumerable<ElementResult> results)
         {

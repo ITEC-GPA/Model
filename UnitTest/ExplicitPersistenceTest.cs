@@ -109,7 +109,9 @@ public class ExplicitPersistenceTest
     public void ArchiveVocabularyIsExplicitAndCoversExistingPublicData()
     {
         var domain = typeof(GPC.Model.Models.Model).Assembly.GetTypes().Where(t => t.IsVisible && !t.IsAbstract && !t.ContainsGenericParameters
-            && (t.IsSerializable || t.IsEnum) && t.Namespace != null && !t.Namespace.StartsWith("GPC.Model.FiniteElementAnalysis"));
+            && (t.IsSerializable || t.IsEnum) && t.Namespace != null && !t.Namespace.StartsWith("GPC.Model.FiniteElementAnalysis")
+            // The model view (architecture review R6) is a read-only copy for the viewers: never archived.
+            && t.Namespace != "GPC.Model.Presentation");
         CollectionAssert.AreEquivalent(domain.ToArray(), ArchiveContractRegistry.SupportedTypes.ToArray());
     }
 }

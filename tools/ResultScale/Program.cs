@@ -56,6 +56,26 @@ if (load != null)
     Measure(row, "load", () => { using var s = File.OpenRead(load); loaded = ModelArchive.Load(s); });
     if (loaded != null)
     {
+        // Architecture review R6: the viewer opens the model through ModelView and reads the results one dataset at a time.
+        GPC.Model.Presentation.ModelView view = null;
+        Measure(row, "viewOpen", () => view = GPC.Model.Presentation.ModelView.Open(loaded));
+        if (view != null)
+        {
+            long fields = 0, values = 0, maxBytes = 0; var reading = new Stopwatch();
+            foreach (var dataset in view.Datasets)
+            {
+                long before = GC.GetTotalMemory(true);
+                reading.Start(); var results = view.Results(dataset.Id); reading.Stop();
+                foreach (var key in results.Fields) values += results.Field(key.Case, key.Family, key.Component).Samples.Count;
+                fields += results.Fields.Count;
+                maxBytes = Math.Max(maxBytes, GC.GetTotalMemory(true) - before);
+                view.Release(dataset.Id);
+            }
+            row["viewDatasets"] = view.Datasets.Count; row["viewFields"] = fields; row["viewValues"] = values;
+            row["viewResultsSeconds"] = Math.Round(reading.Elapsed.TotalSeconds, 3); row["viewLargestDatasetMB"] = Math.Round(maxBytes / 1048576.0, 1);
+            Console.WriteLine($"   vista: {view.Nodes.Count} nodi, {view.Elements.Count} elementi, {view.Datasets.Count} dataset, {fields:N0} campi, {values:N0} valori; "
+                + $"lettura dei dataset {reading.Elapsed.TotalSeconds:N2} s, dataset piu' grande {maxBytes / 1048576.0:N1} MB");
+        }
         Measure(row, "copy", () => ModelValues.Copy(loaded));
         PreparedVerification prepared = null;
         Measure(row, "prepare", () => prepared = VerificationPreparation.Prepare(loaded, VerificationScenario.Create(loaded.Analysis.Id, "misura")));
