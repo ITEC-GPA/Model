@@ -254,6 +254,18 @@ namespace GPC.Converter.CivilNx
                     else if (section.CatalogDesignation == null && section.Shape == SectionShapeKind.Unknown && section.Values == null)
                         Warn("CivilNxSectionPreserved", record, "Section type " + s?.SectionType + "/" + b?.Shape + " is not mapped; beams using it keep no property.");
                     section.Reference = Reference(b, record);
+                    if (type == "COMPOSITE")
+                    {
+                        section.GeometryComponents = CompositeGeometry(s, record);
+                        if (section.GeometryComponents != null)
+                        {
+                            // Type I and its centred slab share the same symmetry axis for any elastic ratio.
+                            section.GeometryReference = new SectionReference { Horizontal = section.Reference.Horizontal == SectionHorizontalReference.Centroid
+                                ? SectionHorizontalReference.Center : section.Reference.Horizontal, Vertical = section.Reference.Vertical,
+                                HorizontalShift = section.Reference.HorizontalShift, VerticalShift = section.Reference.VerticalShift,
+                                IsUnresolved = section.Reference.IsUnresolved || section.Reference.Vertical == SectionVerticalReference.Centroid };
+                        }
+                    }
                     batch.Sections.Add(section); defined.Add(pair.Key);
                 }
                 return defined;
@@ -306,7 +318,7 @@ namespace GPC.Converter.CivilNx
                 if (user && ((b.UserYI ?? 0) != 0 || (b.UserZI ?? 0) != 0))
                 {
                     Warn("CivilNxUserSectionOffsetUnresolved", record, "User-defined section offset distances are not mapped; the centroid position of these beams stays unresolved.");
-                    return null;
+                    return new SectionReference { IsUnresolved = true };
                 }
                 var center = b.OffsetCenter == 1;
                 return new SectionReference
@@ -640,7 +652,10 @@ namespace GPC.Converter.CivilNx
         {
             [DataMember(Name = "SECTTYPE")] public string SectionType { get; set; } [DataMember(Name = "SECT_NAME")] public string Name { get; set; }
             [DataMember(Name = "SECT_BEFORE")] public SectionBefore Before { get; set; }
+            [DataMember(Name = "SECT_AFTER")] public SectionAfter After { get; set; }
         }
+        [DataContract] private sealed class SectionAfter { [DataMember(Name = "SLAB")] public double[] Slab { get; set; } }
+        [DataContract] private sealed class SectionStiffener { [DataMember(Name = "STIFF_CNT")] public int[] Counts { get; set; } }
         [DataContract] private sealed class SectionBefore
         {
             [DataMember(Name = "SHAPE")] public string Shape { get; set; } [DataMember(Name = "DATATYPE")] public int? DataType { get; set; }
@@ -652,6 +667,7 @@ namespace GPC.Converter.CivilNx
         [DataContract] private sealed class SectionData1
         {
             [DataMember(Name = "DB_NAME")] public string Database { get; set; } [DataMember(Name = "SECT_NAME")] public string SectionName { get; set; }
+            [DataMember(Name = "STIFFENER")] public SectionStiffener Stiffener { get; set; }
             [DataMember(Name = "vSIZE")] public double[] Size { get; set; } [DataMember(Name = "STIFF")] public SectionStiffness Stiffness { get; set; }
         }
         [DataContract] private sealed class SectionStiffness

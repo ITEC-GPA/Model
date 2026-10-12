@@ -89,6 +89,8 @@ namespace GPC.Converter
     /// middle of the bounding box. Shifts are additional distances in mm from that point, positive along V1/V2.</summary>
     public sealed class SectionReference
     {
+        /// <summary>True when the source explicitly declares a reference which this converter cannot resolve.</summary>
+        public bool IsUnresolved { get; set; }
         public SectionHorizontalReference Horizontal { get; set; }
         public SectionVerticalReference Vertical { get; set; }
         public double HorizontalShift { get; set; }
@@ -113,8 +115,24 @@ namespace GPC.Converter
         public SectionShapeKind Shape { get; set; }
         public double[] Dimensions { get; set; }
         public SectionValues Values { get; set; }
+        /// <summary>Optional physical components for inspection only; they do not assign an equivalent analysis property.</summary>
+        public SectionComponentRecord[] GeometryComponents { get; set; }
+        /// <summary>Optional reference for the physical outline, separate from the structural centroid reference.</summary>
+        public SectionReference GeometryReference { get; set; }
         public SectionReference Reference { get; set; }
         public string Record { get; set; }
+    }
+
+    /// <summary>A physical section component in mm, using the same parametric dimension order as SectionRecord.
+    /// X and Y place the component's lower-left bounding corner in the common section plane. No material strength is inferred.</summary>
+    public sealed class SectionComponentRecord
+    {
+        public string Name { get; set; }
+        public MaterialKind Material { get; set; }
+        public SectionShapeKind Shape { get; set; }
+        public double[] Dimensions { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
     }
 
     /// <summary>Plate thickness in mm. OutOfPlane is null when equal to InPlane.</summary>

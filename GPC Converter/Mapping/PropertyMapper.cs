@@ -138,10 +138,11 @@ namespace GPC.Converter
             if (beam.CentroidOffset != null) return beam.CentroidOffset;
             if (beam.SectionId == null) return null;
             var section = sectionRecords[beam.SectionId]; var reference = section.Reference ?? SectionReference.Centroid;
+            if (reference.IsUnresolved) return null;
             Finite(reference.HorizontalShift, "section shift"); Finite(reference.VerticalShift, "section shift");
             if (reference.Horizontal == SectionHorizontalReference.Centroid && reference.Vertical == SectionVerticalReference.Centroid)
                 return new Vector2d(-reference.HorizontalShift, -reference.VerticalShift);
-            var points = shape?.GetSectionPoints();
+            var points = shape is SectionBuiltUp builtUp ? builtUp.GetOutlines().SelectMany(o => o.Fill.Select(p => new Point2d(p.X, p.Y))).ToArray() : shape?.GetSectionPoints();
             if (points == null || points.Length == 0)
             {
                 Report("SectionReferenceUnresolved", section.Record, "Section " + section.Name + ": the reference point needs the section outline, which numeric properties do not give.");
@@ -222,7 +223,7 @@ namespace GPC.Converter
             return null;
         }
 
-        private ISectionShape Shape(SectionRecord s)
+        internal ISectionShape Shape(SectionRecord s)
         {
             if (shapes.TryGetValue(s.Id, out var cached)) return cached;
             ISectionShape shape = null; var name = s.Name ?? s.Id;
