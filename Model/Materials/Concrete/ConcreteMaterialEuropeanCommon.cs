@@ -389,8 +389,19 @@ namespace GPC.Model.Materials
                 T0 = Math.Max(0.5, T0Mod);
             }
 
+            double phi = NotionalCreepCoefficient(RH, 2 * areaC / u, T0);
+
+            if (Math.Abs(sigmaC) <= 0.45 * Math.Abs(Fck))
+                return Math.Sign(sigmaC) * phi * sigmaC / Ec;
+            else
+                return Math.Sign(sigmaC) * phi * Math.Pow(Math.E, 1.5 * (Math.Abs(sigmaC) / Math.Abs(Fck) - 0.45));
+        }
+
+        /// <summary>Shared B.2-B.5 calculation. The caller supplies the loading age (already adjusted if needed).
+        /// Preserves the arithmetic order of the historical strain API; validation belongs to the public caller.</summary>
+        internal double NotionalCreepCoefficient(double RH, double h0, double T0)
+        {
             double fcm = GetFcm();
-            double h0 = 2 * areaC / u;
             double betat0 = 1.0 / (0.1 + Math.Pow(T0, 0.2));
             double betaFcm = 16.8 / Math.Sqrt(Math.Abs(fcm));
             double gammaRH;
@@ -406,12 +417,8 @@ namespace GPC.Model.Materials
             }
 
             double gamma0 = gammaRH * betaFcm * betat0;
-            double phi = gamma0;
+            return gamma0;
 
-            if (Math.Abs(sigmaC) <= 0.45 * Math.Abs(Fck))
-                return Math.Sign(sigmaC) * phi * sigmaC / Ec;
-            else
-                return Math.Sign(sigmaC) * phi * Math.Pow(Math.E, 1.5 * (Math.Abs(sigmaC) / Math.Abs(Fck) - 0.45));
         }
 
         /// <summary>

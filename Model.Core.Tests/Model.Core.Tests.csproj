@@ -14,5 +14,8 @@
     <ProjectReference Include="../ModelData/GPCModelData.csproj" />
     <Reference Include="GPCGeometry"><HintPath>../../Geometry/GPCGeometry/bin/Release/netstandard2.0/GPCGeometry.dll</HintPath></Reference>
     <Compile Include="../Examples/MixedModelFactory.cs" Link="MixedModelFactory.cs" />
+    <Compile Include="../tests/ConcreteTimeEffectsTests.cs" Link="ConcreteTimeEffectsTests.cs" />
+    <None Include="../tests/Fixtures/concrete-time-effects.json" Link="Fixtures/concrete-time-effects.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../tests/Fixtures/creep-historical.csv" Link="Fixtures/creep-historical.csv" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
