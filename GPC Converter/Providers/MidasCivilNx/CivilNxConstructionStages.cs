@@ -9,8 +9,26 @@ namespace GPC.Converter.CivilNx
 {
     public sealed partial class CivilNxModelProfile
     {
+        /// <summary>Reads construction metadata without requiring geometry or result tables; uses the same parser as the full model import.</summary>
+        public ImportBatch ReadConstructionStages(CivilNxSnapshot snapshot, GPC.Model.Analysis.AnalysisSource identity,
+            System.Threading.CancellationToken cancellationToken = default)
+        {
+            if (snapshot == null || identity == null || identity.Program != Program || string.IsNullOrWhiteSpace(identity.ModelRevision))
+                throw new ArgumentException("ExplicitCivilNxModelIdentityRequired");
+            return new Reader(snapshot, identity, cancellationToken, stageResultCases).ReadConstructionStages();
+        }
+
         private sealed partial class Reader
         {
+            public ImportBatch ReadConstructionStages()
+            {
+                Stages();
+                foreach (var w in warnings) batch.Diagnostics.Add(new GPC.Model.Core.Diagnostics.ModelDiagnostic {
+                    Code = w.Key.Split('\u001f')[0], Severity = GPC.Model.Core.Diagnostics.DiagnosticSeverity.Warning,
+                    Record = w.Key.Split('\u001f')[1], Message = w.Key.Split('\u001f')[2] });
+                return batch;
+            }
+
             private void Stages()
             {
                 var rows = Rows<StageData>("STAG");

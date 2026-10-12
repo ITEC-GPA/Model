@@ -64,6 +64,17 @@ public class CivilNxConstructionStagesTest
     }
 
     [TestMethod]
+    public void ScheduleCatalogReusesParserWithoutGeometry()
+    {
+        var tables = Json().Where(p => p.Key == "STAG" || p.Key == "STCT").ToDictionary(p => p.Key, p => p.Value);
+        var batch = new CivilNxModelProfile().ReadConstructionStages(CivilNxModelWorkflowTest.Snapshot(tables), CivilNxModelWorkflowTest.Identity());
+        Assert.AreEqual(2, batch.Stages.Count);
+        Assert.AreEqual(0, batch.Nodes.Count);
+        CollectionAssert.AreEquivalent(new[] { "Summation", "Erection" }, batch.LoadCases.Select(c => c.StageSourceCaseName).ToArray());
+        Assert.IsTrue(batch.Diagnostics.Any(d => d.Code == "CivilNxConstructionScheduleImported"));
+    }
+
+    [TestMethod]
     public void ScheduleMapsOrderDurationAgesLoadsAndBoundaryPositions()
     {
         var (model, _) = Import(); var first = model.Stages[2]; var second = model.Stages[10];
