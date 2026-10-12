@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<GpcModelArchive version="4">
+  <ModelDocument xmlns:i="http://www.w3.org/2001/XMLSchema-instance" z:Id="1" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/" xmlns="urn:gpc:model:archive:4">
+    <Schema>1</Schema>
+    <Id>3efc98ae-ea74-4342-bb6d-300ea45003d4</Id>
+    <Name z:Id="2">stage-legacy</Name>
+    <Nodes xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="3" z:Size="0" />
+    <Beams xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="4" z:Size="0" />
+    <Plates xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="5" z:Size="0" />
+    <Solids xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="6" z:Size="0" />
+    <Constraints xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="7" z:Size="0" />
+    <BeamProperties xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="8" z:Size="0" />
+    <PlateProperties xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="9" z:Size="0" />
+    <SolidProperties xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="10" z:Size="0" />
+    <Cases xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="11" z:Size="0" />
+    <FreedomCases xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="12" z:Size="0" />
+    <Combinations xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="13" z:Size="0" />
+    <StageCombinations xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="14" z:Size="0" />
+    <Groups xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="15" z:Size="0" />
+    <Stages xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="16" z:Size="2">
+      <d2p1:KeyValueOfintStage_SR00s7p_S>
+        <d2p1:Key>4</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.Stages" z:Id="17">
+          <SerializationVersion z:Id="18" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:int" xmlns="">0</SerializationVersion>
+          <Guid z:Id="19" i:type="z:guid" xmlns="">2d9232c1-e289-4cc4-9363-c934a54fbf5a</Guid>
+          <Name z:Id="20" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:string" xmlns="">Getto</Name>
+          <Id z:Id="21" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:int" xmlns="">4</Id>
+          <IsCumulative z:Id="22" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:boolean" xmlns="">true</IsCumulative>
+          <SourceStep z:Id="23" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:string" xmlns="">001(last)</SourceStep>
+        </d2p1:Value>
+      </d2p1:KeyValueOfintStage_SR00s7p_S>
+      <d2p1:KeyValueOfintStage_SR00s7p_S>
+        <d2p1:Key>9</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.Stages" z:Id="24">
+          <SerializationVersion z:Id="25" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:int" xmlns="">0</SerializationVersion>
+          <Guid z:Id="26" i:type="z:guid" xmlns="">8eb8cd7c-4af0-4bf9-bb52-29cfff5fdd49</Guid>
+          <Name z:Id="27" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:string" xmlns="">Completamento</Name>
+          <Id z:Id="28" xmlns:d5p1="http://www.w3.org/2001/XMLSchema" i:type="d5p1:int" xmlns="">9</Id>
+          <IsCumulative i:nil="true" xmlns="" />
+          <SourceStep i:nil="true" xmlns="" />
+        </d2p1:Value>
+      </d2p1:KeyValueOfintStage_SR00s7p_S>
+    </Stages>
+    <ModelLoads xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="29" z:Size="0" />
+    <Datasets xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" z:Id="30" z:Size="0" />
+    <Source xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:nil="true" />
+    <Preserved xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" z:Id="31" z:Size="0" />
+    <Members xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" z:Id="32" z:Size="0" />
+    <Analysis xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:nil="true" />
+    <Verification xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:nil="true" />
+    <Scenarios xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" z:Id="33" z:Size="0" />
+    <Reports xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" z:Id="34" z:Size="0" />
+  </ModelDocument>
+</GpcModelArchive>

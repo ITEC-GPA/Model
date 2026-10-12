@@ -1,26 +1,32 @@
-﻿using System;
+using System;
 using System.Runtime.Serialization;
 
 namespace GPC.Model.Stages
 {
     /// <summary>
-    /// A stage of the analysis (the implementation is commented out: the class has only the members of <see cref="ModelObjectId"/>)
+    /// A named construction phase. Definitions describe the source sequence; they do not mutate permanent model assignments.
     /// </summary>
     [Serializable]
     public sealed class Stage : ModelObjectId, ISerializable
     {
         public bool? IsCumulative { get; set; }
         public string SourceStep { get; set; }
+        public StageDefinition Definition { get; set; }
         public Stage() : base() { }
         public Stage(int id, string name) : base(id, name) { }
         private Stage(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+            SerializationVersions.Read(info, "StageVersion", 1, 0);
             IsCumulative = SerializationFields.Read<bool?>(info, "IsCumulative");
             SourceStep = SerializationFields.Read<string>(info, "SourceStep");
+            Definition = SerializationFields.Read<StageDefinition>(info, "Definition");
         }
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context); info.AddValue("IsCumulative", IsCumulative); info.AddValue("SourceStep", SourceStep);
+            info.AddValue("StageVersion", 1);
+            // An absent definition must retain the fingerprint of legacy stages.
+            if (Definition != null) info.AddValue("Definition", Definition);
         }
         //private static int _maxId = 0;
 

@@ -27,6 +27,11 @@ namespace GPC.Model.Results.State
         [field: System.Runtime.Serialization.DataMember(Name = "<Step>k__BackingField", IsRequired = true)]
         public string Step { get; set; }
 
+        /// <summary>Explicit source displacement reference, e.g. Civil NX Accumulative/Current/Real. Null for unspecified or non-displacement results.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<SourceDisplacementReference>k__BackingField", IsRequired = false)]
+        public string SourceDisplacementReference { get; set; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<MovingLoadPosition>k__BackingField", IsRequired = true)]
         public string MovingLoadPosition { get; set; }
 

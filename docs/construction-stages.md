@@ -31,3 +31,9 @@ Scelte implementative: metadati di fase nel dominio Stage; identità dei risulta
 - [ ] STG-2: metadati comuni e lettore dei risultati.
 - [ ] STG-3: interfaccia e capacità degli adattatori.
 - [ ] STG-4: collaudo integrato; confronto reale quando disponibile un modello con stage.
+
+### STG-2a — contratto del dominio (completato)
+
+Model 5.2.0.0: estensione funzionale di Stage con StageDefinition e StageGroupChange immutabili; età degli elementi distinta dal giorno della fase, redistribuzione normalizzata come rapporto, posizione di attivazione dei vincoli esplicita. StageResultCase distingue un caso di output CS da uno statico omonimo, senza creare un caso per ogni step. ResultState conserva opzionalmente il riferimento degli spostamenti della sorgente; Phase/Step/HistoryId esistenti sono riusati.
+
+Prima: archivio `tests/Fixtures/stage-legacy.xml` catturato con Model 5.1.0.0 rilasciato (94efc9bc), evidenza esterna ANTHEA `supporto/artefatti/refactoring/stages/baseline-20261012`. Dopo: stesse impronte dei due stage e del modello, nessun cambiamento agli archivi statici; dati nuovi entrano nell'impronta e le versioni future vengono rifiutate. Differenza prevista: nuovi metadati quando presenti; nessuna assegnazione permanente modificata. Test mirati: 28 PASS, 0 FAIL (`TestResults/Stages-20261012/stage-domain.trx`). Le versioni dei binari dipendenti saranno aggiornate nel set coerente della fase.

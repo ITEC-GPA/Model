@@ -25,6 +25,7 @@ namespace GPC.Model.Core
             "SectionTrapezoidVersion", "SectionUBeamVersion",
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
+            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion",
         };
 
         private static void RegisterBuiltIns()
@@ -463,6 +464,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Results.Queries.ResultSelection", "<Phase>k__BackingField", "<Phase>k__BackingField", false),
                 Field("GPC.Model.Results.Queries.ResultSelection", "<Step>k__BackingField", "<Step>k__BackingField", false));
             Register("GPC.Model.Results.State.ResultState", "GPC.Model.PostProcessing.ResultState",
+                Field("GPC.Model.Results.State.ResultState", "<SourceDisplacementReference>k__BackingField", "<SourceDisplacementReference>k__BackingField", true),
                 Field("GPC.Model.Results.State.ResultState", "<Components>k__BackingField", "<Components>k__BackingField", false),
                 Field("GPC.Model.Results.State.ResultState", "<ConcomitantStateId>k__BackingField", "<ConcomitantStateId>k__BackingField", false),
                 Field("GPC.Model.Results.State.ResultState", "<Coverage>k__BackingField", "<Coverage>k__BackingField", false),
