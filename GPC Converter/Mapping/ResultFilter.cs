@@ -53,7 +53,8 @@ namespace GPC.Converter
             var cases = new List<string>(); var names = new HashSet<string>(StringComparer.Ordinal);
             void Add(string name, string reason)
             {
-                if (!model.LoadCases.ContainsKey(name)) throw new ArgumentException("UnknownStaticCase: " + name + reason);
+                if (!model.LoadCases.TryGetValue(name, out var loadCase) || loadCase is GPC.Model.Stages.StageResultCase)
+                    throw new ArgumentException("UnknownStaticCase: " + name + reason);
                 if (names.Add(name)) cases.Add(name);
             }
             foreach (var name in StaticCases) Add(name, "");
@@ -66,7 +67,8 @@ namespace GPC.Converter
                 else throw new ArgumentException("UnknownCombination: " + name);
                 combinations.Add(name);
             }
-            if (StaticCases.Length == 0 && Combinations.Length == 0) foreach (var name in model.LoadCases.Keys) Add(name, "");
+            if (StaticCases.Length == 0 && Combinations.Length == 0)
+                foreach (var loadCase in model.LoadCases.Values.Where(c => !(c is GPC.Model.Stages.StageResultCase))) Add(loadCase.Name, "");
 
             var ordered = nodes.Values.OrderBy(n => n.Id).ToArray();
             return new ResultReadPlan { Beams = beams.OrderBy(b => b.Id).ToArray(), Shells = shells.OrderBy(s => s.Id).ToArray(), Nodes = ordered,

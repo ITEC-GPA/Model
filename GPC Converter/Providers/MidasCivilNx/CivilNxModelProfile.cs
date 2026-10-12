@@ -26,7 +26,7 @@ namespace GPC.Converter.CivilNx
         public const string Program = "MIDAS Civil NX";
         public static IReadOnlyList<string> RequiredTables { get; } = new[] { "UNIT", "NODE", "ELEM" };
         public static IReadOnlyList<string> OptionalTables { get; } = new[]
-            { "MATL", "SECT", "THIK", "GRUP", "SKEW", "CONS", "OFFS", "FRLS", "ELNK", "RIGD", "STAG", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF",
+            { "MATL", "SECT", "THIK", "GRUP", "BNGR", "LDGR", "SKEW", "CONS", "OFFS", "FRLS", "ELNK", "RIGD", "STAG", "STCT", "STLD", "CNLD", "BMLD", "PRES", "BODF", "NBOF",
               "LCOM-GEN", "LCOM-CONC", "LCOM-STEEL", "LCOM-SRC", "LCOM-STLCOMP", "LCOM-SEISMIC" };
         /// <summary>Combination databases and the ANAL label of their references in other combinations (e.g. CBC: a LCOM-CONC combination).</summary>
         private static readonly IReadOnlyDictionary<string, string> CombinationTables = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -35,8 +35,16 @@ namespace GPC.Converter.CivilNx
         public const string SectionTable = "SECTIONALL";
         /// <summary>Optional post/TABLE response with the material data used by the analysis (weight density also for code-database grades).</summary>
         public const string MaterialTable = "MATERIAL";
+        private readonly string[] stageResultCases;
+        /// <summary>Additional CS output names selected from the source. Summation and the STCT erection cases are included when stages exist.</summary>
+        public CivilNxModelProfile() : this(null) { }
+        public CivilNxModelProfile(IEnumerable<string> stageResultCases)
+        {
+            this.stageResultCases = (stageResultCases ?? Enumerable.Empty<string>()).Distinct(StringComparer.Ordinal).ToArray();
+            if (this.stageResultCases.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Explicit stage output names required.", nameof(stageResultCases));
+        }
 
-        public string Id => "civil-nx/model/v1";
+        public string Id => "civil-nx/model/v2-stages";
         public IReadOnlyDictionary<string, CapabilityStatus> Capabilities { get; } = new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>
         {
             ["Nodes, beams, trusses, plates"] = CapabilityStatus.ImplementedSyntheticTests,
@@ -47,13 +55,15 @@ namespace GPC.Converter.CivilNx
             ["Plate edge loads"] = CapabilityStatus.InterpretedWithoutRealFileTest,
             ["Six-DOF beam releases, global rigid links and uncoupled linear elastic links"] = CapabilityStatus.ImplementedSyntheticTests,
             ["Warping releases, nonlinear or shear-coupled links, staged boundary activation"] = CapabilityStatus.PreservedOnly,
+            ["Construction schedule and group operations (metadata)"] = CapabilityStatus.ImplementedSyntheticTests,
+            ["Construction-stage results with explicit phase/step selection"] = CapabilityStatus.ImplementedSyntheticTests,
         });
 
         public ImportBatch Read(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken cancellationToken)
         {
             if (identity.Program != Program || string.IsNullOrWhiteSpace(identity.ModelRevision)) throw new ArgumentException("ExplicitCivilNxModelIdentityRequired");
             foreach (var key in RequiredTables) if (!snapshot.Responses.ContainsKey(key)) throw new InvalidDataException("MissingCivilNxDatabase: " + key);
-            return new Reader(snapshot, identity, cancellationToken).Read();
+            return new Reader(snapshot, identity, cancellationToken, stageResultCases).Read();
         }
 
         private sealed partial class Reader
@@ -61,6 +71,7 @@ namespace GPC.Converter.CivilNx
             private readonly CivilNxSnapshot snapshot;
             private readonly CancellationToken token;
             private readonly ImportBatch batch;
+            private readonly string[] stageResultCases;
             private double force, length, thermal = 1;
             private readonly Dictionary<string, Point3d> points = new Dictionary<string, Point3d>(StringComparer.Ordinal);
             private readonly Dictionary<string, CoordinateSystem> nodeAxes = new Dictionary<string, CoordinateSystem>(StringComparer.Ordinal);
@@ -69,9 +80,10 @@ namespace GPC.Converter.CivilNx
             private readonly Dictionary<string, ShellRecord> shells = new Dictionary<string, ShellRecord>(StringComparer.Ordinal);
             private readonly Dictionary<string, int> warnings = new Dictionary<string, int>(StringComparer.Ordinal);
 
-            public Reader(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken token)
+            public Reader(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken token, string[] stageResultCases)
             {
                 this.snapshot = snapshot; this.token = token;
+                this.stageResultCases = stageResultCases;
                 batch = new ImportBatch { Program = identity.Program, SolverVersion = identity.SolverVersion, ModelRevision = identity.ModelRevision, AnalysisId = identity.AnalysisId };
             }
 
@@ -79,7 +91,7 @@ namespace GPC.Converter.CivilNx
             {
                 Units(); Skews(); Nodes();
                 var thicknesses = Thicknesses(); var sections = Sections(); Materials();
-                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Supports(); BoundaryAssignments(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
+                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Stages(); Supports(); BoundaryAssignments(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
                 foreach (var table in new[] { "NBOF" })
                     if (Has(table)) Warn("CivilNx" + table + "Preserved", "db/" + table, table == "FRLS" ? "Beam end releases are preserved, not mapped."
                         : "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads.");
@@ -398,6 +410,11 @@ namespace GPC.Converter.CivilNx
 
             private void Supports()
             {
+                if (Has("STAG"))
+                {
+                    if (Has("CONS")) Warn("CivilNxStagedBoundaryPreserved", "CONS", "Stage-dependent restraints are preserved without applying them as permanent supports.");
+                    return;
+                }
                 foreach (var pair in Rows<ItemList<SupportItem>>("CONS"))
                 {
                     var record = "CONS/" + pair.Key;

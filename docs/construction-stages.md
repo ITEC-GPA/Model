@@ -28,7 +28,7 @@ Scelte implementative: metadati di fase nel dominio Stage; identità dei risulta
 ## Stato
 
 - [x] STG-1: inventario, documentazione del protocollo e controllo del campione disponibile.
-- [ ] STG-2: metadati comuni e lettore dei risultati.
+- [x] STG-2: metadati comuni e lettore dei risultati, collaudati su risposte sintetiche; il confronto reale resta STG-4.
 - [ ] STG-3: interfaccia e capacità degli adattatori.
 - [ ] STG-4: collaudo integrato; confronto reale quando disponibile un modello con stage.
 
@@ -37,3 +37,13 @@ Scelte implementative: metadati di fase nel dominio Stage; identità dei risulta
 Model 5.2.0.0: estensione funzionale di Stage con StageDefinition e StageGroupChange immutabili; età degli elementi distinta dal giorno della fase, redistribuzione normalizzata come rapporto, posizione di attivazione dei vincoli esplicita. StageResultCase distingue un caso di output CS da uno statico omonimo, senza creare un caso per ogni step. ResultState conserva opzionalmente il riferimento degli spostamenti della sorgente; Phase/Step/HistoryId esistenti sono riusati.
 
 Prima: archivio `tests/Fixtures/stage-legacy.xml` catturato con Model 5.1.0.0 rilasciato (94efc9bc), evidenza esterna ANTHEA `supporto/artefatti/refactoring/stages/baseline-20261012`. Dopo: stesse impronte dei due stage e del modello, nessun cambiamento agli archivi statici; dati nuovi entrano nell'impronta e le versioni future vengono rifiutate. Differenza prevista: nuovi metadati quando presenti; nessuna assegnazione permanente modificata. Test mirati: 28 PASS, 0 FAIL (`TestResults/Stages-20261012/stage-domain.trx`). Le versioni dei binari dipendenti saranno aggiornate nel set coerente della fase.
+
+### STG-2b — lettura MIDAS (completato su protocollo sintetico)
+
+CivilNxModelProfile riusa il parser e il mapper esistenti per importare STAG; conserva STCT, BNGR e LDGR. Le operazioni sui gruppi sono metadati consultabili, senza simulare l'analisi né applicare vincoli di fase come permanenti. I nomi delle fasi sono sempre conservati; una definizione senza durata resta non interpretata e segnalata. Il catalogo CS contiene Summation, i casi di erezione STCT e gli ulteriori nomi esplicitamente richiesti, in ambito distinto dai casi statici. Le collisioni di ambito sono rifiutate.
+
+ReadStagesAsync richiede fase/passo/caso e riferimento degli spostamenti, limita ogni richiesta a 2000 elementi, e usa solo la lettura post/TABLE. ImportStages riusa Beam/Plate/Node del lettore statico per unità e segni; nessuna seconda implementazione. Phase/Step, provenienza e Accumulative/Current/Real sopravvivono all'archivio compatto. I risultati stage hanno semantica Unknown finché non è validata l'ipotesi di analisi: la presenza di una fase non autorizza la sovrapposizione lineare o la somma di Current/Real come incrementi. Cumulatività delle forze sconosciuta salvo dichiarazione esplicita. Nessuno zero sostituisce risultati assenti; una coppia fase/passo/caso richiesta e completamente mancante produce un errore. Il contratto delle vecchie richieste di basso livello resta compatibile.
+
+Prove: 52 mirate su MIDAS/stage/filtri; Verify completo 12 Model.Core + 1212 UnitTest PASS, due benchmark nativi già esclusi, API 6517 firme e nessuna rimozione inattesa, audit uguaglianza superato. Evidenze `TestResults/Stages-20261012/full-compatible`. Copertura: tre stati in due fasi, beam/plate/reazioni/deformate, segni e unità, archivio, filtri statici, cancellazione, stato mancante/duplicato/estraneo, colonne mancanti, NaN, unità miste, modifica della fase dopo l'importazione. La prima corsa completa ha individuato una restrizione nuova nel costruttore delle richieste: rimossa la restrizione per mantenere il contratto precedente; test e attesi storici invariati.
+
+Versioni: Converter 2.1.0.0 per la nuova lettura a fasi; ModelData 0.0.2.10 e Persistence 3.0.0.3 per il ricollegamento tecnico a Model 5.2.0.0. La distribuzione attende il set coerente e il collaudo ANTHEA. Il campione MIDAS reale attualmente aperto non ha stage: nessuna pretesa di verifica dei risultati stage sul software reale.

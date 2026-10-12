@@ -207,6 +207,8 @@ namespace GPC.Converter
     {
         public string Name { get; set; }
         public string Record { get; set; }
+        /// <summary>Non-null for a construction-stage output case; Name is its distinct model scope, not a static load case.</summary>
+        public string StageSourceCaseName { get; set; }
     }
     public sealed class NodeLoadRecord
     {
@@ -250,6 +252,7 @@ namespace GPC.Converter
         public List<ShellRecord> Shells { get; } = new List<ShellRecord>();
         public List<GroupRecord> Groups { get; } = new List<GroupRecord>();
         public List<LoadCaseRecord> LoadCases { get; } = new List<LoadCaseRecord>();
+        public List<GPC.Model.Stages.Stage> Stages { get; } = new List<GPC.Model.Stages.Stage>();
         public List<NodeLoadRecord> NodeLoads { get; } = new List<NodeLoadRecord>();
         public List<NodeRestrainRecord> NodeRestrains { get; } = new List<NodeRestrainRecord>();
         public List<BeamReleaseRecord> BeamReleases { get; } = new List<BeamReleaseRecord>();

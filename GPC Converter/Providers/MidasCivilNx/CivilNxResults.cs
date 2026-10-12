@@ -25,7 +25,7 @@ namespace GPC.Converter.CivilNx
     /// beam Axial, Shear-y, Shear-z, Torsion, Moment-z are right-handed actions on the positive section face, Moment-y has the opposite sign
     /// (checked against the support reactions at the end of a rigid link, two load cases, and dM/dx along the element);
     /// plate Mxx, Myy, Mxy are minus the first moment of the stresses (checked against top/bottom stresses), in the plate axes rotated by ANGLE.</summary>
-    public static class CivilNxResults
+    public static partial class CivilNxResults
     {
         public const string ReaderVersion = "GPC.CivilNx.LinearStatic/1";
         private const string Convention = "Beam (ECS x,y,z = GPC V3,V1,V2): N=Axial, V1=Shear-y, V2=Shear-z, T=Torsion, M1=-Moment-y, M2=Moment-z on the positive face. "
@@ -98,6 +98,10 @@ namespace GPC.Converter.CivilNx
         /// taken when the tables were read, and the Model inputs must be unchanged since the import.</summary>
         public static ResultImportReport Import(GPC.Model.Models.Model model, CivilNxSnapshot current, IReadOnlyList<CivilNxResponse> tables, string datasetId,
             bool isSynthetic = false, CancellationToken cancellationToken = default)
+            => ImportCore(model, current, tables, datasetId, null, isSynthetic, cancellationToken);
+
+        private static ResultImportReport ImportCore(GPC.Model.Models.Model model, CivilNxSnapshot current, IReadOnlyList<CivilNxResponse> tables, string datasetId,
+            CivilNxStageSelection stageSelection, bool isSynthetic, CancellationToken cancellationToken)
         {
             var rejected = new ResultImportReport { Status = ImportStatus.Rejected };
             var skipped = new List<ModelDiagnostic>();
@@ -111,6 +115,9 @@ namespace GPC.Converter.CivilNx
                 if (changed != null) skipped.Add(changed);
                 ResultImportBatch batch = null; double force = 0, length = 0; var rejectedBeams = new HashSet<string>(StringComparer.Ordinal);
                 var index = model.AllElements.Where(e => e.Source != null).ToDictionary(e => e.Source);
+                var stageCases = stageSelection?.Validate(model);
+                var stageStates = new Dictionary<Tuple<string, string, string, int, bool>, ResultState>();
+                var stageCoverage = new HashSet<Tuple<string, string, string>>();
                 foreach (var response in tables)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -124,23 +131,50 @@ namespace GPC.Converter.CivilNx
                         force = f; length = l;
                         batch = new ResultImportBatch { Source = source, DatasetId = datasetId, SourceHash = SourceHash(tables), ExpectedInputFingerprint = model.AnalysisFingerprint(),
                             AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, CivilNxGeometryReader.InputBindingKind, source.GeometryHash),
-                            Units = new ResultUnits(f, l, f * l), ShellDenominatorLengthToMm = l, ResolvedConvention = Convention, ReaderVersion = ReaderVersion,
-                            Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = isSynthetic };
+                            Units = new ResultUnits(f, l, f * l), ShellDenominatorLengthToMm = l, ResolvedConvention = Convention,
+                            ReaderVersion = stageSelection == null ? ReaderVersion : StageReaderVersion,
+                            Semantics = stageSelection == null ? AnalysisSemantics.LinearStatic : AnalysisSemantics.Unknown, IsSynthetic = isSynthetic };
                     }
                     else if (f != force || l != length) throw new InvalidDataException("All result tables must use the same units.");
-                    if (table.Headers.Contains("Stage") || table.Headers.Contains("Step")) throw new NotSupportedException("Construction stage results are not supported.");
+                    bool hasStage = table.Headers.Contains("Stage"), hasStep = table.Headers.Contains("Step");
+                    if (stageSelection == null && (hasStage || hasStep)) throw new NotSupportedException("Construction stage results require ImportStages and an explicit phase/step selection.");
+                    if (stageSelection != null && (!hasStage || !hasStep)) throw new InvalidDataException("MissingConstructionStageColumns");
                     bool beams = table.Headers.Contains("Axial"), plates = table.Headers.Contains("Fxx"), reactions = table.Headers.Contains("FX"), displacements = table.Headers.Contains("DX");
                     if ((beams ? 1 : 0) + (plates ? 1 : 0) + (reactions ? 1 : 0) + (displacements ? 1 : 0) != 1) throw new NotSupportedException("UnknownCivilNxResultTable: " + name);
                     for (int r = 0; r < table.Rows.Length; r++)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         var loadCase = table.Get(r, "Load"); var record = "post/TABLE " + name + " row " + table.Get(r, "Index");
-                        if (beams) Beam(index, batch, table, r, loadCase, record, l, rejectedBeams, skipped);
-                        else if (plates) Plate(index, batch, table, r, loadCase, record, l);
-                        else Node(index, batch, table, r, loadCase, record, l, reactions);
+                        int count = plates ? 8 : 6;
+                        ResultState state;
+                        if (stageSelection != null)
+                        {
+                            var phase = table.Get(r, "Stage"); var step = table.Get(r, "Step");
+                            var mapped = stageCases.Values.SingleOrDefault(c => c.SourceCaseName == loadCase || c.Name == loadCase)
+                                ?? throw new InvalidDataException("UnrequestedStageOutputCase: " + loadCase);
+                            var key = Tuple.Create(mapped.SourceCaseName, phase, step, count, displacements);
+                            if (!stageStates.TryGetValue(key, out state))
+                                stageStates.Add(key, state = stageSelection.State(mapped.SourceCaseName, phase, step, count, displacements, source.ModelRevision));
+                            stageCoverage.Add(Tuple.Create(mapped.SourceCaseName, phase, step));
+                            loadCase = mapped.Name; record += " [" + phase + ":" + step + "]";
+                        }
+                        else
+                        {
+                            if (model.LoadCases.TryGetValue(loadCase, out var candidate) && candidate is GPC.Model.Stages.StageResultCase)
+                                throw new InvalidDataException("StageOutputCaseInStaticTable: " + loadCase);
+                            state = State(loadCase, count);
+                        }
+                        if (beams) Beam(index, batch, table, r, loadCase, record, l, state, rejectedBeams, skipped);
+                        else if (plates) Plate(index, batch, table, r, loadCase, record, l, state);
+                        else Node(index, batch, table, r, loadCase, record, l, reactions, state);
                     }
                 }
                 if (batch == null) throw new ArgumentException("No result tables supplied.");
+                if (stageSelection != null)
+                    foreach (var loadCase in stageSelection.SourceCases)
+                        foreach (var step in stageSelection.Steps)
+                            if (!stageCoverage.Contains(Tuple.Create(loadCase, step.Phase, step.Step)))
+                                throw new InvalidDataException("MissingRequestedStageResults: " + loadCase + " / " + step.RequestName);
                 var report = ResultMapper.Import(model, batch, cancellationToken);
                 report.Diagnostics.AddRange(skipped);
                 report.Diagnostics.Add(new ModelDiagnostic { Code = "CivilNxResultConvention", Severity = DiagnosticSeverity.Information, Message = Convention });
@@ -156,7 +190,7 @@ namespace GPC.Converter.CivilNx
             return rejected;
         }
 
-        private static void Beam(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length,
+        private static void Beam(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, ResultState state,
             HashSet<string> rejectedBeams, List<ModelDiagnostic> skipped)
         {
             var id = table.Get(r, "Elem");
@@ -178,12 +212,12 @@ namespace GPC.Converter.CivilNx
             else throw new InvalidDataException("Unknown or mismatched beam part '" + part + "' at " + record);
             var axes = a.SectionAxes; Axes.Validate(axes);
             var point = beam.StartPoint + (beam.EndPoint - beam.StartPoint) * station;
-            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 6), Axes = SourceAxes(axes, point, length), Record = record,
+            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = loadCase, State = state, Axes = SourceAxes(axes, point, length), Record = record,
                 Values = new double?[] { V(table, r, "Axial"), V(table, r, "Shear-y"), V(table, r, "Shear-z"), V(table, r, "Torsion"), -V(table, r, "Moment-y"), V(table, r, "Moment-z") },
                 Station = station, PhysicalDistance = beam.Length * station / length, StationDomain = "NodeToNode", Body = ActionBody.PositiveSectionFace });
         }
 
-        private static void Plate(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length)
+        private static void Plate(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, ResultState state)
         {
             var id = table.Get(r, "Elem"); var node = table.Get(r, "Node");
             var shell = Find(index, batch, EntityFamily.Shell, id) as AreaElement
@@ -191,31 +225,31 @@ namespace GPC.Converter.CivilNx
             var axes = shell.CoordinateSystem; Axes.Validate(axes);
             var values = new double?[] { V(table, r, "Fxx"), V(table, r, "Fyy"), V(table, r, "Fxy"), V(table, r, "Vxx"), V(table, r, "Vyy"), -V(table, r, "Mxx"), -V(table, r, "Myy"), -V(table, r, "Mxy") };
             if (node == "Cent")
-                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 8), Record = record, Values = values,
+                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = state, Record = record, Values = values,
                     Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(0, 0), PointKind = ShellResultPointKind.Centroid, CoordinateKind = ResultCoordinateKind.LocalPhysical });
             else
             {
                 // Unaveraged value at an element node, extrapolated by the solver: same plate axes, point in local physical coordinates.
                 var vertex = shell.Nodes.FirstOrDefault(n => n.Source?.OriginalId == node) ?? throw new InvalidDataException("Plate " + id + " has no node " + node + " at " + record);
                 Vector3d d = vertex.Position - axes.Origin;
-                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 8), Record = record, Values = values,
+                batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = state, Record = record, Values = values,
                     Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(Axes.Dot(d, axes.V1) / length, Axes.Dot(d, axes.V2) / length),
                     PointKind = ShellResultPointKind.ElementNodeExtrapolated, CoordinateKind = ResultCoordinateKind.LocalPhysical, SourceNodeId = node });
             }
         }
 
-        private static void Node(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, bool reaction)
+        private static void Node(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, bool reaction, ResultState state)
         {
             var id = table.Get(r, "Node");
             var node = Find(index, batch, EntityFamily.Node, id) as NodeElement
                 ?? throw new InvalidDataException("Result for an absent node: " + id);
             var axes = SourceAxes(CoordinateSystem.Global, node.Position, length);
             if (reaction)
-                batch.NodeForces.Add(new NodeForceRecord { ElementId = id, Case = loadCase, State = State(loadCase, 6), Axes = axes, Record = record,
+                batch.NodeForces.Add(new NodeForceRecord { ElementId = id, Case = loadCase, State = state, Axes = axes, Record = record,
                     Values = new double?[] { V(table, r, "FX"), V(table, r, "FY"), V(table, r, "FZ"), V(table, r, "MX"), V(table, r, "MY"), V(table, r, "MZ") },
                     Kind = NodalForceKind.SupportReaction, Body = ActionBody.OnNode });
             else
-                batch.NodeDisplacements.Add(new NodeDisplacementRecord { ElementId = id, Case = loadCase, State = State(loadCase, 6), Axes = axes, Record = record,
+                batch.NodeDisplacements.Add(new NodeDisplacementRecord { ElementId = id, Case = loadCase, State = state, Axes = axes, Record = record,
                     Values = new double?[] { V(table, r, "DX"), V(table, r, "DY"), V(table, r, "DZ"), V(table, r, "RX"), V(table, r, "RY"), V(table, r, "RZ") } });
         }
 

@@ -35,6 +35,7 @@
     <Compile Include="..\tools\ApiSurface\ApiCompatibility.cs" Link="Tools\ApiCompatibility.cs" />
     <Compile Include="../tests/CivilNxBoundaryTest.cs" Link="CivilNxBoundaryTest.cs" />
     <Compile Include="../tests/ConstructionStageDomainTest.cs" Link="ConstructionStageDomainTest.cs" />
+    <Compile Include="../tests/CivilNxConstructionStagesTest.cs" Link="CivilNxConstructionStagesTest.cs" />
     <None Include="../tests/Fixtures/stage-legacy.xml" Link="Fixtures/stage-legacy.xml" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\Namespaces-v3\*" CopyToOutputDirectory="PreserveNewest" />

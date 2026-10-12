@@ -9,6 +9,7 @@ using System.Text;
 namespace GPC.Converter.CivilNx
 {
     public enum CivilNxResultTable { BeamForce, PlateForcePerUnitLength, DisplacementGlobal, ReactionGlobal, SectionProperties, MaterialProperties }
+    public enum CivilNxDisplacementReference { Accumulative, Current, Real }
 
     public sealed class CivilNxTableRequest
     {
@@ -19,6 +20,8 @@ namespace GPC.Converter.CivilNx
         /// <summary>Null requests every part the API returns (I, 1/4, 2/4, 3/4, J); the response labels them I[node], 1/4, 2/4, 3/4, J[node].</summary>
         public string[] BeamParts { get; set; }
         public string[] StageSteps { get; set; }
+        /// <summary>Explicit displacement reference. ReadStagesAsync always supplies it; this low-level request retains the legacy API defaults.</summary>
+        public CivilNxDisplacementReference? DisplacementReference { get; set; }
         /// <summary>Plate tables: false requests the unaveraged centre only, true the unaveraged element-node values only.</summary>
         public bool PlateNodes { get; set; }
         public string ToJson()
@@ -46,7 +49,17 @@ namespace GPC.Converter.CivilNx
                 argument["AVERAGE_NODAL_RESULT"] = false;
                 argument["NODE_FLAG"] = new Dictionary<string, object> { ["CENTER"] = !PlateNodes, ["NODES"] = PlateNodes };
             }
-            if (StageSteps != null && StageSteps.Length > 0) { argument["OPT_CS"] = true; argument["STAGE_STEP"] = StageSteps; }
+            if (StageSteps != null && StageSteps.Length > 0)
+            {
+                argument["OPT_CS"] = true; argument["STAGE_STEP"] = StageSteps;
+            }
+            if (DisplacementReference.HasValue)
+            {
+                if (StageSteps == null || StageSteps.Length == 0 || Table != CivilNxResultTable.DisplacementGlobal
+                    || !Enum.IsDefined(typeof(CivilNxDisplacementReference), DisplacementReference.Value))
+                    throw new ArgumentException("Displacement reference applies only to construction-stage displacements.");
+                argument["DISP_OPT"] = DisplacementReference.Value.ToString();
+            }
             return CivilNxJson.Write(new Dictionary<string, object> { ["Argument"] = argument });
         }
         private static string Type(CivilNxResultTable table)

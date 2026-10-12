@@ -118,8 +118,18 @@ namespace GPC.Converter
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = c.Record;
                     // ModelGravityLoad requires a self weight LoadCase; the other cases keep the untyped base.
-                    var loadCase = selfWeight.Contains(c.Name) ? new LoadCase(c.Name, LoadCase.LoadCaseTypes.SelfWeight) : new LoadCaseBase(c.Name);
+                    if (c.StageSourceCaseName != null && selfWeight.Contains(c.Name)) throw new ArgumentException("StageCaseCannotBeStaticLoad: " + c.Name);
+                    var loadCase = c.StageSourceCaseName != null ? new GPC.Model.Stages.StageResultCase(c.Name, c.StageSourceCaseName) :
+                        selfWeight.Contains(c.Name) ? new LoadCase(c.Name, LoadCase.LoadCaseTypes.SelfWeight) : new LoadCaseBase(c.Name);
                     cases.Add(c.Name, loadCase); model.LoadCases.Add(loadCase);
+                }
+                foreach (var stage in batch.Stages)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = stage?.Definition?.SourceRecord;
+                    if (stage == null || model.Stages.Values.Any(s => s.Id == stage.Id || s.Name == stage.Name
+                        || stage.Definition != null && s.Definition?.Sequence == stage.Definition.Sequence))
+                        throw new ArgumentException("MissingOrDuplicateConstructionStage");
+                    model.Stages.Add(GPC.Model.Core.ModelValues.CopyValue(stage));
                 }
                 if (batch.Combinations.Count != 0)
                 {
