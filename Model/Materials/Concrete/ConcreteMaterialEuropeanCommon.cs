@@ -1082,7 +1082,7 @@ namespace GPC.Model.Materials
         /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2</returns>
         protected virtual double GetEcm(double fcm)
         {
-            return Math.Abs(22.0 * Math.Pow(Math.Abs(fcm) / 10.0, 0.30) * 1000);
+            return EuropeanConcreteElasticity.SecantModulusGpa(fcm) * 1000;
         }
 
         /// <summary>
@@ -1091,7 +1091,7 @@ namespace GPC.Model.Materials
         /// <returns>Elastic secant modulus Fib 2010 § 7.2.3.1.2</returns>
         protected virtual double GetEcm()
         {
-            return Math.Abs(22.0 * Math.Pow(Math.Abs(GetFcm()) / 10.0, 0.30) * 1000);
+            return EuropeanConcreteElasticity.SecantModulusGpa(GetFcm()) * 1000;
         }
 
         /// <summary>

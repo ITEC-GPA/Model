@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -183,7 +183,13 @@ namespace GPC.Model.Materials
         /// <summary>
         /// Density of the steel, 7850 kg/m³ in t/mm³ (default of the steel, bolt and FRP materials)
         /// </summary>
-        public const double SteelDensity = 7.85e-9;
+        public const double SteelDensity = SteelDensityKgPerCubicMetre / 1e12;
+
+        /// <summary>Canonical steel mass density in kg/m³.</summary>
+        public const double SteelDensityKgPerCubicMetre = 7850;
+
+        /// <summary>Steel mass density in t/m³; derived directly from the canonical SI value.</summary>
+        public const double SteelDensityTonnesPerCubicMetre = SteelDensityKgPerCubicMetre / 1000;
 
         /// <summary>
         /// Density of the concrete, 2500 kg/m³ in t/mm³ (default of the concrete materials)
