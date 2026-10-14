@@ -1,0 +1,236 @@
+[
+  {
+    "id": "standard-NTC 2018",
+    "kind": "standard",
+    "input": {
+      "name": "NTC 2018"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "0.85",
+        "AlphaCT": "1",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.8"
+      }
+    }
+  },
+  {
+    "id": "standard-Model Code 2010",
+    "kind": "standard",
+    "input": {
+      "name": "Model Code 2010"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "1",
+        "AlphaCT": "1",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.2",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-EN 1992-1-1",
+    "kind": "standard",
+    "input": {
+      "name": "EN 1992-1-1"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "1",
+        "AlphaCT": "1",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.2",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-UNI EN 1992-1-1",
+    "kind": "standard",
+    "input": {
+      "name": "UNI EN 1992-1-1"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "0.85",
+        "AlphaCT": "1",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.7"
+      }
+    }
+  },
+  {
+    "id": "standard-DIN EN 1992-1-1",
+    "kind": "standard",
+    "input": {
+      "name": "DIN EN 1992-1-1"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "0.85",
+        "AlphaCT": "0.85",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.3",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-DS EN 1992-1-1",
+    "kind": "standard",
+    "input": {
+      "name": "DS EN 1992-1-1"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "1",
+        "AlphaCT": "1",
+        "GammaC": "1.45",
+        "GammaS": "1.2",
+        "GammaSPrestress": "1.2",
+        "GammaCAccidental": "1",
+        "GammaCE": "1.45",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-NS EN 1992-1-1",
+    "kind": "standard",
+    "input": {
+      "name": "NS EN 1992-1-1"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "0.85",
+        "AlphaCT": "0.85",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.2",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.4",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-CNR-DT 204/2006",
+    "kind": "standard",
+    "input": {
+      "name": "CNR-DT 204/2006"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "1",
+        "AlphaCT": "1",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.2",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1.5",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  },
+  {
+    "id": "standard-CS-TR34",
+    "kind": "standard",
+    "input": {
+      "name": "CS-TR34"
+    },
+    "expected": {
+      "result": {
+        "AlphaCC": "0.85",
+        "AlphaCT": "0.85",
+        "GammaC": "1.5",
+        "GammaS": "1.15",
+        "GammaSPrestress": "1.15",
+        "GammaCAccidental": "1.2",
+        "GammaCE": "1.2",
+        "GammaSAccidental": "1",
+        "GammaSPrestressAccidental": "1",
+        "GammaF": "1",
+        "SteelCoefficientStrainTension": "0.9",
+        "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
+        "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
+        "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+      }
+    }
+  }
+]
