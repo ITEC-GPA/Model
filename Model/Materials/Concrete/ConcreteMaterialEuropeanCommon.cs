@@ -131,6 +131,9 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Linear;
             _concreteType = concreteType;
+            // the class of cement before the properties, so that none of them can depend on a default (before October 2026 it was
+            // assigned last, and the old εc1 and εcu1 of the non linear law were those of cement class R)
+            _cementType = cementType;
 
             SetMechanicalProperties(-Math.Abs(fck), 0, 0, 0, 0, _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
 
@@ -138,8 +141,6 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
             SetStressProperties();
-
-            _cementType = cementType;
         }
 
         /// <summary>
@@ -166,6 +167,9 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
             _concreteType = concreteType;
+            // the class of cement before the properties, so that none of them can depend on a default (before October 2026 it was
+            // assigned last, and the old εc1 and εcu1 of the non linear law were those of cement class R)
+            _cementType = cementType;
 
             SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension), Math.Abs(strainUTension),
                 _compressionStressStrainDiagrams, _tensionStressStrainDiagrams);
@@ -174,8 +178,6 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, _tensionStressStrainDiagrams);
 
             SetStressProperties();
-
-            _cementType = cementType;
         }
 
         /// <summary>
@@ -201,6 +203,9 @@ namespace GPC.Model.Materials
             _compressionStressStrainDiagrams = CompressionStressStrainDiagrams.Generic;
             _tensionStressStrainDiagrams = TensionStressStrainDiagrams.Generic;
             _concreteType = concreteType;
+            // the class of cement before the properties, so that none of them can depend on a default (before October 2026 it was
+            // assigned last, and the old εc1 and εcu1 of the non linear law were those of cement class R)
+            _cementType = cementType;
 
             _stressStrainTableCompression = stressStrainTableCompression;
             _stressStrainTableTension = stressStrainTableTension;
@@ -210,8 +215,6 @@ namespace GPC.Model.Materials
                 _compressionStressStrainDiagrams, _tensionStressStrainDiagrams, strainYCompression);
 
             SetStressProperties();
-
-            _cementType = cementType;
         }
 
         /// <summary>
@@ -996,6 +999,7 @@ namespace GPC.Model.Materials
         {
             _compressionStressStrainDiagrams = compressionStressStrainDiagrams;
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+            _cementType = cementType;
 
             SetMechanicalProperties(-Math.Abs(fck), Math.Abs(ffts), Math.Abs(fFtu), Math.Abs(strainYTension),
                 Math.Abs(strainUTension), compressionStressStrainDiagrams, tensionStressStrainDiagrams);
@@ -1004,8 +1008,6 @@ namespace GPC.Model.Materials
             SetStressStrainTableTension(_fctk, _fctu, _strainYTension, _strainUTension, tensionStressStrainDiagrams);
 
             SetStressProperties();
-
-            _cementType = cementType;
         }
 
         /// <summary>

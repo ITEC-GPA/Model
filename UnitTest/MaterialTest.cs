@@ -409,6 +409,82 @@ namespace ModelObjectTest
         }
 
         [TestMethod]
+        public void CementTypeIsAssignedBeforeTheMechanicalProperties()
+        {
+            // User decision 16/10/2026: the European constructors (and SetProperties) assigned the class of cement after computing the properties,
+            // so that the old εc1 and εcu1 of the non linear law (SLU-5) were those of the default class R. Now it is assigned first. Proof that no
+            // value changes: (1) the old path is a material computed with class R (the default during the computation) and the class assigned
+            // afterwards through the property, which does not recompute; every property and table is bitwise the same; (2) the properties at 28
+            // days do not depend on the class at all (EN 1992-1-1 3.1.2: s enters only βcc(t)); (3) the time functions use the assigned class.
+            var cements = new[] { ConcreteMaterial.CementTypes.ClassR, ConcreteMaterial.CementTypes.ClassN, ConcreteMaterial.CementTypes.ClassS };
+            var diagrams = new[] { ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle, ConcreteMaterial.CompressionStressStrainDiagrams.Bilinear,
+                ConcreteMaterial.CompressionStressStrainDiagrams.StressBlock, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear };
+            var compression = new StressStrainTable(new double[] { 0, -20, -25, -25 }, new double[] { 0, -0.001, -0.002, -0.0035 });
+            var tension = new StressStrainTable(new double[] { 0, 2.5, 1.0 }, new double[] { 0, 0.0001, 0.01 });
+            var builders = new List<(string Name, Func<double, ConcreteMaterial.CompressionStressStrainDiagrams, ConcreteMaterial.CementTypes, ConcreteMaterialEuropeanCommon> Build)>
+            {
+                ("EN1992", (fck, d, c) => new ConcreteMaterialEN1992("c", fck, d, cementType: c)),
+                ("MC2010", (fck, d, c) => new ConcreteMaterialModelCode2010("c", fck, d, cementType: c)),
+                ("MC2010 FRC bilinear", (fck, d, c) => new ConcreteMaterialModelCode2010("c", fck, d, 1.5, 1.0, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.Bilinear, cementType: c)),
+                ("MC2010 FRC rigid-plastic", (fck, d, c) => new ConcreteMaterialModelCode2010("c", fck, d, 1.5, 1.0, 0, 0.02, ConcreteMaterial.TensionStressStrainDiagrams.RigidPlastic, cementType: c)),
+                ("SetProperties", (fck, d, c) => CementSetProperties.Create(fck, d, c)),
+                ("EN1992 generic", (fck, d, c) => new ConcreteMaterialEN1992("g", 0, 0.0001, compression, tension, cementType: c)),
+                ("MC2010 generic", (fck, d, c) => new ConcreteMaterialModelCode2010("g", 0, 0.0001, compression, tension, ConcreteMaterial.ConcreteTypes.FRC, cementType: c)),
+            };
+            int count = 0;
+            foreach (var (name, build) in builders)
+                foreach (var diagram in diagrams)
+                    foreach (double fck in new double[] { 12, 16, 20, 25, 28, 30, 32, 35, 40, 45, 50, 55, 60, 70, 80, 90 })
+                    {
+                        string reference = null;
+                        foreach (var cement in cements)
+                        {
+                            var concrete = build(fck, diagram, cement);
+                            var oldPath = build(fck, diagram, ConcreteMaterial.CementTypes.ClassR);
+                            oldPath.CementType = cement;
+                            string id = $"{name} C{fck} {diagram} {cement}";
+                            Assert.AreEqual(cement, concrete.CementType, id);
+                            string values = Properties28Days(concrete);
+                            Assert.AreEqual(Properties28Days(oldPath), values, id + ": different from the old order");
+                            Assert.AreEqual(reference ??= values, values, id + ": depends on the class of cement");
+                            Assert.AreEqual(oldPath.GetBetaCC(7), concrete.GetBetaCC(7), 0.0, id);
+                            Assert.AreEqual(oldPath.GetEpsilonCSInfiniteTime(60, 300 * 500, 1600), concrete.GetEpsilonCSInfiniteTime(60, 300 * 500, 1600), 0.0, id);
+                            count++;
+                        }
+                    }
+            Assert.AreEqual(7 * 4 * 16 * 3, count);
+
+            // the time functions follow the assigned class: βcc(7) = exp(s (1 - √(28 / 7))) = exp(-s), s = 0.20 R, 0.25 N, 0.38 S (EN 1992-1-1 (3.2))
+            Assert.AreEqual(Math.Exp(-0.20), new ConcreteMaterialEN1992("c", 30, diagrams[0], cementType: ConcreteMaterial.CementTypes.ClassR).GetBetaCC(7), 1e-15);
+            Assert.AreEqual(Math.Exp(-0.25), new ConcreteMaterialEN1992("c", 30, diagrams[0], cementType: ConcreteMaterial.CementTypes.ClassN).GetBetaCC(7), 1e-15);
+            Assert.AreEqual(Math.Exp(-0.38), new ConcreteMaterialEN1992("c", 30, diagrams[0], cementType: ConcreteMaterial.CementTypes.ClassS).GetBetaCC(7), 1e-15);
+        }
+
+        /// <summary>All the properties at 28 days and the tables, round-trip formatted (bitwise comparison)</summary>
+        private static string Properties28Days(ConcreteMaterialEuropeanCommon c)
+        {
+            string R(double v) => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+            string T(StressStrainTable t) => string.Join(",", Array.ConvertAll(t.Strains, R)) + "|" + string.Join(",", Array.ConvertAll(t.Stresses, R));
+            var values = new[] { c.Fck, c.Fcm, c.Fctm, c.Fctk, c.Fctu, c.Fctk05, c.Fctk95, c.Ecm, c.Ec, c.ElasticModulusCompression, c.ElasticModulusTension,
+                c.StrainYCompression, c.StrainUCompression, c.StrainYTension, c.StrainUTension, c.StressYCompression, c.StressUCompression, c.StressYTension,
+                c.StressUTension, c.StrainYPureCompression };
+            return string.Join(";", Array.ConvertAll(values, R)) + ";" + T(c.StressStrainTableCompression) + ";" + T(c.StressStrainTableTension);
+        }
+
+        /// <summary>Access to the protected <see cref="ConcreteMaterialEuropeanCommon"/>.SetProperties</summary>
+        private sealed class CementSetProperties : ConcreteMaterialModelCode2010
+        {
+            private CementSetProperties() : base("p", 25, CompressionStressStrainDiagrams.ParabolaRectangle) { }
+
+            internal static ConcreteMaterialEuropeanCommon Create(double fck, CompressionStressStrainDiagrams diagram, CementTypes cement)
+            {
+                var concrete = new CementSetProperties();
+                concrete.SetProperties(fck, diagram, 1.5, 1.0, 0, 0.02, TensionStressStrainDiagrams.Bilinear, cement);
+                return concrete;
+            }
+        }
+
+        [TestMethod]
         public void ConcreteENTest16()
         {
             ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", -1.0, 1.0, new StressStrainTable(new double[] { 0, -1 }, new double[] { 0, -1 }),
