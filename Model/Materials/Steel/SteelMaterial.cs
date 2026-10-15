@@ -538,7 +538,9 @@ namespace GPC.Model.Materials
         /// The design stress from a characteristic stress, on the total strain ε + εp: the stress itself in the elastic range (|ε + εp| up to the
         /// design yield strain), the stress lowered by fy - fyd beyond it, zero beyond the ultimate strain. The branch (tension or compression),
         /// the yield and the ultimate strain are all those of ε + εp (before October 2026 the branch and the ultimate strain came from ε alone, as
-        /// in the overload without the stress, bug SLU-6); with εp = 0 nothing changes
+        /// in the overload without the stress, bug SLU-6). In compression the design yield strain (negative) is compared in magnitude: before
+        /// October 2026 |ε + εp| was compared with the negative value, so the whole compression branch was taken as yielded and the elastic stress
+        /// was raised by fy - fyd (B450C at -0.5 ‰: -41.3 MPa instead of -100 MPa)
         /// </summary>
         /// <param name="standard">The standard (Model Code 2010)</param>
         /// <param name="stress">The characteristic stress (of the total strain ε + εp)</param>
@@ -571,7 +573,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(total) <= strainYd)
+                if (Math.Abs(total) <= Math.Abs(strainYd))
                     return stress;
 
                 else
@@ -913,7 +915,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(total) <= strainYd)
+                if (Math.Abs(total) <= Math.Abs(strainYd))
                     return stress;
 
                 else
@@ -1063,7 +1065,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(total) <= strainYd)
+                if (Math.Abs(total) <= Math.Abs(strainYd))
                     return stress;
 
                 else

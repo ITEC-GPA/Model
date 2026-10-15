@@ -86,9 +86,10 @@ namespace UnitTest
             Assert.AreEqual(-508.432332638, structural.CalculateDesignStress(aisc, Structural(-0.1485), -0.1505, 0.002), 1e-6, "AISC t = -148.5 ‰ (before: 0)");
             Assert.AreEqual(315, structural.CalculateDesignStress(aisc, Structural(0.0015), -0.0005, 0.002), 1e-9, "AISC t = 1.5 ‰");
 
-            // With εp = 0 the overloads are the code before the fix, bit for bit (the branch and the ultimate strain of ε are those of ε + 0)
+            // With εp = 0 and ε ≥ 0 the overloads are the code before the fix, bit for bit (the branch and the ultimate strain of ε are those of
+            // ε + 0); the compression branch changed with the sign of the design yield strain (DesignStressFromTheCharacteristicStressIsElasticInCompression)
             var rebar = new SteelMaterial("r", 200000, 450, 540, 0.075, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar);
-            foreach (double strain in new[] { -0.2, -0.075, -0.04, -0.0035, -0.002, -0.0005, -0.0, 0, 0.0005, 0.002, 0.0035, 0.01, 0.034, 0.036, 0.074, 0.076, 0.149, 0.2 })
+            foreach (double strain in new[] { -0.0, 0, 0.0005, 0.002, 0.0035, 0.01, 0.034, 0.036, 0.074, 0.076, 0.149, 0.2 })
             {
                 foreach (var steel in new[] { tendon, rebar })
                     Assert.AreEqual(LegacyCharacteristicOverload(steel, steel.GetStress(strain), strain, 0, steel.CalculateDesignYieldingStrainTension(ntc),
@@ -101,6 +102,34 @@ namespace UnitTest
                     structural.CalculateDesignYieldingStressTension(aisc), structural.CalculateDesignYieldingStrainCompression(aisc), structural.CalculateDesignYieldingStressCompression(aisc)),
                     structural.CalculateDesignStress(aisc, structural.GetStress(strain), strain, 0), 0.0, $"AISC ε = {strain}");
             }
+        }
+
+        [TestMethod]
+        public void DesignStressFromTheCharacteristicStressIsElasticInCompression()
+        {
+            // The overloads with the characteristic stress (Model Code 2010, EN 1993-1-1, AISC 360) compared |ε + εp| with the design yield strain
+            // in compression, which is negative: every compressive strain was taken as yielded and the stress was raised by fy - fyd (follow-up of
+            // SLU-6, user decision 16/10/2026). With fyd = fy (AISC 360, EN 1993-1-1 with the default γM0 = 1) the error was zero.
+            // Expected (hand values, Python check in scratchpad agent-model-acciaio/ref_design.py):
+            // - B450C: EN 1992-1-1 3.2.7(2) Fig. 3.8 and 3.2.7(4), σs = Es ε up to fyd / Es = 450 / 1.15 / 200000 = 1.957 ‰ (γs = 1.15, Table 2.1N);
+            // - S355 (E 210000, elastic perfectly plastic): EN 1993-1-1 6.1 with γM0 = 1.05, σ = E ε up to fy / γM0 / E = 1.610 ‰;
+            // - tendon of SLU-6 (Ep 195000, σp0 1500 MPa, εp = 7.692 ‰) at ε = -8 ‰: t = ε + εp = -0.308 ‰, Ep t = -1560 + 1500 = -60 MPa.
+            var ntc = new StandardNTC2018Concrete();
+            var b450c = SteelMaterialEN1992Data.B450C;
+            Assert.AreEqual(-100, b450c.CalculateDesignStress(ntc, -100.0, -0.0005, 0), 1e-9, "B450C ε = -0.5 ‰ (before: -41.30)");
+            Assert.AreEqual(-380, b450c.CalculateDesignStress(ntc, -380.0, -0.0019, 0), 1e-9, "B450C ε = -1.9 ‰ (before: -321.30)");
+            Assert.AreEqual(-100, b450c.CalculateDesignStress((Standard)ntc, -100.0, -0.0005, 0), 1e-9, "B450C through the overload of the standard");
+            Assert.AreEqual(100, b450c.CalculateDesignStress(ntc, 100.0, 0.0005, 0), 1e-9, "B450C ε = +0.5 ‰ (unchanged)");
+            // beyond the design yield strain: -fyd (EN 1992-1-1 Fig. 3.8, horizontal branch), unchanged
+            Assert.AreEqual(-450 / 1.15, b450c.CalculateDesignStress(ntc, -450.0, -0.01, 0), 1e-9, "B450C ε = -10 ‰");
+
+            var s355 = new SteelMaterial("s", 210000, 355, 355, 0.1, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Structural);
+            Assert.AreEqual(-210, s355.CalculateDesignStress(new StandardEN1993p11 { GammaM0 = 1.05 }, -210.0, -0.001, 0), 1e-9, "EN 1993 γM0 1.05 ε = -1 ‰ (before: -193.10)");
+            Assert.AreEqual(-210, s355.CalculateDesignStress(new StandardEN1993p11(), -210.0, -0.001, 0), 1e-9, "EN 1993 γM0 1 ε = -1 ‰ (unchanged)");
+            Assert.AreEqual(-210, s355.CalculateDesignStress(new StandardAISC360p16(), -210.0, -0.001, 0), 1e-9, "AISC ε = -1 ‰ (unchanged)");
+
+            var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
+            Assert.AreEqual(-60, tendon.CalculateDesignStress(ntc, -60.0, -0.008, 1500.0 / 195000), 1e-9, "tendon t = -0.308 ‰ (before: +157.83)");
         }
 
         /// <summary>Bilinear characteristic law with hardening: E t up to fy / E, then linear up to (εu, fu), zero beyond εu (odd in t)</summary>
