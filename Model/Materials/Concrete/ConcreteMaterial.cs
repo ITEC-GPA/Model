@@ -57,6 +57,22 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// The concrete in tension of the nonlinear response analyses (stress analyses with the concrete in tension, moment-curvature, fibre
+        /// histories and section responses). An option of the analysis, not of the material: it is not stored with the material, and the
+        /// resistance calculations of the ultimate limit states (failure domains, resistances, design), which neglect the tensile strength
+        /// (EN 1992-1-1 6.1(2)P), never read it
+        /// </summary>
+        public enum TensionResponseDiagrams
+        {
+            /// <summary>The concrete in tension of the analysis without this option (default): no tension, or the diagram in tension of the material
+            /// where the analysis considers the tensile concrete</summary>
+            [Description("Default")] Default,
+            /// <summary>Tension stiffening (<see cref="ConcreteTensionStiffening"/>, Collins and Mitchell 1991): linear up to the mean tensile strength,
+            /// then the descending branch of cracked concrete fct / (1 + √(500 ε))</summary>
+            [Description("Tension Stiffening")] TensionStiffening,
+        }
+
+        /// <summary>
         /// The classes of cement (strength development)
         /// </summary>
         public enum CementTypes
@@ -318,6 +334,29 @@ namespace GPC.Model.Materials
         public virtual void SetTensionStressStrainDiagrams(TensionStressStrainDiagrams tensionStressStrainDiagrams)
         {
             _tensionStressStrainDiagrams = tensionStressStrainDiagrams;
+        }
+
+        /// <summary>
+        /// The tension stiffening of this concrete for the nonlinear response analyses (<see cref="TensionResponseDiagrams.TensionStiffening"/>):
+        /// uncracked modulus <see cref="Material.ElasticModulusCompression"/> (Ecm for the European concretes, the modulus of ACI 318 otherwise) and
+        /// cracking stress <see cref="GetMeanTensileStrength"/>. Mean values, no partial factors; never used by the resistance calculations
+        /// </summary>
+        /// <returns>The law</returns>
+        /// <exception cref="NotSupportedException">For a concrete without a mean tensile strength</exception>
+        /// <exception cref="ArgumentOutOfRangeException">For a modulus or a strength not positive and finite</exception>
+        public ConcreteTensionStiffening GetTensionStiffening()
+        {
+            return new ConcreteTensionStiffening(ElasticModulusCompression, GetMeanTensileStrength());
+        }
+
+        /// <summary>
+        /// The mean tensile strength, the cracking stress of the tension stiffening (<see cref="GetTensionStiffening"/>). The derived classes define it
+        /// </summary>
+        /// <returns>The mean tensile strength (positive)</returns>
+        /// <exception cref="NotSupportedException">Always, in this base class</exception>
+        public virtual double GetMeanTensileStrength()
+        {
+            throw new NotSupportedException("Mean tensile strength not defined for this concrete: create ConcreteTensionStiffening with an explicit strength.");
         }
 
         #endregion

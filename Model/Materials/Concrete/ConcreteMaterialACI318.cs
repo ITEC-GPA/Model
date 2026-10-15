@@ -609,6 +609,16 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// The mean tensile strength of the tension stiffening: the cracking stress of Collins and Mitchell (1991) fcr = 0.33 sqrt(f'c) [MPa]
+        /// (4 sqrt(f'c) psi), the strength of the law itself; ACI 318 gives only the modulus of rupture fr (<see cref="Fct"/>), a flexural strength
+        /// </summary>
+        /// <returns>fcr [MPa]</returns>
+        public override double GetMeanTensileStrength()
+        {
+            return 0.33 * Math.Sqrt(Math.Abs(_fc));
+        }
+
+        /// <summary>
         /// The stress of the Hognestad parabola: f'c (2 ε / ε0 - (ε / ε0)²), f'c beyond the strain of the peak
         /// </summary>
         /// <param name="strain">The strain</param>
