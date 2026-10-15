@@ -603,6 +603,11 @@ GPCModel 1.6.0.0, GPCModelData 0.0.2.1 (ricompilata), GPCChecker.Concrete 0.0.14
 e GPCChecker.CompositeBridge 1.4.0.2 (ricompilate). ANTHEA/lib/Checker non è aggiornato: ANTHEA non usa ancora
 le nuove API (collegamento in M4, attività separata).
 
+Aggiornamento del 16/10/2026: il collegamento M4 è fatto. Dal refactoring di ANTHEA (fasi F2-F4) il c.a. di ANTHEA
+usa queste API tramite i set di rilascio installati in ANTHEA/lib/Checker; i motori storici restano solo come
+riferimento di prova in ANTHEA/tests/ANTHEA.Legacy. Dettagli nella voce «M4 (c.a.)» di
+Checker/docs/migrazione-anthea/MIGRAZIONE_ANTHEA.txt e nel registro delle differenze di ANTHEA.
+
 LIMITI APERTI E PROSSIMI PASSI
 
 - Categorie per il percorso legacy Preparation (non usato dai nuovi controlli).
