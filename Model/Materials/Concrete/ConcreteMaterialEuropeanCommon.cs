@@ -362,6 +362,16 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
+        /// The mean tensile strength of the tension stiffening: <see cref="Fctm"/> at 28 days (EN 1992-1-1 Table 3.1; fib Model Code 2010 5.1.5.1
+        /// for <see cref="ConcreteMaterialModelCode2010"/>)
+        /// </summary>
+        /// <returns>fctm</returns>
+        public override double GetMeanTensileStrength()
+        {
+            return Fctm;
+        }
+
+        /// <summary>
         /// Calculate the creep deformation at infinite time (EN 1992-1-1 annex B): φ0 = φRH β(fcm) β(t0)
         /// </summary>
         /// <param name="sigmaC">The costant compressive stress</param>
