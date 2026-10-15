@@ -13,7 +13,8 @@ namespace UnitTest
 {
     /// <summary>
     /// Corrections of calculation errors found in the review (September 2026): ACI 318 β1, rotation of the displacements, Jyy of the C
-    /// sections with fillets. The interlayer is tested in InterlayerMaterialTest. Bug review of October 2026: design stress of the tendons
+    /// sections with fillets. The interlayer is tested in InterlayerMaterialTest. Bug review of October 2026: design stress of the tendons, of the steels from the
+    /// characteristic stress and of the FRP
     /// </summary>
     [TestClass]
     public class CalculationFixesTest
@@ -169,6 +170,39 @@ namespace UnitTest
 
             var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
             Assert.AreEqual(1453.217940, tendon.CalculateDesignStress(ntc, 1480.5, -0.0001, epsilonP), 1e-6, "SLU-6 tendon t = 7.592 ‰ (before: 1262.67)");
+        }
+
+        [TestMethod]
+        public void FrpDesignStressUsesTheTotalStrain()
+        {
+            // The flaw of SLU-6 (bug review 15/10/2026) in FRP.CalculateDesignStressCommon (overloads with strain and prestrain of Model Code 2010
+            // and EN 1993-1-1): the sign of the plastic correction and the ultimate-strain check came from ε, not from ε + εp (follow-up, user
+            // decision 16/10/2026). FRP declares the design stresses "as for SteelMaterial" and cites no FRP standard (CNR-DT 200 R1/2013 3.2 and
+            // ACI 440.2R would use a linear law up to the design rupture strain), so the expected values follow the declared law of SteelMaterial
+            // on the total strain t = ε + εp with the tension-only curve of the class (zero in compression): Python scratchpad
+            // agent-model-acciaio/ref_design.py. FRP bilinear E 200000, fyk 1000, fu 1200, εu 2 % (εyk = 5 ‰, Et = 13333.3 MPa); Model Code 2010
+            // γs 1.15: fyd 869.565, εyd 4.348 ‰; EN 1993-1-1 γM0 1.05: fyd 952.381, εyd 4.762 ‰.
+            var frp = new FRP("f", 200000, 1000, 1200, 0.02, FRP.StressStrainCurveType.Bilinear);
+            var mc = new StandardModelCode2010();
+            var ec3 = new StandardEN1993p11 { GammaM0 = 1.05 };
+            (double Strain, double EpsilonP, double ModelCode, double Eurocode)[] rows =
+            {
+                (-0.0002, 0.005, 875.594202899, 952.888888889), // t = 4.8 ‰ (before: 960, 960; ε < 0 took the compression correction)
+                (0, 0.005, 878.260869565, 955.555555556),       // t = εp (before: 1000, 1000; sign of ε = 0, no correction)
+                (0.016, 0.005, 0, 0),                           // t = 21 ‰ > εu (before: 1069.57, 1152.38; ε ≤ εu)
+                (-0.0005, 0.003, 500, 500),                     // elastic, unchanged
+                (0.0048, 0, 875.594202899, 952.888888889),      // εp = 0, unchanged
+                (0.0195, 0, 1069.565217391, 1148.888888889),    // εp = 0, t + Δε beyond εu: fu − (fy − fyd), unchanged
+                (-0.001, 0, 0, 0),                              // compression: zero, unchanged
+            };
+            foreach (var (strain, epsilonP, modelCode, eurocode) in rows)
+            {
+                Assert.AreEqual(modelCode, frp.CalculateDesignStress(mc, strain, epsilonP), 1e-6, $"Model Code 2010 ε = {strain}, εp = {epsilonP}");
+                Assert.AreEqual(eurocode, frp.CalculateDesignStress(ec3, strain, epsilonP), 1e-6, $"EN 1993 ε = {strain}, εp = {epsilonP}");
+                Assert.AreEqual(modelCode, frp.CalculateDesignStress((Standard)mc, strain, epsilonP), 1e-6, $"through the standard ε = {strain}, εp = {epsilonP}");
+                // the stress of the total strain with no prestrain
+                Assert.AreEqual(frp.CalculateDesignStress(mc, strain + epsilonP), frp.CalculateDesignStress(mc, strain, epsilonP), 0.0, $"ε = {strain}, εp = {epsilonP}");
+            }
         }
 
         /// <summary>Bilinear characteristic law with hardening: E t up to fy / E, then linear up to (εu, fu), zero beyond εu (odd in t)</summary>

@@ -671,8 +671,11 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The design stress: the characteristic curve in the elastic range, then the curve at the strain increased by (fyk - fyd) / E and lowered
-        /// by fyk - fyd, limited at εu; zero beyond εu
+        /// The design stress of the total strain ε + εp: the characteristic curve in the elastic range (|ε + εp| up to the design yield strain), then
+        /// the curve at the total strain increased in magnitude by (fyk - fyd) / E and lowered by fyk - fyd, limited at εu; zero when |ε + εp|
+        /// exceeds εu (compression: zero, the curve is zero). The result equals the one of the total strain with no prestrain (sign and ultimate
+        /// strain of ε + εp, not of the mechanical strain ε alone: before October 2026 a prestrained FRP beyond yield with ε ≤ 0 got the wrong
+        /// correction, the flaw of SLU-6 fixed in <see cref="SteelMaterial"/>)
         /// </summary>
         /// <param name="strain">The strain (positive in tension)</param>
         /// <param name="epsilonP">The prestrain</param>
@@ -681,24 +684,26 @@ namespace GPC.Model.Materials
         /// <returns>The design stress</returns>
         private double CalculateDesignStressCommon(double strain, double epsilonP, double fyd, double strainYd)
         {
-            if (Math.Abs(strain + epsilonP) <= strainYd)
-                return GetStress(strain + epsilonP);
+            double total = strain + epsilonP;
+
+            if (Math.Abs(total) <= strainYd)
+                return GetStress(total);
 
             else
             {
                 double deltaStress = Fyk - fyd;
                 double deltaStrain = deltaStress / ElasticModulusTension;
 
-                double stressCalc = strain + Math.Sign(strain) * deltaStrain + epsilonP;
+                double stressCalc = total + Math.Sign(total) * deltaStrain;
                 double designUltimateStrain = StrainUTension;
 
-                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(strain) <= designUltimateStrain)
+                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(total) <= designUltimateStrain)
                     stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
-                else if (Math.Abs(strain) > designUltimateStrain)
+                else if (Math.Abs(total) > designUltimateStrain)
                     return 0;
 
                 if (GetStress(stressCalc) != 0)
-                    return GetStress(stressCalc) - Math.Sign(strain) * deltaStress;
+                    return GetStress(stressCalc) - Math.Sign(total) * deltaStress;
                 else
                     return GetStress(stressCalc);
             }
