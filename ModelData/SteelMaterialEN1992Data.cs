@@ -10,9 +10,9 @@ namespace GPC.Model.Data.Steel
         #region Rebar
 
         /// <summary>
-        /// The material "B450A" (a new instance at each access)
+        /// The material "B450A" (a new instance at each access): εuk = (Agt)k = 2.5 % (NTC 2018 Tab. 11.3.Ic)
         /// </summary>
-        public static SteelMaterialEN1992 B450A => new SteelMaterialEN1992("B450A", 200000, 450, 540, 0.03, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
+        public static SteelMaterialEN1992 B450A => new SteelMaterialEN1992("B450A", 200000, 450, 540, 0.025,SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
 
         /// <summary>
         /// The material "B450C" (a new instance at each access)
@@ -20,9 +20,9 @@ namespace GPC.Model.Data.Steel
         public static SteelMaterialEN1992 B450C => new SteelMaterialEN1992("B450C", 200000, 450, 540, 0.075, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
 
         /// <summary>
-        /// The material "B500A" (a new instance at each access)
+        /// The material "B500A" (a new instance at each access): εuk = 2.5 % (EN 1992-1-1 Annex C, Table C.1, class A)
         /// </summary>
-        public static SteelMaterialEN1992 B500A => new SteelMaterialEN1992("B500A", 200000, 500, 525, 0.03, SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
+        public static SteelMaterialEN1992 B500A => new SteelMaterialEN1992("B500A", 200000, 500, 525, 0.025,SteelMaterial.StressStrainCurveType.ElasticPerfectPlastic, SteelMaterial.SteelTypes.Rebar);
 
         /// <summary>
         /// The material "B500B" (a new instance at each access)

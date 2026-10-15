@@ -496,6 +496,21 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void RebarCatalogUltimateStrainsFollowTheDuctilityClasses()
+        {
+            // εuk = (Agt)k: class A ≥ 2.5 % (NTC 2018 Tab. 11.3.Ic for B450A; EN 1992-1-1 Annex C, Table C.1), class B ≥ 5.0 %,
+            // class C ≥ 7.5 % (Table C.1; NTC 2018 Tab. 11.3.Ib for B450C). Before the fix B450A and B500A had 3 %.
+            Rel(0.025, SteelMaterialEN1992Data.B450A.StrainUTension);
+            Rel(0.025, SteelMaterialEN1992Data.B500A.StrainUTension);
+            Rel(0.05, SteelMaterialEN1992Data.B500B.StrainUTension);
+            Rel(0.075, SteelMaterialEN1992Data.B450C.StrainUTension);
+            Rel(0.075, SteelMaterialEN1992Data.B500C.StrainUTension);
+            // εud = 0.9 εuk (NTC 2018 §4.1.2.1.2.2, EN 1992-1-1 3.2.7(2) recommended value): 22.5 ‰ for class A (27 ‰ before the fix)
+            Rel(0.0225, SteelMaterialEN1992Data.B450A.CalculateDesignUltimateStrainTension(new StandardNTC2018Concrete()));
+            Rel(0.0225, SteelMaterialEN1992Data.B500A.CalculateDesignUltimateStrainTension(new StandardEN1992p11()));
+        }
+
+        [TestMethod]
         public void HomogenizationFactorAndCreep()
         {
             var c = ConcreteMaterialEN1992Data.C30_37;
