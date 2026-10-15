@@ -535,21 +535,25 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The design stress from a characteristic stress: the stress itself in the elastic range, the stress lowered by fy - fyd beyond it, zero beyond
-        /// the ultimate strain
+        /// The design stress from a characteristic stress, on the total strain ε + εp: the stress itself in the elastic range (|ε + εp| up to the
+        /// design yield strain), the stress lowered by fy - fyd beyond it, zero beyond the ultimate strain. The branch (tension or compression),
+        /// the yield and the ultimate strain are all those of ε + εp (before October 2026 the branch and the ultimate strain came from ε alone, as
+        /// in the overload without the stress, bug SLU-6); with εp = 0 nothing changes
         /// </summary>
         /// <param name="standard">The standard (Model Code 2010)</param>
-        /// <param name="stress">The characteristic stress</param>
+        /// <param name="stress">The characteristic stress (of the total strain ε + εp)</param>
         /// <param name="strain">The strain (positive in tension)</param>
         /// <param name="epsilonP">The prestrain</param>
         /// <returns>The design stress</returns>
         public double CalculateDesignStress(Standards.StandardModelCode2010 standard, double stress, double strain, double epsilonP = 0)
         {
-            if (strain >= 0)
+            double total = strain + epsilonP;
+
+            if (total >= 0)
             {
                 double strainYd = CalculateDesignYieldingStrainTension(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -557,7 +561,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressTension(standard);
                     double deltaStress = StressYTension - fyd;
 
-                    if (strain > StrainUTension)
+                    if (total > StrainUTension)
                         return 0;
 
                     return stress - deltaStress;
@@ -567,7 +571,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -575,7 +579,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressCompression(standard);
                     double deltaStress = StressYCompression - fyd;
 
-                    if (strain < StrainUCompression)
+                    if (total < StrainUCompression)
                         return 0;
 
                     return stress - deltaStress;
@@ -876,20 +880,22 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The design stress from a characteristic stress (as for Model Code 2010)
+        /// The design stress from a characteristic stress, on the total strain ε + εp (as for Model Code 2010)
         /// </summary>
         /// <param name="standard">The standard (EN 1993-1-1)</param>
-        /// <param name="stress">The characteristic stress</param>
+        /// <param name="stress">The characteristic stress (of the total strain ε + εp)</param>
         /// <param name="strain">The strain (positive in tension)</param>
         /// <param name="epsilonP">The prestrain</param>
         /// <returns>The design stress</returns>
         public double CalculateDesignStress(Standards.StandardEN1993p11 standard, double stress, double strain, double epsilonP = 0)
         {
-            if (strain >= 0)
+            double total = strain + epsilonP;
+
+            if (total >= 0)
             {
                 double strainYd = CalculateDesignYieldingStrainTension(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -897,7 +903,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressTension(standard);
                     double deltaStress = StressYTension - fyd;
 
-                    if (strain > StrainUTension)
+                    if (total > StrainUTension)
                         return 0;
 
                     return stress - deltaStress;
@@ -907,7 +913,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -915,7 +921,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressCompression(standard);
                     double deltaStress = StressYCompression - fyd;
 
-                    if (strain < StrainUCompression)
+                    if (total < StrainUCompression)
                         return 0;
 
                     return stress - deltaStress;
@@ -1024,20 +1030,22 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The design stress from a characteristic stress (as for Model Code 2010, with fyd = fy)
+        /// The design stress from a characteristic stress, on the total strain ε + εp (as for Model Code 2010, with fyd = fy)
         /// </summary>
         /// <param name="standard">The standard (AISC 360)</param>
-        /// <param name="stress">The characteristic stress</param>
+        /// <param name="stress">The characteristic stress (of the total strain ε + εp)</param>
         /// <param name="strain">The strain (positive in tension)</param>
         /// <param name="epsilonP">The prestrain</param>
         /// <returns>The design stress</returns>
         public double CalculateDesignStress(Standards.StandardAISC standard, double stress, double strain, double epsilonP = 0)
         {
-            if (strain >= 0)
+            double total = strain + epsilonP;
+
+            if (total >= 0)
             {
                 double strainYd = CalculateDesignYieldingStrainTension(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -1045,7 +1053,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressTension(standard);
                     double deltaStress = StressYTension - fyd;
 
-                    if (strain > StrainUTension)
+                    if (total > StrainUTension)
                         return 0;
 
                     return stress - deltaStress;
@@ -1055,7 +1063,7 @@ namespace GPC.Model.Materials
             {
                 double strainYd = CalculateDesignYieldingStrainCompression(standard);
 
-                if (Math.Abs(strain + epsilonP) <= strainYd)
+                if (Math.Abs(total) <= strainYd)
                     return stress;
 
                 else
@@ -1063,7 +1071,7 @@ namespace GPC.Model.Materials
                     double fyd = CalculateDesignYieldingStressCompression(standard);
                     double deltaStress = StressYCompression - fyd;
 
-                    if (strain < StrainUCompression)
+                    if (total < StrainUCompression)
                         return 0;
 
                     return stress - deltaStress;

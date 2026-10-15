@@ -52,6 +52,81 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void DesignStressFromTheCharacteristicStressUsesTheTotalStrain()
+        {
+            // The overloads with the characteristic stress (Model Code 2010, EN 1993-1-1, AISC 360) took the branch (tension or compression) and the
+            // ultimate strain from ε alone and the yield strain from ε + εp, the flaw of SLU-6 (bug review 15/10/2026, user decision 16/10). The
+            // characteristic stress passed is the one of the total strain t = ε + εp. Expected: the declared law of the overload on t, |t| ≤ εyd:
+            // σk(t); |t| > εu: 0; otherwise σk(t) − sign(t) (fy − fyd). Independent Python: scratchpad agent-concrete-tension/ref_steel4.py.
+            var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
+            var ntc = new StandardNTC2018Concrete();
+            double epsilonP = 1500.0 / 195000;
+            // characteristic law of the tendon: Ep t up to fp(0,1)k / Ep, then linear up to (εuk, fpk), zero beyond εuk
+            double Tendon(double t) => Characteristic(t, 195000, 1670, 1860, 0.035);
+            (double Strain, double Stress)[] rows =
+            {
+                (-0.04, -1622.823768),  // t = -32.3 ‰, compression beyond yield (before: 0, ε below εuc)
+                (-0.0005, 1402.5),      // t = 7.192 ‰ ≤ εpyd = 7.447 ‰: σk (before: 1620.33, compression branch from ε)
+                (-0.0001, 1262.673913), // t = 7.592 ‰ > εpyd: σk − 217.826 (before: 1698.33)
+                (0, 1282.173913),       // unchanged
+                (0.026, 1632.775271),   // unchanged
+                (0.028, 0),             // t = 35.69 ‰ > εuk (before: -217.83)
+            };
+            foreach (var (strain, stress) in rows)
+                Assert.AreEqual(stress, tendon.CalculateDesignStress(ntc, Tendon(strain + epsilonP), strain, epsilonP), 1e-5, $"tendon ε = {strain}");
+
+            // S355 with hardening (E 210000, fy 355, fu 510, εu 15 %) and εp = 2 ‰: EN 1993-1-1 with γM0 = 1.05, AISC 360 with fyd = fy
+            var structural = new SteelMaterial("s", 210000, 355, 510, 0.15, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Structural);
+            double Structural(double t) => Characteristic(t, 210000, 355, 510, 0.15);
+            var ec3 = new StandardEN1993p11 { GammaM0 = 1.05 };
+            var aisc = new StandardAISC360p16();
+            Assert.AreEqual(-491.527570733, structural.CalculateDesignStress(ec3, Structural(-0.1485), -0.1505, 0.002), 1e-6, "EN 1993 t = -148.5 ‰ (before: 0)");
+            Assert.AreEqual(315, structural.CalculateDesignStress(ec3, Structural(0.0015), -0.0005, 0.002), 1e-9, "EN 1993 t = 1.5 ‰ elastic (before: 331.90)");
+            Assert.AreEqual(0, structural.CalculateDesignStress(ec3, Structural(0.151), 0.149, 0.002), 0.0, "EN 1993 t = 151 ‰ > εu (before: -16.90)");
+            Assert.AreEqual(-508.432332638, structural.CalculateDesignStress(aisc, Structural(-0.1485), -0.1505, 0.002), 1e-6, "AISC t = -148.5 ‰ (before: 0)");
+            Assert.AreEqual(315, structural.CalculateDesignStress(aisc, Structural(0.0015), -0.0005, 0.002), 1e-9, "AISC t = 1.5 ‰");
+
+            // With εp = 0 the overloads are the code before the fix, bit for bit (the branch and the ultimate strain of ε are those of ε + 0)
+            var rebar = new SteelMaterial("r", 200000, 450, 540, 0.075, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Rebar);
+            foreach (double strain in new[] { -0.2, -0.075, -0.04, -0.0035, -0.002, -0.0005, -0.0, 0, 0.0005, 0.002, 0.0035, 0.01, 0.034, 0.036, 0.074, 0.076, 0.149, 0.2 })
+            {
+                foreach (var steel in new[] { tendon, rebar })
+                    Assert.AreEqual(LegacyCharacteristicOverload(steel, steel.GetStress(strain), strain, 0, steel.CalculateDesignYieldingStrainTension(ntc),
+                        steel.CalculateDesignYieldingStressTension(ntc), steel.CalculateDesignYieldingStrainCompression(ntc), steel.CalculateDesignYieldingStressCompression(ntc)),
+                        steel.CalculateDesignStress(ntc, steel.GetStress(strain), strain, 0), 0.0, $"{steel.SteelType} ε = {strain}");
+                Assert.AreEqual(LegacyCharacteristicOverload(structural, structural.GetStress(strain), strain, 0, structural.CalculateDesignYieldingStrainTension(ec3),
+                    structural.CalculateDesignYieldingStressTension(ec3), structural.CalculateDesignYieldingStrainCompression(ec3), structural.CalculateDesignYieldingStressCompression(ec3)),
+                    structural.CalculateDesignStress(ec3, structural.GetStress(strain), strain, 0), 0.0, $"EN 1993 ε = {strain}");
+                Assert.AreEqual(LegacyCharacteristicOverload(structural, structural.GetStress(strain), strain, 0, structural.CalculateDesignYieldingStrainTension(aisc),
+                    structural.CalculateDesignYieldingStressTension(aisc), structural.CalculateDesignYieldingStrainCompression(aisc), structural.CalculateDesignYieldingStressCompression(aisc)),
+                    structural.CalculateDesignStress(aisc, structural.GetStress(strain), strain, 0), 0.0, $"AISC ε = {strain}");
+            }
+        }
+
+        /// <summary>Bilinear characteristic law with hardening: E t up to fy / E, then linear up to (εu, fu), zero beyond εu (odd in t)</summary>
+        private static double Characteristic(double t, double e, double fy, double fu, double eu)
+        {
+            double a = Math.Abs(t), ey = fy / e;
+            double s = a <= ey ? e * a : a <= eu ? fy + (fu - fy) / (eu - ey) * (a - ey) : 0;
+            return t >= 0 ? s : -s;
+        }
+
+        /// <summary>The overloads with the characteristic stress before 16/10/2026 (branch and ultimate strain of ε), for the check at εp = 0</summary>
+        private static double LegacyCharacteristicOverload(SteelMaterial steel, double stress, double strain, double epsilonP,
+            double strainYdTension, double fydTension, double strainYdCompression, double fydCompression)
+        {
+            if (strain >= 0)
+            {
+                if (Math.Abs(strain + epsilonP) <= strainYdTension) return stress;
+                if (strain > steel.StrainUTension) return 0;
+                return stress - (steel.StressYTension - fydTension);
+            }
+            if (Math.Abs(strain + epsilonP) <= strainYdCompression) return stress;
+            if (strain < steel.StrainUCompression) return 0;
+            return stress - (steel.StressYCompression - fydCompression);
+        }
+
+        [TestMethod]
         public void Aci318Beta1()
         {
             // ACI 318-14/19 Table 22.2.2.4.3 (SI). Before: 0.85 up to 30 MPa, 0.65 from 58 MPa and in between an interpolation with the
