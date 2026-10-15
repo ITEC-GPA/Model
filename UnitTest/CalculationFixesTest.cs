@@ -205,6 +205,52 @@ namespace UnitTest
             }
         }
 
+        [TestMethod]
+        public void FrpDesignStressFromTheCharacteristicStress()
+        {
+            // The overloads of FRP with the characteristic stress (Model Code 2010, EN 1993-1-1) had the three flaws fixed in SteelMaterial (follow-up
+            // of SLU-6, user decision 16/10/2026): branch and ultimate strain of ε instead of ε + εp; |ε + εp| compared with the negative design
+            // yield strain in compression (every compressive strain yielded: the zero characteristic stress became +(fy − fyd)); σk − (fy − fyd)
+            // beyond the design yield strain. Expected: the declared law of FrpDesignStressUsesTheTotalStrain (same FRP, Python scratchpad
+            // agent-model-acciaio/ref_design.py), with the characteristic stress of the total strain.
+            var frp = new FRP("f", 200000, 1000, 1200, 0.02, FRP.StressStrainCurveType.Bilinear);
+            var mc = new StandardModelCode2010();
+            var ec3 = new StandardEN1993p11 { GammaM0 = 1.05 };
+            // characteristic law of the FRP: E t up to fyk / E, then linear up to (εu, fu), zero beyond εu and in compression
+            double Frp(double t) => t < 0 ? 0 : Characteristic(t, 200000, 1000, 1200, 0.02);
+            (double Strain, double EpsilonP, double ModelCode, double Eurocode)[] rows =
+            {
+                (0.0048, 0, 875.594202899, 952.888888889),      // εyd < t < εyk (before: 829.57, 912.38)
+                (0.0195, 0, 1069.565217391, 1148.888888889),    // t + Δε beyond εu: fu − (fy − fyd) (before: 1062.90, 1145.71)
+                (-0.001, 0, 0, 0),                              // compression (before: +130.43, +47.62)
+                (-0.01, 0, 0, 0),                               // compression (before: +130.43, +47.62)
+                (-0.0002, 0.005, 875.594202899, 952.888888889), // t = 4.8 ‰ (before: 1090.43, 1007.62; compression branch from ε)
+                (0, 0.005, 878.260869565, 955.555555556),       // t = εp (before: 869.57, 952.38)
+                (-0.0005, 0.003, 500, 500),                     // t = 2.5 ‰, elastic (before: 630.43, 547.62)
+                (0.016, 0.005, 0, 0),                           // t = 21 ‰ > εu (before: -130.43, -47.62)
+            };
+            foreach (var (strain, epsilonP, modelCode, eurocode) in rows)
+            {
+                double stress = Frp(strain + epsilonP);
+                Assert.AreEqual(modelCode, frp.CalculateDesignStress(mc, stress, strain, epsilonP), 1e-6, $"Model Code 2010 ε = {strain}, εp = {epsilonP}");
+                Assert.AreEqual(eurocode, frp.CalculateDesignStress(ec3, stress, strain, epsilonP), 1e-6, $"EN 1993 ε = {strain}, εp = {epsilonP}");
+                Assert.AreEqual(modelCode, frp.CalculateDesignStress((Standard)mc, stress, strain, epsilonP), 1e-6, $"through the standard ε = {strain}, εp = {epsilonP}");
+            }
+
+            // with the characteristic stress of ε + εp the overloads give the stress of the overloads without it, bit for bit
+            double[] strains = { -0.03, -0.02, -0.01, -0.005, -0.0045, -0.001, -0.0, 0, 0.001, 0.0045, 0.0048, 0.005, 0.01, 0.019, 0.0195, 0.02, 0.021, 0.03 };
+            foreach (double prestrain in new[] { 0, 0.003, 0.005 })
+            {
+                foreach (double strain in strains)
+                {
+                    Assert.AreEqual(frp.CalculateDesignStress(mc, strain, prestrain), frp.CalculateDesignStress(mc, frp.GetStress(strain + prestrain), strain, prestrain),
+                        0.0, $"Model Code 2010 ε = {strain}, εp = {prestrain}");
+                    Assert.AreEqual(frp.CalculateDesignStress(ec3, strain, prestrain), frp.CalculateDesignStress(ec3, frp.GetStress(strain + prestrain), strain, prestrain),
+                        0.0, $"EN 1993 ε = {strain}, εp = {prestrain}");
+                }
+            }
+        }
+
         /// <summary>Bilinear characteristic law with hardening: E t up to fy / E, then linear up to (εu, fu), zero beyond εu (odd in t)</summary>
         private static double Characteristic(double t, double e, double fy, double fu, double eu)
         {
