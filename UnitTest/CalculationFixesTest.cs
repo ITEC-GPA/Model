@@ -6,17 +6,51 @@ using GPC.Model.Materials;
 using GPC.Model.Results;
 using GPC.Model.Sections;
 using GPC.Model.Sections.Steel;
+using GPC.Model.Standards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTest
 {
     /// <summary>
     /// Corrections of calculation errors found in the review (September 2026): ACI 318 β1, rotation of the displacements, Jyy of the C
-    /// sections with fillets. The interlayer is tested in InterlayerMaterialTest
+    /// sections with fillets. The interlayer is tested in InterlayerMaterialTest. Bug review of October 2026: design stress of the tendons
     /// </summary>
     [TestClass]
     public class CalculationFixesTest
     {
+        [TestMethod]
+        public void TendonDesignStressUsesTheTotalStrain()
+        {
+            // Bug review 15/10/2026 (SLU-6). Strand fp(0,1)k = 1670, fpk = 1860, Ep = 195000, εuk = 3.5 %, γs = 1.15, σp0 = 1500 MPa:
+            // εp = 7.692 ‰ beyond εpyd = 7.447 ‰. With the strain and the prestrain passed apart, the sign and the ultimate strain came from the
+            // mechanical strain ε: 1480.5 MPa at ε = -0.1 ‰, 1500 MPa (> fpd = 1452.2) at ε = 0, 1642.2 MPa at ε = 28 ‰ (total strain beyond εuk).
+            var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
+            var ntc = new StandardNTC2018Concrete();
+            double epsilonP = 1500.0 / 195000;
+
+            // Expected: the declared design law of the total strain t = ε + εp, i.e. Ep t up to εpyd = fpd / Ep, then the hardening branch of the
+            // characteristic law moved to start at (εpyd, fpd): fpd + (fpk - fp(0,1)k) / (εuk - fp(0,1)k / Ep) (t - εpyd), zero for t > εuk.
+            // Computed independently in Python (scratchpad agent-model/reference.py)
+            (double Strain, double Stress)[] rows =
+            {
+                (-0.0005, 1402.5),
+                (-0.0001, 1453.217940),
+                (0, 1453.936659),
+                (0.0001, 1454.655379),
+                (0.002, 1468.311053),
+                (0.028, 0),
+            };
+            foreach (var (strain, stress) in rows)
+            {
+                Assert.AreEqual(stress, tendon.CalculateDesignStress(ntc, strain, epsilonP), 1e-5, $"ε = {strain}");
+                // the section solver passes the total strain: the report of the strain plane must give the same stress
+                Assert.AreEqual(tendon.CalculateDesignStress(ntc, strain + epsilonP), tendon.CalculateDesignStress(ntc, strain, epsilonP), 0.0, $"ε = {strain}");
+            }
+
+            // below the design yield strain nothing changes (σp0 = 1400 MPa): Ep (ε + εp)
+            Assert.AreEqual(1400 - 0.0001 * 195000, tendon.CalculateDesignStress(ntc, -0.0001, 1400.0 / 195000), 1e-9);
+        }
+
         [TestMethod]
         public void Aci318Beta1()
         {
