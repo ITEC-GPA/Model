@@ -1197,8 +1197,8 @@ namespace GPC.Model.Materials
         /// <param name="strainU">The ultimate strain (stress block)</param>
         /// <returns>The strain (negative)</returns>
         /// <exception cref="ArgumentException">For an unknown diagram</exception>
-        /// <remarks>Sign convention: Stress and strain negative if compression. For the non linear diagram fcm is computed with the overload of the age
-        /// (fck is passed as number of days)</remarks>
+        /// <remarks>Sign convention: Stress and strain negative if compression. For the non linear diagram εc1 = 0.7 fcm^0.31 ≤ 2.8 ‰ with fcm at
+        /// 28 days (EN 1992-1-1 Table 3.1; before October 2026 fcm was taken at the age of fck days)</remarks>
         protected virtual double GetStrainYCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams,
             double strainU = 0)
         {
@@ -1233,7 +1233,7 @@ namespace GPC.Model.Materials
                     return strain;
 
                 case CompressionStressStrainDiagrams.NonLinear:
-                    return Math.Max(-0.7 * Math.Pow(Math.Abs(GetFcm(Math.Abs(_fck))), 0.31), -2.8) / 1000.0;
+                    return Math.Max(-0.7 * Math.Pow(Math.Abs(GetFcm()), 0.31), -2.8) / 1000.0;
 
                 default:
                     throw new ArgumentException();
@@ -1246,6 +1246,7 @@ namespace GPC.Model.Materials
         /// <param name="compressionStressStrainDiagrams">The diagram</param>
         /// <returns>The strain (negative)</returns>
         /// <exception cref="ArgumentException">For an unknown diagram</exception>
+        /// <remarks>Non linear diagram beyond C50: εcu1 = 2.8 + 27 [(98 - fcm) / 100]^4 ‰ with fcm at 28 days (EN 1992-1-1 Table 3.1)</remarks>
         protected virtual double GetStrainUCompression(CompressionStressStrainDiagrams compressionStressStrainDiagrams)
         {
             switch (compressionStressStrainDiagrams)
@@ -1275,7 +1276,7 @@ namespace GPC.Model.Materials
                     if (Math.Abs(_fck) <= 50)
                         return -3.5 / 1000.0;
                     else
-                        return -(2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm(Math.Abs(_fck)))) / 100.0, 4.0)) / 1000.0;
+                        return -(2.8 + 27.0 * Math.Pow((98.0 - Math.Abs(GetFcm())) / 100.0, 4.0)) / 1000.0;
 
                 default:
                     throw new ArgumentException();

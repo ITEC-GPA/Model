@@ -366,6 +366,48 @@ namespace ModelObjectTest
                 Console.WriteLine(stresses[i].Item1);
         }
 
+        [DataTestMethod]
+        // fck, εc1 (‰), εcu1 (‰): EN 1992-1-1 Table 3.1, εc1 = 0.7 fcm^0.31 ≤ 2.8, εcu1 = 2.8 + 27 [(98 - fcm) / 100]^4 beyond C50 (3.5 up to
+        // C50), fcm = fck + 8 at 28 days; computed independently in Python (scratchpad agent-model/reference.py). Before October 2026 fcm was
+        // taken at the age of fck days (cement class R): C60/75 gave εc1 = 2.641 ‰ and εcu1 = 2.915 ‰, C12/15 εc1 = 1.715 ‰
+        [DataRow(12.0, 1.771810776, 3.5)]
+        [DataRow(20.0, 1.966604505, 3.5)]
+        [DataRow(45.0, 2.396754545, 3.5)]
+        [DataRow(60.0, 2.589260839, 3.0187)]
+        [DataRow(70.0, 2.701763728, 2.8432)]
+        [DataRow(90.0, 2.8, 2.8)]
+        public void NonLinearDiagramUsesTheMeanStrengthAt28Days(double fck, double ec1, double ecu1)
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", fck, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear);
+
+            Assert.AreEqual(ec1, Math.Abs(concrete.StrainYCompression) * 1000, 1e-8);
+            Assert.AreEqual(ecu1, Math.Abs(concrete.StrainUCompression) * 1000, 1e-8);
+
+            // EN 1992-1-1 (3.14) at η = 0.5 (a point of the table): k η - η² over 1 + (k - 2) η, k = 1.05 Ecm |εc1| / fcm,
+            // Ecm = 22000 (fcm / 10)^0.3; the library scales the curve by fck. The peak is at εc1
+            double fcm = fck + 8, ecm = 22000 * Math.Pow(fcm / 10, 0.3), k = 1.05 * ecm * ec1 / 1000 / fcm;
+            Assert.AreEqual(-fck * (0.5 * k - 0.25) / (1 + (k - 2) * 0.5), concrete.GetStress(-ec1 / 2000), 1e-6 * fck);
+            Assert.AreEqual(-fck, concrete.GetStress(-ec1 / 1000), 1e-9 * fck);
+        }
+
+        [DataTestMethod]
+        // fck, εc1 (‰), εcu1 (‰) as printed (rounded) in EN 1992-1-1 Table 3.1
+        [DataRow(12.0, 1.8, 3.5)]
+        [DataRow(20.0, 2.0, 3.5)]
+        [DataRow(30.0, 2.2, 3.5)]
+        [DataRow(45.0, 2.4, 3.5)]
+        [DataRow(55.0, 2.5, 3.2)]
+        [DataRow(60.0, 2.6, 3.0)]
+        [DataRow(70.0, 2.7, 2.8)]
+        [DataRow(90.0, 2.8, 2.8)]
+        public void NonLinearDiagramMatchesTheTableValues(double fck, double ec1, double ecu1)
+        {
+            ConcreteMaterialEN1992 concrete = new ConcreteMaterialEN1992("", fck, ConcreteMaterial.CompressionStressStrainDiagrams.NonLinear);
+
+            Assert.AreEqual(ec1, Math.Abs(concrete.StrainYCompression) * 1000, 0.051);
+            Assert.AreEqual(ecu1, Math.Abs(concrete.StrainUCompression) * 1000, 0.051);
+        }
+
         [TestMethod]
         public void ConcreteENTest16()
         {
