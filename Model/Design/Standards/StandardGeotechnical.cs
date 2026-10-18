@@ -10,7 +10,8 @@ namespace GPC.Model.Standards
     public enum GeotechnicalCheck
     {
         ShallowFoundationBearing, ShallowFoundationSliding, RetainingWallBearing, RetainingWallSliding, RetainingWallOverturning,
-        RetainingWallPassiveResistance, GlobalStability, SlopeStability, PileBase, PileShaftCompression, PileTotalCompression, PileShaftTension, PileTransverse
+        RetainingWallPassiveResistance, GlobalStability, SlopeStability, PileBase, PileShaftCompression, PileTotalCompression, PileShaftTension, PileTransverse,
+        EmbeddedWallResistance
     }
 
     /// <summary>Design situation: persistent/transient (static) or seismic.</summary>

@@ -54,6 +54,9 @@ namespace GPC.Model.Standards
                 Define(GeotechnicalCheck.PileTotalCompression, st, set, values[2]); Define(GeotechnicalCheck.PileShaftTension, st, set, values[3]);
             }
             Define(GeotechnicalCheck.PileTransverse, st, "R3", 1.3);
+            // §6.5.3.1.2, official GU 20/02/2018 p.197: paratie use A1+M1+R1 AND A2+M2+R1, gammaR=1.
+            // This is separate from retaining walls, global stability, UPL and HYD.
+            Define(GeotechnicalCheck.EmbeddedWallResistance, st, "R1", 1.0);
         }
         protected StandardNTC2018Geotechnics(SerializationInfo info, StreamingContext context) : base(info, context)
         {
@@ -77,6 +80,11 @@ namespace GPC.Model.Standards
 
         public override IReadOnlyList<GeotechnicalCombination> Combinations(GeotechnicalCheck check, GeotechnicalSituation situation)
         {
+            if (check == GeotechnicalCheck.EmbeddedWallResistance)
+                return situation == GeotechnicalSituation.PersistentTransient
+                    ? new[] { Combination(check, situation, A1, M1, "R1", "NTC 2018 §6.5.3.1.2 (A1+M1+R1)"),
+                        Combination(check, situation, A2, M2, "R1", "NTC 2018 §6.5.3.1.2 (A2+M2+R1)") }
+                    : new GeotechnicalCombination[0];
             bool stability = check == GeotechnicalCheck.GlobalStability || check == GeotechnicalCheck.SlopeStability;
             string set = stability ? "R2" : IsAxialPile(check) ? PileSet(_piles) : "R3";
             if (!ResistanceFactor(check, situation, set).HasValue) return new GeotechnicalCombination[0];
