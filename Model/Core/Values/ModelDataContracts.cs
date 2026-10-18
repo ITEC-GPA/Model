@@ -47,6 +47,8 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Elements.VolumeElement),
             typeof(global::GPC.Model.FreedomCases.FreedomCase),
             typeof(global::GPC.Model.Geotechnics.Soil),
+            typeof(global::GPC.Model.Geotechnics.EmbeddedWalls.EmbeddedWallDrainage),
+            typeof(global::GPC.Model.Geotechnics.EmbeddedWalls.EmbeddedWallSupportKind),
             typeof(global::GPC.Model.Geotechnics.SoilLayer),
             typeof(global::GPC.Model.Geotechnics.SoilProfile),
             typeof(global::GPC.Model.LoadCases.ClimateLoadCase),
