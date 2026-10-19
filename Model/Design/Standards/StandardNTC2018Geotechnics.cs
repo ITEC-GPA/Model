@@ -54,6 +54,9 @@ namespace GPC.Model.Standards
                 Define(GeotechnicalCheck.PileTotalCompression, st, set, values[2]); Define(GeotechnicalCheck.PileShaftTension, st, set, values[3]);
             }
             Define(GeotechnicalCheck.PileTransverse, st, "R3", 1.3);
+            // §6.5.3.1.2, official GU 20/02/2018 p.197: paratie use A1+M1+R1 AND A2+M2+R1, gammaR=1.
+            // This is separate from retaining walls, global stability, UPL and HYD.
+            Define(GeotechnicalCheck.EmbeddedWallResistance, st, "R1", 1.0);
         }
         protected StandardNTC2018Geotechnics(SerializationInfo info, StreamingContext context) : base(info, context)
         {
@@ -77,6 +80,11 @@ namespace GPC.Model.Standards
 
         public override IReadOnlyList<GeotechnicalCombination> Combinations(GeotechnicalCheck check, GeotechnicalSituation situation)
         {
+            if (check == GeotechnicalCheck.EmbeddedWallResistance)
+                return situation == GeotechnicalSituation.PersistentTransient
+                    ? new[] { Combination(check, situation, A1, M1, "R1", "NTC 2018 §6.5.3.1.2 (A1+M1+R1)"),
+                        Combination(check, situation, A2, M2, "R1", "NTC 2018 §6.5.3.1.2 (A2+M2+R1)") }
+                    : new GeotechnicalCombination[0];
             bool stability = check == GeotechnicalCheck.GlobalStability || check == GeotechnicalCheck.SlopeStability;
             string set = stability ? "R2" : IsAxialPile(check) ? PileSet(_piles) : "R3";
             if (!ResistanceFactor(check, situation, set).HasValue) return new GeotechnicalCombination[0];
@@ -84,6 +92,32 @@ namespace GPC.Model.Standards
                 return new[] { Combination(check, situation, Seismic, M1, set, "NTC 2018 §7.11 (A = 1, M1, γR seismic)") };
             return new[] { stability ? Combination(check, situation, A2, M2, set, "NTC 2018 §6.8.2 (A2+M2+R2)")
                 : Combination(check, situation, A1, M1, set, "NTC 2018 §6.4-6.5 Approccio 2 (A1+M1+R3)") };
+        }
+
+        /// <summary>Italy, NTC 2018 §6.2.4.2 and Tab.6.2.III. Predominantly vertical flow is a required HYD applicability condition.
+        /// National regulation, not an Eurocode national annex. Seismic hydraulic criteria are not inferred here.</summary>
+        public override GeotechnicalHydraulicProfile HydraulicProfile(GeotechnicalSituation situation)
+            => situation == GeotechnicalSituation.PersistentTransient
+                ? new GeotechnicalHydraulicProfile("IT", Edition, "Norma nazionale italiana, nessun annesso EC applicato",
+                    "NTC 2018 §6.2.4.2, Tab.6.2.III; G.U. 20/02/2018, p.187",
+                    new GeotechnicalActionFactors("UPL", 1.1, .9, 1.5, .8, 1.5, 0), MaterialSet(M2), 3, 2, 2)
+                : null;
+
+        /// <summary>Static ground-anchor pullout, not pile tension. Correlation factors are applied to whole
+        /// resistance samples, never separately to layer extrema. Counts denote complete independent profiles/tests.</summary>
+        public override GroundAnchorResistanceProfile GroundAnchorProfile(GeotechnicalSituation situation, bool permanent,
+            GroundAnchorEvidence evidence, int count)
+        {
+            if (count < 1 || !Enum.IsDefined(typeof(GroundAnchorEvidence), evidence)) throw new ArgumentOutOfRangeException(nameof(count));
+            if (situation != GeotechnicalSituation.PersistentTransient) return null;
+            if (evidence == GroundAnchorEvidence.MeasuredAnchorTests)
+            {
+                int i = Math.Min(count, 3) - 1;
+                return new GroundAnchorResistanceProfile(permanent, evidence, count, new[] { 1.5, 1.4, 1.3 }[i], new[] { 1.5, 1.3, 1.2 }[i]);
+            }
+            int j = Math.Min(count, 5) - 1;
+            return new GroundAnchorResistanceProfile(permanent, evidence, count,
+                new[] { 1.80, 1.75, 1.70, 1.65, 1.60 }[j], new[] { 1.80, 1.70, 1.65, 1.60, 1.55 }[j]);
         }
 
         // Tab. 6.4.IV: n = 1, 2, 3, 4, 5, 7, ≥ 10.
