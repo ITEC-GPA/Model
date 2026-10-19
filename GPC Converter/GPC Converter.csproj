@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>GPC.Converter</RootNamespace>
     <AssemblyName>GPC.Converter</AssemblyName>
-    <Version>2.2.0.13</Version>
+    <Version>2.2.0.14</Version>
     <Configurations>Debug;Release;DebugLocalLibs</Configurations>
   </PropertyGroup>
   <ItemGroup>
