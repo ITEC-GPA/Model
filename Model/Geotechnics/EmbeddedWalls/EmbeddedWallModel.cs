@@ -107,6 +107,19 @@ namespace GPC.Model.Geotechnics.EmbeddedWalls
         public double DownwardForce { get; set; }
     }
 
+    /// <summary>Horizontal line load on a vertical interval of the represented wall strip.
+    /// Elevations in mm, positive upwards; load intensities in N/mm, positive to the right.
+    /// Intensities vary linearly; overlapping intervals add. This is not a pressure and is not scaled by tributary width.</summary>
+    public sealed class EmbeddedWallDistributedLoad
+    {
+        public string Id { get; set; } = "";
+        public double Top { get; set; }
+        public double Bottom { get; set; }
+        public double TopLoad { get; set; }
+        public double BottomLoad { get; set; }
+        public string Source { get; set; } = "";
+    }
+
     /// <summary>Complete stage snapshot. Omission of a formerly active support removes it; reinstalling creates a new reference.
     /// Stages are an ordered history. Independent combinations must run independent histories.</summary>
     public sealed class EmbeddedWallStage
@@ -116,6 +129,9 @@ namespace GPC.Model.Geotechnics.EmbeddedWalls
         public EmbeddedWallGround Right { get; set; } = new EmbeddedWallGround();
         public IReadOnlyList<EmbeddedWallSupportActivation> ActiveSupports { get; set; } = Array.Empty<EmbeddedWallSupportActivation>();
         public IReadOnlyList<EmbeddedWallPointLoad> PointLoads { get; set; } = Array.Empty<EmbeddedWallPointLoad>();
+        /// <summary>Complete stage snapshot of linearly varying horizontal loads on finite wall intervals.
+        /// An absent load is removed; phase interpolation acts on load fields, never on nonlinear results.</summary>
+        public IReadOnlyList<EmbeddedWallDistributedLoad> DistributedLoads { get; set; } = Array.Empty<EmbeddedWallDistributedLoad>();
         /// <summary>Uniform horizontal distributed action on the represented strip, N/mm.</summary>
         public double DistributedLoad { get; set; }
         public double StiffnessFactor { get; set; } = 1;
