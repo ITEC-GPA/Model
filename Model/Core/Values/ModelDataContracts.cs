@@ -296,6 +296,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Standards.GeotechnicalMaterialFactors),
             typeof(global::GPC.Model.Standards.GeotechnicalSituation),
             typeof(global::GPC.Model.Standards.GeotechnicalCharacteristicActionCategory),
+            typeof(global::GPC.Model.Design.Steel.AxialSteelSectionKind),
             typeof(global::GPC.Model.Standards.ConcreteStandardKind),
             typeof(global::GPC.Model.Standards.PileExecution),
             typeof(global::GPC.Model.Standards.StandardAASHTO),

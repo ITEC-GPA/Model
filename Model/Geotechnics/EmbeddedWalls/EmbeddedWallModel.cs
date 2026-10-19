@@ -81,7 +81,8 @@ namespace GPC.Model.Geotechnics.EmbeddedWalls
         public EmbeddedWallSupportKind Kind { get; set; }
         /// <summary>Axial stiffness of one physical support EA/L, N/mm.</summary>
         public double AxialStiffness { get; set; }
-        /// <summary>Inclination from horizontal, radians. Positive downwards.</summary>
+        /// <summary>Inclination from the wall towards the other end, radians from horizontal, positive downwards.
+        /// Positive force is tension for Anchor/Bilateral and compression for Strut.</summary>
         public double Inclination { get; set; }
         /// <summary>Positive movement to the right increases axial force when +1, to the left when -1.</summary>
         public int ResistingDirection { get; set; } = 1;
