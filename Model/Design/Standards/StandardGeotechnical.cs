@@ -150,6 +150,10 @@ namespace GPC.Model.Standards
         /// This does not imply that a predominantly vertical-flow criterion applies to a general 2D field.</summary>
         public virtual GeotechnicalHydraulicProfile HydraulicProfile(GeotechnicalSituation situation) => null;
 
+        /// <summary>Anchor pullout factors; null means that the requested normative situation is unsupported.</summary>
+        public virtual GroundAnchorResistanceProfile GroundAnchorProfile(GeotechnicalSituation situation, bool permanent,
+            GroundAnchorEvidence evidence, int count) => null;
+
         /// <summary>Correlation factors (ξ on the mean, ξ on the minimum) of pile resistances from n investigated profiles; null if not defined.</summary>
         public abstract Tuple<double, double> PileCorrelationFactors(int investigatedProfiles);
 

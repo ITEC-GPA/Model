@@ -103,6 +103,23 @@ namespace GPC.Model.Standards
                     new GeotechnicalActionFactors("UPL", 1.1, .9, 1.5, .8, 1.5, 0), MaterialSet(M2), 3, 2, 2)
                 : null;
 
+        /// <summary>Static ground-anchor pullout, not pile tension. Correlation factors are applied to whole
+        /// resistance samples, never separately to layer extrema. Counts denote complete independent profiles/tests.</summary>
+        public override GroundAnchorResistanceProfile GroundAnchorProfile(GeotechnicalSituation situation, bool permanent,
+            GroundAnchorEvidence evidence, int count)
+        {
+            if (count < 1 || !Enum.IsDefined(typeof(GroundAnchorEvidence), evidence)) throw new ArgumentOutOfRangeException(nameof(count));
+            if (situation != GeotechnicalSituation.PersistentTransient) return null;
+            if (evidence == GroundAnchorEvidence.MeasuredAnchorTests)
+            {
+                int i = Math.Min(count, 3) - 1;
+                return new GroundAnchorResistanceProfile(permanent, evidence, count, new[] { 1.5, 1.4, 1.3 }[i], new[] { 1.5, 1.3, 1.2 }[i]);
+            }
+            int j = Math.Min(count, 5) - 1;
+            return new GroundAnchorResistanceProfile(permanent, evidence, count,
+                new[] { 1.80, 1.75, 1.70, 1.65, 1.60 }[j], new[] { 1.80, 1.70, 1.65, 1.60, 1.55 }[j]);
+        }
+
         // Tab. 6.4.IV: n = 1, 2, 3, 4, 5, 7, ≥ 10.
         public override Tuple<double, double> PileCorrelationFactors(int investigatedProfiles)
             => Tabulated(investigatedProfiles, new[] { 1, 2, 3, 4, 5, 7, 10 }, new[] { 1.70, 1.65, 1.60, 1.55, 1.50, 1.45, 1.40 }, new[] { 1.70, 1.55, 1.48, 1.42, 1.34, 1.28, 1.21 });
