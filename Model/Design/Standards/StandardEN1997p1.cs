@@ -77,7 +77,8 @@ namespace GPC.Model.Standards
 
         public override IReadOnlyList<GeotechnicalCombination> Combinations(GeotechnicalCheck check, GeotechnicalSituation situation)
         {
-            if (situation != GeotechnicalSituation.PersistentTransient || check == GeotechnicalCheck.PileTransverse) return new GeotechnicalCombination[0];
+            if (situation != GeotechnicalSituation.PersistentTransient || check == GeotechnicalCheck.PileTransverse
+                || check == GeotechnicalCheck.UndrainedBasalHeave) return new GeotechnicalCombination[0];
             const string reference = "EN 1997-1 §2.4.7.3.4 and Annex A";
             if (check == GeotechnicalCheck.RetainingWallOverturning)
                 return new[] { Combination(check, situation, "EQU", "M2", "EQU", "EN 1997-1 §2.4.7.2 (EQU)") };

@@ -11,7 +11,7 @@ namespace GPC.Model.Standards
     {
         ShallowFoundationBearing, ShallowFoundationSliding, RetainingWallBearing, RetainingWallSliding, RetainingWallOverturning,
         RetainingWallPassiveResistance, GlobalStability, SlopeStability, PileBase, PileShaftCompression, PileTotalCompression, PileShaftTension, PileTransverse,
-        EmbeddedWallResistance
+        EmbeddedWallResistance, UndrainedBasalHeave
     }
 
     /// <summary>Design situation: persistent/transient (static) or seismic.</summary>
