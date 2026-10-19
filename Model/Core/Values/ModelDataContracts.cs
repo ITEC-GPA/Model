@@ -49,6 +49,8 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Geotechnics.Soil),
             typeof(global::GPC.Model.Geotechnics.EmbeddedWalls.EmbeddedWallDrainage),
             typeof(global::GPC.Model.Geotechnics.EmbeddedWalls.EmbeddedWallSupportKind),
+            typeof(global::GPC.Model.Geotechnics.Seepage.HydraulicActionCategory),
+            typeof(global::GPC.Model.Geotechnics.Seepage.HydraulicGradientMeasure),
             typeof(global::GPC.Model.Geotechnics.SoilLayer),
             typeof(global::GPC.Model.Geotechnics.SoilProfile),
             typeof(global::GPC.Model.LoadCases.ClimateLoadCase),

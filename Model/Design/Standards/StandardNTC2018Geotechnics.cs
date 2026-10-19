@@ -94,6 +94,15 @@ namespace GPC.Model.Standards
                 : Combination(check, situation, A1, M1, set, "NTC 2018 §6.4-6.5 Approccio 2 (A1+M1+R3)") };
         }
 
+        /// <summary>Italy, NTC 2018 §6.2.4.2 and Tab.6.2.III. Predominantly vertical flow is a required HYD applicability condition.
+        /// National regulation, not an Eurocode national annex. Seismic hydraulic criteria are not inferred here.</summary>
+        public override GeotechnicalHydraulicProfile HydraulicProfile(GeotechnicalSituation situation)
+            => situation == GeotechnicalSituation.PersistentTransient
+                ? new GeotechnicalHydraulicProfile("IT", Edition, "Norma nazionale italiana, nessun annesso EC applicato",
+                    "NTC 2018 §6.2.4.2, Tab.6.2.III; G.U. 20/02/2018, p.187",
+                    new GeotechnicalActionFactors("UPL", 1.1, .9, 1.5, .8, 1.5, 0), MaterialSet(M2), 3, 2, 2)
+                : null;
+
         // Tab. 6.4.IV: n = 1, 2, 3, 4, 5, 7, ≥ 10.
         public override Tuple<double, double> PileCorrelationFactors(int investigatedProfiles)
             => Tabulated(investigatedProfiles, new[] { 1, 2, 3, 4, 5, 7, 10 }, new[] { 1.70, 1.65, 1.60, 1.55, 1.50, 1.45, 1.40 }, new[] { 1.70, 1.55, 1.48, 1.42, 1.34, 1.28, 1.21 });

@@ -57,9 +57,12 @@ namespace GPC.Model.Geotechnics.EmbeddedWalls
         public double Surcharge { get; set; }
         /// <summary>Optional prescribed pore pressures, MPa, descending elevations. Empty = hydrostatic.
         /// Must cover all wall stations below ground. Negative suction is not supported by the effective-stress soil law.
-        /// WaterElevation still defines the saturated unit-weight zone and any ponded water above ground.</summary>
+        /// WaterElevation defines ponded water above ground and, unless SaturationFromPorePressures is selected, the saturated weight zone.</summary>
         public IReadOnlyList<WallPorePressure> PorePressures { get; set; } = Array.Empty<WallPorePressure>();
         public string PorePressureSource { get; set; } = "";
+        /// <summary>Explicit binary weight model: saturated where the prescribed pressure is positive, natural elsewhere.
+        /// The profile must include the ground surface and all zero crossings. No capillary saturation or water-content interpolation.</summary>
+        public bool SaturationFromPorePressures { get; set; }
     }
 
     public readonly struct WallPorePressure
