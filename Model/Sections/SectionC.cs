@@ -344,7 +344,7 @@ namespace GPC.Model.Sections
                 else
                 {
                     double tEff = Area / 2.0 / Height;        // rettangolo alto H e spesso tEff
-                    var sectionC = new SectionC(Height, ThicknessWeb - tEff, LengthTop, ThicknessTop, LengthBottom, ThicknessBottom, string.Empty);
+                    var sectionC = new SectionC(Height, ThicknessWeb - tEff, LengthTop - tEff, ThicknessTop, LengthBottom - tEff, ThicknessBottom, string.Empty);
                     return Area / 2.0 * (tEff / 2 + sectionC.DistanceXCentroidFromLeft());
                 }
             }
