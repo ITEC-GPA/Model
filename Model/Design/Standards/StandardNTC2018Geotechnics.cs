@@ -57,6 +57,8 @@ namespace GPC.Model.Standards
             // §6.5.3.1.2, official GU 20/02/2018 p.197: paratie use A1+M1+R1 AND A2+M2+R1, gammaR=1.
             // This is separate from retaining walls, global stability, UPL and HYD.
             Define(GeotechnicalCheck.EmbeddedWallResistance, st, "R1", 1.0);
+            // §6.5.3.1.2: undrained basal failure is GEO, distinct from the UPL/HYD criteria of §6.2.4.2.
+            Define(GeotechnicalCheck.UndrainedBasalHeave, st, "R1", 1.0);
         }
         protected StandardNTC2018Geotechnics(SerializationInfo info, StreamingContext context) : base(info, context)
         {
@@ -80,7 +82,7 @@ namespace GPC.Model.Standards
 
         public override IReadOnlyList<GeotechnicalCombination> Combinations(GeotechnicalCheck check, GeotechnicalSituation situation)
         {
-            if (check == GeotechnicalCheck.EmbeddedWallResistance)
+            if (check == GeotechnicalCheck.EmbeddedWallResistance || check == GeotechnicalCheck.UndrainedBasalHeave)
                 return situation == GeotechnicalSituation.PersistentTransient
                     ? new[] { Combination(check, situation, A1, M1, "R1", "NTC 2018 §6.5.3.1.2 (A1+M1+R1)"),
                         Combination(check, situation, A2, M2, "R1", "NTC 2018 §6.5.3.1.2 (A2+M2+R1)") }
