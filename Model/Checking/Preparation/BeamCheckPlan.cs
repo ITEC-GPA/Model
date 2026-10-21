@@ -57,7 +57,7 @@ namespace GPC.Model.Checking.Preparation
                 try { return ScopeFingerprint == ScopeDigest(_model, currentRequest, _actionsOnly)
                         && (ReferenceEquals(Request, currentRequest) || ScopeFingerprint == ScopeDigest(_model, Request, _actionsOnly)) && _preparedFingerprint == PreparedFingerprint()
                         && WorkItems.All(w => (w.Section?.Input == null || w.Section.Input.IsCurrent) && (w.Actions?.Input == null || w.Actions.Input.IsCurrent)
-                            && (w.Member == null || w.Member.Sections.All(s => s.IsCurrent))); }
+                            && (w.Member == null || w.Member.Sections.All(s => s.IsCurrent) && w.Member.ActionSections.All(s => s.IsCurrent))); }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
             }
         }
@@ -181,7 +181,7 @@ namespace GPC.Model.Checking.Preparation
                             matches.Length > 1 ? "AmbiguousRequiredLocationState" : "MissingRequiredLocation");
                     }
                 }
-                foreach (var spec in r.MemberChecks) AddMember(rows, model, scope.Members[spec.MemberId], r, spec, selection, token);
+                foreach (var spec in r.MemberChecks) AddMember(rows, model, scope.Members[spec.MemberId], r, spec, selection, token, actionsOnly);
             }
             // Overlapping state selectors and repeated locations must not double-count the same task.
             plan.WorkItems = Array.AsReadOnly(rows.GroupBy(w => w.Id, StringComparer.Ordinal).Select(g => g.First()).ToArray());
@@ -262,8 +262,9 @@ namespace GPC.Model.Checking.Preparation
         private static ResultSelection State(StationResultBeamForces sample, CombinationCategory? category) { var state = State(sample); state.Category = category; return state; }
 
         private static void AddMember(List<CheckWorkItem> rows, Models.Model model, PhysicalMemberGeometry geometry, BeamCheckPlanRequest r,
-            MemberCheckSpecification spec, ResultSelection selection, CancellationToken token)
+            MemberCheckSpecification spec, ResultSelection selection, CancellationToken token, bool actionsOnly)
         {
+            var actions = new List<BeamActionInput>();
             var errors = new List<ModelDiagnostic>(); var inputs = new List<BeamCheckInput>(); int required = 0, available = 0; bool stale = false;
             double end = spec.End ?? geometry.Length;
             foreach (var part in geometry.Definition.Parts)
@@ -285,19 +286,28 @@ namespace GPC.Model.Checking.Preparation
                 foreach (var sample in samples)
                 {
                     if (token.IsCancellationRequested) continue;
-                    var prepared = BeamCheckPreparation.Prepare(model, part.BeamId, sample, r.Settings);
-                    stale |= prepared.Status == DataStatus.Stale;
-                    if (prepared.Input == null) errors.AddRange(prepared.Diagnostics); else inputs.Add(prepared.Input);
+                    if (actionsOnly)
+                    {
+                        var prepared = BeamActionPreparation.Prepare(model, part.BeamId, sample, r.Settings);
+                        stale |= prepared.Status == DataStatus.Stale;
+                        if (prepared.Input == null) errors.AddRange(prepared.Diagnostics); else actions.Add(prepared.Input);
+                    }
+                    else
+                    {
+                        var prepared = BeamCheckPreparation.Prepare(model, part.BeamId, sample, r.Settings);
+                        stale |= prepared.Status == DataStatus.Stale;
+                        if (prepared.Input == null) errors.AddRange(prepared.Diagnostics); else inputs.Add(prepared.Input);
+                    }
                 }
             }
             if (!spec.Context.GlobalStateConfirmed || string.IsNullOrWhiteSpace(selection.ConcomitantState)) errors.Add(ModelDiagnostic.Error("GlobalMemberStateNotConfirmed"));
-            if (inputs.Select(i => ModelValues.Fingerprint(new object[] { State(i.Sample) })).Distinct().Count() > 1) errors.Add(ModelDiagnostic.Error("IncoherentMemberStates"));
-            var snapshot = new MemberInputSnapshot(geometry, spec, inputs);
+            if (inputs.Select(i => State(i.Sample)).Concat(actions.Select(i => State(i.Sample))).Select(s => ModelValues.Fingerprint(new object[] { s })).Distinct().Count() > 1) errors.Add(ModelDiagnostic.Error("IncoherentMemberStates"));
+            var snapshot = actionsOnly ? new MemberInputSnapshot(geometry, spec, actions) : new MemberInputSnapshot(geometry, spec, inputs);
             foreach (var boundary in new[] { spec.Start, end })
                 if (!snapshot.Samples.Any(s => Math.Abs(s.Location.Distance - boundary) <= 1e-7)) errors.Add(ModelDiagnostic.Error("MissingMemberSpanBoundary"));
             var item = new CheckWorkItem { Scope = CheckScope.PhysicalMember, Target = new CheckTargetReference(geometry.Definition.Id), Mechanism = spec.Mechanism,
                 MethodId = spec.MethodId, Selection = selection.Copy(), Data = stale ? DataStatus.Stale : errors.Count == 0 ? DataStatus.Ready : DataStatus.Insufficient,
-                Member = new PhysicalMemberCheckInput { Snapshot = snapshot, Sections = inputs.AsReadOnly(), MethodId = spec.MethodId, Mechanism = spec.Mechanism },
+                Member = new PhysicalMemberCheckInput { Snapshot = snapshot, Sections = inputs.AsReadOnly(), ActionSections = actions.AsReadOnly(), MethodId = spec.MethodId, Mechanism = spec.Mechanism },
                 Diagnostics = errors.AsReadOnly(), Coverage = new CoverageAssessment(BeamCoveragePolicy.ExportedSamples, required, available) };
             item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, spec, selection }); rows.Add(item);
         }

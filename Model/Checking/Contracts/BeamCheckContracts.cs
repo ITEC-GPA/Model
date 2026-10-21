@@ -240,6 +240,16 @@ namespace GPC.Model.Checking.Contracts
             };
         }
 
+        internal MemberSampleSnapshot(MemberLocation location, BeamActionInput input)
+        {
+            Location = location;
+            Input = input.Snapshot;
+            var s = input.Sample.State;
+            _state = new ResultSelection { Dataset = s.DatasetId, Case = input.Sample.Case.Name,
+                Phase = s.Phase, Step = s.Step, ConcomitantState = s.ConcomitantStateId,
+                Mode = s.Mode, MovingLoadPosition = s.MovingLoadPosition };
+        }
+
         internal static CheckInputSnapshot Capture(BeamCheckInput input) => new CheckInputSnapshot(input.PreparedSectionFingerprint, input.SampleFingerprint, input.PreparedForcesFingerprint, new BeamForceSnapshot(input.Forces));
     }
 
@@ -271,6 +281,16 @@ namespace GPC.Model.Checking.Contracts
         public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         public IReadOnlyList<MemberSampleSnapshot> Samples => Array.AsReadOnly(_samples);
 
+        internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamActionInput> inputs)
+        {
+            Definition = geometry.Definition; Context = specification.Context;
+            Length = geometry.Length; DeformableLength = geometry.DeformableLength;
+            SpanStart = specification.Start; SpanEnd = specification.End ?? geometry.Length;
+            _axes = geometry.Axes;
+            _samples = inputs.Select(i => new MemberSampleSnapshot(geometry.FromElement(i.Element.Id,
+                i.Sample.ParametricDistance, i.Sample.StationDomain, i.Sample.Side), i)).ToArray();
+        }
+
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamCheckInput> inputs)
         {
             Definition = geometry.Definition;
@@ -288,6 +308,9 @@ namespace GPC.Model.Checking.Contracts
     {
         public MemberInputSnapshot Snapshot { get; internal set; }
         public IReadOnlyList<BeamCheckInput> Sections { get; internal set; }
+        /// <summary>Material-neutral cuts populated by BeamCheckPlan.PrepareActions.
+        /// The legacy concrete Sections collection is empty on this path.</summary>
+        public IReadOnlyList<BeamActionInput> ActionSections { get; internal set; } = Array.AsReadOnly(new BeamActionInput[0]);
         public string MethodId { get; internal set; }
         public CheckMechanism Mechanism { get; internal set; }
     }
