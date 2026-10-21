@@ -30,6 +30,14 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            // Existing serialized part fields: placement and component geometry are
+            // structural inputs. No new archive fields or version changes.
+            Register("GPC.Model.Sections.SectionBuiltUp+Part", "GPC.Model.Sections.SectionBuiltUp+Part",
+                Field("GPC.Model.Sections.SectionBuiltUp+Part", "<MirrorX>k__BackingField", "<MirrorX>k__BackingField", false),
+                Field("GPC.Model.Sections.SectionBuiltUp+Part", "<MirrorY>k__BackingField", "<MirrorY>k__BackingField", false),
+                Field("GPC.Model.Sections.SectionBuiltUp+Part", "<Section>k__BackingField", "<Section>k__BackingField", false),
+                Field("GPC.Model.Sections.SectionBuiltUp+Part", "<X>k__BackingField", "<X>k__BackingField", false),
+                Field("GPC.Model.Sections.SectionBuiltUp+Part", "<Y>k__BackingField", "<Y>k__BackingField", false));
             // Records that entered the fingerprints through the reflection of their fields until the architecture review (R8): same names, same bytes.
             Register("GPC.Model.Sections.ThinWallSection+ThinWall", "GPC.Model.Sections.ThinWallSection+ThinWall",
                 Field("GPC.Model.Sections.ThinWallSection+ThinWall", "<IsInsideConcrete>k__BackingField", "<IsInsideConcrete>k__BackingField", false),

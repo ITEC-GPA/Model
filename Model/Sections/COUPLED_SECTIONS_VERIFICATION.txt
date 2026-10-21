@@ -1,0 +1,38 @@
+Profili 2C/2L - task 2, 21 ottobre 2026 - GPCModel 5.17.0.0
+
+SectionBuiltUp gia conteneva le geometrie doppio C e doppio L. Si riutilizza
+questa rappresentazione senza duplicare i calcoli o introdurre campi persistiti.
+Nuovo overload DoubleAngle con orientamento delle gambe accostate esplicito:
+verticali oppure orizzontali, utile per angolari disuguali. DoubleChannel conserva
+backToBack=true (schiene affiancate) e false (punte contrapposte). Il parametro
+spacing e sempre distanza libera fra le superfici, non interasse baricentrico.
+
+Correzioni: rifiuto di gap/posizioni NaN o infiniti e parti nulle; Parts espone una
+vista realmente non modificabile. Restano modificabili le sezioni componenti:
+dopo una modifica esplicita delle loro dimensioni, ricalcolare il composto con
+SetMechanicalProperties. La classe generica richiede parti non sovrapposte;
+le factory 2C/2L con dimensioni valide e spacing>=0 assicurano tale condizione.
+
+Fingerprint: contratto esplicito dei cinque campi gia esistenti di Part
+(Section,X,Y,MirrorX,MirrorY); nessun campo aggiunto agli archivi. Il nuovo enum
+e registrato in ModelDataContracts. Verificati copia d'archivio, impronta e
+variazione dell'impronta per distanza/orientamento. Nessuna baseline rigenerata.
+
+26 nuovi test: integrazione indipendente di rettangoli non sovrapposti,
+teorema degli assi paralleli, autovalori del tensore d'inerzia, distanza dalle
+fibre estreme e integrazione |coordinata-PNA| per i moduli plastici.
+16 combinazioni di layout/distanza, 4 riflessioni/traslazioni con Jxy non nullo,
+3 input invalidi, 1 contratto della collezione, 2 archivi/impronte.
+Questi sono oracoli analitici indipendenti, non risultati tabulati sperimentali.
+I confronti pubblicati SCI/CISC delle sezioni componenti restano nelle suite
+Model/Checker preesistenti. Nessuna norma americana di resistenza introdotta.
+
+Area, baricentro, inerzie e moduli descrivono la geometria composta.
+Jt resta somma approssimata delle parti aperte; Jw resta non disponibile.
+Il fatto che due C si tocchino non autorizza ad assumere la torsione di un cassone
+continuamente saldato, ne una collaborazione strutturale fra collegamenti.
+
+Verifica completa Model build/Verify.ps1:
+Model.Core.Tests 19/19; UnitTest 1279 pass, 0 fail, 2 inconclusive preesistenti
+per fixture native Straus7 non configurate. API: 0 rimozioni inattese; audit
+uguaglianza e preparazione dipendenze completati. Nessun rilascio.

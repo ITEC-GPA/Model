@@ -41,6 +41,8 @@ namespace GPC.Model.Sections
             public Part(Section section, double x, double y, bool mirrorX = false, bool mirrorY = false)
             {
                 Section = section ?? throw new ArgumentNullException(nameof(section));
+                if (double.IsNaN(x) || double.IsInfinity(x)) throw new ArgumentOutOfRangeException(nameof(x));
+                if (double.IsNaN(y) || double.IsInfinity(y)) throw new ArgumentOutOfRangeException(nameof(y));
                 X = x;
                 Y = y;
                 MirrorX = mirrorX;
@@ -100,8 +102,8 @@ namespace GPC.Model.Sections
             : base(name)
         {
             _parts = parts?.ToArray() ?? throw new ArgumentNullException(nameof(parts));
-            if (_parts.Length == 0)
-                throw new ArgumentException("A built-up section needs at least one part");
+            if (_parts.Length == 0 || _parts.Any(part => part == null))
+                throw new ArgumentException("A built-up section needs non-null parts", nameof(parts));
             SetMechanicalProperties();
         }
 
@@ -128,8 +130,8 @@ namespace GPC.Model.Sections
         /// <returns>The section</returns>
         public static SectionBuiltUp DoubleAngle(SectionL angle, double spacing, string name)
         {
-            if (spacing < 0)
-                throw new ArgumentException("The spacing cannot be negative");
+            if (!(spacing >= 0) || double.IsInfinity(spacing))
+                throw new ArgumentOutOfRangeException(nameof(spacing), "The spacing must be finite and nonnegative.");
             return new SectionBuiltUp(new[] { new Part(angle, spacing / 2.0, 0), new Part(angle, -spacing / 2.0, 0, mirrorX: true) }, name);
         }
 
@@ -145,13 +147,29 @@ namespace GPC.Model.Sections
         /// <returns>The section</returns>
         public static SectionBuiltUp DoubleChannel(SectionC channel, double spacing, bool backToBack, string name)
         {
-            if (spacing < 0)
-                throw new ArgumentException("The spacing cannot be negative");
+            if (!(spacing >= 0) || double.IsInfinity(spacing))
+                throw new ArgumentOutOfRangeException(nameof(spacing), "The spacing must be finite and nonnegative.");
+            if (channel == null) throw new ArgumentNullException(nameof(channel));
             double width = channel.Width;
             return backToBack
                 ? new SectionBuiltUp(new[] { new Part(channel, spacing / 2.0, 0), new Part(channel, -spacing / 2.0, 0, mirrorX: true) }, name)
                 : new SectionBuiltUp(new[] { new Part(channel, -spacing / 2.0 - width, 0), new Part(channel, spacing / 2.0 + width, 0, mirrorX: true) },
                     name);
+        }
+
+        /// <summary>Which legs of a double angle face one another.</summary>
+        public enum AnglePairOrientation { VerticalLegsBackToBack, HorizontalLegsBackToBack }
+
+        /// <summary>Explicit placement of unequal angles. Spacing is the clear distance
+        /// between backs, not centroid spacing. Geometry alone does not establish composite
+        /// action. The original overload remains vertical-legs-back-to-back.</summary>
+        public static SectionBuiltUp DoubleAngle(SectionL angle, double spacing, AnglePairOrientation orientation, string name)
+        {
+            if (angle == null) throw new ArgumentNullException(nameof(angle));
+            if (!(spacing >= 0) || double.IsInfinity(spacing)) throw new ArgumentOutOfRangeException(nameof(spacing));
+            if (orientation == AnglePairOrientation.VerticalLegsBackToBack) return DoubleAngle(angle, spacing, name);
+            if (orientation != AnglePairOrientation.HorizontalLegsBackToBack) throw new ArgumentOutOfRangeException(nameof(orientation));
+            return new SectionBuiltUp(new[] { new Part(angle, 0, spacing / 2), new Part(angle, 0, -spacing / 2, mirrorY: true) }, name);
         }
 
         /// <summary>
@@ -165,8 +183,8 @@ namespace GPC.Model.Sections
         /// <exception cref="ArgumentException">If the gap is negative</exception>
         public static SectionBuiltUp Cruciform(SectionL angle, double gap, string name)
         {
-            if (gap < 0)
-                throw new ArgumentException("The gap cannot be negative");
+            if (!(gap >= 0) || double.IsInfinity(gap))
+                throw new ArgumentOutOfRangeException(nameof(gap), "The gap must be finite and nonnegative.");
             double g = gap / 2.0;
             return new SectionBuiltUp(new[]
             {
@@ -196,7 +214,7 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The parts
         /// </summary>
-        public IReadOnlyList<Part> Parts => _parts;
+        public IReadOnlyList<Part> Parts => Array.AsReadOnly(_parts);
 
         /// <summary>
         /// The height of the bounding box
