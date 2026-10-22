@@ -239,8 +239,19 @@ namespace GPC.Converter.CivilNx
                     var type = (s?.SectionType ?? "").ToUpperInvariant();
                     if (b != null && type == "DBUSER")
                     {
-                        if (b.DataType == 1) section.CatalogDesignation = b.First?.SectionName;
-                        else if (b.DataType == 2) Shape(section, b.Shape, b.First?.Size);
+                        if (b.DataType == 1)
+                        {
+                            // A single catalog designation is not the definition of a pair.
+                            if (b.Shape == "2L" || b.Shape == "2C")
+                                Warn("CivilNxPairCatalogUnresolved", record, "Double sections require explicit User dimensions; a single catalog name is insufficient.");
+                            else section.CatalogDesignation = b.First?.SectionName;
+                        }
+                        else if (b.DataType == 2)
+                        {
+                            if (b.Shape == "2L" || b.Shape == "2C")
+                                Pair(section, b.Shape, b.First?.Size, values.TryGetValue(pair.Key, out var pairValues) ? pairValues : null);
+                            else Shape(section, b.Shape, b.First?.Size);
+                        }
                     }
                     else if (b != null && type == "VALUE" && b.First?.Stiffness?.Area > 0)
                     {
@@ -251,7 +262,7 @@ namespace GPC.Converter.CivilNx
                         section.Values = computed;
                     if (section.CatalogDesignation != null && values.TryGetValue(pair.Key, out var fallback)) section.Values = fallback;
                     if (type == "TAPERED") Warn("CivilNxTaperedSectionPreserved", record, "Tapered sections are not mapped; beams using them keep no property.");
-                    else if (section.CatalogDesignation == null && section.Shape == SectionShapeKind.Unknown && section.Values == null)
+                    else if (section.IdenticalPair == null && section.CatalogDesignation == null && section.Shape == SectionShapeKind.Unknown && section.Values == null)
                         Warn("CivilNxSectionPreserved", record, "Section type " + s?.SectionType + "/" + b?.Shape + " is not mapped; beams using it keep no property.");
                     section.Reference = Reference(b, record);
                     if (type == "COMPOSITE")

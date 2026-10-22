@@ -18,7 +18,7 @@ namespace GPC.Converter.MidasCivil
 {
     /// <summary>Documented Civil MCT command subset, also usable with an MGT-named Civil export.
     /// No release whitelist and no claim of validation against every solver version.</summary>
-    public sealed class MidasCivilTextReader : IModelFileReader
+    public sealed partial class MidasCivilTextReader : IModelFileReader
     {
         private readonly string revision;
         private readonly string analysisId;
@@ -35,7 +35,8 @@ namespace GPC.Converter.MidasCivil
                 ["Units and beam beta axes"] = CapabilityStatus.ImplementedSyntheticTests,
                 ["Structural groups and static cases"] = CapabilityStatus.ImplementedSyntheticTests,
                 ["Global nodal loads and permanent global constraints"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Materials/sections/thickness/releases/springs/stages"] = CapabilityStatus.PreservedOnly,
+                ["Identical DBUSER 2C/2L sections and steel materials (native-tested layout)"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Other properties/thickness/releases/springs/stages"] = CapabilityStatus.PreservedOnly,
                 ["Plate axes and beam REF axes"] = CapabilityStatus.PreservedOnly,
                 ["Analysis results"] = CapabilityStatus.NotSupported
             });
@@ -62,6 +63,7 @@ namespace GPC.Converter.MidasCivil
             var points = new Dictionary<string, Point3d>(StringComparer.Ordinal);
             var elements = new Dictionary<string, EntityFamily>(StringComparer.Ordinal);
             var beamAngles = new Dictionary<BeamRecord, double>();
+            var beamProperties = new Dictionary<BeamRecord, (string Material, string Section)>();
             var groups = new List<Tuple<GroupRecord, string[]>>();
             var restraints = new Dictionary<string, NodeRestrainRecord>(StringComparer.Ordinal);
             var caseNames = new HashSet<string>(StringComparer.Ordinal);
@@ -125,6 +127,7 @@ namespace GPC.Converter.MidasCivil
                             var beam = new BeamRecord { Id = id, I = Id(f[4], line, command), J = Id(f[5], line, command), Record = line.Record(command) };
                             beam.OtherAssignments.Add(new PreservedAssignment { Kind = "MIDAS material/section/orientation references", SourceRecord = beam.Record,
                                 RawData = line.Text, UnitsAndAxes = unitLabel, UnsupportedReason = "Material " + f[2] + ", section " + f[3] + ": properties require separate mapping." });
+                            beamProperties.Add(beam, (f[2], f[3]));
                             batch.Beams.Add(beam); elements.Add(id, EntityFamily.Beam);
                             if (reference)
                             {
@@ -180,7 +183,9 @@ namespace GPC.Converter.MidasCivil
                     if (activeCase == null) throw block.Header.Error(command, "Missing *USE-STLD case selection.");
                     foreach (var line in block.Lines)
                     {
-                        var f = Fields(block, line, 7, 8); var v = new double[6];
+                        var f = Fields(block, line, 7, 9); var v = new double[6];
+                        // NX 9.5.5 adds STRTYPENAME after GROUP. A nonempty scope needs its own mapping.
+                        if (f.Length == 9 && f[8].Length != 0) throw line.Error(command, "Unsupported nodal load structural-type scope.");
                         for (int i = 0; i < 6; i++) v[i] = Scaled(f[i + 1], i < 3 ? force : force * length, line, command);
                         foreach (var id in Expand(f[0], line, command, ref expanded, cancellationToken)) batch.NodeLoads.Add(new NodeLoadRecord {
                             NodeId = id, Case = activeCase, Components = (double[])v.Clone(), CoordinateSystem = CoordinateSystem.Global, Record = line.Record(command) });
@@ -207,6 +212,18 @@ namespace GPC.Converter.MidasCivil
                     }
                     evidence.UnsupportedReason = "Permanent GCS restraints mapped; boundary-group label retained only.";
                 }
+                else if (command == "SECTION")
+                {
+                    HeaderOnly(block); RequireUnits(block, length);
+                    ReadPairs(block, batch, length);
+                    evidence.UnsupportedReason = "Only explicit DBUSER 2C/2L dimensions in the native-tested layout are mapped; other sections are preserved.";
+                }
+                else if (command == "MATERIAL")
+                {
+                    HeaderOnly(block); RequireUnits(block, length);
+                    ReadSteelMaterials(block, batch, force, length);
+                    evidence.UnsupportedReason = "Only steel in the supported DB/user record layout is mapped; other materials are preserved.";
+                }
                 else if (command == "ENDDATA") { HeaderOnly(block); }
                 else
                 {
@@ -232,7 +249,16 @@ namespace GPC.Converter.MidasCivil
                 }
             foreach (var selected in selectedCases)
                 if (!caseNames.Contains(selected.Item1)) throw new ModelFileReadException(selected.Item2, "Undeclared static case " + selected.Item1);
-            if (elements.Count != 0) Warn(batch, "CivilPropertiesPreserved", "*ELEMENT", "Material and section/thickness references are retained; no structural properties or strengths have been inferred.");
+            var knownMaterials = new HashSet<string>(batch.Materials.Select(m => m.Id), StringComparer.Ordinal);
+            var knownSections = new HashSet<string>(batch.Sections.Select(s => s.Id), StringComparer.Ordinal);
+            foreach (var entry in beamProperties)
+                if (knownMaterials.Contains(entry.Value.Material) && knownSections.Contains(entry.Value.Section))
+                {
+                    entry.Key.MaterialId = entry.Value.Material; entry.Key.SectionId = entry.Value.Section;
+                    entry.Key.OtherAssignments[0].UnsupportedReason = "Material/section mapped; original references and orientation retained.";
+                }
+            if (batch.Beams.Any(b => b.SectionId == null) || batch.Shells.Count != 0)
+                Warn(batch, "CivilPropertiesPreserved", "*ELEMENT", "Unmapped material/section/thickness references remain preserved; no strength inferred from elastic data.");
             if (batch.Shells.Count != 0) Warn(batch, "PlateAxesAndThicknessPreserved", "*ELEMENT", "Plate axes and physical thickness remain unassigned; no effective thickness is assumed to be a design thickness.");
             Warn(batch, "CivilInputWithoutResults", "MCT", "Input model read. Analysis results require a separately matched export; verification remains disabled.");
             return batch;

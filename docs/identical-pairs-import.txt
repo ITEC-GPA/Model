@@ -1,5 +1,5 @@
 IMPORTAZIONE DI DUE PROFILI IDENTICI C/L
-Converter 2.4.0.0 - Model 5.19.0.0
+Converter 2.5.0.0 - Model 5.19.0.1
 
 CONTRATTO COMUNE
 IdenticalSectionPair descrive un solo componente, da profilario oppure da
@@ -78,3 +78,58 @@ https://www.strand7.com/straus7r3help/Content/Topics/VISUALGlobal/PropertiesComm
 https://www.strand7.com/straus7r3help/Content/Topics/VISUALGlobal/PropertiesCommonBeamSectionSelection.htm
 La convenzione torsionale e' verificata direttamente su R31 con il benchmark
 di equilibrio descritto sopra, non dedotta dalla sola denominazione API.
+
+MIDAS CIVIL NX API E CIVIL MCT/MGT
+Confronto nativo su Civil NX, versione MCT 9.5.5, il 22/10/2026.
+DBUSER, SHAPE 2C/2L, DATATYPE=2: vSIZE = H,B,tw,tf,C e altri valori zero.
+H e B sono le dimensioni del singolo componente; C e' il distacco libero tra
+le schiene. Per L con H<B il lato verticale unito e' quello corto. Le dimensioni
+restano riferite agli assi geometrici y/z del solver, anche quando Izz>Iyy.
+La formula e' condivisa tra i lettori JSON e MCT. L'API controlla area e le due
+inerzie quando SECTIONALL e' disponibile; la preview funziona anche senza
+questa tabella opzionale. Le dimensioni non ammettono raggi impliciti.
+
+Il benchmark contiene 2C200x75, 2L150x100 e 2L100x150, tw=10 mm e tf=12 mm,
+distacchi 10/30 mm e beta 0/90 gradi, per dodici mensole lunghe 4 m. Materiale
+S355 EN05(S), carichi uguali al benchmark Straus7, un solo caso statico.
+I due angolari del benchmark con H/B invertiti hanno spessori differenti per
+lato e sono due geometrie distinte: ciascuna coppia contiene componenti uguali.
+I 60 campioni di azioni si confrontano con l'equilibrio analitico delle mensole.
+In questo modello MIDAS restituisce la torsione di 7000 Nmm applicata al nodo:
+non si assume che abbia la stessa convenzione o lo stesso modello di
+collaborazione a taglio di Straus7 Compatible Shear.
+
+Il lettore MCT riconosce il layout nativo con OFFSET/iCENT/iREF/iHORZ/HUSER/
+iVERT/VUSER, bSD, bWE, SHAPE, DATATYPE e dieci dimensioni. Importa il materiale
+STEEL nel layout DB/user a 15 campi; la resistenza viene dalla classe dichiarata
+riconosciuta dal mapper comune, mai ricavata dal modulo elastico. Il modulo
+del file e' conservato nel record sorgente: il mapper conserva quello del
+materiale normativo e diagnostica differenze superiori al 2%; non sostituisce
+silenziosamente E del materiale assegnato. La densita' viene invece importata.
+Se materiale
+o sezione non si risolvono, il riferimento originale resta conservato.
+Per ora il riferimento baricentrico qualificato nel testo e' CC con offset nulli;
+gli altri offset mantengono il contorno ma non una posizione inventata.
+L'opzione warping e le proprieta' non coperte restano conservate e diagnosticate.
+Il file MCT non importa risultati: VerificationEnabled resta falso.
+Nel CONLOAD di 9.5.5 e' accettato il nono campo STRTYPENAME soltanto vuoto.
+
+Un nome di profilario singolo non identifica da solo la geometria di una
+coppia DB. DATATYPE=1 per 2C/2L resta conservato senza assegnazione di una
+sezione inventata; usare le dimensioni User, anche ottenute nel solver con
+Get Data from Single Angle/Channel. In Model e' possibile costruire direttamente
+la coppia a partire da un unico componente di profilario condiviso.
+
+Il percorso testuale e' quello MIDAS Civil, anche con estensione MGT: questo
+test non qualifica file specifici Gen/FEA NX, che non hanno un provider dedicato.
+UnitTest/Fixtures/MidasCivil/generate_identical_pairs.py rigenera il modello
+in una nuova cartella e richiede un modello nativo inizialmente vuoto. Gli
+export appena acquisiti sono fixture nuove, prive di credenziali; non vanno
+rigenerati automaticamente per adeguarli al codice.
+
+Fonti del formato MIDAS:
+https://support.midasuser.com/hc/ko/articles/35809067039513-Section-Properties-DB-User
+https://manual.midasuser.com/EN_Common/Civil/870/Start/14_Appendix/MCT_File_Quick_Reference.htm
+https://support.midasuser.com/hc/en-us/articles/35994462805017-Export-to-mct-mgt
+Gli schemi piu' vecchi del manuale testuale non sono usati come attestazione
+di layout aggiuntivi: la fixture nativa conserva le intestazioni della 9.5.5.
