@@ -46,6 +46,14 @@ public class AnglePairJoinedLegTest
         Assert.AreSame(shortPair.Parts[0].Section, shortPair.Parts[1].Section);
     }
 
+    [DataTestMethod]
+    [DataRow(SectionBuiltUp.AnglePairJoinedLeg.Long)]
+    [DataRow(SectionBuiltUp.AnglePairJoinedLeg.Short)]
+    public void JoinedLegSelectionCanBeArchivedAsAnExplicitDomainValue(SectionBuiltUp.AnglePairJoinedLeg leg)
+    {
+        Assert.AreEqual(leg, (SectionBuiltUp.AnglePairJoinedLeg)ModelArchive.CopyValue((object)leg));
+    }
+
     [TestMethod]
     public void InvalidLegCannotSelectAnAccidentalDefault()
     {

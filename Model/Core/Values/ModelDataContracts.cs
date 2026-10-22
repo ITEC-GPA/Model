@@ -246,6 +246,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Sections.SectionBuiltUp),
             typeof(global::GPC.Model.Sections.SectionBuiltUp.Part),
             typeof(global::GPC.Model.Sections.SectionBuiltUp.AnglePairOrientation),
+            typeof(global::GPC.Model.Sections.SectionBuiltUp.AnglePairJoinedLeg),
             typeof(global::GPC.Model.Sections.SectionC),
             typeof(global::GPC.Model.Sections.SectionCHS),
             typeof(global::GPC.Model.Sections.SectionCircular),
