@@ -157,6 +157,22 @@ namespace GPC.Model.Sections
                     name);
         }
 
+        /// <summary>Explicit connection leg of two identical unequal angles.</summary>
+        public enum AnglePairJoinedLeg { Long, Short }
+
+        /// <summary>Preserves the component x/y axes; chooses the facing leg by its
+        /// actual length, not by the principal inertia. Equal legs use vertical backs
+        /// for either choice. Spacing is the clear distance between backs.</summary>
+        public static SectionBuiltUp DoubleAngle(SectionL angle,double spacing,AnglePairJoinedLeg joinedLeg,string name)
+        {
+            if(angle==null)throw new ArgumentNullException(nameof(angle));
+            if(!Enum.IsDefined(typeof(AnglePairJoinedLeg),joinedLeg))throw new ArgumentOutOfRangeException(nameof(joinedLeg));
+            bool equal=angle.VerticalLegLength==angle.HorizontalLegLength;
+            bool vertical=equal || (joinedLeg==AnglePairJoinedLeg.Long
+                ?angle.VerticalLegLength>angle.HorizontalLegLength:angle.VerticalLegLength<angle.HorizontalLegLength);
+            return DoubleAngle(angle,spacing,vertical?AnglePairOrientation.VerticalLegsBackToBack:AnglePairOrientation.HorizontalLegsBackToBack,name);
+        }
+
         /// <summary>Which legs of a double angle face one another.</summary>
         public enum AnglePairOrientation { VerticalLegsBackToBack, HorizontalLegsBackToBack }
 
