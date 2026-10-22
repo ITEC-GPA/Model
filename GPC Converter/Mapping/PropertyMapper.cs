@@ -80,9 +80,9 @@ namespace GPC.Converter
             BeamProperty property = null;
             if (shape != null && material is SteelMaterial steel)
             {
-                var type = section.CatalogDesignation != null || section.Shape == SectionShapeKind.Pipe || section.Shape == SectionShapeKind.SolidRectangle
+                var type = section.CatalogDesignation != null || section.IdenticalPair?.ComponentCatalogDesignation != null || section.Shape == SectionShapeKind.Pipe || section.Shape == SectionShapeKind.SolidRectangle
                     || section.Shape == SectionShapeKind.SolidCircle || section.Shape == SectionShapeKind.Unknown ? Section.SectionTypes.Rolled : Section.SectionTypes.Welded;
-                if (section.CatalogDesignation == null && section.Values == null)
+                if (section.IdenticalPair != null || section.CatalogDesignation == null && section.Values == null)
                     Report("SteelSectionTypeAssumed", section.Record, "Section " + section.Name + ": user dimensions are taken as " + type + "; change it if the member is " +
                         (type == Section.SectionTypes.Rolled ? "welded." : "rolled."), DiagnosticSeverity.Information);
                 property = new SteelSection(shape, steel, type, Section.FormedTypes.HotFinished);
@@ -227,6 +227,19 @@ namespace GPC.Converter
         {
             if (shapes.TryGetValue(s.Id, out var cached)) return cached;
             ISectionShape shape = null; var name = s.Name ?? s.Id;
+            if(s.IdenticalPair!=null)
+            {
+                if(s.Shape!=SectionShapeKind.Unknown || !string.IsNullOrWhiteSpace(s.CatalogDesignation))
+                    throw new ArgumentException("Conflicting paired/single section definition.");
+                var p=s.IdenticalPair;
+                var component=Shape(new SectionRecord {Id=s.Id+"/identical-component",Name=name+" component",Record=s.Record,
+                    Shape=p.ComponentShape,Dimensions=p.ComponentDimensions,CatalogDesignation=p.ComponentCatalogDesignation}) as Section;
+                if(component!=null)
+                {
+                    component.SetEdgeTypeFromSteelType(Section.SectionTypes.Rolled);
+                    shape=p.Create(component,name);
+                }
+            }
             if (!string.IsNullOrWhiteSpace(s.CatalogDesignation))
             {
                 var profile = SectionCatalogs.Find(s.CatalogDesignation);

@@ -40,6 +40,9 @@ namespace GPC.Converter.Straus7
         public int BglShape { get; set; }
         public double[] BglDimensions { get; set; }
         public int MirrorType { get; set; }
+        /// <summary>Native A/B mirror gaps, model length units. Null means not read.</summary>
+        public double[] MirrorGaps { get; set; }
+        public bool? CompatibleTwist { get; set; }
     }
 
     /// <summary>One attribute instance of St7GetEntityAttributeSequence: local number, axis, load/freedom case, ID.</summary>
@@ -132,6 +135,10 @@ namespace GPC.Converter.Straus7
         public double[] Values { get; set; }
         public int[] ElementState { get; set; } // active, results available, birth stage.
         public int[] NodeNumbers { get; set; } // Element node-force rows, in native connectivity order.
+        /// <summary>Native centroid-to-shear-centre vector in global axes and source length units.
+        /// BeamForceGlobal retains solver torque about the shear centre; bending is about centroidal axes.
+        /// Null means this metadata was not supplied, not that the two centres coincide.</summary>
+        public double[] BeamShearCentreOffsetGlobal { get; set; }
     }
     /// <summary>Read-only native boundary. Implementations throw Straus7ApiException on nonzero API return codes.
     /// The caller owns one complete, exclusive API session and disposes it after closing results and model.</summary>

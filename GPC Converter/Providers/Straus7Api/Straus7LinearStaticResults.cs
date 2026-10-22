@@ -83,9 +83,9 @@ namespace GPC.Converter.Straus7
                     throw new InvalidDataException("Different native result cases must not be collapsed into the same Model case.");
                 var units = Straus7ApiConverter.Units(native.Units);
                 var batch = new ResultImportBatch { Source = source, SourceHash = native.ResultHash, DatasetId = datasetId,
-                    ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = "GPC.Straus7.R3.LinearStatic/2",
+                    ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = "GPC.Straus7.R3.LinearStatic/3",
                     AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, Straus7ApiConverter.InputBindingKind, native.ModelHash),
-                    ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.",
+                    ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Solver torque is retained about the shear centre; bending is about centroidal axes. Beam section actions are not a common-point wrench when the shear centre is eccentric; use element node forces for equilibrium. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.",
                     Units = units, ShellDenominatorLengthToMm = units.LengthToMm, Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = isSynthetic };
                 var keys = new HashSet<string>();
                 foreach (var table in native.Tables)
@@ -138,6 +138,8 @@ namespace GPC.Converter.Straus7
                     else if (table.Entity == Straus7Entity.Beam && table.Quantity == "BeamForceGlobal")
                     {
                         var beam = (BeamElement)element; var axes = beam.Assignments.SectionAxes; Axes.Validate(axes);
+                        if (table.BeamShearCentreOffsetGlobal != null)
+                            Straus7ApiConverter.Finite(table.BeamShearCentreOffsetGlobal, 3, "Beam shear centre offset");
                         Straus7ApiConverter.Finite(table.Positions, table.Rows, "Beam stations");
                         if (table.Positions.Any(p => p < 0 || p > 1) || table.Positions.Distinct().Count() != table.Rows
                             || !table.Positions.SequenceEqual(table.Positions.OrderBy(p => p)))

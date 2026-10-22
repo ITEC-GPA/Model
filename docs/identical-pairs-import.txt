@@ -1,0 +1,80 @@
+IMPORTAZIONE DI DUE PROFILI IDENTICI C/L
+Converter 2.4.0.0 - Model 5.19.0.0
+
+CONTRATTO COMUNE
+IdenticalSectionPair descrive un solo componente, da profilario oppure da
+dimensioni in mm, la direzione di riflessione nel piano geometrico x/y e la
+distanza libera tra i due contorni. Entrambe le parti condividono lo stesso
+oggetto Section. Non rappresenta componenti differenti, piatti di imbottitura,
+calastrelli, bulloni, saldature o una rigidezza di collegamento certificata.
+La geometria importabile comprende anche disposizioni non ammesse dalla
+verifica di compressione dei profili ravvicinati di Checker.
+
+STRAUS7 R3
+Standard L (bsLSection=9) e C senza risvolti (bsLipChannel=5, D3=T3=0).
+Mirror 1/2/3/4 = alto/basso/sinistra/destra; A e' il distacco libero, B=0.
+Le geometrie sono qualificate confrontando area e inerzie principali con i
+valori del solver (tolleranza relativa 0.5%); anche J12 ruotato deve annullarsi.
+Non si riordinano le inerzie. BGL e BXS non sono profili specchiabili in R31;
+un BSL deve prima essere convertito nel tipo standard dal programma.
+
+L'orientamento iniziale restituito dall'API segue gli assi principali 1/2/3.
+Con theta angolo dell'asse principale 1 rispetto all'asse geometrico x:
+  ex = cos(theta)*e1 - sin(theta)*e2
+  ey = sin(theta)*e1 + cos(theta)*e2.
+Beam.CoordinateSystem conserva gli assi nativi, Assignments.SectionAxes quelli
+del contorno. Gli offset passano dal sistema principale a quello geometrico;
+i carichi conservano il proprio sistema nativo. Il lato unito di un L disuguale
+deriva dalla geometria e dalla riflessione, mai dall'asse di inerzia maggiore.
+
+Il tipo laminato/hot-finished e' un'assunzione del mapper, segnalata dal
+diagnostico SteelSectionTypeAssumed; il formato geometrico standard non prova
+il processo produttivo. Il progettista deve qualificare materiale e produzione.
+Compatible Shear influenza Jt, aree a taglio e centro di taglio del solver.
+Questi dati nativi vengono conservati, ma la geometria Model non certifica
+la collaborazione torsionale della coppia: Jt geometrico somma i componenti,
+l'ingobbamento della coppia non e' disponibile.
+
+CONVENZIONE DEI RISULTATI STRAUS7
+La normalizzazione mantiene la torsione restituita dal solver rispetto al
+centro di taglio S e i momenti flettenti rispetto agli assi baricentrici.
+BeamShearCentreOffsetGlobal conserva GS in assi globali e unita' di lunghezza
+del file, quando acquisito dall'API. Null significa metadato non disponibile.
+Non si sottrae la torsione indotta dal taglio per far coincidere il valore
+con il momento applicato al baricentro: quello e' un diverso risultante.
+In presenza di GS != 0, le sei componenti non sono un unico sistema di azioni
+ridotto a un punto. Per l'equilibrio nodale usare ElementNodeForceGlobal.
+Per la sola riconduzione della torsione al baricentro:
+  T_G = T_S + (GS x F) . e3.
+Non si traslano i momenti flettenti con GS x N.
+La convenzione e' registrata nella provenienza LinearStatic/3. I vettori
+originali e il centro di taglio restano nell'evidenza del risultato.
+
+PROVE RIPRODUCIBILI
+UnitTest/Fixtures/Straus7/generate_packed_pairs.py crea esclusivamente una nuova
+cartella e un modello di prova: otto mensole L=4000 mm, L150x100 con tw=10,
+tf=12 e C200x75 con tw=10, tf=12, distacco 10 mm, quattro riflessioni ciascuno.
+E=210000 MPa, nu=0.3, incastro e carico di punta F=(-10000,200,300) N,
+M=(7000,4000,-6000) Nmm. Compatible Shear attivo.
+GPC_STRAUS7_PACKED_PAIRS indica la cartella con ST7, LSA e properties.json.
+Il test nativo verifica A/I con integrali indipendenti di rettangoli e tutte
+le sei azioni con equilibrio analitico, incluso T_S=7000-(GS x F).e3.
+La fixture JSON nuova conserva solo proprieta' generate, non sostituisce
+baseline esistenti. I test senza licenza verificano inoltre unita', scambio
+degli assi principali, offset, carichi, archiviazione e dati incompleti.
+
+PREVIEW
+SectionBuiltUp.GetCurveOutlines() restituisce i due contorni trasformati.
+ANTHEA puo' tessellarli con il percorso SectionShapeInspection gia' esistente;
+non serve una Shape unica. Una prova nel viewer con le nuove DLL resta
+distinta dai test delle librerie. Le imbottiture sono dettagli longitudinali
+e non fanno parte del contorno trasversale della coppia.
+
+FONTI
+Straus7 R3 API Manual installato: Beam Section Property Data p.455,
+GetBeamAxisSystemInitial p.989, Beam Mirroring p.1005,
+Beam Results pp.1034-1035 (numerazione stampata).
+https://www.strand7.com/straus7r3help/Content/Topics/VISUALGlobal/PropertiesCommonSectionProperties.htm
+https://www.strand7.com/straus7r3help/Content/Topics/VISUALGlobal/PropertiesCommonBeamSectionSelection.htm
+La convenzione torsionale e' verificata direttamente su R31 con il benchmark
+di equilibrio descritto sopra, non dedotta dalla sola denominazione API.

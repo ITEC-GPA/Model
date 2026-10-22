@@ -153,7 +153,7 @@ namespace GPC.Converter.Straus7
                     {
                         int mirror = 0, twist = 0; var gap = new double[2];
                         Check(Call<MirrorCall>("St7GetBeamMirrorOption")(FileId, number, ref mirror, ref twist, gap), "St7GetBeamMirrorOption " + number);
-                        p.MirrorType = mirror;
+                        p.MirrorType = mirror; p.MirrorGaps = gap; p.CompatibleTwist = twist != 0;
                     }
                 }
             }
@@ -207,7 +207,16 @@ namespace GPC.Converter.Straus7
             int rows = 0, columns = 0; var positions = new double[4096]; var values = new double[4096];
             // Global vectors avoid confusing Straus7's moment-in-plane labels with moments about axes.
             Check(Call<BeamResults>("St7GetBeamResultArray")(FileId, 1, -2, number, minimumStations, resultCase, ref rows, ref columns, positions, values), "St7GetBeamResultArray " + number + "/" + resultCase);
-            return Table(Straus7Entity.Beam, number, resultCase, "BeamForceGlobal", rows, columns, positions, values, state);
+            var table = Table(Straus7Entity.Beam, number, resultCase, "BeamForceGlobal", rows, columns, positions, values, state);
+            int property = 0;
+            Check(Call<ThreeIntRef>("St7GetElementProperty")(FileId, (int)Straus7Entity.Beam, number, ref property), "St7GetElementProperty " + number);
+            var section = ReadProperty(Straus7Entity.Beam, property).SectionProperties;
+            var axes = Values("St7GetBeamAxisSystemInitial", number, 9);
+            Straus7ApiConverter.Finite(section, 11, "Beam section properties");
+            Straus7ApiConverter.Finite(axes, 9, "Beam principal axes");
+            // ipSL1/ipSL2 are measured from the centroid in the native principal axes.
+            table.BeamShearCentreOffsetGlobal = Enumerable.Range(0, 3).Select(i => section[4] * axes[i] + section[5] * axes[i + 3]).ToArray();
+            return table;
         }
         public Straus7ResultTable ReadPlateResult(int number, int resultCase, bool moments)
         {

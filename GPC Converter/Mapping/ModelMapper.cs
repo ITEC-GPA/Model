@@ -69,7 +69,8 @@ namespace GPC.Converter
                     if (bySource.ContainsKey(beam.Source)) throw new ArgumentException("SourceCollision");
                     bySource.Add(beam.Source, beam);
                     beam.Assignments.Formulation = b.Formulation == BeamFormulation.Unknown ? BeamFormulation.StraightTwoNode : b.Formulation;
-                    beam.Assignments.SectionAxes = b.CoordinateSystem;
+                    beam.Assignments.SectionAxes = b.SectionCoordinateSystem ?? b.CoordinateSystem;
+                    if(b.SectionCoordinateSystem!=null) Axes.Validate(b.SectionCoordinateSystem);
                     beam.Assignments.OtherAssignments.AddRange(b.OtherAssignments);
                     model.BeamElements.Add(beam); model.ConnectBeam(beam.Id, nodes[b.I].Id, nodes[b.J].Id); beams.Add(b.Id, beam);
                     if (b.OffsetI != null || b.OffsetJ != null)

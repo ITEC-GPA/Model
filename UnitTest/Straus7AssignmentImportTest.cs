@@ -16,7 +16,7 @@ namespace UnitTest;
 /// <summary>Straus7 properties and attributes through a transport double of the R3 API, in m, kN, kPa, kg: the conventions are those
 /// verified on the native solver by <see cref="Straus7NativeIntegrationTest"/>; values are invented, not solver output.</summary>
 [TestClass]
-public class Straus7AssignmentImportTest
+public partial class Straus7AssignmentImportTest
 {
     private string directory = null!, modelPath = null!;
     [TestInitialize] public void Files()

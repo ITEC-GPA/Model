@@ -16,7 +16,7 @@ using GPC.Model.Results.State;
 namespace UnitTest;
 
 [TestClass]
-public class Straus7ApiWorkflowTest
+public partial class Straus7ApiWorkflowTest
 {
     private string directory = null!, modelPath = null!, resultPath = null!;
     [TestInitialize] public void Files()

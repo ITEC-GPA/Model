@@ -31,6 +31,8 @@ namespace GPC.Converter
     }
     public sealed class BeamRecord
     {
+        /// <summary>Optional geometric section x/y frame, distinct from the solver beam/result frame.</summary>
+        public CoordinateSystem SectionCoordinateSystem { get; set; }
         public string Id { get; set; }
         public string I { get; set; }
         public string J { get; set; }
@@ -112,6 +114,7 @@ namespace GPC.Converter
         public string Id { get; set; }
         public string Name { get; set; }
         public string CatalogDesignation { get; set; }
+        public IdenticalSectionPair IdenticalPair { get; set; }
         public SectionShapeKind Shape { get; set; }
         public double[] Dimensions { get; set; }
         public SectionValues Values { get; set; }

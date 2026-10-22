@@ -13,7 +13,7 @@ namespace GPC.Converter.Straus7
     /// native solver on a generated model (October 2026, R31 / API 3.1.5): standard section D along principal axis 2, B along axis 1,
     /// I section B1/T1 bottom flange, B2/T2 top flange, T3 web; distributed loads with relative positions a (from End 1) and b (from End 2);
     /// gravity along the positive selected axis times the value; normal pressure along +z = pressure on the -z face minus pressure on the +z face.</summary>
-    internal sealed class Straus7Assignments
+    internal sealed partial class Straus7Assignments
     {
         private readonly ImportBatch batch;
         private readonly IStraus7AssignmentReadApi api;
@@ -75,7 +75,11 @@ namespace GPC.Converter.Straus7
                 section.Values = new SectionValues { Area = s[0] * length * length, I11 = s[1] * Math.Pow(length, 4), I22 = s[2] * Math.Pow(length, 4), Torsion = s[3] * Math.Pow(length, 4) };
                 sectionAngle[p.Number] = s[10];
             }
-            if (p.MirrorType != 0) Warn("Straus7MirroredSectionByValues", record, "Mirrored sections are not interpreted; only their computed properties are known.");
+            if (p.MirrorType != 0)
+            {
+                if(!InterpretPair(p,section)) Warn("Straus7MirroredSectionByValues",record,
+                    "Mirrored layout/dimensions or principal inertia consistency not qualified; numeric properties retained.");
+            }
             else Interpret(p, section);
             batch.Sections.Add(section);
             return (material, section.Id);
@@ -148,12 +152,18 @@ namespace GPC.Converter.Straus7
 
         public void BeamElement(int number, BeamRecord beam, int property)
         {
+            PairAxes(property,beam);
             if (api == null) return;
             var record = beam.Record; Vector3d eccentricity = null;
             if (Attributes(Straus7Entity.Beam, number, Straus7Attributes.BeamOffset).Length != 0)
             {
                 var o = api.ReadBeamOffset(number); Straus7ApiConverter.Finite(o, 2, record + " offset");
                 beam.CentroidOffset = new Vector2d(o[0] * length, o[1] * length); // Principal 1-2 axes are the beam V1, V2.
+                if(pairedAngles.TryGetValue(property,out double theta))
+                {
+                    double x=beam.CentroidOffset.X,y=beam.CentroidOffset.Y;
+                    beam.CentroidOffset=new Vector2d(x*Math.Cos(theta)-y*Math.Sin(theta),x*Math.Sin(theta)+y*Math.Cos(theta));
+                }
                 // The solver applies the beam loads on the offset (centroidal) axis.
                 if (o[0] != 0 || o[1] != 0) eccentricity = new Vector3d(o[0] * length, o[1] * length, 0);
             }
