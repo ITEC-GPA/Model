@@ -169,7 +169,7 @@ namespace GPC.Model.Sections.Bolt
         /// <summary>
         /// Given a stress with point of application, determines a distribution of shear forces in the elastic field
         /// from shear and torsion stresses: the force is moved to the barycenter, the shear is divided in proportion to the areas and the
-        /// torsion T in proportion to the area by the distance from the barycenter (with one bolt, only the shear).
+        /// torsion T in proportion to the area by the distance from the barycenter. A single bolt requires zero transported torsion.
         /// Theory in "\\studio\Software_Development\01 Theory\08 BoltSection\Shear on bolts - elastic distribution.docx".
         /// </summary>
         /// <param name="Soll">The stress, with the coordinate system of its point of application: the position or reference system of the applied
@@ -191,17 +191,19 @@ namespace GPC.Model.Sections.Bolt
             // BoltSection group coordinate system.
             var PlateSystem = new CoordinateSystem(G, Vector3d.XAxis, Vector3d.YAxis);
 
-            // Special case
+            // Transform axes and transport the action point for every group, including one bolt.
+            ResultBeamForces SollLoc = Soll.ToCoordinateSystemWithEccentricity(PlateSystem);
+
             if (Bolts.Count == 1)
             {
-                retForces[Bolts.First()] = new ResultBeamForces(0, Soll.V1, Soll.V2, 0, 0, 0,
+                // A point bolt cannot equilibrate a free torque at its own position.
+                // No absolute action floor: a small nonzero torque is still unsupported.
+                if (SollLoc.T != 0)
+                    throw new InvalidOperationException("A single point bolt cannot transmit the torsion remaining after action transport.");
+                retForces[Bolts.First()] = new ResultBeamForces(0, SollLoc.V1, SollLoc.V2, 0, 0, 0,
                     new CoordinateSystem(new Point3d(Bolts.First().Position), Vector3d.XAxis, Vector3d.YAxis), Soll.Id);
                 return retForces;
             }
-
-            // Move forces to barycenter.
-            ResultBeamForces SollLoc;
-            SollLoc = Soll.ToCoordinateSystemWithEccentricity(PlateSystem);
 
             // List of stresses to return.
             foreach (var b in Bolts)
