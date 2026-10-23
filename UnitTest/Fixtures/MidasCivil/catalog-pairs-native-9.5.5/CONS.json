@@ -1,0 +1,436 @@
+{
+  "CONS": {
+    "1": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "3": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "5": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "7": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "9": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "11": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "13": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "15": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "17": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "19": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "21": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "23": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "25": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "27": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "29": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "31": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "33": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "35": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "37": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "39": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "41": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "43": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "45": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "47": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "49": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "51": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "53": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "55": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "57": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "59": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "61": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "63": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "65": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "67": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "69": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "71": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "73": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "75": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "77": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "79": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "81": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "83": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "85": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "87": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "89": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "91": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "93": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    },
+    "95": {
+      "ITEMS": [
+        {
+          "ID": 1,
+          "GROUP_NAME": "",
+          "CONSTRAINT": "1111110"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "SECT": {
+    "1": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_catalog_angle",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2L",
+        "DATATYPE": 1,
+        "SECT_I": {
+          "DB_NAME": "AISC10(US)",
+          "SECT_NAME": "2L8X8X1-1/8X3/8"
+        }
+      }
+    },
+    "2": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_catalog_channel",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2C",
+        "DATATYPE": 1,
+        "SECT_I": {
+          "DB_NAME": "GB-YB05",
+          "SECT_NAME": "2C6.3"
+        }
+      }
+    },
+    "3": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_channel_10",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2C",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.2,
+            0.075,
+            0.01,
+            0.012,
+            0.01,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "4": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_channel_30",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2C",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.2,
+            0.075,
+            0.01,
+            0.012,
+            0.03,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "5": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_long_leg_10",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2L",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.15,
+            0.1,
+            0.01,
+            0.012,
+            0.01,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "6": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_long_leg_30",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2L",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.15,
+            0.1,
+            0.01,
+            0.012,
+            0.03,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "7": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_short_leg_10",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2L",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.1,
+            0.15,
+            0.01,
+            0.012,
+            0.01,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "8": {
+      "SECTTYPE": "DBUSER",
+      "SECT_NAME": "GPC_QA_short_leg_30",
+      "SECT_BEFORE": {
+        "OFFSET_PT": "CC",
+        "OFFSET_CENTER": 0,
+        "USER_OFFSET_REF": 0,
+        "HORZ_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_YI": 0,
+        "VERT_OFFSET_OPT": 0,
+        "USERDEF_OFFSET_ZI": 0,
+        "USE_SHEAR_DEFORM": false,
+        "USE_WARPING_EFFECT": false,
+        "SHAPE": "2L",
+        "DATATYPE": 2,
+        "SECT_I": {
+          "vSIZE": [
+            0.1,
+            0.15,
+            0.01,
+            0.012,
+            0.03,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  }
+}

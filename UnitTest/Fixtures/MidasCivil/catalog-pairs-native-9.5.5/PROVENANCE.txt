@@ -1,0 +1,48 @@
+MIDAS Civil NX 9.5.5 - native catalogue/pair benchmark, 2026-10-23
+
+New fixture generated through the user's active Civil NX API. No previous fixture or expected value was regenerated.
+Solver version is independently printed in catalog-pairs.OUT. Native model and binary results remain in the QA workspace;
+the repository contains text exports only. No endpoint configuration or authentication token is included.
+
+Model: 48 independent 4 m cantilevers, 96 nodes, one S355 linear elastic material (E=210000 N/mm2, nu=0.3).
+At node I all six rigid-section DOFs are fixed. Six global tip actions at J:
+F=(-10000,200,300) N; M=(7000,4000,-6000) N mm. No self-weight, no shear deformation, no warping effect.
+Each of eight sections is repeated with six orientations: global X at beta 0, 90, -37 degrees;
+vertical up/down at beta 0; inclined direction (0.6,0,0.8) at beta 37 degrees. cases.json gives the mapping.
+These are linear elastic converter benchmarks; they do not qualify packing connections or member strength/buckling.
+
+Sections 1-2: actual DB/User DATATYPE=1 definitions from the official MIDAS API manual:
+  1: 2L, AISC10(US), 2L8X8X1-1/8X3/8.
+  2: 2C, GB-YB05, 2C6.3.
+The AISC label is used only to test a native catalogue record, not US design rules.
+Source: https://support.midasuser.com/hc/ko/articles/35809067039513-Section-Properties-DB-User
+Accessed 2026-10-23, examples Double Angle_DB and Double Channel_DB.
+The live db/SECT response and native MCT export contain the pair catalogue identity, not component dimensions or a clear gap.
+SECTIONALL supplies numerical area/inertias but does not identify components or connection details.
+The current converter must retain source evidence and report unresolved geometry; no catalogue pair is qualified for checks.
+
+Sections 3-8: explicit DATATYPE=2, dimensions in mm:
+  3-4: 2C H=200 B=75 tw=10 tf=12, gap=10/30.
+  5-6: 2L H=150 B=100 tw=10 tf=12, gap=10/30 (long joined leg).
+  7-8: 2L H=100 B=150 tw=10 tf=12, gap=10/30 (short joined leg).
+No fillet radii are declared in these native User shapes.
+
+Independent expectations:
+  Section A, Iyy, Izz: integration of non-overlapping plate rectangles (IdenticalPairReference), not converter formula calls.
+  Internal force vector F at every station; moment Mtip + (J-station) cross F in global axes.
+  Support reaction: -F, -(Mtip + (J-I) cross F).
+  Displacements: Euler-Bernoulli cantilever equations using the actual native SECTIONALL stiffness, plus TL/(GJ).
+  Native Ixx is Saint-Venant torsion J; it is not Iyy+Izz. Rotations are in radians.
+  Displacement comparison checks axis/stiffness assignment; it does not independently validate the catalogue stiffness values.
+  Independent geometry checks are made only for the six explicit User sections.
+
+Tolerances:
+  SECTIONALL is rounded by MIDAS to 0.0001 even when 12 digits are requested: absolute 0.00006 for A/I.
+  Native result tables retain 12 scientific decimals: 1e-5 N and 1e-3 N mm for equilibrium.
+  Displacements/rotations: 2e-8 relative vector norm (floor 1 mm / 0.001 rad), accounting for rounded section stiffness.
+  API versus MCT axis components: 1e-12. Exactly five beam stations and one result per selected node are required.
+
+Tests: MidasNativeCatalogTest; existing MidasNativePairImportTest remains unchanged.
+Coverage: Civil NX API geometry/results and Civil MCT text import from this native 9.5.5 export.
+Other MIDAS executables/modules have not been exercised by this benchmark.
+Native analysis has no WARNING or ERROR record. Text payloads are preserved with repository CRLF normalization.

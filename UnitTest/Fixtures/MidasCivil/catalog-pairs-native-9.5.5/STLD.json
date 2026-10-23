@@ -1,0 +1,10 @@
+{
+  "STLD": {
+    "1": {
+      "NO": 1,
+      "NAME": "GPC_CATALOG_QA",
+      "TYPE": "USER",
+      "DESC": "Native catalogue and pair axis benchmark"
+    }
+  }
+}
