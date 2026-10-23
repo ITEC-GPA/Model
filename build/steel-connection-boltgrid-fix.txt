@@ -1,0 +1,27 @@
+MODEL - FIX RIPARTO LEGACY DEL SINGOLO BULLONE
+23/10/2026; branch codex/steel-connection-boltgrid-fix.
+
+CalculateShearForcesElastic trasformava assi e polo solo per gruppi con almeno
+due bulloni. Il ramo singolo copiava V1/V2 dal riferimento del carico e perdeva
+la torsione applicata o prodotta dall'eccentricita, senza controllare equilibrio.
+
+Ora anche il singolo bullone usa le azioni trasformate al baricentro del gruppo.
+Se rimane una torsione non nulla nel suo punto, il metodo genera
+InvalidOperationException: il modello di bullone puntuale non puo equilibrarla.
+Il momento applicato puo compensare esattamente l'eccentricita della forza.
+Nessuna soglia assoluta elimina piccole azioni. La firma pubblica e la risposta
+dei gruppi multipli restano invariate; il metodo continua a distribuire il solo
+taglio/torsione, non sostituisce il calcolo separato delle trazioni.
+
+VERIFICA ESEGUITA
+Dieci test nuovi: prima del fix6 fallimenti e4 superati, dopo il fix10 superati.
+Attesi analitici: assi ruotati90gradi trasformano(3000,4000) in(-4000,3000)N;
+forza100N a10mm dal bullone produce1000Nmm, equilibrabili solo se compensati.
+Nessuna fixture o atteso legacy modificato.
+
+build/Verify.ps1 completo: Model.Core.Tests34/34; UnitTest1437superati,
+3ignorati (benchmark nativi condizionali), nessun fallimento.
+API GPCModel7104firme,26rimozioni gia approvate,0inattese;
+Persistence13firme,0rimozioni. Preparazione dipendenze ed EqualityAudit riusciti.
+TRX/log nel workspace Checker/audit-results/connections/model-boltgrid.
+Versione sorgente assegnata5.20.0.1, incremento fix; nessun set di rilascio.
