@@ -256,7 +256,7 @@ namespace GPC.Model.Materials
             : base(info, context)
         {
             // Refuses only its own newer versions; without its entry the old data use the version of the material (below).
-            SerializationVersions.Read(info, "ConcreteMaterialEuropeanCommonVersion", 3, 1);
+            SerializationVersions.Read(info, "ConcreteMaterialEuropeanCommonVersion", 4, 1);
             int version;
             try
             {
@@ -280,11 +280,18 @@ namespace GPC.Model.Materials
                 _tensionStressStrainDiagrams = (TensionStressStrainDiagrams)info.GetInt32("TensionStressStrainDiagrams");
             }
             else if (version == 1) { }
-            else if (version == 3) { }
+            else if (version == 3 || version == 4) { }
 
             _fck = info.GetDouble("Fck");
             _fctk = info.GetDouble("Fctk");
             _fctu = info.GetDouble("Fctu");
+            if (version >= 4)
+            {
+                // The default is omitted, retaining the input identity of pre-existing analysis snapshots.
+                foreach (SerializationEntry entry in info)
+                    if (entry.Name == "ParabolaRectangleMethod")
+                        ParabolaRectangleMethod = (ConcreteParabolaRectangleMethod)info.GetInt32(entry.Name);
+            }
             try
             {
                 _cementType = (CementTypes)info.GetValue("CementType", typeof(CementTypes));
@@ -709,7 +716,7 @@ namespace GPC.Model.Materials
         }
 
         /// <summary>
-        /// The design stress for a strain: the design value of the characteristic stress of the tables
+        /// The design stress for a strain: the characteristic stress of the selected material law, scaled by the standard
         /// </summary>
         /// <param name="standard">The standard (Model Code 2010 or ACI 318)</param>
         /// <param name="strain">The strain (negative in compression)</param>
@@ -728,6 +735,31 @@ namespace GPC.Model.Materials
         public double CalculateDesignStressConcrete(StandardModelCode2010 standardModelCode2010, double strain)
         {
             return CalculateDesignStressFromCharacteristic(standardModelCode2010, GetStress(strain));
+        }
+
+        private ConcreteParabolaRectangleMethod _parabolaRectangleMethod;
+
+        /// <summary>
+        /// Analytic by default, including materials loaded from older archives. The obsolete historical option reproduces the stored chords.
+        /// Set this before preparing a section analysis; a change invalidates the material's fingerprint and requires a new prepared analysis.
+        /// Custom diagrams and high-strength diagrams retain their tables in either mode.
+        /// </summary>
+        public ConcreteParabolaRectangleMethod ParabolaRectangleMethod
+        {
+            get => _parabolaRectangleMethod;
+            set
+            {
+                if (!Enum.IsDefined(typeof(ConcreteParabolaRectangleMethod), value))
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                _parabolaRectangleMethod = value;
+            }
+        }
+
+        /// <summary>Characteristic compressive stress using the selected parabola method.</summary>
+        protected override double GetCompressionStress(double strain)
+        {
+            if (strain <= 0 && ConcreteParabolaRectangleLaw.TryCreate(this, out var law)) return law.GetStress(strain);
+            return base.GetCompressionStress(strain);
         }
 
         /// <summary>
@@ -1410,7 +1442,7 @@ namespace GPC.Model.Materials
         #region Equals, hashcode, operators
 
         /// <summary>
-        /// Serializes the data of <see cref="ConcreteMaterial"/>, fck, fctk, fctu and the class of cement (version 3)
+        /// Serializes the data of <see cref="ConcreteMaterial"/>, fck, fctk, fctu, class of cement and parabola evaluation method (version 4)
         /// </summary>
         /// <param name="info">The serialization data</param>
         /// <param name="context">The serialization context</param>
@@ -1418,13 +1450,16 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            int version = 3;
+            int version = 4;
             info.AddValue("ConcreteMaterialEuropeanCommonVersion", version);
 
             info.AddValue("Fck", _fck);
             info.AddValue("Fctk", _fctk);
             info.AddValue("Fctu", _fctu);
             info.AddValue("CementType", _cementType);
+            // ISerializable entries are also the explicit fingerprint contract. Only a non-default selection adds an input.
+            if (_parabolaRectangleMethod != ConcreteParabolaRectangleMethod.Analytic)
+                info.AddValue("ParabolaRectangleMethod", (int)_parabolaRectangleMethod);
         }
 
         /// <summary>
@@ -1442,6 +1477,7 @@ namespace GPC.Model.Materials
                 objCasted._fctk.Equals(_fctk) &&
                 objCasted._fctu.Equals(_fctu) &&
                 objCasted._cementType.Equals(_cementType) &&
+                objCasted._parabolaRectangleMethod == _parabolaRectangleMethod &&
                 base.Equals(objCasted);
         }
 
@@ -1459,6 +1495,7 @@ namespace GPC.Model.Materials
                 hashCode = hashCode * -17 + _fctk.GetHashCode();
                 hashCode = hashCode * -17 + _fctu.GetHashCode();
                 hashCode = hashCode * -17 + _cementType.GetHashCode();
+                hashCode = hashCode * -17 + (int)_parabolaRectangleMethod;
                 return hashCode;
             }
         }

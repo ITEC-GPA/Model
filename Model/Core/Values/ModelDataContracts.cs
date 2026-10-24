@@ -80,6 +80,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Materials.ConcreteMaterial.ConcreteTypes),
             typeof(global::GPC.Model.Materials.ConcreteMaterial.TensionStressStrainDiagrams),
             typeof(global::GPC.Model.Materials.ConcreteMaterial.TensionResponseDiagrams),
+            typeof(global::GPC.Model.Materials.ConcreteParabolaRectangleMethod),
             typeof(global::GPC.Model.Materials.ConcreteMaterialACI318),
             typeof(global::GPC.Model.Materials.ConcreteMaterialEN1992),
             typeof(global::GPC.Model.Materials.ConcreteMaterialModelCode2010),

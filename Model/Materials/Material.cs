@@ -441,9 +441,12 @@ namespace GPC.Model.Materials
             }
             else
             {
-                return StressStrainTableCompression.GetStress(strain);
+                return GetCompressionStress(strain);
             }
         }
+
+        /// <summary>Characteristic stress on the compression branch; materials may supply an analytic law.</summary>
+        protected virtual double GetCompressionStress(double strain) => StressStrainTableCompression.GetStress(strain);
 
         /// <summary>
         /// Sets the yield and ultimate stresses from the tables at the yield and ultimate strains
