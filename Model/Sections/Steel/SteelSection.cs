@@ -270,6 +270,11 @@ namespace GPC.Model.Sections.Steel
             _steelMaterial = (SteelMaterial)info.GetValue("SteelMaterial", typeof(SteelMaterial));
             _sectionType = (Section.SectionTypes)info.GetValue("SectionType", typeof(Section.SectionTypes));
             _formedType = (Section.FormedTypes)info.GetValue("FormedType", typeof(Section.FormedTypes));
+            // ThinWallSection archives its dimensions/properties but not its transient
+            // edge-working flag. Restore it from the persisted production type, as in
+            // the public constructor, before deferred plastic moduli/curves are used.
+            // Built-up sections propagate the same type to their constituent shapes.
+            SetEdgeTypeFromSteelType(_sectionType);
         }
 
         #endregion

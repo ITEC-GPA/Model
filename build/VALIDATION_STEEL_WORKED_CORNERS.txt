@@ -1,0 +1,85 @@
+MODEL - RIPRISTINO LAVORAZIONE DEGLI SPIGOLI NELLA COPIA STEELSECTION
+24/10/2026. Proposta staging; nessuna build/installazione/Git eseguita.
+
+CAUSA DIMOSTRATA DAL CODICE E COERENTE CON I TEST ROSSI ROOT
+
+ThinWallSection._edgeWorking determina Sharp/Fillet/Chamfer e viene usato da
+GetCorners, GetCurveOutlines e GetPlasticShape. Non entra in GetObjectData:
+ThinWallSectionVersion2 scrive solo ThinWalls oltre ai dati della base.
+Il costruttore di deserializzazione lo lascia percio Sharp0.
+SteelSection legge SectionShape/SectionType/FormedType, ma non riapplica il
+tipo di produzione alla geometria come fa il costruttore pubblico.
+
+ModelValues.CopyValue usa la serializzazione dei contratti. Dopo lo snapshot:
+- A/J/Wel rimangono memorizzati come proprieta gia calcolate con i raccordi;
+- Wpl differito, contorni curvi e posizione dei raccordi usano Sharp0;
+- C.1 restituisce Wpl2325735.515250002mm3 senza raccordi anziche circa2360087;
+- L150x100x10,r15 presenta tratto piano aY10 inveceY25, pur area conraccordi.
+Questo spiega due famiglie di fallimenti indipendenti emerse nei nuovi test.
+
+FIX MINIMO PROPOSTO
+
+SteelSection.RestoreWorkedCorners.patch aggiunge nel costruttore di
+deserializzazione SteelSection, DOPO la lettura del SectionType:
+    SetEdgeTypeFromSteelType(_sectionType);
+Non aggiunge campi/versioni di serializzazione o formule. Non ricalcola
+indiscriminatamente le proprieta salvate. Il tipo persistito e la stessa
+fonte gia usata dal costruttore pubblico per definire Fillet/Chamfer.
+
+Propagazione controllata staticamente:
+- esiste un solo implementatore Model di ISteelSection: SteelSection;
+- ThinWallSection: Rolled=>Fillet,Welded=>Chamfer;
+- SectionBuiltUp: propaga il tipo a ogni istanza di parte UNA VOLTA, preserva
+  gli alias e ricalcola i parametri delle parti come fa alla costruzione;
+- H/C/T ad ali inclinate: override mantiene Fillet proprio della geometria;
+- RHS con raggi geometrici, circolari e parametriche: override no-op previsto;
+- custom geometry non registrata gia esclusa dal confine ModelValues;
+- la sola copia di una SectionH/L nuda, lavorata manualmente senza wrapper
+  SteelSection, non contiene SectionType: resta un limite distinto del formato
+  ThinWallSection, non viene arbitrariamente inferito Fillet da R>0.
+
+REGRESSIONI NUOVE MODEL DA ESEGUIRE ROSSO/VERDE
+
+SteelSectionWorkedCornersCopyTest.cs -> Model/UnitTest/ (cartella UnitTest
+alla radice del repository Model, NON Model/UnitTest sotto il progetto).
+17casi:16DataRow +1TestMethod. Due codec reali ModelValues.CopyValue e
+ContractFormatter; prima/dopo valutazione lazy; H laminata; H saldata con4
+triangoli reali cateto1.41R; doppioL lato lungo/corto e alias condiviso;
+doppioC conradici reali; RHS/circolare/Hsharp immutati; impronta source/copia
+identica prima/dopo Wpl senza cambiare fixture o goldenhash preesistenti.
+Confronti copia/originale stretti, piu integrazione indipendente per H laminata
+e saldata; conteggi archi/segmenti, tratto L internoY25..142.5.
+Filtro: FullyQualifiedName~SteelSectionWorkedCornersCopyTest
+Poi rieseguire gli89test adapter e il caso L conraccordi della nuova3c.
+
+PRECISIONE WPL: DISTINTA DAL BUG DI SERIALIZZAZIONE
+
+SectionOutline.Create discretizza ogni quadrante con64corde; il commento
+del core dichiara errore delle proprieta entro3e-5. A/J sono invece integrali
+analitici SectionCorner. Il benchmark di C.1 resta l'integrale circolare
+2360087.417021688mm3: la tolleranza2e-10 della prima suite adapter e troppo
+stretta per il metodo Wpl attuale, mentre e adatta ad A/J. Nessun atteso e
+stato cambiato. Le regressioni Model nuove usano3e-5 sul confronto indipendente
+Wpl laminato e2e-11 sul confronto source/copia e sui triangoli saldati esatti.
+Root decide separatamente l'adeguamento motivato della tolleranza dei nuovi
+test adapter, oppure una futura integrazione analitica delle curve.
+
+
+VALIDAZIONE ROOT ESEGUITA24/10/2026
+Nuove17regressioni: prima15fallite/2passate; dopo17/17passate.
+Suite completa Model build/Verify.ps1:34/34Model.Core e1454passati/0falliti
+UnitTest;3prove native non eseguite rimangonoSkipped. API GPCModel7104firme
+senza rimozioni inattese; Persistence13firme compatibili; EqualityAuditpassato.
+Log/TRX nel workspaceChecker audit-results/connections/verify-model-worked-corners.
+
+FixModel5.20.0.2: ripristino del flag transitorio dalSectionType persistito,
+in commit di versione separato. Nessun nuovo campo o versione di archivio,
+nessuna baselineAPI/fingerprint/fixture/allowlist modificata.
+La copia nuda di una forma lavorata manualmente senzaSteelSection resta un
+limite distinto: questo fix ripristina il contratto del materiale/profilo.
+
+Il confronto circolare esattoWpl=2360087.417021688mm3 resta l'oracle.
+L'algoritmo corrente a64corde/quarto restituisce2360099.852746546mm3,
+errore relativo5.26916e-6, entro il limite documentato3e-5. Prima della
+correzione la copia restituiva2325735.515250002mm3, perdendo i raccordi.
+Si distinguono bug di stato e discretizzazione; non si calibra l'oracle.
