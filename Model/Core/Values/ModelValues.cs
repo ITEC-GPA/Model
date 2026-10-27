@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,15 +57,20 @@ namespace GPC.Model.Core
                 typeof(global::GPC.Model.Structure.Assignments.PreservedAssignment[]), typeof(Point3d[])
             }).Distinct().ToArray();
         }
-        internal static DomainXmlSerializer Serializer(Type type) => new DomainXmlSerializer(type, KnownTypes);
+        private static readonly HashSet<Type> KnownTypeSet = new HashSet<Type>(KnownTypes);
+        // DataContractSerializer reads and writes are thread safe without surrogates or resolvers, and the
+        // vocabulary is fixed: building one with every known type cost more than the copy it served.
+        private static readonly ConcurrentDictionary<Type, DomainXmlSerializer> Serializers = new ConcurrentDictionary<Type, DomainXmlSerializer>();
+        private static readonly ConcurrentDictionary<Type, DomainXmlSerializer> ImageSerializers = new ConcurrentDictionary<Type, DomainXmlSerializer>();
+        internal static DomainXmlSerializer Serializer(Type type) => Serializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes));
         /// <summary>Same contracts, no ceiling of objects: for the graphs of the images, whose results are carried apart.</summary>
-        internal static DomainXmlSerializer ImageSerializer(Type type) => new DomainXmlSerializer(type, KnownTypes, int.MaxValue);
+        internal static DomainXmlSerializer ImageSerializer(Type type) => ImageSerializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes, int.MaxValue));
 
         /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
         public static T CopyValue<T>(T value) where T : class
         {
             if (value == null) return null;
-            if (!KnownTypes.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
+            if (!KnownTypeSet.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
             if (value is Sections.ISectionShape section) { var shape = section.Shape; }
             var serializer = Serializer(value.GetType());
             using (var stream = new MemoryStream())
