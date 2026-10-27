@@ -70,6 +70,10 @@ namespace GPC.Model.Materials
             /// <summary>Tension stiffening (<see cref="ConcreteTensionStiffening"/>, Collins and Mitchell 1991): linear up to the mean tensile strength,
             /// then the descending branch of cracked concrete fct / (1 + √(500 ε))</summary>
             [Description("Tension Stiffening")] TensionStiffening,
+            /// <summary>Tension stiffening on the bars (<see cref="ConcreteTensionChord"/>, tension chord model, fib Model Code 2010 §7.6.4.4, EN 1992-1-1
+            /// 7.3.4(2)): concrete in tension linear up to the mean tensile strength and zero after cracking; the bars of the effective tension area
+            /// carry the stress at the crack, β = 0.4</summary>
+            [Description("Tension Chord")] TensionChord,
         }
 
         /// <summary>
@@ -347,6 +351,20 @@ namespace GPC.Model.Materials
         public ConcreteTensionStiffening GetTensionStiffening()
         {
             return new ConcreteTensionStiffening(ElasticModulusCompression, GetMeanTensileStrength());
+        }
+
+        /// <summary>
+        /// The tension chord of this concrete for the nonlinear response analyses (<see cref="TensionResponseDiagrams.TensionChord"/>): modulus
+        /// <see cref="Material.ElasticModulusCompression"/>, cracking stress <see cref="GetMeanTensileStrength"/>, the modulus of the bars and β.
+        /// Mean values, no partial factors; never used by the resistance calculations
+        /// </summary>
+        /// <param name="steelModulus">Es, the modulus of the bars</param>
+        /// <param name="beta">β (0.4 long-term, 0.6 short-term)</param>
+        /// <returns>The law</returns>
+        /// <exception cref="NotSupportedException">For a concrete without a mean tensile strength</exception>
+        public ConcreteTensionChord GetTensionChord(double steelModulus, double beta = ConcreteTensionChord.LongTermBeta)
+        {
+            return new ConcreteTensionChord(ElasticModulusCompression, GetMeanTensileStrength(), steelModulus, beta);
         }
 
         /// <summary>

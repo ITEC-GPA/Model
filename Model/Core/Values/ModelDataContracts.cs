@@ -300,6 +300,8 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Standards.GeotechnicalMaterialFactors),
             typeof(global::GPC.Model.Standards.GeotechnicalSituation),
             typeof(global::GPC.Model.Standards.GeotechnicalCharacteristicActionCategory),
+            typeof(global::GPC.Model.Design.Combinations.GeotechnicalActionNature),
+            typeof(global::GPC.Model.Design.Combinations.GeotechnicalLimitState),
             typeof(global::GPC.Model.Design.Steel.AxialSteelSectionKind),
             typeof(global::GPC.Model.Standards.GroundAnchorEvidence),
             typeof(global::GPC.Model.Geotechnics.Anchors.GroundAnchorInjection),
