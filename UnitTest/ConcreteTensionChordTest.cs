@@ -18,11 +18,14 @@ namespace UnitTest
         public void ConcreteCarriesTensionOnlyUpToCracking()
         {
             Assert.AreEqual(2.6 / 31000, Law.CrackingStrain, 1e-18);
-            Law.EvaluateConcrete(5e-5, out double stress, out double tangent);
+            // Uncracked state: linear; cracked state: zero; compression: the diagram of the material
+            Law.EvaluateConcrete(5e-5, false, out double stress, out double tangent);
             Assert.AreEqual(1.55, stress, 1e-12); Assert.AreEqual(31000, tangent);
-            Law.EvaluateConcrete(1e-4, out stress, out tangent);
+            Law.EvaluateConcrete(5e-5, true, out stress, out tangent);
             Assert.AreEqual(0, stress); Assert.AreEqual(0, tangent);
-            Law.EvaluateConcrete(-1e-3, out stress, out tangent);
+            Law.EvaluateConcrete(1e-4, true, out stress, out tangent);
+            Assert.AreEqual(0, stress); Assert.AreEqual(0, tangent);
+            Law.EvaluateConcrete(-1e-3, false, out stress, out tangent);
             Assert.AreEqual(0, stress); Assert.AreEqual(0, tangent);
         }
 
@@ -30,9 +33,9 @@ namespace UnitTest
         public void BarsCarryTheStressAtTheCrack()
         {
             Assert.AreEqual(146.7741935483871, Law.CrackingBarStress(.02), 1e-10);
-            // Uncracked and compressed: the strain of the plane.
-            Assert.AreEqual(8e-5, Law.EquivalentStrain(8e-5, .02, out double d)); Assert.AreEqual(1, d);
-            Assert.AreEqual(-1e-3, Law.EquivalentStrain(-1e-3, .02, out d)); Assert.AreEqual(1, d);
+            // Compressed: the strain of the plane; from zero the crack formation (cracked section).
+            Assert.AreEqual(-1e-3, Law.EquivalentStrain(-1e-3, .02, out double d)); Assert.AreEqual(1, d);
+            Assert.AreEqual(8e-5 / .6, Law.EquivalentStrain(8e-5, .02, out d), 1e-18); Assert.AreEqual(1 / .6, d, 1e-15);
             // Crack formation: εm / (1 − β).
             Assert.AreEqual(2e-4 / .6, Law.EquivalentStrain(2e-4, .02, out d), 1e-18); Assert.AreEqual(1 / .6, d, 1e-15);
             // Stabilised cracking: εm + β εsr.
