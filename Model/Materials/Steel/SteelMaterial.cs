@@ -831,21 +831,10 @@ namespace GPC.Model.Materials
 
             else
             {
-                double deltaStress = Fyk - fyd;
-                double deltaStrain = deltaStress / ElasticModulusTension;
-
-                double stressCalc = total + Math.Sign(total) * deltaStrain;
                 double designUltimateStrain = StrainUTension;
-
-                if (Math.Abs(stressCalc) > designUltimateStrain && Math.Abs(total) <= designUltimateStrain)
-                    stressCalc = Math.Sign(stressCalc) * Math.Abs(designUltimateStrain);
-                else if (Math.Abs(total) > designUltimateStrain)
+                if (Math.Abs(total) > designUltimateStrain)
                     return 0;
-
-                if (GetStress(stressCalc) != 0)
-                    return GetStress(stressCalc) - Math.Sign(total) * deltaStress;
-                else
-                    return GetStress(stressCalc);
+                return DesignBranchStress(total, Fyk, fyd, ElasticModulusTension, designUltimateStrain);
             }
         }
 
@@ -877,15 +866,35 @@ namespace GPC.Model.Materials
             if (Math.Abs(total) > Math.Abs(strainU))
                 return 0;
 
-            double deltaStress = fy - fyd;
-            double shifted = total + deltaStress / elasticModulus;
+            return DesignBranchStress(total, fy, fyd, elasticModulus, strainU);
+        }
 
-            if (Math.Abs(shifted) > Math.Abs(strainU))
-                shifted = strainU;
-
-            double characteristic = GetStress(shifted);
-
-            return characteristic != 0 ? characteristic - deltaStress : 0;
+        /// <summary>
+        /// The design stress beyond the design yield strain (R18, decision of the ANTHEA user of 26/10/2026, «R18 ok correggi»): the characteristic curve
+        /// divided by γs = fy / fyd, with the strains of the branch [εyd; εu] mapped linearly onto [εyk; εu]: from fyd at εyd = fyd / E to k fyk / γs at
+        /// εu on a hardening branch, the inclined top branch of EN 1992-1-1 3.2.7(2) b and Fig. 3.8 (NTC 2018 Fig. 4.1.2(a), fib Model Code 2010
+        /// Fig. 7.2-?); fyd on a horizontal branch, with the same digits as before. Before 27/10/2026 the characteristic curve was shifted along the
+        /// elastic line and lowered by fy − fyd, so the hardening increment referred to fyk (about +2 % at εud for B450C, k = 1.15, εuk = 7.5 %).
+        /// </summary>
+        /// <param name="total">The total strain ε + εp, beyond the design yield strain and within the ultimate strain</param>
+        /// <param name="fy">The characteristic yield stress of the branch</param>
+        /// <param name="fyd">The design yield stress of the branch</param>
+        /// <param name="elasticModulus">The modulus of the branch</param>
+        /// <param name="strainU">The ultimate strain of the branch</param>
+        /// <returns>The design stress</returns>
+        private double DesignBranchStress(double total, double fy, double fyd, double elasticModulus, double strainU)
+        {
+            double yd = Math.Abs(fyd / elasticModulus), yk = Math.Abs(fy / elasticModulus), u = Math.Abs(strainU);
+            double magnitude = u > yd && u > yk ? yk + (Math.Abs(total) - yd) * (u - yk) / (u - yd) : u;
+            if (magnitude > u)
+                magnitude = u;
+            double characteristic = GetStress(Math.Sign(total) * magnitude);
+            if (characteristic == 0)
+                return 0;
+            // horizontal branch: fy - (fy - fyd), the expression of before
+            if (Math.Abs(characteristic) == Math.Abs(fy))
+                return characteristic - Math.Sign(total) * Math.Abs(fy - fyd);
+            return characteristic * Math.Abs(fyd / fy);
         }
 
         /// <summary>
