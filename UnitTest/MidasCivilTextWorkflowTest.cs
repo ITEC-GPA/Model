@@ -192,7 +192,8 @@ Q,L,synthetic live load
     [DataRow("20,2,0,0", "20,NaN,0,0")]
     [DataRow("20,2,0,0", "20,1e308,0,0")]
     [DataRow("20,2,0,0", "20,2,0,0\n20,3,0,0")]
-    [DataRow("101,BEAM", "101,TRUSS")]
+    // TRUSS is mapped since Converter 2.7 (requested): a truss with an unsupported subtype is the rejected element record.
+    [DataRow("101,BEAM,1,2,10,20,0,0", "101,TRUSS,1,2,10,20,0,7")]
     [DataRow("103,PLATE", "101,PLATE")]
     [DataRow("101,BEAM,1,2,10,20", "101,BEAM,1,2,10,99")]
     [DataRow("103,PLATE,1,3,10,30,40,0", "103,PLATE,1,3,10,30,99,0")]

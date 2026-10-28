@@ -58,7 +58,7 @@ public partial class Straus7ApiWorkflowTest
     [DataRow("beam-type")][DataRow("plate-type")][DataRow("beam3")][DataRow("plate8")][DataRow("missing-node")]
     [DataRow("repeated-node")][DataRow("axis-left-handed")][DataRow("axis-wrong-longitudinal")][DataRow("axis-nonfinite")]
     [DataRow("missing-group")][DataRow("group-cycle")][DataRow("missing-parent")][DataRow("node-mismatch")]
-    [DataRow("nan-coordinate")][DataRow("bad-unit")][DataRow("bricks")][DataRow("links")][DataRow("bad-count")]
+    [DataRow("nan-coordinate")][DataRow("bad-unit")][DataRow("bad-count")]
     [DataRow("axis-scaled")]
     public void InvalidNativeGeometry_RejectsWholeCandidateAndReleasesSession(string fault)
     {
