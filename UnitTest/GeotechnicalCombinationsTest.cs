@@ -96,12 +96,13 @@ namespace UnitTest
                 new[] { Q("a", group: "G"), new GeotechnicalDesignAction("b", "G", GeotechnicalActionNature.G2) }), "one nature per group");
         }
 
-        // Row bodies double every ultimate row, favourable first; seismic and accidental rows keep every body at 1.
+        // Row bodies double every ultimate row, favourable first; seismic and accidental rows keep every body at 1. With one seismic or exceptional
+        // row each (variablePresence false: the rule before the census D6, kept for fixed older rules; the default is in the next test).
         [TestMethod]
         public void RowBodiesDoubleTheUltimateRowsOnly()
         {
             var actions = new[] { Q("q"), new GeotechnicalDesignAction("u", "u", GeotechnicalActionNature.A) };
-            var rows = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, actions, new[] { "wall" }, new[] { "valley" }, seismicVariants: 2));
+            var rows = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, actions, new[] { "wall" }, new[] { "valley" }, 2, false, null));
             var ultimate = rows.Where(r => r.State == GeotechnicalLimitState.Ultimate).ToArray();
             Assert.AreEqual(2 * 2 * 2, ultimate.Length);
             for (int i = 0; i < ultimate.Length; i += 2)
@@ -117,6 +118,79 @@ namespace UnitTest
             Assert.IsTrue(accidental.BodyFactors.SequenceEqual(new[] { 1d, 1d }));
             Assert.IsTrue(rows.Where(r => r.State != GeotechnicalLimitState.Exceptional).All(r => r.Factors["u"] == 0), "accidental actions only in their rows");
             Assert.AreEqual(rows.Count, rows.Last().Number, "one counter over all the rows");
+        }
+
+        // Census D6 a (decision of 28/10/2026): ψ2 Qk only where unfavourable in the seismic and exceptional rows (NTC 2018 §2.5.3), so every variant
+        // and every A group has one row for every presence pattern of the Q groups: first all present, then q absent, q2 absent, both absent. z has
+        // ψ2 = 0: its absence gives the same factors and is merged without a number. Expected rows written by hand.
+        [TestMethod]
+        public void SeismicAndExceptionalRowsEnumerateThePresenceOfTheVariableGroups()
+        {
+            var actions = new[] { Q("q", .7, .5, .3), Q("q2", .8, .7, .6), Q("z", 0, 0, 0), new GeotechnicalDesignAction("u", "u", GeotechnicalActionNature.A) };
+            var rows = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, actions, new[] { "wall" }, seismicVariants: 2));
+            var expected = new[] { (.3, .6), (0, .6), (.3, 0), (0d, 0d) };
+            var seismic = rows.Where(r => r.State == GeotechnicalLimitState.Seismic).ToArray();
+            Assert.AreEqual(8, seismic.Length, "2 variants × 4 presence patterns");
+            for (int i = 0; i < 8; i++)
+            {
+                Assert.AreEqual(i / 4, seismic[i].SeismicVariant, "variant " + i);
+                Assert.AreEqual(expected[i % 4].Item1, seismic[i].Factors["q"], "q " + i); Assert.AreEqual(expected[i % 4].Item2, seismic[i].Factors["q2"], "q2 " + i);
+                Assert.AreEqual(0, seismic[i].Factors["z"]); Assert.AreEqual(0, seismic[i].Factors["u"]);
+                Assert.IsTrue(seismic[i].BodyFactors.SequenceEqual(new[] { 1d }) && seismic[i].Lead == null);
+            }
+            var exceptional = rows.Where(r => r.State == GeotechnicalLimitState.Exceptional).ToArray();
+            Assert.AreEqual(4, exceptional.Length, "one A group × 4 presence patterns");
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.AreEqual("u", exceptional[i].AccidentalGroup); Assert.AreEqual(1, exceptional[i].Factors["u"]);
+                Assert.AreEqual(expected[i].Item1, exceptional[i].Factors["q"]); Assert.AreEqual(expected[i].Item2, exceptional[i].Factors["q2"]);
+            }
+            CollectionAssert.AreEqual(Enumerable.Range(1, rows.Count).ToArray(), rows.Select(r => r.Number).ToArray(), "merged rows use no number");
+            // The fixed rule: one seismic row for every variant and one exceptional row, every Q at ψ2.
+            var single = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, actions, new[] { "wall" }, null, 2, false, null));
+            Assert.AreEqual(2, single.Count(r => r.State == GeotechnicalLimitState.Seismic)); Assert.AreEqual(1, single.Count(r => r.State == GeotechnicalLimitState.Exceptional));
+            Assert.IsTrue(single.Where(r => r.State == GeotechnicalLimitState.Seismic || r.State == GeotechnicalLimitState.Exceptional).All(r => r.Factors["q"] == .3 && r.Factors["q2"] == .6));
+            Assert.IsTrue(single.Where(r => r.State == GeotechnicalLimitState.Ultimate).Select(r => r.Number)
+                .SequenceEqual(rows.Where(r => r.State == GeotechnicalLimitState.Ultimate).Select(r => r.Number)), "the rows before the seismic ones keep their numbers");
+        }
+
+        // Census D7 a: the fixed cases of the version 1 walls of ANTHEA (LegacyCombinations) enumerate the wall (slowest), the fill, the presence of
+        // the loads and the water (fastest). With the declared order the generator gives them in that order; expected rows by hand from those loops.
+        [TestMethod]
+        public void TheDeclaredPatternOrderSetsTheBitsOfTheUltimateRows()
+        {
+            var loads = new[] { "q", "hq", "nq" }.Select(id => new GeotechnicalDesignAction(id, "legacy", GeotechnicalActionNature.Q, 1, .5, .2)).ToArray();
+            var rows = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, loads, new[] { "wall", "fill", "water" }, null, 2, false,
+                new[] { "water", "legacy", "fill", "wall" }));
+            Assert.AreEqual(3 + 16 + 2, rows.Count);
+            CollectionAssert.AreEqual(new[] { 1, .5, .2 }, rows.Take(3).Select(r => r.Factors["hq"]).ToArray(), "characteristic, frequent ψ1, quasi permanent ψ2");
+            var ultimate = rows.Where(r => r.State == GeotechnicalLimitState.Ultimate).ToArray(); int n = 0;
+            foreach (double wall in new[] { 1, 1.3 }) foreach (double fill in new[] { 1, 1.3 }) foreach (double q in new[] { 0, 1.5 }) foreach (double water in new[] { 1, 1.3 })
+            {
+                var r = ultimate[n++];
+                CollectionAssert.AreEqual(new[] { wall, fill, water }, r.BodyFactors.ToArray(), "bodies of row " + n);
+                Assert.IsTrue(loads.All(a => r.Factors[a.Id] == q), "loads of row " + n);
+            }
+            Assert.IsTrue(rows.Skip(19).All(r => r.State == GeotechnicalLimitState.Seismic && r.Factors["q"] == .2), "one seismic row for every variant, ψ2");
+            // The default order puts the bodies first: the same rows in another order.
+            var plain = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(A1, loads, new[] { "wall", "fill", "water" }, null, 2, false, null))
+                .Where(r => r.State == GeotechnicalLimitState.Ultimate).ToArray();
+            Assert.AreEqual(1.3, plain[1].BodyFactors[0], "default: the wall is the fastest bit");
+            CollectionAssert.AreEquivalent(ultimate.Select(Key).ToArray(), plain.Select(Key).ToArray());
+            string Key(GeotechnicalCombinationRow r) => string.Join(",", r.BodyFactors) + "/" + r.Factors["q"];
+        }
+
+        [TestMethod]
+        public void AnInvalidPatternOrderIsRefused()
+        {
+            var actions = new[] { Q("q"), new GeotechnicalDesignAction("g", "g", GeotechnicalActionNature.G1), new GeotechnicalDesignAction("u", "u", GeotechnicalActionNature.A) };
+            GeotechnicalCombinationRequest Request(params string[] order) => new GeotechnicalCombinationRequest(A1, actions, new[] { "wall" }, null, 0, true, order);
+            Assert.AreEqual(3, Request("q", "g", "wall").PatternOrder.Count);
+            Assert.ThrowsException<ArgumentException>(() => Request("q", "wall"), "missing group");
+            Assert.ThrowsException<ArgumentException>(() => Request("q", "g", "wall", "u"), "accidental groups are not in the pattern");
+            Assert.ThrowsException<ArgumentException>(() => Request("q", "q", "wall"), "duplicate");
+            Assert.ThrowsException<ArgumentException>(() => new GeotechnicalCombinationRequest(A1, actions, new[] { "q" }, null, 0, true, new[] { "q", "g" }), "a body named as a group");
+            Assert.AreEqual(0, new GeotechnicalCombinationRequest(A1, actions, new[] { "q" }).PatternOrder.Count, "without an order the names may coincide");
         }
 
         // Identical rows are merged without using a number: with the seismic set (all factors 1) the body patterns give the same rows.
