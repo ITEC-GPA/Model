@@ -12,7 +12,8 @@ namespace GPC.Model.Models
         public static string AnalysisFingerprint(this Models.Model model)
         {
             return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "analysis", () => {
-                var canonical = ModelValues.Fingerprint(AnalysisInputs(model, true));
+                // In a read scope the properties shared by many beams are walked once (same fingerprint, see FingerprintMemo).
+                var canonical = global::GPC.Model.Checking.Preparation.ValidationReadScope.Fingerprint(model, AnalysisInputs(model, true));
                 return model.Analysis == null ? canonical : model.Analysis.OriginalIdentityFor(canonical);
             });
         }
@@ -94,7 +95,7 @@ namespace GPC.Model.Models
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {
-            return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => ModelValues.Fingerprint(new object[] { model.AnalysisFingerprint(), settings }
+            return global::GPC.Model.Checking.Preparation.ValidationReadScope.Read(model, "verification:" + (settings == null ? "null" : "value:" + settings), () => global::GPC.Model.Checking.Preparation.ValidationReadScope.Fingerprint(model, new object[] { model.AnalysisFingerprint(), settings }
                 .Concat(model.BeamElements.Values.Select(b => (object)b.Assignments.Sections.ToArray()))
                 .Concat(model.AreaElements.Values.Select(a => (object)a.Assignments))
                 .Concat(model.AreaElements.Values.Where(a => a.PlateProperty is Sections.Concrete.ReinforcedConcretePlateSection).Select(a => (object)a.PlateProperty))

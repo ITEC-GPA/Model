@@ -56,10 +56,18 @@ namespace GPC.Model.Checking.Preparation
             {
                 try { return ScopeFingerprint == ScopeDigest(_model, currentRequest, _actionsOnly)
                         && (ReferenceEquals(Request, currentRequest) || ScopeFingerprint == ScopeDigest(_model, Request, _actionsOnly)) && _preparedFingerprint == PreparedFingerprint()
-                        && WorkItems.All(w => (w.Section?.Input == null || w.Section.Input.IsCurrent) && (w.Actions?.Input == null || w.Actions.Input.IsCurrent)
-                            && (w.Member == null || w.Member.Sections.All(s => s.IsCurrent) && w.Member.ActionSections.All(s => s.IsCurrent))); }
+                        && InputsAreCurrent(); }
                 catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
             }
+        }
+        // The tasks of one cut share its prepared inputs (one per mechanism or explicit check). Within the read scope an input gives the
+        // same answer every time, so each is checked once, in the order of the tasks; the first stale one still ends the check.
+        private bool InputsAreCurrent()
+        {
+            var checkedInputs = new HashSet<object>(InputFingerprint.ReferenceComparer.Instance);
+            return WorkItems.All(w => (w.Section?.Input == null || !checkedInputs.Add(w.Section.Input) || w.Section.Input.IsCurrent)
+                && (w.Actions?.Input == null || !checkedInputs.Add(w.Actions.Input) || w.Actions.Input.IsCurrent)
+                && (w.Member == null || w.Member.Sections.All(s => !checkedInputs.Add(s) || s.IsCurrent) && w.Member.ActionSections.All(s => !checkedInputs.Add(s) || s.IsCurrent)));
         }
         private string PreparedFingerprint() => ModelValues.Fingerprint(WorkItems.SelectMany(w => new object[] { w.Id, w.Target, w.Scope, w.Mechanism,
             w.MethodId, w.Selection, w.MemberLocation, w.Station, w.StationDomain, w.Side, w.Data, w.Coverage, w.Member?.Snapshot }
@@ -126,7 +134,8 @@ namespace GPC.Model.Checking.Preparation
         public static string FingerprintScope(Models.Model model, BeamCheckPlanRequest request)
         {
             var scope = Resolve(model, request);
-            return ModelValues.Fingerprint(new object[] { request, model.VerificationFingerprint(request.Settings) }
+            // Inside a read scope (plan preparation and revalidation) each sample and property is walked once for all digests.
+            return ValidationReadScope.Fingerprint(model, new object[] { request, model.VerificationFingerprint(request.Settings) }
                 .Concat(request.Results.Select(s => s.Dataset).Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal)
                     .SelectMany(id => new object[] { id, model.Datasets.TryGetValue(id, out var dataset) ? dataset : null }))
                 .Concat(scope.Members.Values.OrderBy(m => m.Definition.Id, StringComparer.Ordinal).Select(m => (object)m.Definition))
@@ -134,7 +143,7 @@ namespace GPC.Model.Checking.Preparation
                     request.Results.SelectMany(s => ResultQueries.Samples<StationResultBeamForces>(b, s)).ToArray() })));
         }
         private static string ScopeDigest(Models.Model model, BeamCheckPlanRequest request, bool actionsOnly)
-            => !actionsOnly ? FingerprintScope(model, request) : ModelValues.Fingerprint(new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
+            => !actionsOnly ? FingerprintScope(model, request) : ValidationReadScope.Fingerprint(model, new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
                 .Concat(Resolve(model, request).Beams.Values.OrderBy(b => b.Id).SelectMany(b => new object[] { b.Id, b.BeamProperty })));
 
         /// <summary>Resolves only the selected elements, without preparing samples or invoking an engine.</summary>
