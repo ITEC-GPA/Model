@@ -62,6 +62,8 @@ namespace GPC.Model.Core
                 : Regex.Replace(name, @", Version=[^,\]]+, Culture=[^,\]]+, PublicKeyToken=[^\]]+", ""));
         }
         internal static IDisposable Legacy(string modelVersion, string coreVersion) => new LegacyScope(modelVersion, coreVersion);
+        /// <summary>True inside <see cref="Legacy"/>: the wire names are historical, so canonical bytes memoized outside it do not apply.</summary>
+        internal static bool UsesLegacyNames => _legacy.Value != null;
         private sealed class LegacyScope : IDisposable
         {
             private readonly LegacyNames _previous = _legacy.Value;
