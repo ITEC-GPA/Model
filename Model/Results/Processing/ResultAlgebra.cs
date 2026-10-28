@@ -157,11 +157,12 @@ namespace GPC.Model.Results.Processing
             if (state == null) return false;
             if (state.DerivedFrom == null) return state.DerivedSourceFingerprint == null;
             if (state.DerivedFrom.Length == 0 || string.IsNullOrWhiteSpace(state.DerivedSourceFingerprint)) return false;
-            var registered = owner.Results.SelectMany(r => r.Results).ToArray();
-            return state.DerivedFrom.All(s => s?.State != null && registered.Any(r => ReferenceEquals(r, s)) && s.State.DerivedFrom == null
+            _ = owner.Results; // as before: a missing owner fails here, before the sources are examined
+            // In a read scope the registered samples and the sources are read once per owner and sample.
+            return state.DerivedFrom.All(s => s?.State != null && ValidationReadScope.IsRegistered(model, owner, s) && s.State.DerivedFrom == null
                 && s.State.DatasetId != null && model.Datasets.TryGetValue(s.State.DatasetId, out var ds) && ds.InputFingerprint == state.InputFingerprint && ds.ModelRevision == s.State.ModelRevision
                 && ds.NormalizedUnits == "N,mm,rad" && ds.Semantics == s.State.Semantics)
-                && state.DerivedSourceFingerprint == ModelValues.Fingerprint(state.DerivedFrom.Cast<object>());
+                && state.DerivedSourceFingerprint == ValidationReadScope.Fingerprint(model, state.DerivedFrom.Cast<object>());
         }
         /// <summary>Attaches a checked derivation atomically to the same owner. Declare output cases/combinations before importing analysis results.</summary>
         public static void Attach(DerivedResult derived)

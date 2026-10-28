@@ -41,7 +41,9 @@ namespace GPC.Model.Checking.Preparation
             }
         }
 
-        private bool IsCurrentCore() => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element) && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model) && beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, Sample)) && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelValues.Fingerprint(new object[] { dataset }) && Revision == Model.VerificationFingerprint(Settings) && Snapshot.SampleFingerprint == ModelValues.Fingerprint(new object[] { Sample }) && Snapshot.ForcesFingerprint == ModelValues.Fingerprint(new object[] { Forces }) && PreparedPropertyFingerprint == ModelValues.Fingerprint(new object[] { Property }) && Snapshot.SectionFingerprint == ModelValues.Fingerprint(new object[] { Element.BeamProperty, Element.Assignments.Sections.ToArray() }) && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State);
+        // Model values (sample, dataset, beam section) are fingerprinted once per read scope; the owned Forces and Property every time,
+        // since the engine that received them may have changed them.
+        private bool IsCurrentCore() => Sample?.State != null && Model.BeamElements.TryGetValue(Element.Id, out var beam) && ReferenceEquals(beam, Element) && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model) && ValidationReadScope.IsRegistered(Model, beam, Sample) && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ValidationReadScope.FingerprintOf(Model, dataset) && Revision == Model.VerificationFingerprint(Settings) && Snapshot.SampleFingerprint == ValidationReadScope.FingerprintOf(Model, Sample) && Snapshot.ForcesFingerprint == ModelValues.Fingerprint(new object[] { Forces }) && PreparedPropertyFingerprint == ModelValues.Fingerprint(new object[] { Property }) && Snapshot.SectionFingerprint == ValidationReadScope.SectionFingerprint(Model, Element) && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State);
     }
 
     public sealed class BeamActionPreparation
@@ -76,7 +78,7 @@ namespace GPC.Model.Checking.Preparation
                 return result;
             }
 
-            if (sample == null || !beam.Results.SelectMany(r => r.Results).Any(s => ReferenceEquals(s, sample)))
+            if (sample == null || !ValidationReadScope.IsRegistered(model, beam, sample))
             {
                 diagnostics.Add(ModelDiagnostic.Error("MissingSample", beam));
                 return result;
@@ -130,7 +132,8 @@ namespace GPC.Model.Checking.Preparation
                     normalized = new BeamReferenceGeometry(beam).AtCentroid(normalized);
                 var forces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(frame, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
                 var property = beam.Assignments.Sections.Count == 0 ? beam.BeamProperty : beam.Assignments.PropertyAt(new BeamReferenceGeometry(beam).ConvertStation(sample.ParametricDistance, sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), sample.Side);
-                var detachedProperty = ModelValues.CopyValue(property);
+                // Within the read scope of a plan the XML of a shared property is written once; each cut still owns its copy.
+                var detachedProperty = ValidationReadScope.CopyValue(model, property);
                 result.Input = new BeamActionInput
                 {
                     Model = model,
@@ -139,10 +142,10 @@ namespace GPC.Model.Checking.Preparation
                     Forces = forces,
                     Property = detachedProperty,
                     Settings = settings,
-                    PreparedPropertyFingerprint = ModelValues.Fingerprint(new object[] { detachedProperty }),
-                    DatasetFingerprint = ModelValues.Fingerprint(new object[] { model.Datasets[state.DatasetId] }),
+                    PreparedPropertyFingerprint = ValidationReadScope.CopyFingerprint(model, property, detachedProperty),
+                    DatasetFingerprint = ValidationReadScope.FingerprintOf(model, model.Datasets[state.DatasetId]),
                     Revision = model.VerificationFingerprint(settings),
-                    Snapshot = new CheckInputSnapshot(ModelValues.Fingerprint(new object[] { beam.BeamProperty, beam.Assignments.Sections.ToArray() }), ModelValues.Fingerprint(new object[] { sample }), ModelValues.Fingerprint(new object[] { forces }), new BeamForceSnapshot(forces))
+                    Snapshot = new CheckInputSnapshot(ValidationReadScope.SectionFingerprint(model, beam), ValidationReadScope.FingerprintOf(model, sample), ModelValues.Fingerprint(new object[] { forces }), new BeamForceSnapshot(forces))
                 };
                 result.Status = DataStatus.Ready;
             }

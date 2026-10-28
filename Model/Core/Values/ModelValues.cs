@@ -70,11 +70,26 @@ namespace GPC.Model.Core
         public static T CopyValue<T>(T value) where T : class
         {
             if (value == null) return null;
+            return (T)Detach(value).Read();
+        }
+        /// <summary>The XML that <see cref="CopyValue{T}"/> writes for the value now. Each <see cref="DetachedValue.Read"/> returns a new
+        /// detached copy, the one CopyValue would return while the value is unchanged.</summary>
+        internal static DetachedValue Detach(object value)
+        {
             if (!KnownTypeSet.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
             if (value is Sections.ISectionShape section) { var shape = section.Shape; }
             var serializer = Serializer(value.GetType());
             using (var stream = new MemoryStream())
-            { serializer.WriteObject(stream, value); stream.Position = 0; return (T)serializer.ReadObject(stream); }
+            { serializer.WriteObject(stream, value); return new DetachedValue(serializer, stream.ToArray()); }
+        }
+        internal sealed class DetachedValue
+        {
+            private readonly DomainXmlSerializer _serializer;
+            private readonly byte[] _xml;
+            internal DetachedValue(DomainXmlSerializer serializer, byte[] xml) { _serializer = serializer; _xml = xml; }
+            internal object Read() { using (var stream = new MemoryStream(_xml, false)) return _serializer.ReadObject(stream); }
+            /// <summary>Fingerprint of a copy read from this XML (all of them have the same), kept by the scope that owns this value.</summary>
+            internal string CopyFingerprint;
         }
         /// <summary>Copies the complete graph, preserving IDs, aliases and group event wiring. The results are shared in compact
         /// form and decoded, as new objects, on the first access to the results of each element of the copy.</summary>
