@@ -112,7 +112,16 @@ namespace GPC.Model.Models
                         issues.Add(ModelDiagnostic.Error("MissingOrientationNode", beam));
                     if (!Axes.IsFinite(beam.StartPoint) || !Axes.IsFinite(beam.EndPoint) || beam.Length <= 1e-9)
                         issues.Add(ModelDiagnostic.Error("DegenerateBeam", element));
-                    if (beam.Assignments.Formulation != BeamFormulation.StraightTwoNode)
+                    var formulation = beam.Assignments.Formulation;
+                    // Axial-only members (truss, tension-only, cable) are kept for geometry, loads and imported results; checks and
+                    // physical members still require straight two-node frames and refuse them element by element.
+                    if (formulation == BeamFormulation.Truss || formulation == BeamFormulation.TensionOnly || formulation == BeamFormulation.Cable)
+                    {
+                        var axial = ModelDiagnostic.Error("AxialOnlyBeamFormulation", element, "Beam " + beam.Id + ": " + formulation
+                            + " member kept for geometry, loads and results; checks and physical members need straight two-node frames.");
+                        axial.Severity = DiagnosticSeverity.Warning; issues.Add(axial);
+                    }
+                    else if (formulation != BeamFormulation.StraightTwoNode)
                         issues.Add(ModelDiagnostic.Error("UnsupportedBeamFormulation", element));
                 }
                 if (element is AreaElement area && area.Nodes.Count > 0)
@@ -122,7 +131,9 @@ namespace GPC.Model.Models
                     var normal = edge.CrossProduct(p[2] - p[0]);
                     double length = Axes.Length(normal);
                     if (length < 1e-9) issues.Add(ModelDiagnostic.Error("DegenerateShell", element));
-                    else if (p.Length == 4 && Math.Abs(Axes.Dot(p[3] - p[0], normal)) / length > 1e-6)
+                    // Same planarity tolerance as the polygons of the geometry kernel (shell shapes and area loads): the round-off of
+                    // exported coordinates (1e-5 mm) is planar, an actual warping is not.
+                    else if (p.Length == 4 && Math.Abs(Axes.Dot(p[3] - p[0], normal)) / length > GeometryBase.Tolerance)
                         issues.Add(ModelDiagnostic.Error("NonPlanarShell", element));
                     else if (p.Length == 4)
                     {
