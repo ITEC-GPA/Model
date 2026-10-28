@@ -1946,9 +1946,11 @@ namespace GPC.Model.Standards
             }
             else if (options.LimitState == LimitStates.ServiceabilityCharacteristic)
             {
+                // EN 1990 (6.14b) and NTC 2018 (2.5.2): the leading variable action enters the characteristic combination with its
+                // characteristic value, Qk,1. Until GPCModel 5.23 it had ψ2 (ANTHEA census of the combinations, question D11, decision
+                // of the ANTHEA user of 28/10/2026: «Come raccomandato»).
                 gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, loadCase);
-                psi2 = GetPsi2(options.Category, loadCase, options.HighAltitude);
-                return gamma * psi2;
+                return gamma;
             }
             else if (options.LimitState == LimitStates.ServiceabilityFrequent)
             {
