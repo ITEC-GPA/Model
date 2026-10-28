@@ -22,13 +22,15 @@ namespace GPC.Model.Core
         {
             // Memoized bytes carry the canonical wire names: under the historical names of an analysis being validated they do not apply.
             if (memo != null && FingerprintContracts.UsesLegacyNames) memo = null;
-            using (var memory = new MemoryStream())
-            using (var writer = new BinaryWriter(memory))
+            // The bytes are hashed in blocks as they are written: the same SHA-256 as of the whole buffer, without keeping a copy of
+            // the canonical bytes (hundreds of KB for a model revision, in the large object heap twice).
             using (var sha = SHA256.Create())
+            using (var hashing = new HashingStream(sha))
+            using (var writer = new BinaryWriter(hashing))
             {
                 var path = new HashSet<object>(ReferenceComparer.Instance);
                 foreach (var input in inputs) Write(writer, input, path, memo, null);
-                writer.Flush(); return Hex(sha.ComputeHash(memory.ToArray()));
+                writer.Flush(); return Hex(hashing.Finish());
             }
         }
         internal static string Hex(byte[] hash) => BitConverter.ToString(hash).Replace("-", "");
@@ -85,10 +87,14 @@ namespace GPC.Model.Core
                     // Section.GetObjectData writes its lazy shape field. Materialize the authoritative shape first,
                     // otherwise merely viewing/validating a section would change its revision.
                     if (value is Sections.ISectionShape section) { var shape = section.Shape; }
-                    var info = new SerializationInfo(type, new FormatterConverter()); serializable.GetObjectData(info, new StreamingContext());
-                    var entries = new List<SerializationEntry>(); foreach (SerializationEntry e in info) entries.Add(e);
-                    foreach (var e in entries.OrderBy(e => e.Name, StringComparer.Ordinal))
+                    var info = new SerializationInfo(type, Converter); serializable.GetObjectData(info, new StreamingContext());
+                    var entries = new SerializationEntry[info.MemberCount]; var names = new string[entries.Length]; int count = 0;
+                    foreach (SerializationEntry e in info) { entries[count] = e; names[count++] = e.Name; }
+                    // The names of a SerializationInfo are unique: the order is the one of the former stable ordinal sort.
+                    Array.Sort(names, entries, 0, count, StringComparer.Ordinal);
+                    for (int i = 0; i < count; i++)
                     {
+                        var e = entries[i];
                         if (FingerprintContracts.SkipsEntry(type, e.Name)) continue;
                         w.Write(e.Name); Write(w, e.Value, path, memo, reach);
                     }
@@ -117,6 +123,45 @@ namespace GPC.Model.Core
                     + (type.Assembly == typeof(InputFingerprint).Assembly ? "FingerprintContracts.RegisterBuiltIns." : "FingerprintVocabularyAttribute in its assembly."));
             }
             finally { path.Remove(value); }
+        }
+        // Only the readers of a SerializationInfo use the converter, never GetObjectData: one stateless instance serves every walk.
+        private static readonly FormatterConverter Converter = new FormatterConverter();
+        /// <summary>SHA-256 of everything written, fed in blocks of at most 16 KB.</summary>
+        private sealed class HashingStream : Stream
+        {
+            private const int MaxBlock = 16 * 1024;
+            private readonly HashAlgorithm _hash;
+            private byte[] _buffer = new byte[256];
+            private int _count;
+            internal HashingStream(HashAlgorithm hash) { _hash = hash; }
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                while (count > 0)
+                {
+                    Room();
+                    int n = Math.Min(count, _buffer.Length - _count);
+                    Buffer.BlockCopy(buffer, offset, _buffer, _count, n);
+                    _count += n; offset += n; count -= n;
+                }
+            }
+            public override void WriteByte(byte value) { Room(); _buffer[_count++] = value; }
+            // A full buffer grows up to MaxBlock, then goes to the hash.
+            private void Room()
+            {
+                if (_count < _buffer.Length) return;
+                if (_buffer.Length < MaxBlock) Array.Resize(ref _buffer, _buffer.Length * 2);
+                else { _hash.TransformBlock(_buffer, 0, _count, null, 0); _count = 0; }
+            }
+            internal byte[] Finish() { _hash.TransformFinalBlock(_buffer, 0, _count); _count = 0; return _hash.Hash; }
+            public override bool CanRead => false;
+            public override bool CanSeek => false;
+            public override bool CanWrite => true;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+            public override void Flush() { }
+            public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
         }
         internal sealed class ReferenceComparer : IEqualityComparer<object>
         {
