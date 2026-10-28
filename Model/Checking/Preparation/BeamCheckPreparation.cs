@@ -32,7 +32,7 @@ namespace GPC.Model.Checking.Preparation
             var compatibility = AnalysisCompatibilityValidator.KnownAnalysisDiagnostic(model, out var compatibilityStatus);
             if (compatibility != null) return new BeamPreparation { BeamId = beamId, Sample = sample, Status = compatibilityStatus, Diagnostics = new[] { compatibility } };
             var status = DataStatus.Insufficient;
-            if (sample == null || !b.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, sample))) errors.Add(ModelDiagnostic.Error("MissingSample", b));
+            if (sample == null || !ValidationReadScope.IsRegistered(model, b, sample)) errors.Add(ModelDiagnostic.Error("MissingSample", b));
             else
             {
                 var state = sample.State;
@@ -81,8 +81,8 @@ namespace GPC.Model.Checking.Preparation
                 preparedForces = ResultOrientation.Beam(normalized, ActionTransformations.AtPoint(orientation, normalized.ResultBeamForces.CoordinateSystem.Origin)).ResultBeamForces;
             }
             catch (ArgumentException ex) { return new BeamPreparation { BeamId = beamId, Sample = sample, Status = DataStatus.Insufficient, Diagnostics = new[] { ModelDiagnostic.Error("InvalidResultAxes", b, ex.Message) } }; }
-            var sourceSectionFingerprint = Core.ModelValues.Fingerprint(new object[] { section });
-            var detachedSection = Core.ModelValues.CopyValue(section);
+            var sourceSectionFingerprint = ValidationReadScope.FingerprintOf(model, section);
+            var detachedSection = ValidationReadScope.CopyValue(model, section);
             return new BeamPreparation
             {
                 BeamId = beamId,
@@ -92,11 +92,11 @@ namespace GPC.Model.Checking.Preparation
                 Input = new BeamCheckInput
                 {
                     Model = model,
-                    SampleFingerprint = Core.ModelValues.Fingerprint(new object[] { sample }),
+                    SampleFingerprint = ValidationReadScope.FingerprintOf(model, sample),
                     PreparedForcesFingerprint = Core.ModelValues.Fingerprint(new object[] { preparedForces }),
-                    PreparedSectionFingerprint = Core.ModelValues.Fingerprint(new object[] { detachedSection }),
+                    PreparedSectionFingerprint = ValidationReadScope.CopyFingerprint(model, section, detachedSection),
                     SourceSectionFingerprint = sourceSectionFingerprint,
-                    DatasetFingerprint = Core.ModelValues.Fingerprint(new object[] { model.Datasets[sample.State.DatasetId] }),
+                    DatasetFingerprint = ValidationReadScope.FingerprintOf(model, model.Datasets[sample.State.DatasetId]),
                     BeamId = beamId,
                     Sample = sample,
                     Section = detachedSection,
@@ -116,17 +116,17 @@ namespace GPC.Model.Checking.Preparation
             try
             {
                 if (!input.Model.BeamElements.TryGetValue(input.BeamId, out var beam) || input.Sample?.State?.DatasetId == null
-                    || !beam.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, input.Sample))
+                    || !ValidationReadScope.IsRegistered(input.Model, beam, input.Sample)
                     || !input.Model.Datasets.TryGetValue(input.Sample.State.DatasetId, out var dataset)) return false;
                 var source = beam.Assignments.SectionAt(new BeamReferenceGeometry(beam).ConvertStation(input.Sample.ParametricDistance,
                     input.Sample.StationDomain, beam.Assignments.StationDomain ?? "NodeToNode"), input.Sample.Side);
                 return input.VerificationRevision == input.Model.VerificationFingerprint(input.Settings)
                     && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(input.Model)
                     && ResultAlgebra.HasCurrentDerivation(input.Model, beam, input.Sample.State)
-                    && input.SourceSectionFingerprint == Core.ModelValues.Fingerprint(new object[] { source })
-                    && input.DatasetFingerprint == Core.ModelValues.Fingerprint(new object[] { dataset })
+                    && input.SourceSectionFingerprint == ValidationReadScope.FingerprintOf(input.Model, source)
+                    && input.DatasetFingerprint == ValidationReadScope.FingerprintOf(input.Model, dataset)
                     && input.PreparedSectionFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Section })
-                    && input.SampleFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Sample })
+                    && input.SampleFingerprint == ValidationReadScope.FingerprintOf(input.Model, input.Sample)
                     && input.PreparedForcesFingerprint == Core.ModelValues.Fingerprint(new object[] { input.Forces });
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException) { return false; }
