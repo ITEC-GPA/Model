@@ -29,16 +29,17 @@ namespace UnitTest
             var ntc = new StandardNTC2018Concrete();
             double epsilonP = 1500.0 / 195000;
 
-            // Expected: the declared design law of the total strain t = ε + εp, i.e. Ep t up to εpyd = fpd / Ep, then the hardening branch of the
-            // characteristic law moved to start at (εpyd, fpd): fpd + (fpk - fp(0,1)k) / (εuk - fp(0,1)k / Ep) (t - εpyd), zero for t > εuk.
-            // Computed independently in Python (scratchpad agent-model/reference.py)
+            // Expected: the declared design law of the total strain t = ε + εp, i.e. Ep t up to εpyd = fpd / Ep, then the design branch from fpd at
+            // εpyd to fpk / γs at εuk (R18, EN 1992-1-1 3.3.6(7) and Fig. 3.10, decision of the ANTHEA user of 28/10/2026): the characteristic law
+            // divided by γs, read at εp(0,1)k + (t − εpyd)(εuk − εp(0,1)k)/(εuk − εpyd); zero for t > εuk. Computed independently in Python
+            // (UnitTest/Reference/r18_ref.py; before R18 the characteristic branch moved to (εpyd, fpd), agent-model/reference.py).
             (double Strain, double Stress)[] rows =
             {
                 (-0.0005, 1402.5),
-                (-0.0001, 1453.217940),
-                (0, 1453.936659),
-                (0.0001, 1454.655379),
-                (0.002, 1468.311053),
+                (-0.0001, 1453.044956), // before R18: 1453.217940
+                (0, 1453.644592),       // 1453.936659
+                (0.0001, 1454.244228),  // 1454.655379
+                (0.002, 1465.637309),   // 1468.311053
                 (0.028, 0),
             };
             foreach (var (strain, stress) in rows)
@@ -58,10 +59,11 @@ namespace UnitTest
             // The overloads with the characteristic stress (Model Code 2010, EN 1993-1-1, AISC 360) took the branch (tension or compression) and the
             // ultimate strain from ε alone and the yield strain from ε + εp, the flaw of SLU-6 (bug review 15/10/2026, user decision 16/10). The
             // characteristic stress passed is the one of the total strain t = ε + εp. Expected: the declared design law of the overloads without the
-            // stress on t (see TendonDesignStressUsesTheTotalStrain), |t| ≤ εyd: σk(t); |t| > εu: 0; otherwise the hardening branch moved to start
-            // at (εyd, fyd): fyd + Et (|t| − εyd), at most fu − (fy − fyd). Independent Python: scratchpad agent-model-acciaio/ref_design.py (the
-            // values of 15/10, from agent-concrete-tension/ref_steel4.py, followed the old law σk(t) − (fy − fyd) beyond εyd, bug of the yield band
-            // fixed on 16/10: shown as "16/10" in the comments).
+            // stress on t (see TendonDesignStressUsesTheTotalStrain), |t| ≤ εyd: σk(t); |t| > εu: 0; otherwise the design branch of R18 (28/10/2026):
+            // σk(εyk + (|t| − εyd)(εu − εyk)/(εu − εyd)) fyd / fy, from fyd at εyd to fu fyd / fy at εu. Independent Python:
+            // UnitTest/Reference/r18_ref.py (before R18 the hardening branch moved to start at (εyd, fyd), scratchpad agent-model-acciaio/ref_design.py,
+            // shown as "R18" in the comments; the values of 15/10 followed the old law σk(t) − (fy − fyd) beyond εyd, bug of the yield band fixed on
+            // 16/10: shown as "16/10").
             var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
             var ntc = new StandardNTC2018Concrete();
             double epsilonP = 1500.0 / 195000;
@@ -69,12 +71,12 @@ namespace UnitTest
             double Tendon(double t) => Characteristic(t, 195000, 1670, 1860, 0.035);
             (double Strain, double Stress)[] rows =
             {
-                (-0.04, -1630.852275),  // t = -32.3 ‰, compression beyond yield (before: 0, ε below εuc; 16/10: -1622.82)
+                (-0.04, -1601.247262),  // t = -32.3 ‰, compression beyond yield (before: 0, ε below εuc; 16/10: -1622.82; R18: -1630.852275)
                 (-0.0005, 1402.5),      // t = 7.192 ‰ ≤ εpyd = 7.447 ‰: σk (before: 1620.33, compression branch from ε)
-                (-0.0001, 1453.217940), // t = 7.592 ‰ > εpyd (before: 1698.33; 16/10: 1262.67, σk − 217.826 below fpd)
-                (0, 1453.936659),       // 16/10: 1282.17
-                (0.026, 1640.803779),   // 16/10: 1632.78
-                (0.0272, 1642.173913),  // t + Δε beyond εuk: fpk − 217.826
+                (-0.0001, 1453.044956), // t = 7.592 ‰ > εpyd (before: 1698.33; 16/10: 1262.67, σk − 217.826 below fpd; R18: 1453.217940)
+                (0, 1453.644592),       // 16/10: 1282.17; R18: 1453.936659
+                (0.026, 1609.549912),   // 16/10: 1632.78; R18: 1640.803779
+                (0.0272, 1616.745543),  // t = 34.89 ‰ < εuk, near fpk / γs = 1617.39 (R18: 1642.173913, fpk − 217.826)
                 (0.028, 0),             // t = 35.69 ‰ > εuk (before: -217.83)
             };
             foreach (var (strain, stress) in rows)
@@ -85,7 +87,7 @@ namespace UnitTest
             double Structural(double t) => Characteristic(t, 210000, 355, 510, 0.15);
             var ec3 = new StandardEN1993p11 { GammaM0 = 1.05 };
             var aisc = new StandardAISC360p16();
-            Assert.AreEqual(-491.611701030, structural.CalculateDesignStress(ec3, Structural(-0.1485), -0.1505, 0.002), 1e-6, "EN 1993 t = -148.5 ‰ (before: 0; 16/10: -491.53)");
+            Assert.AreEqual(-484.222079113, structural.CalculateDesignStress(ec3, Structural(-0.1485), -0.1505, 0.002), 1e-6, "EN 1993 t = -148.5 ‰ (before: 0; 16/10: -491.53; R18: -491.611701030)");
             Assert.AreEqual(315, structural.CalculateDesignStress(ec3, Structural(0.0015), -0.0005, 0.002), 1e-9, "EN 1993 t = 1.5 ‰ elastic (before: 331.90)");
             Assert.AreEqual(0, structural.CalculateDesignStress(ec3, Structural(0.151), 0.149, 0.002), 0.0, "EN 1993 t = 151 ‰ > εu (before: -16.90)");
             Assert.AreEqual(-508.432332638, structural.CalculateDesignStress(aisc, Structural(-0.1485), -0.1505, 0.002), 1e-6, "AISC t = -148.5 ‰ (before: 0)");
@@ -149,7 +151,8 @@ namespace UnitTest
             // - tendon fp(0,1)k 1670, Ep 195000, εuk 3.5 %, elastic perfectly plastic, σp0 1500 MPa (εp = 7.692 ‰): EN 1992-1-1 3.3.6(7) Fig. 3.10,
             //   horizontal branch, σp = fpd = 1670 / 1.15 beyond fpd / Ep = 7.447 ‰;
             // - S355 (E 210000, elastic perfectly plastic), EN 1993-1-1 6.1 with γM0 = 1.05: ±fy / γM0 beyond 1.610 ‰;
-            // - tendon of SLU-6 with hardening (fpk 1860) at t = 7.592 ‰: the declared law fpd + Et (t − εpyd) = 1453.2179 MPa (finding: 1262.7 MPa).
+            // - tendon of SLU-6 with hardening (fpk 1860) at t = 7.592 ‰: the design branch of R18 (28/10/2026) = 1453.0450 MPa
+            //   (UnitTest/Reference/r18_ref.py; before R18 fpd + Et (t − εpyd) = 1453.2179 MPa; finding: 1262.7 MPa).
             var ntc = new StandardNTC2018Concrete();
             var b450c = SteelMaterialEN1992Data.B450C;
             Assert.AreEqual(450 / 1.15, b450c.CalculateDesignStress(ntc, 420.0, 0.0021, 0), 1e-9, "B450C ε = 2.1 ‰ (before: 361.30)");
@@ -169,7 +172,7 @@ namespace UnitTest
             Assert.AreEqual(-355 / 1.05, s355.CalculateDesignStress(ec3, -346.5, -0.00165, 0), 1e-9, "EN 1993 ε = -1.65 ‰ (before: -329.60)");
 
             var tendon = new SteelMaterial("t", 195000, 1670, 1860, 0.035, SteelMaterial.StressStrainCurveType.ElasticHardening, SteelMaterial.SteelTypes.Tendon);
-            Assert.AreEqual(1453.217940, tendon.CalculateDesignStress(ntc, 1480.5, -0.0001, epsilonP), 1e-6, "SLU-6 tendon t = 7.592 ‰ (before: 1262.67)");
+            Assert.AreEqual(1453.044956, tendon.CalculateDesignStress(ntc, 1480.5, -0.0001, epsilonP), 1e-6, "SLU-6 tendon t = 7.592 ‰ (before: 1262.67; R18: 1453.217940)");
         }
 
         [TestMethod]
