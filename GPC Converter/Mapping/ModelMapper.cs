@@ -253,6 +253,14 @@ namespace GPC.Converter
                         Restrain = new NodeRestrain(node, r.CoordinateSystem, dofs), SourceRecord = r.Record
                     }, AssignmentMode.Add);
                 }
+                foreach (var s in batch.NodeSprings)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = s.Record;
+                    var spring = s.Spring ?? throw new ArgumentException("MissingNodeSpring");
+                    if (spring.Diagnose().Any(d => d.Severity == DiagnosticSeverity.Error)) throw new ArgumentException("InvalidNodeSpring");
+                    if (spring.SourceRecord == null) spring.SourceRecord = s.Record;
+                    nodes[s.NodeId].Assignments.GroundSprings.Add(spring);
+                }
                 foreach (var r in batch.BeamReleases)
                 {
                     cancellationToken.ThrowIfCancellationRequested(); record = r.Record;

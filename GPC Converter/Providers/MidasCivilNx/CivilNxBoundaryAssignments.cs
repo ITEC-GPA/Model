@@ -18,7 +18,7 @@ namespace GPC.Converter.CivilNx
                 if (Has("STAG"))
                 {
                     foreach (var table in new[] { "FRLS", "RIGD", "ELNK" })
-                        if (Has(table)) Warn("CivilNxStagedBoundaryPreserved", table, "Construction-stage activation is not resolved; the original boundary table is preserved only.");
+                        if (Has(table)) Warn("CivilNxStagedBoundaryPreserved", Rec(table), "Construction-stage activation is not resolved; the original boundary table is preserved only.");
                     return;
                 }
                 Releases(); RigidLinks(); ElasticLinks();
@@ -28,8 +28,12 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ItemList<ReleaseData>>("FRLS"))
                 {
-                    var record = "FRLS/" + pair.Key;
-                    if (!beams.TryGetValue(pair.Key, out var beam)) throw new InvalidDataException("ReleaseWithoutBeam: " + record);
+                    var record = Rec("FRLS", pair.Key);
+                    if (!beams.TryGetValue(pair.Key, out var beam))
+                    {
+                        if (Skipped(pair.Key, "FRLS")) continue;
+                        throw new InvalidDataException("ReleaseWithoutBeam: " + record);
+                    }
                     if (beam.Formulation != BeamFormulation.StraightTwoNode)
                     { Warn("CivilNxNonBeamReleasePreserved", record, "End releases on an axial-only or other non-beam formulation are preserved without assigning flexural DOFs."); continue; }
                     var items = pair.Value?.Items;
@@ -69,7 +73,7 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ItemList<RigidData>>("RIGD"))
                 {
-                    string record = "RIGD/" + pair.Key;
+                    string record = Rec("RIGD", pair.Key);
                     if (!points.ContainsKey(pair.Key) || pair.Value?.Items == null) throw new InvalidDataException("InvalidRigidLink: " + record);
                     foreach (var item in pair.Value.Items)
                     {
@@ -82,7 +86,7 @@ namespace GPC.Converter.CivilNx
                             if (!points.ContainsKey(second) || second == pair.Key) throw new InvalidDataException("InvalidRigidLinkNode: " + record);
                             if (nodeAxes.ContainsKey(pair.Key) || nodeAxes.ContainsKey(second) || unresolvedNodeAxes.Contains(pair.Key) || unresolvedNodeAxes.Contains(second))
                             { Warn("CivilNxSkewRigidLinkPreserved", record, "Rigid links involving local nodal axes require a dedicated equation transform."); continue; }
-                            if (mask.Contains('1')) batch.NodeLinks.Add(new NodeLinkRecord { I = pair.Key, J = second, RigidDofs = mask.Select(c => c == '1').ToArray(), Record = record + "/" + item.Id });
+                            if (mask.Contains('1')) batch.NodeLinks.Add(new NodeLinkRecord { I = pair.Key, J = second, RigidDofs = mask.Select(c => c == '1').ToArray(), Record = Rec("RIGD", pair.Key + "/" + item.Id) });
                         }
                     }
                 }
@@ -92,7 +96,7 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ElasticData>("ELNK"))
                 {
-                    string record = "ELNK/" + pair.Key; var item = pair.Value;
+                    string record = Rec("ELNK", pair.Key); var item = pair.Value;
                     if (item?.Nodes == null || item.Nodes.Length != 2 || item.Nodes[0] == item.Nodes[1]) throw new InvalidDataException("InvalidElasticLinkNodes: " + record);
                     string first = item.Nodes[0].ToString(), second = item.Nodes[1].ToString();
                     if (!points.ContainsKey(first) || !points.ContainsKey(second)) throw new InvalidDataException("DanglingElasticLink: " + record);
@@ -116,7 +120,7 @@ namespace GPC.Converter.CivilNx
                 }
             }
         }
-        [DataContract] private sealed class ReleaseData
+        [DataContract] internal sealed class ReleaseData
         {
             [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
             [DataMember(Name = "bVALUE")] public bool Absolute { get; set; }
@@ -125,13 +129,13 @@ namespace GPC.Converter.CivilNx
             [DataMember(Name = "VALUE_I")] public double[] ValuesI { get; set; }
             [DataMember(Name = "VALUE_J")] public double[] ValuesJ { get; set; }
         }
-        [DataContract] private sealed class RigidData
+        [DataContract] internal sealed class RigidData
         {
             [DataMember(Name = "ID")] public int Id { get; set; }
             [DataMember(Name = "DOF")] public int Dofs { get; set; }
             [DataMember(Name = "S_NODE")] public int[] Nodes { get; set; }
         }
-        [DataContract] private sealed class ElasticData
+        [DataContract] internal sealed class ElasticData
         {
             [DataMember(Name = "NODE")] public int[] Nodes { get; set; }
             [DataMember(Name = "LINK")] public string Kind { get; set; }

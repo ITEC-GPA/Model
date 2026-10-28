@@ -41,7 +41,7 @@ namespace GPC.Converter.CivilNx
                 foreach (var pair in rows.OrderBy(p => StageId(p.Key)))
                 {
                     token.ThrowIfCancellationRequested();
-                    var data = pair.Value; var record = "STAG/" + pair.Key;
+                    var data = pair.Value; var record = Rec("STAG", pair.Key);
                     if (string.IsNullOrWhiteSpace(data?.Name)) throw new InvalidDataException("MissingConstructionStageName: " + record);
                     var stage = new Stage(StageId(pair.Key), data.Name); batch.Stages.Add(stage); sequence++;
                     if (!data.Duration.HasValue)
@@ -91,14 +91,14 @@ namespace GPC.Converter.CivilNx
                     if (batch.LoadCases.Any(c => c.Name == modelName)) throw new InvalidDataException("ConstructionStageCaseNameCollision: " + modelName);
                     batch.LoadCases.Add(new LoadCaseRecord { Name = modelName, StageSourceCaseName = name, Record = "STAG/STCT result scope" });
                 }
-                Warn("CivilNxConstructionScheduleImported", "STAG", "Construction schedule imported as metadata; group operations are not permanent assignments. Result selection requires explicit phase and step.");
+                Warn("CivilNxConstructionScheduleImported", Rec("STAG"), "Construction schedule imported as metadata; group operations are not permanent assignments. Result selection requires explicit phase and step.");
             }
 
             private static int StageId(string text) => int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var id) && id > 0
                 ? id : throw new InvalidDataException("InvalidConstructionStageId: " + text);
         }
 
-        [DataContract] private sealed class StageData
+        [DataContract] internal sealed class StageData
         {
             [DataMember(Name = "NAME")] public string Name;
             [DataMember(Name = "DURATION")] public double? Duration;
@@ -114,31 +114,31 @@ namespace GPC.Converter.CivilNx
             [DataMember(Name = "ACT_LOAD")] public LoadActivation[] ActivateLoads;
             [DataMember(Name = "DACT_LOAD")] public LoadActivation[] DeactivateLoads;
         }
-        [DataContract] private sealed class ElementActivation
+        [DataContract] internal sealed class ElementActivation
         {
             [DataMember(Name = "GRUP_NAME")] public string Group;
             [DataMember(Name = "AGE")] public double? Age;
         }
-        [DataContract] private sealed class ElementDeactivation
+        [DataContract] internal sealed class ElementDeactivation
         {
             [DataMember(Name = "GRUP_NAME")] public string Group;
             [DataMember(Name = "REDIST")] public double? Redistribution;
         }
-        [DataContract] private sealed class BoundaryActivation
+        [DataContract] internal sealed class BoundaryActivation
         {
             [DataMember(Name = "BNGR_NAME")] public string Group;
             [DataMember(Name = "POS")] public string Position;
         }
-        [DataContract] private sealed class LoadActivation
+        [DataContract] internal sealed class LoadActivation
         {
             [DataMember(Name = "LOAD_NAME")] public string Group;
             [DataMember(Name = "DAY")] public string Day;
         }
-        [DataContract] private sealed class StageControlData
+        [DataContract] internal sealed class StageControlData
         {
             [DataMember(Name = "vEREC")] public StageErectionCase[] ErectionCases;
         }
-        [DataContract] private sealed class StageErectionCase
+        [DataContract] internal sealed class StageErectionCase
         {
             [DataMember(Name = "LTYPECC")] public string Name;
         }

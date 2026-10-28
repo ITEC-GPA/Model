@@ -253,6 +253,13 @@ namespace GPC.Converter
         public GPC.Model.Attributes.BeamReleasesAttribute Release { get; set; }
         public string Record { get; set; }
     }
+    /// <summary>Elastic support of a node to the ground: a linear spring in its own axes, DOF order DX,DY,DZ,RX,RY,RZ, N/mm and Nmm/rad.</summary>
+    public sealed class NodeSpringRecord
+    {
+        public string NodeId { get; set; }
+        public SpringMatrix Spring { get; set; }
+        public string Record { get; set; }
+    }
     public sealed class NodeLinkRecord
     {
         public string I { get; set; }
@@ -278,6 +285,7 @@ namespace GPC.Converter
         public List<NodeRestrainRecord> NodeRestrains { get; } = new List<NodeRestrainRecord>();
         public List<BeamReleaseRecord> BeamReleases { get; } = new List<BeamReleaseRecord>();
         public List<NodeLinkRecord> NodeLinks { get; } = new List<NodeLinkRecord>();
+        public List<NodeSpringRecord> NodeSprings { get; } = new List<NodeSpringRecord>();
         public List<MaterialRecord> Materials { get; } = new List<MaterialRecord>();
         public List<SectionRecord> Sections { get; } = new List<SectionRecord>();
         public List<ThicknessRecord> Thicknesses { get; } = new List<ThicknessRecord>();

@@ -79,19 +79,29 @@ namespace GPC.Converter.CivilNx
             private readonly Dictionary<string, BeamRecord> beams = new Dictionary<string, BeamRecord>(StringComparer.Ordinal);
             private readonly Dictionary<string, ShellRecord> shells = new Dictionary<string, ShellRecord>(StringComparer.Ordinal);
             private readonly Dictionary<string, int> warnings = new Dictionary<string, int>(StringComparer.Ordinal);
+            /// <summary>Records of an MCT/MGT text file instead of API responses; null for the API.</summary>
+            private readonly CivilNxTables tables;
+            /// <summary>Elements of a text file left out of the model (unsupported families), with their family label.</summary>
+            private readonly Dictionary<string, string> skipped = new Dictionary<string, string>(StringComparer.Ordinal);
 
-            public Reader(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken token, string[] stageResultCases)
+            public Reader(CivilNxSnapshot snapshot, AnalysisSource identity, CancellationToken token, string[] stageResultCases, CivilNxTables tables = null)
             {
-                this.snapshot = snapshot; this.token = token;
+                this.snapshot = snapshot; this.token = token; this.tables = tables;
                 this.stageResultCases = stageResultCases;
                 batch = new ImportBatch { Program = identity.Program, SolverVersion = identity.SolverVersion, ModelRevision = identity.ModelRevision, AnalysisId = identity.AnalysisId };
             }
+
+            /// <summary>Conventions of the text files: from <see cref="CivilNxTables"/>, or from the marker table when the translated tables
+            /// come back as API responses (ANTHEA keeps them as source tables).</summary>
+            private bool Lenient => tables?.Lenient == true || snapshot.Responses.ContainsKey(CivilNxTables.TextConventionsTable);
+            /// <summary>Source record of a row: "TABLE/key" for the API, the file command and line for a text file.</summary>
+            private string Rec(string table, string key = null) => tables != null ? tables.Resolve(table, key) : key == null ? table : table + "/" + key;
 
             public ImportBatch Read()
             {
                 Units(); Skews(); Nodes();
                 var thicknesses = Thicknesses(); var sections = Sections(); Materials();
-                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Stages(); Supports(); BoundaryAssignments(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
+                Elements(sections, thicknesses); Offsets(); Groups(); Cases(); Stages(); Supports(); Springs(); BoundaryAssignments(); NodalLoads(); BeamLoads(); Pressures(); SelfWeight(); Combinations();
                 foreach (var table in new[] { "NBOF" })
                     if (Has(table)) Warn("CivilNx" + table + "Preserved", "db/" + table, table == "FRLS" ? "Beam end releases are preserved, not mapped."
                         : "Nodal body forces (masses times factors, e.g. seismic inertia) are preserved, not converted to loads.");
@@ -101,7 +111,7 @@ namespace GPC.Converter.CivilNx
                 return batch;
             }
 
-            private bool Has(string table) => snapshot.Responses.TryGetValue(table, out var response) && !CivilNxJson.IsEmptyDatabase(response.Json);
+            private bool Has(string table) => tables != null ? tables.Has(table) : snapshot.Responses.TryGetValue(table, out var response) && !CivilNxJson.IsEmptyDatabase(response.Json);
             private void Warn(string code, string record, string message)
             {
                 var key = code + "\u001f" + record + "\u001f" + message;
@@ -111,6 +121,7 @@ namespace GPC.Converter.CivilNx
             /// <summary>The records under the table's own key; none for an absent table or the API's empty answer {"message":""}.</summary>
             private Dictionary<string, T> Rows<T>(string name)
             {
+                if (tables != null) return tables.Rows<T>(name);
                 if (!snapshot.Responses.TryGetValue(name, out var response) || CivilNxJson.IsEmptyDatabase(response.Json)) return new Dictionary<string, T>();
                 var root = CivilNxJson.Read<Dictionary<string, Dictionary<string, T>>>(response.Json);
                 if (root == null || !root.TryGetValue(name, out var table)) throw new InvalidDataException("UnknownCivilNxSchema: " + name);
@@ -142,7 +153,7 @@ namespace GPC.Converter.CivilNx
                     if (axes == null)
                     {
                         unresolvedNodeAxes.Add(pair.Key);
-                        Warn("CivilNxNodeAxesUnresolved", "SKEW/" + pair.Key, "Node local axes by angles or line vector are not mapped; supports on these nodes are preserved only.");
+                        Warn("CivilNxNodeAxesUnresolved", Rec("SKEW", pair.Key), "Node local axes by angles or line vector are not mapped; supports on these nodes are preserved only.");
                     }
                     else nodeAxes.Add(pair.Key, axes);
                 }
@@ -157,7 +168,7 @@ namespace GPC.Converter.CivilNx
                     var p = new Point3d(L(n.X.Value), L(n.Y.Value), L(n.Z.Value));
                     points.Add(pair.Key, p);
                     nodeAxes.TryGetValue(pair.Key, out var axes);
-                    batch.Nodes.Add(new NodeRecord { Id = pair.Key, GlobalPosition = p, Record = "NODE/" + pair.Key,
+                    batch.Nodes.Add(new NodeRecord { Id = pair.Key, GlobalPosition = p, Record = Rec("NODE", pair.Key),
                         CoordinateSystem = axes == null ? null : Frames.At(axes, p) });
                 }
                 if (points.Count == 0) throw new InvalidDataException("CivilNxModelWithoutNodes");
@@ -188,7 +199,7 @@ namespace GPC.Converter.CivilNx
                 {
                     var m = pair.Value ?? throw new InvalidDataException("InvalidCivilNxMaterial: " + pair.Key);
                     var type = (m.Type ?? "").ToUpperInvariant();
-                    var record = new MaterialRecord { Id = pair.Key, Name = m.Name, Record = "MATL/" + pair.Key,
+                    var record = new MaterialRecord { Id = pair.Key, Name = m.Name, Record = Rec("MATL", pair.Key),
                         Kind = type == "STEEL" ? MaterialKind.Steel : type == "CONC" ? MaterialKind.Concrete : type == "USER" ? MaterialKind.Unknown : MaterialKind.Other };
                     var p = m.Parameters?.FirstOrDefault();
                     if (record.Kind != MaterialKind.Other && p != null)
@@ -218,7 +229,7 @@ namespace GPC.Converter.CivilNx
                 var supported = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var pair in Rows<ThicknessData>("THIK"))
                 {
-                    var t = pair.Value; var record = "THIK/" + pair.Key;
+                    var t = pair.Value; var record = Rec("THIK", pair.Key);
                     if (t == null || !string.Equals(t.Type, "VALUE", StringComparison.OrdinalIgnoreCase) || !t.In.HasValue)
                     { Warn("CivilNxThicknessPreserved", record, "Stiffened or incomplete thickness is not mapped; plates using it keep no property."); continue; }
                     double inPlane = L(t.In.Value); double? outOfPlane = t.Separate == true && t.Out.HasValue && t.Out.Value != t.In.Value ? L(t.Out.Value) : (double?)null;
@@ -234,7 +245,7 @@ namespace GPC.Converter.CivilNx
                 var values = SectionValues(); var defined = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var pair in Rows<SectionData>("SECT"))
                 {
-                    var s = pair.Value; var b = s?.Before; var record = "SECT/" + pair.Key;
+                    var s = pair.Value; var b = s?.Before; var record = Rec("SECT", pair.Key);
                     var section = new SectionRecord { Id = pair.Key, Name = s?.Name, Record = record };
                     var type = (s?.SectionType ?? "").ToUpperInvariant();
                     if (b != null && type == "DBUSER")
@@ -318,6 +329,14 @@ namespace GPC.Converter.CivilNx
                         { section.Shape = SectionShapeKind.Box; section.Dimensions = new[] { At(0), At(1), At(2), At(3), At(5) }; }
                         break;
                 }
+                // Zero plates or legs (e.g. H with B2 = tf2 = 0) are not guessed as symmetric or as another shape: the section is preserved.
+                int required = section.Shape == SectionShapeKind.I || section.Shape == SectionShapeKind.Channel ? 6 : section.Shape == SectionShapeKind.Box ? 5
+                    : section.Shape == SectionShapeKind.Angle || section.Shape == SectionShapeKind.Tee ? 4 : section.Shape == SectionShapeKind.SolidCircle ? 1 : 2;
+                if (section.Shape != SectionShapeKind.Unknown && section.Dimensions.Take(required).Any(v => !(v > 0) || double.IsInfinity(v)))
+                {
+                    Warn("CivilNxSectionDimensionsPreserved", section.Record, "Sections of shape " + shape + " with zero or invalid required dimensions are preserved; beams using them keep no property.");
+                    section.Shape = SectionShapeKind.Unknown; section.Dimensions = null;
+                }
             }
 
             private SectionReference Reference(SectionBefore b, string record)
@@ -345,22 +364,40 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ElementData>("ELEM"))
                 {
-                    token.ThrowIfCancellationRequested(); var e = pair.Value; var record = "ELEM/" + pair.Key;
+                    token.ThrowIfCancellationRequested(); var e = pair.Value; var record = Rec("ELEM", pair.Key);
                     if (e?.Nodes == null) throw new InvalidDataException("MissingCivilNxConnectivity: " + pair.Key);
                     var ids = e.Nodes.Where(n => n != 0).Select(n => n.ToString(CultureInfo.InvariantCulture)).ToArray();
                     if (ids.Any(id => !points.ContainsKey(id))) throw new InvalidDataException("MissingCivilNxNode: " + record);
                     var type = (e.Type ?? "").ToUpperInvariant();
                     string material = e.Material > 0 ? e.Material.Value.ToString(CultureInfo.InvariantCulture) : null;
                     string property = e.Section > 0 ? e.Section.Value.ToString(CultureInfo.InvariantCulture) : null;
-                    if ((type == "BEAM" || type == "TRUSS" || (type == "TENSTR" && e.SubType == 1)) && ids.Length == 2)
+                    var formulation = LineFormulation(type, e.SubType, record);
+                    if (formulation.HasValue && ids.Length == 2)
                     {
                         CoordinateSystem axes;
                         try { axes = MidasConventions.BeamAxes(points[ids[0]], points[ids[1]], e.Angle ?? 0); }
                         catch (ArgumentException ex) { throw new ModelFileReadException(record, ex.Message); }
-                        if (property != null && !sections.Contains(property)) throw new InvalidDataException("MissingCivilNxSection: " + record);
+                        if (property != null && !sections.Contains(property))
+                        {
+                            if (!Lenient) throw new InvalidDataException("MissingCivilNxSection: " + record);
+                            Warn("CivilSectionUndefined", Rec("ELEM"), "Elements refer to sections that the file does not define; they keep no property.");
+                            property = null; material = null;
+                        }
+                        if (Lenient && (property == null || material == null || !Rows<MaterialData>("MATL").ContainsKey(material)))
+                        {
+                            if (property != null || material != null) Warn("CivilMaterialUndefined", Rec("ELEM"), "Elements refer to materials that the file does not define or have no section; they keep no property.");
+                            property = null; material = null;
+                        }
                         var beam = new BeamRecord { Id = pair.Key, I = ids[0], J = ids[1], CoordinateSystem = axes, MaterialId = material, SectionId = property, Record = record,
-                            Formulation = type == "BEAM" ? BeamFormulation.StraightTwoNode : type == "TRUSS" ? BeamFormulation.Truss : BeamFormulation.TensionOnly };
+                            Formulation = formulation.Value };
                         batch.Beams.Add(beam); beams.Add(pair.Key, beam);
+                    }
+                    else if (Lenient && !formulation.HasValue && type != "PLATE" && type != "BEAM" && type != "TRUSS")
+                    {
+                        // Families the GPC model has no element for (walls, plane, axisymmetric and solid elements, gaps, hooks).
+                        skipped.Add(pair.Key, type);
+                        Warn("CivilElementFamilyPreserved", Rec("ELEM"), "Elements of type " + type + (e.SubType.HasValue ? " (subtype " + e.SubType.Value.ToString(CultureInfo.InvariantCulture) + ")" : "")
+                            + " are not represented by the GPC model: left out of the model, records preserved; their loads and group memberships are left out too.");
                     }
                     else if (type == "PLATE" && (ids.Length == 3 || ids.Length == 4))
                     {
@@ -373,6 +410,13 @@ namespace GPC.Converter.CivilNx
                         }
                         Axes.Validate(axes);
                         bool known = property != null && thicknesses.Contains(property);
+                        if (known && Lenient && (material == null || !Rows<MaterialData>("MATL").ContainsKey(material)))
+                        {
+                            Warn("CivilMaterialUndefined", Rec("ELEM"), "Elements refer to materials that the file does not define or have no section; they keep no property.");
+                            known = false;
+                        }
+                        if (!known && Lenient && property != null && !thicknesses.Contains(property) && !Rows<ThicknessData>("THIK").ContainsKey(property))
+                            Warn("CivilThicknessUndefined", Rec("ELEM"), "Plates refer to thicknesses that the file does not define; they keep no property.");
                         var shell = new ShellRecord { Id = pair.Key, Nodes = ids, CoordinateSystem = axes, Record = record,
                             MaterialId = known ? material : null, ThicknessId = known ? property : null };
                         batch.Shells.Add(shell); shells.Add(pair.Key, shell);
@@ -381,12 +425,37 @@ namespace GPC.Converter.CivilNx
                 }
             }
 
+            /// <summary>Two-node families: BEAM; TRUSS; TENSTR subtype 1 (truss) tension-only. Text files also map TENSTR subtype 3 (cable) and
+            /// COMPTR subtype 1 (compression-only truss, as a truss with a diagnostic). Null for other families.</summary>
+            private BeamFormulation? LineFormulation(string type, int? subtype, string record)
+            {
+                switch (type)
+                {
+                    case "BEAM": return BeamFormulation.StraightTwoNode;
+                    case "TRUSS": return BeamFormulation.Truss;
+                    case "TENSTR":
+                        if (subtype == 1) return BeamFormulation.TensionOnly;
+                        if (subtype == 3 && Lenient) return BeamFormulation.Cable;
+                        return null;
+                    case "CABLE": return Lenient ? BeamFormulation.Cable : (BeamFormulation?)null;
+                    case "COMPTR":
+                        if (subtype != 1 || !Lenient) return null;
+                        Warn("CivilCompressionOnlyAsTruss", Rec("ELEM"), "Compression-only trusses are truss members of the GPC model: the compression-only behaviour of the analysis is not represented.");
+                        return BeamFormulation.Truss;
+                    default: return null;
+                }
+            }
+
             private void Offsets()
             {
                 foreach (var pair in Rows<ItemList<OffsetItem>>("OFFS"))
                 {
-                    var record = "OFFS/" + pair.Key; var items = pair.Value?.Items;
-                    if (!beams.TryGetValue(pair.Key, out var beam)) throw new InvalidDataException("CivilNxOffsetWithoutBeam: " + record);
+                    var record = Rec("OFFS", pair.Key); var items = pair.Value?.Items;
+                    if (!beams.TryGetValue(pair.Key, out var beam))
+                    {
+                        if (Skipped(pair.Key, "OFFS")) continue;
+                        throw new InvalidDataException("CivilNxOffsetWithoutBeam: " + record);
+                    }
                     if (items == null || items.Length != 1) { Warn("CivilNxOffsetPreserved", record, "Several or no offset items on one beam are not mapped."); continue; }
                     var o = items[0];
                     if (string.Equals(o.Type, "GLOBAL", StringComparison.OrdinalIgnoreCase))
@@ -403,20 +472,21 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<GroupData>("GRUP"))
                 {
-                    var g = pair.Value; var record = "GRUP/" + pair.Key;
+                    var g = pair.Value; var record = Rec("GRUP", pair.Key);
                     if (string.IsNullOrWhiteSpace(g?.Name)) throw new InvalidDataException("InvalidCivilNxGroup: " + record);
                     var group = new GroupRecord { Name = g.Name, Record = record };
                     foreach (var n in g.Nodes ?? new int[0])
                     {
                         var id = n.ToString(CultureInfo.InvariantCulture);
                         if (!points.ContainsKey(id)) throw new InvalidDataException("MissingCivilNxGroupNode: " + record);
-                        group.Members.Add(new SourceIdentity(Program, batch.ModelRevision, EntityFamily.Node, id));
+                        group.Members.Add(new SourceIdentity(batch.Program, batch.ModelRevision, EntityFamily.Node, id));
                     }
                     foreach (var el in g.Elements ?? new int[0])
                     {
                         var id = el.ToString(CultureInfo.InvariantCulture);
+                        if (!beams.ContainsKey(id) && !shells.ContainsKey(id) && Skipped(id, "GRUP")) continue;
                         var family = beams.ContainsKey(id) ? EntityFamily.Beam : shells.ContainsKey(id) ? EntityFamily.Shell : throw new InvalidDataException("MissingCivilNxGroupElement: " + record);
-                        group.Members.Add(new SourceIdentity(Program, batch.ModelRevision, family, id));
+                        group.Members.Add(new SourceIdentity(batch.Program, batch.ModelRevision, family, id));
                     }
                     batch.Groups.Add(group);
                 }
@@ -426,8 +496,8 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<CaseData>("STLD"))
                 {
-                    if (string.IsNullOrWhiteSpace(pair.Value?.Name)) throw new InvalidDataException("InvalidCivilNxCase: STLD/" + pair.Key);
-                    batch.LoadCases.Add(new LoadCaseRecord { Name = pair.Value.Name, Record = "STLD/" + pair.Key + " type " + pair.Value.Type });
+                    if (string.IsNullOrWhiteSpace(pair.Value?.Name)) throw new InvalidDataException("InvalidCivilNxCase: " + Rec("STLD", pair.Key));
+                    batch.LoadCases.Add(new LoadCaseRecord { Name = pair.Value.Name, Record = Rec("STLD", pair.Key) + " type " + pair.Value.Type });
                 }
             }
 
@@ -435,12 +505,12 @@ namespace GPC.Converter.CivilNx
             {
                 if (Has("STAG"))
                 {
-                    if (Has("CONS")) Warn("CivilNxStagedBoundaryPreserved", "CONS", "Stage-dependent restraints are preserved without applying them as permanent supports.");
+                    if (Has("CONS")) Warn("CivilNxStagedBoundaryPreserved", Rec("CONS"), "Stage-dependent restraints are preserved without applying them as permanent supports.");
                     return;
                 }
                 foreach (var pair in Rows<ItemList<SupportItem>>("CONS"))
                 {
-                    var record = "CONS/" + pair.Key;
+                    var record = Rec("CONS", pair.Key);
                     if (!points.ContainsKey(pair.Key)) throw new InvalidDataException("CivilNxSupportWithoutNode: " + record);
                     if (unresolvedNodeAxes.Contains(pair.Key)) continue;
                     var fixedDofs = new bool[6]; bool warping = false;
@@ -451,10 +521,48 @@ namespace GPC.Converter.CivilNx
                         for (int i = 0; i < 6; i++) fixedDofs[i] |= flags[i] == '1';
                         warping |= flags.Length == 7 && flags[6] == '1';
                     }
-                    if (warping) Warn("CivilNxWarpingRestraintIgnored", "CONS", "Warping (RW) restraints are not represented by the six-DOF support.");
+                    if (warping) Warn("CivilNxWarpingRestraintIgnored", Rec("CONS"), "Warping (RW) restraints are not represented by the six-DOF support.");
                     nodeAxes.TryGetValue(pair.Key, out var axes);
                     batch.NodeRestrains.Add(new NodeRestrainRecord { NodeId = pair.Key, FixedDofs = fixedDofs, Record = record,
                         CoordinateSystem = axes == null ? CoordinateSystem.Global : Frames.At(axes, points[pair.Key]) });
+                }
+            }
+
+            /// <summary>Point springs of a text file (*SPRING, LINEAR): fixed DOFs are supports, stiffnesses ground springs, both in the node
+            /// axes (local axes of *LOCALAXIS, else global). Damping, effective areas and nonlinear laws are preserved only.</summary>
+            private void Springs()
+            {
+                if (!Has("SPRING")) return;
+                if (Has("STAG")) { Warn("CivilNxStagedBoundaryPreserved", Rec("SPRING"), "Stage-dependent point springs are preserved without applying them as permanent supports."); return; }
+                foreach (var pair in Rows<ItemList<SpringItem>>("SPRING"))
+                {
+                    var record = Rec("SPRING", pair.Key);
+                    if (!points.ContainsKey(pair.Key)) throw new InvalidDataException("CivilNxSpringWithoutNode: " + record);
+                    if (unresolvedNodeAxes.Contains(pair.Key)) { Warn("CivilNxSkewSpringPreserved", Rec("SPRING"), "Point springs on nodes with unresolved local axes are preserved only."); continue; }
+                    nodeAxes.TryGetValue(pair.Key, out var local);
+                    var axes = local == null ? CoordinateSystem.Global : Frames.At(local, points[pair.Key]);
+                    var stiffness = new double[36]; var fixedDofs = new bool[6]; bool elastic = false;
+                    foreach (var item in pair.Value?.Items ?? new SpringItem[0])
+                    {
+                        if (!string.Equals(item?.Type, "LINEAR", StringComparison.OrdinalIgnoreCase))
+                        { Warn("CivilNxSpringLawPreserved", Rec("SPRING"), "Compression-only, tension-only and multi-linear point springs are preserved without a linear equivalent."); continue; }
+                        if (item.Fixed == null || item.Fixed.Length != 6 || item.Stiffness == null || item.Stiffness.Length != 6
+                            || item.Stiffness.Any(v => v < 0 || double.IsNaN(v) || double.IsInfinity(v))) throw new InvalidDataException("InvalidCivilNxSpring: " + record);
+                        if (item.Damping == true || item.Extra?.Any(v => v != 0) == true)
+                            Warn("CivilNxSpringDampingPreserved", Rec("SPRING"), "Damping and effective-area data of point springs are preserved only.");
+                        for (int k = 0; k < 6; k++)
+                        {
+                            if (item.Fixed[k]) fixedDofs[k] = true;
+                            else if (item.Stiffness[k] > 0) { stiffness[k * 6 + k] += item.Stiffness[k] * (k < 3 ? force / length : force * length); elastic = true; }
+                        }
+                    }
+                    if (fixedDofs.Any(f => f))
+                    {
+                        var existing = batch.NodeRestrains.FirstOrDefault(r => r.NodeId == pair.Key);
+                        if (existing != null) { for (int k = 0; k < 6; k++) existing.FixedDofs[k] |= fixedDofs[k]; existing.Record += "; " + record; }
+                        else batch.NodeRestrains.Add(new NodeRestrainRecord { NodeId = pair.Key, FixedDofs = fixedDofs, CoordinateSystem = axes, Record = record });
+                    }
+                    if (elastic) batch.NodeSprings.Add(new NodeSpringRecord { NodeId = pair.Key, Spring = new SpringMatrix(stiffness, axes) { SourceRecord = record }, Record = record });
                 }
             }
 
@@ -462,12 +570,12 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ItemList<NodalLoadItem>>("CNLD"))
                 {
-                    var record = "CNLD/" + pair.Key;
+                    var record = Rec("CNLD", pair.Key);
                     if (!points.ContainsKey(pair.Key)) throw new InvalidDataException("CivilNxLoadWithoutNode: " + record);
                     if (nodeAxes.ContainsKey(pair.Key) || unresolvedNodeAxes.Contains(pair.Key))
-                        Warn("CivilNxNodalLoadOnSkewNode", "CNLD", "Nodal loads on nodes with local axes are taken in GCS, as stored by the API.");
+                        Warn("CivilNxNodalLoadOnSkewNode", Rec("CNLD"), "Nodal loads on nodes with local axes are taken in GCS, as stored by the API.");
                     foreach (var l in pair.Value?.Items ?? new NodalLoadItem[0])
-                        batch.NodeLoads.Add(new NodeLoadRecord { NodeId = pair.Key, Case = l.Case, CoordinateSystem = CoordinateSystem.Global, Record = record + "/" + l.Id,
+                        batch.NodeLoads.Add(new NodeLoadRecord { NodeId = pair.Key, Case = l.Case, CoordinateSystem = CoordinateSystem.Global, Record = Rec("CNLD", pair.Key + "/" + l.Id),
                             Components = new[] { F(l.FX), F(l.FY), F(l.FZ), M(l.MX), M(l.MY), M(l.MZ) } });
                 }
             }
@@ -476,13 +584,17 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ItemList<BeamLoadItem>>("BMLD"))
                 {
-                    if (!beams.TryGetValue(pair.Key, out var beam)) throw new InvalidDataException("CivilNxBeamLoadWithoutBeam: BMLD/" + pair.Key);
+                    if (!beams.TryGetValue(pair.Key, out var beam))
+                    {
+                        if (Skipped(pair.Key, "BMLD")) continue;
+                        throw new InvalidDataException("CivilNxBeamLoadWithoutBeam: " + Rec("BMLD", pair.Key));
+                    }
                     foreach (var l in pair.Value?.Items ?? new BeamLoadItem[0])
                     {
-                        var record = "BMLD/" + pair.Key + "/" + l.Id; var type = (l.Type ?? "").ToUpperInvariant(); var direction = (l.Direction ?? "").ToUpperInvariant();
+                        var record = Rec("BMLD", pair.Key + "/" + l.Id); var type = (l.Type ?? "").ToUpperInvariant(); var direction = (l.Direction ?? "").ToUpperInvariant();
                         if (!string.Equals(l.Command, "BEAM", StringComparison.OrdinalIgnoreCase) || l.Eccentric == true || l.Additional == true
                             || (type != "CONLOAD" && type != "CONMOMENT" && type != "UNILOAD" && type != "UNIMOMENT") || direction.Length != 2 || "LG".IndexOf(direction[0]) < 0 || "XYZ".IndexOf(direction[1]) < 0)
-                        { Warn("CivilNxBeamLoadPreserved", "BMLD", "Line/typical, pressure or eccentric beam loads are preserved, not mapped."); continue; }
+                        { Warn("CivilNxBeamLoadPreserved", Rec("BMLD"), "Line/typical, pressure or eccentric beam loads are preserved, not mapped."); continue; }
                         bool local = direction[0] == 'L'; bool moment = type.EndsWith("MOMENT", StringComparison.Ordinal);
                         if (l.Projected == true && local) throw new InvalidDataException("CivilNxProjectedLocalBeamLoad: " + record);
                         // GPC components in the beam axes (V1,V2,V3) = MIDAS (y,z,x).
@@ -515,14 +627,18 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<ItemList<PressureItem>>("PRES"))
                 {
-                    if (!shells.TryGetValue(pair.Key, out var shell)) throw new InvalidDataException("CivilNxPressureWithoutPlate: PRES/" + pair.Key);
+                    if (!shells.TryGetValue(pair.Key, out var shell))
+                    {
+                        if (Skipped(pair.Key, "PRES")) continue;
+                        throw new InvalidDataException("CivilNxPressureWithoutPlate: " + Rec("PRES", pair.Key));
+                    }
                     foreach (var l in pair.Value?.Items ?? new PressureItem[0])
                     {
-                        var record = "PRES/" + pair.Key + "/" + l.Id; var direction = (l.Direction ?? "").ToUpperInvariant();
+                        var record = Rec("PRES", pair.Key + "/" + l.Id); var direction = (l.Direction ?? "").ToUpperInvariant();
                         bool edge = string.Equals(l.FaceEdge, "EDGE", StringComparison.OrdinalIgnoreCase);
                         if (!string.Equals(l.ElementType, "PLATE", StringComparison.OrdinalIgnoreCase) || (!edge && !string.Equals(l.FaceEdge, "FACE", StringComparison.OrdinalIgnoreCase))
                             || l.Projected == true)
-                        { Warn("CivilNxPressurePreserved", "PRES", "Projected or non-plate pressures are preserved, not mapped."); continue; }
+                        { Warn("CivilNxPressurePreserved", Rec("PRES"), "Projected or non-plate pressures are preserved, not mapped."); continue; }
                         var values = edge ? l.EdgeLoads : l.Forces;
                         double? uniform = Uniform(values, edge ? 3 : 5);
                         double[] nodal = null;
@@ -530,7 +646,7 @@ namespace GPC.Converter.CivilNx
                         {
                             // FORCES [0,P1..P4]: one value per plate node, in connectivity order (P4 unused on triangles).
                             if (edge || values == null || values.Length != 5 || values[0] != 0 || (shell.Nodes.Length == 3 && values[4] != 0))
-                            { Warn("CivilNxVaryingPressurePreserved", "PRES", "Varying edge loads or unknown pressure layouts are preserved, not mapped."); continue; }
+                            { Warn("CivilNxVaryingPressurePreserved", Rec("PRES"), "Varying edge loads or unknown pressure layouts are preserved, not mapped."); continue; }
                             nodal = values.Skip(1).Take(shell.Nodes.Length).Select(p => p * force / (length * length)).ToArray();
                         }
                         Vector3d vector; CoordinateSystem system = CoordinateSystem.Global;
@@ -545,7 +661,7 @@ namespace GPC.Converter.CivilNx
                             vector = new Vector3d(direction[1] == 'X' ? 1 : 0, direction[1] == 'Y' ? 1 : 0, direction[1] == 'Z' ? 1 : 0);
                             if (direction[0] == 'L') system = shell.CoordinateSystem;
                         }
-                        else { Warn("CivilNxPressurePreserved", "PRES", "Pressure direction " + direction + " is not mapped."); continue; }
+                        else { Warn("CivilNxPressurePreserved", Rec("PRES"), "Pressure direction " + direction + " is not mapped."); continue; }
                         if (nodal != null)
                         {
                             var global = system == CoordinateSystem.Global ? vector : system.V1 * vector.X + system.V2 * vector.Y + system.V3 * vector.Z;
@@ -578,7 +694,7 @@ namespace GPC.Converter.CivilNx
                 foreach (var table in CombinationTables.Values)
                     foreach (var pair in Rows<CombinationData>(table))
                     {
-                        var c = pair.Value; var record = table + "/" + pair.Key;
+                        var c = pair.Value; var record = Rec(table, pair.Key);
                         if (string.IsNullOrWhiteSpace(c?.Name) || c.Terms == null) throw new InvalidDataException("InvalidCivilNxCombination: " + record);
                         if (c.Type < 0 || c.Type > 3) throw new InvalidDataException("UnknownCivilNxCombinationType: " + record);
                         var definition = new CombinationRecord { Id = table + "/" + c.Name, Name = c.Name, Kind = (CombinationKind)c.Type, Status = c.Active, Source = table, Record = record };
@@ -603,9 +719,11 @@ namespace GPC.Converter.CivilNx
             {
                 foreach (var pair in Rows<SelfWeightData>("BODF"))
                 {
-                    var s = pair.Value; var record = "BODF/" + pair.Key;
+                    var s = pair.Value; var record = Rec("BODF", pair.Key);
                     if (s?.Factors == null || s.Factors.Length != 3 || string.IsNullOrWhiteSpace(s.Case)) throw new InvalidDataException("InvalidCivilNxSelfWeight: " + record);
-                    if (!string.IsNullOrEmpty(s.Group)) { Warn("CivilNxGroupSelfWeightPreserved", record, "Self weight restricted to a load group is preserved, not mapped."); continue; }
+                    // GROUP_NAME is the load group that activates the self weight in a construction stage, not a subset of the elements.
+                    if (!string.IsNullOrEmpty(s.Group) && Has("STAG"))
+                        Warn("CivilNxSelfWeightLoadGroup", record, "Self weight of a load group is imported as a load case of the whole model; its stage activation is not represented.");
                     batch.Gravity.Add(new GravityRecord { Case = s.Case, Factors = new Vector3d(s.Factors[0], s.Factors[1], s.Factors[2]), Record = record });
                 }
             }
@@ -620,6 +738,14 @@ namespace GPC.Converter.CivilNx
                 return linear.All(v => v == linear[0]) ? linear[0] : (double?)null;
             }
 
+            /// <summary>True, with one diagnostic per table, for an element left out of a text file model.</summary>
+            private bool Skipped(string element, string table)
+            {
+                if (!skipped.ContainsKey(element)) return false;
+                Warn("CivilElementAssignmentPreserved", Rec(table), "Assignments of elements left out of the model (" + string.Join(", ", skipped.Values.Distinct()) + ") are preserved only.");
+                return true;
+            }
+
             private static double[] Vector(int index, double value) { var v = new double[6]; v[index] = value; return v; }
             private double L(double value) => value * length;
             private double A(double value) => value * length * length;
@@ -628,11 +754,11 @@ namespace GPC.Converter.CivilNx
             private double M(double value) => value * force * length;
         }
 
-        [DataContract] private sealed class UnitData
+        [DataContract] internal sealed class UnitData
         { [DataMember(Name = "FORCE")] public string Force { get; set; } [DataMember(Name = "DIST")] public string Distance { get; set; } [DataMember(Name = "TEMPER")] public string Temperature { get; set; } }
-        [DataContract] private sealed class NodeData
+        [DataContract] internal sealed class NodeData
         { [DataMember] public double? X { get; set; } [DataMember] public double? Y { get; set; } [DataMember] public double? Z { get; set; } }
-        [DataContract] private sealed class SkewData
+        [DataContract] internal sealed class SkewData
         {
             [DataMember(Name = "iMETHOD")] public int? Method { get; set; }
             [DataMember] public double V1X { get; set; } [DataMember] public double V1Y { get; set; } [DataMember] public double V1Z { get; set; }
@@ -641,105 +767,131 @@ namespace GPC.Converter.CivilNx
             [DataMember] public double P1X { get; set; } [DataMember] public double P1Y { get; set; } [DataMember] public double P1Z { get; set; }
             [DataMember] public double P2X { get; set; } [DataMember] public double P2Y { get; set; } [DataMember] public double P2Z { get; set; }
         }
-        [DataContract] private sealed class ElementData
+        [DataContract] internal sealed class ElementData
         {
             [DataMember(Name = "TYPE")] public string Type { get; set; } [DataMember(Name = "MATL")] public int? Material { get; set; }
             [DataMember(Name = "SECT")] public int? Section { get; set; } [DataMember(Name = "NODE")] public int[] Nodes { get; set; }
             [DataMember(Name = "ANGLE")] public double? Angle { get; set; } [DataMember(Name = "STYPE")] public int? SubType { get; set; }
         }
-        [DataContract] private sealed class MaterialData
+        [DataContract] internal sealed class MaterialData
         {
             [DataMember(Name = "TYPE")] public string Type { get; set; } [DataMember(Name = "NAME")] public string Name { get; set; }
             [DataMember(Name = "PARAM")] public MaterialParameters[] Parameters { get; set; }
+            // Read by ANTHEA and written by the text reader; not used by the mapping.
+            [DataMember(Name = "HE_SPEC")] public double? SpecificHeat { get; set; } [DataMember(Name = "HE_COND")] public double? HeatConduction { get; set; }
+            [DataMember(Name = "bMASS_DENS")] public bool? MassDensity { get; set; } [DataMember(Name = "DAMP_RAT")] public double? Damping { get; set; }
         }
-        [DataContract] private sealed class MaterialParameters
+        [DataContract] internal sealed class MaterialParameters
         {
+            [DataMember(Name = "CODE")] public string Code { get; set; } [DataMember(Name = "bELAST")] public bool? UseElastic { get; set; }
             [DataMember(Name = "P_TYPE")] public int Type { get; set; } [DataMember(Name = "STANDARD")] public string Standard { get; set; }
             [DataMember(Name = "DB")] public string Grade { get; set; } [DataMember(Name = "ELAST")] public double? Elastic { get; set; }
             [DataMember(Name = "POISN")] public double? Poisson { get; set; } [DataMember(Name = "THERMAL")] public double? Thermal { get; set; }
             [DataMember(Name = "DEN")] public double? WeightDensity { get; set; }
         }
-        [DataContract] private sealed class SectionData
+        [DataContract] internal sealed class SectionData
         {
             [DataMember(Name = "SECTTYPE")] public string SectionType { get; set; } [DataMember(Name = "SECT_NAME")] public string Name { get; set; }
             [DataMember(Name = "SECT_BEFORE")] public SectionBefore Before { get; set; }
             [DataMember(Name = "SECT_AFTER")] public SectionAfter After { get; set; }
         }
-        [DataContract] private sealed class SectionAfter { [DataMember(Name = "SLAB")] public double[] Slab { get; set; } }
-        [DataContract] private sealed class SectionStiffener { [DataMember(Name = "STIFF_CNT")] public int[] Counts { get; set; } }
-        [DataContract] private sealed class SectionBefore
+        [DataContract] internal sealed class SectionAfter { [DataMember(Name = "SLAB")] public double[] Slab { get; set; } }
+        [DataContract] internal sealed class SectionStiffener { [DataMember(Name = "STIFF_CNT")] public int[] Counts { get; set; } }
+        [DataContract] internal sealed class SectionBefore
         {
+            [DataMember(Name = "USER_OFFSET_REF")] public int? UserOffsetReference { get; set; }
+            [DataMember(Name = "USE_SHEAR_DEFORM")] public bool? ShearDeformation { get; set; } [DataMember(Name = "USE_WARPING_EFFECT")] public bool? Warping { get; set; }
             [DataMember(Name = "SHAPE")] public string Shape { get; set; } [DataMember(Name = "DATATYPE")] public int? DataType { get; set; }
             [DataMember(Name = "OFFSET_PT")] public string OffsetPoint { get; set; } [DataMember(Name = "OFFSET_CENTER")] public int? OffsetCenter { get; set; }
             [DataMember(Name = "HORZ_OFFSET_OPT")] public int? HorizontalOption { get; set; } [DataMember(Name = "USERDEF_OFFSET_YI")] public double? UserYI { get; set; }
             [DataMember(Name = "VERT_OFFSET_OPT")] public int? VerticalOption { get; set; } [DataMember(Name = "USERDEF_OFFSET_ZI")] public double? UserZI { get; set; }
             [DataMember(Name = "SECT_I")] public SectionData1 First { get; set; }
         }
-        [DataContract] private sealed class SectionData1
+        [DataContract] internal sealed class SectionData1
         {
             [DataMember(Name = "DB_NAME")] public string Database { get; set; } [DataMember(Name = "SECT_NAME")] public string SectionName { get; set; }
             [DataMember(Name = "STIFFENER")] public SectionStiffener Stiffener { get; set; }
             [DataMember(Name = "vSIZE")] public double[] Size { get; set; } [DataMember(Name = "STIFF")] public SectionStiffness Stiffness { get; set; }
         }
-        [DataContract] private sealed class SectionStiffness
+        [DataContract] internal sealed class SectionStiffness
         {
             [DataMember(Name = "AREA")] public double? Area { get; set; } [DataMember(Name = "RXX")] public double? Ixx { get; set; }
             [DataMember(Name = "RYY")] public double? Iyy { get; set; } [DataMember(Name = "RZZ")] public double? Izz { get; set; }
         }
-        [DataContract] private sealed class ThicknessData
+        [DataContract] internal sealed class ThicknessData
         {
             [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; }
             [DataMember(Name = "bINOUT")] public bool? Separate { get; set; } [DataMember(Name = "T_IN")] public double? In { get; set; }
             [DataMember(Name = "T_OUT")] public double? Out { get; set; } [DataMember(Name = "OFFSET")] public int? Offset { get; set; }
             [DataMember(Name = "O_VALUE")] public double OffsetValue { get; set; }
         }
-        [DataContract] private sealed class GroupData
+        [DataContract] internal sealed class GroupData
         {
             [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "N_LIST")] public int[] Nodes { get; set; }
             [DataMember(Name = "E_LIST")] public int[] Elements { get; set; }
         }
-        [DataContract] private sealed class CaseData
-        { [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; } }
-        [DataContract] private sealed class ItemList<T> { [DataMember(Name = "ITEMS")] public T[] Items { get; set; } }
-        [DataContract] private sealed class CombinationData
+        [DataContract] internal sealed class CaseData
+        {
+            [DataMember(Name = "NO")] public int? Number { get; set; }
+            [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; }
+            [DataMember(Name = "DESC")] public string Description { get; set; }
+        }
+        [DataContract] internal sealed class ItemList<T> { [DataMember(Name = "ITEMS")] public T[] Items { get; set; } }
+        [DataContract] internal sealed class CombinationData
         {
             [DataMember(Name = "NAME")] public string Name { get; set; } [DataMember(Name = "ACTIVE")] public string Active { get; set; }
             [DataMember(Name = "iTYPE")] public int Type { get; set; } [DataMember(Name = "vCOMB")] public CombinationTermData[] Terms { get; set; }
         }
-        [DataContract] private sealed class CombinationTermData
+        [DataContract] internal sealed class CombinationTermData
         {
             [DataMember(Name = "ANAL")] public string Analysis { get; set; } [DataMember(Name = "LCNAME")] public string Case { get; set; }
             [DataMember(Name = "FACTOR")] public double Factor { get; set; }
         }
-        [DataContract] private sealed class SelfWeightData
+        [DataContract] internal sealed class SelfWeightData
         {
             [DataMember(Name = "LCNAME")] public string Case { get; set; } [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
             [DataMember(Name = "FV")] public double[] Factors { get; set; }
         }
-        [DataContract] private sealed class SupportItem { [DataMember(Name = "CONSTRAINT")] public string Constraint { get; set; } }
-        [DataContract] private sealed class OffsetItem
+        [DataContract] internal sealed class SupportItem
+        {
+            [DataMember(Name = "ID")] public int? Id { get; set; } [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
+            [DataMember(Name = "CONSTRAINT")] public string Constraint { get; set; }
+        }
+        /// <summary>Point spring of a text file (table SPRING of the translated text, not an API database): LINEAR fixed flags and
+        /// stiffnesses DX..RZ, damping and the effective-area data.</summary>
+        [DataContract] internal sealed class SpringItem
+        {
+            [DataMember(Name = "ID")] public int? Id { get; set; } [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
+            [DataMember(Name = "TYPE")] public string Type { get; set; } [DataMember(Name = "FIXED")] public bool[] Fixed { get; set; }
+            [DataMember(Name = "SDR")] public double[] Stiffness { get; set; } [DataMember(Name = "DAMPING")] public bool? Damping { get; set; }
+            [DataMember(Name = "EXTRA")] public double[] Extra { get; set; }
+        }
+        [DataContract] internal sealed class OffsetItem
         {
             [DataMember(Name = "TYPE")] public string Type { get; set; }
             [DataMember(Name = "RGDXi")] public double Xi { get; set; } [DataMember(Name = "RGDYi")] public double Yi { get; set; } [DataMember(Name = "RGDZi")] public double Zi { get; set; }
             [DataMember(Name = "RGDXj")] public double Xj { get; set; } [DataMember(Name = "RGDYj")] public double Yj { get; set; } [DataMember(Name = "RGDZj")] public double Zj { get; set; }
         }
-        [DataContract] private sealed class NodalLoadItem
+        [DataContract] internal sealed class NodalLoadItem
         {
             [DataMember(Name = "ID")] public int Id { get; set; } [DataMember(Name = "LCNAME")] public string Case { get; set; }
+            [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
             [DataMember] public double FX { get; set; } [DataMember] public double FY { get; set; } [DataMember] public double FZ { get; set; }
             [DataMember] public double MX { get; set; } [DataMember] public double MY { get; set; } [DataMember] public double MZ { get; set; }
         }
-        [DataContract] private sealed class BeamLoadItem
+        [DataContract] internal sealed class BeamLoadItem
         {
             [DataMember(Name = "ID")] public int Id { get; set; } [DataMember(Name = "LCNAME")] public string Case { get; set; }
+            [DataMember(Name = "GROUP_NAME")] public string Group { get; set; }
             [DataMember(Name = "CMD")] public string Command { get; set; } [DataMember(Name = "TYPE")] public string Type { get; set; }
             [DataMember(Name = "DIRECTION")] public string Direction { get; set; } [DataMember(Name = "USE_PROJECTION")] public bool? Projected { get; set; }
             [DataMember(Name = "USE_ECCEN")] public bool? Eccentric { get; set; } [DataMember(Name = "USE_ADDITIONAL")] public bool? Additional { get; set; }
             [DataMember(Name = "D")] public double[] Distances { get; set; } [DataMember(Name = "P")] public double[] Values { get; set; }
         }
-        [DataContract] private sealed class PressureItem
+        [DataContract] internal sealed class PressureItem
         {
             [DataMember(Name = "ID")] public int Id { get; set; } [DataMember(Name = "LCNAME")] public string Case { get; set; }
+            [DataMember(Name = "GROUP_NAME")] public string Group { get; set; } [DataMember(Name = "CMD")] public string Command { get; set; }
             [DataMember(Name = "ELEM_TYPE")] public string ElementType { get; set; } [DataMember(Name = "FACE_EDGE_TYPE")] public string FaceEdge { get; set; }
             [DataMember(Name = "DIRECTION")] public string Direction { get; set; } [DataMember(Name = "VECTORS")] public double[] Vectors { get; set; }
             [DataMember(Name = "OPT_PROJECTION")] public bool? Projected { get; set; } [DataMember(Name = "EDGE_FACE")] public int? EdgeFace { get; set; }

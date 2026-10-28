@@ -1,353 +1,250 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using GPC.Geometry;
-using GPC.Model.Models;
-using GPC.Model.Core.Coordinates;
+using GPC.Converter.CivilNx;
+using GPC.Model.Analysis;
 using GPC.Model.Core.Diagnostics;
-using GPC.Model.Core.Identity;
 using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter.MidasCivil
 {
-    /// <summary>Documented Civil MCT command subset, also usable with an MGT-named Civil export.
+    /// <summary>MIDAS Civil text model (MCT; also an MGT-named Civil export). The commands are translated into the Civil NX database records
+    /// and mapped by <see cref="CivilNxModelProfile"/>, the reader of the API: same conventions for axes, properties, supports and loads.
     /// No release whitelist and no claim of validation against every solver version.</summary>
-    public sealed partial class MidasCivilTextReader : IModelFileReader
+    public sealed class MidasCivilTextReader : IModelFileReader
     {
-        private readonly string revision;
-        private readonly string analysisId;
-        private readonly Encoding encoding;
-        private const int MaximumExpandedReferences = 1000000;
-        private static readonly Regex IdRange = new Regex(@"\G\s*(\d+)(?:\s*to\s*(\d+)(?:\s*by\s*(\d+))?)?(?=\s|$)",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
-
-        public string Program => "MIDAS Civil";
-        public IReadOnlyDictionary<string, CapabilityStatus> Capabilities { get; } =
-            new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>
-            {
-                ["Nodes/beam/plate connectivity"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Units and beam beta axes"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Structural groups and static cases"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Global nodal loads and permanent global constraints"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Identical DBUSER 2C/2L sections and steel materials (native-tested layout)"] = CapabilityStatus.ImplementedSyntheticTests,
-                ["Other properties/thickness/releases/springs/stages"] = CapabilityStatus.PreservedOnly,
-                ["Plate axes and beam REF axes"] = CapabilityStatus.PreservedOnly,
-                ["Analysis results"] = CapabilityStatus.NotSupported
-            });
+        private readonly MidasTextModelReader reader;
+        public string Program => reader.Program;
+        public IReadOnlyDictionary<string, CapabilityStatus> Capabilities => reader.Capabilities;
 
         /// <param name="modelRevision">Caller-supplied revision, never inferred from element IDs.</param>
         /// <param name="analysisId">Optional externally attested analysis identity; an MCT file does not prove it.</param>
         /// <param name="textEncoding">Defaults to strict UTF-8 (with or without BOM). Specify the original encoding for legacy ANSI exports.</param>
         public MidasCivilTextReader(string modelRevision, string analysisId = null, Encoding textEncoding = null)
-        {
-            if (string.IsNullOrWhiteSpace(modelRevision)) throw new ArgumentException("Model revision required.", nameof(modelRevision));
-            revision = modelRevision; this.analysisId = analysisId;
-            encoding = (Encoding)(textEncoding ?? new UTF8Encoding(false, true)).Clone();
-            encoding.DecoderFallback = DecoderFallback.ExceptionFallback;
-        }
+        { reader = new MidasTextModelReader("MIDAS Civil", modelRevision, analysisId, textEncoding); }
 
         public ImportReport Import(Stream source, CancellationToken cancellationToken = default(CancellationToken)) =>
             new SolverFileAdapter(Program, this).Import(source, cancellationToken);
 
-        public ImportBatch Read(Stream source, CancellationToken cancellationToken)
+        public ImportBatch Read(Stream source, CancellationToken cancellationToken) => reader.Read(source, cancellationToken);
+    }
+
+    /// <summary>MIDAS Gen text model (MGT): the Civil command set plus the Gen commands; stories, rigid floor diaphragms and wall elements
+    /// are preserved with diagnostics, the rest is mapped as for <see cref="MidasCivilTextReader"/>.</summary>
+    public sealed class MidasGenTextReader : IModelFileReader
+    {
+        private readonly MidasTextModelReader reader;
+        public string Program => reader.Program;
+        public IReadOnlyDictionary<string, CapabilityStatus> Capabilities => reader.Capabilities;
+
+        /// <param name="modelRevision">Caller-supplied revision, never inferred from element IDs.</param>
+        /// <param name="analysisId">Optional externally attested analysis identity; an MGT file does not prove it.</param>
+        /// <param name="textEncoding">Defaults to strict UTF-8 (with or without BOM). Specify the original encoding for legacy ANSI exports.</param>
+        public MidasGenTextReader(string modelRevision, string analysisId = null, Encoding textEncoding = null)
+        { reader = new MidasTextModelReader("MIDAS Gen", modelRevision, analysisId, textEncoding); }
+
+        public ImportReport Import(Stream source, CancellationToken cancellationToken = default(CancellationToken)) =>
+            new SolverFileAdapter(Program, this).Import(source, cancellationToken);
+
+        public ImportBatch Read(Stream source, CancellationToken cancellationToken) => reader.Read(source, cancellationToken);
+    }
+
+    /// <summary>Choice of the MIDAS text reader from the file: the export header (";  MIDAS/Civil Text(MCT) File.", ";  MIDAS CIVIL NX Text(MCT) File.",
+    /// ";  midas Gen Text(MGT) File.") decides; without a header the extension does (.mct Civil, .mgt Gen).</summary>
+    public static class MidasTextFiles
+    {
+        public const string CivilProgram = "MIDAS Civil", GenProgram = "MIDAS Gen";
+
+        /// <summary>"MIDAS Civil", "MIDAS Gen", or null when neither the header nor the extension identifies the program.</summary>
+        /// <param name="head">The first bytes of the file (the first kilobyte is enough); may be null.</param>
+        public static string DetectProgram(string fileName, byte[] head)
+        {
+            if (head != null)
+            {
+                var text = Encoding.ASCII.GetString(head, 0, Math.Min(head.Length, 4096)).ToUpperInvariant();
+                foreach (var line in text.Split('\n').Select(l => l.Trim()).Where(l => l.StartsWith(";", StringComparison.Ordinal)).Take(10))
+                {
+                    if (line.Contains("TEXT(MCT) FILE") && line.Contains("CIVIL")) return CivilProgram;
+                    if (line.Contains("TEXT(MGT) FILE") && line.Contains("GEN")) return GenProgram;
+                }
+            }
+            var extension = Path.GetExtension(fileName ?? "").ToUpperInvariant();
+            return extension == ".MCT" ? CivilProgram : extension == ".MGT" ? GenProgram : null;
+        }
+
+        /// <summary>The reader of <see cref="DetectProgram"/>; throws <see cref="NotSupportedException"/> for an unidentified file.</summary>
+        public static IModelFileReader CreateReader(string fileName, byte[] head, string modelRevision, string analysisId = null, Encoding textEncoding = null)
+        {
+            var program = DetectProgram(fileName, head) ?? throw new NotSupportedException("Not a MIDAS Civil (.mct) or Gen (.mgt) text model: " + Path.GetFileName(fileName));
+            return program == GenProgram ? (IModelFileReader)new MidasGenTextReader(modelRevision, analysisId, textEncoding) : new MidasCivilTextReader(modelRevision, analysisId, textEncoding);
+        }
+
+        /// <summary>The Civil NX databases translated from a MIDAS text file, as JSON with the names and the form of the API responses
+        /// (<c>{"NODE":{"1":{"X":...}}}</c>), with the mapped batch and the diagnostics. See <see cref="MidasTextTables"/>.</summary>
+        public static MidasTextTables ReadTables(string path, string modelRevision, string analysisId = null, Encoding textEncoding = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Source path required.", nameof(path));
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                return ReadTables(stream, path, modelRevision, analysisId, textEncoding, cancellationToken);
+        }
+
+        /// <summary>As <see cref="ReadTables(string, string, string, Encoding, CancellationToken)"/> for a stream; the file name only chooses the program
+        /// when the text has no export header.</summary>
+        public static MidasTextTables ReadTables(Stream source, string fileName, string modelRevision, string analysisId = null, Encoding textEncoding = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            byte[] bytes;
+            using (var memory = new MemoryStream())
+            {
+                var buffer = new byte[65536]; int count;
+                while ((count = source.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); memory.Write(buffer, 0, count);
+                    if (memory.Length > 128L * 1024 * 1024) throw new InvalidDataException("Source exceeds configured import size limit.");
+                }
+                bytes = memory.ToArray();
+            }
+            var program = DetectProgram(fileName, bytes.Take(4096).ToArray()) ?? throw new NotSupportedException("Not a MIDAS Civil (.mct) or Gen (.mgt) text model: " + Path.GetFileName(fileName));
+            var result = new MidasTextTables { Program = program };
+            using (var memory = new MemoryStream(bytes)) result.SourceHash = SourceEvidence.Sha256(memory);
+            try
+            {
+                using (var memory = new MemoryStream(bytes))
+                {
+                    var (batch, tables) = new MidasTextModelReader(program, modelRevision, analysisId, textEncoding).ReadWithTables(memory, cancellationToken);
+                    batch.SourceHash = result.SourceHash;
+                    result.Batch = batch; result.Diagnostics = batch.Diagnostics.ToArray();
+                    result.Tables = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(tables.Names.ToDictionary(n => n, tables.Json, StringComparer.Ordinal));
+                }
+            }
+            catch (Exception ex) when (ex is FormatException || ex is InvalidDataException || ex is NotSupportedException || ex is DecoderFallbackException)
+            {
+                result.Diagnostics = new[] { new ModelDiagnostic { Code = "SourceReadFailed", Severity = DiagnosticSeverity.Error, Record = (ex as ModelFileReadException)?.Record,
+                    Message = ex.Message, SuggestedAction = "Correct the source record or select an encoding matching the export." } };
+            }
+            return result;
+        }
+
+        /// <summary>Imports a file read once: program detected from its header/extension, original bytes and hash retained by <see cref="SolverFileAdapter"/>.</summary>
+        public static ImportReport Import(string path, string modelRevision, string analysisId = null, Encoding textEncoding = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Source path required.", nameof(path));
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var head = new byte[4096]; int read = stream.Read(head, 0, head.Length); stream.Position = 0;
+                Array.Resize(ref head, read);
+                var reader = CreateReader(path, head, modelRevision, analysisId, textEncoding);
+                return new SolverFileAdapter(reader.Program, reader).Import(stream, cancellationToken);
+            }
+        }
+    }
+
+    /// <summary>Tables of a MIDAS text file in the form of the Civil NX API responses. <see cref="Tables"/>: table name → <c>{"TABLE":{"key":{...}}}</c>,
+    /// with the API field names (NODE, ELEM with NODE padded to eight entries, MATL, SECT, THIK, GRUP, STLD, CONS, SKEW, CNLD, BMLD, PRES, BODF, FRLS,
+    /// OFFS, ELNK, RIGD, LCOM-*, STAG), plus SPRING (point springs, not an API database) and GPC-TEXT (program, version and the marker that makes
+    /// <see cref="CivilNxModelProfile"/> apply the text conventions to these tables). **Values are in N, mm and °C, as declared by the UNIT table
+    /// {"UNIT":{"1":{"FORCE":"N","DIST":"MM","TEMPER":"C"}}}**, not in the units of the file; distances of beam loads are relative and angles in degrees.
+    /// Members without a value are omitted. <see cref="Batch"/> is the mapped batch of the text reader (null when the file is rejected).</summary>
+    public sealed class MidasTextTables
+    {
+        public string Program { get; internal set; }
+        public string SourceHash { get; internal set; }
+        public IReadOnlyDictionary<string, string> Tables { get; internal set; } = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+        public ImportBatch Batch { get; internal set; }
+        public IReadOnlyList<ModelDiagnostic> Diagnostics { get; internal set; } = new ModelDiagnostic[0];
+        /// <summary>The tables as API responses (endpoint "mct/TABLE"), e.g. for <see cref="CivilNxGeometryReader.Import"/> with the program "MIDAS Civil NX":
+        /// the model is that of the text reader, except REF beams (default axes), unresolved sections (kept empty) and pair offsets.</summary>
+        public CivilNxSnapshot ToSnapshot() => new CivilNxSnapshot(Tables.ToDictionary(t => t.Key, t => new CivilNxResponse("mct/" + t.Key, t.Value), StringComparer.Ordinal));
+    }
+
+    internal sealed class MidasTextModelReader
+    {
+        private readonly string revision, analysisId;
+        private readonly Encoding encoding;
+        public string Program { get; }
+        public IReadOnlyDictionary<string, CapabilityStatus> Capabilities { get; } =
+            new ReadOnlyDictionary<string, CapabilityStatus>(new Dictionary<string, CapabilityStatus>
+            {
+                ["Nodes, beam/truss/tension/compression/cable and plate connectivity"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Units, beam beta axes and plate axes with ANGLE (Civil NX conventions)"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Groups, static cases, combinations, construction schedule (metadata)"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Materials (code grades and user data), DB/user/value sections, thicknesses"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Supports (also in node local axes), linear point springs, releases, offsets, rigid and linear elastic links"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Nodal, beam, pressure and self-weight loads"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Native Civil NX 9.5.5 MCT exports equal to the API model (steel frames)"] = CapabilityStatus.ImplementedSyntheticTests,
+                ["Walls, plane/solid elements, stories and floor diaphragms, tapered/PSC/SRC sections, nonlinear links and springs"] = CapabilityStatus.PreservedOnly,
+                ["Analysis results"] = CapabilityStatus.NotSupported
+            });
+
+        public MidasTextModelReader(string program, string modelRevision, string analysisId, Encoding textEncoding)
+        {
+            if (string.IsNullOrWhiteSpace(modelRevision)) throw new ArgumentException("Model revision required.", nameof(modelRevision));
+            Program = program; revision = modelRevision; this.analysisId = analysisId;
+            encoding = (Encoding)(textEncoding ?? new UTF8Encoding(false, true)).Clone();
+            encoding.DecoderFallback = DecoderFallback.ExceptionFallback;
+        }
+
+        public ImportBatch Read(Stream source, CancellationToken cancellationToken) => ReadWithTables(source, cancellationToken).Batch;
+
+        public (ImportBatch Batch, CivilNxTables Tables) ReadWithTables(Stream source, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var blocks = MidasCivilTextSyntax.Read(source, encoding, cancellationToken);
-            var batch = new ImportBatch { Program = Program, ModelRevision = revision, AnalysisId = analysisId };
-            var points = new Dictionary<string, Point3d>(StringComparer.Ordinal);
-            var elements = new Dictionary<string, EntityFamily>(StringComparer.Ordinal);
-            var beamAngles = new Dictionary<BeamRecord, double>();
-            var beamProperties = new Dictionary<BeamRecord, (string Material, string Section)>();
-            var groups = new List<Tuple<GroupRecord, string[]>>();
-            var restraints = new Dictionary<string, NodeRestrainRecord>(StringComparer.Ordinal);
-            var caseNames = new HashSet<string>(StringComparer.Ordinal);
-            var selectedCases = new List<Tuple<string, string>>();
-            int expanded = 0; double force = 0, length = 0; string unitLabel = "not declared", activeCase = null;
-            // Nodal local axes and construction-stage activation need their own complete mapping.
-            // In their presence no constraints are flattened into permanent global supports.
-            bool withholdConstraints = blocks.Any(b => b.Command == "LOCALAXIS" || b.Command.StartsWith("STAGE", StringComparison.Ordinal));
-
-            foreach (var block in blocks)
+            var translator = new MidasTextTranslator(blocks, Program, cancellationToken);
+            translator.Run();
+            ImportBatch batch;
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                string command = block.Command;
-                var evidence = new PreservedAssignment { Kind = "MIDAS Civil *" + command,
-                    SourceRecord = block.Header.Record(command), RawData = block.Raw.ToString(), UnitsAndAxes = unitLabel };
-                batch.Uninterpreted.Add(evidence);
-                if (command == "UNIT")
-                {
-                    HeaderOnly(block); SingleLine(block);
-                    var f = Fields(block, block.Lines[0], 2, 4);
-                    if (f.Length != 2 && f.Length != 4) throw block.Lines[0].Error(command, "Expected FORCE,LENGTH or FORCE,LENGTH,HEAT,TEMPERATURE.");
-                    force = ForceFactor(f[0], block.Lines[0]); length = LengthFactor(f[1], block.Lines[0]);
-                    unitLabel = f[0] + "," + f[1] + "; coordinates GCS; canonical N/mm; beta degrees";
-                    evidence.UnitsAndAxes = unitLabel;
-                }
-                else if (command == "VERSION")
-                {
-                    HeaderOnly(block); SingleLine(block);
-                    if (batch.SolverVersion != null) throw block.Header.Error(command, "Duplicate version declaration.");
-                    batch.SolverVersion = block.Lines[0].Text.Trim();
-                }
-                else if (command == "NODE")
-                {
-                    HeaderOnly(block); RequireUnits(block, length);
-                    foreach (var line in block.Lines)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested(); var f = Fields(block, line, 4, 4); var id = Id(f[0], line, command);
-                        var p = new Point3d(Scaled(f[1], length, line, command), Scaled(f[2], length, line, command), Scaled(f[3], length, line, command));
-                        if (points.TryGetValue(id, out var old) && (old.X != p.X || old.Y != p.Y || old.Z != p.Z))
-                            throw line.Error(command, "Conflicting node ID " + id);
-                        points[id] = p; batch.Nodes.Add(new NodeRecord { Id = id, GlobalPosition = p, Record = line.Record(command) });
-                    }
-                }
-                else if (command == "ELEMENT")
-                {
-                    HeaderOnly(block); RequireUnits(block, length);
-                    foreach (var line in block.Lines)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested(); var f = Fields(block, line, 8, 12); var id = Id(f[0], line, command);
-                        if (elements.ContainsKey(id)) throw line.Error(command, "Duplicate element ID " + id);
-                        var type = f[1].ToUpperInvariant();
-                        Id(f[2], line, command); Id(f[3], line, command); // Retain material/property references, never synthesize strengths.
-                        if (type == "BEAM")
-                        {
-                            bool reference = f[6].Equals("REF", StringComparison.OrdinalIgnoreCase);
-                            if ((!reference && f.Length != 8 && f.Length != 9) || (reference && f.Length != 11 && f.Length != 12))
-                                throw line.Error(command, "Unsupported beam record layout.");
-                            int sub = reference ? 10 : 7;
-                            if (Number(f[sub], line, command) != 0 || (f.Length > sub + 1 && f[sub + 1].Length != 0 && Number(f[sub + 1], line, command) != 0))
-                                throw line.Error(command, "Unsupported beam subtype/EXVAL.");
-                            var beam = new BeamRecord { Id = id, I = Id(f[4], line, command), J = Id(f[5], line, command), Record = line.Record(command) };
-                            beam.OtherAssignments.Add(new PreservedAssignment { Kind = "MIDAS material/section/orientation references", SourceRecord = beam.Record,
-                                RawData = line.Text, UnitsAndAxes = unitLabel, UnsupportedReason = "Material " + f[2] + ", section " + f[3] + ": properties require separate mapping." });
-                            beamProperties.Add(beam, (f[2], f[3]));
-                            batch.Beams.Add(beam); elements.Add(id, EntityFamily.Beam);
-                            if (reference)
-                            {
-                                for (int i = 7; i <= 9; i++) Scaled(f[i], length, line, command);
-                                Warn(batch, "BeamReferenceAxesPreserved", beam.Record, "REF orientation retained; no section coordinate system inferred.");
-                            }
-                            else beamAngles.Add(beam, Number(f[6], line, command));
-                        }
-                        else if (type == "PLATE")
-                        {
-                            if (f.Length != 9 && f.Length != 10) throw line.Error(command, "Unsupported plate record layout.");
-                            if (f[8] != "1" && f[8] != "2") throw line.Error(command, "Only thick/thin 3/4-node plates are supported.");
-                            if (f.Length == 10 && f[9].Length != 0) Number(f[9], line, command);
-                            var ids = new List<string> { Id(f[4], line, command), Id(f[5], line, command), Id(f[6], line, command) };
-                            if (f[7] != "0") ids.Add(Id(f[7], line, command));
-                            batch.Shells.Add(new ShellRecord { Id = id, Nodes = ids.ToArray(), Record = line.Record(command) }); elements.Add(id, EntityFamily.Shell);
-                        }
-                        else throw line.Error(command, "Unsupported element type " + type + "; original file retained, no elements silently omitted.");
-                    }
-                    evidence.UnsupportedReason = "Material/section/thickness references and plate-axis suffix retained without interpretation.";
-                }
-                else if (command == "GROUP")
-                {
-                    HeaderOnly(block);
-                    foreach (var line in block.Lines)
-                    {
-                        var f = Fields(block, line, 3, 4);
-                        var g = new GroupRecord { Name = Required(f[0], line, command), Record = line.Record(command) };
-                        foreach (var id in Expand(f[1], line, command, ref expanded, cancellationToken)) g.Members.Add(Source(EntityFamily.Node, id));
-                        groups.Add(Tuple.Create(g, Expand(f[2], line, command, ref expanded, cancellationToken))); batch.Groups.Add(g);
-                    }
-                    evidence.UnsupportedReason = "Structural membership mapped; optional display-plane field retained only.";
-                }
-                else if (command == "STLDCASE")
-                {
-                    HeaderOnly(block);
-                    foreach (var line in block.Lines)
-                    {
-                        var f = Fields(block, line, 3, 3); var name = Required(f[0], line, command);
-                        if (!caseNames.Add(name)) throw line.Error(command, "Duplicate static case " + name);
-                        batch.LoadCases.Add(new LoadCaseRecord { Name = name, Record = line.Record(command) });
-                    }
-                    evidence.UnsupportedReason = "Case names mapped; solver category/description retained in this source record.";
-                }
-                else if (command == "USE-STLD")
-                {
-                    if (block.Arguments.Length != 2 || block.Lines.Count != 0) throw block.Header.Error(command, "Expected *USE-STLD,case-name with no data records.");
-                    activeCase = Required(block.Arguments[1], block.Header, command); selectedCases.Add(Tuple.Create(activeCase, block.Header.Record(command)));
-                }
-                else if (command == "CONLOAD")
-                {
-                    HeaderOnly(block); RequireUnits(block, length);
-                    if (activeCase == null) throw block.Header.Error(command, "Missing *USE-STLD case selection.");
-                    foreach (var line in block.Lines)
-                    {
-                        var f = Fields(block, line, 7, 9); var v = new double[6];
-                        // NX 9.5.5 adds STRTYPENAME after GROUP. A nonempty scope needs its own mapping.
-                        if (f.Length == 9 && f[8].Length != 0) throw line.Error(command, "Unsupported nodal load structural-type scope.");
-                        for (int i = 0; i < 6; i++) v[i] = Scaled(f[i + 1], i < 3 ? force : force * length, line, command);
-                        foreach (var id in Expand(f[0], line, command, ref expanded, cancellationToken)) batch.NodeLoads.Add(new NodeLoadRecord {
-                            NodeId = id, Case = activeCase, Components = (double[])v.Clone(), CoordinateSystem = CoordinateSystem.Global, Record = line.Record(command) });
-                    }
-                    evidence.UnsupportedReason = "Global force/moment components mapped; load-group activation retained only.";
-                }
-                else if (command == "CONSTRAINT" && !withholdConstraints)
-                {
-                    HeaderOnly(block);
-                    foreach (var line in block.Lines)
-                    {
-                        var f = Fields(block, line, 2, 3);
-                        if (f[1].Length != 6 || f[1].Any(c => c != '0' && c != '1')) throw line.Error(command, "Expected six binary DOF flags DX,DY,DZ,RX,RY,RZ.");
-                        foreach (var id in Expand(f[0], line, command, ref expanded, cancellationToken))
-                        {
-                            if (!restraints.TryGetValue(id, out var r))
-                            {
-                                r = new NodeRestrainRecord { NodeId = id, FixedDofs = new bool[6], CoordinateSystem = CoordinateSystem.Global, Record = line.Record(command) };
-                                restraints.Add(id, r); batch.NodeRestrains.Add(r);
-                            }
-                            else r.Record += "; " + line.Record(command);
-                            for (int i = 0; i < 6; i++) r.FixedDofs[i] |= f[1][i] == '1';
-                        }
-                    }
-                    evidence.UnsupportedReason = "Permanent GCS restraints mapped; boundary-group label retained only.";
-                }
-                else if (command == "SECTION")
-                {
-                    HeaderOnly(block); RequireUnits(block, length);
-                    ReadPairs(block, batch, length);
-                    evidence.UnsupportedReason = "Only explicit DBUSER 2C/2L dimensions in the native-tested layout are mapped; other sections are preserved.";
-                }
-                else if (command == "MATERIAL")
-                {
-                    HeaderOnly(block); RequireUnits(block, length);
-                    ReadSteelMaterials(block, batch, force, length);
-                    evidence.UnsupportedReason = "Only steel in the supported DB/user record layout is mapped; other materials are preserved.";
-                }
-                else if (command == "ENDDATA") { HeaderOnly(block); }
-                else
-                {
-                    evidence.UnsupportedReason = command == "CONSTRAINT" ? "Nodal local axes or construction stages prevent permanent GCS mapping."
-                        : "This command has no semantic mapper in the current Civil reader.";
-                    Warn(batch, "CivilCommandPreserved", evidence.SourceRecord, "*" + command + ": " + evidence.UnsupportedReason);
-                }
+                batch = CivilNxModelProfile.ReadTables(translator.Tables, new AnalysisSource { Program = Program, SolverVersion = translator.Version,
+                    ModelRevision = revision, AnalysisId = analysisId }, cancellationToken);
             }
-            if (points.Count == 0) throw new FormatException("Civil model contains no *NODE records.");
-            foreach (var entry in beamAngles)
-            {
-                cancellationToken.ThrowIfCancellationRequested(); var beam = entry.Key;
-                if (!points.TryGetValue(beam.I, out var i) || !points.TryGetValue(beam.J, out var j)) throw new ModelFileReadException(beam.Record, "Missing beam node.");
-                try { beam.CoordinateSystem = BeamAxes(i, j, entry.Value); }
-                catch (ArgumentException ex) { throw new ModelFileReadException(beam.Record, ex.Message); }
-            }
-            foreach (var entry in groups)
-                foreach (var id in entry.Item2)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    if (!elements.TryGetValue(id, out var family)) throw new ModelFileReadException(entry.Item1.Record, "Missing group element " + id);
-                    entry.Item1.Members.Add(Source(family, id));
-                }
-            foreach (var selected in selectedCases)
-                if (!caseNames.Contains(selected.Item1)) throw new ModelFileReadException(selected.Item2, "Undeclared static case " + selected.Item1);
-            var knownMaterials = new HashSet<string>(batch.Materials.Select(m => m.Id), StringComparer.Ordinal);
-            var knownSections = new HashSet<string>(batch.Sections.Select(s => s.Id), StringComparer.Ordinal);
-            foreach (var entry in beamProperties)
-                if (knownMaterials.Contains(entry.Value.Material) && knownSections.Contains(entry.Value.Section))
-                {
-                    entry.Key.MaterialId = entry.Value.Material; entry.Key.SectionId = entry.Value.Section;
-                    entry.Key.OtherAssignments[0].UnsupportedReason = "Material/section mapped; original references and orientation retained.";
-                }
-            if (batch.Beams.Any(b => b.SectionId == null) || batch.Shells.Count != 0)
-                Warn(batch, "CivilPropertiesPreserved", "*ELEMENT", "Unmapped material/section/thickness references remain preserved; no strength inferred from elastic data.");
-            if (batch.Shells.Count != 0) Warn(batch, "PlateAxesAndThicknessPreserved", "*ELEMENT", "Plate axes and physical thickness remain unassigned; no effective thickness is assumed to be a design thickness.");
-            Warn(batch, "CivilInputWithoutResults", "MCT", "Input model read. Analysis results require a separately matched export; verification remains disabled.");
-            return batch;
+            catch (ArgumentException ex) { throw new InvalidDataException(ex.Message, ex); }
+            batch.Diagnostics.InsertRange(0, translator.Diagnostics);
+            batch.Uninterpreted.InsertRange(0, translator.Evidence);
+            batch.Nodes.AddRange(translator.Duplicates); // Identical duplicates are reported by ModelMapper.
+            Finish(batch, translator);
+            return (batch, translator.Tables);
         }
 
-        private SourceIdentity Source(EntityFamily family, string id) => new SourceIdentity(Program, revision, family, id);
-        private static CoordinateSystem BeamAxes(Point3d i, Point3d j, double betaDegrees)
+        /// <summary>Conventions of the text reader that the API does not have: beams by reference point keep no axes, unresolved sections are
+        /// left out, pair offsets other than the centroid are not qualified, and every beam keeps its element record.</summary>
+        private void Finish(ImportBatch batch, MidasTextTranslator translator)
         {
-            Vector3d x = j - i; var norm = Axes.Length(x);
-            if (norm <= 1e-9 || double.IsInfinity(norm)) throw new ArgumentException("Degenerate beam.");
-            x = x / norm;
-            // MIDAS x = longitudinal, z = projected GCS Z; for exactly vertical members z = GCS X.
-            // GPC (V1,V2,V3) = MIDAS (y,z,x). Rotation is right-handed about longitudinal x.
-            var z = x.X == 0 && x.Y == 0 ? new Vector3d(1, 0, 0) : new Vector3d(0, 0, 1) - x * x.Z;
-            if (Axes.Length(z) <= 1e-10) throw new ArgumentException("Near-vertical beta convention requires an explicit solver axis export.");
-            z = z / Axes.Length(z);
-            return Axes.Beam(i, j, z.CrossProduct(x), (betaDegrees % 360) * Math.PI / 180);
-        }
-        private static string[] Fields(CivilTextBlock block, CivilTextLine line, int min, int max)
-        {
-            var f = MidasCivilTextSyntax.Fields(line.Text, line.Record(block.Command));
-            if (f.Length < min || f.Length > max) throw line.Error(block.Command, "Unexpected field count: " + f.Length);
-            return f;
-        }
-        private static void HeaderOnly(CivilTextBlock block)
-        { if (block.Arguments.Length != 1) throw block.Header.Error(block.Command, "Unexpected header arguments."); }
-        private static void SingleLine(CivilTextBlock block)
-        { if (block.Lines.Count != 1) throw block.Header.Error(block.Command, "Expected exactly one data record."); }
-        private static void RequireUnits(CivilTextBlock block, double length)
-        { if (length == 0) throw block.Header.Error(block.Command, "Explicit *UNIT required before dimensional data."); }
-        private static string Required(string value, CivilTextLine line, string command)
-        { if (string.IsNullOrWhiteSpace(value)) throw line.Error(command, "Missing required value."); return value; }
-        private static string Id(string text, CivilTextLine line, string command)
-        {
-            if (!int.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out var value) || value <= 0)
-                throw line.Error(command, "Expected a positive integer ID: " + text);
-            return value.ToString(CultureInfo.InvariantCulture);
-        }
-        private static double Number(string text, CivilTextLine line, string command)
-        {
-            if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) || double.IsNaN(value) || double.IsInfinity(value))
-                throw line.Error(command, "Expected a finite invariant-culture number: " + text);
-            return value;
-        }
-        private static double Scaled(string text, double factor, CivilTextLine line, string command)
-        {
-            double value = Number(text, line, command) * factor;
-            if (double.IsNaN(value) || double.IsInfinity(value)) throw line.Error(command, "Unit conversion overflow.");
-            return value;
-        }
-        private static string[] Expand(string list, CivilTextLine line, string command, ref int expanded, CancellationToken token)
-        {
-            var result = new HashSet<string>(StringComparer.Ordinal); int at = 0;
-            while (at < list.Length)
+            void Warn(string code, string record, string message) => batch.Diagnostics.Add(new ModelDiagnostic { Code = code, Record = record, Severity = DiagnosticSeverity.Warning, Message = message });
+            foreach (var beam in batch.Beams.Where(b => translator.ReferenceBeams.Contains(b.Id)))
             {
-                token.ThrowIfCancellationRequested(); Match match;
-                try { match = IdRange.Match(list, at); }
-                catch (RegexMatchTimeoutException) { throw line.Error(command, "ID list parsing time limit exceeded."); }
-                if (!match.Success) throw line.Error(command, "Invalid ID list near: " + list.Substring(at));
-                long start = int.Parse(Id(match.Groups[1].Value, line, command), CultureInfo.InvariantCulture);
-                long end = match.Groups[2].Success ? int.Parse(Id(match.Groups[2].Value, line, command), CultureInfo.InvariantCulture) : start;
-                long step = match.Groups[3].Success ? int.Parse(Id(match.Groups[3].Value, line, command), CultureInfo.InvariantCulture) : 1;
-                if (end < start) throw line.Error(command, "Descending ID ranges are not supported.");
-                long count = (end - start) / step + 1;
-                if (count > MaximumExpandedReferences - expanded) throw line.Error(command, "Expanded ID reference limit exceeded.");
-                expanded += (int)count;
-                for (long id = start; id <= end; id += step) { token.ThrowIfCancellationRequested(); result.Add(id.ToString(CultureInfo.InvariantCulture)); }
-                at = match.Index + match.Length;
+                var placeholder = beam.CoordinateSystem; beam.CoordinateSystem = null;
+                Warn("BeamReferenceAxesPreserved", beam.Record, "REF orientation retained; no section coordinate system inferred.");
+                // Local loads were given in the placeholder axes of a zero angle: they are not the source axes.
+                int loads = batch.BeamLoads.RemoveAll(l => l.BeamId == beam.Id && ReferenceEquals(l.CoordinateSystem, placeholder));
+                int releases = batch.BeamReleases.RemoveAll(r => r.BeamId == beam.Id);
+                if (loads + releases != 0) Warn("BeamReferenceAssignmentsPreserved", beam.Record, "Local loads and end releases of a beam without section axes are preserved only.");
             }
-            return result.OrderBy(id => int.Parse(id, CultureInfo.InvariantCulture)).ToArray();
-        }
-        private static double ForceFactor(string unit, CivilTextLine line)
-        {
-            switch (unit.ToUpperInvariant())
+            var empty = new HashSet<string>(batch.Sections.Where(s => s.IdenticalPair == null && s.CatalogDesignation == null && s.Shape == SectionShapeKind.Unknown
+                && s.Values == null && s.GeometryComponents == null).Select(s => s.Id), StringComparer.Ordinal);
+            batch.Sections.RemoveAll(s => empty.Contains(s.Id));
+            foreach (var beam in batch.Beams.Where(b => b.SectionId != null && empty.Contains(b.SectionId))) { beam.SectionId = null; beam.MaterialId = null; }
+            foreach (var section in batch.Sections.Where(s => s.IdenticalPair != null && s.Reference != null && !s.Reference.IsUnresolved
+                && (s.Reference.Horizontal != SectionHorizontalReference.Centroid || s.Reference.Vertical != SectionVerticalReference.Centroid)))
             {
-                case "N": return 1; case "KN": return 1000; case "KGF": return 9.80665; case "TONF": return 9806.65;
-                case "LBF": return 4.4482216152605; case "KIPS": return 4448.2216152605;
-                default: throw line.Error("UNIT", "Unsupported force unit " + unit);
+                section.Reference = new SectionReference { IsUnresolved = true };
+                Warn("CivilPairOffsetUnresolved", section.Record, "Pair outline imported; this source section offset is not qualified.");
             }
-        }
-        private static double LengthFactor(string unit, CivilTextLine line)
-        {
-            switch (unit.ToUpperInvariant())
+            foreach (var beam in batch.Beams)
             {
-                case "MM": return 1; case "CM": return 10; case "M": return 1000; case "IN": return 25.4; case "FT": return 304.8;
-                default: throw line.Error("UNIT", "Unsupported length unit " + unit);
+                translator.ElementLines.TryGetValue(beam.Id, out var line);
+                beam.OtherAssignments.Add(new PreservedAssignment { Kind = "MIDAS material/section/orientation references", SourceRecord = beam.Record, RawData = line,
+                    UnsupportedReason = beam.SectionId != null ? "Material/section mapped; original references and orientation retained." : "Material/section references retained without a mapped property." });
             }
+            if (batch.Beams.Any(b => b.SectionId == null) || batch.Shells.Any(s => s.ThicknessId == null))
+                Warn("CivilPropertiesPreserved", "*ELEMENT", "Unmapped material/section/thickness references remain preserved; no strength inferred from elastic data.");
+            Warn("CivilInputWithoutResults", Program == MidasTextFiles.GenProgram ? "MGT" : "MCT", "Input model read. Analysis results require a separately matched export; verification remains disabled.");
         }
-        private static void Warn(ImportBatch batch, string code, string record, string message) => batch.Diagnostics.Add(
-            new ModelDiagnostic { Code = code, Record = record, Severity = DiagnosticSeverity.Warning, Message = message });
     }
 }

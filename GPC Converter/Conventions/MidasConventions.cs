@@ -34,18 +34,24 @@ namespace GPC.Converter
             }
         }
 
-        /// <summary>Beam element axes. MIDAS x = I to J, z at beta zero = projected GCS Z (GCS X for an exactly vertical member),
-        /// y completes the right-handed triad; beta rotates about x. GPC (V1,V2,V3) = MIDAS (y,z,x).</summary>
+        /// <summary>Beam element axes. MIDAS x = I to J, z at beta zero = projected GCS Z (GCS X for a vertical member),
+        /// y completes the right-handed triad; beta rotates about x. GPC (V1,V2,V3) = MIDAS (y,z,x).
+        /// A member whose direction deviates from GCS Z by less than <see cref="VerticalTolerance"/> (coordinate round-off of the
+        /// exported text, e.g. 2e-10 mm over 1.35 m) is vertical; the tolerance is not documented by MIDAS.</summary>
         public static CoordinateSystem BeamAxes(Point3d i, Point3d j, double betaDegrees)
         {
             Vector3d x = j - i; var norm = Axes.Length(x);
             if (norm <= 1e-9 || double.IsInfinity(norm)) throw new ArgumentException("Degenerate beam.");
             x = x / norm;
-            var z = x.X == 0 && x.Y == 0 ? new Vector3d(1, 0, 0) : new Vector3d(0, 0, 1) - x * x.Z;
+            bool vertical = Math.Sqrt(x.X * x.X + x.Y * x.Y) <= VerticalTolerance;
+            var z = vertical ? new Vector3d(1, 0, 0) - x * x.X : new Vector3d(0, 0, 1) - x * x.Z;
             if (Axes.Length(z) <= 1e-10) throw new ArgumentException("Near-vertical beta convention requires an explicit solver axis export.");
             z = z / Axes.Length(z);
             return Axes.Beam(i, j, z.CrossProduct(x), (betaDegrees % 360) * Math.PI / 180);
         }
+
+        /// <summary>Sine of the largest angle between a member and GCS Z that is still a vertical member.</summary>
+        public const double VerticalTolerance = 1e-8;
 
         /// <summary>Plate element axes (MIDAS Civil Analysis Manual, plate elements): z normal by the right-hand rule on the node order,
         /// x from the mid-point of N1-N4 to the mid-point of N2-N3 (quadrilateral) or parallel to N1-N2 (triangle), origin at the centre.</summary>
