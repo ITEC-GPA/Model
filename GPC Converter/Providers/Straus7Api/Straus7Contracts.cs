@@ -43,6 +43,8 @@ namespace GPC.Converter.Straus7
         /// <summary>Native A/B mirror gaps, model length units. Null means not read.</summary>
         public double[] MirrorGaps { get; set; }
         public bool? CompatibleTwist { get; set; }
+        /// <summary>St7GetSpringDamperData of a spring-damper property (btSpring): axial, lateral, torsional stiffness, dampings, mass.</summary>
+        public double[] SpringData { get; set; }
     }
 
     /// <summary>One attribute instance of St7GetEntityAttributeSequence: local number, axis, load/freedom case, ID.</summary>
@@ -83,6 +85,7 @@ namespace GPC.Converter.Straus7
     /// <summary>Attribute ordinals of the R3 API (St7API.cs).</summary>
     public static class Straus7Attributes
     {
+        public const int KTranslation = 7, KRotation = 8, BeamTEndRelease = 23, BeamREndRelease = 24;
         public const int Restraint = 1, Force = 2, Moment = 3, BeamOffset = 22, BeamDLL = 28, BeamDLG = 29, BeamCFL = 30, BeamCFG = 31, BeamCML = 32, BeamCMG = 33,
             BeamDML = 44, BeamTaper = 92, BeamSectionFactor = 94, PlateOffset = 52, PlateFacePressure = 54, PlateFaceShear = 55, PlateEdgeNormalPressure = 56,
             PlateGlobalPressure = 66, PlateThickness = 69, PlateEdgeGlobalPressure = 72, PlatePointForce = 99, PlatePointMoment = 100, PlateSectionFactor = 121;
@@ -103,6 +106,54 @@ namespace GPC.Converter.Straus7
         double[] ReadPlateNormalPressure(int plate, int loadCase);
         double[] ReadPlateGlobalPressure(int plate, int surface, int loadCase, out int project);
         Straus7LoadCaseData ReadLoadCaseData(int number);
+    }
+    /// <summary>St7GetBeamTRelease3/St7GetBeamRRelease3 of one end: status brReleased 0, brFixed 1, brPartial 2 for principal axes 1, 2, 3
+    /// (axial for translations, torsion for rotations); partial values are stiffnesses in force/length or moment/radian.</summary>
+    public sealed class Straus7BeamRelease
+    {
+        public int[] Status { get; set; }
+        public double[] Values { get; set; }
+    }
+    /// <summary>St7GetNodeKTranslation3F/St7GetNodeKRotation3F: stiffnesses along/about the axes of a UCS (1 = global).</summary>
+    public sealed class Straus7NodeStiffness
+    {
+        public int Ucs { get; set; }
+        public double[] Values { get; set; }
+    }
+    /// <summary>A link element: ltMasterSlaveLink 1, ltPinnedLink 4, ltRigidLink 5 and the other ltXxx types. Nodes of two-node links;
+    /// Ucs and Plane (rlPlaneXYZ 0, XY 1, YZ 2, ZX 3) of rigid links; Dofs (six flags) of master-slave links.</summary>
+    public sealed class Straus7Link
+    {
+        public int Number { get; set; }
+        public int Type { get; set; }
+        public int[] Nodes { get; set; }
+        public int Ucs { get; set; }
+        public int Plane { get; set; }
+        public int[] Dofs { get; set; }
+    }
+    /// <summary>An LSA combination: name, state and factor of each (load case, freedom case) pair, row-major [load case - 1, freedom case - 1].</summary>
+    public sealed class Straus7Combination
+    {
+        public int Number { get; set; }
+        public string Name { get; set; }
+        public bool Enabled { get; set; }
+        public double[] Factors { get; set; }
+    }
+    /// <summary>Optional read-only access to releases, node springs, links and LSA combinations (R3 API).</summary>
+    public interface IStraus7ExtendedReadApi
+    {
+        Straus7BeamRelease ReadBeamRelease(int beam, int end, bool rotational);
+        Straus7NodeStiffness ReadNodeStiffness(int node, int freedomCase, bool rotational);
+        Straus7Link ReadLink(int number);
+        int CombinationCount { get; }
+        Straus7Combination ReadCombination(int number, int loadCases, int freedomCases);
+        int CombinedCombinationCount { get; }
+    }
+    /// <summary>Optional plate results at the element nodes, without averaging between elements (spNodesAverageNever).</summary>
+    public interface IStraus7PlateNodeResultReadApi
+    {
+        /// <summary>Local force (false) or moment (true) tensor, one row per node in connectivity order (<see cref="Straus7ResultTable.NodeNumbers"/>).</summary>
+        Straus7ResultTable ReadPlateNodeResult(int number, int resultCase, bool moments);
     }
     public sealed class Straus7Group
     {
@@ -193,6 +244,8 @@ namespace GPC.Converter.Straus7
         public int MinimumBeamStations { get; set; } = 11;
         // Explicit opt-in: missing native element-node force output rejects the acquisition, never fabricates it.
         public bool IncludeElementNodeForces { get; set; }
+        /// <summary>Also reads the plate force/moment tensors at the element nodes, without averaging (corner values of each plate).</summary>
+        public bool IncludePlateNodeResults { get; set; }
     }
     public sealed class Straus7ResultsReport
     {

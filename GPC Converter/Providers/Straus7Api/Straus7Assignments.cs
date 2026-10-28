@@ -23,9 +23,9 @@ namespace GPC.Converter.Straus7
         private readonly Dictionary<int, double> sectionAngle = new Dictionary<int, double>();
         private readonly HashSet<string> materials = new HashSet<string>(StringComparer.Ordinal);
 
-        public Straus7Assignments(ImportBatch batch, int[] units, IStraus7AssignmentReadApi api, Dictionary<int, string> caseNames)
+        public Straus7Assignments(ImportBatch batch, int[] units, IStraus7AssignmentReadApi api, Dictionary<int, string> caseNames, IStraus7ExtendedReadApi extended = null)
         {
-            this.batch = batch; this.api = api; this.caseNames = caseNames;
+            this.batch = batch; this.api = api; this.caseNames = caseNames; this.extended = api == null ? null : extended;
             double[] lengths = { 1000, 10, 1, 304.8, 25.4 }, forces = { 1, 1000, 1000000, 9.80665, 4.4482216152605, 9806.65, 4448.2216152605 };
             double[] stresses = { 1e-6, 1e-3, 1, 0.0980665, 0.00689475729316836, 6.89475729316836, 4.78802589803358e-5 };
             double[] masses = { 1e-3, 1, 1e-6, 0.45359237e-3, 14.5939029372064e-3 };
@@ -112,7 +112,10 @@ namespace GPC.Converter.Straus7
                 {
                     var shape = PropertyMapper.Parametric(new SectionRecord { Id = section.Id, Shape = kind, Dimensions = dimensions }, section.Name ?? section.Id);
                     shape.SetMechanicalProperties();
-                    var points = shape.GetSectionPoints(); double minX = points.Min(q => q.X), minY = points.Min(q => q.Y);
+                    double minX, minY;
+                    // Solid circles have no outline points (NotImplementedException): their bounding box is centred on the centroid.
+                    try { var points = shape.GetSectionPoints(); minX = points.Min(q => q.X); minY = points.Min(q => q.Y); }
+                    catch (NotImplementedException) { minX = shape.Centroid.X - shape.Width / 2; minY = shape.Centroid.Y - shape.Height / 2; }
                     bool Close(double a, double e) => Math.Abs(a - e) <= 5e-3 * Math.Max(Math.Abs(e), 1e-9);
                     if (Close(shape.Area, s[0] * length * length) && Close(shape.Jxx, s[1] * Math.Pow(length, 4)) && Close(shape.Jyy, s[2] * Math.Pow(length, 4))
                         && Math.Abs(shape.Centroid.X - minX - s[8] * length) <= 1e-3 * Math.Max(1, shape.Width) && Math.Abs(shape.Centroid.Y - minY - s[9] * length) <= 1e-3 * Math.Max(1, shape.Height))
@@ -167,6 +170,7 @@ namespace GPC.Converter.Straus7
                 // The solver applies the beam loads on the offset (centroidal) axis.
                 if (o[0] != 0 || o[1] != 0) eccentricity = new Vector3d(o[0] * length, o[1] * length, 0);
             }
+            Releases(number, beam);
             int first = batch.BeamLoads.Count;
             foreach (var (ord, name) in new[] { (Straus7Attributes.BeamTaper, "taper"), (Straus7Attributes.BeamSectionFactor, "section factors") })
                 if (Attributes(Straus7Entity.Beam, number, ord).Length != 0) Warn("Straus7BeamAttributePreserved", "Beam " + name, "Beam " + name + " are not mapped; the section is taken as prismatic and unfactored.");
@@ -292,6 +296,7 @@ namespace GPC.Converter.Straus7
                             CoordinateSystem = global ? axes : Frames.At(axes, pair.Value), Record = record + "/restraint" });
                     }
                 }
+                NodeSprings(node, pair.Value, freedomCases, record);
                 foreach (var moment in new[] { false, true })
                     foreach (var a in Attributes(Straus7Entity.Node, node, moment ? Straus7Attributes.Moment : Straus7Attributes.Force))
                     {

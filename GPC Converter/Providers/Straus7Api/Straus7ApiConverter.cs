@@ -75,8 +75,14 @@ namespace GPC.Converter.Straus7
             var unitCodes = api.ReadUnits(); var units = Units(unitCodes); Preserve("St7GetUnits", unitCodes);
             int nodes = Bounded(api.Count(Straus7Entity.Node)), beams = Bounded(api.Count(Straus7Entity.Beam)), plates = Bounded(api.Count(Straus7Entity.Plate));
             int bricks = Bounded(api.Count(Straus7Entity.Brick)), links = Bounded(api.Count(Straus7Entity.Link));
-            if ((long)nodes + beams + plates > MaximumEntities) throw new InvalidDataException("Native entity import limit exceeded.");
-            if (bricks != 0 || links != 0) throw new NotSupportedException("This reader requires a node/beam/plate model; bricks or links are present. No entities have been silently dropped.");
+            if ((long)nodes + beams + plates + links > MaximumEntities) throw new InvalidDataException("Native entity import limit exceeded.");
+            // Bricks have no element in the GPC model: the beams, plates and their results remain usable, the solids stay in the source file.
+            if (bricks != 0)
+            {
+                batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7BricksPreserved", Severity = DiagnosticSeverity.Warning, Record = "St7GetTotal Brick",
+                    Message = bricks.ToString(CultureInfo.InvariantCulture) + " brick elements are not represented by the GPC model: left out with their loads; their nodes, the beams, plates and links are imported." });
+                Preserve("St7GetTotal Brick", bricks, "Brick elements, properties and loads remain in the source file.");
+            }
             var points = new Dictionary<int, Point3d>();
             for (int i = 1; i <= nodes; i++)
             {
@@ -107,7 +113,7 @@ namespace GPC.Converter.Straus7
                 batch.LoadCases.Add(new LoadCaseRecord { Name = CaseName(i, name), Record = "St7GetLoadCaseName " + i });
                 Preserve("LoadCase/" + i, name);
             }
-            var assignments = new Straus7Assignments(batch, unitCodes, api as IStraus7AssignmentReadApi, caseNames);
+            var assignments = new Straus7Assignments(batch, unitCodes, api as IStraus7AssignmentReadApi, caseNames, api as IStraus7ExtendedReadApi);
             var seenProperties = new Dictionary<string, (Straus7Property Property, string Material, string Other)>();
             foreach (var entity in new[] { Straus7Entity.Beam, Straus7Entity.Plate })
             {
@@ -118,7 +124,11 @@ namespace GPC.Converter.Straus7
                     if (e == null || e.Number != i || e.Property <= 0) throw new InvalidDataException("Invalid element API number/property: " + record);
                     Preserve(record, e, "Property reference and UserId preserved.");
                     bool beam = entity == Straus7Entity.Beam;
-                    if (e.Formulation != (beam ? 6 : 4)) throw new NotSupportedException("Unsupported Straus7 formulation " + e.Formulation + " at " + record);
+                    if (!beam && e.Formulation != 4) throw new NotSupportedException("Unsupported Straus7 formulation " + e.Formulation + " at " + record);
+                    // Beam family: btBeam 6, btTruss 3, btCable 2 are members; btSpring 1 is a two-node spring; cut-offs, contacts, user, pipe and
+                    // connection elements are left out with a diagnostic.
+                    if (beam && e.Formulation != 6 && e.Formulation != 3 && e.Formulation != 2 && e.Formulation != 1)
+                    { assignments.SkippedBeam(i, e.Formulation); continue; }
                     var propertyKey = entity + "/" + e.Property;
                     if (!seenProperties.TryGetValue(propertyKey, out var mapped))
                     {
@@ -128,23 +138,31 @@ namespace GPC.Converter.Straus7
                         if (property.Material != null) Finite(property.Material, property.Material.Length, propertyKey);
                         if (property.SectionProperties != null) Finite(property.SectionProperties, property.SectionProperties.Length, propertyKey);
                         Preserve("Property/" + propertyKey, property, "Native elastic/section data in source units; strengths come only from a recognised grade of the material name.");
-                        var ids = beam ? assignments.Beam(property) : assignments.Plate(property);
+                        var ids = !beam ? assignments.Plate(property) : property.Formulation == 1 ? (null, null) : assignments.Beam(property);
                         mapped = (property, ids.Item1, ids.Item2); seenProperties.Add(propertyKey, mapped);
                     }
                     if (e.Nodes == null || (beam ? e.Nodes.Length != 2 : e.Nodes.Length != 3 && e.Nodes.Length != 4))
                         throw new NotSupportedException("Unsupported higher-order/orientation-node connectivity at " + record);
                     if (e.Nodes.Distinct().Count() != e.Nodes.Length || e.Nodes.Any(n => !points.ContainsKey(n))) throw new InvalidDataException("Invalid connectivity at " + record);
-                    Finite(e.InitialAxes, 9, record + " initial axes");
                     Finite(e.Centroid, 3, record + " centroid");
                     var origin = beam ? points[e.Nodes[0]] : new Point3d(units.Length(e.Centroid[0]), units.Length(e.Centroid[1]), units.Length(e.Centroid[2]));
-                    var axes = CoordinateSystem(origin, e.InitialAxes); Axes.Validate(axes);
+                    CoordinateSystem axes;
+                    if (beam && e.Formulation != 6 && e.InitialAxes == null) axes = Straus7Assignments.AxialAxes(points[e.Nodes[0]], points[e.Nodes[1]]);
+                    else { Finite(e.InitialAxes, 9, record + " initial axes"); axes = CoordinateSystem(origin, e.InitialAxes); }
+                    Axes.Validate(axes);
+                    if (beam && e.Formulation == 1)
+                    {
+                        assignments.SpringElement(i, Id(e.Nodes[0]), Id(e.Nodes[1]), axes, mapped.Property, record);
+                        continue;
+                    }
                     if (beam)
                     {
                         Vector3d direction = points[e.Nodes[1]] - points[e.Nodes[0]]; double length = Axes.Length(direction);
                         if (length <= 1e-9 || !Finite(length) || Axes.Length(direction / length - axes.V3) > 1e-8)
                             throw new InvalidDataException("Beam axis 3 must follow I to J: " + record);
                         var b = new BeamRecord { Id = Id(i), I = Id(e.Nodes[0]), J = Id(e.Nodes[1]), CoordinateSystem = axes, Record = record,
-                            MaterialId = mapped.Material, SectionId = mapped.Material == null ? null : mapped.Other };
+                            MaterialId = mapped.Material, SectionId = mapped.Material == null ? null : mapped.Other,
+                            Formulation = e.Formulation == 3 ? BeamFormulation.Truss : e.Formulation == 2 ? BeamFormulation.Cable : BeamFormulation.StraightTwoNode };
                         b.OtherAssignments.Add(Evidence(record, e, "Element record; releases and other unmapped attributes stay in the source file.")); batch.Beams.Add(b);
                         assignments.BeamElement(i, b, e.Property);
                     }
@@ -162,11 +180,13 @@ namespace GPC.Converter.Straus7
                     group.Members.Add(new SourceIdentity("Straus7", revision, beam ? EntityFamily.Beam : EntityFamily.Shell, Id(i)));
                 }
             }
-            assignments.Nodes(points); assignments.Gravity(cases); assignments.Finish();
+            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.Combinations(cases); assignments.Finish();
             int stages = Bounded(api.StageCount); Preserve("St7GetNumStages", stages, "Construction-stage definitions/activation are not mapped.");
             batch.Diagnostics.Add(assignments.Available
                 ? new ModelDiagnostic { Code = "Straus7AssignmentsPartlyMapped", Severity = DiagnosticSeverity.Warning,
-                    Message = "Properties, offsets, restraints of a single freedom case, nodal/beam/plate loads and gravity imported; releases, springs, links, temperatures and stages are not mapped." }
+                    Message = assignments.Extended
+                        ? "Properties, offsets, end releases, restraints and node springs of a single freedom case, rigid/master-slave/pinned links, nodal/beam/plate loads, gravity and LSA combinations imported; temperatures, masses, other links and stages are not mapped."
+                        : "Properties, offsets, restraints of a single freedom case, nodal/beam/plate loads and gravity imported; the API binding reads no releases, springs, links or combinations." }
                 : new ModelDiagnostic { Code = "Straus7AssignmentsNotMapped", Severity = DiagnosticSeverity.Warning,
                     Message = "The API binding reads no element attributes: properties are imported, loads, restraints and offsets are not." });
             return batch;
@@ -194,8 +214,9 @@ namespace GPC.Converter.Straus7
                     using (var api = openApi())
                     {
                         report.ApiVersion = api.Version; api.OpenModelReadOnly(modelPath, Path.GetTempPath());
-                        var elementApi = api as IStraus7ElementNodeReadApi;
+                        var elementApi = api as IStraus7ElementNodeReadApi; var plateNodeApi = api as IStraus7PlateNodeResultReadApi;
                         if (request.IncludeElementNodeForces && elementApi == null) throw new NotSupportedException("The API binding does not provide element node forces.");
+                        if (request.IncludePlateNodeResults && plateNodeApi == null) throw new NotSupportedException("The API binding does not provide plate results at the nodes.");
                         report.ModelStageCount = Bounded(api.StageCount);
                         report.Units = api.ReadUnits(); Units(report.Units);
                         ValidateSelection(beams, Bounded(api.Count(Straus7Entity.Beam))); ValidateSelection(plates, Bounded(api.Count(Straus7Entity.Plate))); ValidateSelection(nodes, Bounded(api.Count(Straus7Entity.Node)));
@@ -214,7 +235,8 @@ namespace GPC.Converter.Straus7
                             if (table.Rows <= 0 || table.Columns <= 0 || table.Values == null || (long)table.Rows * table.Columns != table.Values.Length)
                                 throw new InvalidDataException("Invalid result dimensions.");
                             Finite(table.Values, table.Values.Length, quantity);
-                            if (quantity == "ElementNodeForceGlobal" && (table.NodeNumbers == null || table.NodeNumbers.Length != table.Rows
+                            if ((quantity == "ElementNodeForceGlobal" || quantity.StartsWith("PlateForceLocalNodes", StringComparison.Ordinal) || quantity.StartsWith("PlateMomentLocalNodes", StringComparison.Ordinal))
+                                && (table.NodeNumbers == null || table.NodeNumbers.Length != table.Rows
                                 || table.NodeNumbers.Any(n => n < 1) || table.NodeNumbers.Distinct().Count() != table.Rows))
                                 throw new InvalidDataException("Invalid element node-force row identities.");
                             if (entity == Straus7Entity.Beam)
@@ -248,6 +270,13 @@ namespace GPC.Converter.Straus7
                                 Add(api.ReadPlateResult(p, c, false), Straus7Entity.Plate, p, c, "PlateForceLocalCentroid");
                                 cancellationToken.ThrowIfCancellationRequested();
                                 Add(api.ReadPlateResult(p, c, true), Straus7Entity.Plate, p, c, "PlateMomentLocalCentroid");
+                                if (request.IncludePlateNodeResults)
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    Add(plateNodeApi.ReadPlateNodeResult(p, c, false), Straus7Entity.Plate, p, c, "PlateForceLocalNodes");
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    Add(plateNodeApi.ReadPlateNodeResult(p, c, true), Straus7Entity.Plate, p, c, "PlateMomentLocalNodes");
+                                }
                                 if (request.IncludeElementNodeForces)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
@@ -280,7 +309,7 @@ namespace GPC.Converter.Straus7
         /// primary result cases, maps the planned static cases to them by name (<see cref="Straus7LinearStaticResults.CaseMap"/>), then reads the
         /// forces of the planned beams and plates and the displacements and reactions of the planned nodes.</summary>
         public Straus7ResultsReport ReadResults(GPC.Model.Models.Model model, ResultReadPlan plan, string modelPath, string resultPath, bool includeElementNodeForces = false,
-            int minimumBeamStations = 3, CancellationToken cancellationToken = default)
+            int minimumBeamStations = 3, CancellationToken cancellationToken = default, bool includePlateNodeResults = false)
         {
             Straus7ResultsRequest request;
             try
@@ -295,7 +324,8 @@ namespace GPC.Converter.Straus7
                 int[] Numbers(IEnumerable<GPC.Model.Elements.Element> elements) => elements.Select(e => e.Source?.Program == "Straus7"
                     ? int.Parse(e.Source.OriginalId, NumberStyles.None, CultureInfo.InvariantCulture) : throw new ArgumentException("Element " + e.Id + " was not imported from Straus7.")).ToArray();
                 request = new Straus7ResultsRequest { ModelPath = modelPath, ResultPath = resultPath, CaseNumbers = numbers, BeamNumbers = Numbers(plan.Beams),
-                    PlateNumbers = Numbers(plan.Shells), NodeNumbers = Numbers(plan.Nodes), MinimumBeamStations = minimumBeamStations, IncludeElementNodeForces = includeElementNodeForces };
+                    PlateNumbers = Numbers(plan.Shells), NodeNumbers = Numbers(plan.Nodes), MinimumBeamStations = minimumBeamStations, IncludeElementNodeForces = includeElementNodeForces,
+                    IncludePlateNodeResults = includePlateNodeResults };
             }
             catch (OperationCanceledException) { return new Straus7ResultsReport { Status = ImportStatus.Cancelled }; }
             catch (Exception ex) when (Handled(ex))

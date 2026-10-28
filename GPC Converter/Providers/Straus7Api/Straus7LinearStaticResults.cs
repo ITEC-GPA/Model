@@ -175,11 +175,39 @@ namespace GPC.Converter.Straus7
                             CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.Centroid,
                             Record = "St7GetPlateResultArray Plate/" + id + "/case/" + table.CaseNumber + "/centroid (no averaging)" });
                     }
-                    else if (table.Entity != Straus7Entity.Plate || table.Quantity != "PlateMomentLocalCentroid") throw new NotSupportedException("Unsupported native quantity: " + table.Quantity);
+                    else if (table.Entity == Straus7Entity.Plate && table.Quantity == "PlateForceLocalNodes")
+                    {
+                        // The element's own values at its nodes (no averaging between plates): one sample per corner, at the node in local coordinates.
+                        var shell = (AreaElement)element;
+                        var moments = native.Tables.Where(t => t.Entity == Straus7Entity.Plate && t.Number == table.Number && t.CaseNumber == table.CaseNumber && t.Quantity == "PlateMomentLocalNodes").ToArray();
+                        var nodes = shell.Nodes.ToArray();
+                        if (moments.Length != 1 || table.Rows != nodes.Length || moments[0].Rows != nodes.Length || moments[0].Columns != 6 || table.NodeNumbers == null || moments[0].NodeNumbers == null
+                            || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => n.Source?.OriginalId))
+                            || !moments[0].NodeNumbers.SequenceEqual(table.NodeNumbers))
+                            throw new InvalidDataException("Matching node force and moment tables in the plate connectivity order are required.");
+                        Straus7ApiConverter.Finite(moments[0].Values, moments[0].Values.Length, "Plate node moments");
+                        Axes.Validate(shell.CoordinateSystem); var plateAxes = shell.CoordinateSystem;
+                        for (int row = 0; row < nodes.Length; row++)
+                        {
+                            var f = table.Values.Skip(row * 6).Take(6).ToArray(); var m = moments[0].Values.Skip(row * 6).Take(6).ToArray();
+                            if (f[2] != 0 || m[2] != 0 || m[4] != 0 || m[5] != 0) throw new NotSupportedException("Nonzero out-of-plane tensor terms are not represented by the shell resultant contract.");
+                            Vector3d d = nodes[row].Position - plateAxes.Origin;
+                            batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 8),
+                                Axes = SourceAxes(plateAxes, plateAxes.Origin, units.LengthToMm), Values = new double?[] { f[0], f[1], f[3], f[5], f[4], m[0], m[1], m[3] },
+                                Location = new Point2d(Axes.Dot(d, plateAxes.V1) / units.LengthToMm, Axes.Dot(d, plateAxes.V2) / units.LengthToMm),
+                                CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.ElementNodeExtrapolated, SourceNodeId = nodes[row].Source.OriginalId,
+                                Record = "St7GetPlateResultArray Plate/" + id + "/case/" + table.CaseNumber + "/node/" + nodes[row].Source.OriginalId + " (no averaging)" });
+                        }
+                    }
+                    else if (table.Entity != Straus7Entity.Plate || table.Quantity != "PlateMomentLocalCentroid" && table.Quantity != "PlateMomentLocalNodes")
+                        throw new NotSupportedException("Unsupported native quantity: " + table.Quantity);
                 }
-                foreach (var moments in native.Tables.Where(t => t.Quantity == "PlateMomentLocalCentroid"))
-                    if (!native.Tables.Any(t => t.Quantity == "PlateForceLocalCentroid" && t.Entity == moments.Entity && t.Number == moments.Number && t.CaseNumber == moments.CaseNumber))
+                foreach (var moments in native.Tables.Where(t => t.Quantity == "PlateMomentLocalCentroid" || t.Quantity == "PlateMomentLocalNodes"))
+                {
+                    var forces = moments.Quantity == "PlateMomentLocalCentroid" ? "PlateForceLocalCentroid" : "PlateForceLocalNodes";
+                    if (!native.Tables.Any(t => t.Quantity == forces && t.Entity == moments.Entity && t.Number == moments.Number && t.CaseNumber == moments.CaseNumber))
                         throw new InvalidDataException("Plate moments without matching forces.");
+                }
                 var evidence = new[]
                 {
                     Straus7ApiConverter.Evidence("ResultFile/" + native.ResultHash, native.Tables,

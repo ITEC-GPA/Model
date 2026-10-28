@@ -9,7 +9,7 @@ namespace GPC.Converter.Straus7
 {
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
-    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi
+    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi
     {
         private IntPtr library;
         private bool initialized, modelOpen, resultsOpen;
@@ -112,7 +112,7 @@ namespace GPC.Converter.Straus7
         }
         public Straus7Element ReadElement(Straus7Entity entity, int number)
         {
-            if (entity != Straus7Entity.Beam && entity != Straus7Entity.Plate) throw new NotSupportedException("Only beam and plate elements are mapped.");
+            if (entity != Straus7Entity.Beam && entity != Straus7Entity.Plate) throw new NotSupportedException("Only beam and plate elements are read; links have ReadLink.");
             var connection = new int[21]; int property = 0, group = 0;
             Check(Call<ConnectionCall>("St7GetElementConnection")(FileId, (int)entity, number, connection), "St7GetElementConnection " + entity + "/" + number);
             if (connection[0] < 1 || connection[0] > 20) throw new InvalidDataException("Invalid native connectivity size.");
@@ -121,10 +121,16 @@ namespace GPC.Converter.Straus7
             var p = ReadProperty(entity, property); bool beam = entity == Straus7Entity.Beam;
             var centroid = new double[3];
             Check(Call<CentroidCall>("St7GetElementCentroid")(FileId, (int)entity, number, 0, centroid), "St7GetElementCentroid " + number);
+            double[] axes = null;
+            if (beam && p.Formulation == 6 || !beam && p.Formulation == 4) axes = Values(beam ? "St7GetBeamAxisSystemInitial" : "St7GetPlateAxisSystemInitial", number, 9);
+            else if (beam && (p.Formulation == 1 || p.Formulation == 2 || p.Formulation == 3))
+            {
+                // Springs, cables and trusses have element axes too; a refusal leaves them to the converter.
+                try { axes = Values("St7GetBeamAxisSystemInitial", number, 9); } catch (Straus7ApiException) { axes = null; }
+            }
             return new Straus7Element { Number = number, UserId = Attribute(beam ? "St7GetBeamID" : "St7GetPlateID", number),
                 Nodes = connection.Skip(1).Take(connection[0]).ToArray(), Property = property, GroupId = group, Formulation = p.Formulation, Centroid = centroid,
-                InitialAxes = (beam && p.Formulation == 6) || (!beam && p.Formulation == 4)
-                    ? Values(beam ? "St7GetBeamAxisSystemInitial" : "St7GetPlateAxisSystemInitial", number, 9) : null };
+                InitialAxes = axes };
         }
         public Straus7Property ReadProperty(Straus7Entity entity, int number)
         {
@@ -134,7 +140,8 @@ namespace GPC.Converter.Straus7
             if (entity == Straus7Entity.Beam)
             {
                 p.Formulation = Attribute("St7GetBeamPropertyType", number);
-                if (p.Formulation == 6)
+                if (p.Formulation == 1) p.SpringData = Values("St7GetSpringDamperData", number, 7);
+                if (p.Formulation == 6 || p.Formulation == 2 || p.Formulation == 3)
                 {
                     int type = 0; var geometry = new double[6];
                     Check(Call<SectionCall>("St7GetBeamSectionGeometry")(FileId, number, ref type, geometry), "St7GetBeamSectionGeometry " + number);
@@ -168,13 +175,13 @@ namespace GPC.Converter.Straus7
                     if (material == 1) p.Material = Values("St7GetPlateIsotropicMaterial", number, 8);
                 }
             }
-            if (p.Formulation == (entity == Straus7Entity.Beam ? 6 : 4))
+            // Other families (cut-offs, contacts, plane plates...) keep their formulation without material data: the converter decides.
+            if (entity == Straus7Entity.Beam ? p.Formulation == 6 || p.Formulation == 2 || p.Formulation == 3 : p.Formulation == 4)
             {
                 var material = new StringBuilder(1024);
                 Check(Call<PropertyName>("St7GetMaterialName")(FileId, (int)entity, number, material, material.Capacity), "St7GetMaterialName " + key);
                 p.MaterialName = material.ToString();
             }
-            else throw new NotSupportedException("Unsupported property family.");
             properties.Add(key, p); return p;
         }
         public Straus7ResultFile ValidateResults(string path)
@@ -273,6 +280,70 @@ namespace GPC.Converter.Straus7
             int type = 0; var data = new double[10];
             Check(Call<UcsCall>("St7GetUCS")(FileId, id, ref type, data), "St7GetUCS " + id);
             return new Straus7Ucs { Type = type, Data = data };
+        }
+        public Straus7BeamRelease ReadBeamRelease(int beam, int end, bool rotational)
+        {
+            var name = rotational ? "St7GetBeamRRelease3" : "St7GetBeamTRelease3"; var status = new int[3]; var values = new double[3];
+            Check(Call<ReleaseCall>(name)(FileId, beam, end, status, values), name + " " + beam + "/" + end);
+            return new Straus7BeamRelease { Status = status, Values = values };
+        }
+        public Straus7NodeStiffness ReadNodeStiffness(int node, int freedomCase, bool rotational)
+        {
+            var name = rotational ? "St7GetNodeKRotation3F" : "St7GetNodeKTranslation3F"; int ucs = 0; var values = new double[3];
+            Check(Call<StiffnessCall>(name)(FileId, node, freedomCase, ref ucs, values), name + " " + node + "/" + freedomCase);
+            return new Straus7NodeStiffness { Ucs = ucs, Values = values };
+        }
+        public Straus7Link ReadLink(int number)
+        {
+            var link = new Straus7Link { Number = number, Type = Attribute("St7GetLinkType", number) };
+            var connection = new int[21];
+            Check(Call<ConnectionCall>("St7GetElementConnection")(FileId, (int)Straus7Entity.Link, number, connection), "St7GetElementConnection Link/" + number);
+            if (connection[0] < 1 || connection[0] > 20) throw new InvalidDataException("Invalid native link connectivity size.");
+            link.Nodes = connection.Skip(1).Take(connection[0]).ToArray();
+            var nodes = new int[20]; int ucs = 0, plane = 0;
+            if (link.Type == 5)
+            {
+                Check(Call<RigidLinkCall>("St7GetRigidLink")(FileId, number, ref ucs, ref plane, nodes), "St7GetRigidLink " + number);
+                link.Ucs = ucs; link.Plane = plane;
+            }
+            else if (link.Type == 1)
+            {
+                var dofs = new int[6];
+                Check(Call<MasterSlaveCall>("St7GetMasterSlaveLink")(FileId, number, ref ucs, nodes, dofs), "St7GetMasterSlaveLink " + number);
+                link.Ucs = ucs; link.Dofs = dofs;
+            }
+            return link;
+        }
+        public int CombinationCount => Count("St7GetNumLSACombinations");
+        public int CombinedCombinationCount => Count("St7GetNumCombinedLSACombinations");
+        public Straus7Combination ReadCombination(int number, int loadCases, int freedomCases)
+        {
+            byte enabled = 0;
+            Check(Call<BoolCall>("St7GetLSACombinationState")(FileId, number, ref enabled), "St7GetLSACombinationState " + number);
+            var factors = new double[loadCases * freedomCases];
+            for (int l = 1; l <= loadCases; l++)
+                for (int f = 1; f <= freedomCases; f++)
+                {
+                    double factor = 0; // LType ltLoadCase = 0.
+                    Check(Call<FactorCall>("St7GetLSACombinationFactor")(FileId, 0, number, l, f, ref factor), "St7GetLSACombinationFactor " + number + "/" + l + "/" + f);
+                    factors[(l - 1) * freedomCases + f - 1] = factor;
+                }
+            return new Straus7Combination { Number = number, Name = Name("St7GetLSACombinationName", number), Enabled = enabled != 0, Factors = factors };
+        }
+        public Straus7ResultTable ReadPlateNodeResult(int number, int resultCase, bool moments)
+        {
+            var state = State(Straus7Entity.Plate, number, resultCase);
+            if (state[0] != 1 || state[1] != 1) throw new InvalidDataException("Plate inactive or results unavailable: " + number + "/" + resultCase);
+            var connection = new int[21];
+            Check(Call<ConnectionCall>("St7GetElementConnection")(FileId, (int)Straus7Entity.Plate, number, connection), "St7GetElementConnection " + number);
+            if (connection[0] != 3 && connection[0] != 4) throw new NotSupportedException("Unsupported plate node-result connectivity.");
+            int rows = 0, columns = 0; var values = new double[1024];
+            // stPlateLocal, spNodesAverageNever: the element's own values at its nodes, never averaged with the neighbours.
+            Check(Call<PlateResults>("St7GetPlateResultArray")(FileId, moments ? 5 : 4, 0, number, resultCase, 2, 0, 0, ref rows, ref columns, values),
+                "St7GetPlateResultArray(nodes, no averaging) " + number + "/" + resultCase);
+            if (rows != connection[0] || columns != 6) throw new InvalidDataException("Unexpected plate node-result layout.");
+            var table = Table(Straus7Entity.Plate, number, resultCase, moments ? "PlateMomentLocalNodes" : "PlateForceLocalNodes", rows, columns, null, values, state);
+            table.NodeNumbers = connection.Skip(1).Take(rows).ToArray(); return table;
         }
         public double[] ReadNodeLoad(int node, int loadCase, bool moment) => CaseValues(moment ? "St7GetNodeMoment3" : "St7GetNodeForce3", node, loadCase, 3);
         public double[] ReadBeamOffset(int beam) => Values("St7GetBeamOffset2", beam, 2);
@@ -376,5 +447,11 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DistributedGlobal(int a, int b, int c, int d, int e, ref int f, ref int g, [Out] double[] h);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GlobalPressure(int a, int b, int c, int d, ref int e, [Out] double[] f);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GravityCall(int a, int b, ref double c);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ReleaseCall(int a, int b, int c, [Out] int[] d, [Out] double[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int StiffnessCall(int a, int b, int c, ref int d, [Out] double[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int RigidLinkCall(int a, int b, ref int c, ref int d, [Out] int[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MasterSlaveCall(int a, int b, ref int c, [Out] int[] d, [Out] int[] e);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int BoolCall(int a, int b, ref byte c);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int FactorCall(int a, int b, int c, int d, int e, ref double f);
     }
 }
