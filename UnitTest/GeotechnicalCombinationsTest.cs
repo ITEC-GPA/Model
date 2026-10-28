@@ -193,6 +193,77 @@ namespace UnitTest
             Assert.AreEqual(0, new GeotechnicalCombinationRequest(A1, actions, new[] { "q" }).PatternOrder.Count, "without an order the names may coincide");
         }
 
+        // Census D10 a: the profile of NTC 2018 (Tab. 2.6.I and 2.5.I) and the recommended values of EN 1990 (Tab. A1.2(A)-(C) and A1.1), by hand.
+        [TestMethod]
+        public void TheProfilesHoldTheValuesOfTheStandards()
+        {
+            void Set(GeotechnicalActionFactors s, double g1u, double g1f, double g2u, double g2f, double qu, double qf, string name)
+            {
+                Assert.AreEqual(name, s.Name);
+                CollectionAssert.AreEqual(new[] { g1u, g1f, g2u, g2f, qu, qf }, new[] { s.PermanentUnfavourable, s.PermanentFavourable, s.NonStructuralUnfavourable,
+                    s.NonStructuralFavourable, s.VariableUnfavourable, s.VariableFavourable }, name);
+            }
+            var ntc = CombinationProfile.Ntc2018;
+            Assert.AreEqual("NTC 2018", ntc.Name);
+            Set(ntc.Equilibrium, 1.1, .9, 1.5, .8, 1.5, 0, "EQU"); Set(ntc.Structural, 1.3, 1, 1.5, .8, 1.5, 0, "A1"); Set(ntc.Geotechnical, 1, 1, 1.3, .8, 1.3, 0, "A2");
+            Set(ntc.Seismic, 1, 1, 1, 1, 1, 0, "A-seismic");
+            Assert.AreEqual(A1, ntc.Structural, "the set A1 of the walls");
+            var psi = new Dictionary<VariableActionCategory, double[]>
+            {
+                [VariableActionCategory.A] = new[] { .7, .5, .3 }, [VariableActionCategory.B] = new[] { .7, .5, .3 }, [VariableActionCategory.C] = new[] { .7, .7, .6 },
+                [VariableActionCategory.D] = new[] { .7, .7, .6 }, [VariableActionCategory.E] = new[] { 1, .9, .8 }, [VariableActionCategory.F] = new[] { .7, .7, .6 },
+                [VariableActionCategory.G] = new[] { .7, .5, .3 }, [VariableActionCategory.H] = new[] { 0d, 0, 0 }, [VariableActionCategory.Wind] = new[] { .6, .2, 0 },
+                [VariableActionCategory.SnowUpTo1000m] = new[] { .5, .2, 0 }, [VariableActionCategory.SnowAbove1000m] = new[] { .7, .5, .2 },
+                [VariableActionCategory.Temperature] = new[] { .6, .5, 0 },
+            };
+            var en = CombinationProfile.En1990;
+            Assert.AreEqual("EN 1990", en.Name);
+            Set(en.Equilibrium, 1.1, .9, 1.1, .9, 1.5, 0, "EQU"); Set(en.Structural, 1.35, 1, 1.35, 1, 1.5, 0, "STR"); Set(en.Geotechnical, 1, 1, 1, 1, 1.3, 0, "GEO");
+            Set(en.Seismic, 1, 1, 1, 1, 1, 0, "Seismic");
+            foreach (var p in psi)
+                foreach (var profile in new[] { ntc, en })
+                    CollectionAssert.AreEqual(p.Value, new[] { profile.Psi0(p.Key), profile.Psi1(p.Key), profile.Psi2(p.Key) }, profile.Name + " " + p.Key);
+            var live = ntc.Variable("live", "live", VariableActionCategory.C);
+            Assert.AreEqual(GeotechnicalActionNature.Q, live.Nature); CollectionAssert.AreEqual(new[] { .7, .7, .6 }, new[] { live.Psi0, live.Psi1, live.Psi2 });
+            // A national annex set on the standard enters the EN 1990 profile.
+            var annex = new StandardEN1990 { GammaGUnfavourableSetB = 1.3 };
+            Assert.AreEqual(1.3, CombinationProfile.FromEN1990(annex).Structural.PermanentUnfavourable);
+            var wrong = psi.ToDictionary(p => p.Key, p => p.Value); wrong[VariableActionCategory.A] = new[] { .5, .6, .3 };
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new CombinationProfile("x", "", A1, A1, A1, A1, wrong));
+            wrong.Remove(VariableActionCategory.A);
+            Assert.ThrowsException<ArgumentException>(() => new CombinationProfile("x", "", A1, A1, A1, A1, wrong));
+        }
+
+        // Census D9 a: the load cases of a structural model on the same generator, with the structural set and the ψ of the NTC 2018 profile. Two
+        // dead load cases in one G1 group, one G2 case, live load of category B and snow below 1000 m, one seismic variant. Expected rows by hand.
+        [TestMethod]
+        public void TheLoadCasesOfAModelUseTheSameGenerator()
+        {
+            var ntc = CombinationProfile.Ntc2018;
+            var actions = new[]
+            {
+                new GeotechnicalDesignAction("DEAD1", "G1", GeotechnicalActionNature.G1), new GeotechnicalDesignAction("DEAD2", "G1", GeotechnicalActionNature.G1),
+                new GeotechnicalDesignAction("FINISH", "G2", GeotechnicalActionNature.G2), ntc.Variable("LIVE", "LIVE", VariableActionCategory.B),
+                ntc.Variable("SNOW", "SNOW", VariableActionCategory.SnowUpTo1000m),
+            };
+            var rows = GeotechnicalCombinations.Generate(new GeotechnicalCombinationRequest(ntc.Structural, actions, seismicVariants: 1));
+            var characteristic = rows.Where(r => r.State == GeotechnicalLimitState.Characteristic).ToArray();
+            Assert.AreEqual(2, characteristic.Length);
+            Assert.AreEqual(1, characteristic[0].Factors["LIVE"]); Assert.AreEqual(.5, characteristic[0].Factors["SNOW"]); Assert.AreEqual(1, characteristic[0].Factors["DEAD2"]);
+            var frequent = rows.First(r => r.State == GeotechnicalLimitState.Frequent);
+            Assert.AreEqual(.5, frequent.Factors["LIVE"]); Assert.AreEqual(0, frequent.Factors["SNOW"]);
+            var quasi = rows.Single(r => r.State == GeotechnicalLimitState.QuasiPermanent);
+            Assert.AreEqual(.3, quasi.Factors["LIVE"]); Assert.AreEqual(0, quasi.Factors["SNOW"]); Assert.AreEqual(1, quasi.Factors["FINISH"]);
+            // 2 permanent bits and 2 presence bits: 4 × (1 + 1 + 1 + 2) = 20 ultimate rows.
+            var ultimate = rows.Where(r => r.State == GeotechnicalLimitState.Ultimate).ToArray();
+            Assert.AreEqual(20, ultimate.Length);
+            var worst = ultimate.Single(r => r.Lead == "LIVE" && r.Factors["DEAD1"] == 1.3 && r.Factors["FINISH"] == 1.5 && r.Factors["SNOW"] > 0);
+            Assert.AreEqual(1.3, worst.Factors["DEAD2"]); Assert.AreEqual(1.5, worst.Factors["LIVE"]); Assert.AreEqual(.75, worst.Factors["SNOW"], 1e-15);
+            Assert.IsTrue(ultimate.Any(r => r.Factors["DEAD1"] == 1 && r.Factors["FINISH"] == .8 && r.Factors["LIVE"] == 0 && r.Factors["SNOW"] == 0), "all favourable, no Q");
+            // Seismic: LIVE at ψ2 and absent; SNOW has ψ2 = 0, so its absence is merged.
+            CollectionAssert.AreEqual(new[] { .3, 0 }, rows.Where(r => r.State == GeotechnicalLimitState.Seismic).Select(r => r.Factors["LIVE"]).ToArray());
+        }
+
         // Identical rows are merged without using a number: with the seismic set (all factors 1) the body patterns give the same rows.
         [TestMethod]
         public void IdenticalRowsAreMergedWithoutUsingANumber()
