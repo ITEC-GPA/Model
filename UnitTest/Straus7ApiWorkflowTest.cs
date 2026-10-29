@@ -290,7 +290,9 @@ public partial class Straus7ApiWorkflowTest
         public int StageCount => Fault == "stage" ? 1 : 0;
         public Straus7ResultFile ValidateResults(string path) { Lifecycle.Add("validate-results"); return new() { ValidationFlags = Fault == "result-mismatch" ? 1 << 10 : 0, Solver = Fault == "solver-nonlinear" ? 3 : 1 }; }
         public Straus7ResultFile OpenResults(string path) { Lifecycle.Add("open-results"); resultsOpen = true; return new() { PrimaryCases = 1 }; }
-        public Straus7ResultCase ReadResultCase(int number) => new() { Number = number, Name = "G", Stage = 0 };
+        // Fault "stage": a case of stage 2 in a model with one stage. A model with stages solved without an active stage (stage 0) is an unstaged
+        // linear static solution since Converter 2.8 (MOD-33); before, any stage of the model rejected the results.
+        public Straus7ResultCase ReadResultCase(int number) => new() { Number = number, Name = "G", Stage = Fault == "stage" ? 2 : 0 };
         private Straus7ResultTable Faulted(Straus7ResultTable t)
         {
             if (Fault == "result-shape") t.Columns = 99;
