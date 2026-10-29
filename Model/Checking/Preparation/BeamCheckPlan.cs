@@ -67,7 +67,8 @@ namespace GPC.Model.Checking.Preparation
             var checkedInputs = new HashSet<object>(InputFingerprint.ReferenceComparer.Instance);
             return WorkItems.All(w => (w.Section?.Input == null || !checkedInputs.Add(w.Section.Input) || w.Section.Input.IsCurrent)
                 && (w.Actions?.Input == null || !checkedInputs.Add(w.Actions.Input) || w.Actions.Input.IsCurrent)
-                && (w.Member == null || w.Member.Sections.All(s => !checkedInputs.Add(s) || s.IsCurrent) && w.Member.ActionSections.All(s => !checkedInputs.Add(s) || s.IsCurrent)));
+                && (w.Member == null || w.Member.Sections.All(s => !checkedInputs.Add(s) || s.IsCurrent) && w.Member.ActionSections.All(s => !checkedInputs.Add(s) || s.IsCurrent)
+                    && w.Member.DisplacementSources.All(s => !checkedInputs.Add(s) || s.IsCurrent)));
         }
         private string PreparedFingerprint() => ModelValues.Fingerprint(WorkItems.SelectMany(w => new object[] { w.Id, w.Target, w.Scope, w.Mechanism,
             w.MethodId, w.Selection, w.MemberLocation, w.Station, w.StationDomain, w.Side, w.Data, w.Coverage, w.Member?.Snapshot }
@@ -124,12 +125,37 @@ namespace GPC.Model.Checking.Preparation
                 CheckValue.Finite(spec.Start, "span start"); CheckValue.Finite(spec.End, "span end");
                 if (spec.Start < 0 || (spec.End ?? member.Length) > member.Length || spec.Start >= (spec.End ?? member.Length)
                     || spec.Context.Restraints.Any(b => b.Distance > member.Length)) throw new ArgumentException("InvalidMemberSpanOrRestraintPosition");
+                if (spec.Category.HasValue || spec.Deformation != null) ValidateMemberCategory(r, spec);
             }
-            if (r.MemberChecks.GroupBy(s => ModelValues.Fingerprint(new object[] { s.MemberId, s.MethodId, s.Mechanism, s.Start, s.End }))
+            // Category and deformation enter the key only when declared: the historical grouping is unchanged.
+            if (r.MemberChecks.GroupBy(s => ModelValues.Fingerprint(new object[] { s.MemberId, s.MethodId, s.Mechanism, s.Start, s.End }
+                    .Concat(s.Category.HasValue || s.Deformation != null ? new object[] { s.Category, s.Deformation } : new object[0])))
                 .Any(g => g.Select(s => ModelValues.Fingerprint(new object[] { s.Context })).Distinct().Count() > 1))
                 throw new ArgumentException("ConflictingMemberCheckContexts: use distinct explicit jobs.");
             if (r.CoveragePolicy == BeamCoveragePolicy.ExportedSamples && r.Locations.Length != 0) throw new ArgumentException("LocationsRequireExplicitCoveragePolicy");
             return scope;
+        }
+        private static readonly CombinationCategory[] UltimateCategories = { CombinationCategory.Ultimate, CombinationCategory.UltimateSeismic, CombinationCategory.UltimateAccidental };
+        private static readonly CombinationCategory[] ServiceCategories = { CombinationCategory.Characteristic, CombinationCategory.Frequent, CombinationCategory.QuasiPermanent };
+        /// <summary>A deformation task is a serviceability task with a serviceability category; an ultimate category only restricts a
+        /// force-based task. The category is the one declared on the result selections, never deduced from case names.</summary>
+        private static void ValidateMemberCategory(BeamCheckPlanRequest r, MemberCheckSpecification spec)
+        {
+            string key = spec.MemberId + "/" + spec.Mechanism + "/" + spec.Category + "/" + spec.Deformation?.Key;
+            if (spec.Category.HasValue && !Enum.IsDefined(typeof(CombinationCategory), spec.Category.Value) || spec.Category == CombinationCategory.Unspecified)
+                throw new ArgumentException("InvalidMemberCheckCategory: " + key);
+            if (spec.Deformation != null)
+            {
+                if (spec.Mechanism != CheckMechanism.Serviceability) throw new ArgumentException("MemberDeformationRequiresServiceability: " + key);
+                if (!spec.Category.HasValue || !ServiceCategories.Contains(spec.Category.Value)) throw new ArgumentException("ServiceabilityCategoryRequired: " + key);
+                spec.Deformation.Validate();
+                // A variable-only state belongs to one task state: with several states of the category the pairing would be a guess.
+                if (spec.Deformation.VariableBasis == MemberVariableDeflectionBasis.Direct && r.Results.Count(s => s.Category == spec.Category) > 1)
+                    throw new ArgumentException("AmbiguousVariableDeflectionPairing: declare one state of the category, or use Difference: " + key);
+            }
+            else if (spec.Mechanism == CheckMechanism.Serviceability) throw new ArgumentException("MemberServiceabilityRequiresDeformation: " + key);
+            else if (!UltimateCategories.Contains(spec.Category.Value)) throw new ArgumentException("UltimateCategoryRequired: " + key);
+            if (!r.Results.Any(s => s.Category == spec.Category)) throw new ArgumentException("NoResultSelectionForCategory: " + key);
         }
         public static string FingerprintScope(Models.Model model, BeamCheckPlanRequest request)
         {
@@ -140,7 +166,8 @@ namespace GPC.Model.Checking.Preparation
                     .SelectMany(id => new object[] { id, model.Datasets.TryGetValue(id, out var dataset) ? dataset : null }))
                 .Concat(scope.Members.Values.OrderBy(m => m.Definition.Id, StringComparer.Ordinal).Select(m => (object)m.Definition))
                 .Concat(scope.Beams.Values.OrderBy(b => b.Id).SelectMany(b => new object[] { b.Id, b.Groups.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray(),
-                    request.Results.SelectMany(s => ResultQueries.Samples<StationResultBeamForces>(b, s)).ToArray() })));
+                    request.Results.SelectMany(s => ResultQueries.Samples<StationResultBeamForces>(b, s)).ToArray() }))
+                .Concat(MemberDeformationPreparation.ScopeInputs(model, scope.Members, request)));
         }
         private static string ScopeDigest(Models.Model model, BeamCheckPlanRequest request, bool actionsOnly)
             => !actionsOnly ? FingerprintScope(model, request) : ValidationReadScope.Fingerprint(model, new object[] { "MaterialActions-v1", FingerprintScope(model, request) }
@@ -190,7 +217,13 @@ namespace GPC.Model.Checking.Preparation
                             matches.Length > 1 ? "AmbiguousRequiredLocationState" : "MissingRequiredLocation");
                     }
                 }
-                foreach (var spec in r.MemberChecks) AddMember(rows, model, scope.Members[spec.MemberId], r, spec, selection, token, actionsOnly);
+                foreach (var spec in r.MemberChecks)
+                {
+                    // A declared category plans the task only for the selections declared with it (null: every selection, as before).
+                    if (spec.Category.HasValue && selection.Category != spec.Category) continue;
+                    if (spec.Deformation != null) AddMemberDeformation(rows, model, scope.Members[spec.MemberId], spec, selection, token);
+                    else AddMember(rows, model, scope.Members[spec.MemberId], r, spec, selection, token, actionsOnly);
+                }
             }
             // Overlapping state selectors and repeated locations must not double-count the same task.
             plan.WorkItems = Array.AsReadOnly(rows.GroupBy(w => w.Id, StringComparer.Ordinal).Select(g => g.First()).ToArray());
@@ -265,6 +298,19 @@ namespace GPC.Model.Checking.Preparation
                     Diagnostics = diagnostics.AsReadOnly() };
                 item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, "SectionCheck", check, actualState, item.Station, item.StationDomain, item.Side }); rows.Add(item);
             }
+        }
+        /// <summary>Deformation task: member-node displacements of the selection (and of the declared variable selection) instead of
+        /// cut actions; the same identity, coverage and data-status rules as the force-based member task.</summary>
+        private static void AddMemberDeformation(List<CheckWorkItem> rows, Models.Model model, PhysicalMemberGeometry geometry,
+            MemberCheckSpecification spec, ResultSelection selection, CancellationToken token)
+        {
+            var prepared = MemberDeformationPreparation.Prepare(model, geometry, spec, selection, token);
+            var item = new CheckWorkItem { Scope = CheckScope.PhysicalMember, Target = new CheckTargetReference(geometry.Definition.Id), Mechanism = spec.Mechanism,
+                MethodId = spec.MethodId, Selection = selection.Copy(), Data = prepared.Data,
+                Member = new PhysicalMemberCheckInput { Snapshot = prepared.Snapshot, Sections = Array.AsReadOnly(new BeamCheckInput[0]),
+                    MethodId = spec.MethodId, Mechanism = spec.Mechanism, DisplacementSources = prepared.Sources },
+                Diagnostics = prepared.Diagnostics, Coverage = new CoverageAssessment(BeamCoveragePolicy.ExportedSamples, prepared.Required, prepared.Available) };
+            item.Id = ModelValues.Fingerprint(new object[] { item.Scope, item.Target, spec, selection }); rows.Add(item);
         }
         internal static ResultSelection State(StationResultBeamForces sample) => new ResultSelection { Dataset = sample.State?.DatasetId, Case = sample.Case?.Name,
             Phase = sample.State?.Phase, Step = sample.State?.Step, ConcomitantState = sample.State?.ConcomitantStateId, Mode = sample.State?.Mode, MovingLoadPosition = sample.State?.MovingLoadPosition };
