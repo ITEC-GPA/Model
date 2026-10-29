@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 [TestClass]
 public class ConcreteStandardCatalogTests
 {
+    // One accepted change since the port (ANTHEA 1.16.0, R6, user decisions of 28/10/2026 «Fonti secondarie» and «Approvati se spiegati»):
+    // DIN EN 1992-1-1 ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination 0.75 -> 0.65 (k5 of DIN NA NDP 7.2(5)).
     [TestMethod]
     public void ProfilesMatchImmutablePrePortCoefficients()
     {

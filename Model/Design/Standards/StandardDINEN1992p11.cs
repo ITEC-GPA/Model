@@ -7,7 +7,11 @@ namespace GPC.Model.Standards
     /// This class collects all the coefficient of the DIN EN 1992-1-1
     /// "Bemessung und Konstruktion von Stahlbeton- und Spannbetontragwerken"
     /// </summary>
-    /// <remarks>Reference: DIN EN 1992-1-1:2004.AC: 2010 with the German National Annex DIN EN 1992-1-1/NA:2013-04: αcc = 0.85, γc = 1.3 in accidental situations (table 2.1DE)</remarks>
+    /// <remarks>Reference: DIN EN 1992-1-1:2004.AC: 2010 with the German National Annex DIN EN 1992-1-1/NA:2013-04: αcc = 0.85, γc = 1.3 in accidental situations (table 2.1DE);
+    /// k5 = 0.65 (NDP 7.2(5), for the quasi-permanent combination according to a secondary source, to be checked on the text), used also as the
+    /// limit of the characteristic combination of <see cref="StandardModelCode2010.GetServiceabilityPrestressLimitStress"/>: the characteristic stress
+    /// is not lower than the quasi-permanent one, so the check covers the German limit on the safe side (R6 of ANTHEA, 1.16.0; 0.75 of the
+    /// recommended value before).</remarks>
     [Serializable]
     public class StandardDINEN1992p11 : StandardEN1992p11, ISerializable
     {
@@ -19,6 +23,7 @@ namespace GPC.Model.Standards
         {
             _alphaCC = 0.85;
             _gammaCAccidental = 1.3;
+            _serviceabilityStressPrestressSteelCoefficientForCharacteristicCombination = 0.65;
         }
 
         /// <summary>
