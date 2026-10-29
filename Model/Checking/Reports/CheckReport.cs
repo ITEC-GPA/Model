@@ -43,6 +43,11 @@ namespace GPC.Model.Checking.Reports
             _resultSlotsFingerprint = ResultSlots();
         }
 
+        /// <summary>The same report without its rows (scope, counts and seal unchanged): the header of a report archive package,
+        /// whose rows are stored apart and added back to <see cref="Results"/> on load.</summary>
+        internal CheckReport WithoutResults() => new CheckReport { Required = Required, Job = Job, Scope = Scope, ScopeFingerprint = ScopeFingerprint,
+            BeamScope = BeamScope, _resultSlotsFingerprint = _resultSlotsFingerprint };
+
         private static object[] ResultSlot(CheckResult r)
         {
             if (r == null)

@@ -65,6 +65,17 @@ namespace GPC.Model.Core
         internal static DomainXmlSerializer Serializer(Type type) => Serializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes));
         /// <summary>Same contracts, no ceiling of objects: for the graphs of the images, whose results are carried apart.</summary>
         internal static DomainXmlSerializer ImageSerializer(Type type) => ImageSerializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes, int.MaxValue));
+        private static readonly ConcurrentDictionary<(Type Type, int Objects), DomainXmlSerializer> DocumentSerializers = new ConcurrentDictionary<(Type Type, int Objects), DomainXmlSerializer>();
+        /// <summary>Same contracts, for reading a document of <paramref name="characters"/> characters: the objects so many
+        /// characters can hold (<see cref="DomainXmlSerializer.ObjectsIn"/>, rounded up to a power of two so that few serializers
+        /// are built), never more than <see cref="DomainXmlSerializer.DocumentItems"/>.</summary>
+        internal static DomainXmlSerializer DocumentSerializer(Type type, long characters)
+        {
+            int objects = DomainXmlSerializer.ObjectsIn(characters), ceiling = 1024;
+            while (ceiling < objects && ceiling < DomainXmlSerializer.DocumentItems) ceiling *= 2;
+            ceiling = Math.Min(ceiling, DomainXmlSerializer.DocumentItems);
+            return DocumentSerializers.GetOrAdd((type, ceiling), k => new DomainXmlSerializer(k.Type, KnownTypes, k.Objects));
+        }
 
         /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
         public static T CopyValue<T>(T value) where T : class

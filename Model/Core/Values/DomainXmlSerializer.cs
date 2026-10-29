@@ -13,6 +13,14 @@ namespace GPC.Model.Core
         internal const int DocumentItems = 2000000;
         /// <summary>Ceiling of the characters read from an XML document.</summary>
         internal const long DocumentCharacters = 256L * 1024 * 1024;
+        /// <summary>Fewest characters of one object of a document. DataContractSerializer counts one object per element, and
+        /// the declared size (z:Size) of an array before allocating it (measured: a double[1000] needs 1001); the shortest
+        /// element is "&lt;a/&gt;".</summary>
+        internal const int CharactersPerObject = 4;
+        /// <summary>Ceiling of the objects of a document of <paramref name="characters"/> characters: no valid document holds
+        /// more, so the ceiling follows its size and a short text cannot declare a large array or graph (without a ceiling,
+        /// 20 KB declaring z:Size="1500000000" allocated 11 GB before failing).</summary>
+        internal static int ObjectsIn(long characters) => (int)Math.Min(int.MaxValue, Math.Max(1, characters / CharactersPerObject));
         private readonly DataContractSerializer _serializer;
         internal DomainXmlSerializer(Type type, IEnumerable<Type> knownTypes, int maxItems = DocumentItems)
         { _serializer = new DataContractSerializer(type, new DataContractSerializerSettings
