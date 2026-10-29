@@ -119,16 +119,36 @@ namespace GPC.Converter.CivilNx
         [DataMember(Name = "DATA")] public string[][] Rows { get; private set; }
         [DataMember(Name = "FORCE")] public string ForceUnit { get; private set; }
         [DataMember(Name = "DIST")] public string LengthUnit { get; private set; }
-        public static CivilNxResultTableData Read(CivilNxResponse response, string tableName)
+        public static CivilNxResultTableData Read(CivilNxResponse response, string tableName) =>
+            From(CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(response.Json), tableName);
+        /// <summary>The checks of <see cref="Read"/> on a response already read (the importer reads each response once).</summary>
+        internal static CivilNxResultTableData From(IReadOnlyDictionary<string, CivilNxResultTableData> tables, string tableName)
         {
-            var tables = CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(response.Json);
             if (tables == null || !tables.TryGetValue(tableName, out var table) || table?.Headers == null || table.Rows == null)
                 throw new NotSupportedException("UnknownCivilNxResultSchema: retain the original response for a compatible schema profile.");
             if (table.Headers.Any(string.IsNullOrWhiteSpace)
                 || table.Rows.Any(r => r == null || r.Length != table.Headers.Length)) throw new InvalidDataException("AmbiguousCivilNxResultColumns");
             return table;
         }
+        // The index of every header, -1 for a repeated one: built once for the table (read-only afterwards, so concurrent readers are safe),
+        // instead of a search and a count of the headers for every value. Not a data member.
+        private Dictionary<string, int> _columns;
         public string Get(int row, string column)
+        {
+            if (column == null) return GetByScan(row, column);
+            var columns = _columns;
+            if (columns == null)
+            {
+                columns = new Dictionary<string, int>(StringComparer.Ordinal);
+                for (int i = 0; i < Headers.Length; i++)
+                    if (Headers[i] != null) columns[Headers[i]] = columns.ContainsKey(Headers[i]) ? -1 : i;
+                _columns = columns;
+            }
+            if (!columns.TryGetValue(column, out var index)) throw new InvalidDataException("MissingCivilNxResultColumn: " + column);
+            if (index < 0) throw new InvalidDataException("AmbiguousCivilNxResultColumn: " + column);
+            return Rows[row][index];
+        }
+        private string GetByScan(int row, string column)
         {
             var index = Array.IndexOf(Headers, column);
             if (index < 0) throw new InvalidDataException("MissingCivilNxResultColumn: " + column);

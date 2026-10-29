@@ -123,7 +123,8 @@ namespace GPC.Converter.CivilNx
                     cancellationToken.ThrowIfCancellationRequested();
                     var parsed = CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(response.Json);
                     if (parsed == null || parsed.Count != 1) throw new InvalidDataException("UnknownCivilNxResultSchema");
-                    var name = parsed.Keys.Single(); var table = CivilNxResultTableData.Read(response, name);
+                    // The response read once: the same checks as CivilNxResultTableData.Read on the same dictionary.
+                    var name = parsed.Keys.Single(); var table = CivilNxResultTableData.From(parsed, name);
                     double f = MidasConventions.ForceFactor(table.ForceUnit) ?? throw new NotSupportedException("UnknownResultForceUnit: " + table.ForceUnit);
                     double l = MidasConventions.LengthFactor(table.LengthUnit) ?? throw new NotSupportedException("UnknownResultLengthUnit: " + table.LengthUnit);
                     if (batch == null)
