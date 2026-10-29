@@ -36,16 +36,44 @@ namespace GPC.Model.Checking.Preparation
         public string Settings { get; internal set; }
         public string VerificationRevision { get; internal set; }
         public string SampleRevision { get; internal set; }
-        public bool IsCurrent => !string.IsNullOrEmpty(Sample?.State?.DatasetId) && Model.AreaElements.TryGetValue(Element.Id, out var current) && ReferenceEquals(current, Element)
-            && Element.Results.SelectMany(r => r.Results).Any(r => ReferenceEquals(r, Sample))
-            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ModelValues.Fingerprint(new object[] { dataset })
+        public bool IsCurrent
+        {
+            get
+            {
+                // One read scope: the analysis fingerprint is computed once for the verification revision and for the compatibility gate.
+                using (ValidationReadScope.Enter(Model)) return IsCurrentCore();
+            }
+        }
+        // In a read scope the registered results of the element and the dataset, sample, verification and compatibility digests of the
+        // model are read once for all the inputs checked in it (AreCurrent). The detached copies of the input are fingerprinted each time.
+        private bool IsCurrentCore() => !string.IsNullOrEmpty(Sample?.State?.DatasetId) && Model.AreaElements.TryGetValue(Element.Id, out var current) && ReferenceEquals(current, Element)
+            && ValidationReadScope.IsRegistered(Model, Element, Sample)
+            && Model.Datasets.TryGetValue(Sample.State.DatasetId, out var dataset) && DatasetFingerprint == ValidationReadScope.FingerprintOf(Model, dataset)
             && ResultAlgebra.HasCurrentDerivation(Model, Element, Sample.State)
             && VerificationRevision == Model.VerificationFingerprint(Settings)
             && AnalysisCompatibilityValidator.KnownAnalysisIsCompatible(Model)
-            && SampleRevision == ModelValues.Fingerprint(new object[] { Sample })
+            && SampleRevision == ValidationReadScope.FingerprintOf(Model, Sample)
             && AssignmentsFingerprint == ModelValues.Fingerprint(new object[] { Assignments })
             && PropertyFingerprint == ModelValues.Fingerprint(new object[] { Property })
             && PreparedFingerprint == ModelValues.Fingerprint(new object[] { LocalForces });
+
+        /// <summary>Whether every input is current: <see cref="IsCurrent"/> of each, in order, up to the first that is not (an input met
+        /// again is not checked again). The inputs are read in one read scope of the model of the first one, so that the verification,
+        /// compatibility, dataset and sample digests of the model are computed once for all of them, instead of once per input (a plate
+        /// plan: once per task). Nothing but the inputs and their models is read meanwhile; each call reads the model again.</summary>
+        public static bool AreCurrent(IEnumerable<ShellCheckInput> inputs)
+        {
+            if (inputs == null)
+                throw new ArgumentNullException(nameof(inputs));
+            var all = inputs.ToArray();
+            if (all.Any(i => i == null))
+                throw new ArgumentException("NullShellCheckInput", nameof(inputs));
+            if (all.Length == 0)
+                return true;
+            var checkedInputs = new HashSet<object>(InputFingerprint.ReferenceComparer.Instance);
+            using (ValidationReadScope.Enter(all[0].Model))
+                return all.All(i => !checkedInputs.Add(i) || i.IsCurrent);
+        }
     }
     /// <summary>Physical inputs for a shell verifier. Ready here does not assert that a structural design method or engine is available.</summary>
     public sealed class ShellInputPreparation

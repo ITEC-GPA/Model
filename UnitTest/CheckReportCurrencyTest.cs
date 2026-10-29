@@ -9,6 +9,7 @@ using GPC.Model.Core.Identity;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
 using GPC.Model.Results.Locations;
+using GPC.Model.Results.Queries;
 using GPC.Model.Results.State;
 using GPC.Model.Results.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -146,6 +147,32 @@ public class CheckReportCurrencyTest
         using (ValidationReadScope.Enter(model))
             foreach (var row in rows)
                 CollectionAssert.AreEqual(Scan(row), StationSamples.Matching(model, beam, row).ToArray());
+    }
+
+    /// <summary>ShellCheckInput.AreCurrent is the IsCurrent of every input, in one read of the model: the verification digest is
+    /// computed once for all the inputs (once per input before), and a change made after a call is seen by the next one.</summary>
+    [TestMethod]
+    public void ShellInputsAreCurrentTogetherInOneReadOfTheModel()
+    {
+        var model = MixedModelFactory.Create();
+        var request = new PreparationRequest { Selection = new ElementSelection { Families = new[] { EntityFamily.Shell } },
+            Results = new[] { new ResultSelection { Dataset = "synthetic-static", Case = "P+" } }, Settings = "currency" };
+        var inputs = ModelPreparation.Prepare(model, request).Samples.Select(s => s.Shell.Input).ToArray();
+        Assert.AreEqual(2, inputs.Length); Assert.IsTrue(inputs.All(i => i != null && i.IsCurrent));
+        var keys = Computed(() => ShellCheckInput.AreCurrent(inputs.Concat(inputs)) ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotEvaluated, EngineeringOutcome.Satisfied);
+        Assert.AreEqual(1, keys.Count(k => k == "verification:value:currency"), string.Join(", ", keys));
+        Assert.AreEqual(2, Computed(() => inputs.All(i => i.IsCurrent) ? EngineeringOutcome.Satisfied : EngineeringOutcome.NotEvaluated, EngineeringOutcome.Satisfied)
+            .Count(k => k == "verification:value:currency"));
+        Assert.IsTrue(ShellCheckInput.AreCurrent(new ShellCheckInput[0]));
+        Assert.ThrowsException<ArgumentException>(() => ShellCheckInput.AreCurrent(new[] { inputs[0], null! }));
+
+        // After a call the sample of the second shell changes: the next call sees it, for that input only.
+        inputs[1].Sample.Forces.Mxx += 1000;
+        Assert.IsFalse(ShellCheckInput.AreCurrent(inputs));
+        CollectionAssert.AreEqual(new[] { true, false }, inputs.Select(i => i.IsCurrent).ToArray());
+        Assert.IsTrue(ShellCheckInput.AreCurrent(inputs.Take(1)));
+        inputs[1].Sample.Forces.Mxx -= 1000;
+        Assert.IsTrue(ShellCheckInput.AreCurrent(inputs));
     }
 
     /// <summary>The keys of the values computed from the model during <paramref name="call"/> (thread-local test hook).</summary>
