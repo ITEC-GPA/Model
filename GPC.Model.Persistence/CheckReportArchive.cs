@@ -24,9 +24,6 @@ namespace GPC.Model.Persistence
         /// faster than the size of one graph (60,000 compact rows: 32 s in one document, 6.8 s in eight); blocks keep the
         /// archive linear in its rows.</summary>
         internal const int BlockRows = 1000;
-        /// <summary>Deflate expands its input at most 1032 times (a 258-byte match in two bits): an entry declaring more
-        /// characters than that over its stored bytes is corrupt or hostile.</summary>
-        internal const long DeflateExpansion = 1032;
 
         public static void Save(IEnumerable<CheckReport> reports, Stream destination)
         {
@@ -160,8 +157,9 @@ namespace GPC.Model.Persistence
 
         private static Array ReadEntry(ZipArchiveEntry entry, string root, Type type, out string version, out string rows)
         {
+            // Deflate expands its input at most 1032 times: an entry declaring more characters is corrupt or hostile.
             long characters = entry.Length;
-            if (characters <= 0 || characters > DomainXmlSerializer.DocumentCharacters || entry.CompressedLength < characters / DeflateExpansion)
+            if (characters <= 0 || characters > DomainXmlSerializer.DocumentCharacters || entry.CompressedLength < characters / DomainXmlSerializer.DeflateExpansion)
                 throw new SerializationException("Corrupt or oversized check report package entry.");
             using (var stream = entry.Open())
             using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit,

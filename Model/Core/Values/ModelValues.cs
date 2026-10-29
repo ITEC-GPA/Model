@@ -63,17 +63,23 @@ namespace GPC.Model.Core
         private static readonly ConcurrentDictionary<Type, DomainXmlSerializer> Serializers = new ConcurrentDictionary<Type, DomainXmlSerializer>();
         private static readonly ConcurrentDictionary<Type, DomainXmlSerializer> ImageSerializers = new ConcurrentDictionary<Type, DomainXmlSerializer>();
         internal static DomainXmlSerializer Serializer(Type type) => Serializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes));
-        /// <summary>Same contracts, no ceiling of objects: for the graphs of the images, whose results are carried apart.</summary>
+        /// <summary>Same contracts, no ceiling of objects: writes the graphs of the images, whose results are carried apart. They
+        /// are read within their size (<see cref="ImageSerializer(Type, long)"/>).</summary>
         internal static DomainXmlSerializer ImageSerializer(Type type) => ImageSerializers.GetOrAdd(type, t => new DomainXmlSerializer(t, KnownTypes, int.MaxValue));
         private static readonly ConcurrentDictionary<(Type Type, int Objects), DomainXmlSerializer> DocumentSerializers = new ConcurrentDictionary<(Type Type, int Objects), DomainXmlSerializer>();
         /// <summary>Same contracts, for reading a document of <paramref name="characters"/> characters: the objects so many
         /// characters can hold (<see cref="DomainXmlSerializer.ObjectsIn"/>, rounded up to a power of two so that few serializers
         /// are built), never more than <see cref="DomainXmlSerializer.DocumentItems"/>.</summary>
-        internal static DomainXmlSerializer DocumentSerializer(Type type, long characters)
+        internal static DomainXmlSerializer DocumentSerializer(Type type, long characters) => BoundedSerializer(type, characters, DomainXmlSerializer.DocumentItems);
+        /// <summary>Same contracts, for reading a graph of at most <paramref name="characters"/> characters written by
+        /// <see cref="ImageSerializer(Type)"/> (images, the document of an archive package): the objects so many characters can
+        /// hold, as for <see cref="DocumentSerializer"/>, without the ceiling of one XML document, which those graphs exceed.</summary>
+        internal static DomainXmlSerializer ImageSerializer(Type type, long characters) => BoundedSerializer(type, characters, int.MaxValue);
+        private static DomainXmlSerializer BoundedSerializer(Type type, long characters, int cap)
         {
             int objects = DomainXmlSerializer.ObjectsIn(characters), ceiling = 1024;
-            while (ceiling < objects && ceiling < DomainXmlSerializer.DocumentItems) ceiling *= 2;
-            ceiling = Math.Min(ceiling, DomainXmlSerializer.DocumentItems);
+            while (ceiling < objects && ceiling < cap) ceiling = ceiling >= 1 << 30 ? int.MaxValue : ceiling * 2;
+            ceiling = Math.Min(ceiling, cap);
             return DocumentSerializers.GetOrAdd((type, ceiling), k => new DomainXmlSerializer(k.Type, KnownTypes, k.Objects));
         }
 

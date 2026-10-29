@@ -21,20 +21,25 @@ namespace GPC.Model.Analysis
                 return stream.ToArray();
             }
         }
+        /// <summary>A value written by <see cref="Write{T}"/> (scenario values and samples, also read from archives): an XML
+        /// document within the ceilings of one document and within its size (a byte is at most one character, see
+        /// <see cref="ModelValues.DocumentSerializer"/>).</summary>
         internal static T Read<T>(byte[] bytes)
         {
+            long characters = Math.Max(1, Math.Min(bytes.Length, DomainXmlSerializer.DocumentCharacters));
             using (var stream = new MemoryStream(bytes, false))
             using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit,
-                XmlResolver = null, MaxCharactersInDocument = 256L * 1024 * 1024 }))
-                return (T)ModelValues.Serializer(typeof(T)).ReadObject(reader);
+                XmlResolver = null, MaxCharactersInDocument = characters }))
+                return (T)ModelValues.DocumentSerializer(typeof(T), characters).ReadObject(reader);
         }
-        /// <summary>A model from snapshot bytes: a compact image, or the XML of the snapshots written before the images (read
-        /// without ceilings: the bytes are internal and checked against their digest by the caller).</summary>
+        /// <summary>A model from snapshot bytes: a compact image, or the XML of the snapshots written before the images. The bytes
+        /// match the digest declared next to them, which a forged archive declares as well: both are read within their size, the
+        /// XML without the ceiling of one document (the graph of a large model exceeds it).</summary>
         internal static Models.Model ReadModel(byte[] bytes)
         {
             if (ModelImage.IsImage(bytes)) return ModelImage.FromBytes(bytes).Open();
             using (var stream = new MemoryStream(bytes, false))
-                return (Models.Model)ModelImage.ReadGraph(stream, typeof(Models.Model));
+                return (Models.Model)ModelImage.ReadGraph(stream, typeof(Models.Model), bytes.Length);
         }
         internal static string Digest(byte[] bytes)
         {

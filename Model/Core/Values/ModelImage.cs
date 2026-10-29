@@ -58,12 +58,13 @@ namespace GPC.Model.Core
             return elements.Select(e => e.CaptureResults(cases)).ToArray();
         }
 
-        /// <summary>A new, independent graph. The compact results are attached, not decoded.</summary>
+        /// <summary>A new, independent graph. The compact results are attached, not decoded. The graph is read within what deflate
+        /// can expand from its bytes: an image read from a file (analysis snapshots) cannot declare a larger graph.</summary>
         internal Models.Model Open()
         {
             Models.Model model;
             using (var inflate = new DeflateStream(new MemoryStream(_graph, false), CompressionMode.Decompress))
-                model = (Models.Model)ReadGraph(inflate, typeof(Models.Model));
+                model = (Models.Model)ReadGraph(inflate, typeof(Models.Model), _graph.Length * DomainXmlSerializer.DeflateExpansion);
             AttachResults(model, _elements, _results);
             return model;
         }
@@ -104,9 +105,17 @@ namespace GPC.Model.Core
                 ModelValues.ImageSerializer(rootType).WriteObject(destination, root);
         }
 
-        internal static object ReadGraph(Stream source, Type rootType) => ModelValues.ImageSerializer(rootType).ReadObject(source, 0);
+        /// <summary>Reads a graph of at most <paramref name="characters"/> characters with the objects so many characters can hold
+        /// (<see cref="ModelValues.ImageSerializer(Type, long)"/>): without a ceiling, a short text declaring z:Size="1500000000"
+        /// allocated 11 GB before failing.</summary>
+        internal static object ReadGraph(Stream source, Type rootType, long characters)
+        {
+            characters = Math.Max(1, characters); // 0 would lift the ceiling of the reader
+            return ModelValues.ImageSerializer(rootType, characters).ReadObject(source, characters);
+        }
 
-        internal static object ReadGraph(XmlReader source, Type rootType) => ModelValues.ImageSerializer(rootType).ReadObject(source);
+        /// <summary>As <see cref="ReadGraph(Stream, Type, long)"/>; <paramref name="source"/> reads at most <paramref name="characters"/>.</summary>
+        internal static object ReadGraph(XmlReader source, Type rootType, long characters) => ModelValues.ImageSerializer(rootType, characters).ReadObject(source);
 
         /// <summary>Binds the compact results to the elements of <paramref name="model"/>, in the order of the image.</summary>
         internal static void AttachResults(Models.Model model, Guid[] elements, ResultStorage[] results)
@@ -151,7 +160,7 @@ namespace GPC.Model.Core
                     int length = reader.ReadInt32(); if (length < 0 || length > bytes.Length) throw new SerializationException("CorruptModelImage");
                     var graph = reader.ReadBytes(length); var digest = reader.ReadBytes(32);
                     if (graph.Length != length || digest.Length != 32) throw new SerializationException("CorruptModelImage");
-                    ReadResults(reader, out var elements, out var results);
+                    ReadResults(reader, bytes.Length - reader.BaseStream.Position, out var elements, out var results);
                     if (reader.BaseStream.Position != bytes.Length) throw new SerializationException("CorruptModelImage");
                     return new ModelImage(graph, digest, elements, results);
                 }
@@ -176,22 +185,27 @@ namespace GPC.Model.Core
             }
         }
 
-        internal static void ReadResults(BinaryReader reader, out Guid[] elements, out ResultStorage[] results)
+        /// <summary>Reads a results section of at most <paramref name="bytes"/> bytes (the reader of an archive package entry cannot
+        /// seek). Every declared count is bounded by those bytes before it is allocated, and each segment by its payload: the raw
+        /// segment is at most what deflate expands from it and holds at least one byte per result, so a short section cannot
+        /// declare large arrays now, nor results that would be allocated when they are decoded.</summary>
+        internal static void ReadResults(BinaryReader reader, long bytes, out Guid[] elements, out ResultStorage[] results)
         {
-            long remaining = reader.BaseStream.CanSeek ? reader.BaseStream.Length - reader.BaseStream.Position : long.MaxValue;
+            long remaining = bytes;
             int count = reader.ReadInt32(); if (count < 0 || count > remaining / 20) throw new SerializationException("CorruptModelImage");
             elements = new Guid[count]; results = new ResultStorage[count];
             for (int i = 0; i < count; i++)
             {
                 elements[i] = new Guid(Exactly(reader, 16));
                 int n = reader.ReadInt32(); if (n < 0 || n > remaining / 44) throw new SerializationException("CorruptModelImage");
-                var segments = new ResultSegment[n];
+                var segments = new ResultSegment[n]; long total = 0;
                 for (int k = 0; k < n; k++)
                 {
                     int items = reader.ReadInt32(), length = reader.ReadInt32(); var digest = Exactly(reader, 32);
                     int datasets = reader.ReadInt32(); if (items < 0 || length < 0 || datasets < 0 || datasets > remaining) throw new SerializationException("CorruptModelImage");
                     var names = new string[datasets]; for (int d = 0; d < datasets; d++) names[d] = reader.ReadString();
                     int size = reader.ReadInt32(); if (size < 0 || size > remaining) throw new SerializationException("CorruptModelImage");
+                    if (length > size * DomainXmlSerializer.DeflateExpansion || items > length || (total += items) > int.MaxValue) throw new SerializationException("CorruptModelImage");
                     segments[k] = new ResultSegment(Exactly(reader, size), length, items, digest, names);
                 }
                 results[i] = n == 0 ? ResultStorage.Empty : new ResultStorage(segments);

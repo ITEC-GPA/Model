@@ -106,20 +106,27 @@ namespace GPC.Model.Persistence
             long start = source.Position; var head = new byte[4]; int read = 0;
             while (read < 4) { int n = source.Read(head, read, 4 - read); if (n == 0) break; read += n; }
             source.Position = start;
-            return read == 4 && head[0] == 0x50 && head[1] == 0x4B && head[2] == 3 && head[3] == 4 ? LoadPackage(source) : LoadXml(source);
+            if (!(read == 4 && head[0] == 0x50 && head[1] == 0x4B && head[2] == 3 && head[3] == 4)) return LoadXml(source, source.Length - start);
+            // ZIP offsets count from the start of the stream.
+            if (start != 0) { var tail = new MemoryStream(); source.CopyTo(tail); tail.Position = 0; source = tail; }
+            return LoadPackage(source);
         }
 
-        private static Models.Model LoadXml(Stream source)
+        /// <summary>Versions 1-4: one XML document, read within the ceilings of one document (256 Mi characters, 2,000,000
+        /// objects) and within its <paramref name="bytes"/> (a byte is at most one character), with the objects so many
+        /// characters can hold (<see cref="Core.ModelValues.DocumentSerializer"/>): a short document cannot declare a large array.</summary>
+        private static Models.Model LoadXml(Stream source, long bytes)
         {
+            long characters = Math.Max(1, Math.Min(bytes, Core.DomainXmlSerializer.DocumentCharacters));
             using (var reader = XmlReader.Create(source, new XmlReaderSettings
-            { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 256L * 1024 * 1024, CloseInput = false }))
+            { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = characters, CloseInput = false }))
             {
                 reader.MoveToContent();
                 string version = reader.GetAttribute("version");
                 if (reader.LocalName != "GpcModelArchive" || (version != "1" && version != "2" && version != "3" && version != "4")) throw new SerializationException("Unsupported archive version.");
                 reader.ReadStartElement();
-                var model = version == "4" ? ((ModelDocument)Serializer(typeof(ModelDocument)).ReadObject(reader)).Restore()
-                    : (Models.Model)Serializer(typeof(Models.Model)).ReadObject(reader);
+                var model = version == "4" ? ((ModelDocument)Core.ModelValues.DocumentSerializer(typeof(ModelDocument), characters).ReadObject(reader)).Restore()
+                    : (Models.Model)Core.ModelValues.DocumentSerializer(typeof(Models.Model), characters).ReadObject(reader);
                 reader.ReadEndElement();
                 CheckReportArchive.Validate(model.CheckReports.ToArray());
                 if(version!="4" && model.PhysicalSurfaces.Count!=0) throw new SerializationException("Physical surfaces require archive version 4.");
@@ -132,6 +139,11 @@ namespace GPC.Model.Persistence
             }
         }
 
+        /// <summary>Version 5. model.xml has no ceiling of one XML document (the package holds the models beyond it): it is read
+        /// within the characters it declares, which deflate must be able to expand from its stored bytes, and the objects so many
+        /// characters can hold (<see cref="Core.ModelValues.ImageSerializer(Type, long)"/>), so the work and the memory of a load
+        /// follow the size of the file and a small entry cannot declare a large array or graph. results.bin is read within the
+        /// bytes it declares and lists exactly the elements of the model, as the writer does.</summary>
         private static Models.Model LoadPackage(Stream source)
         {
             try
@@ -141,22 +153,25 @@ namespace GPC.Model.Persistence
                     if (zip.Entries.Count != 2) throw new SerializationException("Unsupported archive package.");
                     var documentEntry = zip.GetEntry(PackageModel); var resultsEntry = zip.GetEntry(PackageResults);
                     if (documentEntry == null || resultsEntry == null) throw new SerializationException("Unsupported archive package.");
+                    long characters = DeclaredLength(documentEntry), bytes = DeclaredLength(resultsEntry);
                     Models.Model model;
                     using (var stream = documentEntry.Open())
-                    using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 0, CloseInput = false }))
+                    using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = characters, CloseInput = false }))
                     {
                         reader.MoveToContent();
                         if (reader.LocalName != "GpcModelArchive" || reader.GetAttribute("version") != "5") throw new SerializationException("Unsupported archive version.");
                         reader.ReadStartElement();
-                        model = ((ModelDocument)ModelImage.ReadGraph(reader, typeof(ModelDocument))).Restore();
+                        model = ((ModelDocument)ModelImage.ReadGraph(reader, typeof(ModelDocument), characters)).Restore();
                         reader.ReadEndElement();
                     }
                     using (var stream = resultsEntry.Open())
                     using (var reader = new BinaryReader(stream))
                     {
                         if (reader.ReadInt32() != ResultsMagic || reader.ReadByte() != 1) throw new SerializationException("Unsupported archive package.");
-                        ModelImage.ReadResults(reader, out var elements, out var results);
+                        ModelImage.ReadResults(reader, bytes - 5, out var elements, out var results);
                         if (stream.ReadByte() != -1) throw new SerializationException("Corrupt archive package.");
+                        // AttachResults reads an empty list as "no results" (images); the writer of the package lists every element.
+                        if (elements.Length != model.AllElements.Count()) throw new SerializationException("ResultElementCountMismatch");
                         ModelImage.AttachResults(model, elements, results);
                     }
                     CheckReportArchive.Validate(model.CheckReports.ToArray());
@@ -166,6 +181,17 @@ namespace GPC.Model.Persistence
             }
             catch (InvalidDataException ex) { throw new SerializationException("Corrupt archive package.", ex); }
             catch (EndOfStreamException ex) { throw new SerializationException("Corrupt archive package.", ex); }
+            catch (XmlException ex) { throw new SerializationException("Corrupt archive package.", ex); }
+        }
+
+        /// <summary>The uncompressed length an entry declares, refused beyond what deflate can expand from its stored bytes
+        /// (at most 1032 times): a corrupt or hostile entry.</summary>
+        private static long DeclaredLength(ZipArchiveEntry entry)
+        {
+            long length = entry.Length;
+            if (length <= 0 || entry.CompressedLength < length / Core.DomainXmlSerializer.DeflateExpansion)
+                throw new SerializationException("Corrupt or oversized archive package entry: " + entry.FullName + ".");
+            return length;
         }
 
         /// <summary>Deterministic value digest for Model data and geometry; independent of XML reference numbering.</summary>
