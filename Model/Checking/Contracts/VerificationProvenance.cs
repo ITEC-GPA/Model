@@ -10,6 +10,7 @@ using GPC.Model.ElementProperties;
 using GPC.Model.Core;
 using GPC.Model.Sections.Concrete;
 using GPC.Model.Analysis;
+using GPC.Model.Checking.Preparation;
 using GPC.Model.Checking.Scenarios;
 
 namespace GPC.Model.Checking.Contracts
@@ -49,13 +50,21 @@ namespace GPC.Model.Checking.Contracts
         };
         public bool IsCurrent(Models.Model model)
         {
-            try
-            {
-                return model != null && AnalysisSnapshotId != null && model.Analysis?.Id == AnalysisSnapshotId && (!model.VerificationScenarios.TryGetValue(ScenarioId, out var scenario) || scenario.Fingerprint == ScenarioFingerprint) && model.AnalysisFingerprint() == AnalysisFingerprint && AnalysisStorage.Design(model) == DesignFingerprint && model.Datasets.Count == _datasets.Count && _datasets.All(p => model.Datasets.TryGetValue(p.Key, out var value) && ModelValues.Fingerprint(new object[] { value }) == p.Value) && AnalysisCompatibilityValidator.Validate(model).Status == AnalysisCompatibility.Compatible;
-            }
-            catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
-            {
+            if (model == null)
                 return false;
+            // One read scope: the analysis fingerprint is computed once for the comparison and for the compatibility gate. Within the read
+            // session of a whole report (CheckReport.CurrentOutcome) the scenario, analysis, design and dataset digests are computed once
+            // for all its rows. Same comparisons, in the same order, as without the scope.
+            using (ValidationReadScope.Enter(model))
+            {
+                try
+                {
+                    return AnalysisSnapshotId != null && model.Analysis?.Id == AnalysisSnapshotId && (!model.VerificationScenarios.TryGetValue(ScenarioId, out var scenario) || ValidationReadScope.Read(model, scenario, "scenario-fingerprint", () => scenario.Fingerprint) == ScenarioFingerprint) && model.AnalysisFingerprint() == AnalysisFingerprint && ValidationReadScope.Read(model, "design-fingerprint", () => AnalysisStorage.Design(model)) == DesignFingerprint && model.Datasets.Count == _datasets.Count && _datasets.All(p => model.Datasets.TryGetValue(p.Key, out var value) && ValidationReadScope.FingerprintOf(model, value) == p.Value) && AnalysisCompatibilityValidator.Validate(model).Status == AnalysisCompatibility.Compatible;
+                }
+                catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
+                {
+                    return false;
+                }
             }
         }
     }
