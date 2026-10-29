@@ -16,7 +16,8 @@ using GPC.Model.Results.State;
 namespace GPC.Converter.Straus7
 {
     /// <summary>Documented R3 linear-static force convention. Requires an unchanged API-imported model,
-    /// explicit case mapping, initial axes and unstaged primary cases. Does not attest section-centroid offsets.</summary>
+    /// explicit case mapping, initial axes and the primary cases of one stage: none (0), or the active stage of a linear static solution,
+    /// whose inactive elements have no results. Does not attest section-centroid offsets.</summary>
     public static class Straus7LinearStaticResults
     {
         private static readonly System.Text.RegularExpressions.Regex ModelCase = new System.Text.RegularExpressions.Regex(@"^Case (\d+): (.*)$",
@@ -68,25 +69,69 @@ namespace GPC.Converter.Straus7
                 if (model == null || native == null || caseMap == null) throw new ArgumentNullException();
                 if (native.Status != ImportStatus.Completed || native.File == null || native.File.ValidationFlags != 0)
                     throw new InvalidDataException("Only successfully acquired, natively validated results can be normalized.");
-                if (native.File.Solver != 1 || native.ModelStageCount != 0 || native.Cases.Any(c => c.Stage != 0))
-                    throw new NotSupportedException("This profile supports unstaged linear-static primary cases only.");
+                if (native.File.Solver != 1 || native.Cases.Select(c => c.Stage).Distinct().Count() > 1 || native.Cases.Any(c => c.Stage < 0 || c.Stage > native.ModelStageCount))
+                    throw new NotSupportedException("This profile supports the linear-static primary cases of one stage only (unstaged or the active stage of the solution).");
+                if (native.Cases.Select(c => c.Number).Distinct().Count() != native.Cases.Count) throw new InvalidDataException("Duplicate result case metadata.");
+                foreach (var c in native.Cases)
+                    if (c.Number < 1 || c.Number > native.File.PrimaryCases || !caseMap.TryGetValue(c.Number, out var name) || !model.LoadCases.ContainsKey(name)
+                        || model.LoadCases[name] is GPC.Model.Stages.StageResultCase)
+                        throw new InvalidDataException("Explicit mapping to an existing Model load case is required for case " + c.Number);
+                if (native.Cases.Select(c => caseMap[c.Number]).Distinct(StringComparer.Ordinal).Count() != native.Cases.Count)
+                    throw new InvalidDataException("Different native result cases must not be collapsed into the same Model case.");
+                int stage = native.Cases.Select(c => c.Stage).FirstOrDefault();
+                var data = stage == 0 ? null : Straus7ModelData.Read(model).Stages.FirstOrDefault(s => s.Number == stage);
+                // The states of an active stage carry it as their phase: cumulative linear static states of that configuration, combinable among themselves.
+                string phase = stage == 0 ? null : data?.ModelName ?? "Stage " + stage.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                var result = Normalize(model, native, datasetId, c => caseMap[c.Number], (c, count) => { var s = State(c.Number, count); s.Phase = phase; return s; },
+                    AnalysisSemantics.LinearStatic, "GPC.Straus7.R3.LinearStatic/3", isSynthetic, cancellationToken);
+                if (stage != 0 && (result.Status == ImportStatus.Completed || result.Status == ImportStatus.Partial))
+                {
+                    result.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7ActiveStageResults", Severity = DiagnosticSeverity.Warning, Record = "Stage/" + stage,
+                        Message = "Linear static results of the active stage " + stage + (data == null ? "" : " '" + data.Name + "'")
+                            + ": the elements inactive in that stage have no results; the cases combine as linear static cases of that configuration." });
+                }
+                return result;
+            }
+            catch (OperationCanceledException) { rejected.Status = ImportStatus.Cancelled; }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidDataException || ex is InvalidOperationException || ex is NotSupportedException || ex is OverflowException)
+            { rejected.Diagnostics.Add(ModelDiagnostic.Error("Straus7NormalizationRejected", message: ex.Message)); }
+            return rejected;
+        }
+
+        internal const string ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Solver torque is retained about the shear centre; bending is about centroidal axes. Beam section actions are not a common-point wrench when the shear centre is eccentric; use element node forces for equilibrium. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.";
+
+        /// <summary>The conversion shared by the linear static and the staged profiles: identity checks, native tables to GPC records with the case and the
+        /// state given by the profile, registration through <see cref="ResultMapper"/>. In a staged case (stage &gt; 0) element tables may come from elements born
+        /// up to that stage, and node tables are kept for the nodes of the elements with results in the case or with a nonzero value: a node outside the
+        /// active structure is not given a zero result.</summary>
+        internal static ResultImportReport Normalize(GPC.Model.Models.Model model, Straus7ResultsReport native, string datasetId, Func<Straus7ResultCase, string> caseOf,
+            Func<Straus7ResultCase, int, ResultState> stateOf, AnalysisSemantics semantics, string readerVersion, bool isSynthetic, CancellationToken cancellationToken)
+        {
+            var rejected = new ResultImportReport { Status = ImportStatus.Rejected };
+            try
+            {
                 var source = model.AnalysisSource;
                 if (source == null || source.Program != "Straus7" || source.GeometryHash != native.ModelHash || source.SolverVersion != native.ApiVersion
                     || string.IsNullOrWhiteSpace(source.AnalysisId) || string.IsNullOrWhiteSpace(native.ResultHash)) throw new InvalidDataException("Model/result source mismatch or missing analysis identity.");
                 var changed = SourceBinding.Check(model, Straus7ApiConverter.InputBindingKind, native.ModelHash, "Straus7");
-                if (native.Cases.Select(c => c.Number).Distinct().Count() != native.Cases.Count) throw new InvalidDataException("Duplicate result case metadata.");
-                var caseNumbers = new HashSet<int>(native.Cases.Select(c => c.Number));
-                foreach (var c in native.Cases)
-                    if (c.Number < 1 || c.Number > native.File.PrimaryCases || !caseMap.TryGetValue(c.Number, out var name) || !model.LoadCases.ContainsKey(name))
-                        throw new InvalidDataException("Explicit mapping to an existing Model load case is required for case " + c.Number);
-                if (native.Cases.Select(c => caseMap[c.Number]).Distinct(StringComparer.Ordinal).Count() != native.Cases.Count)
-                    throw new InvalidDataException("Different native result cases must not be collapsed into the same Model case.");
+                var cases = native.Cases.ToDictionary(c => c.Number);
+                var caseNumbers = new HashSet<int>(cases.Keys);
                 var units = Straus7ApiConverter.Units(native.Units);
                 var batch = new ResultImportBatch { Source = source, SourceHash = native.ResultHash, DatasetId = datasetId,
-                    ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = "GPC.Straus7.R3.LinearStatic/3",
+                    ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = readerVersion,
                     AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, Straus7ApiConverter.InputBindingKind, native.ModelHash),
-                    ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Solver torque is retained about the shear centre; bending is about centroidal axes. Beam section actions are not a common-point wrench when the shear centre is eccentric; use element node forces for equilibrium. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.",
-                    Units = units, ShellDenominatorLengthToMm = units.LengthToMm, Semantics = AnalysisSemantics.LinearStatic, IsSynthetic = isSynthetic };
+                    ResolvedConvention = ResolvedConvention,
+                    Units = units, ShellDenominatorLengthToMm = units.LengthToMm, Semantics = semantics, IsSynthetic = isSynthetic };
+                // Nodes of the elements with results in each staged case.
+                var activeNodes = new Dictionary<int, HashSet<string>>();
+                foreach (var table in native.Tables.Where(t => t != null && t.Entity != Straus7Entity.Node && caseNumbers.Contains(t.CaseNumber) && cases[t.CaseNumber].Stage > 0))
+                {
+                    if (!activeNodes.TryGetValue(table.CaseNumber, out var set)) activeNodes[table.CaseNumber] = set = new HashSet<string>(StringComparer.Ordinal);
+                    var owner = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, table.Entity == Straus7Entity.Beam ? EntityFamily.Beam : EntityFamily.Shell,
+                        Straus7ApiConverter.Id(table.Number)));
+                    if (owner is BeamElement b) { set.Add(b.NodeI.Source?.OriginalId); set.Add(b.NodeJ.Source?.OriginalId); }
+                    else if (owner is AreaElement a) foreach (var n in a.Nodes) set.Add(n.Source?.OriginalId);
+                }
                 var keys = new HashSet<string>();
                 foreach (var table in native.Tables)
                 {
@@ -101,21 +146,23 @@ namespace GPC.Converter.Straus7
                     {
                         var node = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, EntityFamily.Node, Straus7ApiConverter.Id(table.Number))) as NodeElement;
                         if (node == null || table.Rows != 1) throw new InvalidDataException("Nodal result has no matching node or invalid row count.");
+                        if (cases[table.CaseNumber].Stage > 0 && (!activeNodes.TryGetValue(table.CaseNumber, out var active) || !active.Contains(node.Source.OriginalId))
+                            && table.Values.All(v => v == 0)) continue;
                         var axes = SourceAxes(CoordinateSystem.Global, node.Position, units.LengthToMm);
                         var values = table.Values.Select(v => (double?)v).ToArray(); var record = "St7GetNodeResult/" + table.Quantity + "/" + table.Number + "/case/" + table.CaseNumber;
                         if (table.Quantity == "NodeReactionGlobal") batch.NodeForces.Add(new NodeForceRecord { ElementId = node.Source.OriginalId,
-                            Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 6), Axes = axes, Values = values, Record = record,
+                            Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6), Axes = axes, Values = values, Record = record,
                             Kind = NodalForceKind.SupportReaction, Body = ActionBody.OnNode });
                         else if (table.Quantity == "NodeDisplacementGlobal") batch.NodeDisplacements.Add(new NodeDisplacementRecord { ElementId = node.Source.OriginalId,
-                            Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 6), Axes = axes, Values = values, Record = record });
+                            Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6), Axes = axes, Values = values, Record = record });
                         else throw new NotSupportedException("Unsupported nodal quantity: " + table.Quantity);
                         continue;
                     }
-                    // R3.1.5 reports birth stage 1 even for an unstaged linear-static model (case stage 0).
-                    // Construction stages are excluded above using the model and result-case metadata.
+                    // R3.1.5 reports birth stage 1 even for an unstaged linear-static model (case stage 0); in a staged case the element
+                    // must be active and born at or before the stage of the case.
                     if (table.ElementState == null || table.ElementState.Length != 3 || table.ElementState[0] != 1 || table.ElementState[1] != 1
-                        || table.ElementState[2] < 0 || table.ElementState[2] > 1)
-                        throw new NotSupportedException("Inactive, missing or staged element result.");
+                        || table.ElementState[2] < 0 || table.ElementState[2] > Math.Max(1, cases[table.CaseNumber].Stage))
+                        throw new NotSupportedException("Inactive, missing or later-stage element result.");
                     string id = Straus7ApiConverter.Id(table.Number); var family = table.Entity == Straus7Entity.Beam ? EntityFamily.Beam : EntityFamily.Shell;
                     var element = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, family, id));
                     if (element == null) throw new InvalidDataException("Native result refers to an absent element.");
@@ -128,7 +175,7 @@ namespace GPC.Converter.Straus7
                         for (int row = 0; row < nodes.Length; row++)
                         {
                             var node = nodes[row];
-                            batch.NodeForces.Add(new NodeForceRecord { ElementId = node.Source.OriginalId, Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 6),
+                            batch.NodeForces.Add(new NodeForceRecord { ElementId = node.Source.OriginalId, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6),
                                 Axes = SourceAxes(CoordinateSystem.Global, node.Position, units.LengthToMm), Values = table.Values.Skip(row * 6).Take(6).Select(v => (double?)v).ToArray(),
                                 Kind = element is BeamElement ? NodalForceKind.ElementEndForce : NodalForceKind.ElementNodeForce, Body = ActionBody.OnElement,
                                 OwnerSource = element.Source, ElementEnd = element is BeamElement ? (row == 0 ? "I" : "J") : null,
@@ -152,7 +199,7 @@ namespace GPC.Converter.Straus7
                             double station = table.Positions[row];
                             Vector3d delta = beam.EndPoint - beam.StartPoint;
                             var p = beam.StartPoint + delta * station;
-                            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 6),
+                            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6),
                                 Axes = SourceAxes(axes, p, units.LengthToMm), Values = new double?[] { Axes.Dot(force, axes.V3), Axes.Dot(force, axes.V1), Axes.Dot(force, axes.V2),
                                     Axes.Dot(moment, axes.V3), Axes.Dot(moment, axes.V1), Axes.Dot(moment, axes.V2) },
                                 Station = station, PhysicalDistance = beam.Length * station / units.LengthToMm, Body = ActionBody.PositiveSectionFace,
@@ -169,7 +216,7 @@ namespace GPC.Converter.Straus7
                         var f = table.Values; var m = moments[0].Values;
                         if (f[2] != 0 || m[2] != 0 || m[4] != 0 || m[5] != 0) throw new NotSupportedException("Nonzero out-of-plane tensor terms are not represented by the shell resultant contract.");
                         Axes.Validate(shell.CoordinateSystem);
-                        batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 8),
+                        batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 8),
                             Axes = SourceAxes(shell.CoordinateSystem, shell.CoordinateSystem.Origin, units.LengthToMm), Values = new double?[] { f[0], f[1], f[3], f[5], f[4], m[0], m[1], m[3] },
                             Location = new Point2d(0, 0), // Origin is the native centroid, not an assumed UV coordinate of an irregular quad.
                             CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.Centroid,
@@ -192,7 +239,7 @@ namespace GPC.Converter.Straus7
                             var f = table.Values.Skip(row * 6).Take(6).ToArray(); var m = moments[0].Values.Skip(row * 6).Take(6).ToArray();
                             if (f[2] != 0 || m[2] != 0 || m[4] != 0 || m[5] != 0) throw new NotSupportedException("Nonzero out-of-plane tensor terms are not represented by the shell resultant contract.");
                             Vector3d d = nodes[row].Position - plateAxes.Origin;
-                            batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseMap[table.CaseNumber], State = State(table.CaseNumber, 8),
+                            batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 8),
                                 Axes = SourceAxes(plateAxes, plateAxes.Origin, units.LengthToMm), Values = new double?[] { f[0], f[1], f[3], f[5], f[4], m[0], m[1], m[3] },
                                 Location = new Point2d(Axes.Dot(d, plateAxes.V1) / units.LengthToMm, Axes.Dot(d, plateAxes.V2) / units.LengthToMm),
                                 CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.ElementNodeExtrapolated, SourceNodeId = nodes[row].Source.OriginalId,

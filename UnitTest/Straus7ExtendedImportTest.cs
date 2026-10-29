@@ -14,8 +14,23 @@ namespace UnitTest;
 /// with the conventions verified on the native solver by <see cref="Straus7NativeElementsTest"/>; values are invented, not solver output.</summary>
 public partial class Straus7AssignmentImportTest
 {
-    private sealed class ExtendedApi : IStraus7ReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi
+    private sealed class ExtendedApi : IStraus7ReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7StageReadApi, IStraus7MassTemperatureReadApi
     {
+        public readonly List<Straus7Stage> Stages = new();
+        public readonly Dictionary<(Straus7Entity, int, int), double[]> MassValues = new();
+        public readonly Dictionary<(Straus7Entity, int, int), double[]> TemperatureValues = new();
+        public readonly Dictionary<int, bool[]> MassOptions = new();
+        public Straus7Stage ReadStage(int number, IReadOnlyList<int> groups) => Stages[number - 1];
+        public int[] ReadElementResultState(Straus7Entity entity, int number, int resultCase) => new[] { 1, 1, 1 };
+        public double[] ReadNodeTranslationalMass(int node) => MassValues[(Straus7Entity.Node, node, -1)];
+        public double[] ReadNodeRotationalMass(int node, out int ucs) { var v = MassValues[(Straus7Entity.Node, node, -2)]; ucs = (int)v[3]; return v.Take(3).ToArray(); }
+        public double[] ReadNodeNonStructuralMass(int node, int loadCase, int id) => MassValues[(Straus7Entity.Node, node, loadCase)];
+        public double[] ReadBeamNonStructuralMass(int beam, int loadCase, int id, out int distribution) { var v = MassValues[(Straus7Entity.Beam, beam, loadCase)]; distribution = (int)v[10]; return v.Take(10).ToArray(); }
+        public double[] ReadPlateNonStructuralMass(int plate, int loadCase, int id) => MassValues[(Straus7Entity.Plate, plate, loadCase)];
+        public double ReadNodeTemperature(int node, int loadCase, out int type) { var v = TemperatureValues[(Straus7Entity.Node, node, loadCase)]; type = (int)v[1]; return v[0]; }
+        public double[] ReadBeamTemperatureGradient(int beam, int loadCase) => TemperatureValues[(Straus7Entity.Beam, beam, loadCase)];
+        public double ReadPlateTemperatureGradient(int plate, int loadCase) => TemperatureValues[(Straus7Entity.Plate, plate, loadCase)][0];
+        public bool[] ReadLoadCaseMassOption(int loadCase) => MassOptions.TryGetValue(loadCase, out var o) ? o : new[] { true, true };
         public readonly AssignmentApi Inner = Scenario();
         public readonly Dictionary<int, double[]> ExtraNodes = new() { [5] = new[] { 0d, 2.5, 0 }, [6] = new[] { 4d, 2, 1 } };
         public readonly Dictionary<int, int> Formulations = new();
@@ -25,10 +40,10 @@ public partial class Straus7AssignmentImportTest
         public readonly List<Straus7Link> Links = new();
         public readonly List<Straus7Combination> Combinations = new();
         public int Bricks;
-        public void Add(Straus7Entity entity, int number, int attribute, int local = 0, int lc = 0)
+        public void Add(Straus7Entity entity, int number, int attribute, int local = 0, int lc = 0, int id = 0)
         {
             if (!Extra.TryGetValue((entity, number, attribute), out var list)) Extra[(entity, number, attribute)] = list = new();
-            list.Add(new Straus7Attribute { Local = local, Case = lc });
+            list.Add(new Straus7Attribute { Local = local, Case = lc, Id = id });
         }
         public Straus7BeamRelease ReadBeamRelease(int beam, int end, bool rotational) => Releases[(beam, end, rotational)];
         public Straus7NodeStiffness ReadNodeStiffness(int node, int freedomCase, bool rotational) => Springs[(node, rotational)];
@@ -75,7 +90,7 @@ public partial class Straus7AssignmentImportTest
         public Straus7Group ReadGroup(int index) => Inner.ReadGroup(index);
         public int LoadCaseCount => Inner.LoadCaseCount;
         public string ReadLoadCase(int number) => Inner.ReadLoadCase(number);
-        public int StageCount => 0;
+        public int StageCount => Stages.Count;
         public Straus7ResultFile ValidateResults(string path) => throw new NotSupportedException();
         public Straus7ResultFile OpenResults(string path) => throw new NotSupportedException();
         public void CloseResults() { }

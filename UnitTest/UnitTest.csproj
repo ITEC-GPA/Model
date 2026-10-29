@@ -39,6 +39,7 @@
     <None Include="../tests/Fixtures/stage-legacy.xml" Link="Fixtures/stage-legacy.xml" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\straus7-identical-pairs.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\Straus7\native-elements-r31.zip" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\Straus7\native-stages-r31.zip" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\MidasCivil\identical-pairs-native-9.5.5\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\MidasCivil\catalog-pairs-native-9.5.5\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />

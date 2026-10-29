@@ -129,10 +129,11 @@ namespace GPC.Model.Results.Processing
             var result = new List<ResultLocation>();
             if (byCase.All(l => l.Count == 0)) return result; // No static results of this dataset on the element, e.g. outside the read plan.
             if (byCase.Any(l => l.Count != byCase[0].Count)) throw new ArgumentException("IncompleteStaticCases: " + string.Join(", ", cases.Where((c, i) => byCase[i].Count < byCase.Max(l => l.Count))));
-            var names = ResultAlgebra.Names(byCase[0][0]);
             foreach (var template in byCase[0])
             {
                 token.ThrowIfCancellationRequested();
+                // The roles name the components of each location: a node can carry displacements and forces (reactions).
+                var names = ResultAlgebra.Names(template);
                 var axes = ActionTransformations.AtPoint(ResultAlgebra.Frame(template), ResultAlgebra.Frame(template).Origin);
                 var samples = new ResultLocation[cases.Length]; var values = new double[cases.Length][];
                 for (int c = 0; c < cases.Length; c++)

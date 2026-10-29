@@ -18,6 +18,7 @@ namespace GPC.Converter.Straus7
         private readonly ImportBatch batch;
         private readonly IStraus7AssignmentReadApi api;
         private readonly double length, force, stress, mass, thermal;
+        private readonly int temperatureUnit;
         private readonly Dictionary<int, string> caseNames;
         private readonly Dictionary<string, int> warnings = new Dictionary<string, int>(StringComparer.Ordinal);
         private readonly Dictionary<int, double> sectionAngle = new Dictionary<int, double>();
@@ -31,7 +32,7 @@ namespace GPC.Converter.Straus7
             double[] masses = { 1e-3, 1, 1e-6, 0.45359237e-3, 14.5939029372064e-3 };
             if (units[2] < 0 || units[2] >= stresses.Length || units[3] < 0 || units[3] >= masses.Length) throw new NotSupportedException("Unknown Straus7 stress/mass unit code.");
             length = lengths[units[0]]; force = forces[units[1]]; stress = stresses[units[2]]; mass = masses[units[3]];
-            thermal = units[4] == 1 || units[4] == 3 ? 1.8 : 1;
+            thermal = units[4] == 1 || units[4] == 3 ? 1.8 : 1; temperatureUnit = units[4];
         }
 
         public bool Available => api != null;
@@ -44,6 +45,7 @@ namespace GPC.Converter.Straus7
 
         public void Finish()
         {
+            FinishData();
             foreach (var w in warnings)
             {
                 var parts = w.Key.Split('\u001f');
@@ -213,6 +215,7 @@ namespace GPC.Converter.Straus7
                 }
             if (eccentricity != null)
                 for (int k = first; k < batch.BeamLoads.Count; k++) { batch.BeamLoads[k].Eccentricity = eccentricity; batch.BeamLoads[k].EccentricityAxes = beam.CoordinateSystem; }
+            BeamData(number, record);
         }
 
         private sealed class LoadPoint { public double Station; public double Value; }
@@ -271,6 +274,7 @@ namespace GPC.Converter.Straus7
                 batch.ShellLoads.Add(new ShellLoadRecord { ShellId = shell.Id, Case = Case(a.Case, loadRecord), Components = p.Select(x => x * stress).ToArray(),
                     CoordinateSystem = CoordinateSystem.Global, Record = loadRecord });
             }
+            PlateData(number, record);
         }
 
         /// <summary>Restraints of a single freedom case (global or Cartesian UCS, no enforced values) and nodal forces/moments of every load case.</summary>
@@ -306,6 +310,7 @@ namespace GPC.Converter.Straus7
                         batch.NodeLoads.Add(new NodeLoadRecord { NodeId = Straus7ApiConverter.Id(node), Case = Case(a.Case, loadRecord), Components = values,
                             CoordinateSystem = CoordinateSystem.Global, Record = loadRecord });
                     }
+                NodeData(node, record);
             }
         }
 
@@ -327,6 +332,7 @@ namespace GPC.Converter.Straus7
             for (int i = 1; i <= cases; i++)
             {
                 var data = api.ReadLoadCaseData(i); var record = "LoadCase/" + i.ToString(CultureInfo.InvariantCulture);
+                CaseData(i, data, record);
                 if (data == null || data.Type == 0) continue;
                 if (data.Type != 1) { Warn("Straus7InertiaCasePreserved", record, "Acceleration and seismic load case types are not converted to loads."); continue; }
                 if (data.GravityDirection < 1 || data.GravityDirection > 3 || double.IsNaN(data.Gravity) || double.IsInfinity(data.Gravity))

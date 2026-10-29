@@ -89,6 +89,50 @@ namespace GPC.Converter.Straus7
         public const int Restraint = 1, Force = 2, Moment = 3, BeamOffset = 22, BeamDLL = 28, BeamDLG = 29, BeamCFL = 30, BeamCFG = 31, BeamCML = 32, BeamCMG = 33,
             BeamDML = 44, BeamTaper = 92, BeamSectionFactor = 94, PlateOffset = 52, PlateFacePressure = 54, PlateFaceShear = 55, PlateEdgeNormalPressure = 56,
             PlateGlobalPressure = 66, PlateThickness = 69, PlateEdgeGlobalPressure = 72, PlatePointForce = 99, PlatePointMoment = 100, PlateSectionFactor = 121;
+        /// <summary>Masses and temperatures (aoTemperature, aoMTranslation, aoMRotation, aoNSMass, aoBeamTempGradient, aoBeamNSMass, aoPlateTempGradient,
+        /// aoPlateNSMass).</summary>
+        public const int NodeTemperature = 4, NodeTranslationalMass = 5, NodeRotationalMass = 6, NodeNonStructuralMass = 10, BeamTemperatureGradient = 34,
+            BeamNonStructuralMass = 41, PlateTemperatureGradient = 59, PlateNonStructuralMass = 70;
+    }
+    /// <summary>A stage of Global &gt; Stages: name, the five flags of St7GetStageData (morph, move fixed nodes, rotate clusters, stage fluid level,
+    /// reset; btTrue = 1) and the IDs of the groups enabled in it (St7GetStageGroupState). Stages are numbered from 1.</summary>
+    public sealed class Straus7Stage
+    {
+        public int Number { get; set; }
+        public string Name { get; set; }
+        public int[] Data { get; set; }
+        public int[] EnabledGroups { get; set; }
+    }
+    /// <summary>Optional read-only access to the stages of the model and to the result state of an element in a result case.</summary>
+    public interface IStraus7StageReadApi
+    {
+        /// <summary>Stage <paramref name="number"/> (1-based) with the enabled state of each of <paramref name="groups"/>.</summary>
+        Straus7Stage ReadStage(int number, IReadOnlyList<int> groups);
+        /// <summary>St7GetElementResultState: active (1), results available (1), birth stage.</summary>
+        int[] ReadElementResultState(Straus7Entity entity, int number, int resultCase);
+    }
+    /// <summary>Optional read-only access to masses and temperatures, in model units. Node masses act in every case; non-structural masses,
+    /// temperatures and gradients belong to a load case and carry the attribute ID of their sequence.</summary>
+    public interface IStraus7MassTemperatureReadApi
+    {
+        /// <summary>St7GetNodeTMass3: translational mass along global X, Y, Z.</summary>
+        double[] ReadNodeTranslationalMass(int node);
+        /// <summary>St7GetNodeRMass3: rotational mass about the axes of UCS <paramref name="ucs"/> (1 = global).</summary>
+        double[] ReadNodeRotationalMass(int node, out int ucs);
+        /// <summary>St7GetNodeNSMass5ID: mass, dynamic factor, global offset X, Y, Z.</summary>
+        double[] ReadNodeNonStructuralMass(int node, int loadCase, int id);
+        /// <summary>St7GetBeamNSMass10ID: PA, PB, P1, P2, a, b of the dl* law <paramref name="distribution"/>, dynamic factor, global offset X, Y, Z.</summary>
+        double[] ReadBeamNonStructuralMass(int beam, int loadCase, int id, out int distribution);
+        /// <summary>St7GetPlateNSMass5ID: mass per area, dynamic factor, global offset X, Y, Z.</summary>
+        double[] ReadPlateNonStructuralMass(int plate, int loadCase, int id);
+        /// <summary>St7GetNodeTemperature1 and St7GetNodeTemperatureType1 (nt* type).</summary>
+        double ReadNodeTemperature(int node, int loadCase, out int type);
+        /// <summary>St7GetBeamTempGradient2: gradients along the principal axes 1 and 2.</summary>
+        double[] ReadBeamTemperatureGradient(int beam, int loadCase);
+        /// <summary>St7GetPlateTempGradient1: gradient along the local z axis.</summary>
+        double ReadPlateTemperatureGradient(int plate, int loadCase);
+        /// <summary>St7GetLoadCaseMassOption: accelerations applied to the structural and to the non-structural mass.</summary>
+        bool[] ReadLoadCaseMassOption(int loadCase);
     }
     /// <summary>Optional read-only access to element attributes, restraints and loads. A binding without it imports properties and geometry only.</summary>
     public interface IStraus7AssignmentReadApi
@@ -258,6 +302,8 @@ namespace GPC.Converter.Straus7
         public Straus7ResultFile File { get; internal set; }
         public List<Straus7ResultCase> Cases { get; } = new List<Straus7ResultCase>();
         public List<Straus7ResultTable> Tables { get; } = new List<Straus7ResultTable>();
+        /// <summary>Selected beams and plates skipped because inactive in the stage of the result case (case number, count).</summary>
+        public Dictionary<int, int> InactiveElements { get; } = new Dictionary<int, int>();
         public List<ModelDiagnostic> Diagnostics { get; } = new List<ModelDiagnostic>();
         // Native tables remain in native units/conventions until an explicit normalization profile maps them.
     }
