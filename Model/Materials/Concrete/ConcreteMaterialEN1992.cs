@@ -148,15 +148,19 @@ namespace GPC.Model.Materials
 		}
 
 		/// <summary>
-		/// Equality operator (see <see cref="Equals(object)"/>)
+		/// Equality operator (see <see cref="Equals(object)"/>; two nulls are equal, a null and a concrete are not)
 		/// </summary>
-		/// <param name="obj1">The first concrete (not null, unless both are null)</param>
+		/// <param name="obj1">The first concrete</param>
 		/// <param name="obj2">The second concrete</param>
 		/// <returns>True if the materials are equal</returns>
 		public static bool operator ==(ConcreteMaterialEN1992 obj1, ConcreteMaterialEN1992 obj2)
 		{
 			if (ReferenceEquals(obj1, obj2))
 				return true;
+
+			// before, NullReferenceException when only obj1 was null
+			if (obj1 is null || obj2 is null)
+				return false;
 
 			return obj1.Equals(obj2);
 		}

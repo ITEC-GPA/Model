@@ -298,12 +298,20 @@ namespace GPC.Model.Sections.Bolt
         #region Operators overrides
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(BoltSection)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// Equality operator (see <see cref="Equals(BoltSection)"/>; two nulls are equal, a null and a bolt are not)
         /// </summary>
         /// <param name="left">The first bolt</param>
         /// <param name="right">The second bolt</param>
         /// <returns>True if the bolts are equal</returns>
-        public static bool operator ==(BoltSection left, BoltSection right) => left.Equals(right);
+        public static bool operator ==(BoltSection left, BoltSection right)
+        {
+            // before, NullReferenceException when left was null
+            if (ReferenceEquals(left, right))
+                return true;
+            if (left is null || right is null)
+                return false;
+            return left.Equals(right);
+        }
 
         /// <summary>
         /// Inequality operator (see <see cref="Equals(BoltSection)"/>)

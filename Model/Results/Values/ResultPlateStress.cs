@@ -213,13 +213,18 @@ namespace GPC.Model.Results
         }
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(ResultPlateStress)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// Equality operator (see <see cref="Equals(ResultPlateStress)"/>; two nulls are equal, a null and a result are not)
         /// </summary>
         /// <param name="left">The first result</param>
         /// <param name="right">The second result</param>
         /// <returns>True if the results are equal</returns>
         public static bool operator ==(ResultPlateStress left, ResultPlateStress right)
         {
+            // before, NullReferenceException when left was null
+            if (ReferenceEquals(left, right))
+                return true;
+            if (left is null || right is null)
+                return false;
             return left.Equals(right);
         }
 
