@@ -13,6 +13,16 @@ namespace ModelObjectTest
     [TestClass]
     public class CombinationTest
     {
+        /// <summary>A combination written as its terms «coefficient*load case» in the order of the names, for the comparison of sets of rows.</summary>
+        private static string Terms(params (double Coefficient, LoadCaseBase LoadCase)[] terms) =>
+            string.Join(" + ", terms.Select(t => t.Coefficient.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "*" + t.LoadCase.Name).OrderBy(t => t, StringComparer.Ordinal));
+
+        private static string Terms(Combination combination)
+        {
+            List<double> coefficients = combination.GetLoadCaseCoefficients(out List<LoadCaseBase> loadCases);
+            return Terms(loadCases.Select((l, i) => (coefficients[i], l)).ToArray());
+        }
+
         private void CommonAssert(Combination combo1, Combination combo2)
         {
             Assert.IsTrue(combo1.GetLoadCases().ScrambledEquals(combo2.GetLoadCases()), $"Combination {combo1.Name} e {combo2.Name} are not equals");
@@ -2480,8 +2490,28 @@ namespace ModelObjectTest
                 listComb.Add(combination);
             }
 
+            // Characteristic combination, EN 1990 (6.14b), to which EN 16612 refers: Gk + Qk,1 + Σ ψ0,i Qk,i, for every leading variable action.
+            // The climatic loads of the insulating glass unit are one variable action per season, ΔP and ΔT together, and the seasons are
+            // alternative; ΔH of the season is the permanent part of the climatic load, present (1) or absent. ψ0 of the climatic action 0.3 (the
+            // value given to StandardEN16612), wind ψ0 = 0.6 (EN 1990 Tab. A1.1). Per season: wind leading (2 rows, with and without ΔH), climatic
+            // action leading (2 rows), no variable action (ΔH or nothing: the row with the dead load alone is common to the two seasons): 11 rows.
+            // Until GPCModel 5.24.0.0 the leading climatic action had ψ2 = 0, so its rows lost ΔP and ΔT and the row G + 0.6 W of the two seasons
+            // was one: 10 rows (decision of the ANTHEA user of 29/10/2026 on the census of the combinations: «vetro correggi anche se non
+            // utilizzato»). Rows written by hand.
+            var expected = new List<string>();
+            foreach (var (dh, dp, dt) in new[] { (climateSummerDeltaHLoadCase, climateSummerDeltaPLoadCase1, climateSummerDeltaTLoadCase1), (climateWinterDeltaHLoadCase, climateWinterDeltaPLoadCase1, climateWinterDeltaTLoadCase1) })
+            {
+                expected.Add(Terms((1, selfWeightLoadCase), (1, WindPressureLoadCase), (.3, dp), (.3, dt), (1, dh)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, WindPressureLoadCase), (.3, dp), (.3, dt)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dp), (1, dt), (.6, WindPressureLoadCase), (1, dh)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dp), (1, dt), (.6, WindPressureLoadCase)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dh)));
+            }
+            expected.Add(Terms((1, selfWeightLoadCase)));
+
             // Assert
-            Assert.IsTrue(outList.Count() == 10);
+            Assert.IsTrue(outList.Count() == 11);
+            CollectionAssert.AreEquivalent(expected, listComb.Select(Terms).ToList());
         }
 
         [TestMethod]
@@ -2535,8 +2565,23 @@ namespace ModelObjectTest
                 listComb.Add(combination);
             }
 
+            // EN 1990 (6.14b) as in EN16612GeneratorAGC_SLS1, with the imposed load of category C instead of the wind: ψ0 = 0.7 (EN 1990
+            // Tab. A1.1). Per season: imposed load leading (with and without ΔH), climatic action leading (with and without ΔH), ΔH alone; and the
+            // dead load alone: 11 rows (10 until GPCModel 5.24.0.0, when the leading climatic action had ψ2 = 0). Rows written by hand.
+            var expected = new List<string>();
+            foreach (var (dh, dp, dt) in new[] { (climateSummerDeltaHLoadCase, climateSummerDeltaPLoadCase1, climateSummerDeltaTLoadCase1), (climateWinterDeltaHLoadCase, climateWinterDeltaPLoadCase1, climateWinterDeltaTLoadCase1) })
+            {
+                expected.Add(Terms((1, selfWeightLoadCase), (1, liveLoadLoadCase1), (.3, dp), (.3, dt), (1, dh)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, liveLoadLoadCase1), (.3, dp), (.3, dt)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dp), (1, dt), (.7, liveLoadLoadCase1), (1, dh)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dp), (1, dt), (.7, liveLoadLoadCase1)));
+                expected.Add(Terms((1, selfWeightLoadCase), (1, dh)));
+            }
+            expected.Add(Terms((1, selfWeightLoadCase)));
+
             // Assert
-            Assert.IsTrue(outList.Count() == 10);
+            Assert.IsTrue(outList.Count() == 11);
+            CollectionAssert.AreEquivalent(expected, listComb.Select(Terms).ToList());
         }
 
         #endregion
