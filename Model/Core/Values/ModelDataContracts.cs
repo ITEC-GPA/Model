@@ -24,6 +24,16 @@ namespace GPC.Model.Core
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(global::GPC.Model.Actions.Climate.ClimateStandard),
+            typeof(global::GPC.Model.Actions.Climate.SnowZone),
+            typeof(global::GPC.Model.Actions.Climate.SnowExposure),
+            typeof(global::GPC.Model.Actions.Climate.SnowRoof),
+            typeof(global::GPC.Model.Actions.Climate.WindRoof),
+            typeof(global::GPC.Model.Actions.Climate.InternalPressure),
+            typeof(global::GPC.Model.Actions.Climate.BuildingThermalMethod),
+            typeof(global::GPC.Model.Actions.Climate.ThermalMaterial),
+            typeof(global::GPC.Model.Actions.Climate.BridgeDeck),
+            typeof(global::GPC.Model.Actions.Climate.BridgeSurfacing),
             typeof(global::GPC.Model.ElementProperties.ShellThickness),
             typeof(global::GPC.Model.Structure.Members.PhysicalSurfaceDefinition),
             typeof(global::GPC.Model.Structure.Members.SurfaceZoneDefinition),
