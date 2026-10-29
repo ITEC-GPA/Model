@@ -21,6 +21,9 @@ namespace GPC.Model.Core
         /// more, so the ceiling follows its size and a short text cannot declare a large array or graph (without a ceiling,
         /// 20 KB declaring z:Size="1500000000" allocated 11 GB before failing).</summary>
         internal static int ObjectsIn(long characters) => (int)Math.Min(int.MaxValue, Math.Max(1, characters / CharactersPerObject));
+        /// <summary>Deflate expands its input at most 1032 times (a 258-byte match in two bits): deflated data declaring more
+        /// bytes than that over its stored bytes is corrupt or hostile, and no more can come out of it.</summary>
+        internal const long DeflateExpansion = 1032;
         private readonly DataContractSerializer _serializer;
         internal DomainXmlSerializer(Type type, IEnumerable<Type> knownTypes, int maxItems = DocumentItems)
         { _serializer = new DataContractSerializer(type, new DataContractSerializerSettings

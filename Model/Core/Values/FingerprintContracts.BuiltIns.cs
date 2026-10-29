@@ -346,7 +346,31 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<Mechanism>k__BackingField", "<Mechanism>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<MemberId>k__BackingField", "<MemberId>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<MethodId>k__BackingField", "<MethodId>k__BackingField", false),
-                Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<Start>k__BackingField", "<Start>k__BackingField", false));
+                Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<Start>k__BackingField", "<Start>k__BackingField", false),
+                // Member serviceability (29/10/2026): absent on the historical specifications, whose fingerprints are unchanged.
+                Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<Category>k__BackingField", "<Category>k__BackingField", true),
+                Field("GPC.Model.Checking.Contracts.MemberCheckSpecification", "<Deformation>k__BackingField", "<Deformation>k__BackingField", true));
+            Register("GPC.Model.Checking.Contracts.MemberDeformationSpecification", "GPC.Model.Checking.Contracts.MemberDeformationSpecification",
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSpecification", "<Criterion>k__BackingField", "<Criterion>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSpecification", "<Direction>k__BackingField", "<Direction>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSpecification", "<VariableBasis>k__BackingField", "<VariableBasis>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSpecification", "<VariableSelection>k__BackingField", "<VariableSelection>k__BackingField", false));
+            Register("GPC.Model.Checking.Contracts.MemberDisplacementSample", "GPC.Model.Checking.Contracts.MemberDisplacementSample",
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<D1>k__BackingField", "<D1>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<D2>k__BackingField", "<D2>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<D3>k__BackingField", "<D3>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<Location>k__BackingField", "<Location>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<NodeId>k__BackingField", "<NodeId>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<R1>k__BackingField", "<R1>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<R2>k__BackingField", "<R2>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<R3>k__BackingField", "<R3>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "<SampleFingerprint>k__BackingField", "<SampleFingerprint>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDisplacementSample", "_state", "_state", false));
+            Register("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "GPC.Model.Checking.Contracts.MemberDeformationSnapshot",
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "<Category>k__BackingField", "<Category>k__BackingField", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_specification", "_specification", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_total", "_total", false),
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_variable", "_variable", false));
             Register("GPC.Model.Structure.Members.MemberDesignContext", "GPC.Model.PostProcessing.MemberDesignContext",
                 Field("GPC.Model.Structure.Members.MemberDesignContext", "<Assumptions>k__BackingField", "<Assumptions>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.MemberDesignContext", "<EffectiveLength1>k__BackingField", "<EffectiveLength1>k__BackingField", false),
@@ -363,7 +387,9 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "<SpanEnd>k__BackingField", "<SpanEnd>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "<SpanStart>k__BackingField", "<SpanStart>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "_axes", "_axes", false),
-                Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "_samples", "_samples", false));
+                Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "_samples", "_samples", false),
+                // Absent (null) on the force-based snapshots and on those written before it existed: their fingerprints and seals are unchanged.
+                Field("GPC.Model.Checking.Contracts.MemberInputSnapshot", "<Deformation>k__BackingField", "<Deformation>k__BackingField", true));
             Register("GPC.Model.Structure.Members.MemberLocation", "GPC.Model.PostProcessing.MemberLocation",
                 Field("GPC.Model.Structure.Members.MemberLocation", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.MemberLocation", "<Distance>k__BackingField", "<Distance>k__BackingField", false),

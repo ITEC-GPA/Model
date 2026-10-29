@@ -126,7 +126,25 @@ namespace GPC.Model.Checking.Contracts
         [field: System.Runtime.Serialization.DataMember(Name = "<Context>k__BackingField", IsRequired = true)]
         public MemberDesignContext Context { get; set; } = new MemberDesignContext();
 
-        internal MemberCheckSpecification Copy() => (MemberCheckSpecification)MemberwiseClone();
+        /// <summary>Combination category of the task: the task is planned only for the result selections declared with it. Required
+        /// for serviceability (deformation) tasks; an ultimate category restricts a stability task. Null keeps the historical
+        /// behaviour (every result selection), fingerprints and archive text.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<Category>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public CombinationCategory? Category { get; set; }
+
+        /// <summary>Deformation task (Mechanism Serviceability, with a serviceability Category): the plan prepares the member-node
+        /// displacements instead of the cut actions. Null for the force-based member tasks.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<Deformation>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public MemberDeformationSpecification Deformation { get; set; }
+
+        internal MemberCheckSpecification Copy()
+        {
+            var copy = (MemberCheckSpecification)MemberwiseClone();
+            copy.Deformation = Deformation?.Copy();
+            return copy;
+        }
     }
 
     /// <summary>New opt-in beam path. Null Elements means no direct FEM selection; members are always explicitly named.</summary>
@@ -278,8 +296,24 @@ namespace GPC.Model.Checking.Contracts
 
         [field: System.Runtime.Serialization.DataMember(Name = "<SpanEnd>k__BackingField", IsRequired = true)]
         public double SpanEnd { get; private set; }
+
+        /// <summary>Member-node displacements of a deformation task (Samples is then empty); null for the force-based tasks and for
+        /// snapshots written before it existed, whose fingerprints, seals and archive text are unchanged.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<Deformation>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public MemberDeformationSnapshot Deformation { get; private set; }
         public CoordinateSystem Axes => ActionTransformations.AtPoint(_axes, _axes.Origin);
         public IReadOnlyList<MemberSampleSnapshot> Samples => Array.AsReadOnly(_samples);
+
+        internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, MemberDeformationSnapshot deformation)
+        {
+            Definition = geometry.Definition; Context = specification.Context;
+            Length = geometry.Length; DeformableLength = geometry.DeformableLength;
+            SpanStart = specification.Start; SpanEnd = specification.End ?? geometry.Length;
+            _axes = geometry.Axes;
+            _samples = new MemberSampleSnapshot[0];
+            Deformation = deformation ?? throw new ArgumentNullException(nameof(deformation));
+        }
 
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamActionInput> inputs)
         {
@@ -313,6 +347,8 @@ namespace GPC.Model.Checking.Contracts
         public IReadOnlyList<BeamActionInput> ActionSections { get; internal set; } = Array.AsReadOnly(new BeamActionInput[0]);
         public string MethodId { get; internal set; }
         public CheckMechanism Mechanism { get; internal set; }
+        // Model sources of Snapshot.Deformation, revalidated by BeamCheckPlan.IsCurrent like the cut actions.
+        internal IReadOnlyList<MemberDisplacementSource> DisplacementSources { get; set; } = Array.AsReadOnly(new MemberDisplacementSource[0]);
     }
 
     /// <summary>Optional global engine, distinct from a section engine. Method IDs identify actual supported algorithms.</summary>
