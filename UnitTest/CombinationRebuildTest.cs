@@ -155,6 +155,64 @@ public class CombinationRebuildTest
         Assert.AreEqual(0, ResultQueries.Samples<NodeResultForces>(support, new ResultSelection { Dataset = "static", Case = "SLU_1" }).Count);
     }
 
+    private static CombinationAlternative[] EnvelopeAlternatives() => new[]
+    {
+        new CombinationAlternative("ENV=Q", new Dictionary<string, double> { ["Q"] = 1 }),
+        new CombinationAlternative("ENV=SLU_1", new Dictionary<string, double> { ["G1"] = 1.35, ["Q"] = 1.5 }),
+        new CombinationAlternative("ENV=-Q", new Dictionary<string, double> { ["Q"] = -0.5, ["G1"] = 1 })
+    };
+    // The canonical walk of every sample: values, locations and complete states (sources, fingerprints, roles, transformation).
+    private static string Canonical(CombinationRebuildReport report) => GPC.Model.Core.ModelValues.Fingerprint(report.Samples.Cast<object>());
+
+    [TestMethod]
+    public void Cache_GivesTheSameReportBitForBit_InTheFollowingCalls_AndOnlyForTheSameStaticSamples()
+    {
+        var m = Imported(); var env = m.Combinations["ENV"];
+        var linear = new[] { new CombinationAlternative("", new Dictionary<string, double> { ["G1"] = 1.35, ["Q"] = 1.5 }) };
+        string expectedEnvelope = Canonical(CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, false));
+        string expectedLinear = Canonical(CombinationRebuild.Rebuild(m, env, linear, "static", m.AllElements, false));
+        var cache = new CombinationRebuildCache();
+        for (int call = 0; call < 3; call++)
+        {
+            var envelope = CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, false, default, cache);
+            Assert.IsFalse(envelope.IsRejected); Assert.AreEqual(expectedEnvelope, Canonical(envelope), "Envelope, call " + call);
+            Assert.AreEqual(expectedLinear, Canonical(CombinationRebuild.Rebuild(m, env, linear, "static", m.AllElements, false, default, cache)), "Linear, call " + call);
+        }
+        Assert.IsTrue(cache.Entries > 0);
+        // Another model: the cache starts again from its static samples.
+        var other = Imported(withQOnBeam: false);
+        var expectedOther = CombinationRebuild.Rebuild(other, other.Combinations["ENV"], EnvelopeAlternatives(), "static", other.AllElements, false);
+        var cachedOther = CombinationRebuild.Rebuild(other, other.Combinations["ENV"], EnvelopeAlternatives(), "static", other.AllElements, false, default, cache);
+        Assert.AreEqual(Canonical(expectedOther), Canonical(cachedOther));
+        CollectionAssert.AreEqual(expectedOther.Diagnostics.Select(d => d.Code + d.Message).ToArray(), cachedOther.Diagnostics.Select(d => d.Code + d.Message).ToArray(),
+            "The same skipped element (no Q on the girder) with the same message.");
+        cache.Clear(); Assert.AreEqual(0, cache.Entries);
+        // Attached results: the same as without the cache, and registered once.
+        var attached = CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, true, default, cache);
+        Assert.IsTrue(attached.Attached); Assert.AreEqual(expectedEnvelope, Canonical(attached));
+    }
+
+    [TestMethod]
+    public void SourceFingerprintsOff_OnlyForDetachedReports_EveryOtherValueTheSame()
+    {
+        var m = Imported(); var env = m.Combinations["ENV"];
+        var full = CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, false);
+        var cache = new CombinationRebuildCache { SourceFingerprints = false };
+        var light = CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, false, default, cache);
+        Assert.AreEqual(full.Samples.Count, light.Samples.Count);
+        Assert.IsTrue(full.Samples.All(s => s.State.DerivedSourceFingerprint != null && s.State.SourceHash == s.State.DerivedSourceFingerprint));
+        Assert.IsTrue(light.Samples.All(s => s.State.DerivedSourceFingerprint == null && s.State.SourceHash == null));
+        foreach (var (a, b) in full.Samples.Zip(light.Samples, (a, b) => (a, b)))
+        {
+            a.State.DerivedSourceFingerprint = null; a.State.SourceHash = null;
+            Assert.AreEqual(GPC.Model.Core.ModelValues.Fingerprint(new object[] { a }), GPC.Model.Core.ModelValues.Fingerprint(new object[] { b }), "Values, roles, sources and transformation.");
+        }
+        var attached = CombinationRebuild.Rebuild(m, env, EnvelopeAlternatives(), "static", m.AllElements, true, default, cache);
+        Assert.IsTrue(attached.Attached && attached.Samples.All(s => s.State.DerivedSourceFingerprint != null), "Registered results always carry the fingerprint of their sources.");
+        var girder = Girder(m);
+        Assert.IsTrue(ResultQueries.Samples<StationResultBeamForces>(girder, new ResultSelection { Dataset = "static", Case = "ENV" }).All(s => ResultAlgebra.HasCurrentDerivation(m, girder, s.State)));
+    }
+
     [TestMethod]
     public void UndeclaredCombinations_AreDeclaredBeforeTheResults_AndUnknownInputsAreRejected()
     {

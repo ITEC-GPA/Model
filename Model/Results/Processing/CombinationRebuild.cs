@@ -45,6 +45,78 @@ namespace GPC.Model.Results.Processing
         public bool IsRejected => Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
     }
 
+    /// <summary>
+    /// The work of <see cref="CombinationRebuild"/> that does not depend on the factors, kept by a caller that rebuilds many combinations of the
+    /// same static results one after the other (ANTHEA: the combinations of a copy of a model): for each location and static case the matched
+    /// static sample, validated and rotated into the frame of the location. An entry is used only while the static samples of its case on the
+    /// element are the same objects in the same order, and everything is dropped when the model, the dataset or the analysis fingerprint
+    /// change: a call with the cache gives the same report, bit for bit, as a call without it (with <see cref="SourceFingerprints"/> true).
+    /// Rule for the callers, as for the fingerprint memo of the validation scopes: the static samples are not changed in place while the cache
+    /// is in use (replacing them is allowed). Not thread safe: one cache per caller, one call at a time.
+    /// </summary>
+    public sealed class CombinationRebuildCache
+    {
+        internal sealed class Match
+        {
+            internal ResultLocation[] Candidates; internal bool Own; internal ResultLocation Sample; internal double[] Values;
+        }
+        private sealed class MatchKeyComparer : IEqualityComparer<(ResultLocation Template, string Case)>
+        {
+            public bool Equals((ResultLocation Template, string Case) x, (ResultLocation Template, string Case) y) =>
+                ReferenceEquals(x.Template, y.Template) && string.Equals(x.Case, y.Case, StringComparison.Ordinal);
+            public int GetHashCode((ResultLocation Template, string Case) key) =>
+                System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(key.Template) * 397 ^ StringComparer.Ordinal.GetHashCode(key.Case ?? "");
+        }
+        private readonly Dictionary<(ResultLocation Template, string Case), Match> _matches = new Dictionary<(ResultLocation, string), Match>(new MatchKeyComparer());
+        private Models.Model _model; private string _datasetId; private AnalysisDataset _dataset; private string _input;
+
+        /// <summary>
+        /// False: the states of a report that is not attached (<c>attach: false</c>) carry no fingerprint of their static sources
+        /// (<see cref="ResultState.DerivedSourceFingerprint"/> and <see cref="ResultState.SourceHash"/> null); every other value is the same.
+        /// For a caller that only reads the values and the governing roles of a detached report, e.g. to display them: the fingerprint walks
+        /// every static source of every state, most of the time of a rebuild. Attached results always carry it. Default true.
+        /// </summary>
+        public bool SourceFingerprints { get; set; } = true;
+
+        /// <summary>Static samples matched to a location and kept for the next calls.</summary>
+        public int Entries => _matches.Count;
+
+        /// <summary>Drops everything, e.g. after the static results were changed in place.</summary>
+        public void Clear()
+        {
+            _matches.Clear(); _model = null; _datasetId = null; _dataset = null; _input = null;
+        }
+
+        /// <summary>Keeps the entries only for the same model, dataset and analysis fingerprint as the previous call.</summary>
+        internal void Bind(Models.Model model, string datasetId, AnalysisDataset dataset, string input)
+        {
+            if (ReferenceEquals(model, _model) && datasetId == _datasetId && ReferenceEquals(dataset, _dataset) && input == _input) return;
+            Clear(); _model = model; _datasetId = datasetId; _dataset = dataset; _input = input;
+        }
+
+        /// <summary>The static sample of <paramref name="name"/> at the location of <paramref name="template"/>, validated and rotated into
+        /// <paramref name="axes"/>, with the same checks and exceptions, in the same order, as the call without cache. Only a success is kept.</summary>
+        internal Match Find(Models.Model model, Element owner, ResultLocation template, string name, bool own, List<ResultLocation> candidates,
+            AnalysisDataset dataset, CoordinateSystem axes)
+        {
+            var key = (template, name);
+            if (_matches.TryGetValue(key, out var known) && known.Own == own && Same(known.Candidates, candidates)) return known;
+            var matches = own ? new[] { template } : candidates.Where(s => ResultAlgebra.SameLocation(s, template)).ToArray();
+            if (matches.Length != 1) throw new ArgumentException((matches.Length == 0 ? "MissingStaticCase " : "AmbiguousStaticCase ") + name);
+            CombinationRebuild.Validate(model, owner, matches[0], template, dataset);
+            var match = new Match { Candidates = candidates.ToArray(), Own = own, Sample = matches[0], Values = ResultAlgebra.Values(ResultAlgebra.Rotate(matches[0], axes)) };
+            _matches[key] = match;
+            return match;
+        }
+
+        private static bool Same(ResultLocation[] known, List<ResultLocation> current)
+        {
+            if (known.Length != current.Count) return false;
+            for (int i = 0; i < known.Length; i++) if (!ReferenceEquals(known[i], current[i])) return false;
+            return true;
+        }
+    }
+
     /// <summary>Rebuilds a combination from the linear static results of one dataset, for many elements at once. At each result location the
     /// static samples are rotated to one frame and every alternative is the sum of the factored static vectors, as in
     /// <see cref="ResultAlgebra.LinearCombination"/>. A linear combination gives one state per location. An envelope gives, for each component,
@@ -55,7 +127,13 @@ namespace GPC.Model.Results.Processing
     public static class CombinationRebuild
     {
         public static CombinationRebuildReport Rebuild(Models.Model model, Combination output, IReadOnlyList<CombinationAlternative> alternatives, string datasetId,
-            IEnumerable<Element> elements, bool attach = true, CancellationToken cancellationToken = default)
+            IEnumerable<Element> elements, bool attach = true, CancellationToken cancellationToken = default) =>
+            Rebuild(model, output, alternatives, datasetId, elements, attach, cancellationToken, null);
+
+        /// <summary>As the other overload; <paramref name="cache"/> keeps the matched, validated and rotated static samples for the next calls on
+        /// the same static results (<see cref="CombinationRebuildCache"/>), with the same report. Null: a cache of this call only.</summary>
+        public static CombinationRebuildReport Rebuild(Models.Model model, Combination output, IReadOnlyList<CombinationAlternative> alternatives, string datasetId,
+            IEnumerable<Element> elements, bool attach, CancellationToken cancellationToken, CombinationRebuildCache cache)
         {
             var report = new CombinationRebuildReport { Combination = output?.Name }; var diagnostics = new List<ModelDiagnostic>(); report.Diagnostics = diagnostics;
             try
@@ -76,6 +154,8 @@ namespace GPC.Model.Results.Processing
                 string input = model.AnalysisFingerprint();
                 if (dataset.InputFingerprint != input || dataset.NormalizedUnits != "N,mm,rad" || dataset.Semantics != AnalysisSemantics.LinearStatic)
                     throw new InvalidOperationException("DatasetMismatchOrStaleAnalysis: " + datasetId);
+                bool fingerprints = attach || cache?.SourceFingerprints != false;
+                cache = cache ?? new CombinationRebuildCache(); cache.Bind(model, datasetId, dataset, input);
 
                 var registered = new HashSet<Element>(model.AllElements, ReferenceComparer<Element>.Instance);
                 var created = new List<(Element Owner, List<ResultLocation> Samples)>(); var all = new List<ResultLocation>();
@@ -85,7 +165,7 @@ namespace GPC.Model.Results.Processing
                     if (owner == null || !registered.Contains(owner)) throw new ArgumentException("UnregisteredElement");
                     try
                     {
-                        var samples = Element(model, owner, output, cases, terms, labels, envelope, datasetId, dataset, out int locations, cancellationToken);
+                        var samples = Element(model, owner, output, cases, terms, labels, envelope, datasetId, dataset, cache, fingerprints, out int locations, cancellationToken);
                         if (samples.Count == 0) continue;
                         created.Add((owner, samples)); all.AddRange(samples); report.Locations += locations;
                     }
@@ -114,7 +194,7 @@ namespace GPC.Model.Results.Processing
         }
 
         private static List<ResultLocation> Element(Models.Model model, Element owner, Combination output, string[] cases, (int Case, double Factor)[][] terms,
-            string[] labels, bool envelope, string datasetId, AnalysisDataset dataset, out int locations, CancellationToken token)
+            string[] labels, bool envelope, string datasetId, AnalysisDataset dataset, CombinationRebuildCache cache, bool fingerprints, out int locations, CancellationToken token)
         {
             locations = 0;
             var byCase = cases.Select(_ => new List<ResultLocation>()).ToArray(); var index = cases.Select((c, i) => (c, i)).ToDictionary(p => p.c, p => p.i, StringComparer.Ordinal);
@@ -129,6 +209,9 @@ namespace GPC.Model.Results.Processing
             var result = new List<ResultLocation>();
             if (byCase.All(l => l.Count == 0)) return result; // No static results of this dataset on the element, e.g. outside the read plan.
             if (byCase.Any(l => l.Count != byCase[0].Count)) throw new ArgumentException("IncompleteStaticCases: " + string.Join(", ", cases.Where((c, i) => byCase[i].Count < byCase.Max(l => l.Count))));
+            // In an envelope the governing alternatives of a location share their static samples: the canonical bytes of each are walked
+            // once (the memo of the validation scopes, same fingerprints), kept for this element only, so the memory is that of a few samples.
+            var memo = fingerprints && envelope ? new FingerprintMemo() : null;
             foreach (var template in byCase[0])
             {
                 token.ThrowIfCancellationRequested();
@@ -138,10 +221,9 @@ namespace GPC.Model.Results.Processing
                 var samples = new ResultLocation[cases.Length]; var values = new double[cases.Length][];
                 for (int c = 0; c < cases.Length; c++)
                 {
-                    var matches = c == 0 ? new[] { template } : byCase[c].Where(s => ResultAlgebra.SameLocation(s, template)).ToArray();
-                    if (matches.Length != 1) throw new ArgumentException((matches.Length == 0 ? "MissingStaticCase " : "AmbiguousStaticCase ") + cases[c]);
-                    Validate(model, owner, matches[0], template, dataset);
-                    samples[c] = matches[0]; values[c] = ResultAlgebra.Values(ResultAlgebra.Rotate(matches[0], axes));
+                    // Matched, validated and rotated once per location and case: the same checks, in the same order, on a miss of the cache.
+                    var match = cache.Find(model, owner, template, cases[c], c == 0, byCase[c], dataset, axes);
+                    samples[c] = match.Sample; values[c] = match.Values;
                 }
                 int components = values[0].Length;
                 var vectors = terms.Select(t => { var v = new double[components]; foreach (var (c, f) in t) for (int k = 0; k < components; k++) v[k] += f * values[c][k]; return v; }).ToArray();
@@ -162,7 +244,8 @@ namespace GPC.Model.Results.Processing
                     var sources = t.Length != 0 ? t.Select(x => samples[x.Case]).ToArray() : new[] { template };
                     var sample = ResultAlgebra.Create(template, vectors[pair.Key].Select(v => NumericGuard.Finite(v, "combined result")).ToArray(), axes, output);
                     var state = template.State.Copy(); state.Original = null; state.SourceRecord = null;
-                    state.DerivedFrom = sources; state.DerivedSourceFingerprint = ModelValues.Fingerprint(sources.Cast<object>()); state.SourceHash = state.DerivedSourceFingerprint;
+                    state.DerivedFrom = sources;
+                    state.DerivedSourceFingerprint = fingerprints ? InputFingerprint.Compute(sources.Cast<object>(), memo) : null; state.SourceHash = state.DerivedSourceFingerprint;
                     state.IsSynthetic = sources.Any(s => s.State.IsSynthetic); state.IsCombined = true;
                     state.Transformation = t.Length == 0 ? "0 * " + cases[0] : string.Join("; ", t.Select(x => x.Factor.ToString("R", CultureInfo.InvariantCulture) + " * " + cases[x.Case]
                         + " [" + samples[x.Case].State.ConcomitantStateId + "]"));
@@ -188,7 +271,7 @@ namespace GPC.Model.Results.Processing
         }
 
         /// <summary>The checks of <see cref="ResultAlgebra.LinearCombination"/> on one static sample, without searching the registry: the samples come from the owner.</summary>
-        private static void Validate(Models.Model model, Element owner, ResultLocation sample, ResultLocation template, AnalysisDataset dataset)
+        internal static void Validate(Models.Model model, Element owner, ResultLocation sample, ResultLocation template, AnalysisDataset dataset)
         {
             var state = sample.State;
             if (owner is NodeElement && !(sample is NodeResultForces) && !(sample is NodeResultDisplacement) || owner is BeamElement && !(sample is StationResultBeamForces)
