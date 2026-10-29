@@ -125,7 +125,7 @@
         "ServiceabilityStressConcreteCoefficientForCharacteristicCombination": "0.6",
         "ServiceabilityStressConcreteCoefficientForQuasiPermanentCombination": "0.45",
         "ServiceabilityStressSteelCoefficientForCharacteristicCombination": "0.8",
-        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.75"
+        "ServiceabilityStressPrestressSteelCoefficientForCharacteristicCombination": "0.65"
       }
     }
   },
