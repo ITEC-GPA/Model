@@ -9,7 +9,8 @@ namespace GPC.Converter.Straus7
 {
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
-    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi
+    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi,
+        IStraus7StageReadApi, IStraus7MassTemperatureReadApi
     {
         private IntPtr library;
         private bool initialized, modelOpen, resultsOpen;
@@ -384,6 +385,51 @@ namespace GPC.Converter.Straus7
         }
         private double[] CaseValues(string call, int number, int loadCase, int size)
         { var values = new double[size]; Check(Call<ThreeIntDoubles>(call)(FileId, number, loadCase, values), call + " " + number + "/" + loadCase); return values; }
+        public Straus7Stage ReadStage(int number, IReadOnlyList<int> groups)
+        {
+            var data = new int[5];
+            Check(Call<TwoIntInts>("St7GetStageData")(FileId, number, data), "St7GetStageData " + number);
+            var enabled = new List<int>();
+            foreach (int group in groups ?? new int[0])
+            {
+                byte state = 0;
+                Check(Call<ThreeIntBool>("St7GetStageGroupState")(FileId, number, group, ref state), "St7GetStageGroupState " + number + "/" + group);
+                if (state != 0) enabled.Add(group);
+            }
+            return new Straus7Stage { Number = number, Name = Name("St7GetStageName", number), Data = data, EnabledGroups = enabled.ToArray() };
+        }
+        public int[] ReadElementResultState(Straus7Entity entity, int number, int resultCase) => State(entity, number, resultCase);
+        public double[] ReadNodeTranslationalMass(int node) => Values("St7GetNodeTMass3", node, 3);
+        public double[] ReadNodeRotationalMass(int node, out int ucs)
+        {
+            int axes = 0; var values = new double[3];
+            Check(Call<IntRefDoubles>("St7GetNodeRMass3")(FileId, node, ref axes, values), "St7GetNodeRMass3 " + node); ucs = axes; return values;
+        }
+        public double[] ReadNodeNonStructuralMass(int node, int loadCase, int id)
+        { var values = new double[5]; Check(Call<FourIntDoubles>("St7GetNodeNSMass5ID")(FileId, node, loadCase, id, values), "St7GetNodeNSMass5ID " + node + "/" + loadCase); return values; }
+        public double[] ReadBeamNonStructuralMass(int beam, int loadCase, int id, out int distribution)
+        {
+            int type = 0; var values = new double[10];
+            Check(Call<DistributedMass>("St7GetBeamNSMass10ID")(FileId, beam, loadCase, id, ref type, values), "St7GetBeamNSMass10ID " + beam + "/" + loadCase);
+            distribution = type; return values;
+        }
+        // The manual lists Doubles[0..5] (mass, dynamic factor and a three-element offset): six doubles are allocated, five are used.
+        public double[] ReadPlateNonStructuralMass(int plate, int loadCase, int id)
+        { var values = new double[6]; Check(Call<FourIntDoubles>("St7GetPlateNSMass5ID")(FileId, plate, loadCase, id, values), "St7GetPlateNSMass5ID " + plate + "/" + loadCase); return values.Take(5).ToArray(); }
+        public double ReadNodeTemperature(int node, int loadCase, out int type)
+        {
+            var value = CaseValues("St7GetNodeTemperature1", node, loadCase, 1); int kind = 0;
+            Check(Call<ThreeIntRef>("St7GetNodeTemperatureType1")(FileId, node, loadCase, ref kind), "St7GetNodeTemperatureType1 " + node + "/" + loadCase);
+            type = kind; return value[0];
+        }
+        public double[] ReadBeamTemperatureGradient(int beam, int loadCase) => CaseValues("St7GetBeamTempGradient2", beam, loadCase, 2);
+        public double ReadPlateTemperatureGradient(int plate, int loadCase) => CaseValues("St7GetPlateTempGradient1", plate, loadCase, 1)[0];
+        public bool[] ReadLoadCaseMassOption(int loadCase)
+        {
+            byte structural = 0, nonStructural = 0;
+            Check(Call<TwoBool>("St7GetLoadCaseMassOption")(FileId, loadCase, ref structural, ref nonStructural), "St7GetLoadCaseMassOption " + loadCase);
+            return new[] { structural != 0, nonStructural != 0 };
+        }
 
         private static Straus7ResultTable Table(Straus7Entity entity, int number, int resultCase, string quantity, int rows, int columns, double[] positions, double[] values, int[] state)
         {
@@ -453,5 +499,10 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MasterSlaveCall(int a, int b, ref int c, [Out] int[] d, [Out] int[] e);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int BoolCall(int a, int b, ref byte c);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int FactorCall(int a, int b, int c, int d, int e, ref double f);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int TwoIntInts(int a, int b, [Out] int[] c);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ThreeIntBool(int a, int b, int c, ref byte d);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int IntRefDoubles(int a, int b, ref int c, [Out] double[] d);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DistributedMass(int a, int b, int c, int d, ref int e, [Out] double[] f);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int TwoBool(int a, int b, ref byte c, ref byte d);
     }
 }

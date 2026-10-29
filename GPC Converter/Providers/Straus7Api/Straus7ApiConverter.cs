@@ -12,6 +12,7 @@ using GPC.Model.Core.Coordinates;
 using GPC.Model.Core.Diagnostics;
 using GPC.Model.Core.Identity;
 using GPC.Model.Core.Units;
+using GPC.Model.Stages;
 using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter.Straus7
@@ -115,6 +116,7 @@ namespace GPC.Converter.Straus7
             }
             var assignments = new Straus7Assignments(batch, unitCodes, api as IStraus7AssignmentReadApi, caseNames, api as IStraus7ExtendedReadApi);
             var seenProperties = new Dictionary<string, (Straus7Property Property, string Material, string Other)>();
+            var beamGroups = new Dictionary<int, int>(); var plateGroups = new Dictionary<int, int>();
             foreach (var entity in new[] { Straus7Entity.Beam, Straus7Entity.Plate })
             {
                 int count = entity == Straus7Entity.Beam ? beams : plates;
@@ -178,18 +180,62 @@ namespace GPC.Converter.Straus7
                     }
                     if (!groups.TryGetValue(e.GroupId, out var group)) throw new InvalidDataException("Missing element group: " + record);
                     group.Members.Add(new SourceIdentity("Straus7", revision, beam ? EntityFamily.Beam : EntityFamily.Shell, Id(i)));
+                    (beam ? beamGroups : plateGroups)[i] = e.GroupId;
                 }
             }
-            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.Combinations(cases); assignments.Finish();
-            int stages = Bounded(api.StageCount); Preserve("St7GetNumStages", stages, "Construction-stage definitions/activation are not mapped.");
+            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.Combinations(cases);
+            int stages = Bounded(api.StageCount);
+            var stageApi = api as IStraus7StageReadApi;
+            Preserve("St7GetNumStages", stages, stages == 0 ? null : stageApi == null ? "The API binding reads no stage definitions."
+                : "Stages are Model stages with the group changes from the previous stage; their settings and active elements are in Straus7ModelData.");
+            if (stages != 0 && stageApi == null)
+                batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7StagesPreserved", Severity = DiagnosticSeverity.Warning, Record = "St7GetNumStages",
+                    Message = stages.ToString(CultureInfo.InvariantCulture) + " stages remain in the source file: the API binding reads no stage definitions." });
+            for (int k = 1; stageApi != null && k <= stages; k++)
+            {
+                token.ThrowIfCancellationRequested();
+                var stage = Stage(stageApi, k, nativeGroups, groups, beamGroups, plateGroups, batch, assignments.ModelData);
+                Preserve("Stage/" + Id(k), stage, "Stage settings and enabled group IDs.");
+            }
+            if (stageApi != null && stages != 0)
+                batch.LoadCases.Add(new LoadCaseRecord { Name = Straus7StageResults.NonlinearCase, StageSourceCaseName = Straus7StageResults.NonlinearSourceCase, Record = "St7GetNumStages" });
+            assignments.Finish();
+            var modelData = assignments.ModelData;
+            if (modelData.Stages.Count + modelData.Masses.Count + modelData.Temperatures.Count != 0) { var item = modelData.Preserve(); batch.Uninterpreted.Add(item); report.Preserved.Add(item); }
             batch.Diagnostics.Add(assignments.Available
                 ? new ModelDiagnostic { Code = "Straus7AssignmentsPartlyMapped", Severity = DiagnosticSeverity.Warning,
                     Message = assignments.Extended
-                        ? "Properties, offsets, end releases, restraints and node springs of a single freedom case, rigid/master-slave/pinned links, nodal/beam/plate loads, gravity and LSA combinations imported; temperatures, masses, other links and stages are not mapped."
+                        ? "Properties, offsets, end releases, restraints and node springs of a single freedom case, rigid/master-slave/pinned links, nodal/beam/plate loads, gravity and LSA combinations imported; stages, masses and temperatures as data (Straus7ModelData); other links are not mapped."
                         : "Properties, offsets, restraints of a single freedom case, nodal/beam/plate loads and gravity imported; the API binding reads no releases, springs, links or combinations." }
                 : new ModelDiagnostic { Code = "Straus7AssignmentsNotMapped", Severity = DiagnosticSeverity.Warning,
                     Message = "The API binding reads no element attributes: properties are imported, loads, restraints and offsets are not." });
             return batch;
+        }
+
+        /// <summary>Stage <paramref name="number"/>: a Model stage whose definition activates the groups enabled since the previous stage and
+        /// deactivates those disabled (the first stage starts with every group inactive), and its normalized data with the active beams and plates.</summary>
+        private static Straus7Stage Stage(IStraus7StageReadApi api, int number, List<Straus7Group> nativeGroups, Dictionary<int, GroupRecord> groups,
+            Dictionary<int, int> beamGroups, Dictionary<int, int> plateGroups, ImportBatch batch, Straus7ModelData data)
+        {
+            var ids = nativeGroups.Select(g => g.Id).ToArray(); var record = "Stage/" + Id(number);
+            var s = api.ReadStage(number, ids);
+            if (s == null || s.Number != number || s.Data == null || s.Data.Length != 5 || s.EnabledGroups == null || s.EnabledGroups.Any(g => !groups.ContainsKey(g))
+                || s.EnabledGroups.Distinct().Count() != s.EnabledGroups.Length) throw new InvalidDataException("Invalid stage metadata: " + record);
+            var previous = number == 1 ? new HashSet<int>() : new HashSet<int>(data.Stages[number - 2].EnabledGroupIds);
+            var enabled = new HashSet<int>(s.EnabledGroups);
+            var changes = s.EnabledGroups.Where(g => !previous.Contains(g)).OrderBy(g => g)
+                .Select(g => new StageGroupChange(groups[g].Name, StageGroupKind.Structure, StageGroupAction.Activate))
+                .Concat(previous.Where(g => !enabled.Contains(g)).OrderBy(g => g).Select(g => new StageGroupChange(groups[g].Name, StageGroupKind.Structure, StageGroupAction.Deactivate)))
+                .ToArray();
+            string name = "Stage " + Id(number) + ": " + (s.Name ?? "").Trim();
+            batch.Stages.Add(new Stage(number, name) { Definition = new StageDefinition(number, 0, null, changes, sourceRecord: "St7GetStageData " + Id(number)) });
+            data.Stages.Add(new Straus7StageData { Number = number, Name = (s.Name ?? "").Trim(), ModelName = name,
+                Type = s.Data[4] != 0 ? Straus7StageType.Reset : s.Data[0] != 0 ? Straus7StageType.Morphed : Straus7StageType.Unmorphed,
+                MoveFixedNodes = s.Data[1] != 0, RotateClusters = s.Data[2] != 0, StageFluidLevel = s.Data[3] != 0,
+                EnabledGroupIds = s.EnabledGroups.OrderBy(g => g).ToArray(), EnabledGroups = s.EnabledGroups.OrderBy(g => g).Select(g => groups[g].Name).ToArray(),
+                ActiveBeams = beamGroups.Where(p => enabled.Contains(p.Value)).Select(p => p.Key).OrderBy(n => n).ToArray(),
+                ActivePlates = plateGroups.Where(p => enabled.Contains(p.Value)).Select(p => p.Key).OrderBy(n => n).ToArray(), Record = record });
+            return s;
         }
 
         /// <summary>Reads explicitly selected cases/entities; empty selections list primary result cases only.
@@ -214,7 +260,7 @@ namespace GPC.Converter.Straus7
                     using (var api = openApi())
                     {
                         report.ApiVersion = api.Version; api.OpenModelReadOnly(modelPath, Path.GetTempPath());
-                        var elementApi = api as IStraus7ElementNodeReadApi; var plateNodeApi = api as IStraus7PlateNodeResultReadApi;
+                        var elementApi = api as IStraus7ElementNodeReadApi; var plateNodeApi = api as IStraus7PlateNodeResultReadApi; var stageApi = api as IStraus7StageReadApi;
                         if (request.IncludeElementNodeForces && elementApi == null) throw new NotSupportedException("The API binding does not provide element node forces.");
                         if (request.IncludePlateNodeResults && plateNodeApi == null) throw new NotSupportedException("The API binding does not provide plate results at the nodes.");
                         report.ModelStageCount = Bounded(api.StageCount);
@@ -226,7 +272,16 @@ namespace GPC.Converter.Straus7
                         report.File.PrimaryCases = Bounded(opened.PrimaryCases); report.File.SecondaryCases = Bounded(opened.SecondaryCases);
                         if (cases.Length == 0) cases = Enumerable.Range(1, report.File.PrimaryCases).ToArray();
                         ValidateSelection(cases, report.File.PrimaryCases); // No implicit combinations/envelopes.
-                        long values = 0;
+                        long values = 0; var inactive = new Dictionary<int, int>();
+                        // An element outside the active stage of a case has no results (St7GetElementResultState: inactive): it is skipped, never filled.
+                        bool Active(Straus7Entity entity, int number, int c)
+                        {
+                            if (stageApi == null) return true;
+                            var state = stageApi.ReadElementResultState(entity, number, c);
+                            if (state == null || state.Length != 3) throw new InvalidDataException("Invalid element result state.");
+                            if (state[0] == 1) return true;
+                            inactive[c] = (inactive.TryGetValue(c, out var n) ? n : 0) + 1; return false;
+                        }
                         void Add(Straus7ResultTable table, Straus7Entity entity, int number, int c, string quantity)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -257,6 +312,7 @@ namespace GPC.Converter.Straus7
                             foreach (int b in beams)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
+                                if (!Active(Straus7Entity.Beam, b, c)) continue;
                                 Add(api.ReadBeamForces(b, c, stations), Straus7Entity.Beam, b, c, "BeamForceGlobal");
                                 if (request.IncludeElementNodeForces)
                                 {
@@ -267,6 +323,7 @@ namespace GPC.Converter.Straus7
                             foreach (int p in plates)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
+                                if (!Active(Straus7Entity.Plate, p, c)) continue;
                                 Add(api.ReadPlateResult(p, c, false), Straus7Entity.Plate, p, c, "PlateForceLocalCentroid");
                                 cancellationToken.ThrowIfCancellationRequested();
                                 Add(api.ReadPlateResult(p, c, true), Straus7Entity.Plate, p, c, "PlateMomentLocalCentroid");
@@ -292,11 +349,16 @@ namespace GPC.Converter.Straus7
                             }
                         }
                         api.CloseResults(); api.CloseModel();
+                        foreach (var pair in inactive) report.InactiveElements[pair.Key] = pair.Value;
                     }
                     if (Hash(modelSource, cancellationToken) != report.ModelHash || Hash(resultSource, cancellationToken) != report.ResultHash)
                         throw new InvalidDataException("Source files changed during results acquisition.");
                 }
                 report.Status = ImportStatus.Completed;
+                foreach (var c in report.Cases.Where(c => report.InactiveElements.ContainsKey(c.Number)))
+                    report.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7InactiveElementsSkipped", Severity = DiagnosticSeverity.Information, Record = "Result case " + Id(c.Number),
+                        Message = report.InactiveElements[c.Number].ToString(CultureInfo.InvariantCulture) + " selected beams and plates are inactive in stage " + Id(c.Stage)
+                            + " of case '" + c.Name + "': they have no results." });
                 report.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7NativeResults", Severity = DiagnosticSeverity.Information,
                     Message = "Native result tables acquired. Their units, component conventions, cases and stage/element states are retained; acquisition is not a structural verification." });
             }
