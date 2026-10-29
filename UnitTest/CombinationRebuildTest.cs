@@ -123,6 +123,25 @@ public class CombinationRebuildTest
     }
 
     [TestMethod]
+    public void Envelope_NamesTheGoverningRolesOfEachResultKindOfANode()
+    {
+        // Node 1 carries reactions and displacements: the roles of each location use the names of its own components (before: of the first sample).
+        var json = Json(); var tables = Tables().ToList();
+        tables.Add(Table("\"Index\",\"Node\",\"Load\",\"DX\",\"DY\",\"DZ\",\"RX\",\"RY\",\"RZ\"", "[\"1\",\"1\",\"G1\",\"0.001\",\"0\",\"0\",\"0\",\"0\",\"0\"]",
+            "[\"2\",\"1\",\"Q\",\"-0.001\",\"0\",\"0\",\"0\",\"0\",\"0\"]"));
+        var m = CivilNxGeometryReader.Import(CivilNxModelWorkflowTest.Snapshot(json), CivilNxModelWorkflowTest.Identity(), new CivilNxModelProfile()).Model;
+        var imported = CivilNxResults.Import(m, CivilNxModelWorkflowTest.Snapshot(json), tables, "static");
+        Assert.AreEqual(ImportStatus.Completed, imported.Status, string.Join("; ", imported.Diagnostics.Select(d => d.Message)));
+        var report = CombinationResults.Rebuild(m, new ResultFilter { Combinations = new[] { "ENV" } }.Resolve(m), "static").Single();
+        Assert.IsFalse(report.IsRejected, string.Join("; ", report.Diagnostics.Select(d => d.Message)));
+        var support = m.NodesElements.Values.Single(n => n.Source.OriginalId == "1"); var env = new ResultSelection { Dataset = "static", Case = "ENV" };
+        var displacements = ResultQueries.Samples<NodeResultDisplacement>(support, env); var forces = ResultQueries.Samples<NodeResultForces>(support, env);
+        Assert.IsTrue(displacements.Count > 0 && forces.Count > 0);
+        Assert.IsTrue(displacements.All(s => s.State.Coverage.Contains(" Dx") && !s.State.Coverage.Contains(" Fx")), "Displacement roles: Dx..Rz.");
+        Assert.IsTrue(forces.All(s => s.State.Coverage.Contains(" Fx") && !s.State.Coverage.Contains(" Dx")), "Reaction roles: Fx..Mz.");
+    }
+
+    [TestMethod]
     public void Rebuild_OnlyAtThePlannedElements_AndSkipsElementsWithIncompleteStaticResults()
     {
         var m = Imported(withQOnBeam: false);
