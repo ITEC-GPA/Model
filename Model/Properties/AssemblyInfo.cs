@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("5.24.0.0")]
-[assembly: AssemblyFileVersion("5.24.0.0")]
+[assembly: AssemblyVersion("5.25.0.0")]
+[assembly: AssemblyFileVersion("5.25.0.0")]
 
 [assembly: InternalsVisibleTo("UnitTest")]
 [assembly: InternalsVisibleTo("FemModel")]

@@ -302,6 +302,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Standards.GeotechnicalCharacteristicActionCategory),
             typeof(global::GPC.Model.Design.Combinations.GeotechnicalActionNature),
             typeof(global::GPC.Model.Design.Combinations.GeotechnicalLimitState),
+            typeof(global::GPC.Model.Design.Combinations.RoadTrafficPsiGroup),
             typeof(global::GPC.Model.Design.Combinations.VariableActionCategory),
             typeof(global::GPC.Model.Design.Steel.AxialSteelSectionKind),
             typeof(global::GPC.Model.Standards.GroundAnchorEvidence),

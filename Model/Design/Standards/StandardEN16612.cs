@@ -2022,9 +2022,11 @@ namespace GPC.Model.Standards
             }
             else if (options.LimitState == LimitStates.ServiceabilityCharacteristic)
             {
+                // EN 1990 (6.14b), to which EN 16612 refers for the combinations: the leading climatic action enters the characteristic combination
+                // with its characteristic value. Until GPCModel 5.24.0.0 it had ψ2 (the defect D11 of StandardEN1990; decision of the ANTHEA user of
+                // 29/10/2026: «vetro correggi anche se non utilizzato»).
                 double gamma = GetGammaQUnfavourable(options.ULS, options.LimitState, climateLoadCase);
-                double psi2 = GetPsi2(climateLoadCase);
-                return gamma * psi2;
+                return gamma;
             }
             else if (options.LimitState == LimitStates.ServiceabilityFrequent)
             {
