@@ -42,6 +42,7 @@
     <None Update="Fixtures\MidasCivil\identical-pairs-native-9.5.5\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\MidasCivil\catalog-pairs-native-9.5.5\*" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\*.xml.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Fixtures\model-v5-5.23.0.2.zip" CopyToOutputDirectory="PreserveNewest" />
     <None Update="Fixtures\Namespaces-v3\*" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ModelData\GPCModelData.csproj" />
     <ProjectReference Include="..\Model\GPCModel.csproj" />
