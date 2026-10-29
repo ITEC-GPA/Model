@@ -1148,16 +1148,20 @@ namespace ModelObjectTest
                 listComb.Add(combination);
             }
 
+            // EN 1990 (6.14b): Gk + P + Qk,1 + Σ ψ0,i Qk,i; wind ψ0 = 0.6, snow above 1000 m ψ0 = 0.7 (Tab. A1.1). Until GPCModel 5.23 the
+            // leading action had ψ2 (wind 0, snow 0.2): expectation corrected with the decision of the ANTHEA user of 28/10/2026 on the
+            // census of the combinations, question D11 («Come raccomandato»: correct the generator and this expectation).
             Combination combination1 = new Combination("cmb 1", options);
             combination1.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
             combination1.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
+            combination1.AddLoadCaseCoefficient(WindPressureLoadCase, 1.00);
             combination1.AddLoadCaseCoefficient(snowLoadCase, 0.70);
 
             Combination combination2 = new Combination("cmb 2", options);
             combination2.AddLoadCaseCoefficient(selfWeightLoadCase, 1.00);
             combination2.AddLoadCaseCoefficient(prestressLoadCase, 1.00);
             combination2.AddLoadCaseCoefficient(WindPressureLoadCase, 0.60);
-            combination2.AddLoadCaseCoefficient(snowLoadCase, 0.20);
+            combination2.AddLoadCaseCoefficient(snowLoadCase, 1.00);
 
             // Assert
             Assert.IsTrue(listComb.Count() == 3);

@@ -36,10 +36,18 @@ namespace GPC.Model.Design.Combinations
 
     /// <summary>
     /// What to generate. <see cref="Ultimate"/> is the action set of the ultimate rows, for example A1 of the combination of the check from
-    /// <see cref="StandardGeotechnical.Combinations"/>; a caller that departs from the standard passes its own set with its own name. Bodies are
-    /// permanent weights with their own factor (structure, fill, water, ...), favourable or unfavourable with the G1 values of the set:
-    /// <see cref="Bodies"/> enter the pattern of the ultimate rows, <see cref="RowBodies"/> double every ultimate row (favourable first).
-    /// <see cref="SeismicVariants"/> is the number of seismic rows (the caller keeps kh, kv and the use of each one).
+    /// <see cref="StandardGeotechnical.Combinations"/> or the structural set of a <see cref="CombinationProfile"/>; a caller that departs from the
+    /// standard passes its own set with its own name. Bodies are permanent weights with their own factor (structure, fill, water, ...), favourable
+    /// or unfavourable with the G1 values of the set: <see cref="Bodies"/> enter the pattern of the ultimate rows, <see cref="RowBodies"/> double
+    /// every ultimate row (favourable first). <see cref="SeismicVariants"/> is the number of seismic variants (the caller keeps kh, kv, the seismic
+    /// actions and the use of each one).
+    /// <para>
+    /// <see cref="VariablePresence"/>: the seismic and exceptional rows enumerate the presence of every variable group, as the ultimate rows do
+    /// (ψ2 Qk only where unfavourable, NTC 2018 §2.5.3; default), or have one row with every variable action at ψ2 (the fixed rules of an older
+    /// generator, for example the version 1 documents of the ANTHEA walls). <see cref="PatternOrder"/>: the order of the bits of the ultimate
+    /// pattern, fastest first, as names of the bodies and keys of the G1, G2 and Q groups; empty for the default order (bodies, then permanent
+    /// groups, then variable groups, each in the order of the request).
+    /// </para>
     /// </summary>
     public sealed class GeotechnicalCombinationRequest
     {
@@ -48,8 +56,15 @@ namespace GPC.Model.Design.Combinations
         public IReadOnlyList<string> Bodies { get; }
         public IReadOnlyList<string> RowBodies { get; }
         public int SeismicVariants { get; }
+        public bool VariablePresence { get; }
+        public IReadOnlyList<string> PatternOrder { get; }
         public GeotechnicalCombinationRequest(GeotechnicalActionFactors ultimate, IEnumerable<GeotechnicalDesignAction> actions, IEnumerable<string> bodies = null,
             IEnumerable<string> rowBodies = null, int seismicVariants = 0)
+            : this(ultimate, actions, bodies, rowBodies, seismicVariants, true, null)
+        {
+        }
+        public GeotechnicalCombinationRequest(GeotechnicalActionFactors ultimate, IEnumerable<GeotechnicalDesignAction> actions, IEnumerable<string> bodies,
+            IEnumerable<string> rowBodies, int seismicVariants, bool variablePresence, IEnumerable<string> patternOrder)
         {
             Ultimate = ultimate ?? throw new ArgumentNullException(nameof(ultimate));
             Actions = (actions ?? throw new ArgumentNullException(nameof(actions))).ToArray();
@@ -60,7 +75,17 @@ namespace GPC.Model.Design.Combinations
             Bodies = (bodies ?? Array.Empty<string>()).ToArray(); RowBodies = (rowBodies ?? Array.Empty<string>()).ToArray();
             if (Bodies.Concat(RowBodies).Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Body names required.");
             if (seismicVariants < 0) throw new ArgumentOutOfRangeException(nameof(seismicVariants));
-            SeismicVariants = seismicVariants;
+            SeismicVariants = seismicVariants; VariablePresence = variablePresence;
+            PatternOrder = (patternOrder ?? Array.Empty<string>()).ToArray();
+            if (PatternOrder.Count > 0)
+            {
+                var entries = Bodies.Concat(Actions.Where(a => a.Nature != GeotechnicalActionNature.A).Select(a => a.Group).Distinct(StringComparer.Ordinal)).ToArray();
+                if (entries.Distinct(StringComparer.Ordinal).Count() != entries.Length)
+                    throw new ArgumentException("A body and a group share the name: the pattern order would be ambiguous.", nameof(patternOrder));
+                if (PatternOrder.Count != entries.Length || PatternOrder.Distinct(StringComparer.Ordinal).Count() != PatternOrder.Count
+                    || PatternOrder.Any(p => !entries.Contains(p, StringComparer.Ordinal)))
+                    throw new ArgumentException("The pattern order must name every body and every G1, G2 and Q group once.", nameof(patternOrder));
+            }
         }
     }
 
@@ -86,17 +111,26 @@ namespace GPC.Model.Design.Combinations
     }
 
     /// <summary>
-    /// Combinations of the geotechnical checks, NTC 2018 §2.5.3 with the action set of the request, in this order:
+    /// Combinations of NTC 2018 §2.5.3 with the action set of the request (geotechnical checks, and the structural load cases of a model with
+    /// the sets of a <see cref="CombinationProfile"/>), in this order:
     /// <list type="bullet">
     /// <item>characteristic and frequent rows with every leading variable group (one row without lead when there is no Q): G 1, A 0, lead 1 or ψ1,
     /// the others ψ0 or ψ2; one quasi permanent row (Q ψ2);</item>
     /// <item>ultimate rows for every pattern: bit 0 the first body (fastest), then the other bodies, every G1 or G2 group (favourable or
-    /// unfavourable) and the presence of every Q group, in the order of the first action of the group; for every pattern one row for every present
-    /// leading Q group (lead γQ, the others γQ ψ0), one row when no Q is present; every row doubled by every row body;</item>
-    /// <item>one seismic row for every variant, with the quasi permanent factors;</item>
-    /// <item>one exceptional row for every A group: the quasi permanent factors and the group at 1.</item>
+    /// unfavourable) and the presence of every Q group, in the order of the first action of the group, or in the declared
+    /// <see cref="GeotechnicalCombinationRequest.PatternOrder"/>; for every pattern one row for every present leading Q group (lead γQ, the others
+    /// γQ ψ0), one row when no Q is present; every row doubled by every row body;</item>
+    /// <item>seismic rows for every variant, with the quasi permanent factors: E + Gk + Σ ψ2i Qki;</item>
+    /// <item>exceptional rows for every A group: the quasi permanent factors and the group at 1, Ad + Gk + Σ ψ2i Qki.</item>
     /// </list>
-    /// Rows with the same state, variant, body factors and action factors are merged without using a number. Disabled actions are not passed.
+    /// In the seismic and exceptional rows a variable action enters only where unfavourable (ψ2 Qk only if unfavourable, NTC 2018 §2.5.3): with
+    /// <see cref="GeotechnicalCombinationRequest.VariablePresence"/> every variant and every A group has one row for every presence pattern of the
+    /// Q groups, the absent groups at 0: first every group present, then the bits of absence in the order of the first action of the group (the
+    /// first group absent, the second absent, both absent, ...). Decision of the ANTHEA user of 28/10/2026 on the census of the combinations,
+    /// question D6 («Come raccomandato»: presence or absence of every Q group also in these rows, as in the ultimate ones); until GPCModel 5.23
+    /// one row with every Q at ψ2, still available for fixed older rules.
+    /// Rows with the same state, variant, body factors and action factors are merged without using a number (for example the absence of a group
+    /// with ψ2 = 0). Disabled actions are not passed.
     /// Requested on 26/10/2026 («sposta le combo e la generazione dentro model»): the generator of the retaining walls of GPCChecker.Geotechnics
     /// becomes an adapter of this one (ANTHEA docs/refactoring/combinazioni-model-censimento.md, step 1).
     /// </summary>
@@ -112,6 +146,11 @@ namespace GPC.Model.Design.Combinations
             int bodies = request.Bodies.Count, rowBodies = request.RowBodies.Count;
             int bits = bodies + permanent.Length + variables.Length;
             if (bits > 30 || rowBodies > 30) throw new ArgumentException("Too many bodies and action groups for the pattern of the ultimate rows.", nameof(request));
+            // Bit of every entry of the pattern: the default order (bodies, permanent groups, variable groups) or the declared one.
+            int Bit(string entry, int fallback) => request.PatternOrder.Count == 0 ? fallback : IndexOf(request.PatternOrder, entry);
+            var bodyBits = Enumerable.Range(0, bodies).Select(i => Bit(request.Bodies[i], i)).ToArray();
+            var permanentBits = Enumerable.Range(0, permanent.Length).Select(i => Bit(permanent[i].Key, bodies + i)).ToArray();
+            var variableBits = Enumerable.Range(0, variables.Length).Select(i => Bit(variables[i].Key, bodies + permanent.Length + i)).ToArray();
             var rows = new List<GeotechnicalCombinationRow>(); var seen = new HashSet<string>(StringComparer.Ordinal); int number = 0;
             void Add(GeotechnicalLimitState state, string lead, string accidental, int variant, double[] patternBodies, Dictionary<string, double> factors)
             {
@@ -137,15 +176,15 @@ namespace GPC.Model.Design.Combinations
             for (int mask = 0; mask < 1 << bits; mask++)
             {
                 var patternBodies = new double[bodies];
-                for (int i = 0; i < bodies; i++) patternBodies[i] = (mask & (1 << i)) == 0 ? set.PermanentFavourable : set.PermanentUnfavourable;
-                int bit = bodies; var factors = actions.ToDictionary(a => a.Id, _ => 0d, StringComparer.Ordinal);
-                foreach (var g in permanent)
+                for (int i = 0; i < bodies; i++) patternBodies[i] = (mask & (1 << bodyBits[i])) == 0 ? set.PermanentFavourable : set.PermanentUnfavourable;
+                var factors = actions.ToDictionary(a => a.Id, _ => 0d, StringComparer.Ordinal);
+                for (int p = 0; p < permanent.Length; p++)
                 {
-                    bool high = (mask & (1 << bit++)) != 0;
-                    foreach (var a in g) factors[a.Id] = a.Nature == GeotechnicalActionNature.G1 ? (high ? set.PermanentUnfavourable : set.PermanentFavourable)
+                    bool high = (mask & (1 << permanentBits[p])) != 0;
+                    foreach (var a in permanent[p]) factors[a.Id] = a.Nature == GeotechnicalActionNature.G1 ? (high ? set.PermanentUnfavourable : set.PermanentFavourable)
                         : (high ? set.NonStructuralUnfavourable : set.NonStructuralFavourable);
                 }
-                var present = variables.Where((_, i) => (mask & (1 << (bit + i))) != 0).ToArray();
+                var present = variables.Where((_, i) => (mask & (1 << variableBits[i])) != 0).ToArray();
                 if (present.Length == 0) Add(GeotechnicalLimitState.Ultimate, null, null, -1, patternBodies, factors);
                 foreach (var lead in present)
                 {
@@ -153,13 +192,32 @@ namespace GPC.Model.Design.Combinations
                     Add(GeotechnicalLimitState.Ultimate, lead.Key, null, -1, patternBodies, factors);
                 }
             }
-            for (int i = 0; i < request.SeismicVariants; i++) Add(GeotechnicalLimitState.Seismic, null, null, i, null, Service(GeotechnicalLimitState.QuasiPermanent));
+            // Seismic and exceptional rows: the quasi permanent factors with every presence pattern of the Q groups (census D6), or one row.
+            IEnumerable<Dictionary<string, double>> Presence(Dictionary<string, double> quasi)
+            {
+                int patterns = request.VariablePresence ? 1 << variables.Length : 1;
+                for (int absent = 0; absent < patterns; absent++)
+                {
+                    var factors = new Dictionary<string, double>(quasi, StringComparer.Ordinal);
+                    for (int i = 0; i < variables.Length; i++)
+                        if ((absent & (1 << i)) != 0) foreach (var a in variables[i]) factors[a.Id] = 0;
+                    yield return factors;
+                }
+            }
+            for (int i = 0; i < request.SeismicVariants; i++)
+                foreach (var factors in Presence(Service(GeotechnicalLimitState.QuasiPermanent))) Add(GeotechnicalLimitState.Seismic, null, null, i, null, factors);
             foreach (var accident in groups.Where(g => g.First().Nature == GeotechnicalActionNature.A))
             {
-                var factors = Service(GeotechnicalLimitState.QuasiPermanent); foreach (var a in accident) factors[a.Id] = 1;
-                Add(GeotechnicalLimitState.Exceptional, null, accident.Key, -1, null, factors);
+                var quasi = Service(GeotechnicalLimitState.QuasiPermanent); foreach (var a in accident) quasi[a.Id] = 1;
+                foreach (var factors in Presence(quasi)) Add(GeotechnicalLimitState.Exceptional, null, accident.Key, -1, null, factors);
             }
             return rows;
+        }
+
+        private static int IndexOf(IReadOnlyList<string> list, string entry)
+        {
+            for (int i = 0; i < list.Count; i++) if (string.Equals(list[i], entry, StringComparison.Ordinal)) return i;
+            throw new ArgumentException("Pattern entry not declared: " + entry);
         }
 
         private static string R(double v) => v.ToString("R", CultureInfo.InvariantCulture);
