@@ -176,37 +176,48 @@ namespace GPC.Model.Checking.Reports
         {
             if (model == null || Results.Count != Required || !HasUnchangedScope)
                 return EngineeringOutcome.NotEvaluated;
-            if (AnalysisCompatibilityValidator.Validate(model).Status != AnalysisCompatibility.Compatible)
-                return EngineeringOutcome.NotEvaluated;
-            if (BeamScope != null)
+            // Every row is compared with the same state of the model, read in one session: the compatibility, analysis, design, dataset,
+            // scenario, verification and sample digests are computed once per call and the samples of each beam are indexed once, instead
+            // of once per row (rows x elements). The engine identities are read outside the session. The comparisons are those of the
+            // row-by-row check, in the same order; a new call reads the model again.
+            var reads = new ValidationReadScope.Session(model);
+            using (reads.Enter())
             {
-                try
-                {
-                    if (ScopeFingerprint != BeamCheckPlan.FingerprintScope(model, BeamScope) || currentRequest != null && ScopeFingerprint != BeamCheckPlan.FingerprintScope(model, currentRequest))
-                        return EngineeringOutcome.NotEvaluated;
-                }
-                catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException)
-                {
+                if (AnalysisCompatibilityValidator.Validate(model).Status != AnalysisCompatibility.Compatible)
                     return EngineeringOutcome.NotEvaluated;
+                if (BeamScope != null)
+                {
+                    try
+                    {
+                        if (ScopeFingerprint != BeamCheckPlan.FingerprintScope(model, BeamScope) || currentRequest != null && ScopeFingerprint != BeamCheckPlan.FingerprintScope(model, currentRequest))
+                            return EngineeringOutcome.NotEvaluated;
+                    }
+                    catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException || ex is KeyNotFoundException)
+                    {
+                        return EngineeringOutcome.NotEvaluated;
+                    }
                 }
-            }
 
-            if (Scope != null)
-            {
-                try
+                if (Scope != null)
                 {
-                    if (ScopeFingerprint != ModelPreparation.FingerprintScope(model, Scope))
+                    try
+                    {
+                        if (ScopeFingerprint != ModelPreparation.FingerprintScope(model, Scope))
+                            return EngineeringOutcome.NotEvaluated;
+                    }
+                    catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
+                    {
                         return EngineeringOutcome.NotEvaluated;
-                }
-                catch (Exception ex)when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
-                {
-                    return EngineeringOutcome.NotEvaluated;
+                    }
                 }
             }
 
             foreach (var result in Results)
             {
-                if (result?.Provenance != null && !result.Provenance.IsCurrent(model))
+                bool current;
+                using (reads.Enter())
+                    current = result?.Provenance == null || result.Provenance.IsCurrent(model);
+                if (!current)
                     return EngineeringOutcome.NotEvaluated;
                 if (result?.Scope == CheckScope.PhysicalMember)
                 {
@@ -215,11 +226,19 @@ namespace GPC.Model.Checking.Reports
                     continue;
                 }
 
-                if (result == null || verifier == null || !result.HasUnchangedEvidence || result.Family != EntityFamily.Beam || result.VerificationRevision != model.VerificationFingerprint(result.Settings) || result.EngineVersion != verifier.Version || result.EngineConfiguration != (verifier as IConfiguredSectionVerifier)?.Configuration || !model.BeamElements.TryGetValue(result.ElementId, out var beam))
+                if (result == null || verifier == null || !result.HasUnchangedEvidence || result.Family != EntityFamily.Beam)
                     return EngineeringOutcome.NotEvaluated;
-                var samples = beam.Results.SelectMany(r => r.Results).OfType<global::GPC.Model.Results.Locations.StationResultBeamForces>().Where(r => r.State?.DatasetId == result.Dataset && r.Case?.Name == result.Case && r.ParametricDistance == result.Station && r.Side == result.Side && r.State.Phase == result.Phase && r.State.Step == result.Step && r.State.ConcomitantStateId == result.ConcomitantStateId && r.State.Mode == result.Mode && r.State.MovingLoadPosition == result.MovingLoadPosition).ToArray();
-                if (samples.Length != 1 || Core.ModelValues.Fingerprint(new object[] { samples[0] }) != result.SampleRevision)
+                string revision;
+                using (reads.Enter())
+                    revision = model.VerificationFingerprint(result.Settings);
+                if (result.VerificationRevision != revision || result.EngineVersion != verifier.Version || result.EngineConfiguration != (verifier as IConfiguredSectionVerifier)?.Configuration || !model.BeamElements.TryGetValue(result.ElementId, out var beam))
                     return EngineeringOutcome.NotEvaluated;
+                using (reads.Enter())
+                {
+                    var samples = StationSamples.Matching(model, beam, result);
+                    if (samples.Count != 1 || ValidationReadScope.FingerprintOf(model, samples[0]) != result.SampleRevision)
+                        return EngineeringOutcome.NotEvaluated;
+                }
             }
 
             return Outcome;

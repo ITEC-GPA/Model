@@ -8,7 +8,8 @@ namespace GPC.Model.Core
     /// Canonical fingerprint bytes of the model values met inside one validation read scope, keyed by reference. Within the scope the
     /// model is not mutated (no checker, callback or user code runs in it), so the walk of the same object writes the same bytes: each
     /// sample, property or dataset is walked once however many fingerprints of the scope contain it, and the fingerprints are the same
-    /// as without memo. It lives and dies with its scope and its thread: no lock, no growth across calls or models.
+    /// as without memo. It lives and dies with its scope (or with the read session of one call that enters the scope again) and its
+    /// thread: no lock, no growth across calls or models.
     /// Rule for the callers: an object fingerprinted with the memo is not changed afterwards in the same scope (model values only).
     /// </summary>
     internal sealed class FingerprintMemo
