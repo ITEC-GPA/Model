@@ -370,7 +370,21 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "<Category>k__BackingField", "<Category>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_specification", "_specification", false),
                 Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_total", "_total", false),
-                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_variable", "_variable", false));
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "_variable", "_variable", false),
+                // Member serviceability declarations (30/10/2026): absent on the snapshots of members without them, whose fingerprints are unchanged.
+                Field("GPC.Model.Checking.Contracts.MemberDeformationSnapshot", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true));
+            Register("GPC.Model.Structure.Members.MemberDeclaredValue", "GPC.Model.Structure.Members.MemberDeclaredValue",
+                Field("GPC.Model.Structure.Members.MemberDeclaredValue", "<Source>k__BackingField", "<Source>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberDeclaredValue", "<Value>k__BackingField", "<Value>k__BackingField", false));
+            Register("GPC.Model.Structure.Members.MemberServiceabilityLimits", "GPC.Model.Structure.Members.MemberServiceabilityLimits",
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<CantileverLengthFactor>k__BackingField", "<CantileverLengthFactor>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<DeflectionScheme>k__BackingField", "<DeflectionScheme>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<DeflectionSchemeSource>k__BackingField", "<DeflectionSchemeSource>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<DriftRatio>k__BackingField", "<DriftRatio>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<MaxDeflectionRatio>k__BackingField", "<MaxDeflectionRatio>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<MinimumFrequency>k__BackingField", "<MinimumFrequency>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<Precamber>k__BackingField", "<Precamber>k__BackingField", false),
+                Field("GPC.Model.Structure.Members.MemberServiceabilityLimits", "<VariableDeflectionRatio>k__BackingField", "<VariableDeflectionRatio>k__BackingField", false));
             Register("GPC.Model.Structure.Members.MemberDesignContext", "GPC.Model.PostProcessing.MemberDesignContext",
                 Field("GPC.Model.Structure.Members.MemberDesignContext", "<Assumptions>k__BackingField", "<Assumptions>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.MemberDesignContext", "<EffectiveLength1>k__BackingField", "<EffectiveLength1>k__BackingField", false),
@@ -464,7 +478,9 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<Name>k__BackingField", "<Name>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<Source>k__BackingField", "<Source>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false),
-                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "_parts", "_parts", false));
+                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "_parts", "_parts", false),
+                // Member serviceability declarations (30/10/2026): absent on the historical definitions, whose fingerprints are unchanged.
+                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true));
             Register("GPC.Model.Checking.Preparation.PreparationRequest", "GPC.Model.PostProcessing.PreparationRequest",
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Mechanisms>k__BackingField", "<Mechanisms>k__BackingField", false),
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Results>k__BackingField", "<Results>k__BackingField", false),

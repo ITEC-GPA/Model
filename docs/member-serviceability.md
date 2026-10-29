@@ -20,17 +20,32 @@ Per un task con `Deformation`, `BeamCheckPlan` non prepara tagli di forza: racco
 
 Controlli, con i codici di BeamActionPreparation dove esistono: dataset e unita N,mm,rad (`DatasetMismatchOrUnknownUnits`), componenti complete e stato concomitante (`IncompleteState`), semantica (`NonConcomitantState`), stati incrementali (`IncrementalOrUnknownPhaseState`), analisi corrente (`StaleAnalysis`, dato Stale), spostamenti riferiti al nodo (`InvalidNodalDisplacement`/`NodalDisplacementNotAtNode`), campioni mancanti o ambigui (`MissingMemberNodeDisplacement`, `AmbiguousMemberNodeDisplacement`), estremi del tratto (`MissingMemberDisplacementBoundary`), stati coerenti (`IncoherentMemberStates`), stato globale confermato (`GlobalMemberStateNotConfirmed`, `VariableMemberStateNotConfirmed`), stato variabile diverso da quello del task (`VariableSelectionIsTheTaskState`). La copertura conta i nodi richiesti e disponibili; un nodo oltre una zona rigida di un percorso OffsetToOffset non e un punto dell'asta e non e usato. Nessun valore e interpolato fra i nodi; `StationResultDisplacement` non e usato (nessun convertitore lo produce).
 
+## Dichiarazioni di esercizio dell'asta
+
+30 ottobre 2026, branch claude/model-sle-limiti-asta. `PhysicalMemberDefinition.ServiceabilityLimits` (`MemberServiceabilityLimits`, facoltativo) porta i valori di esercizio propri dell'asta, ciascuno con la sua fonte (`MemberDeclaredValue`: valore e testo della fonte, mai un default):
+
+- `DeflectionScheme` (`MemberDeflectionScheme`: SupportedEnds, CantileverAtStart, CantileverAtEnd) con `DeflectionSchemeSource`;
+- `CantileverLengthFactor`: lunghezza di riferimento dei limiti di una mensola come multiplo della sua lunghezza (usata solo se lo schema in vigore e una mensola; rifiutata con SupportedEnds sulla stessa asta);
+- `MaxDeflectionRatio` (n di L/n su delta_max), `Precamber` (mm, con segno), `VariableDeflectionRatio` (delta_2 / w_3), `DriftRatio` (h/n), `MinimumFrequency` (Hz).
+
+Un valore assente si prende dalla configurazione del motore; il motore riporta l'origine di ogni valore usato. Una dichiarazione vuota e rifiutata (`EmptyMemberServiceabilityLimits`), come rapporti non positivi e schema senza fonte. La definizione si aggiorna con `WithServiceabilityLimits` (null le toglie). Il modello non ha un concetto naturale di gruppo di aste (`Group` raggruppa oggetti FEM, le aste fisiche non vi appartengono): un gruppo con gli stessi limiti condivide la stessa istanza immutabile.
+
+Le dichiarazioni entrano solo nei task deformativi: `MemberDeformationSnapshot.ServiceabilityLimits` le copia e lo scopo (`FingerprintScope`) le aggiunge solo per le aste con task deformativi; `MemberInputSnapshot.Definition` e la definizione nell'impronta di scopo sono il percorso dell'asta senza dichiarazioni. Una modifica dei limiti rende non corrente il piano SLE dell'asta e lascia invariati snapshot delle forze (MemberFingerprint dei motori di stabilita) e scopi senza task deformativi.
+
 ## Currency e compatibilita
 
 - Lo snapshot entra nell'impronta preparata e nell'identita del resoconto come quello delle forze.
 - Le sorgenti nodali si rivalidano in `BeamCheckPlan.IsCurrent` (nodo, campione registrato, dataset, analisi, derivazione).
 - Lo scopo (`FingerprintScope`) aggiunge, solo se la richiesta ha task deformativi, i campioni nodali di ogni asta con tali task per tutte le selezioni della richiesta e tutte le selezioni variabili dichiarate: una variazione di soli spostamenti rende non corrente il piano e NotEvaluated il resoconto, esattamente come una variazione di forze. Uno spostamento di un caso estraneo alla richiesta non cambia nulla.
 - Campi nuovi con `omitWhenNull` nelle impronte, `OptionalField` negli archivi: richieste, specifiche, task, snapshot e sigilli esistenti hanno le stesse impronte (valori congelati da master 853b56ef in `HistoricalMemberRequestsKeepTheirFingerprints`; archivio di modello, configurazione e resoconto scritto da master in Checker `MemberServiceabilityLegacyArchiveTest`).
+- `ServiceabilityLimits` di definizione e snapshot: `omitWhenNull`, `OptionalField`, `EmitDefaultValue = false`. Impronta di una definizione senza dichiarazioni congelata da master 9f40d98a (`DefinitionsWithoutLimitsKeepTheirFingerprints`); archivi versione 2 e 4 scritti da master (UnitTest `Fixtures/member-limits-legacy-5.28.0.0-v2/v4.xml.gz`) si caricano con le stesse impronte e si riscrivono con lo stesso testo (`MemberServiceabilityArchiveTest`, a meno dei GUID delle terne geometriche, rigenerati a ogni caricamento come prima); le dichiarazioni fanno il giro degli archivi versione 2, 4 e 5 e di `ModelValues.Copy`.
 
 ## API pubblica aggiunta
 
 Tipi: `MemberDeformationCriterion`, `MemberDeformationDirection`, `MemberVariableDeflectionBasis`, `MemberDeformationSpecification`, `MemberDisplacementSample`, `MemberDeformationSnapshot`. Membri: `MemberCheckSpecification.Category`, `MemberCheckSpecification.Deformation`, `MemberInputSnapshot.Deformation`. Nessuna rimozione o modifica.
 
+30/10: tipi `MemberDeflectionScheme`, `MemberDeclaredValue`, `MemberServiceabilityLimits`; membri `PhysicalMemberDefinition.ServiceabilityLimits`, `PhysicalMemberDefinition.WithServiceabilityLimits`, `MemberDeformationSnapshot.ServiceabilityLimits`. Nessuna rimozione o modifica.
+
 ## Test
 
-`Model.Core.Tests/MemberDeformationPreparationTest`: assi dell'asta, selezione per categoria (anche dei task di stabilita), stati Direct/Difference, dichiarazioni rifiutate, nodi mancanti e stati non qualificati, cambi di soli spostamenti (stato del task, stato dedotto, rotazione) su piano e scopo, copie dei contratti e impronte storiche.
+`Model.Core.Tests/MemberDeformationPreparationTest`: assi dell'asta, selezione per categoria (anche dei task di stabilita), stati Direct/Difference, dichiarazioni rifiutate, nodi mancanti e stati non qualificati, cambi di soli spostamenti (stato del task, stato dedotto, rotazione) su piano e scopo, copie dei contratti e impronte storiche; dichiarazioni dell'asta solo nei task deformativi (`MemberLimitsEnterOnlyTheDeformationTasks`), validazione (`MemberLimitsAreCompleteDeclarations`) e impronta storica della definizione. `UnitTest/MemberServiceabilityArchiveTest`: archivi di master e giro delle dichiarazioni.

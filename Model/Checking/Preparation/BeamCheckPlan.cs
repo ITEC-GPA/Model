@@ -164,7 +164,8 @@ namespace GPC.Model.Checking.Preparation
             return ValidationReadScope.Fingerprint(model, new object[] { request, model.VerificationFingerprint(request.Settings) }
                 .Concat(request.Results.Select(s => s.Dataset).Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal)
                     .SelectMany(id => new object[] { id, model.Datasets.TryGetValue(id, out var dataset) ? dataset : null }))
-                .Concat(scope.Members.Values.OrderBy(m => m.Definition.Id, StringComparer.Ordinal).Select(m => (object)m.Definition))
+                // The member path: serviceability declarations enter only the scopes of the deformation tasks (ScopeInputs).
+                .Concat(scope.Members.Values.OrderBy(m => m.Definition.Id, StringComparer.Ordinal).Select(m => (object)m.Definition.Path))
                 .Concat(scope.Beams.Values.OrderBy(b => b.Id).SelectMany(b => new object[] { b.Id, b.Groups.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray(),
                     request.Results.SelectMany(s => ResultQueries.Samples<StationResultBeamForces>(b, s)).ToArray() }))
                 .Concat(MemberDeformationPreparation.ScopeInputs(model, scope.Members, request)));
