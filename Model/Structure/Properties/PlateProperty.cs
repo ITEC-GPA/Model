@@ -95,20 +95,25 @@ namespace GPC.Model.ElementProperties
         }
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(object)"/>)
+        /// Equality operator (see <see cref="Equals(object)"/>; two nulls are equal, a null and a property are not)
         /// </summary>
-        /// <param name="obj1">The first property (not null: a null first operand throws <see cref="NullReferenceException"/>)</param>
+        /// <param name="obj1">The first property</param>
         /// <param name="obj2">The second property</param>
         /// <returns>True if the properties are equal</returns>
         public static bool operator ==(PlateProperty obj1, PlateProperty obj2)
         {
+            // before, NullReferenceException when obj1 was null
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+            if (obj1 is null || obj2 is null)
+                return false;
             return obj1.Equals(obj2);
         }
 
         /// <summary>
         /// Inequality operator (see <see cref="Equals(object)"/>)
         /// </summary>
-        /// <param name="obj1">The first property (not null)</param>
+        /// <param name="obj1">The first property</param>
         /// <param name="obj2">The second property</param>
         /// <returns>True if the properties are different</returns>
         public static bool operator !=(PlateProperty obj1, PlateProperty obj2)
