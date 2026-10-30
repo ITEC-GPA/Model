@@ -1,7 +1,10 @@
 using System;
+using System.Linq;
 using System.Threading;
 using GPC.Model.Checking.Contracts;
 using GPC.Model.Checking.Preparation;
+using GPC.Model.Core.Diagnostics;
+using GPC.Model.Results.Locations;
 
 namespace GPC.Model.Checking.Execution
 {
@@ -21,7 +24,8 @@ namespace GPC.Model.Checking.Execution
     /// Each check therefore reads the model as it is when the check runs, and a change is seen by exactly the checks that saw it before,
     /// as long as the code the caller does not declare (its own stamping, which reads the model) changes nothing and no other thread
     /// writes the model during the run (as before, such a write was seen or not depending on the timing). No read session spans a
-    /// verifier or a callback. A run belongs to one thread and lives for one loop of its caller.
+    /// verifier or a callback. A run belongs to one thread and lives for one loop of its caller. <see cref="Prepare"/> prepares a cut with the
+    /// same reads, for an orchestrator that prepares and checks each cut in turn (the concrete adapter of a material plan).
     /// </summary>
     public sealed class SectionCheckRun
     {
@@ -48,6 +52,20 @@ namespace GPC.Model.Checking.Execution
         public CheckResult Run(BeamPreparation preparation, SectionCheckSpecification check, IConcreteSectionVerifier verifier, bool verifierReadsOnlyItsInput,
             CancellationToken cancellationToken = default(CancellationToken))
             => SectionCheckExecution.Run(preparation, check, verifier, cancellationToken, this, verifierReadsOnlyItsInput);
+
+        /// <summary><see cref="BeamCheckPreparation.Prepare"/> of a cut of <see cref="Model"/> with the reads of the run. Each preparation owns
+        /// its diagnostics, as before: the validation errors of the model, read once by the run, are copied for each one.</summary>
+        public BeamPreparation Prepare(int beamId, StationResultBeamForces sample, string settings)
+        {
+            BeamPreparation preparation;
+            using (Enter(Model)) preparation = BeamCheckPreparation.Prepare(Model, beamId, sample, settings);
+            if (preparation.Diagnostics.Count != 0) preparation.Diagnostics = preparation.Diagnostics.Select(Copy).ToList();
+            return preparation;
+        }
+
+        private static ModelDiagnostic Copy(ModelDiagnostic d) => d == null ? null : new ModelDiagnostic { Code = d.Code, Severity = d.Severity,
+            ElementId = d.ElementId, Family = d.Family, Station = d.Station, Dataset = d.Dataset, Case = d.Case, Record = d.Record, Message = d.Message,
+            SuggestedAction = d.SuggestedAction };
 
         /// <summary><see cref="ShellCheckInput.IsCurrent"/> with the reads of the run.</summary>
         public bool IsCurrent(ShellCheckInput input)

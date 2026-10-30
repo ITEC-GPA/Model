@@ -137,6 +137,27 @@ public class SectionCheckRunTest
     }
 
     [TestMethod]
+    public void APreparationOfTheRunIsTheOneMadeAloneAndOwnsItsDiagnostics()
+    {
+        var model = MixedModelFactory.Create(); var verifier = new Verifier(); var run = new SectionCheckRun(model);
+        var samples = ResultQueries.BeamSamples(model.BeamElements[250], "synthetic-static", "P+");
+        string Describe(BeamPreparation p) => p.Status + ":" + string.Join(",", p.Diagnostics.Select(d => d.Code + "/" + d.ElementId + "/" + d.Message));
+        var alone = samples.Select(s => Verification.PrepareBeam(model, 250, s, "run")).ToArray();
+        var together = samples.Select(s => run.Prepare(250, s, "run")).ToArray();
+        CollectionAssert.AreEqual(alone.Select(Describe).ToArray(), together.Select(Describe).ToArray());
+        CollectionAssert.AreEqual(Evidence(alone.Select(p => SectionCheckExecution.Run(p, CheckMechanism.UlsBiaxialSection, verifier))),
+            Evidence(together.Select(p => run.Run(p, CheckMechanism.UlsBiaxialSection, verifier, true))));
+        // A validation error of the model (two nodes with one source identity), read once by the run: every preparation is Insufficient
+        // with its own copy of the error, as each one prepared alone.
+        model.NodesElements[90].Source = model.NodesElements[10].Source; run.ModelMayHaveChanged();
+        alone = samples.Select(s => Verification.PrepareBeam(model, 250, s, "run")).ToArray();
+        var keys = Computed(() => together = samples.Select(s => run.Prepare(250, s, "run")).ToArray());
+        Assert.AreEqual(1, keys.Count(k => k == "validation-errors"));
+        Assert.IsTrue(together.All(p => p.Status == DataStatus.Insufficient && p.Input == null && p.Diagnostics.Any(d => d.Code == "SourceCollision")));
+        CollectionAssert.AreEqual(alone.Select(Describe).ToArray(), together.Select(Describe).ToArray());
+        Assert.IsFalse(together.Skip(1).Any(p => p.Diagnostics.Any(d => together[0].Diagnostics.Contains(d))));
+    }
+    [TestMethod]
     public void ShellInputsAreReadWithTheRun()
     {
         var model = MixedModelFactory.Create();
