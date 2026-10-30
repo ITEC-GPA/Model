@@ -144,13 +144,18 @@ namespace GPC.Model.Sections.Steel
         }
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(object)"/>; a null <paramref name="obj1"/> throws <see cref="NullReferenceException"/>)
+        /// Equality operator (see <see cref="Equals(object)"/>; two nulls are equal, a null and a property are not)
         /// </summary>
         /// <param name="obj1">The first property</param>
         /// <param name="obj2">The second property</param>
         /// <returns>True if the properties are equal</returns>
         public static bool operator ==(SteelPlateProperty obj1, SteelPlateProperty obj2)
         {
+            // before, NullReferenceException when obj1 was null
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+            if (obj1 is null || obj2 is null)
+                return false;
             return obj1.Equals(obj2);
         }
 

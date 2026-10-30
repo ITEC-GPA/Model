@@ -199,13 +199,18 @@ namespace GPC.Model.Sections.Concrete
         }
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(object)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// Equality operator (see <see cref="Equals(object)"/>; two nulls are equal, a null and a rebar are not)
         /// </summary>
         /// <param name="left">The first rebar</param>
         /// <param name="right">The second rebar</param>
         /// <returns>True if the rebars are equal</returns>
         public static bool operator ==(ReinforcedConcreteRebar left, ReinforcedConcreteRebar right)
         {
+            // before, NullReferenceException when left was null
+            if (ReferenceEquals(left, right))
+                return true;
+            if (left is null || right is null)
+                return false;
             return left.Equals(right);
         }
 

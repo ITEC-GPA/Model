@@ -629,13 +629,18 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Equality operator (see <see cref="Equals(SectionC)"/>; a null <paramref name="left"/> throws <see cref="NullReferenceException"/>)
+        /// Equality operator (see <see cref="Equals(SectionC)"/>; two nulls are equal, a null and a section are not)
         /// </summary>
         /// <param name="left">The first section</param>
         /// <param name="right">The second section</param>
         /// <returns>True if the sections are equal</returns>
         public static bool operator ==(SectionC left, SectionC right)
         {
+            // before, NullReferenceException when left was null
+            if (ReferenceEquals(left, right))
+                return true;
+            if (left is null || right is null)
+                return false;
             return left.Equals(right);
         }
 

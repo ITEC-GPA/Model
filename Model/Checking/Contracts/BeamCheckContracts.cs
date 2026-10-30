@@ -307,7 +307,7 @@ namespace GPC.Model.Checking.Contracts
 
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, MemberDeformationSnapshot deformation)
         {
-            Definition = geometry.Definition; Context = specification.Context;
+            Definition = geometry.Definition.Path; Context = specification.Context;
             Length = geometry.Length; DeformableLength = geometry.DeformableLength;
             SpanStart = specification.Start; SpanEnd = specification.End ?? geometry.Length;
             _axes = geometry.Axes;
@@ -317,7 +317,7 @@ namespace GPC.Model.Checking.Contracts
 
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamActionInput> inputs)
         {
-            Definition = geometry.Definition; Context = specification.Context;
+            Definition = geometry.Definition.Path; Context = specification.Context;
             Length = geometry.Length; DeformableLength = geometry.DeformableLength;
             SpanStart = specification.Start; SpanEnd = specification.End ?? geometry.Length;
             _axes = geometry.Axes;
@@ -327,7 +327,7 @@ namespace GPC.Model.Checking.Contracts
 
         internal MemberInputSnapshot(PhysicalMemberGeometry geometry, MemberCheckSpecification specification, IEnumerable<BeamCheckInput> inputs)
         {
-            Definition = geometry.Definition;
+            Definition = geometry.Definition.Path;
             Context = specification.Context;
             Length = geometry.Length;
             DeformableLength = geometry.DeformableLength;

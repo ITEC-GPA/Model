@@ -259,6 +259,92 @@ public class MemberDeformationPreparationTest
         Assert.AreNotEqual(BeamCheckPlan.PrepareActions(model, request).WorkItems.Single().Id, BeamCheckPlan.PrepareActions(model, other).WorkItems.Single().Id);
     }
 
+    private static MemberServiceabilityLimits Limits(double ratio = 300, string source = "Fixture: floors L/300")
+        => new(MemberDeflectionScheme.SupportedEnds, "Fixture: pinned span ends", maxDeflectionRatio: new MemberDeclaredValue(ratio, source),
+            precamber: new MemberDeclaredValue(0, "Fixture: no camber"));
+    private static string Fp(object value) => ModelValues.Fingerprint(new object[] { value });
+
+    /// <summary>The serviceability declarations of a member enter its deformation tasks only: declaring or editing them changes
+    /// neither the force-based snapshot (the MemberFingerprint of a stability engine) nor the scope of a request without deformation
+    /// tasks; the deformation snapshot carries them, its plan and scope become stale, and removing them restores both.</summary>
+    [TestMethod]
+    public void MemberLimitsEnterOnlyTheDeformationTasks()
+    {
+        var model = Fixture();
+        var stability = new MemberCheckSpecification { MemberId = "B", MethodId = "fixture-uls", Context = new MemberDesignContext(globalStateConfirmed: true) };
+        var forces = Request(new[] { stability }, State("ULS", null));
+        var deformation = Request(new[] { Deflection() }, State("SLE-R", CombinationCategory.Characteristic));
+        string ForceSnapshot() => Fp(BeamCheckPlan.PrepareActions(model, forces).WorkItems.Single().Member.Snapshot);
+        string forceScope = BeamCheckPlan.FingerprintScope(model, forces), forceSnapshot = ForceSnapshot(), scope = BeamCheckPlan.FingerprintScope(model, deformation);
+        var plan = BeamCheckPlan.PrepareActions(model, deformation);
+        Assert.IsTrue(plan.IsCurrent); Assert.IsNull(plan.WorkItems.Single().Member.Snapshot.Deformation.ServiceabilityLimits);
+        var definition = model.PhysicalMembers["B"];
+        model.PhysicalMembers["B"] = definition.WithServiceabilityLimits(Limits());
+        Assert.AreEqual(forceScope, BeamCheckPlan.FingerprintScope(model, forces)); Assert.AreEqual(forceSnapshot, ForceSnapshot());
+        Assert.IsFalse(plan.IsCurrent); Assert.AreNotEqual(scope, BeamCheckPlan.FingerprintScope(model, deformation));
+        var declared = BeamCheckPlan.PrepareActions(model, deformation);
+        var snapshot = declared.WorkItems.Single().Member.Snapshot;
+        Assert.IsTrue(declared.IsCurrent); Assert.AreEqual(DataStatus.Ready, declared.WorkItems.Single().Data);
+        Assert.AreEqual(300, snapshot.Deformation.ServiceabilityLimits.MaxDeflectionRatio.Value);
+        Assert.AreEqual(MemberDeflectionScheme.SupportedEnds, snapshot.Deformation.ServiceabilityLimits.DeflectionScheme);
+        Assert.IsNull(snapshot.Definition.ServiceabilityLimits); Assert.AreEqual(Fp(definition), Fp(snapshot.Definition));
+        Assert.AreEqual(Fp(snapshot), Fp(ModelValues.CopyValue(snapshot)));
+        Assert.AreEqual("Fixture: floors L/300", ModelValues.CopyValue(snapshot).Deformation.ServiceabilityLimits.MaxDeflectionRatio.Source);
+        // Each declared value and its source are inputs; the identity of the task is not.
+        string limited = BeamCheckPlan.FingerprintScope(model, deformation);
+        model.PhysicalMembers["B"] = definition.WithServiceabilityLimits(Limits(250));
+        Assert.IsFalse(declared.IsCurrent); Assert.AreNotEqual(limited, BeamCheckPlan.FingerprintScope(model, deformation));
+        model.PhysicalMembers["B"] = definition.WithServiceabilityLimits(Limits(source: "Fixture: another source"));
+        Assert.AreNotEqual(limited, BeamCheckPlan.FingerprintScope(model, deformation));
+        Assert.AreEqual(plan.WorkItems.Single().Id, BeamCheckPlan.PrepareActions(model, deformation).WorkItems.Single().Id);
+        model.PhysicalMembers["B"] = definition.WithServiceabilityLimits(null);
+        Assert.AreEqual(scope, BeamCheckPlan.FingerprintScope(model, deformation)); Assert.IsTrue(plan.IsCurrent);
+    }
+
+    [TestMethod]
+    public void MemberLimitsAreCompleteDeclarations()
+    {
+        var value = new MemberDeclaredValue(2, "s");
+        Assert.AreEqual("EmptyMemberServiceabilityLimits", Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits()).Message);
+        Assert.AreEqual("DeflectionSchemeAndSourceTogether", Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits(MemberDeflectionScheme.CantileverAtEnd)).Message);
+        Assert.AreEqual("DeflectionSchemeAndSourceTogether", Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits(deflectionSchemeSource: "s", driftRatio: value)).Message);
+        Assert.AreEqual("InvalidMemberDeflectionScheme", Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits((MemberDeflectionScheme)7, "s")).Message);
+        Assert.AreEqual("CantileverReferenceOnSupportedSpan", Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits(MemberDeflectionScheme.SupportedEnds, "s", value)).Message);
+        Assert.ThrowsException<ArgumentException>(() => new MemberServiceabilityLimits(MemberDeflectionScheme.SupportedEnds, " "));
+        var nonpositive = new MemberDeclaredValue(0, "s"); var negative = new MemberDeclaredValue(-300, "s");
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberServiceabilityLimits(maxDeflectionRatio: nonpositive));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberServiceabilityLimits(variableDeflectionRatio: negative));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberServiceabilityLimits(driftRatio: negative));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberServiceabilityLimits(minimumFrequency: nonpositive));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberServiceabilityLimits(cantileverLengthFactor: nonpositive));
+        Assert.ThrowsException<ArgumentException>(() => new MemberDeclaredValue(250, " "));
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => new MemberDeclaredValue(double.NaN, "s"));
+        // A precamber is signed along the checked axis; a cantilever reference without a scheme applies to the engine's cantilever scheme.
+        Assert.AreEqual(-5, new MemberServiceabilityLimits(precamber: new MemberDeclaredValue(-5, "s")).Precamber.Value);
+        Assert.AreEqual(2, new MemberServiceabilityLimits(cantileverLengthFactor: value).CantileverLengthFactor.Value);
+    }
+
+    /// <summary>Fingerprint of a definition without declarations captured with GPCModel 5.28.0.0 (master 9f40d98a) before the member
+    /// serviceability declarations existed; the archive forms are in UnitTest MemberServiceabilityArchiveTest.</summary>
+    [TestMethod]
+    public void DefinitionsWithoutLimitsKeepTheirFingerprints()
+    {
+        const string master = "1834C73FF5C510100176F9948AB7E4F01EA54B99584C6C3F394C0F2E849F63BC";
+        var definition = new PhysicalMemberDefinition("S", new[] { new BeamMemberPart(250, true) }, "NodeToNode");
+        Assert.AreEqual(master, Fp(definition)); Assert.IsNull(definition.ServiceabilityLimits);
+        var declared = definition.WithServiceabilityLimits(Limits());
+        Assert.AreNotEqual(master, Fp(declared)); Assert.IsNull(definition.ServiceabilityLimits);
+        Assert.AreEqual(master, Fp(declared.WithServiceabilityLimits(null)));
+        Assert.AreNotEqual(Fp(declared), Fp(definition.WithServiceabilityLimits(Limits(250))));
+        var copy = ModelValues.CopyValue(declared);
+        Assert.AreEqual(Fp(declared), Fp(copy));
+        Assert.AreEqual(MemberDeflectionScheme.SupportedEnds, copy.ServiceabilityLimits.DeflectionScheme);
+        Assert.AreEqual("Fixture: pinned span ends", copy.ServiceabilityLimits.DeflectionSchemeSource);
+        Assert.AreEqual(300, copy.ServiceabilityLimits.MaxDeflectionRatio.Value); Assert.AreEqual(0, copy.ServiceabilityLimits.Precamber.Value);
+        Assert.IsNull(copy.ServiceabilityLimits.DriftRatio); Assert.IsNull(copy.ServiceabilityLimits.CantileverLengthFactor);
+        CollectionAssert.AreEqual(definition.Parts.Select(p => p.BeamId).ToArray(), copy.Parts.Select(p => p.BeamId).ToArray());
+    }
+
     /// <summary>Fingerprints of the historical member request of MaterialNeutralMemberPreparationTest, captured with GPCModel 5.23.0.2
     /// (master 853b56ef) before the member serviceability contracts: request, specification and task identity are unchanged.
     /// The scope and snapshot digests include element GUIDs, new at every fixture build; Checker's

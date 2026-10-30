@@ -71,7 +71,8 @@ namespace GPC.Model.Checking.Preparation
         }
 
         /// <summary>Scope inputs of the deformation tasks: the nodal samples of every member with such a task, for every selection of the
-        /// request and every declared variable selection. Empty without deformation tasks, so historical scope digests are unchanged.</summary>
+        /// request and every declared variable selection, and the serviceability declarations of the member when it carries them.
+        /// Empty without deformation tasks, so historical scope digests are unchanged.</summary>
         internal static IEnumerable<object> ScopeInputs(Models.Model model, IReadOnlyDictionary<string, PhysicalMemberGeometry> members, BeamCheckPlanRequest r)
         {
             var specs = r.MemberChecks.Where(s => s.Deformation != null).ToArray();
@@ -81,11 +82,16 @@ namespace GPC.Model.Checking.Preparation
                 .Select(s => new { Key = ModelValues.Fingerprint(new object[] { s }), Selection = s })
                 .GroupBy(s => s.Key, StringComparer.Ordinal).OrderBy(g => g.Key, StringComparer.Ordinal).Select(g => g.First().Selection).ToArray();
             foreach (var id in specs.Select(s => s.MemberId).Distinct(StringComparer.Ordinal).OrderBy(id => id, StringComparer.Ordinal))
+            {
                 foreach (var (node, _) in Nodes(model, members[id]))
                 {
                     yield return node.Id;
                     foreach (var selection in selections) yield return ResultQueries.Samples<NodeResultDisplacement>(node, selection).ToArray();
                 }
+                // Only when declared: the scopes of members without them keep their digest.
+                var limits = members[id].Definition.ServiceabilityLimits;
+                if (limits != null) { yield return "ServiceabilityLimits"; yield return limits; }
+            }
         }
 
         internal static MemberDeformationPreparation Prepare(Models.Model model, PhysicalMemberGeometry geometry, MemberCheckSpecification spec,
@@ -142,7 +148,7 @@ namespace GPC.Model.Checking.Preparation
                     errors.Add(ModelDiagnostic.Error("VariableDifferenceRequiresLinearStates"));
             }
             result.Snapshot = new MemberInputSnapshot(geometry, spec, new MemberDeformationSnapshot(deformation, spec.Category.Value,
-                total.Select(s => s.Item1), variable.Select(s => s.Item1)));
+                total.Select(s => s.Item1), variable.Select(s => s.Item1), geometry.Definition.ServiceabilityLimits));
             result.Sources = sources.AsReadOnly();
             result.Diagnostics = errors.AsReadOnly();
             result.Data = stale ? DataStatus.Stale : errors.Count == 0 ? DataStatus.Ready : DataStatus.Insufficient;
