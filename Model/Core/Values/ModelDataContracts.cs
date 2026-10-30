@@ -24,6 +24,16 @@ namespace GPC.Model.Core
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(global::GPC.Model.Actions.General.OccupancyCategory),
+            typeof(global::GPC.Model.Actions.General.ImposedReduction),
+            typeof(global::GPC.Model.Actions.General.ImpactTarget),
+            typeof(global::GPC.Model.Actions.General.ImpactRoad),
+            typeof(global::GPC.Model.Actions.General.CombinationFamily),
+            typeof(global::GPC.Model.Actions.General.CombinationSet),
+            typeof(global::GPC.Model.Actions.General.EnUltimateExpression),
+            typeof(global::GPC.Model.Actions.General.ActionNature),
+            typeof(global::GPC.Model.Actions.General.ActionPsiCategory),
+            typeof(global::GPC.Model.Actions.Traffic.TransverseDistributionMethod),
             typeof(global::GPC.Model.Actions.Climate.ClimateStandard),
             typeof(global::GPC.Model.Actions.Climate.SnowZone),
             typeof(global::GPC.Model.Actions.Climate.SnowExposure),
