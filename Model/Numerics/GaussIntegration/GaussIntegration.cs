@@ -1147,6 +1147,24 @@ namespace GPC.Model.Maths.GaussIntegrations
             }
             else
             {
+                // (double, double, double), the integrand of the section solvers: each product is added as it is computed, in the order of
+                // MassSum, instead of being stored first (the same operations in the same order, the same result, no arrays)
+                if (function is Func<double, double, (double, double, double)> triple)
+                {
+                    double res1 = 0, res2 = 0, res3 = 0;
+                    for (int g = 0; g < globalGaussPoints.Length; g++)
+                    {
+                        for (int j = 0; j < globalGaussPoints[g].Length; j++)
+                        {
+                            (double, double, double) value = globalGaussPoints[g][j].EvaluateFunction(triple);
+                            res1 += value.Item1;
+                            res2 += value.Item2;
+                            res3 += value.Item3;
+                        }
+                    }
+                    return (T)(object)(res1, res2, res3);
+                }
+
                 T[][] results = new T[globalGaussPoints.Length][];
                 for (int g = 0; g < globalGaussPoints.Length; g++)
                 {
