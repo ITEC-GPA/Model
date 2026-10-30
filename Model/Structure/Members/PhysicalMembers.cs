@@ -47,6 +47,14 @@ namespace GPC.Model.Structure.Members
 
         [field: System.Runtime.Serialization.DataMember(Name = "<StationDomain>k__BackingField", IsRequired = true)]
         public string StationDomain { get; private set; }
+
+        /// <summary>Serviceability declarations of the member (support scheme, cantilever reference, limits, precamber) for its
+        /// deformation tasks: they enter only the deformation snapshot and the scope of the requests with deformation tasks, so the
+        /// force-based snapshots (MemberFingerprint of the stability engines) and scopes do not see them. Null: none; the fingerprint
+        /// and the archive text of the definition are those it had before the field existed.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<ServiceabilityLimits>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public MemberServiceabilityLimits ServiceabilityLimits { get; private set; }
         public IReadOnlyList<BeamMemberPart> Parts => Array.AsReadOnly(_parts);
 
         public PhysicalMemberDefinition(string id, IEnumerable<BeamMemberPart> parts, string stationDomain, string name = null, string source = null)
@@ -62,6 +70,17 @@ namespace GPC.Model.Structure.Members
             Source = source;
             StationDomain = stationDomain;
         }
+
+        /// <summary>The same member with these serviceability declarations; null removes them.</summary>
+        public PhysicalMemberDefinition WithServiceabilityLimits(MemberServiceabilityLimits limits)
+        {
+            var copy = (PhysicalMemberDefinition)MemberwiseClone();
+            copy.ServiceabilityLimits = limits;
+            return copy;
+        }
+
+        /// <summary>The member path without its serviceability declarations: the definition of the snapshots and of the scope digest.</summary>
+        internal PhysicalMemberDefinition Path => ServiceabilityLimits == null ? this : WithServiceabilityLimits(null);
     }
 
     [Serializable]

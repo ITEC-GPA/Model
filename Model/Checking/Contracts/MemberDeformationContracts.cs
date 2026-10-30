@@ -40,7 +40,8 @@ namespace GPC.Model.Checking.Contracts
 
     /// <summary>
     /// Discriminators of a member deformation task: criterion, member-axis direction and, for vertical deflections, the declared
-    /// source of the variable-action part. Limits, schemes and sources belong to the engine configuration.
+    /// source of the variable-action part. Limits, schemes and sources belong to the engine configuration or to the member
+    /// (PhysicalMemberDefinition.ServiceabilityLimits).
     /// </summary>
     [Serializable]
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
@@ -165,16 +166,24 @@ namespace GPC.Model.Checking.Contracts
         [field: System.Runtime.Serialization.DataMember(Name = "<Category>k__BackingField", IsRequired = true)]
         public CombinationCategory Category { get; private set; }
 
+        /// <summary>Serviceability declarations of the member (PhysicalMemberDefinition.ServiceabilityLimits) when it carries them: the
+        /// engine takes each declared value from here and the others from its configuration. Null on the snapshots of members without
+        /// them and on those written before it existed, whose fingerprints, seals and archive text are unchanged.</summary>
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<ServiceabilityLimits>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public MemberServiceabilityLimits ServiceabilityLimits { get; private set; }
+
         public MemberDeformationSpecification Specification => _specification.Copy();
         public IReadOnlyList<MemberDisplacementSample> Total => Array.AsReadOnly(_total);
         /// <summary>Empty when the specification declares no variable-action deflection.</summary>
         public IReadOnlyList<MemberDisplacementSample> Variable => Array.AsReadOnly(_variable);
 
         internal MemberDeformationSnapshot(MemberDeformationSpecification specification, CombinationCategory category,
-            IEnumerable<MemberDisplacementSample> total, IEnumerable<MemberDisplacementSample> variable)
+            IEnumerable<MemberDisplacementSample> total, IEnumerable<MemberDisplacementSample> variable, MemberServiceabilityLimits limits = null)
         {
             _specification = (specification ?? throw new ArgumentNullException(nameof(specification))).Copy();
             Category = category;
+            ServiceabilityLimits = limits;
             _total = total.OrderBy(s => s.Location.Distance).ToArray();
             _variable = (variable ?? Enumerable.Empty<MemberDisplacementSample>()).OrderBy(s => s.Location.Distance).ToArray();
         }
