@@ -39,15 +39,23 @@ namespace GPC.Model.Checking.Contracts
         private Dictionary<string, string> _datasets;
         public IReadOnlyDictionary<string, string> DatasetFingerprints => new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(_datasets);
 
-        internal static VerificationProvenance Capture(Models.Model model, VerificationScenario scenario = null) => new VerificationProvenance
+        internal static VerificationProvenance Capture(Models.Model model, VerificationScenario scenario = null)
         {
-            AnalysisSnapshotId = model.Analysis?.Id,
-            AnalysisFingerprint = model.Analysis?.InputFingerprint,
-            ScenarioId = scenario?.Id ?? "current-model",
-            ScenarioFingerprint = scenario?.Fingerprint ?? AnalysisStorage.Design(model),
-            DesignFingerprint = AnalysisStorage.Design(model),
-            _datasets = model.Datasets.ToDictionary(p => p.Key, p => ModelValues.Fingerprint(new object[] { p.Value }))
-        };
+            // The design digest once for the scenario and the design (they were the same walk, twice). In a read scope (the section checks
+            // of a SectionCheckRun) the design and dataset digests are those of the scope, computed once for all its captures and for the
+            // currency checks. Same values, read in the same order.
+            string scenarioFingerprint = scenario?.Fingerprint;
+            string design = ValidationReadScope.Read(model, "design-fingerprint", () => AnalysisStorage.Design(model));
+            return new VerificationProvenance
+            {
+                AnalysisSnapshotId = model.Analysis?.Id,
+                AnalysisFingerprint = model.Analysis?.InputFingerprint,
+                ScenarioId = scenario?.Id ?? "current-model",
+                ScenarioFingerprint = scenarioFingerprint ?? design,
+                DesignFingerprint = design,
+                _datasets = model.Datasets.ToDictionary(p => p.Key, p => ValidationReadScope.FingerprintOf(model, p.Value))
+            };
+        }
         public bool IsCurrent(Models.Model model)
         {
             if (model == null)
