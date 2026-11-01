@@ -25,6 +25,10 @@ namespace GPC.Model.Core
         internal static readonly Type[] Domain = new Type[]
         {
             typeof(global::GPC.Model.Actions.TimeEffects.AxialRestraint),
+            typeof(global::GPC.Model.Actions.Prestressing.PrestressingMethod),
+            typeof(global::GPC.Model.Actions.Prestressing.TendonProfile),
+            typeof(global::GPC.Model.Actions.Prestressing.JackingEnd),
+            typeof(global::GPC.Model.Actions.Prestressing.PrestressRelaxationClass),
             typeof(global::GPC.Model.Actions.Construction.ConstructionLoadModel),
             typeof(global::GPC.Model.Actions.Hydraulics.HydraulicElement),
             typeof(global::GPC.Model.Actions.Hydraulics.UpliftDistribution),
