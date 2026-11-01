@@ -333,6 +333,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Design.Combinations.GeotechnicalLimitState),
             typeof(global::GPC.Model.Design.Combinations.RoadTrafficPsiGroup),
             typeof(global::GPC.Model.Design.Combinations.VariableActionCategory),
+            typeof(global::GPC.Model.Design.Combinations.SeismicDirection),
             typeof(global::GPC.Model.Design.Steel.AxialSteelSectionKind),
             typeof(global::GPC.Model.Standards.GroundAnchorEvidence),
             typeof(global::GPC.Model.Geotechnics.Anchors.GroundAnchorInjection),
