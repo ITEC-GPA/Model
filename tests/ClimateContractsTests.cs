@@ -11,7 +11,7 @@ public sealed class ClimateContractsTests
     {
         var types=new[]{typeof(GPC.Model.Actions.Traffic.TransverseDistributionMethod),typeof(ClimateStandard),typeof(SnowZone),typeof(SnowExposure),typeof(SnowRoof),typeof(WindRoof),typeof(InternalPressure),typeof(BuildingThermalMethod),typeof(ThermalMaterial),typeof(BridgeDeck),typeof(BridgeSurfacing)};
         types=types.Concat(typeof(GPC.Model.Actions.General.BuildingLoadsInput).Assembly.GetTypes().Where(t=>t.IsEnum&&t.Namespace=="GPC.Model.Actions.General")).ToArray();
-        types=types.Concat(new[]{typeof(GPC.Model.Actions.Construction.ConstructionLoadModel),typeof(GPC.Model.Actions.Hydraulics.HydraulicElement),typeof(GPC.Model.Actions.Hydraulics.UpliftDistribution)}).ToArray();
+        types=types.Concat(new[]{typeof(GPC.Model.Actions.TimeEffects.AxialRestraint),typeof(GPC.Model.Actions.Construction.ConstructionLoadModel),typeof(GPC.Model.Actions.Hydraulics.HydraulicElement),typeof(GPC.Model.Actions.Hydraulics.UpliftDistribution)}).ToArray();
         var source=types.SelectMany(t=>Enum.GetValues(t).Cast<object>()).ToArray();
         var copy=ModelArchive.CopyValue(source);
         CollectionAssert.AreEqual(source,copy);
