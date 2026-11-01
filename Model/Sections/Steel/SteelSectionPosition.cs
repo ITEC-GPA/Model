@@ -123,9 +123,9 @@ namespace GPC.Model.Sections.Steel
         private ConcreteOverlap _concreteOverlap;
 
         /// <summary>
-        /// The data of the position and of the concrete of <see cref="_concreteOverlap"/>: computed again when they change
+        /// The data of the position and of the concrete of <see cref="_concreteOverlap"/>: computed again when they change (null: never computed)
         /// </summary>
-        private object[] _concreteOverlapKey;
+        private OverlapKey? _concreteOverlapKey;
 
         #endregion
 
@@ -407,13 +407,47 @@ namespace GPC.Model.Sections.Steel
         /// <returns>A new global point</returns>
         public Point2d PositionToGlobal(in Point2d point2D)
         {
-            var globPoint2d = (Point2d)point2D.Clone();
-            globPoint2d.Move(-_insertionPoint.X, -_insertionPoint.Y);
+            ToGlobal(point2D.X, point2D.Y, out double x, out double y);
+            return new Point2d(x, y);
+        }
+
+        /// <summary>
+        /// The global coordinates of a local point (see <see cref="PositionToGlobal"/>) with the operations of the methods of <see cref="Point2d"/>
+        /// that it called, in the same order, without their objects: before, a clone of the point and the translation as a new
+        /// <see cref="Vector3d"/> (the argument of <see cref="Point2d.Move(Vector3d)"/>) for every point
+        /// </summary>
+        /// <param name="localX">The local X</param>
+        /// <param name="localY">The local Y</param>
+        /// <param name="x">The global X</param>
+        /// <param name="y">The global Y</param>
+        private void ToGlobal(double localX, double localY, out double x, out double y)
+        {
+            // Move(-insertion point)
+            x = localX + -_insertionPoint.X;
+            y = localY + -_insertionPoint.Y;
             if (_mirrorX || _mirrorY)
-                globPoint2d = new Point2d(_mirrorX ? -globPoint2d.X : globPoint2d.X, _mirrorY ? -globPoint2d.Y : globPoint2d.Y);
-            globPoint2d.Rotate(RotationCenter, Rotation);
-            globPoint2d.Move(Traslation);
-            return globPoint2d;
+            {
+                x = _mirrorX ? -x : x;
+                y = _mirrorY ? -y : y;
+            }
+            Rotate(RotationCenter, Rotation, ref x, ref y);
+            // Move(Traslation)
+            Vector2d traslation = Traslation;
+            x += traslation.X;
+            y += traslation.Y;
+        }
+
+        /// <summary>
+        /// <see cref="Point2d.Rotate(Point2d, double)"/> on coordinates
+        /// </summary>
+        private static void Rotate(Point2d point, double angle, ref double x, ref double y)
+        {
+            double sin = Math.Sin(angle);
+            double cos = Math.Cos(angle);
+            double dx = cos * (x - point.X) - sin * (y - point.Y);
+            double dy = sin * (x - point.X) + cos * (y - point.Y);
+            x = dx + point.X;
+            y = dy + point.Y;
         }
 
         /// <summary>
@@ -423,13 +457,17 @@ namespace GPC.Model.Sections.Steel
         /// <returns>A new local point</returns>
         public Point2d PositionToLocal(in Point2d point2D)
         {
-            var localPoint2d = (Point2d)point2D.Clone();
-            localPoint2d.Move(-Traslation.X, -Traslation.Y);
-            localPoint2d.Rotate(RotationCenter, -Rotation);
+            // the operations of the methods of Point2d of before, in the same order, on one new point (before, a clone and a mirrored copy)
+            double x = point2D.X + -Traslation.X, y = point2D.Y + -Traslation.Y;
+            Rotate(RotationCenter, -Rotation, ref x, ref y);
             if (_mirrorX || _mirrorY)
-                localPoint2d = new Point2d(_mirrorX ? -localPoint2d.X : localPoint2d.X, _mirrorY ? -localPoint2d.Y : localPoint2d.Y);
-            localPoint2d.Move(_insertionPoint.X, _insertionPoint.Y);
-            return localPoint2d;
+            {
+                x = _mirrorX ? -x : x;
+                y = _mirrorY ? -y : y;
+            }
+            x += _insertionPoint.X;
+            y += _insertionPoint.Y;
+            return new Point2d(x, y);
         }
 
         /// <summary>
@@ -450,6 +488,18 @@ namespace GPC.Model.Sections.Steel
         internal Point2d CalculateCentroid() => PositionToGlobal(Section.Centroid);
 
         /// <summary>
+        /// The centroid in global coordinates, as <see cref="CalculateCentroid()"/> without a new point (the homogenized properties ask for it
+        /// several times for every steel section)
+        /// </summary>
+        /// <param name="x">The global X</param>
+        /// <param name="y">The global Y</param>
+        internal void CalculateCentroid(out double x, out double y)
+        {
+            Point2d centroid = Section.Centroid;
+            ToGlobal(centroid.X, centroid.Y, out x, out y);
+        }
+
+        /// <summary>
         /// Calculate the moment of inertia Jxx of the section considering rotation and displacement of the steel section.
         /// Rotate-translate the inertia in the global XY reference system.
         /// </summary>
@@ -458,8 +508,8 @@ namespace GPC.Model.Sections.Steel
         internal double CalculateJxx(in Point2d inertiaPole)
         {
             double JxxG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation);
-            var centroid = CalculateCentroid();
-            return JxxG + Section.Area * (centroid.Y - inertiaPole.Y) * (centroid.Y - inertiaPole.Y);
+            CalculateCentroid(out _, out double centroidY);
+            return JxxG + Section.Area * (centroidY - inertiaPole.Y) * (centroidY - inertiaPole.Y);
         }
 
         /// <summary>
@@ -471,8 +521,8 @@ namespace GPC.Model.Sections.Steel
         internal double CalculateJyy(in Point2d inertiaPole)
         {
             double JyyG = SectionHelper.CalculateJAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation + 0.5 * Math.PI);
-            var centroid = CalculateCentroid();
-            return JyyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.X - inertiaPole.X);
+            CalculateCentroid(out double centroidX, out _);
+            return JyyG + Section.Area * (centroidX - inertiaPole.X) * (centroidX - inertiaPole.X);
         }
 
         /// <summary>
@@ -484,8 +534,8 @@ namespace GPC.Model.Sections.Steel
         internal double CalculateJxy(in Point2d inertiaPole)
         {
             double JxyG = SectionHelper.CalculateJxyAlpha(Section.Jxx, Section.Jyy, MirroredJxy, -Rotation);
-            var centroid = CalculateCentroid();
-            return JxyG + Section.Area * (centroid.X - inertiaPole.X) * (centroid.Y - inertiaPole.Y);
+            CalculateCentroid(out double centroidX, out double centroidY);
+            return JxyG + Section.Area * (centroidX - inertiaPole.X) * (centroidY - inertiaPole.Y);
         }
 
         /// <summary>
@@ -532,17 +582,53 @@ namespace GPC.Model.Sections.Steel
         /// <returns>The overlap; null if it can not be computed (the steel or the concrete have no region, or the boolean operation fails)</returns>
         internal ConcreteOverlap UpdateConcreteOverlap(Shape2d concrete)
         {
-            object[] key =
-            {
-                concrete, Section, Section?.Area, _rotation, RotationCenter?.X, RotationCenter?.Y, Traslation?.X, Traslation?.Y, _insertionPoint?.X,
-                _insertionPoint?.Y, _mirrorX, _mirrorY,
-            };
-            if (_concreteOverlapKey != null && key.SequenceEqual(_concreteOverlapKey))
+            var key = new OverlapKey(concrete, Section, Section?.Area, _rotation, RotationCenter?.X, RotationCenter?.Y, Traslation?.X, Traslation?.Y,
+                _insertionPoint?.X, _insertionPoint?.Y, _mirrorX, _mirrorY);
+            if (_concreteOverlapKey.HasValue && key.SameAs(_concreteOverlapKey.Value))
                 return _concreteOverlap;
 
             _concreteOverlap = ConcreteOverlap.Calculate(GetGlobalOutlines(), concrete);
             _concreteOverlapKey = key;
             return _concreteOverlap;
+        }
+
+        /// <summary>
+        /// The data of <see cref="UpdateConcreteOverlap"/>, compared as the boxed values of the array of before (the concrete and the section by
+        /// Equals, the numbers by Equals: NaN equals NaN, 0 equals -0) without boxing them: the homogenized properties update the overlaps of
+        /// every steel section three times, and the array of twelve boxed values was most of the memory they allocated
+        /// </summary>
+        private readonly struct OverlapKey
+        {
+            private readonly object _concrete, _section;
+            private readonly double? _area, _rotationCenterX, _rotationCenterY, _traslationX, _traslationY, _insertionX, _insertionY;
+            private readonly double _rotation;
+            private readonly bool _mirrorX, _mirrorY;
+
+            internal OverlapKey(object concrete, object section, double? area, double rotation, double? rotationCenterX, double? rotationCenterY,
+                double? traslationX, double? traslationY, double? insertionX, double? insertionY, bool mirrorX, bool mirrorY)
+            {
+                _concrete = concrete;
+                _section = section;
+                _area = area;
+                _rotation = rotation;
+                _rotationCenterX = rotationCenterX;
+                _rotationCenterY = rotationCenterY;
+                _traslationX = traslationX;
+                _traslationY = traslationY;
+                _insertionX = insertionX;
+                _insertionY = insertionY;
+                _mirrorX = mirrorX;
+                _mirrorY = mirrorY;
+            }
+
+            /// <summary>True if every value equals the one of <paramref name="earlier"/>, as Enumerable.SequenceEqual on the boxed values</summary>
+            internal bool SameAs(in OverlapKey earlier) =>
+                EqualityComparer<object>.Default.Equals(_concrete, earlier._concrete) && EqualityComparer<object>.Default.Equals(_section, earlier._section)
+                && Nullable.Equals(_area, earlier._area) && _rotation.Equals(earlier._rotation)
+                && Nullable.Equals(_rotationCenterX, earlier._rotationCenterX) && Nullable.Equals(_rotationCenterY, earlier._rotationCenterY)
+                && Nullable.Equals(_traslationX, earlier._traslationX) && Nullable.Equals(_traslationY, earlier._traslationY)
+                && Nullable.Equals(_insertionX, earlier._insertionX) && Nullable.Equals(_insertionY, earlier._insertionY)
+                && _mirrorX == earlier._mirrorX && _mirrorY == earlier._mirrorY;
         }
 
         /// <summary>
@@ -570,9 +656,9 @@ namespace GPC.Model.Sections.Steel
             else if (inside)
             {
                 area = CalculateArea();
-                Point2d centroid = CalculateCentroid();
-                sx = area * (centroid.Y - pole.Y);
-                sy = area * (centroid.X - pole.X);
+                CalculateCentroid(out double centroidX, out double centroidY);
+                sx = area * (centroidY - pole.Y);
+                sy = area * (centroidX - pole.X);
                 ixx = CalculateJxx(pole);
                 iyy = CalculateJyy(pole);
                 ixy = CalculateJxy(pole);

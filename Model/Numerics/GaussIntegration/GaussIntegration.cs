@@ -817,14 +817,8 @@ namespace GPC.Model.Maths.GaussIntegrations
             Func<int, double, double> shapeFunction = LinearShapeFunctionsLine2.NaturalShapeFunction;
             Func<int, double, double> dNdCsi = LinearShapeFunctionsLine2.DNdCsi;
 
-            bool parallelComputing = false;
-
             if (LineGaussPoints.GaussPointNumberAssociation.ContainsKey(numberOfGaussPoints))
-            {
                 gaussPoints = LineGaussPoints.GaussPointNumberAssociation[numberOfGaussPoints];
-                if ((int)numberOfGaussPoints >= 20)
-                    parallelComputing = true;
-            }
             else
                 throw new ArgumentException("Wrong number of Gauss Points");
 
@@ -839,30 +833,14 @@ namespace GPC.Model.Maths.GaussIntegrations
                 Point3d[] shapeFunctionNode = line.Select(n => new Point3d(steelSectionPosition.PositionToGlobal(n))).ToArray();
 
                 globalGaussPoints[index] = new GlobalCoordinateGaussPoint[gaussPoints.Length];
-                Func<double, Matrix<double>> jacobian = JacobianMatrix1D(dNdCsi, shapeFunctionNode);
 
-                if (parallelComputing)
+                // In sequence: the points of a wall are few, and the checks run their sections in parallel (before, a parallel loop for 20 points
+                // or more). Each point is computed on its own, as before
+                for (int i = 0; i < gaussPoints.Length; i++)
                 {
-                    Parallel.ForEach(System.Collections.Concurrent.Partitioner.Create(0, gaussPoints.Length), (range) =>
-                    {
-                        double x = 0;
-                        double y = 0;
-                        for (int i = range.Item1; i < range.Item2; i++)
-                        {
-                            TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode, out x, out y);
-                            globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi).Determinant(), gaussPoints[i].Weight, 1.0);
-                        }
-                    });
-                }
-                else
-                {
-                    double x = 0;
-                    double y = 0;
-                    for (int i = 0; i < gaussPoints.Length; i++)
-                    {
-                        TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode, out x, out y);
-                        globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, jacobian(gaussPoints[i].Csi).Determinant(), gaussPoints[i].Weight, 1.0);
-                    }
+                    TransformNaturalCoordToGlobalCoord(gaussPoints[i].Csi, shapeFunction, shapeFunctionNode, out double x, out double y);
+                    globalGaussPoints[index][i] = new GlobalCoordinateGaussPoint(x, y, 0, Jacobian1DDeterminant(gaussPoints[i].Csi, dNdCsi, shapeFunctionNode),
+                        gaussPoints[i].Weight, 1.0);
                 }
             }
 
@@ -1327,6 +1305,26 @@ namespace GPC.Model.Maths.GaussIntegrations
         {
             // Return J(csi,eta) = J(csi,eta,dNdCsi, dNdEta,nodes) with "nodes" and derivative of shape function assigned        
             return (double csi) => Jacob1D(csi, dNdCsi, points);
+        }
+
+        /// <summary>
+        /// The determinant of the Jacobian matrix of a line element, j11 of <see cref="Jacob1D"/> (diag(j11, 1)), without the matrix: before, the
+        /// LU of MathNet, whose determinant 1 · j11 · 1 is j11 bit for bit, with a matrix, its factors and their lazy members for every point
+        /// </summary>
+        /// <param name="csi">The natural coordinate</param>
+        /// <param name="dNdCsi">The derivatives of the shape functions</param>
+        /// <param name="points">The nodes</param>
+        /// <returns>det J(csi)</returns>
+        private static double Jacobian1DDeterminant(double csi, Func<int, double, double> dNdCsi, Point3d[] points)
+        {
+            double j11 = 0;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                j11 += dNdCsi(i + 1, csi) * points[i].DistanceTo(points[0]);
+            }
+
+            return j11;
         }
 
         #endregion
