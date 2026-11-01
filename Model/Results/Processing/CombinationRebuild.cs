@@ -135,7 +135,7 @@ namespace GPC.Model.Results.Processing
     /// (<see cref="AnalysisSemantics.ConcomitantEnvelopeState"/>) derived from its static samples, never as a vector of independent extremes.
     /// The output combination must be a Model combination declared before the static results were imported. Elements whose static results
     /// are incomplete are skipped with a warning; nothing is registered when the call is rejected.</summary>
-    public static class CombinationRebuild
+    public static partial class CombinationRebuild
     {
         public static CombinationRebuildReport Rebuild(Models.Model model, Combination output, IReadOnlyList<CombinationAlternative> alternatives, string datasetId,
             IEnumerable<Element> elements, bool attach = true, CancellationToken cancellationToken = default) =>

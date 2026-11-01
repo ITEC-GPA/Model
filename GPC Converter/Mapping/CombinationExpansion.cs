@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using GPC.Model.Combinations;
 using GPC.Model.LoadCases;
+using GPC.Model.Results.Processing;
 using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter
@@ -35,6 +36,43 @@ namespace GPC.Converter
             var memo = new Dictionary<string, List<Alternative>>(StringComparer.Ordinal);
             var result = Expand(byId, id, memo, new HashSet<string>(StringComparer.Ordinal), limit);
             return result.Select(a => new LinearAlternative { Label = a.Label, Factors = a.Factors.Where(p => p.Value != 0).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) }).ToArray();
+        }
+
+        /// <summary>
+        /// The combination as a tree for <c>CombinationRebuild.Rebuild</c> with a <see cref="CombinationTreeNode"/>: the alternatives of
+        /// <see cref="Expand"/> without listing them, for the combinations whose expansion is too large. Each definition is one node (shared
+        /// when it is used more than once), the label of an envelope term is the last part of its name as in <see cref="Expand"/>, and a term
+        /// repeated in an envelope takes « #2», « #3» in the order of the terms, so that the labels of the alternatives stay distinct. The same
+        /// exceptions as <see cref="Expand"/> for unknown, cyclic and non-linear combinations, non-static terms and non-finite factors.
+        /// </summary>
+        public static CombinationTreeNode Tree(IReadOnlyCollection<CombinationRecord> definitions, string id)
+        {
+            if (definitions == null || string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException();
+            var byId = definitions.ToDictionary(d => d.Id, StringComparer.Ordinal);
+            var memo = new Dictionary<string, CombinationTreeNode>(StringComparer.Ordinal);
+            CombinationTreeNode Node(string combination, HashSet<string> path)
+            {
+                if (memo.TryGetValue(combination, out var known)) return known;
+                if (!byId.TryGetValue(combination, out var definition)) throw new InvalidOperationException("UnknownCombination: " + combination);
+                if (!path.Add(combination)) throw new InvalidOperationException("CyclicCombination: " + combination);
+                if (definition.Kind == CombinationKind.Absolute || definition.Kind == CombinationKind.Srss)
+                    throw new NotSupportedException("Combination " + definition.Name + " (" + definition.Kind + ") is not a linear superposition.");
+                bool envelope = definition.Kind == CombinationKind.Envelope;
+                var used = new Dictionary<string, int>(StringComparer.Ordinal); var terms = new List<CombinationTreeTerm>();
+                foreach (var term in definition.Terms)
+                {
+                    if (double.IsNaN(term.Factor) || double.IsInfinity(term.Factor)) throw new InvalidOperationException("NonFiniteCombinationFactor: " + definition.Name);
+                    string label = term.Name.Split('/').Last();
+                    if (envelope) { int n = used[label] = used.TryGetValue(label, out var seen) ? seen + 1 : 1; if (n > 1) label += " #" + n.ToString(CultureInfo.InvariantCulture); }
+                    if (term.IsCombination) terms.Add(new CombinationTreeTerm(label, term.Factor, Node(term.Name, path)));
+                    else if (term.IsStaticCase) terms.Add(new CombinationTreeTerm(label, term.Factor, term.Name));
+                    else throw new NotSupportedException("Combination " + definition.Name + " has a " + term.Analysis + " term (" + term.Name + "), not a static case.");
+                }
+                path.Remove(combination);
+                if (terms.Count == 0) throw new InvalidOperationException("EmptyCombination: " + definition.Name);
+                return memo[combination] = new CombinationTreeNode(definition.Name, envelope, terms);
+            }
+            return Node(id, new HashSet<string>(StringComparer.Ordinal));
         }
 
         /// <summary>The static cases a combination needs, from its terms and those of its nested combinations, without expanding the envelopes.
