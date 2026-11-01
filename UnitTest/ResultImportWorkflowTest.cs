@@ -81,6 +81,35 @@ public class ResultImportWorkflowTest
         Assert.AreEqual(ImportStatus.Rejected, ResultMapper.Import(model, batch).Status); Assert.AreEqual(count, model.BeamElements[250].Results.Count);
     }
 
+    /// <summary>ResultMapper.Import checks every row on its own, in parallel, and the duplicates in the order of the rows (1/11/2026): the same
+    /// duplicates as the fingerprint of the state and location it compared before (a station of -0 is the station 0, a point keeps the sign of
+    /// its coordinates) and the same first rejection, the first bad row in the order of the batch.</summary>
+    [TestMethod]
+    public void Results_DuplicatesFollowTheCanonicalValues_AndTheFirstBadRowIsRejected()
+    {
+        BeamForceRecord Beam(ResultImportBatch source, double station, string record) => new BeamForceRecord { ElementId = "B1", Case = "P+", Record = record,
+            Axes = CoordinateSystem.Global, Values = new double?[] { 1, 2, 3, 4, 5, 6 }, Station = station, PhysicalDistance = 1, StationDomain = "NodeToNode",
+            Body = ActionBody.PositiveSectionFace, State = source.Beams[0].State };
+        var (model, batch) = Fixture(); batch.Beams[0].Station = 0; batch.Beams.Add(Beam(batch, -0.0, "beam row 2"));
+        var report = ResultMapper.Import(model, batch);
+        Assert.AreEqual(ImportStatus.Rejected, report.Status);
+        Assert.AreEqual("DuplicateResultStateAndLocation", report.Diagnostics.Single().Message); Assert.AreEqual("beam row 2", report.Diagnostics.Single().Record);
+
+        (model, batch) = Fixture(); batch.Shells[0].Location = new Point2d(0, .3);
+        batch.Shells.Add(new ShellForceRecord { ElementId = "B1", Case = "P+", Record = "plate row 2", Axes = CoordinateSystem.Global, Values = new double?[] { 1, 2, 3, 4, 5, 6, 7, 8 },
+            Location = new Point2d(-0.0, .3), CoordinateKind = ResultCoordinateKind.Natural, PointKind = ShellResultPointKind.IntegrationPoint, State = batch.Shells[0].State });
+        report = ResultMapper.Import(model, batch);
+        Assert.AreEqual(ImportStatus.Completed, report.Status, string.Join(";", report.Diagnostics.Select(d => d.Message))); Assert.AreEqual(3, report.ImportedSamples);
+
+        (model, batch) = Fixture();
+        for (int i = 0; i < 400; i++) batch.Beams.Add(Beam(batch, (i + 1) / 1000.0, "beam row " + (i + 2)));
+        batch.Beams[300].ElementId = "unknown"; batch.Beams[350].Values = new double?[] { 1 }; batch.Beams.Add(Beam(batch, .5, "beam row duplicate"));
+        report = ResultMapper.Import(model, batch);
+        Assert.AreEqual(ImportStatus.Rejected, report.Status);
+        Assert.AreEqual("MissingSourceElement", report.Diagnostics.Single().Message); Assert.AreEqual(batch.Beams[300].Record, report.Diagnostics.Single().Record);
+        Assert.IsFalse(model.Datasets.ContainsKey(batch.DatasetId));
+    }
+
     [TestMethod]
     public void Results_MissingComponentsRemainMissing_AndCancellationDoesNotAttach()
     {

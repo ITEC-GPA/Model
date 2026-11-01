@@ -118,10 +118,17 @@ namespace GPC.Converter.CivilNx
                 var stageCases = stageSelection?.Validate(model);
                 var stageStates = new Dictionary<Tuple<string, string, string, int, bool>, ResultState>();
                 var stageCoverage = new HashSet<Tuple<string, string, string>>();
-                foreach (var response in tables)
+                // Combinations of the Models module (1/11/2026): the responses are independent JSON documents, read in parallel a window at a
+                // time and used in their order, each with its exception at its place: the same batch and the same first rejection.
+                var read = new ParsedResponse[tables.Count];
+                // The static state of a case and the frame of a place are the same for every row that has them: built once (the batch is
+                // local and ResultMapper copies both into each sample).
+                var staticStates = new Dictionary<Tuple<string, int>, ResultState>(); var frames = new SampleFrames();
+                for (int t = 0; t < tables.Count; t++)
                 {
+                    if (t % ParseWindow == 0) ParseWindowAt(tables, read, t, cancellationToken);
                     cancellationToken.ThrowIfCancellationRequested();
-                    var parsed = CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(response.Json);
+                    var parsed = read[t].Take(); read[t] = default(ParsedResponse);
                     if (parsed == null || parsed.Count != 1) throw new InvalidDataException("UnknownCivilNxResultSchema");
                     // The response read once: the same checks as CivilNxResultTableData.Read on the same dictionary.
                     var name = parsed.Keys.Single(); var table = CivilNxResultTableData.From(parsed, name);
@@ -163,11 +170,12 @@ namespace GPC.Converter.CivilNx
                         {
                             if (model.LoadCases.TryGetValue(loadCase, out var candidate) && candidate is GPC.Model.Stages.StageResultCase)
                                 throw new InvalidDataException("StageOutputCaseInStaticTable: " + loadCase);
-                            state = State(loadCase, count);
+                            var stateKey = Tuple.Create(loadCase, count);
+                            if (!staticStates.TryGetValue(stateKey, out state)) staticStates.Add(stateKey, state = State(loadCase, count));
                         }
-                        if (beams) Beam(index, batch, table, r, loadCase, record, l, state, rejectedBeams, skipped);
-                        else if (plates) Plate(index, batch, table, r, loadCase, record, l, state);
-                        else Node(index, batch, table, r, loadCase, record, l, reactions, state);
+                        if (beams) Beam(index, batch, table, r, loadCase, record, l, state, rejectedBeams, skipped, frames);
+                        else if (plates) Plate(index, batch, table, r, loadCase, record, l, state, frames);
+                        else Node(index, batch, table, r, loadCase, record, l, reactions, state, frames);
                     }
                 }
                 if (batch == null) throw new ArgumentException("No result tables supplied.");
@@ -191,8 +199,47 @@ namespace GPC.Converter.CivilNx
             return rejected;
         }
 
+        /// <summary>The source frame of the rows of one place (an element and a station, a plate, a node), the same for every case: made
+        /// once with the same arguments. The records of the batch lend it to ResultMapper, which validates it and copies it into each sample
+        /// and its original data (CopyAxes): the shared instance is never stored in the model.</summary>
+        private sealed class SampleFrames
+        {
+            private readonly Dictionary<Element, List<KeyValuePair<long, CoordinateSystem>>> frames =
+                new Dictionary<Element, List<KeyValuePair<long, CoordinateSystem>>>(new ByReference());
+            public CoordinateSystem At(Element owner, double station, Func<CoordinateSystem> create)
+            {
+                long key = BitConverter.DoubleToInt64Bits(station);
+                if (!frames.TryGetValue(owner, out var known)) frames.Add(owner, known = new List<KeyValuePair<long, CoordinateSystem>>(1));
+                foreach (var pair in known) if (pair.Key == key) return pair.Value;
+                var frame = create(); known.Add(new KeyValuePair<long, CoordinateSystem>(key, frame)); return frame;
+            }
+            private sealed class ByReference : IEqualityComparer<Element>
+            {
+                public bool Equals(Element x, Element y) => ReferenceEquals(x, y);
+                public int GetHashCode(Element obj) => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+            }
+        }
+
+        private static readonly int ParseWindow = Math.Max(1, Environment.ProcessorCount);
+
+        /// <summary>A response read, or the exception of reading it.</summary>
+        private struct ParsedResponse
+        {
+            public Dictionary<string, CivilNxResultTableData> Tables; public System.Runtime.ExceptionServices.ExceptionDispatchInfo Error;
+            public Dictionary<string, CivilNxResultTableData> Take() { if (Error != null) Error.Throw(); return Tables; }
+        }
+
+        private static void ParseWindowAt(IReadOnlyList<CivilNxResponse> tables, ParsedResponse[] read, int start, CancellationToken cancellationToken)
+        {
+            Parallel.For(start, Math.Min(tables.Count, start + ParseWindow), new ParallelOptions { CancellationToken = cancellationToken }, i =>
+            {
+                try { read[i] = new ParsedResponse { Tables = CivilNxJson.Read<Dictionary<string, CivilNxResultTableData>>(tables[i].Json) }; }
+                catch (Exception ex) { read[i] = new ParsedResponse { Error = System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex) }; }
+            });
+        }
+
         private static void Beam(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, ResultState state,
-            HashSet<string> rejectedBeams, List<ModelDiagnostic> skipped)
+            HashSet<string> rejectedBeams, List<ModelDiagnostic> skipped, SampleFrames frames)
         {
             var id = table.Get(r, "Elem");
             var beam = Find(index, batch, EntityFamily.Beam, id) as BeamElement
@@ -212,13 +259,12 @@ namespace GPC.Converter.CivilNx
             else if (quarter.Success) station = int.Parse(quarter.Groups[1].Value, CultureInfo.InvariantCulture) / 4.0;
             else throw new InvalidDataException("Unknown or mismatched beam part '" + part + "' at " + record);
             var axes = a.SectionAxes; Axes.Validate(axes);
-            var point = beam.StartPoint + (beam.EndPoint - beam.StartPoint) * station;
-            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = loadCase, State = state, Axes = SourceAxes(axes, point, length), Record = record,
+            batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = loadCase, State = state, Axes = frames.At(beam, station, () => SourceAxes(axes, beam.StartPoint + (beam.EndPoint - beam.StartPoint) * station, length)), Record = record,
                 Values = new double?[] { V(table, r, "Axial"), V(table, r, "Shear-y"), V(table, r, "Shear-z"), V(table, r, "Torsion"), -V(table, r, "Moment-y"), V(table, r, "Moment-z") },
                 Station = station, PhysicalDistance = beam.Length * station / length, StationDomain = "NodeToNode", Body = ActionBody.PositiveSectionFace });
         }
 
-        private static void Plate(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, ResultState state)
+        private static void Plate(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, ResultState state, SampleFrames frames)
         {
             var id = table.Get(r, "Elem"); var node = table.Get(r, "Node");
             var shell = Find(index, batch, EntityFamily.Shell, id) as AreaElement
@@ -227,24 +273,24 @@ namespace GPC.Converter.CivilNx
             var values = new double?[] { V(table, r, "Fxx"), V(table, r, "Fyy"), V(table, r, "Fxy"), V(table, r, "Vxx"), V(table, r, "Vyy"), -V(table, r, "Mxx"), -V(table, r, "Myy"), -V(table, r, "Mxy") };
             if (node == "Cent")
                 batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = state, Record = record, Values = values,
-                    Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(0, 0), PointKind = ShellResultPointKind.Centroid, CoordinateKind = ResultCoordinateKind.LocalPhysical });
+                    Axes = frames.At(shell, 0, () => SourceAxes(axes, axes.Origin, length)), Location = new Point2d(0, 0), PointKind = ShellResultPointKind.Centroid, CoordinateKind = ResultCoordinateKind.LocalPhysical });
             else
             {
                 // Unaveraged value at an element node, extrapolated by the solver: same plate axes, point in local physical coordinates.
                 var vertex = shell.Nodes.FirstOrDefault(n => n.Source?.OriginalId == node) ?? throw new InvalidDataException("Plate " + id + " has no node " + node + " at " + record);
                 Vector3d d = vertex.Position - axes.Origin;
                 batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = loadCase, State = state, Record = record, Values = values,
-                    Axes = SourceAxes(axes, axes.Origin, length), Location = new Point2d(Axes.Dot(d, axes.V1) / length, Axes.Dot(d, axes.V2) / length),
+                    Axes = frames.At(shell, 0, () => SourceAxes(axes, axes.Origin, length)), Location = new Point2d(Axes.Dot(d, axes.V1) / length, Axes.Dot(d, axes.V2) / length),
                     PointKind = ShellResultPointKind.ElementNodeExtrapolated, CoordinateKind = ResultCoordinateKind.LocalPhysical, SourceNodeId = node });
             }
         }
 
-        private static void Node(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, bool reaction, ResultState state)
+        private static void Node(Dictionary<SourceIdentity, Element> index, ResultImportBatch batch, CivilNxResultTableData table, int r, string loadCase, string record, double length, bool reaction, ResultState state, SampleFrames frames)
         {
             var id = table.Get(r, "Node");
             var node = Find(index, batch, EntityFamily.Node, id) as NodeElement
                 ?? throw new InvalidDataException("Result for an absent node: " + id);
-            var axes = SourceAxes(CoordinateSystem.Global, node.Position, length);
+            var axes = frames.At(node, 0, () => SourceAxes(CoordinateSystem.Global, node.Position, length));
             if (reaction)
                 batch.NodeForces.Add(new NodeForceRecord { ElementId = id, Case = loadCase, State = state, Axes = axes, Record = record,
                     Values = new double?[] { V(table, r, "FX"), V(table, r, "FY"), V(table, r, "FZ"), V(table, r, "MX"), V(table, r, "MY"), V(table, r, "MZ") },
