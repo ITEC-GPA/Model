@@ -24,6 +24,8 @@ namespace GPC.Model.Core
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(global::GPC.Model.Actions.Hydraulics.HydraulicElement),
+            typeof(global::GPC.Model.Actions.Hydraulics.UpliftDistribution),
             typeof(global::GPC.Model.Actions.General.OccupancyCategory),
             typeof(global::GPC.Model.Actions.General.ImposedReduction),
             typeof(global::GPC.Model.Actions.General.ImpactTarget),
