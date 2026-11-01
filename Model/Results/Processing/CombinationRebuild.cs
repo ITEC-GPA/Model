@@ -41,6 +41,9 @@ namespace GPC.Model.Results.Processing
         /// <summary>The combined states: one per location for a linear combination, the governing alternatives of each location for an envelope.</summary>
         public IReadOnlyList<ResultLocation> Samples { get; internal set; } = new ResultLocation[0];
         public bool Attached { get; internal set; }
+        /// <summary>The principal components of the plate locations, in the order of the locations, when the cache asks for them
+        /// (<see cref="CombinationRebuildCache.PlatePrincipals"/>); empty otherwise. The samples are the same with or without them.</summary>
+        public IReadOnlyList<PlatePrincipalResult> PlatePrincipals { get; internal set; } = new PlatePrincipalResult[0];
         public IReadOnlyList<ModelDiagnostic> Diagnostics { get; internal set; } = new ModelDiagnostic[0];
         public bool IsRejected => Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
     }
@@ -77,6 +80,14 @@ namespace GPC.Model.Results.Processing
         /// every static source of every state, most of the time of a rebuild. Attached results always carry it. Default true.
         /// </summary>
         public bool SourceFingerprints { get; set; } = true;
+
+        /// <summary>
+        /// True: the report carries, for each plate location, the principal components (<see cref="GPC.Model.Results.Processing.PlatePrincipals"/>) of every
+        /// combined state and their extremes over the alternatives with the governing state (<see cref="CombinationRebuildReport.PlatePrincipals"/>):
+        /// of the combined local state for a linear combination, of each simultaneous state for an envelope. The samples, their roles and
+        /// their states are the same as without them. Default false.
+        /// </summary>
+        public bool PlatePrincipals { get; set; }
 
         /// <summary>Static samples matched to a location and kept for the next calls.</summary>
         public int Entries => _matches.Count;
@@ -159,15 +170,17 @@ namespace GPC.Model.Results.Processing
 
                 var registered = new HashSet<Element>(model.AllElements, ReferenceComparer<Element>.Instance);
                 var created = new List<(Element Owner, List<ResultLocation> Samples)>(); var all = new List<ResultLocation>();
+                var principals = cache.PlatePrincipals ? new List<PlatePrincipalResult>() : null;
                 foreach (var owner in elements.Distinct(ReferenceComparer<Element>.Instance))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     if (owner == null || !registered.Contains(owner)) throw new ArgumentException("UnregisteredElement");
                     try
                     {
-                        var samples = Element(model, owner, output, cases, terms, labels, envelope, datasetId, dataset, cache, fingerprints, out int locations, cancellationToken);
+                        var own = principals != null ? new List<PlatePrincipalResult>() : null;
+                        var samples = Element(model, owner, output, cases, terms, labels, envelope, datasetId, dataset, cache, fingerprints, own, out int locations, cancellationToken);
                         if (samples.Count == 0) continue;
-                        created.Add((owner, samples)); all.AddRange(samples); report.Locations += locations;
+                        created.Add((owner, samples)); all.AddRange(samples); report.Locations += locations; principals?.AddRange(own);
                     }
                     catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
                     {
@@ -187,14 +200,16 @@ namespace GPC.Model.Results.Processing
                     report.Attached = true;
                 }
                 report.Samples = all.AsReadOnly();
+                if (principals != null) report.PlatePrincipals = principals.AsReadOnly();
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException || ex is NotSupportedException)
-            { diagnostics.Add(ModelDiagnostic.Error("CombinationRejected", message: ex.Message)); report.Samples = new ResultLocation[0]; report.Locations = 0; }
+            { diagnostics.Add(ModelDiagnostic.Error("CombinationRejected", message: ex.Message)); report.Samples = new ResultLocation[0]; report.Locations = 0; report.PlatePrincipals = new PlatePrincipalResult[0]; }
             return report;
         }
 
         private static List<ResultLocation> Element(Models.Model model, Element owner, Combination output, string[] cases, (int Case, double Factor)[][] terms,
-            string[] labels, bool envelope, string datasetId, AnalysisDataset dataset, CombinationRebuildCache cache, bool fingerprints, out int locations, CancellationToken token)
+            string[] labels, bool envelope, string datasetId, AnalysisDataset dataset, CombinationRebuildCache cache, bool fingerprints, List<PlatePrincipalResult> principals,
+            out int locations, CancellationToken token)
         {
             locations = 0;
             var byCase = cases.Select(_ => new List<ResultLocation>()).ToArray(); var index = cases.Select((c, i) => (c, i)).ToDictionary(p => p.c, p => p.i, StringComparer.Ordinal);
@@ -265,9 +280,32 @@ namespace GPC.Model.Results.Processing
                         throw new ArgumentException("DuplicateDerivedResult: " + state.ConcomitantStateId);
                     result.Add(sample);
                 }
+                if (principals != null && template is PointResultPlateForces) principals.Add(Principals(owner, template, vectors, envelope, output.Name, labels));
                 locations++;
             }
             return result;
+        }
+
+        /// <summary>The principal components of every combined state of a plate location (<paramref name="vectors"/>, one per alternative) and
+        /// their extremes, with the first alternative on a tie as for the local components; the state ids are those of the samples.</summary>
+        private static PlatePrincipalResult Principals(Element owner, ResultLocation template, double[][] vectors, bool envelope, string output, string[] labels)
+        {
+            var values = new double[vectors.Length][];
+            for (int a = 0; a < vectors.Length; a++)
+            {
+                values[a] = PlatePrincipals.Of(vectors[a]);
+                for (int k = 0; k < values[a].Length; k++) NumericGuard.Finite(values[a][k], "principal component");
+            }
+            string State(int a) => envelope ? "envelope:" + output + ":" + labels[a] : "linear:" + output;
+            var extremes = new PlatePrincipalExtreme[PlatePrincipals.Components.Count];
+            for (int k = 0; k < extremes.Length; k++)
+            {
+                int low = 0, high = 0;
+                for (int a = 1; a < values.Length; a++) { if (values[a][k] < values[low][k]) low = a; if (values[a][k] > values[high][k]) high = a; }
+                extremes[k] = new PlatePrincipalExtreme(PlatePrincipals.Components[k], values[low][k], State(low), (double[])vectors[low].Clone(),
+                    values[high][k], State(high), (double[])vectors[high].Clone());
+            }
+            return new PlatePrincipalResult(owner, template, extremes);
         }
 
         /// <summary>The checks of <see cref="ResultAlgebra.LinearCombination"/> on one static sample, without searching the registry: the samples come from the owner.</summary>
