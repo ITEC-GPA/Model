@@ -62,6 +62,11 @@ namespace GPC.Model.Sections.Steel
             if (!(steelArea > 0))
                 return null;
 
+            // Boxes apart: the intersection is empty, the result of Clipper, without the boolean operation (for example the steel of a composite
+            // girder under its slab: before, for every section of every check)
+            if (Apart(steel, concrete))
+                return new ConcreteOverlap(steelArea, 0, new Shape[0]);
+
             // Clipper ignores the childs of the shapes: they are passed as separate shapes (even-odd rule)
             Shape[] subject = steel.SelectMany(Flatten).ToArray();
             Shape[] clip = Flatten(concrete).ToArray();
@@ -87,6 +92,65 @@ namespace GPC.Model.Sections.Steel
                 iyy += yy;
                 ixy += xy;
             }
+        }
+
+        /// <summary>
+        /// True if the bounding boxes of the steel and of the concrete (all their vertices) are apart by more than a relative 1e-9: the shapes
+        /// can not overlap, also after the change of coordinate system of the boolean operation (a rotation: errors of some ulp). Touching boxes
+        /// and coordinates that are not finite are left to Clipper
+        /// </summary>
+        private static bool Apart(IReadOnlyList<Shape2d> steel, Shape2d concrete)
+        {
+            double[] s = { double.PositiveInfinity, double.PositiveInfinity, double.NegativeInfinity, double.NegativeInfinity };
+            double[] c = { double.PositiveInfinity, double.PositiveInfinity, double.NegativeInfinity, double.NegativeInfinity };
+            for (int i = 0; i < steel.Count; i++)
+                if (!Box(steel[i], s))
+                    return false;
+            if (!Box(concrete, c))
+                return false;
+            double size = 1;
+            foreach (double v in s) size = System.Math.Max(size, System.Math.Abs(v));
+            foreach (double v in c) size = System.Math.Max(size, System.Math.Abs(v));
+            double gap = 1e-9 * size;
+            return s[2] < c[0] - gap || s[0] > c[2] + gap || s[3] < c[1] - gap || s[1] > c[3] + gap;
+        }
+
+        /// <summary>
+        /// Extends the box (min x, min y, max x, max y) with the vertices of the fill, of the holes and of the childs of a shape
+        /// </summary>
+        /// <returns>False if a vertex is not finite</returns>
+        private static bool Box(Shape shape, double[] box)
+        {
+            if (shape is null)
+                return true;
+            if (!Box(shape.Fill, box))
+                return false;
+            if (shape.Holes != null)
+                foreach (Polygon3d hole in shape.Holes)
+                    if (!Box(hole, box))
+                        return false;
+            if (shape.Childs != null)
+                foreach (Shape child in shape.Childs)
+                    if (!Box(child, box))
+                        return false;
+            return true;
+        }
+
+        private static bool Box(Polygon3d polygon, double[] box)
+        {
+            if (polygon is null)
+                return true;
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                double x = polygon[i].X, y = polygon[i].Y;
+                if (double.IsNaN(x) || double.IsInfinity(x) || double.IsNaN(y) || double.IsInfinity(y))
+                    return false;
+                box[0] = System.Math.Min(box[0], x);
+                box[1] = System.Math.Min(box[1], y);
+                box[2] = System.Math.Max(box[2], x);
+                box[3] = System.Math.Max(box[3], y);
+            }
+            return true;
         }
 
         private static double AreaOf(Shape shape)

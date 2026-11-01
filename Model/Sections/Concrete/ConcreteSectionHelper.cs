@@ -98,9 +98,9 @@ namespace GPC.Model.Sections.Concrete
                     var steelSection = steelSections[i];
                     double nSteelSection = nSteelSectionCommon ?? CalculateN(steelSection, concreteMaterial);
 
-                    var centroid = steelSection.CalculateCentroid();
-                    SxHomog += nSteelSection * steelSection.CalculateArea() * centroid.Y;
-                    SyHomog += nSteelSection * steelSection.CalculateArea() * centroid.X;
+                    steelSection.CalculateCentroid(out double centroidX, out double centroidY);
+                    SxHomog += nSteelSection * steelSection.CalculateArea() * centroidY;
+                    SyHomog += nSteelSection * steelSection.CalculateArea() * centroidX;
 
                     // the concrete replaced by the steel section
                     steelSection.ReplacedConcrete(Point2d.Origin, out _, out double sx, out double sy, out _, out _, out _);
