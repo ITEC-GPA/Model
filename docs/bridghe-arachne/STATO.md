@@ -4,7 +4,7 @@ Aggiornamento del 2 novembre 2026. Attività avviata su richiesta dell'utente; p
 
 ## Stato effettivo
 
-Preparazione tecnica F0 completata. F1 avviata e parzialmente verificata. F2-F8 non avviate. Nessuna modifica al dominio, ai solutori o ai risultati numerici è stata introdotta.
+F0 e F1 completate per il perimetro dichiarato in [F1-BASELINE.md](F1-BASELINE.md). Evidenze congelate in [f1-evidenze.json](f1-evidenze.json). F2 da avviare; F3 e F4 in coda, poi F5-F8. Nessuna modifica al dominio o agli algoritmi dei solutori e stata introdotta; aggiunti runner e catture diagnostiche opzionali.
 
 Le sessioni Codex visibili pertinenti erano inattive; la conclusione della precedente sessione Claude non è attestabile da questi strumenti. La nuova autorizzazione della chat consente la preparazione e le verifiche nei worktree separati. Non assumere che una versione compilata equivalga a una release coordinata completata.
 
@@ -51,13 +51,13 @@ Log e TRX: `../../../artifacts/f1` rispetto a questa cartella. Principali file: 
 - Il primo build record di Arachne non conteneva il commit a causa della diversa proprietà Windows dei worktree. Risolto con `safe.directory` limitato al processo; build e test ripetuti, commit del record verificato. Non modificata la configurazione Git globale.
 - La prima esecuzione di Model Verify si è fermata alla compilazione UnitTest per il wrapper GMsh mancante nel checkout fratello. Aggiunta una copia della sola DLL managed, con hash verificato e destinazione riservata ai test; la suite completa successiva è riuscita. Gmsh non è stato aggiunto ai riferimenti di produzione o al set rilasciabile.
 
-## Attività necessarie per chiudere F1
+## Prossimo gate: F2
 
-1. Definire la copertura e implementare il dump degli input effettivamente scritti in Straus7; un fingerprint di Checker non lo sostituisce.
-2. Catturare nuovamente 50/99 e regressioni native nell'ambiente isolato, distinguendo input esportati, risultati FEM e risultati delle verifiche.
-3. Misurare i quad non complanari dei ponti e conservarne ID, deviazione e scala geometrica.
-4. Catturare input/output di TensileLib per i casi rappresentativi di Arachne, comprese convergenza, unità e obiettivi.
-5. Eseguire le misure a più dimensioni nei runtime effettivi: costruzione, copie, assemblaggio, revisioni, salvataggio/riapertura e memoria.
-6. Completare la baseline pertinente di Checker e dei consumatori. Le suite ANTHEA/ReBear non sono state rieseguite in questa attività.
+Baseline conclusa: vedere il rapporto F1 per copertura, misure, esclusioni e tentativi scartati. I dati iniziali sopra restano il resoconto storico della preparazione.
 
-La migrazione dei tipi non può essere dichiarata pronta sulla sola base di questi controlli iniziali. Le decisioni sulle geometrie, sulle copie e sull'archivio condiviso appartengono a F2-F4, dopo la cattura dei riferimenti.
+1. Ridurre e verificare il costo delle copie mantenendo contratti e isolamento: il target di 0,3 s non e raggiunto nella baseline.
+2. Completare matrice dei campi, identita e assemblaggio deterministico.
+3. Verificare geometrie dei quad e membri non rettilinei con casi dedicati: 50 e 99 non esportano plate.
+4. Consolidare le conversioni e i contratti prima di F3.
+
+ANTHEA aggiunta al workspace al commit c4f68c5e, sullo stesso branch separato; ModelWorkspace.Checks e Application.Tests superati con le sue librerie fissate. ReBear non individuato nei progetti disponibili.

@@ -2,6 +2,8 @@
 
 Piano concordato il 2 novembre 2026. Avvio autorizzato nella chat con richiesta di branch separato.
 
+Ordine operativo aggiornato su richiesta dell'utente: F1, F2, F3 e F4 in coda. F4 resta subordinata ai criteri di uscita delle fasi precedenti; l'aggiunta alla coda non ne attesta il completamento.
+
 ## Obiettivo e perimetro
 
 Sostituire i modelli interni dei due plugin con oggetti GPC, compresi i descrittori di dominio. Conservare nei plugin wrapper Grasshopper, preview, integrazione Rhino e adattatori. TensileLib conserva il proprio solutore e il modello interno necessario al calcolo.
