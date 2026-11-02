@@ -370,3 +370,8 @@ femm.png
 /*.xlsx
 
 /.dependencies/
+
+# Versioned plan and evidence for the common BridGHe/Arachne migration.
+!/docs/
+/docs/*
+!/docs/bridghe-arachne/

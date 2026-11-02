@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "capturedUtc": "2026-11-02T21:25:14.7294557+00:00",
+  "workspace": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102",
+  "branch": "codex/gpc-unification-20261102",
+  "phase": "F1",
+  "phaseComplete": false,
+  "repositories": [
+    {
+      "repository": "Model",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\Model",
+      "baseCommit": "2f934f9fe48ebfff0b06a98de5ccff7bdea43ea4",
+      "branch": "codex/gpc-unification-20261102",
+      "role": "development"
+    },
+    {
+      "repository": "Checker",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\Checker",
+      "baseCommit": "6156e4ce00975b0774d172ea681e24377bfb3c9f",
+      "branch": "codex/gpc-unification-20261102",
+      "role": "development"
+    },
+    {
+      "repository": "BridGHe",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\BridGHe",
+      "baseCommit": "e7f650df3f8f052f80e930175898e72d1480b081",
+      "branch": "codex/gpc-unification-20261102",
+      "role": "development"
+    },
+    {
+      "repository": "Arachne",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\Arachne",
+      "baseCommit": "7b1108dbe083a55af41dc5d2f2f710d9cfcab3ef",
+      "branch": "codex/gpc-unification-20261102",
+      "role": "development"
+    },
+    {
+      "repository": "tensilelib",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\tensilelib",
+      "baseCommit": "5e2576534f62ecca17d120430e3c29110a5e3de2",
+      "branch": "codex/gpc-unification-20261102",
+      "role": "development"
+    },
+    {
+      "repository": "Geometry",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\Geometry",
+      "baseCommit": "6734eee1004142576b96759e34c15dec48776e23",
+      "branch": null,
+      "role": "pinned dependency"
+    },
+    {
+      "repository": "Utilities",
+      "path": "C:\\Users\\g.pacini\\Documents\\Repository\\gpc-unification-20261102\\Utilities",
+      "baseCommit": "e57b440b16a0a311a7bf0af2f9cf4d2681b83491",
+      "branch": null,
+      "role": "pinned dependency"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "BridGHe\\example\\50-ponte-quattro-modelli\\50-ponte-quattro-modelli_REV003.ghx",
+      "bytes": 4904830,
+      "sha256": "2CB6E5C64CFA927A0DD8D6E2C862780058F82F62BE5F3DC35A95D62DA0A68456"
+    },
+    {
+      "path": "BridGHe\\migration\\port-contract-baseline.json",
+      "bytes": 41749,
+      "sha256": "C502521B8AE9AD6507E19FECD3CA03DA3E8E7ED7A608DE3CE73F0ABA91BC6009"
+    },
+    {
+      "path": "BridGHe\\lib\\GPC\\release-set.json",
+      "bytes": 14980,
+      "sha256": "E0EE014C6F49FD686DF120755C3270DB42A286DBCB0941ABEA1116ABFA864FC9"
+    },
+    {
+      "path": "Model\\build\\dependencies.props",
+      "bytes": 1365,
+      "sha256": "B399C64BA15B4BF30FE7ABC5614F3F761414795CA19D62080A3169DFD5B00D88"
+    },
+    {
+      "path": "BridGHe\\example\\99-Ponte completo GPC\\REV004\\Combinazioni_REV004.xlsx",
+      "bytes": 4029,
+      "sha256": "530FADA6C32EB44B74D1E46638146E189603266DEE00C2CDD7239BFB8D919E3F"
+    },
+    {
+      "path": "BridGHe\\example\\99-Ponte completo GPC\\REV004\\flusso-acciaio-misto_REV004.ghx",
+      "bytes": 34702090,
+      "sha256": "9699B699C118066E615CB88F3959544DB3129D8E83856611FACE638A9EE212F5"
+    },
+    {
+      "path": "Arachne\\examples\\01_SaddleNet.gh",
+      "bytes": 8776,
+      "sha256": "BC8DA138450C9C54FE52944ACDA4EAABB30EABEB09F9E3FE1F49981E27E981F2"
+    },
+    {
+      "path": "Arachne\\examples\\01_SaddleNet.ghx",
+      "bytes": 231182,
+      "sha256": "829C262EAFC410C24BDF8BF597EEA90DDD9256FC1C026697E771FF2A79C22099"
+    },
+    {
+      "path": "Arachne\\examples\\02_Patterning.gh",
+      "bytes": 4934,
+      "sha256": "43E9CA999DCEC15BD71AA15D8BB0DCCEA68114A25497501982DB509566A8AFEE"
+    },
+    {
+      "path": "Arachne\\examples\\02_Patterning.ghx",
+      "bytes": 125387,
+      "sha256": "9D07134BD95692CB76688A07A2793C4463B7B26F62430ED9C4CA4A7E5354717C"
+    },
+    {
+      "path": "Arachne\\examples\\03_CableNet.gh",
+      "bytes": 7804,
+      "sha256": "5E0BD265ABF5E7B98299443D085DC2EBDCC83998EA140E56F77AC73C3810D69F"
+    },
+    {
+      "path": "Arachne\\examples\\03_CableNet.ghx",
+      "bytes": 240659,
+      "sha256": "B1F4D9F429D0FAEC8FF1462FDD424C0727811EA1BB734B7D44F00E76B7F2C1ED"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "Geometry\\GPCGeometry\\bin\\Release\\netstandard2.0\\GPCGeometry.dll",
+      "sha256": "7EF76EDFB4C3736AAE7B6F66B2F3CE30A8BB8DE031C492B03BD52289D6E9D29E",
+      "assemblyVersion": "2.3.0.0",
+      "testOnly": false
+    },
+    {
+      "path": "Geometry\\DelaunayMesh\\bin\\Release\\netstandard2.0\\DelaunayMesh.dll",
+      "sha256": "D18BB08255D23239271C197130515758767291F75CE1A9996F1A92DB55F114BB",
+      "assemblyVersion": "2.0.0.14",
+      "testOnly": false
+    },
+    {
+      "path": "Utilities\\GPCUtilities\\bin\\Release\\netstandard2.0\\GPCUtilities.dll",
+      "sha256": "92031B381F9AA426A5F88B48762C72DB89724F784670FFDA8802203FC52A05E5",
+      "assemblyVersion": "3.0.0.0",
+      "testOnly": false
+    },
+    {
+      "path": "baseline-dependencies\\TensileLib\\TensileLib.dll",
+      "sha256": "8C948FF2CB4BA4A954C61EA1BEB064B7C31D083ABA7A729E99B23C6F9E390818",
+      "assemblyVersion": "2.5.0.1",
+      "testOnly": false
+    },
+    {
+      "path": "baseline-dependencies\\TensileLib\\alglibnet2.dll",
+      "sha256": "26FF13124DD899E8D2A5D5FB4028DC0B889C3A1257A427E16391A1155D59E4F4",
+      "assemblyVersion": "0.0.0.0",
+      "testOnly": false
+    },
+    {
+      "path": "Gmsh.Net\\src\\GMsh.Net\\bin\\Release\\netstandard2.0\\GMsh.Net.dll",
+      "sha256": "7C992AE563B935A2D11EF246F1D63449E3A0051355694D27D9A5D10F93EBC1E3",
+      "assemblyVersion": "4.15.2.1",
+      "testOnly": true
+    }
+  ],
+  "notes": [
+    "Development Model is based on 5.38.0.0; BridGHe baseline retains its published 5.37.0.2 DLL set.",
+    "TensileLib baseline binaries were copied and hash-verified; this does not assert a source rebuild.",
+    "Main BridGHe checkout contains a user-modified REV003 GHX; it is not the captured fixture and was not changed.",
+    "Native Straus dumps, full 50/99 numerical captures and scale measurements are pending.",
+    "Prior Claude session completion was not independently observable. Current chat explicitly authorized starting on isolated branches."
+  ],
+  "artifactsDirectory": "artifacts/f1"
+}

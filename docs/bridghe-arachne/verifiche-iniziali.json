@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-11-02T22:27:42.6563657+01:00",
+  "phase": "F1",
+  "phaseComplete": false,
+  "bridghe": {
+    "buildExitCode": 0,
+    "buildWarnings": 0,
+    "contractFiles": 152,
+    "guids": 229,
+    "contractErrors": 0,
+    "corePassed": 269,
+    "nativeStrausRerun": false
+  },
+  "arachne": {
+    "buildExitCode": 0,
+    "arapPassed": 54,
+    "inventoryPassed": 66,
+    "formFindingPassed": 38,
+    "patterningPassed": 43,
+    "networkPassed": 6,
+    "headlessPassed": 153,
+    "failed": 0,
+    "buildCommit": "7b1108dbe083a55af41dc5d2f2f710d9cfcab3ef"
+  },
+  "model": {
+    "verifyExitCode": 0,
+    "apiAuditExitCode": 0,
+    "equalityAuditExitCode": 0,
+    "tests": [
+      {
+        "suite": "Model.Core.Tests",
+        "total": 63,
+        "passed": 63,
+        "failed": 0,
+        "notExecuted": 0,
+        "file": "artifacts\\f1\\model-tests-complete\\Model.Core.Tests.trx",
+        "sha256": "BF79CCCD071D3E6B75882ED1C314DE0E0E09826C48860572DCFBC47F1E321FD7",
+        "skipped": []
+      },
+      {
+        "suite": "Model.NetFramework.Tests",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0,
+        "file": "artifacts\\f1\\model-tests-complete\\Model.NetFramework.Tests.trx",
+        "sha256": "63AF9310BF3CC2F866A03BB1FFA7C915EB9C84D7FF8645F269D78654ECA492CA",
+        "skipped": []
+      },
+      {
+        "suite": "UnitTest",
+        "total": 1640,
+        "passed": 1628,
+        "failed": 0,
+        "notExecuted": 12,
+        "file": "artifacts\\f1\\model-tests-complete\\UnitTest.trx",
+        "sha256": "9C854BA3338C3F55A71023B4B506395738A39046D815DC4567529A92C5D2EF78",
+        "skipped": [
+          {
+            "test": "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_BRIDGHE (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "NativeStages_ActiveStageResultsSkipTheInactiveElements",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_STAGES (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_ASSIGNMENTS to the newly generated native assignments fixture directory."
+          },
+          {
+            "test": "NativeStages_StagedNonlinearStatesPerStageAndIncrement",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_STAGES (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "NativeStages_DefinitionsMassesAndTemperaturesAreModelData",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_STAGES (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "TimingOfTheColdPreparation",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_CIVILNX_TIMING=1 to time the cold preparation."
+          },
+          {
+            "test": "NativeElements_ReleasesSpringsLinksCombinationsAndPlateCorners",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_ELEMENTS (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "EightNativePairsKeepGeometryAndGlobalActionSigns",
+            "reason": "Assert.Inconclusive non riuscita. Generate Fixtures/Straus7/generate_packed_pairs.py and set GPC_STRAUS7_PACKED_PAIRS."
+          },
+          {
+            "test": "NativeStages_UnstagedSolutionBalancesLoadsMassesAndReactions",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_STAGES (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_MIDAS_TEXT_SAMPLES to a folder of MIDAS .mct/.mgt exports."
+          },
+          {
+            "test": "NativeManufacturerPlates_AreImported",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_PLATES (see POST_PROCESSING.md, Straus7 native tests)."
+          },
+          {
+            "test": "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+            "reason": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_BENCHMARK to the newly generated native fixture directory."
+          }
+        ]
+      }
+    ]
+  },
+  "incidents": [
+    {
+      "id": "ENV-001",
+      "description": "Arachne build record initially failed Git ownership check",
+      "resolution": "safe.directory passed through process-local Git configuration; build record regenerated and source commit verified",
+      "state": "resolved"
+    },
+    {
+      "id": "ENV-002",
+      "description": "Model UnitTest requires sibling GMsh.Net.dll, absent from initial worktree layout",
+      "resolution": "Copied hash-verified managed wrapper into test-only sibling path; full Verify.ps1 repeated successfully",
+      "state": "resolved"
+    }
+  ],
+  "notExecuted": [
+    "BridGHe native Straus input dumps",
+    "Full 50/99 numerical captures and fingerprints for this migration",
+    "Arachne complete solver input/output capture",
+    "Cross-runtime scale and GH save/reopen benchmarks",
+    "Checker full suite",
+    "ANTHEA/ReBear integration suites"
+  ]
+}
