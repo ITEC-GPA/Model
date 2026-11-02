@@ -15,14 +15,13 @@ namespace GPC.Model.Core
             Pattern = Names.Count == 0 ? null : new Regex(
                 "(?:" + string.Join("|", Names.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape)) + @")(?=\+|\[|,|$)", RegexOptions.CultureInvariant);
         }
-        internal static string For(Type type) => Rewrite(NetFramework ? NetFullName(type) : type.FullName);
+        internal static string For(Type type) => Rewrite(NetFramework.Running ? NetFullName(type) : type.FullName);
         internal static string Rewrite(string name) => Pattern == null ? name : Pattern.Replace(name, m => Names[m.Value]);
 
         // Type.FullName qualifies the generic arguments with their assemblies, and .NET Framework keeps the framework types in other
         // assemblies than .NET 5 and later, where the recorded fingerprints were computed: mscorlib for System.Private.CoreLib, System.Core
         // for HashSet<T> (StageCombinationsMap), System for Stack<T>. On .NET Framework the arguments are named as .NET names them, so the
         // same inputs give the same fingerprint on both runtimes and an analysis snapshot written on .NET validates there.
-        private static readonly bool NetFramework = typeof(object).Assembly.GetName().Name == "mscorlib";
         private const string CoreLibrary = "System.Private.CoreLib, Version={0}, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
         // The framework types outside mscorlib on .NET Framework or outside the core library on .NET (the same on .NET 6, 8 and 10); the
         // other types of mscorlib are in System.Private.CoreLib. The version is that of the running framework: the canonical names leave

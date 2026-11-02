@@ -16,10 +16,18 @@ gli argomenti generici con il loro assembly, che per i tipi del framework cambia
 StageCombinationsMap, che entra in ogni impronta d'analisi). HistoricalTypeNames li
 nomina ora come .NET. Riproduzione: dotnet test Model.NetFramework.Tests -c Release
 (con il sorgente precedente falliscono entrambi i test).
-Limite residuo, di .NET Framework e non di Model: il suo parser dei double sbaglia di
-1 ulp circa 1,5 valori calcolati su 10.000 scritti da .NET, e il formato "R" con cui
-scrive non sempre si rilegge uguale. Un modello grande scritto su .NET puo' quindi
-aprire su .NET Framework uno snapshot con impronta diversa anche dopo questa correzione.
+Double (GPCModel 5.37.0.2): XmlConvert di .NET Framework sbaglia di 1 ulp circa 1,5
+valori calcolati su 10.000 scritti da .NET, e il formato "R" con cui scrive non sempre
+si rilegge uguale; un modello di 300 nodi a coordinate calcolate, scritto su .NET,
+apriva su .NET Framework uno snapshot con impronta diversa. Solo su .NET Framework,
+ContractXmlReader e ContractXmlWriter (da cui DataContractSerializer legge e scrive
+ogni double) usano ora DoubleText: legge il decimale come .NET, al double piu' vicino
+(pari nei casi a meta'), con sola aritmetica intera, e scrive un testo che si rilegge
+identico su entrambi i runtime. Verificato fuori dalle suite su 10^6 double scritti da
+.NET, 4*10^5 decimali casuali e 1,2*10^5 casi a meta' tra due double (anche subnormali),
+in processi a 64 e a 32 bit. Su .NET nulla cambia. La fixture doubles-5.37.0.1-v5.zip
+(nodi in quei valori, snapshot d'analisi) e la copia di valori limite stanno in
+RuntimeIndependentFingerprintTest.
 
 Dal 10/10/2026 GPCModelChecker e ModelChecker.Tests stanno nel repository Checker,
 a valle di Model (revisione di architettura, punto R3): Model fissa solo Geometry e

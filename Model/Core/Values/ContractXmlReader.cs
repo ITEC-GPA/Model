@@ -71,6 +71,15 @@ namespace GPC.Model.Core
         public override XmlSpace XmlSpace => _inner.XmlSpace;
         public override XmlReaderSettings Settings => _inner.Settings;
         public override void ResolveEntity() => _inner.ResolveEntity();
+        // DataContractSerializer reads every double here (members, arrays, entries of GetObjectData). .NET Framework reads some
+        // decimals 1 ulp off: there DoubleText reads them as .NET does.
+        public override double ReadContentAsDouble()
+        {
+            if (!NetFramework.Running) return base.ReadContentAsDouble();
+            string text = ReadContentAsString();
+            try { return DoubleText.Parse(text); }
+            catch (FormatException e) { throw new XmlException("Content cannot be converted to the type Double.", e); }
+        }
         // The caller owns the reader and its archive envelope.
         public override void Close() { }
     }

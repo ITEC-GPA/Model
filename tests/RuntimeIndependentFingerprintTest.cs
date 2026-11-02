@@ -8,13 +8,21 @@ using GPC.Model.Persistence;
 
 namespace UnitTest;
 
-/// <summary>Fingerprints are data, the same on every runtime: UnitTest runs these tests on .NET 6, Model.NetFramework.Tests on .NET
-/// Framework 4.7.2. Type.FullName names the assemblies of the generic arguments, and those of the framework types differ between the two
-/// (mscorlib for System.Private.CoreLib, System.Core for HashSet&lt;T&gt;, System for Stack&lt;T&gt;): up to GPCModel 5.37.0.0 no archive
-/// with an analysis snapshot written on .NET loaded on .NET Framework, since StageCombinationsMap is a Dictionary of HashSet.</summary>
+/// <summary>Fingerprints and the doubles of archives are data, the same on every runtime: UnitTest runs these tests on .NET 6,
+/// Model.NetFramework.Tests on .NET Framework 4.7.2. Type.FullName names the assemblies of the generic arguments, and those of the
+/// framework types differ between the two (mscorlib for System.Private.CoreLib, System.Core for HashSet&lt;T&gt;, System for Stack&lt;T&gt;):
+/// up to GPCModel 5.37.0.0 no archive with an analysis snapshot written on .NET loaded on .NET Framework, since StageCombinationsMap is a
+/// Dictionary of HashSet. Up to 5.37.0.1 .NET Framework read some doubles written by .NET 1 ulp off, and wrote some that did not read back.</summary>
 [TestClass]
 public class RuntimeIndependentFingerprintTest
 {
+    // Doubles that .NET Framework read 1 ulp off from the text of .NET (7.763636363636365 and the eleven after it) or whose "R" text it
+    // did not read back (10.826600000000001 and the five after it).
+    private static readonly long[] Doubles = {
+        4620427095885966095, 4529173747557971808, 4619948300867567433, 4613510249799206103, -4603485840251223608, -4617796519939313521,
+        4524670147930601312, -8188863338123193314, 4178070368378776789, 3384910843008692860, -8315950619057615594, 6439139742289837737,
+        4622284452020469577, 4623867748764467017, 4619751177230073673, 4621791870811225929, 4608984759370891081, 1637726631744473543 };
+
     // Computed with the released GPCModel 5.36.0.0 on .NET 8 and on .NET 6, alike: the names of the recorded fingerprints. On .NET
     // Framework the same build gave 189906E9..., 8A2C2318... and 6AFC62F6....
     [TestMethod]
@@ -44,5 +52,28 @@ public class RuntimeIndependentFingerprintTest
             Assert.AreEqual(model.Analysis!.InputFingerprint, model.AnalysisFingerprint(), name);
             Assert.AreEqual(AnalysisCompatibility.Compatible, AnalysisCompatibilityValidator.Validate(model).Status, name);
         }
+    }
+
+    [TestMethod]
+    public void DoublesWrittenOnNetReadExactly()
+    {
+        // MixedModelFactory with six more nodes at these doubles (ids 100000-100005) and its analysis snapshot, saved by GPCModel
+        // 5.37.0.1 on .NET 8. Its snapshot was refused on .NET Framework: the positions read there gave another fingerprint.
+        using var file = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Fixtures", "doubles-5.37.0.1-v5.zip"));
+        var model = ModelArchive.Load(file);
+        var read = Enumerable.Range(0, Doubles.Length / 3).Select(i => model.NodesElements[100000 + i].Position)
+            .SelectMany(p => new[] { p.X, p.Y, p.Z }).Select(BitConverter.DoubleToInt64Bits).ToArray();
+        CollectionAssert.AreEqual(Doubles, read);
+        Assert.AreEqual(model.Analysis!.InputFingerprint, model.AnalysisFingerprint());
+    }
+
+    [TestMethod]
+    public void DoublesRoundTripExactly()
+    {
+        // Also the smallest subnormal, the largest subnormal, the smallest normal, the largest double and negative zero.
+        var values = Doubles.Concat(new[] { 1L, 0x000FFFFFFFFFFFFFL, 0x0010000000000000L, 0x7FEFFFFFFFFFFFFFL, long.MinValue }).Select(BitConverter.Int64BitsToDouble)
+            .Concat(new[] { 0.1, 1.0 / 3, double.NaN, double.PositiveInfinity, double.NegativeInfinity }).ToArray();
+        var copy = ModelValues.CopyValue(values);
+        CollectionAssert.AreEqual(values.Select(BitConverter.DoubleToInt64Bits).ToArray(), copy.Select(BitConverter.DoubleToInt64Bits).ToArray());
     }
 }

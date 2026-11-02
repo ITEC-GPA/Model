@@ -15,6 +15,7 @@
     <Compile Include="../tests/RuntimeIndependentFingerprintTest.cs" Link="RuntimeIndependentFingerprintTest.cs" />
     <None Include="../UnitTest/Fixtures/model-v5-5.23.0.2.zip" Link="Fixtures/model-v5-5.23.0.2.zip" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../UnitTest/Fixtures/model-v3-1.6.1.7.xml.gz" Link="Fixtures/model-v3-1.6.1.7.xml.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../UnitTest/Fixtures/doubles-5.37.0.1-v5.zip" Link="Fixtures/doubles-5.37.0.1-v5.zip" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />

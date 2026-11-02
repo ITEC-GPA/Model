@@ -14,6 +14,9 @@ namespace GPC.Model.Core
         { _namespaceAttribute = prefix == "xmlns" || localName == "xmlns"; _inner.WriteStartAttribute(prefix, localName, ns); }
         public override void WriteEndAttribute() { _inner.WriteEndAttribute(); _namespaceAttribute = false; }
         public override void WriteString(string text) => _inner.WriteString(_namespaceAttribute ? XmlContractNames.WriteNamespace(text) : text);
+        // DataContractSerializer writes every double here. On .NET Framework the "R" text of XmlConvert does not always read back the
+        // same double: DoubleText writes one that does, on both runtimes.
+        public override void WriteValue(double value) { if (NetFramework.Running) WriteString(DoubleText.Format(value)); else base.WriteValue(value); }
         public override void WriteQualifiedName(string localName, string ns)
         { var name = XmlContractNames.Write(localName, ns); _inner.WriteQualifiedName(name.LocalName, XmlContractNames.WriteNamespace(name.NamespaceName)); }
         public override string LookupPrefix(string ns) => _inner.LookupPrefix(XmlContractNames.WriteNamespace(ns));
