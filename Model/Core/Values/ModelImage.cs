@@ -61,7 +61,11 @@ namespace GPC.Model.Core
             Models.Model copy;
             try
             {
-                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model));
+                // A connected element commonly owns about sixteen graph objects (frame, axes,
+                // collections, assignments). Reserve a bounded estimate, avoiding repeated large
+                // reference-map reallocations; aliases and extra payloads still grow normally.
+                int capacity = (int)Math.Min(1000000L, 16L * elements.Length);
+                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model), capacity);
             }
             catch (ContractCopy.UnsupportedException) { return Capture(model, elements, results).Open(); }
             AttachResults(copy, elements.Select(e => e.Guid).ToArray(), results);

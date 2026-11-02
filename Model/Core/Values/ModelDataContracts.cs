@@ -24,6 +24,8 @@ namespace GPC.Model.Core
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(AssemblyIdentityMap), typeof(AssemblyIdentityEntry), typeof(SolverIdentityMap), typeof(SolverIdentityEntry),
+            typeof(BridgeMemberMetadata), typeof(BridgeMemberFamily),
             typeof(global::GPC.Model.Actions.TimeEffects.AxialRestraint),
             typeof(global::GPC.Model.Actions.Prestressing.PrestressingMethod),
             typeof(global::GPC.Model.Actions.Prestressing.TendonProfile),

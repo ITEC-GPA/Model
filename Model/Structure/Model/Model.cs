@@ -217,6 +217,13 @@ namespace GPC.Model.Models
             _stageCombinationsMap = new Dictionary<int, HashSet<string>>();
         }
 
+        /// <summary>Creates a model with the persistent identity supplied by its document/component owner.</summary>
+        public Model(Guid guid, string name = "") : this(name)
+        { if (guid == Guid.Empty) throw new ArgumentException("EmptyModelGuid", nameof(guid)); _guid = guid; }
+
+        /// <summary>Optional provenance of deterministic assembly; aliases survive copies and archives.</summary>
+        public global::GPC.Model.Core.Identity.AssemblyIdentityMap AssemblyMap { get; internal set; }
+
         /// <summary>
         /// Reads versioned model data and optional post-processing records.
         /// </summary>
@@ -226,7 +233,9 @@ namespace GPC.Model.Models
             : base(info, context)
         {
             int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
-            if (schemaVersion < 0 || schemaVersion > 3) throw new SerializationException("Unsupported Model schema version.");
+            if (schemaVersion < 0 || schemaVersion > 4) throw new SerializationException("Unsupported Model schema version.");
+            AssemblyMap = SerializationFields.Read<global::GPC.Model.Core.Identity.AssemblyIdentityMap>(info, "AssemblyMap");
+            if (AssemblyMap != null && (schemaVersion < 4 || AssemblyMap.ModelGuid != Guid)) throw new SerializationException("InvalidModelAssemblyMap");
             Analysis = SerializationFields.Read<global::GPC.Model.Analysis.AnalysisSnapshot>(info, "AnalysisSnapshot");
             VerificationContext = SerializationFields.Read<global::GPC.Model.Checking.Contracts.VerificationProvenance>(info, "VerificationContext");
             VerificationScenarios = SerializationFields.Read(info, "VerificationScenarios", new global::GPC.Model.Checking.Scenarios.VerificationScenario[0]).ToDictionary(s => s.Id, StringComparer.Ordinal);
@@ -1744,7 +1753,8 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("ModelSchemaVersion", PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            info.AddValue("ModelSchemaVersion", AssemblyMap != null || PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 4 : PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            if (AssemblyMap != null) info.AddValue("AssemblyMap", AssemblyMap);
             if (Analysis != null) info.AddValue("AnalysisSnapshot", Analysis);
             if (VerificationContext != null) info.AddValue("VerificationContext", VerificationContext);
             if (VerificationScenarios.Count != 0) info.AddValue("VerificationScenarios", VerificationScenarios.Values.ToArray());

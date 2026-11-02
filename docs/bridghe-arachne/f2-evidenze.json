@@ -1,0 +1,1333 @@
+{
+  "schemaVersion": 1,
+  "phase": "F2",
+  "capturedUtc": "2026-11-02T23:27:32.035345+00:00",
+  "modelVersion": "5.39.0.0",
+  "phaseCompleteForDeclaredScope": true,
+  "performanceCriterion": "Median of five warm copies, identical F1 protocol; first-copy and worst-case are reported separately and are NOT bounded by 0.3 s.",
+  "model": {
+    "Model.Core.Tests": {
+      "passed": 63,
+      "failed": [],
+      "skipped": []
+    },
+    "Model.NetFramework.Tests": {
+      "passed": 25,
+      "failed": [],
+      "skipped": []
+    },
+    "UnitTest": {
+      "passed": 1649,
+      "failed": [],
+      "skipped": [
+        "NativeStages_DefinitionsMassesAndTemperaturesAreModelData",
+        "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+        "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+        "EightNativePairsKeepGeometryAndGlobalActionSigns",
+        "NativeStages_ActiveStageResultsSkipTheInactiveElements",
+        "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+        "NativeManufacturerPlates_AreImported",
+        "NativeStages_UnstagedSolutionBalancesLoadsMassesAndReactions",
+        "NativeStages_StagedNonlinearStatesPerStageAndIncrement",
+        "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+        "TimingOfTheColdPreparation",
+        "NativeElements_ReleasesSpringsLinksCombinationsAndPlateCorners"
+      ]
+    }
+  },
+  "checker": {
+    "suites": "all",
+    "created": "2026-11-03T00:24:26",
+    "results": [
+      {
+        "name": "GPCChecker.Test.Concrete",
+        "passed": 962,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Steel",
+        "passed": 122,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.CompositeBridge",
+        "passed": 420,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Geotechnics",
+        "passed": 202,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Calculation",
+        "passed": 175,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ShallowFoundation.Tests",
+        "passed": 29,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "EmbeddedWalls.Tests",
+        "passed": 99,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Steel.Members.Tests",
+        "passed": 7132,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks",
+        "passed": 274,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks.net472",
+        "passed": 273,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ModelChecker.Tests",
+        "passed": 673,
+        "failed": 0,
+        "other": 1,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      }
+    ],
+    "apiCompatible": true,
+    "unexpected": []
+  },
+  "scale": {
+    "net8": {
+      "runtime": ".NET 8.0.33",
+      "medianCopySeconds": 0.1245342,
+      "warmCopySeconds": [
+        0.1936438,
+        0.1198268,
+        0.1245342,
+        0.121763,
+        0.1245632
+      ],
+      "firstCopySeconds": 0.2063966,
+      "medianAllocatedBytes": 68679360,
+      "allMeasurements": [
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.0009968",
+          "threadAllocatedBytes": "630688",
+          "heapDeltaBytes": "641488",
+          "peakWorkingSetBytes": "41259008"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.0013572",
+          "threadAllocatedBytes": "656608",
+          "heapDeltaBytes": "668912",
+          "peakWorkingSetBytes": "41345024"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.001314",
+          "threadAllocatedBytes": "634656",
+          "heapDeltaBytes": "652320",
+          "peakWorkingSetBytes": "41345024"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.0008518",
+          "threadAllocatedBytes": "633744",
+          "heapDeltaBytes": "644352",
+          "peakWorkingSetBytes": "41562112"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.00078",
+          "threadAllocatedBytes": "633744",
+          "heapDeltaBytes": "644352",
+          "peakWorkingSetBytes": "41562112"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.0008164",
+          "threadAllocatedBytes": "633744",
+          "heapDeltaBytes": "644352",
+          "peakWorkingSetBytes": "41562112"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.0007769",
+          "threadAllocatedBytes": "635424",
+          "heapDeltaBytes": "652576",
+          "peakWorkingSetBytes": "41562112"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.0341297",
+          "threadAllocatedBytes": "3037208",
+          "heapDeltaBytes": "3055344",
+          "peakWorkingSetBytes": "52133888"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "0.1214417",
+          "threadAllocatedBytes": "24117088",
+          "heapDeltaBytes": "8254656",
+          "peakWorkingSetBytes": "81276928"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "0.0820473",
+          "threadAllocatedBytes": "10313976",
+          "heapDeltaBytes": "10352312",
+          "peakWorkingSetBytes": "84774912"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.0050378",
+          "threadAllocatedBytes": "6177904",
+          "heapDeltaBytes": "6209048",
+          "peakWorkingSetBytes": "85737472"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.0110736",
+          "threadAllocatedBytes": "6066552",
+          "heapDeltaBytes": "6092048",
+          "peakWorkingSetBytes": "85737472"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.0106428",
+          "threadAllocatedBytes": "6135488",
+          "heapDeltaBytes": "6157544",
+          "peakWorkingSetBytes": "85737472"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.0086612",
+          "threadAllocatedBytes": "5873320",
+          "heapDeltaBytes": "5897608",
+          "peakWorkingSetBytes": "86265856"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.007936",
+          "threadAllocatedBytes": "5873320",
+          "heapDeltaBytes": "5898384",
+          "peakWorkingSetBytes": "86265856"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.0083144",
+          "threadAllocatedBytes": "5873320",
+          "heapDeltaBytes": "5897608",
+          "peakWorkingSetBytes": "86265856"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.0105691",
+          "threadAllocatedBytes": "5876536",
+          "heapDeltaBytes": "5905832",
+          "peakWorkingSetBytes": "86265856"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.0500733",
+          "threadAllocatedBytes": "20746600",
+          "heapDeltaBytes": "1988192",
+          "peakWorkingSetBytes": "96235520"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "0.3617229",
+          "threadAllocatedBytes": "124389936",
+          "heapDeltaBytes": "33359720",
+          "peakWorkingSetBytes": "150515712"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "0.5742841",
+          "threadAllocatedBytes": "94548424",
+          "heapDeltaBytes": "27831472",
+          "peakWorkingSetBytes": "152772608"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.1591479",
+          "threadAllocatedBytes": "71378232",
+          "heapDeltaBytes": "51495184",
+          "peakWorkingSetBytes": "187400192"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.2063966",
+          "threadAllocatedBytes": "69389976",
+          "heapDeltaBytes": "65981824",
+          "peakWorkingSetBytes": "225406976"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.1936438",
+          "threadAllocatedBytes": "70776536",
+          "heapDeltaBytes": "67579976",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.1198268",
+          "threadAllocatedBytes": "68679360",
+          "heapDeltaBytes": "65207848",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.1245342",
+          "threadAllocatedBytes": "72873688",
+          "heapDeltaBytes": "69402176",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.121763",
+          "threadAllocatedBytes": "68679360",
+          "heapDeltaBytes": "65207848",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.1245632",
+          "threadAllocatedBytes": "68679360",
+          "heapDeltaBytes": "65207848",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.1870674",
+          "threadAllocatedBytes": "240850216",
+          "heapDeltaBytes": "15134736",
+          "peakWorkingSetBytes": "280432640"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "4.5442343",
+          "threadAllocatedBytes": "1388605664",
+          "heapDeltaBytes": "46619528",
+          "peakWorkingSetBytes": "640602112"
+        },
+        {
+          "runtime": ".NET 8.0.33",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "2.6304963",
+          "threadAllocatedBytes": "1133245840",
+          "heapDeltaBytes": "197575944",
+          "peakWorkingSetBytes": "640602112"
+        }
+      ],
+      "medianTargetPass": true,
+      "everyWarmCopyWithinTarget": true,
+      "firstCopyWithinTarget": true
+    },
+    "net48": {
+      "runtime": ".NET Framework 4.8.10008.0",
+      "medianCopySeconds": 0.2889613,
+      "warmCopySeconds": [
+        0.2847229,
+        0.2889613,
+        0.2899542,
+        0.2841979,
+        0.3041659
+      ],
+      "firstCopySeconds": 0.3602839,
+      "medianAllocatedBytes": 78657904,
+      "allMeasurements": [
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.0010221",
+          "threadAllocatedBytes": "648096",
+          "heapDeltaBytes": "655408",
+          "peakWorkingSetBytes": "36118528"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.0012175",
+          "threadAllocatedBytes": "766256",
+          "heapDeltaBytes": "775256",
+          "peakWorkingSetBytes": "36237312"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.0008198",
+          "threadAllocatedBytes": "744304",
+          "heapDeltaBytes": "750632",
+          "peakWorkingSetBytes": "36241408"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.00070829999999999992",
+          "threadAllocatedBytes": "743392",
+          "heapDeltaBytes": "750632",
+          "peakWorkingSetBytes": "36483072"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.00071479999999999992",
+          "threadAllocatedBytes": "743392",
+          "heapDeltaBytes": "750632",
+          "peakWorkingSetBytes": "36483072"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.0007094",
+          "threadAllocatedBytes": "743392",
+          "heapDeltaBytes": "750632",
+          "peakWorkingSetBytes": "36483072"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.00074179999999999992",
+          "threadAllocatedBytes": "745072",
+          "heapDeltaBytes": "750632",
+          "peakWorkingSetBytes": "36483072"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.0493997",
+          "threadAllocatedBytes": "3474144",
+          "heapDeltaBytes": "3501472",
+          "peakWorkingSetBytes": "50900992"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "0.1327576",
+          "threadAllocatedBytes": "31924048",
+          "heapDeltaBytes": "13555488",
+          "peakWorkingSetBytes": "66248704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "100",
+          "shells": "162",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "0.0636475",
+          "threadAllocatedBytes": "12770712",
+          "heapDeltaBytes": "7312048",
+          "peakWorkingSetBytes": "68091904"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.0057034",
+          "threadAllocatedBytes": "6359152",
+          "heapDeltaBytes": "4135160",
+          "peakWorkingSetBytes": "68313088"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.012888499999999999",
+          "threadAllocatedBytes": "7041128",
+          "heapDeltaBytes": "7059528",
+          "peakWorkingSetBytes": "68313088"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.012105999999999999",
+          "threadAllocatedBytes": "6847896",
+          "heapDeltaBytes": "6868024",
+          "peakWorkingSetBytes": "69693440"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.0065727999999999993",
+          "threadAllocatedBytes": "7110064",
+          "heapDeltaBytes": "7132664",
+          "peakWorkingSetBytes": "69832704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.0070636",
+          "threadAllocatedBytes": "6847896",
+          "heapDeltaBytes": "6870464",
+          "peakWorkingSetBytes": "69832704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.0079566",
+          "threadAllocatedBytes": "6847896",
+          "heapDeltaBytes": "6870464",
+          "peakWorkingSetBytes": "69832704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.0071334",
+          "threadAllocatedBytes": "6851112",
+          "heapDeltaBytes": "6870464",
+          "peakWorkingSetBytes": "69832704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.0300202",
+          "threadAllocatedBytes": "21808504",
+          "heapDeltaBytes": "3051096",
+          "peakWorkingSetBytes": "69832704"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "0.2326142",
+          "threadAllocatedBytes": "159375472",
+          "heapDeltaBytes": "82154816",
+          "peakWorkingSetBytes": "135380992"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "900",
+          "shells": "1682",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "0.2266639",
+          "threadAllocatedBytes": "112522512",
+          "heapDeltaBytes": "22538120",
+          "peakWorkingSetBytes": "135380992"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "build-and-assemble",
+          "repetition": "0",
+          "seconds": "0.1653478",
+          "threadAllocatedBytes": "72445112",
+          "heapDeltaBytes": "47514584",
+          "peakWorkingSetBytes": "135380992"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-first",
+          "repetition": "0",
+          "seconds": "0.3602839",
+          "threadAllocatedBytes": "80417120",
+          "heapDeltaBytes": "69848848",
+          "peakWorkingSetBytes": "189595648"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "1",
+          "seconds": "0.2847229",
+          "threadAllocatedBytes": "80755080",
+          "heapDeltaBytes": "70059264",
+          "peakWorkingSetBytes": "253149184"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "2",
+          "seconds": "0.2889613",
+          "threadAllocatedBytes": "78657904",
+          "heapDeltaBytes": "67961984",
+          "peakWorkingSetBytes": "253440000"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "3",
+          "seconds": "0.2899542",
+          "threadAllocatedBytes": "82852232",
+          "heapDeltaBytes": "72154336",
+          "peakWorkingSetBytes": "253440000"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "4",
+          "seconds": "0.2841979",
+          "threadAllocatedBytes": "78657904",
+          "heapDeltaBytes": "67958888",
+          "peakWorkingSetBytes": "253440000"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "copy-warm",
+          "repetition": "5",
+          "seconds": "0.3041659",
+          "threadAllocatedBytes": "78657904",
+          "heapDeltaBytes": "67960408",
+          "peakWorkingSetBytes": "253440000"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "analysis-fingerprint",
+          "repetition": "0",
+          "seconds": "0.3984318",
+          "threadAllocatedBytes": "252994848",
+          "heapDeltaBytes": "2205048",
+          "peakWorkingSetBytes": "253440000"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "save-memory",
+          "repetition": "0",
+          "seconds": "6.7419739",
+          "threadAllocatedBytes": "1674141968",
+          "heapDeltaBytes": "360861960",
+          "peakWorkingSetBytes": "427413504"
+        },
+        {
+          "runtime": ".NET Framework 4.8.10008.0",
+          "nodes": "10000",
+          "shells": "19602",
+          "operation": "load-memory",
+          "repetition": "0",
+          "seconds": "3.3648936",
+          "threadAllocatedBytes": "1320448472",
+          "heapDeltaBytes": "166347544",
+          "peakWorkingSetBytes": "427413504"
+        }
+      ],
+      "medianTargetPass": true,
+      "everyWarmCopyWithinTarget": false,
+      "firstCopyWithinTarget": false
+    }
+  },
+  "inventory": {
+    "types": 295,
+    "members": 2309
+  },
+  "limits": [
+    "Production plugins not yet migrated",
+    "Field routing includes explicit F4/F5 contract and unit gaps",
+    "No universal <=0.3 s latency bound, especially first copy on net48",
+    "ModelAssembly supports explicit nodes/two-node beams/linear shells; other input kinds rejected",
+    "Warped shell support must be declared per solver formulation",
+    "F3/F4 not implemented in this checkpoint"
+  ],
+  "intermediateAttempts": "All intermediate logs/TRX retained. Only model-tests-final, checker-tests-final and scale-*-final are release-checkpoint evidence. Earlier failures include SDK sandbox access, development compile/test failures and the equality audit corrected before the final run.",
+  "files": [
+    {
+      "path": "artifacts/f2/assembly-build.log",
+      "bytes": 325,
+      "sha256": "D5BCAB44D6D1A037FF7481D507A429F2CEA9F52D30B941451A0411B3A6F7A5D9"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Design.Checks.log",
+      "bytes": 603,
+      "sha256": "A216A655F473B861451E902FD3122E8B14CE887C699FD359C7E539ED515D0E31"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Design.Checks.net472.log",
+      "bytes": 614,
+      "sha256": "F0C4F486DF67F2AD441163330A52CCC72AA5B91F8AE66439AED14E5FBA08ACED"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Design.Checks.net472.trx",
+      "bytes": 366109,
+      "sha256": "5A586A29757CE70D54EA2B14147F644B6A144985205959537DF9C14180308E42"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Design.Checks.trx",
+      "bytes": 367671,
+      "sha256": "1730057C895A30C358CB57910FB8C4432CA1E5C4F6AC86388B165233F617F798"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/EmbeddedWalls.Tests.log",
+      "bytes": 627,
+      "sha256": "E3387042912C6810CBE3C099D241D5C4B5EBBD24C65C3A14168F114175C2AF77"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/EmbeddedWalls.Tests.trx",
+      "bytes": 139422,
+      "sha256": "E11EB71B9D6E460A4090AA902728F6303925A94B0E879E3FD5FC8EC479D10A72"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/g.pacini_ITEC-137_2026-11-03_00_22_30/In/809bb4f9-0d59-4e58-aa84-44b62bc08ba8/ITEC-137/wall-legacy.tsv",
+      "bytes": 460,
+      "sha256": "14A345FB46085EDDBA07C889BFF0468356138FFC9EF5732D0B508B9B84D9043E"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/g.pacini_ITEC-137_2026-11-03_00_22_31/In/94540cd0-4723-4a03-a9d0-ce99e01999b0/ITEC-137/pile-legacy.tsv",
+      "bytes": 2210,
+      "sha256": "3F8106C1EF6DA2D78C3DD693E4F114A287715EEE873C6A5A6AC1EBD26FCA0B37"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Calculation.log",
+      "bytes": 653,
+      "sha256": "4511D09CBE0B78257E11B731F7D06436F0FC0EF670BC67B5B78D3A054EBBF8AD"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Calculation.trx",
+      "bytes": 240282,
+      "sha256": "019E422E1354688C831644BAB161275D6CEE33C19C6FE5FA0C733A495B7DE9AB"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.CompositeBridge.log",
+      "bytes": 670,
+      "sha256": "A27B00B899CA8B5B4122FA442A4C4E2B99E3BCC452E99299123E10462F64AABB"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.CompositeBridge.trx",
+      "bytes": 614219,
+      "sha256": "4C8F0EC3357EB10CB494B072A2334B744C8E0B5B39EF25E2DF5304C307FEC3ED"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Concrete.log",
+      "bytes": 59372,
+      "sha256": "BF27A4BDCB8D65B048501A428B6A4087A1EAEC63E35C98B70F61579512ADF99E"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Concrete.trx",
+      "bytes": 7631300,
+      "sha256": "628059526F543D7F32A31CDDC408E1D96D1167DF2F01DC8C4B20A2C9D2A63E73"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Geotechnics.log",
+      "bytes": 654,
+      "sha256": "F0089902A603C4E866CEFA130D0A76F26AC53FC878C5E0238CB660C6A75BE937"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Geotechnics.trx",
+      "bytes": 279486,
+      "sha256": "BB80A1D827FC07BF465056D85ECC4D5EB435D02EA736780806068CD02F0FBB39"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Steel.log",
+      "bytes": 6815,
+      "sha256": "01351D7FDFD55ECA243756BABDAAC3001D29554F455A13741B4BF16751B6027B"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/GPCChecker.Test.Steel.trx",
+      "bytes": 156088,
+      "sha256": "F8D4AB1E6D40D399291EED2210821B6BBFE7BE4709F98AFACA3D3258BCAE912D"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/ModelChecker.Tests.log",
+      "bytes": 665,
+      "sha256": "EF48C0843946D0CB5118533B7C2F130E5F0D3305645385F18568B31F7A355372"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/ModelChecker.Tests.trx",
+      "bytes": 924605,
+      "sha256": "F2C8DE7DB08D706AD7AA58AF1706609EEAF6364E85E175EF587DAEFD55CF2706"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/ShallowFoundation.Tests.log",
+      "bytes": 646,
+      "sha256": "4EC3ACE398EA31D1C373E678D6D6C2E70D273281030C957600A5E6D040A6FC74"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/ShallowFoundation.Tests.trx",
+      "bytes": 39774,
+      "sha256": "08DFAD4D7112F0A1700BFECDE441395C1CE7C521D0C13AB9F96E3A85C62C4CDA"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Steel.Members.Tests.log",
+      "bytes": 627,
+      "sha256": "0FA5116D3EBA372F8BF4A1AF70E016D5B6B74E3494010A347FEF31A6DE109EC4"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/Steel.Members.Tests.trx",
+      "bytes": 9952536,
+      "sha256": "0893ECE93B454E9F42C6AB9701138C9769FC81ACC2C8282497387ADD55149860"
+    },
+    {
+      "path": "artifacts/f2/checker-tests-final/summary.json",
+      "bytes": 2404,
+      "sha256": "14F023CE3A328ED6819FC88C541413B619B8468D374623D8BC022C5606EB7D17"
+    },
+    {
+      "path": "artifacts/f2/checker-verify-final.log",
+      "bytes": 11295,
+      "sha256": "4B573A03F6816F3244A6119CFCF1F68F6FF4A1F22ED45050C1AB6887E6513B8D"
+    },
+    {
+      "path": "artifacts/f2/copy-compiled-net48.log",
+      "bytes": 1204,
+      "sha256": "2835C9AC80C865AF604B860E39B8DFD98AA5DD9CA7228BFF38EC58E439DAFC59"
+    },
+    {
+      "path": "artifacts/f2/copy-compiled-net48.trx",
+      "bytes": 8127,
+      "sha256": "3F416E1A2965749C7B37983120421FFA48A4D800E844274ED5E6089D5860E4FE"
+    },
+    {
+      "path": "artifacts/f2/copy-contracts.log",
+      "bytes": 5919,
+      "sha256": "13A8C5BA264DF402E6C846E63CE6F309FB5D8F9CD79BFD90EEAAA4B7437A23BA"
+    },
+    {
+      "path": "artifacts/f2/copy-contracts.trx",
+      "bytes": 111240,
+      "sha256": "3174346E729A4AA4CA0BA94A5E0A4318306904B56E264A667A54681A7745953E"
+    },
+    {
+      "path": "artifacts/f2/copy-coordinate.log",
+      "bytes": 6532,
+      "sha256": "7265D557300583B1A925B66A650573F0F6A087BE2955EA2B15208C48D25E3093"
+    },
+    {
+      "path": "artifacts/f2/copy-coordinate.trx",
+      "bytes": 15540,
+      "sha256": "E74819435C7229AA375E57AE47F1DC28EB38762DEA3AE94309032FE0CC278565"
+    },
+    {
+      "path": "artifacts/f2/copy-first-pass.log",
+      "bytes": 5922,
+      "sha256": "AE6633162B794946FEE65002FDCD4F3B07C4C911DE4C84BE406D3A7640B2B29A"
+    },
+    {
+      "path": "artifacts/f2/copy-first-pass.trx",
+      "bytes": 7583,
+      "sha256": "CA763AA5B95B9A36121D5C43AC9E058D7E5E17B7C6D6C813097347B3887F9210"
+    },
+    {
+      "path": "artifacts/f2/copy-matrix.log",
+      "bytes": 6530,
+      "sha256": "0256668C48CFEA3DE37B6AB2189DD7C180487350D6DB18C6B987412A887C7F36"
+    },
+    {
+      "path": "artifacts/f2/copy-matrix.trx",
+      "bytes": 16874,
+      "sha256": "6FB2754C505995E94389892DE7A46EF66F95C08EDA84258665EE4A3A3C8BAB3B"
+    },
+    {
+      "path": "artifacts/f2/copy-xml-net48.log",
+      "bytes": 37058,
+      "sha256": "161D39868C5FB5C2D1CEE28932B36F53AD12C447B44DB4944FACEF70872956F0"
+    },
+    {
+      "path": "artifacts/f2/copy-xml-net48.trx",
+      "bytes": 50393,
+      "sha256": "0CF54FF9D190995957F666048B7BEE8348D8980040E51F76E033C9DE4420EFDB"
+    },
+    {
+      "path": "artifacts/f2/foundations-build.log",
+      "bytes": 8519,
+      "sha256": "9F40614693455A3DA8FA18ECB562C691B9432A0DAD713A56F5A1B8ADF68FAFAB"
+    },
+    {
+      "path": "artifacts/f2/foundations-first.log",
+      "bytes": 16141,
+      "sha256": "808E38FC5E001343FDD3FBF448E9148DF1966C391106EF0EF7B758359F3CED18"
+    },
+    {
+      "path": "artifacts/f2/foundations-first.trx",
+      "bytes": 34319,
+      "sha256": "33050AFDE2BB43000CDA5FF707A5C9423C03D850AB3869AB4240CD54FEC77BB7"
+    },
+    {
+      "path": "artifacts/f2/foundations-fourth-net48.log",
+      "bytes": 1578,
+      "sha256": "E3351681A379FD7956C14622E8EFB4D13ADD3B45F17A31B2BD55811F37BF829A"
+    },
+    {
+      "path": "artifacts/f2/foundations-fourth-net48.trx",
+      "bytes": 30154,
+      "sha256": "A0F017FF588182E46D0BA13CEE2749B11F767CADA44AD49690E3DCB3D82AE9FC"
+    },
+    {
+      "path": "artifacts/f2/foundations-second-net48.log",
+      "bytes": 807,
+      "sha256": "42708B6BD57928169E0FA0A0F6B66527F314730885E1ED3CEFD455F4AFB707B2"
+    },
+    {
+      "path": "artifacts/f2/foundations-third-net48.log",
+      "bytes": 1205,
+      "sha256": "8D4243C01C567B5EA387EBCAD0415E3A1659A64E6C921019D3D8AF2D5F99B473"
+    },
+    {
+      "path": "artifacts/f2/foundations-third-net48.trx",
+      "bytes": 26035,
+      "sha256": "403F6F0FF837BF6482FBB2B754FEAC1BCD300C0FE2C49219C2656D17F1623F54"
+    },
+    {
+      "path": "artifacts/f2/inventory-final.log",
+      "bytes": 75,
+      "sha256": "33647542D59DE6C2865DC82BABEA3706062F083C599E7F50C2FC0A178F375251"
+    },
+    {
+      "path": "artifacts/f2/inventory.log",
+      "bytes": 75,
+      "sha256": "E3DE37E436AFCE91A5C50FD6F3FA4201D0C0DC354C1B6EFC7780A534E55BFD89"
+    },
+    {
+      "path": "artifacts/f2/model-tests-complete/Model.Core.Tests.trx",
+      "bytes": 86752,
+      "sha256": "E2FF3AF6D4B369DC425449EEF800426FD71D146C579EEE8F654ABE0D7E424CD7"
+    },
+    {
+      "path": "artifacts/f2/model-tests-complete/Model.NetFramework.Tests.trx",
+      "bytes": 31238,
+      "sha256": "7C77D185502D08CF30C42A2AE87629AF15BD3BB1BAED1AA0AE68DA9990FE72B7"
+    },
+    {
+      "path": "artifacts/f2/model-tests-complete/UnitTest.trx",
+      "bytes": 2285557,
+      "sha256": "2020F75507BD5C5DA01E8879C4A577934F6FB32F6E71CD4A87D1B07C6C317254"
+    },
+    {
+      "path": "artifacts/f2/model-tests-final/Model.Core.Tests.trx",
+      "bytes": 86752,
+      "sha256": "24B0FAE5A30B4B61184A97B8AB952FC63648912136A849B077632DCD7921B5E6"
+    },
+    {
+      "path": "artifacts/f2/model-tests-final/Model.NetFramework.Tests.trx",
+      "bytes": 35357,
+      "sha256": "E936C3D174D3C04E9F44186CDE69E44DCB6CE7A30E522A2C3F0BD22222246775"
+    },
+    {
+      "path": "artifacts/f2/model-tests-final/UnitTest.trx",
+      "bytes": 2289558,
+      "sha256": "210349B1E6AA0C528765644572BAD43184DCEC5DED1DC36E7394CC7980E68719"
+    },
+    {
+      "path": "artifacts/f2/model-verify-complete.log",
+      "bytes": 5778,
+      "sha256": "A8BFF7ABC75E4A4989DF9D3B665ED8C0CC78AD92D9A1D0EB45047DBDB7D2EFAC"
+    },
+    {
+      "path": "artifacts/f2/model-verify-final.log",
+      "bytes": 5125,
+      "sha256": "ED5FF2ADCD59DAD5370B2D70D5304EBDBD137FC1D50940CD57DDDAF3DA92B022"
+    },
+    {
+      "path": "artifacts/f2/netframework-copy.log",
+      "bytes": 1354,
+      "sha256": "E1356F3E006DC8C1E90B9FBC3EBB7A683D81E02E3D8355CE9160CFEA3EB7477D"
+    },
+    {
+      "path": "artifacts/f2/netframework-copy.trx",
+      "bytes": 11932,
+      "sha256": "BA0E262301960B964FBEB8B49B1FE21485F7BDBC827390B6A520B99636BB68D5"
+    },
+    {
+      "path": "artifacts/f2/netframework-matrix.log",
+      "bytes": 1204,
+      "sha256": "3CCF36BA9F4299FD3519B0AB4D97D73421FA204E0FC03197E16369A0405B04E7"
+    },
+    {
+      "path": "artifacts/f2/netframework-matrix.trx",
+      "bytes": 13330,
+      "sha256": "E97934B09531416231B51C4350C601FE1A820D7CB4CD739322FBA0508F400B86"
+    },
+    {
+      "path": "artifacts/f2/scale-build.log",
+      "bytes": 940,
+      "sha256": "591A385B0C41A62FBF43E62C8D5A1C26789CFE50008D031C628FD2FBFA211772"
+    },
+    {
+      "path": "artifacts/f2/scale-capacity-build.log",
+      "bytes": 940,
+      "sha256": "90AC6BA83E9F0FCFC7DFA39FC09679B50BCEFAC5F91D913DB1097C069FB3D516"
+    },
+    {
+      "path": "artifacts/f2/scale-compiled-build.log",
+      "bytes": 940,
+      "sha256": "A63A14DBAE81133077D52C5DD7E96DFBE32128CD9AAA376A13006F514E321B15"
+    },
+    {
+      "path": "artifacts/f2/scale-final-build.log",
+      "bytes": 1081,
+      "sha256": "BB896EFC6D5CA3851A457A1269BFCD185DC0F66E41709740AF04A02DF80AA760"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-capacity.csv",
+      "bytes": 2821,
+      "sha256": "A5BD3AF271E0AB9B5E326405FF52917A09B98E1D66E50266504585EA70E9FC60"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-capacity.log",
+      "bytes": 1338,
+      "sha256": "0B3356D053C54D8B16DE4438BA05A7C6530FED8197DABB0FA6384A4466E4ADC4"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-compiled.csv",
+      "bytes": 2895,
+      "sha256": "9DC2D937F9B445C3A565912D4AABC9CDFDAD665EE5CC2E3F5D3835B1BA013909"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-compiled.log",
+      "bytes": 1338,
+      "sha256": "8F2BEE86ABBEB56FC3788C7AF4E80AA199B61B21BFF5340EE725AF6F446C4E88"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-coordinates.csv",
+      "bytes": 2902,
+      "sha256": "30F142C4EE5D4869763036871D5229E1A4C2EEB35219B99949A0A42FDF7387CF"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-coordinates.log",
+      "bytes": 1338,
+      "sha256": "7A687A4DDC2F0D619FB2313E8073F02ACA6A2EA29888027DBC802F50CA501725"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-final.csv",
+      "bytes": 2829,
+      "sha256": "8FD9B96927EE95A8ED94B8A750A7BA56B79AD5553D630CF380373075ADACC96B"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-final.log",
+      "bytes": 1338,
+      "sha256": "EFC9272135586C3C82EC6C6C0DACEFA232764CEBD7CD0E4A7B014A6362378FCA"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-leaves.csv",
+      "bytes": 1073,
+      "sha256": "8D1356D250A8260F36F70ECE06B78C4ACD455FC9C00BD223DA82A4CEA707FEA7"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-leaves.log",
+      "bytes": 472,
+      "sha256": "4A8756FD0CE98CDC0CD6D7B2861C2B30B5DB200421FC5647831B24541404DE30"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-matrices.csv",
+      "bytes": 2882,
+      "sha256": "F900E4FEF7ED4E5D3B093C8B97D7F6A6AC3DE11178BCAB2EE5648BEC960ABF37"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-matrices.log",
+      "bytes": 1338,
+      "sha256": "0B85A747A5F16C526C4C2EFA2F62566F0D9E8560334B84DA11C1E70ABB2E58D4"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-typed.csv",
+      "bytes": 2888,
+      "sha256": "E9F18B22E7F081929631667820EECCAC7D8A67172298E2CF58EFC03266C5200B"
+    },
+    {
+      "path": "artifacts/f2/scale-net48-typed.log",
+      "bytes": 1338,
+      "sha256": "735370499BE4B21BFA9B83ACBB6DB5F6B1AF06BD0A40957D0DA04CCE0DD289DB"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-compiled.csv",
+      "bytes": 2304,
+      "sha256": "AF1BBE1A6CE638BD5673F76BB1B91C9A534B72BAAD53ED6EA8BCE33DC574FEF7"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-compiled.log",
+      "bytes": 1338,
+      "sha256": "0141716AB982E6C63793FAF2B48187663EC8F6EB5A2487AA92B5B1D2C9154CFE"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-coordinates.csv",
+      "bytes": 2299,
+      "sha256": "A17F41C4C971CD745635703BF0110C04288E2958FD6F903A4CD3E297F9E87002"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-coordinates.log",
+      "bytes": 1338,
+      "sha256": "606EA1305FE7B699D17B6B4CB658263D84E497B085730224EC000851986B3D5E"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-final.csv",
+      "bytes": 2300,
+      "sha256": "BA7C48AAD9559E6E6863880CCF2F5568343CEC6ADF49286BFC77A17830A85DC5"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-final.log",
+      "bytes": 1338,
+      "sha256": "36A8CE5D9DF51DD0A746DC2F6211629E35BBBD73EC81C287836A04EBA7C58F2F"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-leaves.csv",
+      "bytes": 893,
+      "sha256": "C793553FEFA4DAF8D42421619BF0FDA30460EE69DE8E32D03D0E60C0EC7B7AA8"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-leaves.log",
+      "bytes": 472,
+      "sha256": "DAD43E7A9F222C9D2E93CC7FB16B2450D812D6580A7B95088C4760B0DC5BA2F8"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-matrices.csv",
+      "bytes": 2298,
+      "sha256": "8301C3932D15E7777ECBEADC5E7EB24E026400091FB8F0661A145AD576C203A3"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-matrices.log",
+      "bytes": 1338,
+      "sha256": "CCEB411BA36D3ACA97DCA92D7432E25039C1DE4A48948004537E2BEF06019328"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-typed.csv",
+      "bytes": 2334,
+      "sha256": "4212DACC37935FE19EBDE2B7C926FD58F0F3A44648F90448803584D803BDE7A4"
+    },
+    {
+      "path": "artifacts/f2/scale-net8-typed.log",
+      "bytes": 1338,
+      "sha256": "74B8B25D2377F8BB05D56812C2058B7497C9550F3606AE33EA68029ECCD4086C"
+    },
+    {
+      "path": "Model/tools/MigrationScale/bin/Release/net8.0/GPCModel.dll",
+      "bytes": 1662976,
+      "sha256": "7A7D9F355C3AD1901BC6FED376CB8914DD8DD170752E12229334E5C1475625B9"
+    },
+    {
+      "path": "Model/tools/MigrationScale/bin/Release/net48/GPCModel.dll",
+      "bytes": 1662976,
+      "sha256": "7A7D9F355C3AD1901BC6FED376CB8914DD8DD170752E12229334E5C1475625B9"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/f2-inventario.json",
+      "bytes": 1267849,
+      "sha256": "5189EF382355D5F4D2EFB8D94E63CE47E5E0A38F3B160D184FE7ED4AE45262A3"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/f2-destinazioni.json",
+      "bytes": 2564728,
+      "sha256": "DAFCD7ECEF77E400183044F7F832D3EE65B61125363A28148CBE6A088FBD3BD7"
+    }
+  ]
+}

@@ -124,6 +124,14 @@ namespace GPC.Model
 
         #endregion 
 
+        /// <summary>Identity fields written by GetObjectData, for the built-in in-memory contracts.</summary>
+        internal void CopyIdentityFrom(ModelObject source)
+        {
+            _guid = source._guid;
+            _name = source._name;
+            _serializationVersion = source._serializationVersion;
+        }
+
         /// <summary>
         /// Compares the Guid of the object with a given one
         /// </summary>

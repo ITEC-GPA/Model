@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><Compile Include="../tests/ClimateContractsTests.cs" Link="ClimateContractsTests.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../tests/MigrationCopyContractsTest.cs" Link="MigrationCopyContractsTest.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../tests/MigrationFoundationsTest.cs" Link="MigrationFoundationsTest.cs" /></ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>

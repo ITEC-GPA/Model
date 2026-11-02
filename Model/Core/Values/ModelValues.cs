@@ -87,7 +87,10 @@ namespace GPC.Model.Core
         public static T CopyValue<T>(T value) where T : class
         {
             if (value == null) return null;
-            return (T)Detach(value).Read();
+            if (!KnownTypeSet.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
+            if (value is Sections.ISectionShape section) { var shape = section.Shape; }
+            try { return (T)ContractCopy.Copy(value, value.GetType()); }
+            catch (ContractCopy.UnsupportedException) { return (T)Detach(value).Read(); }
         }
         /// <summary>The XML that <see cref="CopyValue{T}"/> writes for the value now. Each <see cref="DetachedValue.Read"/> returns a new
         /// detached copy, the one CopyValue would return while the value is unchanged.</summary>

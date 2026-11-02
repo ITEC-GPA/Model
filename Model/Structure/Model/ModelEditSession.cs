@@ -83,7 +83,7 @@ namespace GPC.Model.Models
             foreach (var entry in Draft.PhysicalMembers)
             {
                 if (entry.Value == null || entry.Key != entry.Value.Id) { diagnostics.Add(ModelDiagnostic.Error("InvalidPhysicalMemberIdentity")); continue; }
-                try { new PhysicalMemberGeometry(Draft, entry.Value); }
+                try { new PhysicalMemberPath(Draft, entry.Value); }
                 catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is InvalidOperationException)
                 { diagnostics.Add(ModelDiagnostic.Error("InvalidPhysicalMember", message: entry.Key + ": " + ex.Message)); }
             }

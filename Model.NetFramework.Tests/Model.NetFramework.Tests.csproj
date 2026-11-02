@@ -13,6 +13,8 @@
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
     <Compile Include="../tests/RuntimeIndependentFingerprintTest.cs" Link="RuntimeIndependentFingerprintTest.cs" />
+    <Compile Include="../tests/MigrationCopyContractsTest.cs" Link="MigrationCopyContractsTest.cs" />
+    <Compile Include="../tests/MigrationFoundationsTest.cs" Link="MigrationFoundationsTest.cs" />
     <None Include="../UnitTest/Fixtures/model-v5-5.23.0.2.zip" Link="Fixtures/model-v5-5.23.0.2.zip" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../UnitTest/Fixtures/model-v3-1.6.1.7.xml.gz" Link="Fixtures/model-v3-1.6.1.7.xml.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../UnitTest/Fixtures/doubles-5.37.0.1-v5.zip" Link="Fixtures/doubles-5.37.0.1-v5.zip" CopyToOutputDirectory="PreserveNewest" />

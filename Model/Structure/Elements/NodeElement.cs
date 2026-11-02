@@ -22,6 +22,14 @@ namespace GPC.Model.Elements
 
         #endregion
 
+        /// <summary>Exact NodeElement contract; subclasses continue through their own serialization constructor.</summary>
+        internal void CopyContractFrom(NodeElement source, Core.ContractCopy context)
+        {
+            CopyElementContractFrom(source, context);
+            Assignments = context.Child(source.Assignments);
+            _position = context.Child(source._position);
+        }
+
         #region Properties
 
         /// <summary>

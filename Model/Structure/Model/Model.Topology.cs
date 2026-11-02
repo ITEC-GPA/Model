@@ -79,8 +79,13 @@ namespace GPC.Model.Models
                 foreach (var term in link.Equations ?? new global::GPC.Model.Constraints.MultiPointsCostrain.Equation[0]) yield return term.NodeSlave;
         }
 
-        public IReadOnlyList<ModelDiagnostic> ValidateTopology()
+        public IReadOnlyList<ModelDiagnostic> ValidateTopology() => ValidateTopology(false, GeometryBase.Tolerance);
+
+        /// <summary>Explicit adapter capability for bilinear warped quads. The default overload
+        /// retains planar-only acceptance; accepting geometry is not a formulation validation.</summary>
+        public IReadOnlyList<ModelDiagnostic> ValidateTopology(bool supportsWarpedQuads, double planarityToleranceMm)
         {
+            if (NumericGuard.Finite(planarityToleranceMm, nameof(planarityToleranceMm)) < 0) throw new ArgumentOutOfRangeException(nameof(planarityToleranceMm));
             var issues = new List<ModelDiagnostic>();
             issues.AddRange(ValidateGroups());
             if (NodesElements.MissingLegacyPayload || BeamElements.MissingLegacyPayload || AreaElements.MissingLegacyPayload || VolumeElements.MissingLegacyPayload)
@@ -126,6 +131,12 @@ namespace GPC.Model.Models
                 }
                 if (element is AreaElement area && area.Nodes.Count > 0)
                 {
+                    if (supportsWarpedQuads)
+                    {
+                        try { new Structure.Topology.ShellGeometry(area); }
+                        catch (ArgumentException ex) { issues.Add(ModelDiagnostic.Error("InvalidShellGeometry", element, ex.Message)); }
+                        continue;
+                    }
                     var p = area.Points;
                     Vector3d edge = p[1] - p[0];
                     var normal = edge.CrossProduct(p[2] - p[0]);
@@ -133,7 +144,7 @@ namespace GPC.Model.Models
                     if (length < 1e-9) issues.Add(ModelDiagnostic.Error("DegenerateShell", element));
                     // Same planarity tolerance as the polygons of the geometry kernel (shell shapes and area loads): the round-off of
                     // exported coordinates (1e-5 mm) is planar, an actual warping is not.
-                    else if (p.Length == 4 && Math.Abs(Axes.Dot(p[3] - p[0], normal)) / length > GeometryBase.Tolerance)
+                    else if (p.Length == 4 && Math.Abs(Axes.Dot(p[3] - p[0], normal)) / length > planarityToleranceMm)
                         issues.Add(ModelDiagnostic.Error("NonPlanarShell", element));
                     else if (p.Length == 4)
                     {

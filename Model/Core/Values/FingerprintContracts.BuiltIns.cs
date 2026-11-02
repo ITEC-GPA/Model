@@ -30,6 +30,37 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            Register("GPC.Model.Structure.Members.BridgeMemberMetadata", "GPC.Model.Structure.Members.BridgeMemberMetadata",
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<PhysicalId>k__BackingField", "PhysicalId", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Family>k__BackingField", "Family", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Group>k__BackingField", "Group", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Segment>k__BackingField", "Segment", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Span>k__BackingField", "Span", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<StationFromMm>k__BackingField", "StationFromMm", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<StationToMm>k__BackingField", "StationToMm", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "sectionUp", "sectionUp", false),
+                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<GeometryId>k__BackingField", "GeometryId", false));
+            Register("GPC.Model.Core.Identity.AssemblyIdentityMap", "GPC.Model.Core.Identity.AssemblyIdentityMap",
+                Field("GPC.Model.Core.Identity.AssemblyIdentityMap", "entries", "entries", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityMap", "<ModelGuid>k__BackingField", "ModelGuid", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityMap", "<MergeToleranceMm>k__BackingField", "MergeToleranceMm", false));
+            Register("GPC.Model.Core.Identity.AssemblyIdentityEntry", "GPC.Model.Core.Identity.AssemblyIdentityEntry",
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<InputGuid>k__BackingField", "InputGuid", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<CanonicalGuid>k__BackingField", "CanonicalGuid", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<Family>k__BackingField", "Family", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<ModelId>k__BackingField", "ModelId", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<OriginalModelId>k__BackingField", "OriginalModelId", false),
+                Field("GPC.Model.Core.Identity.AssemblyIdentityEntry", "<Source>k__BackingField", "Source", false));
+            Register("GPC.Model.Core.Identity.SolverIdentityMap", "GPC.Model.Core.Identity.SolverIdentityMap",
+                Field("GPC.Model.Core.Identity.SolverIdentityMap", "<ModelGuid>k__BackingField", "ModelGuid", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityMap", "<Solver>k__BackingField", "Solver", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityMap", "<AnalysisFingerprint>k__BackingField", "AnalysisFingerprint", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityMap", "entries", "entries", false));
+            Register("GPC.Model.Core.Identity.SolverIdentityEntry", "GPC.Model.Core.Identity.SolverIdentityEntry",
+                Field("GPC.Model.Core.Identity.SolverIdentityEntry", "<EntityGuid>k__BackingField", "EntityGuid", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityEntry", "<Family>k__BackingField", "Family", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityEntry", "<ModelId>k__BackingField", "ModelId", false),
+                Field("GPC.Model.Core.Identity.SolverIdentityEntry", "<SolverId>k__BackingField", "SolverId", false));
             // Existing serialized part fields: placement and component geometry are
             // structural inputs. No new archive fields or version changes.
             Register("GPC.Model.Sections.SectionBuiltUp+Part", "GPC.Model.Sections.SectionBuiltUp+Part",
@@ -480,7 +511,8 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "_parts", "_parts", false),
                 // Member serviceability declarations (30/10/2026): absent on the historical definitions, whose fingerprints are unchanged.
-                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true));
+                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true),
+                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<BridgeMetadata>k__BackingField", "<BridgeMetadata>k__BackingField", true));
             Register("GPC.Model.Checking.Preparation.PreparationRequest", "GPC.Model.PostProcessing.PreparationRequest",
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Mechanisms>k__BackingField", "<Mechanisms>k__BackingField", false),
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Results>k__BackingField", "<Results>k__BackingField", false),

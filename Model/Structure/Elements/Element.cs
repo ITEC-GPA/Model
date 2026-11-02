@@ -130,6 +130,22 @@ namespace GPC.Model.Elements
 
         #region Methods
 
+        /// <summary>The current Element serialization contract, without temporary dictionaries.
+        /// Results follow ResultScope; caches and event/index registrations are rebuilt by their owners.</summary>
+        internal void CopyElementContractFrom(Element source, Core.ContractCopy context)
+        {
+            CopyIdentityFrom(source);
+            _id = source._id;
+            Source = context.Child(source.Source);
+            _coordinateSystem = context.Child(source._coordinateSystem);
+            _groups = context.Child(source._groups);
+            _attributes = context.Child(source._attributes);
+            _attributes.RestoreCounter(source._attributes.CounterBeyondIds);
+            _loads = context.Child(source._loads);
+            _loads.RestoreCounter(source._loads.CounterBeyondIds);
+            _results = ResultScope.Skips(source) ? new List<ElementResult>() : context.Child(source.Results);
+        }
+
         /// <summary>
         /// Tell if the element belongs to a group
         /// </summary>

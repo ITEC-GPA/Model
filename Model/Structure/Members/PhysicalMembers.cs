@@ -55,6 +55,9 @@ namespace GPC.Model.Structure.Members
         [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<ServiceabilityLimits>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
         public MemberServiceabilityLimits ServiceabilityLimits { get; private set; }
+        [field: System.Runtime.Serialization.OptionalField]
+        [field: System.Runtime.Serialization.DataMember(Name = "<BridgeMetadata>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public BridgeMemberMetadata BridgeMetadata { get; private set; }
         public IReadOnlyList<BeamMemberPart> Parts => Array.AsReadOnly(_parts);
 
         public PhysicalMemberDefinition(string id, IEnumerable<BeamMemberPart> parts, string stationDomain, string name = null, string source = null)
@@ -78,6 +81,17 @@ namespace GPC.Model.Structure.Members
             copy.ServiceabilityLimits = limits;
             return copy;
         }
+
+        /// <summary>Bridge identity is explicit and must refer to this physical member.</summary>
+        public PhysicalMemberDefinition WithBridgeMetadata(BridgeMemberMetadata metadata)
+        {
+            if (metadata != null && metadata.PhysicalId != Id) throw new ArgumentException("BridgePhysicalIdentityMismatch");
+            var copy = (PhysicalMemberDefinition)MemberwiseClone(); copy.BridgeMetadata = metadata; return copy;
+        }
+
+        [System.Runtime.Serialization.OnDeserialized]
+        private void ValidateBridgeMetadata(System.Runtime.Serialization.StreamingContext context)
+        { if (BridgeMetadata != null && BridgeMetadata.PhysicalId != Id) throw new System.Runtime.Serialization.SerializationException("BridgePhysicalIdentityMismatch"); }
 
         /// <summary>The member path without its serviceability declarations: the definition of the snapshots and of the scope digest.</summary>
         internal PhysicalMemberDefinition Path => ServiceabilityLimits == null ? this : WithServiceabilityLimits(null);

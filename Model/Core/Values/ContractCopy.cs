@@ -50,12 +50,12 @@ namespace GPC.Model.Core
             return plan;
         };
 
-        private readonly Dictionary<object, object> _copies = new Dictionary<object, object>(ReferenceComparer<object>.Instance);
+        private readonly Dictionary<object, object> _copies;
 
-        private ContractCopy() { }
+        private ContractCopy(int capacity) { _copies = new Dictionary<object, object>(capacity, ReferenceComparer<object>.Instance); }
 
         /// <summary>The copy of <paramref name="value"/>, written as <paramref name="declared"/>.</summary>
-        internal static object Copy(object value, Type declared) => new ContractCopy().Value(value, declared);
+        internal static object Copy(object value, Type declared, int capacity = 0) => new ContractCopy(capacity).Value(value, declared);
 
         /// <summary>How a value of <paramref name="type"/> is copied, or why it goes through the XML (the tests compare it with the
         /// contract of the serializer).</summary>
@@ -76,8 +76,8 @@ namespace GPC.Model.Core
             internal Type Type;
             internal object Default;
             internal bool EmitDefault;
-            internal object Get(object target) => Field != null ? Field.GetValue(target) : Property.GetValue(target);
-            internal void Set(object target, object value) { if (Field != null) Field.SetValue(target, value); else Property.SetValue(target, value); }
+            internal Func<object, object> Get;
+            internal Action<object, object> Set;
         }
 
         private sealed class Plan
@@ -89,6 +89,9 @@ namespace GPC.Model.Core
             internal Type Item, Key;
             internal bool SharedItems;
             internal ConstructorInfo Constructor;
+            internal Func<object, object> LeafCopy;
+            internal Action<ContractCopy, object, object> Initialize;
+            internal Func<ContractCopy, object, object> Factory;
             internal Func<object> New;
             internal Action<object, object> Add;
             internal Action<object, object, object> AddPair;
@@ -142,6 +145,24 @@ namespace GPC.Model.Core
                 if (constructor == null) return Unsupported(type, "MissingDeserializationConstructor");
                 if (Callbacks(type, typeof(OnDeserializingAttribute)).Length != 0) return Unsupported(type, "OnDeserializingOfISerializable");
                 plan = new Plan { Kind = Kind.Custom, Constructor = constructor };
+                // These sealed leaf contracts read only XYZ and regenerate their geometry GUID.
+                // Keeping them in the graph map preserves aliases without allocating two
+                // SerializationInfo dictionaries per point/vector. No subclass can opt into this path.
+                if (type == typeof(GPC.Geometry.Point3d)) plan.LeafCopy = value =>
+                {
+                    var point = (GPC.Geometry.Point3d)value; var guid = point.Guid;
+                    return new GPC.Geometry.Point3d(point.X, point.Y, point.Z);
+                };
+                if (type == typeof(GPC.Geometry.Vector3d)) plan.LeafCopy = value =>
+                {
+                    var vector = (GPC.Geometry.Vector3d)value; var guid = vector.Guid;
+                    return new GPC.Geometry.Vector3d(vector.X, vector.Y, vector.Z);
+                };
+                if (type == typeof(Elements.NodeElement)) plan.Initialize = (context, source, target) =>
+                    ((Elements.NodeElement)target).CopyContractFrom((Elements.NodeElement)source, context);
+                if (type == typeof(Elements.AreaElement)) plan.Initialize = (context, source, target) =>
+                    ((Elements.AreaElement)target).CopyContractFrom((Elements.AreaElement)source, context);
+                if (type == typeof(GPC.Geometry.CoordinateSystem)) plan.Initialize = CoordinateContract();
             }
             else if (contract || type.IsSerializable)
             {
@@ -159,6 +180,29 @@ namespace GPC.Model.Core
             else return Unsupported(type, "NotSerializable");
             plan.OnDeserialized = Callbacks(type, typeof(OnDeserializedAttribute));
             plan.Callback = typeof(IDeserializationCallback).IsAssignableFrom(type);
+            if (plan.Kind == Kind.Members) plan.Initialize = MemberContract(plan.Members);
+            if (type == typeof(MathNet.Numerics.LinearAlgebra.Storage.DenseColumnMajorMatrixStorage<double>))
+                plan.Factory = (context, value) =>
+                {
+                    var storage = (MathNet.Numerics.LinearAlgebra.Storage.DenseColumnMajorMatrixStorage<double>)value;
+                    if (storage.RowCount <= 0 || storage.ColumnCount <= 0 || storage.Data == null || (long)storage.RowCount * storage.ColumnCount != storage.Data.Length) return null;
+                    return new MathNet.Numerics.LinearAlgebra.Double.DenseMatrix(storage.RowCount, storage.ColumnCount, context.Child(storage.Data)).Storage;
+                };
+            if (type == typeof(MathNet.Numerics.LinearAlgebra.Double.DenseMatrix))
+            {
+                // MathNet 5 stores the dimensions and data twice. Use its constructor only
+                // when both representations agree; malformed/other layouts retain the generic copy.
+                var fields = plan.Members.ToDictionary(m => m.Field?.Name ?? m.Property.Name);
+                if (fields.Count == 6 && fields.TryGetValue("_rowCount", out var rows) && fields.TryGetValue("_columnCount", out var columns) && fields.TryGetValue("_values", out var data))
+                    plan.Factory = (context, value) =>
+                    {
+                        var matrix = (MathNet.Numerics.LinearAlgebra.Double.DenseMatrix)value;
+                        var storage = matrix.Storage as MathNet.Numerics.LinearAlgebra.Storage.DenseColumnMajorMatrixStorage<double>;
+                        if (storage == null || matrix.RowCount != storage.RowCount || matrix.ColumnCount != storage.ColumnCount ||
+                            (int)rows.Get(value) != matrix.RowCount || (int)columns.Get(value) != matrix.ColumnCount || !ReferenceEquals(data.Get(value), storage.Data)) return null;
+                        return new MathNet.Numerics.LinearAlgebra.Double.DenseMatrix(context.Child(storage));
+                    };
+            }
             return plan;
         }
 
@@ -218,11 +262,82 @@ namespace GPC.Model.Core
             .Where(f => !f.IsNotSerialized).OrderBy(f => f.Name, StringComparer.Ordinal)
             .Select(f => NewMember(f, null, f.FieldType, null)).ToArray();
 
-        private static Member NewMember(FieldInfo field, PropertyInfo property, Type type, DataMemberAttribute attribute) => new Member
+        private static Member NewMember(FieldInfo field, PropertyInfo property, Type type, DataMemberAttribute attribute)
         {
-            Field = field, Property = property, Type = type, EmitDefault = attribute == null || attribute.EmitDefaultValue,
-            Default = type.IsValueType && Nullable.GetUnderlyingType(type) == null ? Activator.CreateInstance(type) : null
-        };
+            var target = Expression.Parameter(typeof(object));
+            var value = Expression.Parameter(typeof(object));
+            var instance = Expression.Convert(target, field?.DeclaringType ?? property.DeclaringType);
+            Expression access = field != null ? (Expression)Expression.Field(instance, field) : Expression.Property(instance, property);
+            var member = new Member
+            {
+                Field = field, Property = property, Type = type, EmitDefault = attribute == null || attribute.EmitDefaultValue,
+                Default = type.IsValueType && Nullable.GetUnderlyingType(type) == null ? Activator.CreateInstance(type) : null,
+                Get = Expression.Lambda<Func<object, object>>(Expression.Convert(access, typeof(object)), target).Compile()
+            };
+            // Reflection is required for readonly fields and boxed value types. Their serializer
+            // contract allows initialization; assigning through an unboxed copy would lose it.
+            if (field?.IsInitOnly == true || (field?.DeclaringType ?? property.DeclaringType).IsValueType)
+                member.Set = (o, v) => { if (field != null) field.SetValue(o, v); else property.SetValue(o, v); };
+            else
+                member.Set = Expression.Lambda<Action<object, object>>(Expression.Assign(access, Expression.Convert(value, type)), target, value).Compile();
+            return member;
+        }
+
+        private static Action<ContractCopy, object, object> CoordinateContract()
+        {
+            // Exact fields read/written by the pinned Geometry CoordinateSystem contract.
+            // Its public constructor normalizes axes and would change the archived values;
+            // its copy constructor also discards V3. Neither is a valid contract copy.
+            var type = typeof(GPC.Geometry.CoordinateSystem);
+            var context = Expression.Parameter(typeof(ContractCopy));
+            var source = Expression.Parameter(typeof(object));
+            var target = Expression.Parameter(typeof(object));
+            var from = Expression.Convert(source, type); var to = Expression.Convert(target, type);
+            var expressions = new List<Expression>
+            {
+                // The writer requests the source GUID; the reader deliberately regenerates it.
+                Expression.Property(from, nameof(GPC.Geometry.CoordinateSystem.Guid))
+            };
+            var copy = typeof(ContractCopy).GetMethod(nameof(Value), BindingFlags.Instance | BindingFlags.NonPublic);
+            foreach (string name in new[] { "_origin", "_v1", "_v2", "_v3", "_InvOrigin", "_trfMatrix", "_name" })
+            {
+                var field = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+                if (field == null) throw new InvalidOperationException("Geometry coordinate contract changed: " + name);
+                expressions.Add(Expression.Assign(Expression.Field(to, field), Expression.Convert(
+                    Expression.Call(context, copy, Expression.Convert(Expression.Field(from, field), typeof(object)), Expression.Constant(typeof(object))), field.FieldType)));
+            }
+            expressions.Add(Expression.Call(to, type.GetMethod("UpdateComponents", BindingFlags.Instance | BindingFlags.NonPublic)));
+            return Expression.Lambda<Action<ContractCopy, object, object>>(Expression.Block(expressions), context, source, target).Compile();
+        }
+
+        private static Action<ContractCopy, object, object> MemberContract(Member[] members)
+        {
+            var context = Expression.Parameter(typeof(ContractCopy));
+            var source = Expression.Parameter(typeof(object));
+            var target = Expression.Parameter(typeof(object));
+            var copy = typeof(ContractCopy).GetMethod(nameof(Value), BindingFlags.Instance | BindingFlags.NonPublic);
+            var statements = new List<Expression>();
+            foreach (var member in members)
+            {
+                var owner = member.Field?.DeclaringType ?? member.Property.DeclaringType;
+                Expression Access(ParameterExpression instance) => member.Field != null
+                    ? (Expression)Expression.Field(Expression.Convert(instance, owner), member.Field)
+                    : Expression.Property(Expression.Convert(instance, owner), member.Property);
+                var read = Access(source);
+                var shared = IsShared(Nullable.GetUnderlyingType(member.Type) ?? member.Type);
+                Expression value = shared ? read : Expression.Convert(Expression.Call(context, copy,
+                    Expression.Convert(read, typeof(object)), Expression.Constant(member.Type)), member.Type);
+                Expression write = member.Field?.IsInitOnly == true || owner.IsValueType
+                    ? (Expression)Expression.Invoke(Expression.Constant(member.Set), target, Expression.Convert(value, typeof(object)))
+                    : Expression.Assign(Access(target), value);
+                if (!member.EmitDefault)
+                    write = Expression.IfThen(Expression.Not(Expression.Call(typeof(object).GetMethod(nameof(Equals), new[] { typeof(object), typeof(object) }),
+                        Expression.Convert(read, typeof(object)), Expression.Constant(member.Default, typeof(object)))), write);
+                statements.Add(write);
+            }
+            statements.Add(Expression.Empty());
+            return Expression.Lambda<Action<ContractCopy, object, object>>(Expression.Block(statements), context, source, target).Compile();
+        }
 
         /// <summary>The methods marked with <paramref name="attribute"/>, from the base class.</summary>
         private static MethodInfo[] Callbacks(Type type, Type attribute)
@@ -237,6 +352,10 @@ namespace GPC.Model.Core
         #endregion
 
         #region Copy
+
+        // Typed children of the explicitly implemented built-in contracts. They still pass
+        // through vocabulary validation and the same reference map as the generic contracts.
+        internal T Child<T>(T source) => (T)Value(source, typeof(T));
 
         private object Value(object value, Type declared)
         {
@@ -297,6 +416,20 @@ namespace GPC.Model.Core
 
         private object Custom(object source, Type type, Plan plan)
         {
+            if (plan.LeafCopy != null)
+            {
+                var leaf = plan.LeafCopy(source);
+                _copies.Add(source, leaf);
+                return leaf;
+            }
+            if (plan.Initialize != null)
+            {
+                var target = FormatterServices.GetUninitializedObject(type);
+                _copies.Add(source, target);
+                plan.Initialize(this, source, target);
+                Completed(target, plan);
+                return target;
+            }
             var info = new SerializationInfo(type, Converter);
             ((ISerializable)source).GetObjectData(info, Context);
             if (info.ObjectType != type || info.FullTypeName != type.FullName || info.AssemblyName != type.Assembly.FullName)
@@ -334,16 +467,16 @@ namespace GPC.Model.Core
 
         private object Members(object source, Type type, Plan plan)
         {
+            if (plan.Factory != null)
+            {
+                var created = plan.Factory(this, source);
+                if (created != null) { _copies.Add(source, created); Completed(created, plan); return created; }
+            }
             var copy = FormatterServices.GetUninitializedObject(type);
             if (!type.IsValueType) _copies.Add(source, copy);
             Call(plan.OnDeserializing, copy);
-            foreach (var member in plan.Members)
-            {
-                var value = member.Get(source);
-                if (!member.EmitDefault && (value == null ? member.Default == null : value.Equals(member.Default))) continue;
-                try { member.Set(copy, Value(value, member.Type)); }
-                catch (TargetInvocationException ex) when (ex.InnerException != null) { ExceptionDispatchInfo.Capture(ex.InnerException).Throw(); throw; }
-            }
+            try { plan.Initialize(this, source, copy); }
+            catch (TargetInvocationException ex) when (ex.InnerException != null) { ExceptionDispatchInfo.Capture(ex.InnerException).Throw(); throw; }
             Completed(copy, plan);
             return copy;
         }

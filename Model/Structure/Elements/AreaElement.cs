@@ -38,6 +38,16 @@ namespace GPC.Model.Elements
 
         #endregion
 
+        /// <summary>Exact AreaElement contract, retaining its explicit connectivity and property aliases.</summary>
+        internal void CopyContractFrom(AreaElement source, Core.ContractCopy context)
+        {
+            CopyElementContractFrom(source, context);
+            Assignments = context.Child(source.Assignments);
+            _shape = context.Child(source._shape);
+            _plateProperty = context.Child(source._plateProperty);
+            _nodes = context.Child(source._nodes);
+        }
+
         #region PROPERTIES
 
         /// <summary>
