@@ -207,9 +207,11 @@ namespace GPC.Model.Results.Processing
             return report;
         }
 
-        private static List<ResultLocation> Element(Models.Model model, Element owner, Combination output, string[] cases, (int Case, double Factor)[][] terms,
+        /// <summary>The combined samples of one element. <paramref name="layout"/>, when given, receives for each location its template and the
+        /// governing alternatives with their roles, in the order of the samples (<see cref="CombinationMatrix"/>, for the elements it does not prepare).</summary>
+        internal static List<ResultLocation> Element(Models.Model model, Element owner, Combination output, string[] cases, (int Case, double Factor)[][] terms,
             string[] labels, bool envelope, string datasetId, AnalysisDataset dataset, CombinationRebuildCache cache, bool fingerprints, List<PlatePrincipalResult> principals,
-            out int locations, CancellationToken token)
+            out int locations, CancellationToken token, List<(ResultLocation Template, (int Alternative, string[] Roles)[] States)> layout = null)
         {
             locations = 0;
             var byCase = cases.Select(_ => new List<ResultLocation>()).ToArray(); var index = cases.Select((c, i) => (c, i)).ToDictionary(p => p.c, p => p.i, StringComparer.Ordinal);
@@ -280,6 +282,7 @@ namespace GPC.Model.Results.Processing
                         throw new ArgumentException("DuplicateDerivedResult: " + state.ConcomitantStateId);
                     result.Add(sample);
                 }
+                layout?.Add((template, roles.Select(p => (p.Key, p.Value.ToArray())).ToArray()));
                 if (principals != null && template is PointResultPlateForces) principals.Add(Principals(owner, template, vectors, envelope, output.Name, labels));
                 locations++;
             }
@@ -288,7 +291,7 @@ namespace GPC.Model.Results.Processing
 
         /// <summary>The principal components of every combined state of a plate location (<paramref name="vectors"/>, one per alternative) and
         /// their extremes, with the first alternative on a tie as for the local components; the state ids are those of the samples.</summary>
-        private static PlatePrincipalResult Principals(Element owner, ResultLocation template, double[][] vectors, bool envelope, string output, string[] labels)
+        internal static PlatePrincipalResult Principals(Element owner, ResultLocation template, double[][] vectors, bool envelope, string output, string[] labels)
         {
             var values = new double[vectors.Length][];
             for (int a = 0; a < vectors.Length; a++)
