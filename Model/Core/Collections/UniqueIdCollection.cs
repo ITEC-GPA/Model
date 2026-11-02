@@ -18,6 +18,12 @@ namespace GPC.Model.Collections
         /// The largest id assigned or added
         /// </summary>
         protected int _maxId;
+        /// <summary>
+        /// The count when <see cref="_maxId"/> was last known to bound every key. Keys added or removed through the dictionary
+        /// members (the data contract reader, legacy callers) change the count, and the next use of the largest id scans the keys:
+        /// scanning at every addition made adding many loads quadratic.
+        /// </summary>
+        [NonSerialized] private int _countedKeys;
 
         #endregion
 
@@ -26,7 +32,7 @@ namespace GPC.Model.Collections
         /// <summary>
         /// The largest id assigned or added (not decreased by the removals)
         /// </summary>
-        public int MaxId { get => Count == 0 ? _maxId : Math.Max(_maxId, Keys.Max()); protected set => _maxId = value; }
+        public int MaxId { get => Count == 0 || Count == _countedKeys ? _maxId : Math.Max(_maxId, Keys.Max()); protected set { _maxId = value; _countedKeys = -1; } }
 
         /// <summary>
         /// The counter when a removed item had an id larger than the present ones, otherwise 0. The data contracts write the collection
@@ -88,11 +94,13 @@ namespace GPC.Model.Collections
         public bool Add(T item)
         {
             if (item is null) throw new ArgumentNullException(nameof(item));
-            if (Count > 0) _maxId = Math.Max(_maxId, Keys.Max());
+            _maxId = MaxId;
+            _countedKeys = Count;
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
                 item.Id = ++_maxId;
                 Add(item.Id, item);
+                _countedKeys = Count;
                 return true;
             }
             else
@@ -108,6 +116,7 @@ namespace GPC.Model.Collections
                     _maxId = item.Id;
 
                 Add(item.Id, item);
+                _countedKeys = Count;
                 return true;
             }
         }
@@ -176,6 +185,7 @@ namespace GPC.Model.Collections
         {
             base.Clear();
             _maxId = 0;
+            _countedKeys = 0;
         }
 
         /// <summary>
@@ -189,7 +199,9 @@ namespace GPC.Model.Collections
                 return false;
             // The removed id stays counted, also in a collection read from an archive (where only the owner kept the counter)
             _maxId = MaxId;
-            return base.Remove(id);
+            base.Remove(id);
+            _countedKeys = Count;
+            return true;
         }
 
         /// <summary>

@@ -81,9 +81,11 @@ namespace GPC.Model.Collections
         /// <summary>Renames the actual entity and every registered name index that contains it.</summary>
         public void Rename(string name, string newName) => this[name].Name = newName;
 
+        Type INameIndex.ItemType => typeof(T);
+
         NameIndexChange INameIndex.PrepareRename(ModelObject item, string name)
         {
-            if (!(item is T typed)) return null;
+            if (Count == 0 || !(item is T typed)) return null;
             // Reference identity is essential: legacy Equals can equate different entities with the same name.
             var keys = this.Where(p => ReferenceEquals(p.Value, typed)).Select(p => p.Key).ToArray();
             if (keys.Length == 0) return null;

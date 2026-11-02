@@ -51,6 +51,23 @@ namespace GPC.Model.Core
             }
         }
 
+        /// <summary>A new, independent graph, the one <c>Capture(model).Open()</c> returns, copied in memory (<see cref="ContractCopy"/>)
+        /// with the same compact results attached. A graph the in-memory copy does not reproduce goes through the image.</summary>
+        internal static Models.Model Copy(Models.Model model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            var elements = model.AllElements.ToArray();
+            var results = CaptureResults(model, elements);
+            Models.Model copy;
+            try
+            {
+                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model));
+            }
+            catch (ContractCopy.UnsupportedException) { return Capture(model, elements, results).Open(); }
+            AttachResults(copy, elements.Select(e => e.Guid).ToArray(), results);
+            return copy;
+        }
+
         /// <summary>The compact results of the elements, in order (see <see cref="Element.CaptureResults"/>).</summary>
         internal static ResultStorage[] CaptureResults(Models.Model model, Element[] elements)
         {

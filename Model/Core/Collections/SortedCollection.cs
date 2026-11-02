@@ -18,6 +18,12 @@ namespace GPC.Model.Collections
         /// The largest id assigned or added
         /// </summary>
         protected int _lastId;
+        /// <summary>
+        /// The count when <see cref="_lastId"/> was last known to bound every key. Keys added or removed through the dictionary
+        /// members (the data contract reader, legacy callers) change the count, and the next <see cref="Add"/> scans the keys:
+        /// scanning at every addition made building a model quadratic.
+        /// </summary>
+        [NonSerialized] private int _countedKeys;
         [NonSerialized] private KeyValuePair<int, T>[] _pendingItems;
         /// <summary>Legacy v0 stored no collection entries. Restore these from an authoritative source.</summary>
         public bool MissingLegacyPayload { get; private set; }
@@ -81,6 +87,7 @@ namespace GPC.Model.Collections
         {
             base.Clear();
             _lastId = 0;
+            _countedKeys = 0;
         }
 
         /// <summary>
@@ -92,11 +99,13 @@ namespace GPC.Model.Collections
         public int Add(T item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            if (Count > 0) _lastId = Math.Max(_lastId, Keys.Max());
+            if (Count > 0 && Count != _countedKeys) _lastId = Math.Max(_lastId, Keys.Max());
+            _countedKeys = Count;
             if (item.Id <= ModelObjectId.IDUNASSIGNED)
             {
                 item.Id = ++_lastId;
                 base.Add(item.Id, item);
+                _countedKeys = Count;
                 return item.Id;
             }
             else
@@ -112,6 +121,7 @@ namespace GPC.Model.Collections
                     _lastId = item.Id;
 
                 base.Add(item.Id, item);
+                _countedKeys = Count;
                 return item.Id;
             }
         }
@@ -143,7 +153,7 @@ namespace GPC.Model.Collections
         /// <returns>True if the items were removed, false if there were none</returns>
         public bool Remove(T item)
         {
-            return Contains(item) && Remove(item.Id);
+            return Contains(item) && RemoveById(item.Id);
         }
 
         /// <summary>
@@ -153,7 +163,11 @@ namespace GPC.Model.Collections
         /// <returns>True if the item was removed, false if no item has the id</returns>
         public bool RemoveById(int id)
         {
-            return Remove(id);
+            bool counted = Count == _countedKeys;
+            if (!Remove(id)) return false;
+            // A removal never raises the largest key: the last id still bounds the keys left.
+            if (counted) _countedKeys = Count;
+            return true;
         }
 
         public void OnDeserialization(object sender)
@@ -162,6 +176,7 @@ namespace GPC.Model.Collections
             foreach (var pair in _pendingItems) base.Add(pair.Key, pair.Value);
             _pendingItems = null;
             if (Count > 0) _lastId = Math.Max(_lastId, Keys.Max());
+            _countedKeys = Count;
         }
 
         #endregion

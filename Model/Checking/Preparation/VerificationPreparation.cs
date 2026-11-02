@@ -36,8 +36,8 @@ namespace GPC.Model.Checking.Preparation
             if (source == null || scenario == null) throw new ArgumentNullException();
             if (source.Analysis == null || source.Analysis.Id != scenario.AnalysisId) throw new ArgumentException("ScenarioAnalysisMismatch");
             source.Analysis.Validate(); // Validate persisted snapshot before using its declaration.
-            // Inputs copied through a compact image; the results are shared in compact form, never copied sample by sample.
-            var model = ModelImage.Capture(source.AnalysisArchiveView()).Open();
+            // Inputs copied as their image would be; the results are shared in compact form, never copied sample by sample.
+            var model = ModelImage.Copy(source.AnalysisArchiveView());
             model.AttachAnalysis(source.Analysis);
             var frozenScenario = AnalysisStorage.Read<VerificationScenario>(AnalysisStorage.Write(scenario));
             model.VerificationScenarios.Add(frozenScenario.Id, frozenScenario);

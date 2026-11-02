@@ -114,7 +114,7 @@ namespace GPC.Model.Core
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(model.CheckReports.ToArray());
-            var copy = ModelImage.Capture(model).Open();
+            var copy = ModelImage.Copy(model);
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(copy.CheckReports.ToArray());
             copy.Analysis?.Validate();
             return copy;
