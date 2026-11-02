@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The tests of tests/ that must hold on .NET Framework as on .NET, where UnitTest runs them: GPCModel is netstandard2.0 and its
+       archives and fingerprints move between the two runtimes. -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Compile Include="../tests/RuntimeIndependentFingerprintTest.cs" Link="RuntimeIndependentFingerprintTest.cs" />
+    <None Include="../UnitTest/Fixtures/model-v5-5.23.0.2.zip" Link="Fixtures/model-v5-5.23.0.2.zip" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../UnitTest/Fixtures/model-v3-1.6.1.7.xml.gz" Link="Fixtures/model-v3-1.6.1.7.xml.gz" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DelaunayMesh"><HintPath>../../Geometry/DelaunayMesh/bin/Release/netstandard2.0/DelaunayMesh.dll</HintPath></Reference>
+    <Reference Include="GPCGeometry"><HintPath>../../Geometry/GPCGeometry/bin/Release/netstandard2.0/GPCGeometry.dll</HintPath></Reference>
+    <Reference Include="GPCUtilities"><HintPath>../../Utilities/GPCUtilities/bin/Release/netstandard2.0/GPCUtilities.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

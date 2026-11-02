@@ -10,7 +10,8 @@ try {
     & (Join-Path $PSScriptRoot 'Test-PrepareDependencies.ps1')
     dotnet restore GPCModel.sln --locked-mode
     if ($LASTEXITCODE) { throw 'Locked restore failed.' }
-    foreach ($project in @('Model.Core.Tests/Model.Core.Tests.csproj', 'UnitTest/UnitTest.csproj')) {
+    # Model.NetFramework.Tests: the shared tests that must hold on .NET Framework 4.7.2 as on .NET (archives, fingerprints).
+    foreach ($project in @('Model.Core.Tests/Model.Core.Tests.csproj', 'UnitTest/UnitTest.csproj', 'Model.NetFramework.Tests/Model.NetFramework.Tests.csproj')) {
         $name = [IO.Path]::GetFileNameWithoutExtension($project)
         dotnet test $project -c Release --no-restore -p:WarningLevel=0 --logger "trx;LogFileName=$name.trx" --results-directory $Results
         if ($LASTEXITCODE) { throw "Tests failed: $project" }

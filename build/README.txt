@@ -2,8 +2,24 @@ BUILD RIPRODUCIBILE E BASELINE API
 
 Eseguire: ./build/Verify.ps1
 Il runner prepara .dependencies da build/dependencies.props, ripristina NuGet
-con --locked-mode, esegue Model.Core.Tests e UnitTest e confronta le API di
-GPCModel e GPC.Model.Persistence.
+con --locked-mode, esegue Model.Core.Tests, UnitTest e Model.NetFramework.Tests e
+confronta le API di GPCModel e GPC.Model.Persistence.
+
+.NET Framework (2/11/2026). GPCModel e' netstandard2.0 e archivi e impronte passano
+tra .NET e .NET Framework. Model.NetFramework.Tests (net472) esegue su .NET Framework
+i test condivisi di tests/ che UnitTest esegue su .NET 6 (RuntimeIndependentFingerprintTest):
+gli stessi attesi su entrambi i runtime. Fino a GPCModel 5.37.0.0, su .NET Framework
+ModelArchive.Load rifiutava ogni archivio con snapshot d'analisi scritto su .NET
+("Analysis snapshot inputs disagree with their provenance"): Type.FullName qualifica
+gli argomenti generici con il loro assembly, che per i tipi del framework cambia
+(mscorlib invece di System.Private.CoreLib; System.Core per HashSet<T>, il tipo di
+StageCombinationsMap, che entra in ogni impronta d'analisi). HistoricalTypeNames li
+nomina ora come .NET. Riproduzione: dotnet test Model.NetFramework.Tests -c Release
+(con il sorgente precedente falliscono entrambi i test).
+Limite residuo, di .NET Framework e non di Model: il suo parser dei double sbaglia di
+1 ulp circa 1,5 valori calcolati su 10.000 scritti da .NET, e il formato "R" con cui
+scrive non sempre si rilegge uguale. Un modello grande scritto su .NET puo' quindi
+aprire su .NET Framework uno snapshot con impronta diversa anche dopo questa correzione.
 
 Dal 10/10/2026 GPCModelChecker e ModelChecker.Tests stanno nel repository Checker,
 a valle di Model (revisione di architettura, punto R3): Model fissa solo Geometry e
