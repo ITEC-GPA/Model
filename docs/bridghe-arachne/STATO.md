@@ -26,6 +26,8 @@ Il manifest [baseline-manifest.json](baseline-manifest.json) registra sette revi
 
 Il GHX REV003 modificato nel checkout principale di BridGHe è stato lasciato intatto. La baseline catturata proviene dal file versionato del worktree (4.904.830 byte), non dal file dell'utente contenente risultati salvati.
 
+Durante i controlli finali il master principale di BridGHe è risultato avanzato, per attività esterna a questa chat, al commit locale `be9bb0b` (messaggio `minor`, 2 novembre 22:11). La sola differenza rispetto a `e7f650d` è il GHX REV003, cresciuto da 4.904.830 a 886.961.214 byte; il master risulta un commit avanti al remoto. Il branch isolato resta fissato alla versione pubblicata `e7f650d`. Prima delle catture native distinguere eventuali differenze degli input da quelle dovute ai risultati memorizzati; non incorporare automaticamente il file grande né modificare il commit dell'utente.
+
 ## Verifiche effettivamente eseguite
 
 | Verifica | Esito |
