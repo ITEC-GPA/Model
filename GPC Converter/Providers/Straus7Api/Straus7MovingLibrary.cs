@@ -26,14 +26,17 @@ namespace GPC.Converter.Straus7
         public static Straus7ResolvedMovingTemplate Resolve(string libraryName,string itemName,string scratchDirectory)
         {
             if(string.IsNullOrWhiteSpace(libraryName)||string.IsNullOrWhiteSpace(itemName))throw new ArgumentException("MissingMovingLibraryReference");
-            string directory=Path.GetFullPath(scratchDirectory);
-            if(!Directory.Exists(directory))throw new DirectoryNotFoundException(directory);
-            using(var writer=new Straus7NativeWriter(Path.Combine(directory,"moving-library-"+Guid.NewGuid().ToString("N")+".st7"),directory))
+            var scratch=Straus7ScratchFiles.Create(scratchDirectory,"moving-library-");
+            try
             {
-                writer.AssignMovingLibrary(1,libraryName,itemName);
-                var result=writer.Reader.ReadExpandedMovingTemplate(1);result.LibraryName=libraryName;result.ItemName=itemName;
-                return result;
+                using(var writer=new Straus7NativeWriter(scratch.Path,Path.GetDirectoryName(scratch.Path)))
+                {
+                    writer.AssignMovingLibrary(1,libraryName,itemName);
+                    var result=writer.Reader.ReadExpandedMovingTemplate(1);result.LibraryName=libraryName;result.ItemName=itemName;
+                    return result;
+                }
             }
+            finally {scratch.DeleteCreated();}
         }
     }
 

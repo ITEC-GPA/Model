@@ -15,7 +15,7 @@ I nuovi dati di pressione e i carichi mobili estesi usano schema Model 9 / Model
 
 ## Export e risultati
 
-L'export delle rastremazioni ora trasferisce anche la geometria dimensionale della sezione: il solo attributo di taper non consentiva il calcolo. Sono riconosciute le forme standard implementate nel writer; le altre vengono rifiutate durante `Prepare`. Il numero di punti di integrazione longitudinale è un'opzione numerica per GUID di trave. I centri di taglio sono trasformati dalle coordinate della sezione agli assi principali, conservandone l'eccentricità.
+L'export delle rastremazioni ora trasferisce anche la geometria dimensionale della sezione: il solo attributo di taper non consentiva il calcolo. Le forme standard implementate nel writer sono scritte come geometria nativa; le altre sezioni con contorno vengono triangolate e assegnate come BXS. Durante `Prepare` è rifiutata solo la rastremazione di una sezione priva di geometria (correzione C6 del 3/11: la frase precedente diceva che le forme non standard venivano rifiutate). Il numero di punti di integrazione longitudinale è un'opzione numerica per GUID di trave. I centri di taglio sono trasformati dalle coordinate della sezione agli assi principali, conservandone l'eccentricità.
 
 I collegamenti rigidi trasferiscono le equazioni di corpo rigido. Equazioni modificate o bracci non più coerenti con la geometria sono rifiutati prima della scrittura. I vincoli generali MPC e i link elastici non sono assimilati a collegamenti rigidi.
 

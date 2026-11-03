@@ -40,38 +40,54 @@ namespace GPC.Converter.Straus7
                     if(prescribedCases.TryGetValue(freedom,out int previous)&&previous!=load)throw new NotSupportedException("IndependentPrescribedCasesRequireDistinctFreedomCases");
                     prescribedCases[freedom]=load;
                 }
-                if(p.Restrains.GroupBy(r=>r.FreedomCase?.Guid).Any(g=>g.Select(r=>ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})).Distinct().Count()>1))
-                    throw new NotSupportedException("StrausNodeRequiresOneRestraintFramePerFreedomCase");
-                foreach(var group in p.Restrains.GroupBy(r=>new {Case=r.FreedomCase?.Guid,Axes=ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})}))
+                // St7SetNodeRestraint6 and St7SetNodeK*3F replace all components of one node/native freedom case, so every
+                // assignment that resolves to the same native case (an unscoped one included) is merged into one call per attribute.
+                var attributes=new List<NodeFreedomAttributes>();
+                foreach(var restraint in p.Restrains)
                 {
-                    var first=group.First();
-                    int fc=Freedom(first.FreedomCase),ucs=Ucs(first.Restrain.CoordinateSystem);
-                    var status=new int[6];var prescribed=new double[6];var stiffness=new double[6];
-                    foreach(var restraint in group)
+                    if(restraint.Phase!=null)throw new NotSupportedException("PhaseDependentRestraintRequiresStageBoundaryConversion");
+                    int fc=Freedom(restraint.FreedomCase);var frame=restraint.Restrain.CoordinateSystem??CoordinateSystem.Global;Axes.Validate(frame);
+                    var target=attributes.SingleOrDefault(x=>x.FreedomCase==fc);
+                    if(target==null)attributes.Add(target=new NodeFreedomAttributes(fc,frame));
+                    else if(!Same(target.Frame,frame))throw new NotSupportedException("StrausNodeRequiresOneRestraintFramePerFreedomCase");
+                    foreach(var dof in restraint.Restrain.Restrains)
                     {
-                        if(restraint.Phase!=null)throw new NotSupportedException("PhaseDependentRestraintRequiresStageBoundaryConversion");
-                        foreach(var dof in restraint.Restrain.Restrains)
-                        {
-                            int k=(int)dof.Dof;if(k<0||k>5||!scopes.Add(fc+":"+k))throw new ArgumentException("OverlappingOrInvalidStrausRestraint");
-                            status[k]=dof.IsRestrained||dof.HasImposedDisplacement?1:0;prescribed[k]=dof.ImposedDisplacement;stiffness[k]=dof.Stiffness;
-                            if(dof.HasStiffness&&dof.HasImposedDisplacement)throw new NotSupportedException("CoupledPrescribedSpringRequiresExplicitLink");
-                        }
+                        int k=(int)dof.Dof;if(k<0||k>5||!scopes.Add(fc+":"+k))throw new ArgumentException("OverlappingOrInvalidStrausRestraint");
+                        target.Status[k]=dof.IsRestrained||dof.HasImposedDisplacement?1:0;target.Prescribed[k]=dof.ImposedDisplacement;target.Stiffness[k]=dof.Stiffness;
+                        if(dof.HasStiffness&&dof.HasImposedDisplacement)throw new NotSupportedException("CoupledPrescribedSpringRequiresExplicitLink");
                     }
-                    Finite(prescribed);Finite(stiffness);Operations.Add(a=>a.SetNodeRestraint(id,fc,ucs,(int[])status.Clone(),(double[])prescribed.Clone()));
-                    for(int r=0;r<2;r++)
-                    {bool rotation=r==1;var values=stiffness.Skip(r*3).Take(3).ToArray();if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,fc,ucs,rotation,(double[])values.Clone()));}
                 }
                 if(p.GroundSprings.Count>1)throw new NotSupportedException("MultipleGroundSpringsRequireExplicitAssembly");
+                var groundSprings=new List<NodeFreedomAttributes>();
                 foreach(var spring in p.GroundSprings)
                 {
                     if(Freedoms.Count>1)throw new NotSupportedException("UnscopedSpringWithMultipleFreedomCases");
-                    int ucs=Ucs(spring.CoordinateSystem);
+                    var frame=spring.CoordinateSystem??CoordinateSystem.Global;Axes.Validate(frame);
                     for(int r=0;r<6;r++)for(int c=0;c<6;c++)if(r!=c&&spring[r,c]!=0)throw new NotSupportedException("CoupledGroundSpringRequiresMatrixLinkWriter");
+                    var values=Enumerable.Range(0,6).Select(i=>spring[i,i]).ToArray();Finite(values);
+                    for(int i=0;i<6;i++)if(values[i]!=0&&scopes.Contains("1:"+i))throw new ArgumentException("OverlappingStrausSpringAndRestraint");
+                    var target=attributes.SingleOrDefault(x=>x.FreedomCase==1);
                     for(int r=0;r<2;r++)
                     {
-                        bool rotation=r==1;var values=Enumerable.Range(r*3,3).Select(i=>spring[i,i]).ToArray();Finite(values);
-                        if(Enumerable.Range(r*3,3).Any(i=>scopes.Contains("1:"+i)))throw new ArgumentException("OverlappingStrausSpringAndRestraint");
-                        if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,1,ucs,rotation,(double[])values.Clone()));
+                        var family=Enumerable.Range(r*3,3).ToArray();if(family.All(i=>values[i]==0))continue;
+                        // One native spring call per family and case: it merges with restraint springs only in the same frame.
+                        var owner=target!=null&&Same(target.Frame,frame)?target:null;
+                        if(owner==null&&target!=null&&family.Any(i=>target.Stiffness[i]!=0))throw new NotSupportedException("StrausNodeSpringFramesConflictInFreedomCase");
+                        if(owner==null){owner=groundSprings.SingleOrDefault(x=>Same(x.Frame,frame));if(owner==null)groundSprings.Add(owner=new NodeFreedomAttributes(1,frame,restraintCall:false));}
+                        foreach(int i in family)if(values[i]!=0)owner.Stiffness[i]=values[i];
+                    }
+                }
+                var frames=new List<KeyValuePair<CoordinateSystem,int>>();
+                foreach(var attribute in attributes.Concat(groundSprings))
+                {
+                    int fc=attribute.FreedomCase;
+                    int ucs=frames.Where(f=>Same(f.Key,attribute.Frame)).Select(f=>f.Value).DefaultIfEmpty(0).First();
+                    if(ucs==0){ucs=Ucs(attribute.Frame);frames.Add(new KeyValuePair<CoordinateSystem,int>(attribute.Frame,ucs));}
+                    var status=attribute.Status;var prescribed=attribute.Prescribed;var stiffness=attribute.Stiffness;Finite(prescribed);Finite(stiffness);
+                    if(attribute.RestraintCall)Operations.Add(a=>a.SetNodeRestraint(id,fc,ucs,(int[])status.Clone(),(double[])prescribed.Clone()));
+                    for(int r=0;r<2;r++)
+                    {
+                        bool rotation=r==1;var values=stiffness.Skip(r*3).Take(3).ToArray();if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,fc,ucs,rotation,(double[])values.Clone()));
                     }
                 }
                 var totals=new Dictionary<int,double[]>();
@@ -100,10 +116,16 @@ namespace GPC.Converter.Straus7
                     input.Formulation==BeamFormulation.PointContact?5:input.Formulation==BeamFormulation.Pipe?8:input.Formulation==BeamFormulation.Connection?9:
                     throw new NotSupportedException("UnsupportedStrausBeamFormulation: "+input.Formulation);
                 if(input.SectionAxes==null)throw new ArgumentException("ExplicitBeamSectionAxesRequired");
-                var axes=input.SectionAxes;var axesData=AxesData(axes);var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
+                var axes=input.SectionAxes;var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
                 if(!(length>1e-9)||Math.Abs(Axes.Dot(tangent/length,axes.V3)-1)>1e-8)throw new ArgumentException("InconsistentStrausBeamAxes");
                 var nodes=new[]{Entities[beam.NodeI.Guid],Entities[beam.NodeJ.Guid]};
                 var property=BeamPropertyData(beam);string name=string.IsNullOrWhiteSpace(beam.Name)?"Beam "+id:beam.Name;
+                // Native beam axes are principal axes: the section frame rotated by the principal angle about the beam axis (C5).
+                var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=!ReferenceEquals(principal,axes);
+                var taper=input.Physical?.Taper;bool uniformTaper=taper==null||taper.ScaleI1==taper.ScaleI2&&taper.ScaleJ1==taper.ScaleJ2&&taper.Alignment1==TaperAlignment.Symmetric&&taper.Alignment2==TaperAlignment.Symmetric;
+                // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame.
+                if(rotated&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
+                    throw new NotSupportedException("PrincipalAngleWithTaperGradientOrSupportRequiresExplicitAxisConvention");
                 Operations.Add(a=>a.CreateBeamProperty(id,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
                 var cutoff=(beam.BeamProperty as ElasticBeamProperty)?.CutoffLaw;
                 if((cutoff!=null)!=(formulation==4)||cutoff!=null&&input.AnalysisProfile!=null)throw new ArgumentException("CutoffLawRequiresCutoffBarFormulationAndExplicitSection");
@@ -134,25 +156,43 @@ namespace GPC.Converter.Straus7
                 var offsetI=Global(input.OffsetI,input.OffsetAxes??axes);var offsetJ=Global(input.OffsetJ,input.OffsetAxes??axes);
                 if(Axes.Length(offsetI-offsetJ)>1e-8)throw new NotSupportedException("UnequalBeamOffsetsRequireRigidEndLinks");
                 double axial=Axes.Dot(offsetI,axes.V3);if(Math.Abs(axial)>1e-8)throw new NotSupportedException("AxialBeamOffsetRequiresRigidEndLinks");
-                var offsets=new[]{Axes.Dot(offsetI,axes.V1),Axes.Dot(offsetI,axes.V2)};
+                var offsets=new[]{Axes.Dot(offsetI,principal.V1),Axes.Dot(offsetI,principal.V2)};
                 if(input.SectionCentroidOffset!=null && Math.Abs(input.SectionCentroidOffset.X)+Math.Abs(input.SectionCentroidOffset.Y)>1e-8)
                     throw new NotSupportedException("SectionCentroidOffsetRequiresExplicitReferenceConvention");
                 if(offsets.Any(v=>v!=0))Operations.Add(a=>a.SetBeamOffset(id,(double[])offsets.Clone()));
                 if(beam.Attributes.Values.Count(a=>a is BeamReleasesAttribute)>1)throw new ArgumentException("DuplicateBeamReleases");
                 foreach(var attribute in beam.Attributes.Values)
                 {
-                    if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes))
+                    if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes)&&!Same(release.CoordinateSystem,principal))
                         throw new NotSupportedException("UnsupportedStrausBeamAttributeOrReleaseAxes");
                     for(int end=1;end<=2;end++)for(int r=0;r<2;r++)
                     {
                         int beamEnd=end;bool rotation=r==1;var connections=(end==1?release.I:release.J).Skip(r*3).Take(3).ToArray();
                         if(connections.Any(c=>c==null||c.Kind==BeamConnectionKind.RelativeFixity))throw new NotSupportedException("RelativeBeamFixityRequiresStiffnessConversion");
+                        // Native releases act in the principal axes: a section-frame release must be the same about both transverse axes.
+                        if(rotated&&!(release.CoordinateSystem!=null&&Same(release.CoordinateSystem,principal))&&(connections[0].Kind!=connections[1].Kind||connections[0].Value!=connections[1].Value))
+                            throw new NotSupportedException("SectionFrameBeamReleaseDiffersInPrincipalAxes");
                         // R3 constants: brReleased=0, brFixed=1, brPartial=2.
                         var status=connections.Select(c=>c.Kind==BeamConnectionKind.Continuous?1:c.Kind==BeamConnectionKind.Released?0:2).ToArray();
                         var values=connections.Select(c=>c.Value).ToArray();Operations.Add(a=>a.SetBeamRelease(id,beamEnd,rotation,(int[])status.Clone(),(double[])values.Clone()));
                     }
                 }
-                BeamLoads(beam,axes,offsetI);
+                BeamLoads(beam,principal,offsetI);
+            }
+
+            /// <summary>Restraint and spring components of one node in one native freedom case, in one frame.</summary>
+            private sealed class NodeFreedomAttributes
+            {
+                internal readonly int FreedomCase;internal readonly CoordinateSystem Frame;internal readonly bool RestraintCall;
+                internal readonly int[] Status=new int[6];internal readonly double[] Prescribed=new double[6],Stiffness=new double[6];
+                internal NodeFreedomAttributes(int freedomCase,CoordinateSystem frame,bool restraintCall=true){FreedomCase=freedomCase;Frame=frame;RestraintCall=restraintCall;}
+            }
+
+            /// <summary>Principal axes: the section frame rotated by the principal angle (rad) about V3; the same instance when the angle is zero.</summary>
+            private static CoordinateSystem PrincipalAxes(CoordinateSystem axes,double angle)
+            {
+                if(Math.Abs(angle)<=1e-12)return axes;double c=Math.Cos(angle),s=Math.Sin(angle);
+                return new CoordinateSystem(axes.Origin,axes.V1*c+axes.V2*s,axes.V2*c-axes.V1*s);
             }
 
             private static Vector3d Global(Vector3d v,CoordinateSystem axes)
@@ -201,7 +241,8 @@ namespace GPC.Converter.Straus7
                 else if(section is SectionCHS pipe)
                 {shape=2;dimensions=new[]{pipe.Diameter,0,0,pipe.Thickness,0,0};}
                 else if(section is SectionH h && h.R==0)
-                {shape=7;dimensions=new[]{h.LenghtTopFlange,h.LenghtBottomFlange,h.Height,h.ThicknessTopFlange,h.ThicknessWeb,h.ThicknessBottomFlange};}
+                // bsISection: B1/T1 bottom flange, B2/T2 top flange, T3 web (native readback in C3 tests; same order as the importer).
+                {shape=7;dimensions=new[]{h.LenghtBottomFlange,h.LenghtTopFlange,h.Height,h.ThicknessBottomFlange,h.ThicknessTopFlange,h.ThicknessWeb};}
                 else if(section is SectionRHS box && box.R==0 && box.ThicknessTop==box.ThicknessBottom && box.ThicknessWebLeft==box.ThicknessWebRight)
                 {shape=4;dimensions=new[]{box.Width,box.Height,0,box.ThicknessTop,box.ThicknessWebLeft,0};}
                 else
@@ -235,7 +276,15 @@ namespace GPC.Converter.Straus7
                 Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
             }
 
-            private static (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
+            /// <summary>Shear areas per section instance of this export only (no static cache).</summary>
+            private readonly Dictionary<ISectionShape,(double Area1,double Area2)> shearAreas=new Dictionary<ISectionShape,(double Area1,double Area2)>(ReferenceComparer.Instance);
+            private sealed class ReferenceComparer : IEqualityComparer<ISectionShape>
+            {
+                internal static readonly ReferenceComparer Instance=new ReferenceComparer();
+                public bool Equals(ISectionShape x,ISectionShape y)=>ReferenceEquals(x,y);
+                public int GetHashCode(ISectionShape value)=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value);
+            }
+            private (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
             {
                 var profile=beam.Assignments.AnalysisProfile;
                 if(profile!=null)
@@ -252,7 +301,13 @@ namespace GPC.Converter.Straus7
                 Material material;ISectionShape section;double shear1=0,shear2=0;
                 if(beam.BeamProperty is ElasticBeamProperty elastic)
                 {elastic.Validate();material=elastic.Material;section=elastic.Section;shear1=elastic.ShearArea1;shear2=elastic.ShearArea2;}
-                else if(beam.BeamProperty is SteelSection steel) {material=steel.SteelMaterial;section=steel.SectionShape;}
+                else if(beam.BeamProperty is SteelSection steel)
+                {
+                    // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
+                    material=steel.SteelMaterial;section=steel.SectionShape;
+                    if(!shearAreas.TryGetValue(section,out var areas))shearAreas.Add(section,areas=SectionShearAreas.Compute(section));
+                    shear1=areas.Area1;shear2=areas.Area2;
+                }
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
                 if(material.Orthotropy!=null)throw new NotSupportedException("OrthotropicBeamRequiresExplicitRigidityProfile");
                 var centroid=section.Centroid;

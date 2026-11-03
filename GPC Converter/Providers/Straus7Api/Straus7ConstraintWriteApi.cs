@@ -8,15 +8,16 @@ namespace GPC.Converter.Straus7
 {
     public interface IStraus7ConstraintWriteApi
     {
-        void SetRigidLink(int link,int freedomCase,int master,int slave);
+        /// <summary>Rigid link in all six freedoms (plane 0) between two native nodes, defined in native UCS <paramref name="ucs"/>.</summary>
+        void SetRigidLink(int link,int ucs,int master,int slave);
     }
     public sealed partial class Straus7NativeWriter : IStraus7ConstraintWriteApi
     {
-        public void SetRigidLink(int link,int freedomCase,int master,int slave)
+        public void SetRigidLink(int link,int ucs,int master,int slave)
         {
-            api.CheckWrite(api.WriteFunction<NativeRigidLink>("St7SetRigidLink")(Id,link,freedomCase,0,new[]{2,master,slave}),"St7SetRigidLink");
+            api.CheckWrite(api.WriteFunction<NativeRigidLink>("St7SetRigidLink")(Id,link,ucs,0,new[]{2,master,slave}),"St7SetRigidLink");
         }
-        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int NativeRigidLink(int file,int link,int freedom,int plane,int[] nodes);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int NativeRigidLink(int file,int link,int ucs,int plane,int[] nodes);
     }
     public sealed partial class Straus7ModelWritePlan
     {
@@ -40,7 +41,7 @@ namespace GPC.Converter.Straus7
                         if(!Entities.TryGetValue(link.StartNode.Guid,out int master)||slave==null||!Entities.TryGetValue(slave.Guid,out int target)||master==target)
                             throw new ArgumentException("InvalidRigidLinkNodes");
                         if(!pairs.Add(Math.Min(master,target)+":"+Math.Max(master,target)))throw new ArgumentException("DuplicateRigidLink");
-                        int id=++index;Operations.Add(a=>((IStraus7ConstraintWriteApi)a).SetRigidLink(id,1,master,target));
+                        int id=++index;Operations.Add(a=>((IStraus7ConstraintWriteApi)a).SetRigidLink(id,1,master,target)); // UCS 1: global axes
                     }
                 }
                 RequiresConstraintApi=true;

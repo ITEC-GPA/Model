@@ -13,7 +13,9 @@ namespace GPC.Converter.Straus7
         IStraus7StageReadApi, IStraus7MassTemperatureReadApi
     {
         private IntPtr library;
-        private bool initialized, modelOpen, resultsOpen;
+        private bool initialized, modelOpen, resultsOpen, ownsRuntime;
+        /// <summary>Process-wide ownership of the native runtime (a synchronization primitive, not a cache).</summary>
+        private static readonly System.Threading.SemaphoreSlim Runtime = new System.Threading.SemaphoreSlim(1, 1);
         private readonly Dictionary<string, Delegate> functions = new Dictionary<string, Delegate>();
         private readonly Dictionary<string, Straus7Property> properties = new Dictionary<string, Straus7Property>();
         private const int FileId = 1;
@@ -25,10 +27,19 @@ namespace GPC.Converter.Straus7
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !Environment.Is64BitProcess)
                 throw new PlatformNotSupportedException("Straus7 R3 API requires a Windows x64 process.");
             LibraryPath = ResolvePath(libraryPath);
-            if (GetModuleHandle("St7api.dll") != IntPtr.Zero)
-                throw new InvalidOperationException("St7API is already loaded by another session. Use an isolated process to avoid releasing its licence or model handles.");
-            library = LoadLibraryEx(LibraryPath, IntPtr.Zero, 0x00000100 | 0x00001000); // DLL directory + safe default search directories.
-            if (library == IntPtr.Zero) throw new DllNotFoundException("Cannot load " + LibraryPath + "; Windows error " + Marshal.GetLastWin32Error());
+            // One process-wide gate for every St7API user (readers, the model writer, section and moving libraries):
+            // the module check alone races, and St7Release of one session would end the other.
+            if (!Runtime.Wait(0))
+                throw new InvalidOperationException("St7API is already used by another session of this process. Use an isolated process to avoid releasing its licence or model handles.");
+            try
+            {
+                if (GetModuleHandle("St7api.dll") != IntPtr.Zero)
+                    throw new InvalidOperationException("St7API is already loaded by another session. Use an isolated process to avoid releasing its licence or model handles.");
+                library = LoadLibraryEx(LibraryPath, IntPtr.Zero, 0x00000100 | 0x00001000); // DLL directory + safe default search directories.
+                if (library == IntPtr.Zero) throw new DllNotFoundException("Cannot load " + LibraryPath + "; Windows error " + Marshal.GetLastWin32Error());
+            }
+            catch { Runtime.Release(); throw; }
+            ownsRuntime = true;
             try
             {
                 int major = 0, minor = 0, point = 0;
@@ -60,11 +71,13 @@ namespace GPC.Converter.Straus7
         private T Call<T>(string name) where T : class
         {
             if (library == IntPtr.Zero) throw new ObjectDisposedException(nameof(Straus7NativeApi));
-            if (!functions.TryGetValue(name, out var function))
+            // Readers and writers bind the same native function with their own marshalling signature: one delegate per name and type.
+            string key = name + "|" + typeof(T).FullName;
+            if (!functions.TryGetValue(key, out var function))
             {
                 var address = GetProcAddress(library, name);
                 if (address == IntPtr.Zero) throw new EntryPointNotFoundException("Required R3 API function unavailable: " + name);
-                function = Marshal.GetDelegateForFunctionPointer(address, typeof(T)); functions.Add(name, function);
+                function = Marshal.GetDelegateForFunctionPointer(address, typeof(T)); functions.Add(key, function);
             }
             return (T)(object)function;
         }
@@ -446,7 +459,11 @@ namespace GPC.Converter.Straus7
             try { CloseModel(); } catch (Exception ex) { failure = failure ?? ex; }
             try { if (initialized) { Check(Call<NoArgs>("St7Release")(), "St7Release"); initialized = false; } }
             catch (Exception ex) { failure = failure ?? ex; }
-            finally { FreeLibrary(library); library = IntPtr.Zero; functions.Clear(); }
+            finally
+            {
+                FreeLibrary(library); library = IntPtr.Zero; functions.Clear();
+                if (ownsRuntime) { ownsRuntime = false; Runtime.Release(); }
+            }
             if (failure != null) throw new InvalidOperationException("Straus7 API cleanup failed.", failure);
         }
 
