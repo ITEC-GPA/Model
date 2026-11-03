@@ -40,6 +40,7 @@ namespace GPC.Model.Results.Processing
             {
                 if (sample.OwnerElementId.HasValue || sample.ElementEnd != null) throw new ArgumentException("UnexpectedElementOwnerOnNodalReaction");
                 if (sample.Kind == NodalForceKind.SupportReaction && sample.Body == ActionBody.OnElement) throw new ArgumentException("InvalidSupportReactionBody");
+                if (sample.Kind == NodalForceKind.AppliedPressure && sample.Body != ActionBody.OnNode) throw new ArgumentException("AppliedPressureMustActOnNode");
                 if ((sample.Kind == NodalForceKind.SpringForce || sample.Kind == NodalForceKind.LinkForce) && string.IsNullOrWhiteSpace(sample.AggregationSet))
                     throw new ArgumentException("SpringOrLinkResultRequiresSourceIdentity");
             }

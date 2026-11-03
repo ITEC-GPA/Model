@@ -27,6 +27,25 @@ namespace UnitTest
             model.FormFinding.CoordinateGoals.Add(new FormFindingCoordinateGoal {NodeGuid=a.Guid,Weights=new Vector3d(0,0,5)});
             model.FormFinding.Validate(model); return model;
         }
+        [TestMethod] public void AppliedPressureResultsAreDistinctFromReactionsAndPersist()
+        {
+            var model = Sample();
+            var load = new GPC.Model.LoadCases.LoadCaseBase("Pressure"); model.LoadCases.Add(load);
+            var node = model.NodesElements.Values.First();
+            var sample = new GPC.Model.Results.Locations.NodeResultForces(load,
+                new GPC.Model.Results.ResultBeamForces(3, 1, 2, 0, 0, 0, CoordinateSystem.Global))
+                { Kind = GPC.Model.Results.State.NodalForceKind.AppliedPressure, Body = GPC.Model.Results.State.ActionBody.OnNode };
+            GPC.Model.Results.Processing.NodalActions.Validate(model, node, sample);
+            sample.Body = GPC.Model.Results.State.ActionBody.OnSupport;
+            Assert.ThrowsException<ArgumentException>(() => GPC.Model.Results.Processing.NodalActions.Validate(model, node, sample));
+            sample.Body = GPC.Model.Results.State.ActionBody.OnNode;
+            node.AddResult(new GPC.Model.Results.Storage.NodeResult(new System.Collections.Generic.List<GPC.Model.Results.Locations.INodeResultLocation> { sample }));
+            using var stream = new MemoryStream(); ModelArchive.Save(model, stream); stream.Position = 0;
+            var restored = ModelArchive.Load(stream);
+            var pressure = restored.NodesElements.Values.First(n => n.Results.Count > 0).Results.SelectMany(r => r.Results).OfType<GPC.Model.Results.Locations.NodeResultForces>().Single();
+            Assert.AreEqual(GPC.Model.Results.State.NodalForceKind.AppliedPressure, pressure.Kind);
+            Assert.AreEqual(1, pressure.Fx); Assert.AreEqual(2, pressure.Fy); Assert.AreEqual(3, pressure.Fz);
+        }
         [TestMethod] public void StableConstructorsReproduceAssemblyIdentity()
         {
             var a=Sample(); var b=Sample(); Assert.AreEqual(a.Guid,b.Guid);

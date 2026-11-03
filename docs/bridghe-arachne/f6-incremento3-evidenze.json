@@ -1,0 +1,72 @@
+{
+  "phase": "F6",
+  "status": "in-progress; checkpoint 3 is not the F6 exit gate",
+  "arachneCommit": "bd79ae28d3e42f82669d9c3d88582f72c9e636e8",
+  "versions": {
+    "Arachne": "0.4.0-f6.3",
+    "GPCModel": "5.48.0.0",
+    "GPC.Model.Persistence": "3.13.0.0",
+    "GPC.Archive": "1.1.0.0"
+  },
+  "arachne": {
+    "passed": 169,
+    "failed": 0,
+    "groups": {
+      "inventory": 66,
+      "formFinding": 38,
+      "patterning": 43,
+      "network": 6,
+      "F6Contracts": 16
+    }
+  },
+  "Model": [
+    {
+      "project": "Model.Core.Tests",
+      "passed": 63,
+      "failed": 0,
+      "excluded": [],
+      "sha256": "a19dc5cec7b1e613d9be9b44da0f979448b3f73cfe933f371b427af994f7f553"
+    },
+    {
+      "project": "Model.NetFramework.Tests",
+      "passed": 99,
+      "failed": 0,
+      "excluded": [],
+      "sha256": "e1480497f640edacfbb7b563b23d8b6e229190c94fef9b5e264d54861ca92efb"
+    },
+    {
+      "project": "UnitTest",
+      "passed": 1796,
+      "failed": 0,
+      "excluded": [
+        "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+        "EightNativePairsKeepGeometryAndGlobalActionSigns",
+        "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+        "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+        "NativeManufacturerPlates_AreImported",
+        "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+        "TimingOfTheColdPreparation"
+      ],
+      "sha256": "793ca29d2256a692e45b6f322fc59e106b1f9e69d1cbbd37b0910e43fe76d7bb"
+    }
+  ],
+  "api": {
+    "GPCModel": 9946,
+    "Persistence": 39,
+    "unexpectedRemovals": 0
+  },
+  "equalityAudit": "passed; 492 files, 9 uses, 8 allowances",
+  "nativeGateStatus": "passed after user restored hardware key; includes F5 native write/elements/stages/bridge environment",
+  "logs": {
+    "artifacts\\f6\\restoration-build.log": "18a58d8183c05bebc866d3471a7c0edbeb75a519891cbd4f79a27ef01702014d",
+    "artifacts\\f6\\checkpoint3-final-tests.log": "4e234e620752e9ae7e146ebdc9181456142664528b0917dda02d3f75df1762e9",
+    "artifacts\\f6\\model-checkpoint3-native-verify.log": "e46524e45825f3353aba8bf54d6f9f3b887f83313838f007925164e006408b59"
+  },
+  "baselinePolicy": "No fixtures, API baselines or F1/F2 expected values regenerated.",
+  "limitations": [
+    "Physical wrappers and generators still being migrated",
+    "BridGHe F6A not started",
+    "Interactive/scale host lifecycle gates pending",
+    "Nonconverged output still uses transient native projection; no completed analysis is persisted"
+  ]
+}

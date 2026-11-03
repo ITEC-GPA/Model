@@ -10,5 +10,5 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Results.State
 {
-    public enum NodalForceKind { Unknown, SupportReaction, SpringForce, LinkForce, ElementEndForce, ElementNodeForce }
+    public enum NodalForceKind { Unknown, SupportReaction, SpringForce, LinkForce, ElementEndForce, ElementNodeForce, AppliedPressure }
 }
