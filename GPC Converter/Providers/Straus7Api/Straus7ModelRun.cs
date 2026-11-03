@@ -135,11 +135,14 @@ namespace GPC.Converter.Straus7
                 throw new NotSupportedException("LinearExportRunRequiresExplicitPrimaryCasesWithoutStages");
             IdentityMap.ValidateAgainst(model);
             if(GroupFingerprint(model)!=groupFingerprint)throw new InvalidOperationException("StaleStrausModelPlan");
-            using(var writer=new Straus7NativeWriter(outputPath,scratchPath))
+            return Fresh(outputPath,()=>
             {
-                var generated=Write(writer,model);string result=writer.Solve();
-                return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,generated);
-            }
+                using(var writer=new Straus7NativeWriter(outputPath,scratchPath))
+                {
+                    var generated=Write(writer,model);string result=writer.Solve();
+                    return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,generated);
+                }
+            });
         }
         /// <summary>Staged static solve with small-displacement kinematics. The output case must be declared before plan preparation.
         /// Material nonlinearity is optional; totals are retained per stage/increment and cannot be linearly superposed.</summary>
@@ -150,12 +153,24 @@ namespace GPC.Converter.Straus7
             if(model.Stages.Count==0||!model.LoadCases.Values.Any(c=>c.Guid==outputCaseGuid&&c is GPC.Model.Stages.StageResultCase))throw new ArgumentException("StagedRunRequiresDeclaredOutputCase");
             if(GroupFingerprint(model)!=groupFingerprint)throw new InvalidOperationException("StaleStrausModelPlan");
             var increments=model.Stages.Values.OrderBy(s=>s.Definition.Sequence).Select(s=>new KeyValuePair<string,int>(s.Name,s.AnalysisState.Increments.Length)).ToArray();
-            using(var writer=new Straus7NativeWriter(outputPath,scratchPath))
+            return Fresh(outputPath,()=>
             {
-                writer.SetNonlinearConvergence(displacementTolerance,residualTolerance,maximumIterations);
-                Write(writer,model);string result=writer.Solve(stagedNonlinear:true,nonlinearMaterial:nonlinearMaterial);
-                return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,null,outputCaseGuid,increments);
-            }
+                using(var writer=new Straus7NativeWriter(outputPath,scratchPath))
+                {
+                    writer.SetNonlinearConvergence(displacementTolerance,residualTolerance,maximumIterations);
+                    Write(writer,model);string result=writer.Solve(stagedNonlinear:true,nonlinearMaterial:nonlinearMaterial);
+                    return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,null,outputCaseGuid,increments);
+                }
+            });
+        }
+        /// <summary>A failed write or solve removes the files it created (model, results, solver logs with the same stem),
+        /// so the same output path can be retried; files that existed before are never removed.</summary>
+        private static Straus7ModelRun Fresh(string outputPath,Func<Straus7ModelRun> run)
+        {
+            if(string.IsNullOrWhiteSpace(outputPath))throw new ArgumentException("OutputPathRequired");
+            var files=new Straus7ScratchFiles(outputPath);
+            try {return run();}
+            catch {files.DeleteCreated();throw;}
         }
     }
 }

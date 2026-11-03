@@ -80,24 +80,30 @@ namespace GPC.Converter.Straus7
         public static Straus7SectionDefinition Resolve(Straus7SectionDefinition definition,string scratchDirectory)
         {
             if(definition==null)throw new ArgumentNullException(nameof(definition));
-            using(var writer=Scratch(scratchDirectory))
+            var scratch=Straus7ScratchFiles.Create(scratchDirectory,"section-resolve-");
+            try
             {
-                writer.CreateSectionProperty();
-                if(definition.IsResolved)writer.SetNativeSection(1,definition,definition.ReferenceProperties);else writer.AssignNativeSection(1,definition);
-                return writer.Reader.ReadExpandedSection(1,scratchDirectory,definition.Source);
+                using(var writer=Scratch(scratch))
+                {
+                    writer.CreateSectionProperty();
+                    if(definition.IsResolved)writer.SetNativeSection(1,definition,definition.ReferenceProperties);else writer.AssignNativeSection(1,definition);
+                    return writer.Reader.ReadExpandedSection(1,scratchDirectory,definition.Source);
+                }
             }
+            finally {scratch.DeleteCreated();}
         }
         public static Straus7SectionDefinition ResolveLibrary(bool bgl,string library,string item,string scratchDirectory)
         {
             if(string.IsNullOrWhiteSpace(library)||string.IsNullOrWhiteSpace(item))throw new ArgumentException("MissingSectionLibraryReference");
-            using(var writer=Scratch(scratchDirectory))
-            {writer.CreateSectionProperty();writer.AssignSectionLibrary(bgl,library,item);return writer.Reader.ReadExpandedSection(1,scratchDirectory,(bgl?"BGL/":"BSL/")+library+"/"+item);}
+            var scratch=Straus7ScratchFiles.Create(scratchDirectory,"section-resolve-");
+            try
+            {
+                using(var writer=Scratch(scratch))
+                {writer.CreateSectionProperty();writer.AssignSectionLibrary(bgl,library,item);return writer.Reader.ReadExpandedSection(1,scratchDirectory,(bgl?"BGL/":"BSL/")+library+"/"+item);}
+            }
+            finally {scratch.DeleteCreated();}
         }
-        private static Straus7NativeWriter Scratch(string directory)
-        {
-            directory=Path.GetFullPath(directory);if(!Directory.Exists(directory))throw new DirectoryNotFoundException(directory);
-            return new Straus7NativeWriter(Path.Combine(directory,"section-resolve-"+Guid.NewGuid().ToString("N")+".st7"),directory);
-        }
+        private static Straus7NativeWriter Scratch(Straus7ScratchFiles scratch)=>new Straus7NativeWriter(scratch.Path,Path.GetDirectoryName(scratch.Path));
     }
 
     public interface IStraus7NativeSectionWriteApi

@@ -136,6 +136,7 @@ namespace GPC.Converter.Straus7
                         throw new NotSupportedException("UnmappedPreservedModelInput: "+item?.Kind+"/"+item?.SourceRecord+"; "+item?.UnsupportedReason);
                 }
                 if(Model.FormFinding!=null)throw new NotSupportedException("FormFindingRequiresItsDedicatedSolver");
+                LegacyStageCombinations();
                 if(Model.VolumeElements.Count!=0)throw new NotSupportedException("StrausSolidWriterRequired");
                 if(Model.ValidateTopology(supportsWarpedQuads:true,planarityToleranceMm:1e-6).Any(d=>d.Severity==GPC.Model.Core.Diagnostics.DiagnosticSeverity.Error))
                     throw new ArgumentException("InvalidStrausModelTopology");
@@ -163,9 +164,35 @@ namespace GPC.Converter.Straus7
                 foreach(var node in Model.NodesElements.Values.OrderBy(n=>Entities[n.Guid])) Node(node);
                 foreach(var beam in Model.BeamElements.Values.OrderBy(n=>Entities[n.Guid])) Beam(beam);
                 foreach(var plate in Model.AreaElements.Values.OrderBy(n=>Entities[n.Guid])) Plate(plate);
+                UserIds();
                 Constraints();
                 ModelActions();
+                NonlinearCombinationIncrements();
                 ValidatePrescribedCases();
+            }
+            /// <summary>Legacy behaviour: native user IDs carry the GPC element Id (St7SetNodeID/BeamID/PlateID).</summary>
+            private void UserIds()
+            {
+                foreach(var family in new[]{(Type:0,Items:Model.NodesElements.Values.Cast<Element>()),(Type:1,Items:Model.BeamElements.Values.Cast<Element>()),(Type:2,Items:Model.AreaElements.Values.Cast<Element>())})
+                    foreach(var e in family.Items.OrderBy(e=>Entities[e.Guid])){int type=family.Type,number=Entities[e.Guid],user=e.Id;Operations.Add(a=>a.SetEntityUserId(type,number,user));}
+            }
+            /// <summary>Legacy behaviour: without stages every LSA combination is also an unstaged NLA increment (stage 0).
+            /// Freedom-case factors keep the native default; staged models write only their explicit stage increments.</summary>
+            private void NonlinearCombinationIncrements()
+            {
+                if(Model.Stages.Count!=0)return;
+                foreach(var combination in Model.Combinations.Values.OrderBy(c=>c.Name,StringComparer.Ordinal))
+                {
+                    string name=combination.Name;var pairs=combination.GetLoadCaseCoefficientsPair();
+                    var cases=pairs.Select(c=>Load(c.Key)).ToArray();var factors=pairs.Select(c=>c.Value).ToArray();Finite(factors);
+                    Operations.Add(a=>a.AddNonlinearIncrement(name,(int[])cases.Clone(),(double[])factors.Clone()));
+                }
+            }
+            /// <summary>The legacy stage-combination matrix has no meaning without stages and is not exported: reject it explicitly.</summary>
+            private void LegacyStageCombinations()
+            {
+                if(Model.Stages.Count==0&&Model.StageCombinationsMap!=null&&Model.StageCombinationsMap.Values.Any(v=>v!=null&&v.Count!=0))
+                    throw new NotSupportedException("LegacyStageCombinationsMapWithoutStagesIsNotExported");
             }
             private void Number<T>(IEnumerable<T> entities) where T:Element
             {int id=0;foreach(var e in entities.OrderBy(e=>e.Id).ThenBy(e=>e.Guid)) {if(e.Guid==Guid.Empty||e.Id<=0)throw new ArgumentException("UnregisteredStrausEntity");Entities.Add(e.Guid,++id);}}

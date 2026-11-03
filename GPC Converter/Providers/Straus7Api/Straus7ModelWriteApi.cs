@@ -31,6 +31,10 @@ namespace GPC.Converter.Straus7
         void SetPlateAxes(int plate, double[] axes);
         void SetGravity(int loadCase, double[] acceleration);
         void AddCombination(int id, string name, int[] cases, double[] factors, int freedomCase);
+        /// <summary>Unstaged (stage 0) nonlinear increment with the factors of a combination, as the legacy exporter wrote it.</summary>
+        void AddNonlinearIncrement(string name, int[] cases, double[] factors);
+        /// <summary>User ID of a native node (0), beam (1) or plate (2): the GPC element Id.</summary>
+        void SetEntityUserId(int entity, int number, int userId);
     }
 
     public sealed partial class Straus7NativeWriter : IStraus7ModelWriteApi, IStraus7DistributionWriteApi
@@ -103,7 +107,8 @@ namespace GPC.Converter.Straus7
             double angle=Math.Atan2(y,x)*180/Math.PI;
             api.CheckWrite(api.WriteFunction<ModelValues>("St7SetBeamReferenceAngle1")(Id,id,new[]{angle}),"St7SetBeamReferenceAngle1");
             api.CheckWrite(api.WriteFunction<ModelValues>("St7GetBeamAxisSystemInitial")(Id,id,current),"St7GetBeamAxisSystemInitial");
-            if(current.Zip(axes,(a,b)=>Math.Abs(a-b)).Max()>1e-8)throw new InvalidOperationException("StrausBeamOrientationMismatch");
+            // R31 keeps the reference angle in single precision: about 1e-8 rad for a general angle.
+            if(current.Zip(axes,(a,b)=>Math.Abs(a-b)).Max()>1e-6)throw new InvalidOperationException("StrausBeamOrientationMismatch");
         }
         public void SetBeamOffset(int id,double[] offset) => api.CheckWrite(api.WriteFunction<ModelValues>("St7SetBeamOffset2")(Id,id,offset),"St7SetBeamOffset2");
         public void SetBeamRelease(int id,int end,bool rotation,int[] status,double[] stiffness)
@@ -154,6 +159,17 @@ namespace GPC.Converter.Straus7
             api.CheckWrite(api.WriteFunction<ModelName>("St7AddLSACombination")(Id,name),"St7AddLSACombination");
             for(int i=0;i<cases.Length;i++) api.CheckWrite(api.WriteFunction<ModelCombination>("St7SetLSACombinationFactor")(Id,0,id,cases[i],freedomCase,factors[i]),"St7SetLSACombinationFactor");
         }
+        public void AddNonlinearIncrement(string name,int[] cases,double[] factors)
+        {
+            api.CheckWrite(api.WriteFunction<MovingName>("St7AddNLAIncrement")(Id,0,name),"St7AddNLAIncrement");
+            int increment=api.ReadStageIncrementCount(0);
+            for(int i=0;i<cases.Length;i++)api.CheckWrite(api.WriteFunction<ModelIncrementFactor>("St7SetNLALoadIncrementFactor")(Id,0,increment,cases[i],factors[i]),"St7SetNLALoadIncrementFactor");
+        }
+        public void SetEntityUserId(int entity,int number,int userId)
+        {
+            string op=entity==0?"St7SetNodeID":entity==1?"St7SetBeamID":entity==2?"St7SetPlateID":throw new ArgumentOutOfRangeException(nameof(entity));
+            api.CheckWrite(api.WriteFunction<MovingThree>(op)(Id,number,userId),op);
+        }
         /// <summary>Dimensionless displacement and residual convergence tolerances for nonlinear iterations.</summary>
         public void SetNonlinearConvergence(double displacementTolerance,double residualTolerance,int maximumIterations)
         {
@@ -202,5 +218,6 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelDistributedMoment(int a,int b,int c,int d,int e,int f,double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelDistributedForce(int a,int b,int c,int d,int e,int f,int g,double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelCombination(int a,int b,int c,int d,int e,double value);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelIncrementFactor(int a,int stage,int increment,int loadCase,double factor);
     }
 }

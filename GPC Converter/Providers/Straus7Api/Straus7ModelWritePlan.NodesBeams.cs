@@ -116,10 +116,16 @@ namespace GPC.Converter.Straus7
                     input.Formulation==BeamFormulation.PointContact?5:input.Formulation==BeamFormulation.Pipe?8:input.Formulation==BeamFormulation.Connection?9:
                     throw new NotSupportedException("UnsupportedStrausBeamFormulation: "+input.Formulation);
                 if(input.SectionAxes==null)throw new ArgumentException("ExplicitBeamSectionAxesRequired");
-                var axes=input.SectionAxes;var axesData=AxesData(axes);var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
+                var axes=input.SectionAxes;var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
                 if(!(length>1e-9)||Math.Abs(Axes.Dot(tangent/length,axes.V3)-1)>1e-8)throw new ArgumentException("InconsistentStrausBeamAxes");
                 var nodes=new[]{Entities[beam.NodeI.Guid],Entities[beam.NodeJ.Guid]};
                 var property=BeamPropertyData(beam);string name=string.IsNullOrWhiteSpace(beam.Name)?"Beam "+id:beam.Name;
+                // Native beam axes are principal axes: the section frame rotated by the principal angle about the beam axis (C5).
+                var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=principal!=axes;
+                var taper=input.Physical?.Taper;bool uniformTaper=taper==null||taper.ScaleI1==taper.ScaleI2&&taper.ScaleJ1==taper.ScaleJ2&&taper.Alignment1==TaperAlignment.Symmetric&&taper.Alignment2==TaperAlignment.Symmetric;
+                // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame.
+                if(rotated&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
+                    throw new NotSupportedException("PrincipalAngleWithTaperGradientOrSupportRequiresExplicitAxisConvention");
                 Operations.Add(a=>a.CreateBeamProperty(id,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
                 var cutoff=(beam.BeamProperty as ElasticBeamProperty)?.CutoffLaw;
                 if((cutoff!=null)!=(formulation==4)||cutoff!=null&&input.AnalysisProfile!=null)throw new ArgumentException("CutoffLawRequiresCutoffBarFormulationAndExplicitSection");
@@ -150,25 +156,28 @@ namespace GPC.Converter.Straus7
                 var offsetI=Global(input.OffsetI,input.OffsetAxes??axes);var offsetJ=Global(input.OffsetJ,input.OffsetAxes??axes);
                 if(Axes.Length(offsetI-offsetJ)>1e-8)throw new NotSupportedException("UnequalBeamOffsetsRequireRigidEndLinks");
                 double axial=Axes.Dot(offsetI,axes.V3);if(Math.Abs(axial)>1e-8)throw new NotSupportedException("AxialBeamOffsetRequiresRigidEndLinks");
-                var offsets=new[]{Axes.Dot(offsetI,axes.V1),Axes.Dot(offsetI,axes.V2)};
+                var offsets=new[]{Axes.Dot(offsetI,principal.V1),Axes.Dot(offsetI,principal.V2)};
                 if(input.SectionCentroidOffset!=null && Math.Abs(input.SectionCentroidOffset.X)+Math.Abs(input.SectionCentroidOffset.Y)>1e-8)
                     throw new NotSupportedException("SectionCentroidOffsetRequiresExplicitReferenceConvention");
                 if(offsets.Any(v=>v!=0))Operations.Add(a=>a.SetBeamOffset(id,(double[])offsets.Clone()));
                 if(beam.Attributes.Values.Count(a=>a is BeamReleasesAttribute)>1)throw new ArgumentException("DuplicateBeamReleases");
                 foreach(var attribute in beam.Attributes.Values)
                 {
-                    if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes))
+                    if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes)&&!Same(release.CoordinateSystem,principal))
                         throw new NotSupportedException("UnsupportedStrausBeamAttributeOrReleaseAxes");
                     for(int end=1;end<=2;end++)for(int r=0;r<2;r++)
                     {
                         int beamEnd=end;bool rotation=r==1;var connections=(end==1?release.I:release.J).Skip(r*3).Take(3).ToArray();
                         if(connections.Any(c=>c==null||c.Kind==BeamConnectionKind.RelativeFixity))throw new NotSupportedException("RelativeBeamFixityRequiresStiffnessConversion");
+                        // Native releases act in the principal axes: a section-frame release must be the same about both transverse axes.
+                        if(rotated&&!(release.CoordinateSystem!=null&&Same(release.CoordinateSystem,principal))&&(connections[0].Kind!=connections[1].Kind||connections[0].Value!=connections[1].Value))
+                            throw new NotSupportedException("SectionFrameBeamReleaseDiffersInPrincipalAxes");
                         // R3 constants: brReleased=0, brFixed=1, brPartial=2.
                         var status=connections.Select(c=>c.Kind==BeamConnectionKind.Continuous?1:c.Kind==BeamConnectionKind.Released?0:2).ToArray();
                         var values=connections.Select(c=>c.Value).ToArray();Operations.Add(a=>a.SetBeamRelease(id,beamEnd,rotation,(int[])status.Clone(),(double[])values.Clone()));
                     }
                 }
-                BeamLoads(beam,axes,offsetI);
+                BeamLoads(beam,principal,offsetI);
             }
 
             /// <summary>Restraint and spring components of one node in one native freedom case, in one frame.</summary>
@@ -177,6 +186,13 @@ namespace GPC.Converter.Straus7
                 internal readonly int FreedomCase;internal readonly CoordinateSystem Frame;internal readonly bool RestraintCall;
                 internal readonly int[] Status=new int[6];internal readonly double[] Prescribed=new double[6],Stiffness=new double[6];
                 internal NodeFreedomAttributes(int freedomCase,CoordinateSystem frame,bool restraintCall=true){FreedomCase=freedomCase;Frame=frame;RestraintCall=restraintCall;}
+            }
+
+            /// <summary>Principal axes: the section frame rotated by the principal angle (rad) about V3; the same instance when the angle is zero.</summary>
+            private static CoordinateSystem PrincipalAxes(CoordinateSystem axes,double angle)
+            {
+                if(Math.Abs(angle)<=1e-12)return axes;double c=Math.Cos(angle),s=Math.Sin(angle);
+                return new CoordinateSystem(axes.Origin,axes.V1*c+axes.V2*s,axes.V2*c-axes.V1*s);
             }
 
             private static Vector3d Global(Vector3d v,CoordinateSystem axes)

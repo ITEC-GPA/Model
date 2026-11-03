@@ -287,3 +287,161 @@ public class Straus7MaterialLawCorrectionsTest
         Console.WriteLine("C5 native defaults: beam " + plainBeam + ", plate " + plainPlate);
     }
 }
+
+[TestClass]
+public class Straus7OrientationCorrectionsTest
+{
+    /// <summary>Rotated rectangle (principal axis 1 at <paramref name="angle"/> from the section x axis = global Y), load along section y = global Z.</summary>
+    [DataTestMethod, DataRow(.3), DataRow(-.3), TestCategory("Straus7Native")]
+    public void C5_NativePrincipalAngleCouplesBendingAsTheSectionGeometry(double angle)
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.Single(); var section = new SectionRectangular(200, 100, angle);
+        Assert.AreEqual(angle, section.AngleX1, 1e-12);
+        beam.BeamProperty = new ElasticBeamProperty("rotated", new Material("E", 210000, .3, 0, 0), section);
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "angle.st7"), folder);
+        int free = model.NodesElements.Values.Single(n => n.Position.X == 1000).Id;
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder); reader.OpenResults(run.ResultPath);
+        var u = reader.ReadNodeResult(free, 1, false).Values;
+        double p = -1000, k = Math.Pow(1000, 3) / (3 * 210000), c = Math.Cos(angle), s = Math.Sin(angle);
+        // d = (F.e1/J22) e1 + (F.e2/J11) e2 with e1 = (c, s), e2 = (-s, c) in (section x, section y) and F = (0, p).
+        double dx = k * (p * s / section.J22 * c - p * c / section.J11 * s), dy = k * (p * s / section.J22 * s + p * c / section.J11 * c);
+        Assert.AreEqual(dx, u[1], 1e-7 * Math.Abs(dy), "global Y (section x)"); Assert.AreEqual(dy, u[2], 1e-7 * Math.Abs(dy), "global Z (section y)");
+    }
+}
+
+[TestClass]
+public class Straus7WriterFieldsCorrectionsTest
+{
+    private static Model WithCombination()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var lc = model.LoadCases.Values.Single();
+        var combination = new GPC.Model.Combinations.Combination("ULS");
+        combination.AddLoadCaseCoefficients(new List<GPC.Model.LoadCases.LoadCaseBase> { lc }, new List<double> { 1.35 }); model.AddCombination(combination); return model;
+    }
+
+    [TestMethod]
+    public void C6_UserIdsAndUnstagedNonlinearIncrementsAreWrittenAsLegacy()
+    {
+        var model = WithCombination(); var log = Straus7ExporterCorrectionsTest.Record(model);
+        var ids = log.Named(nameof(IStraus7ModelWriteApi.SetEntityUserId)).Select(c => ((int)c.Args[0]!, (int)c.Args[1]!, (int)c.Args[2]!)).ToArray();
+        foreach (var node in model.NodesElements.Values) Assert.IsTrue(ids.Any(i => i.Item1 == 0 && i.Item3 == node.Id), "node " + node.Id);
+        Assert.IsTrue(ids.Any(i => i.Item1 == 1 && i.Item3 == model.BeamElements.Values.Single().Id));
+        var increment = log.Named(nameof(IStraus7ModelWriteApi.AddNonlinearIncrement)).Single();
+        Assert.AreEqual("ULS", increment.Args[0]); CollectionAssert.AreEqual(new[] { 1.35 }, (double[])increment.Args[2]!);
+    }
+
+    [TestMethod]
+    public void C6_LegacyStageCombinationMatrixWithoutStagesIsRejected()
+    {
+        var model = WithCombination(); model.StageCombinationsMap[1] = new HashSet<string> { "ULS" };
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => Straus7ModelWritePlan.Prepare(model)).Message, "LegacyStageCombinationsMapWithoutStagesIsNotExported");
+    }
+
+    [TestMethod]
+    public void C6_LegacyScalarRotationDoesNotOverrideTheAuthoritativeSectionAxes()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var reference = (double[])Straus7ExporterCorrectionsTest.Record(model).Named(nameof(IStraus7ModelWriteApi.SetBeamAxes)).Single().Args[1]!;
+        model.BeamElements.Values.Single().RotationAroundFirstAxis = .5;
+        CollectionAssert.AreEqual(reference, (double[])Straus7ExporterCorrectionsTest.Record(model).Named(nameof(IStraus7ModelWriteApi.SetBeamAxes)).Single().Args[1]!);
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C6_NativeUserIdsAndNonlinearIncrementsReadBack()
+    {
+        var model = WithCombination(); string folder = Straus7ExporterCorrectionsTest.NativeFolder(), path = Path.Combine(folder, "ids.st7");
+        var plan = Straus7ModelWritePlan.Prepare(model);
+        using (var writer = new Straus7NativeWriter(path, folder)) { plan.Write(writer, model); writer.Save(); }
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(path, folder);
+        foreach (var entry in plan.IdentityMap.Entries.Where(e => e.Family == GPC.Model.Core.Identity.EntityFamily.Node))
+            Assert.AreEqual(model.NodesElements.Values.Single(n => n.Guid == entry.EntityGuid).Id, reader.ReadNode(entry.SolverId).UserId);
+        int increments = reader.ReadStageIncrementCount(0); Assert.AreEqual("ULS", reader.ReadStageIncrementName(0, increments));
+        Assert.AreEqual(1.35, reader.ReadStageFactor(0, increments, 1, false), 1e-12);
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C6_ScratchSectionModelsAreRemoved()
+    {
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(7, new[] { 300d, 100, 500, 20, 10, 5 }), folder);
+        Assert.AreEqual(0, Directory.GetFiles(folder, "section-resolve-*").Length, string.Join(", ", Directory.GetFiles(folder)));
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C6_FailedRunLeavesNoPartialOutputAndCanBeRetried()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); string folder = Straus7ExporterCorrectionsTest.NativeFolder(), path = Path.Combine(folder, "retry.st7");
+        File.WriteAllText(Path.Combine(folder, "retry.keep"), "user file with the same stem");
+        // A native failure after the model file was created: an unrestrained cantilever cannot be solved.
+        var free = Straus7ModelWriteTest.Cantilever(); foreach (var node in free.NodesElements.Values) node.Assignments.Restrains.Clear();
+        Exception? failure = null; try { Straus7ModelWritePlan.Prepare(free).RunLinearStatic(free, path, folder); } catch (Exception ex) { failure = ex; }
+        Assert.IsNotNull(failure, "the unrestrained solve must fail"); Console.WriteLine("C6 native failure: " + failure!.Message);
+        CollectionAssert.AreEquivalent(new[] { "retry.keep" }, Directory.GetFiles(folder, "retry.*").Select(Path.GetFileName).ToArray());
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, path, folder); Assert.IsTrue(File.Exists(run.ResultPath));
+        Assert.IsTrue(File.Exists(Path.Combine(folder, "retry.keep")));
+    }
+}
+
+[TestClass]
+public class Straus7NativeCoverageTest
+{
+    private static List<DofRestrain> Dofs(params int[] dofs) => dofs.Select(i => new DofRestrain((GeometryRestrain.DOF)i, true)).ToList();
+    private const double E = 210000, L = 1000;
+    private static double J11 => new SectionRectangular(200, 100).J11;
+    private static double J22 => new SectionRectangular(200, 100).J22;
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C7_RestraintInRotatedFramePropsTheTipAlongItsAxis()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var tip = model.NodesElements.Values.Single(n => n.Position.X == L); double a = .5;
+        var frame = new CoordinateSystem(tip.Position, new Vector3d(0, Math.Cos(a), Math.Sin(a)), new Vector3d(0, -Math.Sin(a), Math.Cos(a)));
+        tip.Assignments.Restrains.Add(new RestrainAssignment { FreedomCase = model.FreedomCases.Values.Single(), Restrain = new NodeRestrain(tip, Dofs(0)) { CoordinateSystem = frame } });
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(); var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "ucs.st7"), folder);
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder);
+        var restraint = reader.ReadRestraint(tip.Id, 1); Assert.AreNotEqual(1, restraint.Ucs);
+        var ucs = reader.ReadUcs(restraint.Ucs).Data; Assert.AreEqual(Math.Cos(a), ucs[4], 1e-12); Assert.AreEqual(Math.Sin(a), ucs[5], 1e-12);
+        reader.OpenResults(run.ResultPath); var u = reader.ReadNodeResult(tip.Id, 1, false).Values;
+        // Tip flexibilities: Y (section x) L^3/3EJ22, Z (section y) L^3/3EJ11; the prop removes the motion along d = (0, cos a, sin a).
+        double fy = L * L * L / (3 * E * J22), fz = L * L * L / (3 * E * J11), dy = Math.Cos(a), dz = Math.Sin(a), p = -1000;
+        double r = -p * dz * fz / (dy * dy * fy + dz * dz * fz), uy = fy * r * dy, uz = fz * (p + r * dz);
+        Assert.AreEqual(0, dy * u[1] + dz * u[2], 1e-9); Assert.AreEqual(uy, u[1], 1e-7 * Math.Abs(uz)); Assert.AreEqual(uz, u[2], 1e-7 * Math.Abs(uz));
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C7_RotationalSpringAddsRigidRotationAtTheBase()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var root = model.NodesElements.Values.Single(n => n.Position.X == 0); double k = 2e9;
+        var dofs = Dofs(0, 1, 2, 3, 5); dofs.Add(new DofRestrain((GeometryRestrain.DOF)4, k));
+        root.Assignments.Restrains.Clear(); root.Assignments.Restrains.Add(new RestrainAssignment { FreedomCase = model.FreedomCases.Values.Single(), Restrain = new NodeRestrain(root, dofs) });
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(); var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "spring.st7"), folder);
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder);
+        Assert.AreEqual(k, reader.ReadNodeStiffness(root.Id, 1, true).Values[1], 1e-6 * k);
+        reader.OpenResults(run.ResultPath); int tip = model.NodesElements.Values.Single(n => n.Position.X == L).Id;
+        double expected = -1000 * (L * L * L / (3 * E * J11) + L * L / k); // N mm/rad
+        Assert.AreEqual(expected, reader.ReadNodeResult(tip, 1, false).Values[2], 1e-7 * Math.Abs(expected));
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C7_StandardRhsGeometryReproducesGpcProperties()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.Single(); var box = new SectionRHS(300, 200, 12, 12, 8, 8, "RHS");
+        beam.BeamProperty = new ElasticBeamProperty("RHS", new Material("E", E, .3, 0, 0), box);
+        var call = Straus7ExporterCorrectionsTest.Record(model).Named(nameof(IStraus7SectionGeometryWriteApi.SetBeamSectionGeometry)).Single();
+        Assert.AreEqual(4, (int)call.Args[1]!); var dims = (double[])call.Args[2]!;
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(); var native = Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(4, dims), folder).ReferenceProperties;
+        Assert.AreEqual(box.Area, native[0], 1e-6 * box.Area, "A " + string.Join(",", dims)); Assert.AreEqual(box.J11, native[1], 1e-6 * box.J11, "I11"); Assert.AreEqual(box.J22, native[2], 1e-6 * box.J22, "I22");
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C7_ImportedBeamForcesKeepTheirSign()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "sign.st7"), folder);
+        Assert.AreEqual(ImportStatus.Completed, run.ImportResults(model, "sign").Status);
+        var samples = model.BeamElements.Values.Single().Results.SelectMany(r => r.Results).OfType<GPC.Model.Results.Locations.StationResultBeamForces>().ToArray();
+        var root = samples.Single(s => s.ParametricDistance == 0).ResultBeamForces;
+        // Positive section face at the clamp of a cantilever loaded by -1000 N along section axis 2 (global Z) at the tip:
+        // the outer part acts with F = -1000 N on V2 and M = L ex x F = +1e6 N mm about V1 (global Y).
+        Assert.AreEqual(1e6, root.M1, 1e-3); Assert.AreEqual(-1000, root.V2, 1e-6); Assert.AreEqual(0, root.M2, 1e-6);
+    }
+}
