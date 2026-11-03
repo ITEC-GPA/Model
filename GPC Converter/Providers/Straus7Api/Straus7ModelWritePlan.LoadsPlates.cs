@@ -77,7 +77,7 @@ namespace GPC.Converter.Straus7
                 if(plate.Nodes.Count!=3&&plate.Nodes.Count!=4)throw new NotSupportedException("StrausPlateRequiresThreeOrFourConnectedNodes");
                 if(plate.Nodes.Any(n=>!Entities.ContainsKey(n.Guid)))throw new ArgumentException("UnregisteredStrausPlateNode");
                 if(plate.Attributes.Count!=0)throw new NotSupportedException("UnsupportedStrausPlateAttributes");
-                var fabric=plate.Assignments.Physical?.Membrane;
+                var fabric=plate.PlateProperty as MembranePlateProperty; // Shared fabric property (review B3).
                 IFemPlateProperty p=null;
                 if(fabric==null)
                 {
@@ -87,9 +87,9 @@ namespace GPC.Converter.Straus7
                 }
                 else
                 {
-                    if(plate.PlateProperty!=null||plate.Assignments.Physical.LoadPatch!=null)throw new ArgumentException("ConflictingMembraneConstitutiveProperties");
+                    if(plate.Assignments.Physical?.LoadPatch!=null)throw new ArgumentException("ConflictingMembraneConstitutiveProperties");
                     fabric.Stiffness();
-                    if(plate.Assignments.Physical.InitialStresses.Count!=0)throw new NotSupportedException("PerWidthMembraneRequiresInitialResultantsNotStress");
+                    if((plate.Assignments.Physical?.InitialStresses.Count??0)!=0)throw new NotSupportedException("PerWidthMembraneRequiresInitialResultantsNotStress");
                     if(plate.Nodes.Any(n=>(n.Assignments.Physical?.Temperatures.Count??0)!=0))throw new NotSupportedException("PerWidthMembraneHasNoThermalExpansionData");
                 }
                 var material=p?.Material;int formulation=fabric==null?4:6;

@@ -45,46 +45,4 @@ namespace GPC.Model.Materials
         private static void Finite(double v) { if (double.IsNaN(v)||double.IsInfinity(v)) throw new ArgumentException("NonFiniteOrthotropicProperty"); }
         private static void Positive(double v) { Finite(v); if(v<=0) throw new ArgumentException("NonPositiveOrthotropicModulus"); }
     }
-
-    /// <summary>Physical fabric properties per unit width, independent of a fictitious FEM thickness.
-    /// Stiffnesses and strengths: N/mm; mass: tonne/mm². Null means not supplied, never an inferred zero.
-    /// Warp/weft map to material axes 1/2. NuWarpWeft=-epsilonWeft/epsilonWarp under warp tension.</summary>
-    [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Materials")]
-    public sealed class MembraneMaterialData
-    {
-        [field: DataMember(Order = 0)] public string Name { get; set; }
-        [field: DataMember(Order = 1)] public double MassPerArea { get; set; }
-        [field: DataMember(Order = 2)] public double? StiffnessWarp { get; set; }
-        [field: DataMember(Order = 3)] public double? StiffnessWeft { get; set; }
-        [field: DataMember(Order = 4)] public double? ShearStiffness { get; set; }
-        [field: DataMember(Order = 5)] public double? NuWarpWeft { get; set; }
-        [field: DataMember(Order = 6)] public double? StrengthWarp { get; set; }
-        [field: DataMember(Order = 7)] public double? StrengthWeft { get; set; }
-
-        public void Validate()
-        {
-            Finite(MassPerArea); if(MassPerArea<0) throw new ArgumentException("NegativeMembraneMass");
-            foreach(var v in new[]{StiffnessWarp,StiffnessWeft,ShearStiffness,StrengthWarp,StrengthWeft})
-                if(v.HasValue) { Finite(v.Value); if(v.Value<=0) throw new ArgumentException("NonPositiveMembraneProperty"); }
-            if(NuWarpWeft.HasValue)
-            {
-                Finite(NuWarpWeft.Value);
-                if(!StiffnessWarp.HasValue || !StiffnessWeft.HasValue) throw new ArgumentException("MissingMembraneNormalStiffness");
-                double coupling=NuWarpWeft.Value*Math.Sqrt(StiffnessWeft.Value)/Math.Sqrt(StiffnessWarp.Value);
-                if(!(1-coupling*coupling>1e-12)) throw new ArgumentException("NonPositiveDefiniteMembraneCompliance");
-            }
-        }
-        /// <summary>Row-major 3x3 membrane stiffness [N11,N22,N12] / [epsilon11,epsilon22,gamma12], N/mm.</summary>
-        public double[] Stiffness()
-        {
-            Validate();
-            if(!StiffnessWarp.HasValue||!StiffnessWeft.HasValue||!ShearStiffness.HasValue||!NuWarpWeft.HasValue)
-                throw new InvalidOperationException("IncompleteMembraneConstitutiveData");
-            double e1=StiffnessWarp.Value,e2=StiffnessWeft.Value,nu=NuWarpWeft.Value;
-            double coupling=nu*Math.Sqrt(e2)/Math.Sqrt(e1),den=1-coupling*coupling;
-            var result=new[]{e1/den,nu*e2/den,0,nu*e2/den,e2/den,0,0,0,ShearStiffness.Value};
-            foreach(var value in result) Finite(value); return result;
-        }
-        private static void Finite(double v) { if(double.IsNaN(v)||double.IsInfinity(v)) throw new ArgumentException("NonFiniteMembraneProperty"); }
-    }
 }

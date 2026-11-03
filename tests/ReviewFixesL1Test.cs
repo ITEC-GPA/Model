@@ -144,6 +144,32 @@ namespace UnitTest
             CollectionAssert.AreEqual(new[] { group.Guid }, sets[0].Value); CollectionAssert.AreEqual(new[] { other.Guid }, sets[1].Value);
         }
 
+        // B3: one registered membrane property shared by the elements, instead of a material copy on every element.
+        [TestMethod] public void B3_MembraneIsASharedRegisteredPlateProperty()
+        {
+            var fabric = new MembranePlateProperty("PVC") { MassPerArea = 1.05e-9, StiffnessWarp = 1000, StiffnessWeft = 500, ShearStiffness = 100, NuWarpWeft = .2 };
+            var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(100, 0, 0)), new NodeElement(new Point3d(100, 100, 0)), new NodeElement(new Point3d(0, 100, 0)) };
+            var a = new AreaElement(null, fabric); a.ConnectNodes(new[] { nodes[0], nodes[1], nodes[2] });
+            var b = new AreaElement(null, fabric); b.ConnectNodes(new[] { nodes[0], nodes[2], nodes[3] });
+            foreach (var e in new[] { a, b }) e.Assignments.LayerAxes = CoordinateSystem.Global;
+            var model = ModelAssembly.Assemble(new Element[] { a, b }, Guid.NewGuid());
+            Assert.AreEqual(1, model.PlateProperties.Count);
+            var shells = model.AreaElements.Values.ToArray();
+            Assert.AreSame(shells[0].PlateProperty, shells[1].PlateProperty); Assert.AreSame(model.PlateProperties["PVC"], shells[0].PlateProperty);
+            Assert.IsTrue(PhysicalAssignments.UsesExtendedExportContract(model));
+            RoundTrips(model);
+            var copy = ModelValues.Copy(model); var copied = copy.AreaElements.Values.ToArray();
+            Assert.AreSame(copied[0].PlateProperty, copied[1].PlateProperty); Assert.AreNotSame(shells[0].PlateProperty, copied[0].PlateProperty);
+            string fingerprint = model.AnalysisFingerprint();
+            ((MembranePlateProperty)copied[0].PlateProperty).StiffnessWarp = 2000;
+            Assert.AreNotEqual(fingerprint, copy.AnalysisFingerprint()); Assert.AreEqual(fingerprint, model.AnalysisFingerprint());
+            GPC.Converter.Straus7.Straus7ModelWritePlan.Prepare(model);
+            Assert.AreEqual("MissingPhysicalThickness", Assert.ThrowsException<ArgumentException>(() => ShellThickness.From(shells[0])).Message);
+            ((MembranePlateProperty)copied[0].PlateProperty).NuWarpWeft = 5;
+            Assert.IsTrue(copy.ValidateDomain().Any(d => d.Code == "InvalidElasticProperty" && d.Message.Contains("NonPositiveDefiniteMembraneCompliance")));
+            Assert.IsTrue(copy.ValidateAssignments().Any(d => d.Severity == DiagnosticSeverity.Error));
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {

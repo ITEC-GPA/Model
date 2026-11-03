@@ -551,9 +551,9 @@ public class Straus7ModelWriteTest
         var plate=new AreaElement(null,new ElasticPlateProperty("membrane",material,0,10,ElasticPlateFormulation.Membrane));plate.ConnectNodes(nodes);
         if(perWidth)
         {
-            plate.PlateProperty=null;
-            plate.Assignments.Physical=new ShellPhysicalData {Membrane=new MembraneMaterialData {
-                StiffnessWarp=2100000,StiffnessWeft=700000,ShearStiffness=300000,NuWarpWeft=0,MassPerArea=1e-8}};
+            // Review B3: shared fabric plate property.
+            plate.PlateProperty=new MembranePlateProperty("fabric") {
+                StiffnessWarp=2100000,StiffnessWeft=700000,ShearStiffness=300000,NuWarpWeft=0,MassPerArea=1e-8};
         }
         plate.Assignments.LayerAxes=rotate?new CoordinateSystem(Point3d.Origin,new Vector3d(0,1,0),new Vector3d(-1,0,0)):CoordinateSystem.Global;
         var lc=new LoadCaseBase("tension");

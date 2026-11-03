@@ -88,7 +88,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Structure.Assignments.ShellFace),
             typeof(global::GPC.Model.Structure.Assignments.TaperAlignment),
             typeof(global::GPC.Model.Materials.OrthotropicElasticity),
-            typeof(global::GPC.Model.Materials.MembraneMaterialData),
+            typeof(global::GPC.Model.ElementProperties.MembranePlateProperty),
             typeof(FormFindingGoal), typeof(FormFindingCoordinateGoal), typeof(FormFindingSurfaceMass), typeof(FormFindingDefinition), typeof(FormFindingMethod), typeof(FormFindingGoalKind), typeof(FabricDirection),
             typeof(AssemblyIdentityMap), typeof(AssemblyIdentityEntry), typeof(SolverIdentityMap), typeof(SolverIdentityEntry),
             typeof(BridgeMemberMetadata), typeof(BridgeMemberFamily),

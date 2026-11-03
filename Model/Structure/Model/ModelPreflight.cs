@@ -21,8 +21,9 @@ namespace GPC.Model.Models
             Check(result, "InvalidFormFinding", () => model.FormFinding?.Validate(model));
             foreach (var property in model.BeamProperties.Values.OfType<ElasticBeamProperty>())
                 Check(result, "InvalidElasticProperty", property.Validate, property.Name);
-            foreach (var property in model.PlateProperties.Values.OfType<ElasticPlateProperty>())
-                Check(result, "InvalidElasticProperty", property.Validate, property.Name);
+            foreach (var property in model.PlateProperties.Values)
+                if (property is ElasticPlateProperty elastic) Check(result, "InvalidElasticProperty", elastic.Validate, elastic.Name);
+                else if (property is MembranePlateProperty membrane) Check(result, "InvalidElasticProperty", membrane.Validate, membrane.Name);
             return result.AsReadOnly();
         }
 

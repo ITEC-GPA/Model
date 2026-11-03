@@ -127,7 +127,6 @@ namespace GPC.Model.Structure.Assignments
     public sealed class ShellPhysicalData
     {
         [field: OptionalField, DataMember(Order = 4, EmitDefaultValue = false)] public LoadPatchDistribution LoadPatch { get; set; }
-        [field: DataMember(Order = 3)] public Materials.MembraneMaterialData Membrane { get; set; }
         [field: DataMember(Order = 0)] public List<ShellInitialStress> InitialStresses { get; set; } = new List<ShellInitialStress>();
         [field: DataMember(Order = 1)] public List<ShellNonStructuralMass> NonStructuralMasses { get; set; } = new List<ShellNonStructuralMass>();
         [field: DataMember(Order = 2)] public List<ShellDistributedSupport> Supports { get; set; } = new List<ShellDistributedSupport>();
@@ -142,7 +141,7 @@ namespace GPC.Model.Structure.Assignments
         public static bool UsesExtendedExportContract(Models.Model model) =>
             model.NodesElements.Values.Any(n => n.Assignments.Restrains.Any(r => r.FreedomCase != null)) ||
             model.BeamElements.Values.Any(b => b.BeamProperty is ElementProperties.ElasticBeamProperty || b.Assignments.Physical?.StringGroup != null) ||
-            model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.Assignments.Physical?.LoadPatch != null);
+            model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.PlateProperty is ElementProperties.MembranePlateProperty || s.Assignments.Physical?.LoadPatch != null);
         internal static object Data(Element element) => element is NodeElement n ? (object)n.Assignments.Physical
             : element is BeamElement b ? (object)b.Assignments.Physical : element is AreaElement s ? s.Assignments.Physical : null;
 
@@ -202,7 +201,6 @@ namespace GPC.Model.Structure.Assignments
             {
                 var p = area.Assignments.Physical;
                 p.LoadPatch?.Validate(area.Nodes.Count);
-                p.Membrane?.Validate();
                 Unique(Items(p.InitialStresses).Select(v => Case(v.Case)));
                 foreach (var v in p.InitialStresses) Vector(v.Components);
                 Unique(Items(p.NonStructuralMasses).Select(v => Case(v.Case)));

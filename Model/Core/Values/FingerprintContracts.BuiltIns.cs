@@ -26,7 +26,7 @@ namespace GPC.Model.Core
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
-            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion",
+            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion", "MembranePlatePropertyVersion",
         };
 
         private static void RegisterBuiltIns()
@@ -212,7 +212,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
             Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<LoadPatch>k__BackingField", "LoadPatch", true),
-                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<NonStructuralMasses>k__BackingField", "NonStructuralMasses", false),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Supports>k__BackingField", "Supports", false));
@@ -238,15 +237,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu12>k__BackingField", "Nu12", false),
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu23>k__BackingField", "Nu23", false),
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu31>k__BackingField", "Nu31", false));
-            Register("GPC.Model.Materials.MembraneMaterialData", "GPC.Model.Materials.MembraneMaterialData",
-                Field("GPC.Model.Materials.MembraneMaterialData", "<Name>k__BackingField", "Name", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<MassPerArea>k__BackingField", "MassPerArea", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWarp>k__BackingField", "StiffnessWarp", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWeft>k__BackingField", "StiffnessWeft", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<ShearStiffness>k__BackingField", "ShearStiffness", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<NuWarpWeft>k__BackingField", "NuWarpWeft", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWarp>k__BackingField", "StrengthWarp", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWeft>k__BackingField", "StrengthWeft", false));
             Register("GPC.Model.Analysis.FormFindingGoal", "GPC.Model.Analysis.FormFindingGoal",
                 Field("GPC.Model.Analysis.FormFindingGoal", "<ChordLengthMm>k__BackingField", "ChordLengthMm", true),
                 Field("GPC.Model.Analysis.FormFindingGoal", "<BeamGuid>k__BackingField", "BeamGuid", false),
