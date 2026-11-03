@@ -277,7 +277,7 @@ namespace GPC.Converter.Straus7
             }
 
             /// <summary>Shear areas per section instance of this export only (no static cache).</summary>
-            private readonly Dictionary<ISectionShape,(double Area1,double Area2)> shearAreas=new Dictionary<ISectionShape,(double Area1,double Area2)>(ReferenceComparer.Instance);
+            private readonly Dictionary<ISectionShape,Dictionary<double,(double Area1,double Area2)>> shearAreas=new Dictionary<ISectionShape,Dictionary<double,(double Area1,double Area2)>>(ReferenceComparer.Instance);
             private sealed class ReferenceComparer : IEqualityComparer<ISectionShape>
             {
                 internal static readonly ReferenceComparer Instance=new ReferenceComparer();
@@ -305,7 +305,9 @@ namespace GPC.Converter.Straus7
                 {
                     // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
                     material=steel.SteelMaterial;section=steel.SectionShape;
-                    if(!shearAreas.TryGetValue(section,out var areas))shearAreas.Add(section,areas=SectionShearAreas.Compute(section));
+                    if(!shearAreas.TryGetValue(section,out var byPoisson))shearAreas.Add(section,byPoisson=new Dictionary<double,(double Area1,double Area2)>());
+                    // The flexure solution depends on the Poisson ratio of the material of this beam.
+                    if(!byPoisson.TryGetValue(material.Ni,out var areas))byPoisson.Add(material.Ni,areas=SectionShearAreas.Compute(section,material.Ni));
                     shear1=areas.Area1;shear2=areas.Area2;
                 }
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
