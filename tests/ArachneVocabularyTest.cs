@@ -75,6 +75,25 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void GroupsWithStableIdentitiesAreRegisteredByTheAssembly()
+        {
+            var parent = Group.Create(Guid.Parse("00000000-0000-0000-0000-0000000000f1"), "Net");
+            var child = Group.Create(Guid.Parse("00000000-0000-0000-0000-0000000000f2"), "Warp", parent);
+            Assert.AreSame(parent, child.Parent); Assert.AreSame(child, parent.Childs.Single());
+            var a = new NodeElement(Guid.Parse("00000000-0000-0000-0000-0000000000f3"), new Point3d(0, 0, 0));
+            var b = new NodeElement(Guid.Parse("00000000-0000-0000-0000-0000000000f4"), new Point3d(1000, 0, 0));
+            var beam = new BeamElement(Guid.Parse("00000000-0000-0000-0000-0000000000f5"), a.Position, b.Position, null);
+            beam.ConnectNodes(a, b); beam.Assignments.Formulation = GPC.Model.Structure.Assignments.BeamFormulation.Cable; beam.AddGroup(child);
+            var model = ModelAssembly.Assemble(new[] { beam }, Guid.Parse("00000000-0000-0000-0000-0000000000f6"));
+            Assert.AreEqual(2, model.Groups.Count);
+            Assert.AreEqual(child.Guid, model.Groups["Warp"].Guid); Assert.AreSame(model.Groups["Net"], model.Groups["Warp"].Parent);
+            var copy = ModelValues.Copy(model);
+            Assert.AreEqual(model.AnalysisFingerprint(), copy.AnalysisFingerprint());
+            Assert.ThrowsException<ArgumentException>(() => Group.Create(Guid.Empty, "x"));
+            Assert.ThrowsException<ArgumentException>(() => Group.Create(Guid.NewGuid(), " "));
+        }
+
+        [TestMethod]
         public void InvalidVocabularyIsRejected()
         {
             Assert.ThrowsException<ArgumentException>(() => new ElementLabelAttribute(""));
