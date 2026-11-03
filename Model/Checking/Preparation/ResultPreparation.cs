@@ -71,8 +71,8 @@ namespace GPC.Model.Checking.Preparation
                     result.Status = DataStatus.Stale; throw new ArgumentException("StaleAnalysis");
                 }
                 if (sample.Case == null || string.IsNullOrWhiteSpace(state.ConcomitantStateId)) throw new ArgumentException("IncompleteResultState");
-                if (state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState)
-                    throw new NotSupportedException("NonConcomitantOrNonPhysicalResultState");
+                if (!state.Semantics.IsStructuralState())
+                    throw new NotSupportedException(AnalysisSemanticsRules.NonStructuralCode(state.Semantics, "NonConcomitantOrNonPhysicalResultState"));
                 if (state.IsCumulative == false || state.Phase != null && state.IsCumulative != true) throw new NotSupportedException("IncrementalOrUnknownPhaseState");
                 result.sourceFingerprint = ModelValues.Fingerprint(new object[] { sample });
                 result.datasetFingerprint = ModelValues.Fingerprint(new object[] { dataset });

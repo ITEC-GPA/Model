@@ -290,6 +290,18 @@ namespace UnitTest
             Assert.IsFalse(diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error));
         }
 
+        // A4: form-found shapes carry their own semantics, which structural consumers reject.
+        [TestMethod] public void A4_FormFindingSemanticsIsNotAStructuralState()
+        {
+            Assert.AreEqual(7, (int)AnalysisSemantics.FormFinding); // appended: the historical values keep their numbers
+            Assert.IsFalse(AnalysisSemantics.FormFinding.IsStructuralState()); Assert.IsFalse(AnalysisSemantics.Unknown.IsStructuralState());
+            foreach (var s in new[] { AnalysisSemantics.LinearStatic, AnalysisSemantics.NonlinearStatic, AnalysisSemantics.ConcomitantEnvelopeState }) Assert.IsTrue(s.IsStructuralState());
+            Assert.AreEqual("FormFindingResultIsNotStructural", AnalysisSemanticsRules.NonStructuralCode(AnalysisSemantics.FormFinding));
+            Assert.AreEqual("NonConcomitantState", AnalysisSemanticsRules.NonStructuralCode(AnalysisSemantics.Modal));
+            var dataset = new AnalysisDataset { Id = "form-finding", Semantics = AnalysisSemantics.FormFinding, NormalizedUnits = "N,mm,s,tonne" };
+            Assert.AreEqual(AnalysisSemantics.FormFinding, ModelValues.CopyValue(dataset).Semantics);
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {
