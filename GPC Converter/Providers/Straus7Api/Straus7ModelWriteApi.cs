@@ -69,7 +69,7 @@ namespace GPC.Converter.Straus7
             api.CheckWrite(api.WriteFunction<ModelProperty>("St7NewBeamProperty")(Id,id,formulation,name),"St7NewBeamProperty");
             api.CheckWrite(api.WriteFunction<ModelSection>("St7SetBeamSectionPropertyData")(Id,id,new[]{0},section),"St7SetBeamSectionPropertyData");
             api.CheckWrite(api.WriteFunction<ModelValues>("St7SetBeamMaterialData")(Id,id,material),"St7SetBeamMaterialData");
-            if(formulation!=4)api.CheckWrite(api.WriteFunction<MovingThree>("St7SetBeamShearModulusMode")(Id,id,1),"St7SetBeamShearModulusMode");
+            if(formulation==2||formulation==3||formulation==6||formulation==8)api.CheckWrite(api.WriteFunction<MovingThree>("St7SetBeamShearModulusMode")(Id,id,1),"St7SetBeamShearModulusMode");
             api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,id),"St7UpdateElementPropertyData");
         }
         public void CreatePlateProperty(int id,string name,int formulation,double bending,double membrane,double[] material,bool orthotropic)
@@ -111,8 +111,13 @@ namespace GPC.Converter.Straus7
             string op=rotation?"St7SetBeamRRelease3":"St7SetBeamTRelease3";
             api.CheckWrite(api.WriteFunction<ModelRelease>(op)(Id,id,end,status,stiffness),op);
         }
-        public void SetNodeRestraint(int node,int freedomCase,int ucs,int[] status,double[] prescribed) =>
-            api.CheckWrite(api.WriteFunction<ModelRestraint>("St7SetNodeRestraint6")(Id,node,freedomCase,ucs,status,prescribed),"St7SetNodeRestraint6");
+        public void SetNodeRestraint(int node,int freedomCase,int ucs,int[] status,double[] prescribed)
+        {
+            // GPC rotations are radians; Straus restraint attributes use degrees (results use radians).
+            var native=(double[])prescribed.Clone();
+            for(int i=3;i<6;i++)native[i]*=180/Math.PI;
+            api.CheckWrite(api.WriteFunction<ModelRestraint>("St7SetNodeRestraint6")(Id,node,freedomCase,ucs,status,native),"St7SetNodeRestraint6");
+        }
         public void SetNodeSpring(int node,int freedomCase,int ucs,bool rotation,double[] stiffness) =>
             FourValues(rotation?"St7SetNodeKRotation3F":"St7SetNodeKTranslation3F",node,freedomCase,ucs,stiffness);
         public void SetNodeLoad(int node,int loadCase,bool moment,double[] values) => Three(moment?"St7SetNodeMoment3":"St7SetNodeForce3",node,loadCase,values);

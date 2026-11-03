@@ -115,6 +115,27 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MinimumFactor>k__BackingField", "MinimumFactor", false),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MaximumFactor>k__BackingField", "MaximumFactor", false),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LimitFactor>k__BackingField", "LimitFactor", false));
+            Register("GPC.Model.Analysis.CompositeSectionDefinition", "GPC.Model.Analysis.CompositeSectionDefinition",
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "schema", "schema", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<Id>k__BackingField", "Id", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<PhysicalSection>k__BackingField", "PhysicalSection", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<LongTermRatio>k__BackingField", "LongTermRatio", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<ShortTermRatio>k__BackingField", "ShortTermRatio", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<ShrinkageRatio>k__BackingField", "ShrinkageRatio", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<IncludeConcrete>k__BackingField", "IncludeConcrete", false),
+                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<IncludeReinforcement>k__BackingField", "IncludeReinforcement", false));
+            Register("GPC.Model.Materials.MaterialDeclarations", "GPC.Model.Materials.MaterialDeclarations",
+                Field("GPC.Model.Materials.MaterialDeclarations", "schema", "schema", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<ExpectedYieldStress>k__BackingField", "ExpectedYieldStress", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<ExpectedTensileStrength>k__BackingField", "ExpectedTensileStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<ExpectedCompressiveStrength>k__BackingField", "ExpectedCompressiveStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<CompressiveYieldStrength>k__BackingField", "CompressiveYieldStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<TensileYieldStrength>k__BackingField", "TensileYieldStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<TensileUltimateStrength>k__BackingField", "TensileUltimateStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<ShearUltimateStrength>k__BackingField", "ShearUltimateStrength", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<Alloy>k__BackingField", "Alloy", false),
+                Field("GPC.Model.Materials.MaterialDeclarations", "<AluminiumForm>k__BackingField", "AluminiumForm", false));
+            Register("GPC.Model.Materials.AluminiumManufacturingForm", "GPC.Model.Materials.AluminiumManufacturingForm", Field("GPC.Model.Materials.AluminiumManufacturingForm", "value__", "value__", false));
             Register("GPC.Model.Materials.MaterialAnalysisData", "GPC.Model.Materials.MaterialAnalysisData",
                 Field("GPC.Model.Materials.MaterialAnalysisData", "<BeamShearModulus>k__BackingField", "BeamShearModulus", false),
                 Field("GPC.Model.Materials.MaterialAnalysisData", "<ViscousDampingDensity>k__BackingField", "ViscousDampingDensity", false),

@@ -1,0 +1,745 @@
+{
+  "schema": "gpc-f5-completion-evidence-v1",
+  "date": "2026-11-03",
+  "phaseStatus": "F5-complete",
+  "branch": "codex/gpc-unification-20261102",
+  "versions": {
+    "Model": "5.46.0.0",
+    "Persistence": "3.12.0.0",
+    "Converter": "2.18.0.0",
+    "Checker.CompositeBridge": "1.26.0.0",
+    "Archive": "1.0.0.0"
+  },
+  "gateExitCodes": {
+    "Model": 0,
+    "Checker": 0
+  },
+  "modelGate": {
+    "passed": 1952,
+    "failed": 0,
+    "excluded": 7,
+    "suites": [
+      {
+        "path": "artifacts/f5/model-f5-final-gate/Model.Core.Tests.trx",
+        "bytes": 86752,
+        "sha256": "fe550da50f316325e7a38a2bcddf01e58f376aeebd7e4f26877fb0aa386d9ee1",
+        "counters": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 63,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/model-f5-final-gate/Model.NetFramework.Tests.trx",
+        "bytes": 132182,
+        "sha256": "eb8b5ac42b908df399b36173365c733e31776a862e483d6e9b1bc51dd6254828",
+        "counters": {
+          "total": "96",
+          "executed": "96",
+          "passed": "96",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 96,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/model-f5-final-gate/UnitTest.trx",
+        "bytes": 2490240,
+        "sha256": "a6697de8162047583c94c4b0068b75aad9221bc2d772287bfc45a5437f91c07f",
+        "counters": {
+          "total": "1800",
+          "executed": "1793",
+          "passed": "1793",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 1793,
+        "excluded": [
+          "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+          "TimingOfTheColdPreparation",
+          "NativeManufacturerPlates_AreImported",
+          "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+          "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+          "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+          "EightNativePairsKeepGeometryAndGlobalActionSigns"
+        ],
+        "exclusionReasons": {
+          "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_ASSIGNMENTS to the newly generated native assignments fixture directory.",
+          "TimingOfTheColdPreparation": "Assert.Inconclusive non riuscita. Set GPC_CIVILNX_TIMING=1 to time the cold preparation.",
+          "NativeManufacturerPlates_AreImported": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_PLATES (see POST_PROCESSING.md, Straus7 native tests).",
+          "RealExports_AreReadAndTheirTablesGiveTheSameModel": "Assert.Inconclusive non riuscita. Set GPC_MIDAS_TEXT_SAMPLES to a folder of MIDAS .mct/.mgt exports.",
+          "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_BENCHMARK to the newly generated native fixture directory.",
+          "NativeBridgheModels_AreReadWithTheirResultsAndBalance": "Assert.Inconclusive non riuscita. Set GPC_STRAUS7_BRIDGHE (see POST_PROCESSING.md, Straus7 native tests).",
+          "EightNativePairsKeepGeometryAndGlobalActionSigns": "Assert.Inconclusive non riuscita. Generate Fixtures/Straus7/generate_packed_pairs.py and set GPC_STRAUS7_PACKED_PAIRS."
+        }
+      }
+    ],
+    "log": {
+      "path": "artifacts/f5/model-f5-final-gate.log",
+      "bytes": 6158,
+      "sha256": "7e53dab9e80221dffbc32348810f854e81284489168932bd17ba3183e16f30ab"
+    }
+  },
+  "checkerGate": {
+    "passed": 10382,
+    "failed": 0,
+    "excluded": 1,
+    "results": [
+      {
+        "name": "GPCChecker.Test.Concrete",
+        "passed": 962,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Steel",
+        "passed": 122,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.CompositeBridge",
+        "passed": 441,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Geotechnics",
+        "passed": 202,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Calculation",
+        "passed": 175,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ShallowFoundation.Tests",
+        "passed": 29,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "EmbeddedWalls.Tests",
+        "passed": 99,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Steel.Members.Tests",
+        "passed": 7132,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks",
+        "passed": 274,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks.net472",
+        "passed": 273,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ModelChecker.Tests",
+        "passed": 673,
+        "failed": 0,
+        "other": 1,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      }
+    ],
+    "suites": [
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/Design.Checks.net472.trx",
+        "bytes": 366109,
+        "sha256": "efc5ee99b267e57d3b340ad0c2f94bc89c3a15e877bedd2234dc269555b5d78b",
+        "counters": {
+          "total": "273",
+          "executed": "273",
+          "passed": "273",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 273,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/Design.Checks.trx",
+        "bytes": 367671,
+        "sha256": "43611df1b3da16d449b29741419f6c8b3cb4366313b76ad754e4c9439e5a697e",
+        "counters": {
+          "total": "274",
+          "executed": "274",
+          "passed": "274",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 274,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/EmbeddedWalls.Tests.trx",
+        "bytes": 139422,
+        "sha256": "5e211be05a75e36de01d515e1d70ab6e74f966761d5f9db0e3c6d31c88d029f4",
+        "counters": {
+          "total": "99",
+          "executed": "99",
+          "passed": "99",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 99,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/GPCChecker.Test.Calculation.trx",
+        "bytes": 240282,
+        "sha256": "11d8be26a61ca04ff09d016ef584bc462cc4ae15a4ea8f14ccdf937561075a31",
+        "counters": {
+          "total": "175",
+          "executed": "175",
+          "passed": "175",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 175,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/GPCChecker.Test.CompositeBridge.trx",
+        "bytes": 644227,
+        "sha256": "517eae9c7d93cf2a3b54575c550f54535d2cae630c61ab49b59a6859ef6bcc91",
+        "counters": {
+          "total": "441",
+          "executed": "441",
+          "passed": "441",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 441,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/GPCChecker.Test.Concrete.trx",
+        "bytes": 7631294,
+        "sha256": "4785f29a94e88dacd64f274d019b03d71f80a3ff1bbe7418d57a606e488d0267",
+        "counters": {
+          "total": "962",
+          "executed": "962",
+          "passed": "962",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 962,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/GPCChecker.Test.Geotechnics.trx",
+        "bytes": 279486,
+        "sha256": "b37fc8f4e80dca177eba37262d9deefe4403ad271cea28253b8585ac2881ec58",
+        "counters": {
+          "total": "202",
+          "executed": "202",
+          "passed": "202",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 202,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/GPCChecker.Test.Steel.trx",
+        "bytes": 156088,
+        "sha256": "87a6a70d504cc4eb4d8a50ba70cf2d28f6cbdc22798a5674b3d9b34466ea8dcd",
+        "counters": {
+          "total": "122",
+          "executed": "122",
+          "passed": "122",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 122,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/ModelChecker.Tests.trx",
+        "bytes": 924605,
+        "sha256": "ff11b852d6632645b647689435edf93fc1f3788699f06aea971b3099b5b1e201",
+        "counters": {
+          "total": "674",
+          "executed": "673",
+          "passed": "673",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 673,
+        "excluded": [
+          "TimingOfTheConcreteRun"
+        ],
+        "exclusionReasons": {
+          "TimingOfTheConcreteRun": "Assert.Inconclusive non riuscita. Set GPC_MODELCHECKER_TIMING=1 to time the concrete run."
+        }
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/ShallowFoundation.Tests.trx",
+        "bytes": 39774,
+        "sha256": "b720628f188ad2c70a0cf1f8d9dc04dfd81753c5a944cd595e73e9e9ea45cc8e",
+        "counters": {
+          "total": "29",
+          "executed": "29",
+          "passed": "29",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 29,
+        "excluded": [],
+        "exclusionReasons": {}
+      },
+      {
+        "path": "artifacts/f5/checker-f5-final-gate/Steel.Members.Tests.trx",
+        "bytes": 9952536,
+        "sha256": "c387b7a9dffb15ebda846f053b36701e5f0b5e325b44b10d67c2f8cdaca78962",
+        "counters": {
+          "total": "7132",
+          "executed": "7132",
+          "passed": "7132",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        },
+        "passed": 7132,
+        "excluded": [],
+        "exclusionReasons": {}
+      }
+    ],
+    "summary": {
+      "path": "artifacts/f5/checker-f5-final-gate/summary.json",
+      "bytes": 2404,
+      "sha256": "01c9673986d282bdbcb9ad221acf9b53784de57da5da6a8e82419d053328515c"
+    },
+    "log": {
+      "path": "artifacts/f5/checker-f5-final-gate.log",
+      "bytes": 12096,
+      "sha256": "7ff28651359a917553a16a9fdb9be06ed56197ad133a6e8660a1b080ec612a60"
+    }
+  },
+  "apiAndAudit": [
+    "GPCModel: 9942 signatures, 26 approved removals, 0 unexpected removals",
+    "GPC.Model.Persistence: 38 signatures, 0 approved removals, 0 unexpected removals",
+    "EqualityAudit: 491 file, 9 usi dell'uguaglianza predefinita su ModelObject fuori dai membri di uguaglianza, 8 voci ammesse.",
+    "GPCModelChecker: 622 signatures, 0 approved removals, 0 unexpected removals",
+    "GPCChecker.Concrete: 2633 signatures, 0 approved removals, 0 unexpected removals",
+    "GPC.Design: 3431 signatures, 0 approved removals, 0 unexpected removals",
+    "GPCChecker.Masonry: 9 signatures, 0 approved removals, 0 unexpected removals"
+  ],
+  "finalModelCasesExecuted": [
+    "PartialEndReleasesMatchAxialAndTorsionalSeriesCompliance",
+    "IsotropicPlateRetainsExplicitLocalAxes",
+    "PreservedPhysicalInputsCannotBeSilentlyDroppedByTheWriter",
+    "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (False)",
+    "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (True)",
+    "PrescribedDisplacementPreflightRejectsConflictingCasesAndFactors",
+    "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (PointContact,5)",
+    "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Pipe,8)",
+    "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Connection,9)",
+    "SectionSnapshotCodecPreservesBitsAndRejectsInvalidPayloads",
+    "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (False)",
+    "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (True)",
+    "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (True)",
+    "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (False)",
+    "EmbeddedBxsSurvivesRemovalOfTheSourceModelAndRetainsSectionProperties",
+    "CompositeDefinitionAndInclusionFlagsRetainPhysicalGeometryAndArchiveIndependently",
+    "MaterialDeclarationsRetainValuesWithoutChangingConstitutiveResponse"
+  ],
+  "matrix": {
+    "types": 295,
+    "fields": 2309,
+    "counts": {
+      "reviewed-retained": 678,
+      "reviewed": 1395,
+      "reviewed-domain": 236
+    },
+    "typeCounts": {
+      "reviewed": 262,
+      "reviewed-stateless": 33
+    },
+    "changedSourceTypes": 0,
+    "report": {
+      "path": "Model/docs/bridghe-arachne/f5-matrice-revisione.json",
+      "bytes": 4290438,
+      "sha256": "af52af1626669ca9dcbcf5177491754425ea6a176754f6491f760944542dcfb8"
+    }
+  },
+  "sourceInventoryVerification": [
+    {
+      "path": "artifacts/f5/f5-inventario-verificato.json",
+      "bytes": 1267849,
+      "sha256": "5189ef382355d5f4d2efb8d94e63ce47e5e0a38f3b160d184fe7ed4ae45262a3"
+    },
+    {
+      "path": "artifacts/f5/f5-inventory-comparison.json",
+      "bytes": 111,
+      "sha256": "5d6ffb066f1198140a92f7416b6c53f2d58360416c94ce8cbf91abdcde431a8b"
+    },
+    {
+      "path": "artifacts/f5/f5-matrix-final-check.log",
+      "bytes": 70,
+      "sha256": "fd3f9f11d020e04379f70e54312ce99baa2cee2b9dd4f0751be788607a419f26"
+    }
+  ],
+  "changedSourcesTested": [
+    {
+      "path": "Model/GPC Converter/GPC Converter.csproj",
+      "bytes": 655,
+      "sha256": "708cc08dc9ecf247294fc264ee4c81c66f4e063518702d37749973c7417557a0"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelRun.cs",
+      "bytes": 13922,
+      "sha256": "0ff302987bb1fd344bb8008485d7d76c291501e4feacbd885e31cd01f1dc94cc"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWriteApi.cs",
+      "bytes": 18264,
+      "sha256": "e5a721c5507452e2ef64bcb66158c108afb38c8c51e6929a5de8d9191ac9845e"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.LoadsPlates.cs",
+      "bytes": 14104,
+      "sha256": "bb9b112d8509379f78b7a57eb99ef324b95cedc56a27b4d3ab42c35e83e8fc8f"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.NodesBeams.cs",
+      "bytes": 21349,
+      "sha256": "a20d817b5c3b1e96c9295473f0aa695db5933a949f508eb7f052cd2df3990710"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.cs",
+      "bytes": 16608,
+      "sha256": "bab6a75086e954574360fe64d143bac4e7d31d8fc31d82522bb5c4c3c78f7790"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7SectionCatalog.cs",
+      "bytes": 5028,
+      "sha256": "fe5ee53f03c180cfe2b69647b5dcc306fb421f8f9608ec294aa4b42171989961"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7SectionDefinition.cs",
+      "bytes": 13494,
+      "sha256": "06f11cd9f1c09ddeced48130fc8cbd2c7d7252ec1d2c34fbf2cc6e133732d68b"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj",
+      "bytes": 450,
+      "sha256": "fa987225dee527f79007908174f0f73345c027167c2c43a0937e0a3b2f8ada06"
+    },
+    {
+      "path": "Model/Model/Analysis/CompositeSectionDefinition.cs",
+      "bytes": 1979,
+      "sha256": "08d61369f475b26e2622f5225c4785092690c23596f664ce42fa249b4effb370"
+    },
+    {
+      "path": "Model/Model/Analysis/CompositeSectionProperties.cs",
+      "bytes": 3028,
+      "sha256": "62ffdddcbcaff98a3e3061661843338f05dc48fa7ebd7b90b6abcaef3786b99d"
+    },
+    {
+      "path": "Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs",
+      "bytes": 131106,
+      "sha256": "2a113a6d74adfa8dcfa0d863aee24d7c1b7410fa9d2d466db61da29fc816f854"
+    },
+    {
+      "path": "Model/Model/Core/Values/ModelDataContracts.cs",
+      "bytes": 33754,
+      "sha256": "5eff88832073b4a6fbd9596477c25c9c03cbb5df94926d182798ea47bc37d66b"
+    },
+    {
+      "path": "Model/Model/GPCModel.csproj",
+      "bytes": 1133,
+      "sha256": "6f97b87cf95bb00c3572409bd97d9dbe4fe2cd90db9336453a880f98cdb75de4"
+    },
+    {
+      "path": "Model/Model/Materials/Material.cs",
+      "bytes": 31917,
+      "sha256": "3604990ee1e37035c347c0d15ac8ab5d91cb4b22c715fbd6805c8068dee8d7a1"
+    },
+    {
+      "path": "Model/Model/Materials/MaterialDeclarations.cs",
+      "bytes": 2433,
+      "sha256": "5405abc235df56f3841057d0413a0105502c52e73d1911ca84b10c1078b78932"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Beams/BeamFormulation.cs",
+      "bytes": 459,
+      "sha256": "49de3e94ee99c6d6ed0f9e4cad731dfad7986a6e7aa4155b597457775236ab95"
+    },
+    {
+      "path": "Model/Model/Structure/Model/Model.Topology.cs",
+      "bytes": 11102,
+      "sha256": "07622865205d27df33c82643a5cfe5615ceb2ca1a6dc4b089da6583dcb0996b4"
+    },
+    {
+      "path": "Model/UnitTest/Straus7ModelWriteTest.cs",
+      "bytes": 59329,
+      "sha256": "a502c0cab789edda3c7ee23e7f2de95c02fc9f4809ebb1ba8e1ff69957a84778"
+    },
+    {
+      "path": "Model/UnitTest/Straus7SectionDefinitionTest.cs",
+      "bytes": 7434,
+      "sha256": "5372dd2cab91def3057c262dae3aa2d887022b0c6f20fa62be87eb14e189e53f"
+    },
+    {
+      "path": "Model/tests/ElasticExportContractsTest.cs",
+      "bytes": 12725,
+      "sha256": "f9d4821c1fb301ff99d0ad6494a5fe9016facab971ceedc3130fd91f1b49da67"
+    },
+    {
+      "path": "Model/tools/MigrationInventory/f5_remaining_routes.py",
+      "bytes": 29838,
+      "sha256": "35141edd76f1610eb151bc19cd5fb48408b53c7f3f6ced2357ee71c2dc6d1494"
+    },
+    {
+      "path": "Model/tools/MigrationInventory/review_f5_matrix.py",
+      "bytes": 28062,
+      "sha256": "7dba11bd66c43ded625644f23ecc7d6cb3831d6bc678d035d38f91b4c39af6d1"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Analysis/BridgeCreepCoefficient.cs",
+      "bytes": 1212,
+      "sha256": "b92c5064e113d307ed05f337a4e186a3aefd203d4e6645db8bad414e0f3f6307"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Analysis/CompositeShrinkageActions.cs",
+      "bytes": 2628,
+      "sha256": "b7d70758b84ca6ac766dd7b7743b85291a26cab11bbc651948c704f33efb12dc"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Analysis/ConcreteShrinkage.cs",
+      "bytes": 3022,
+      "sha256": "47d5d4d25af64b37c2d1d35acdff3f55862cec3b36608e6fc525fe8f9edac4c6"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/GPCChecker.CompositeBridge.csproj",
+      "bytes": 2327,
+      "sha256": "b984f7a22a04de3deb5705b9c2b84def8c075dde20dbed8ef47550bea63a8ca3"
+    },
+    {
+      "path": "Checker/GPCChecker.Test.CompositeBridge/BridgeMigrationPhysicsTests.cs",
+      "bytes": 3478,
+      "sha256": "261f72322079b0d31921201f8432cb8d5e304cc17f7d9b101e1ea918f3af30e1"
+    }
+  ],
+  "collectionScript": {
+    "path": "artifacts/f5/collect-final-evidence.py",
+    "bytes": 6480,
+    "sha256": "93d7e3179eb341a9cd091d3a99d047bb6ab6f5aebe560f1f3fe5cbafff9bda58"
+  },
+  "scope": "F5 contract and exporter closure; production Grasshopper component migration is F6. Unsupported legacy inputs have explicit diagnostics; retained compatibility metadata is not silently solved.",
+  "handoff": "Model/docs/bridghe-arachne/F5-CONCLUSIONE.md",
+  "baselineChanges": "No fixture or API baseline regenerated; no merge, push, release or Rhino installation update."
+}

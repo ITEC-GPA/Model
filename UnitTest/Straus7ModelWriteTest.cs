@@ -25,6 +25,101 @@ namespace UnitTest;
 [TestClass]
 public class Straus7ModelWriteTest
 {
+    [TestMethod,TestCategory("Straus7Native")]
+    public void PartialEndReleasesMatchAxialAndTorsionalSeriesCompliance()
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var free=beam.NodeJ;var section=new SectionRectangular(20,10);var material=new Material("E1000",1000,.3,0,0);
+        beam.BeamProperty=new ElasticBeamProperty("bar",material,section);free.Loads.Clear();free.Loads.Add(new PointLoad(100,0,0,10,0,0,free.Position,model.LoadCases.Values.Single()));
+        var release=new GPC.Model.Attributes.BeamReleasesAttribute();release.I[2]=new GPC.Model.Attributes.BeamDofConnection(GPC.Model.Attributes.BeamConnectionKind.AbsoluteStiffness,500);
+        release.I[5]=new GPC.Model.Attributes.BeamDofConnection(GPC.Model.Attributes.BeamConnectionKind.AbsoluteStiffness,5000);beam.Attributes.Add(release);
+        string folder=NativeFolder();var run=Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model,Path.Combine(folder,"partial.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);reader.OpenResults(run.ResultPath);var u=reader.ReadNodeResult(free.Id,1,false).Values;
+            Assert.AreEqual(100*(1000d/(1000*section.Area)+1d/500),u[0],1e-8);
+            Assert.AreEqual(10*(1000d/(material.GetShearModule()*section.Jt)+1d/5000),u[3],1e-8);
+        }
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void IsotropicPlateRetainsExplicitLocalAxes()
+    {
+        var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(100,0,0)),new NodeElement(new Point3d(100,100,0)),new NodeElement(new Point3d(0,100,0))};
+        var plate=new AreaElement(null,new ElasticPlateProperty("rotated",new Material("E",210000,.3,0,0),10,10));plate.ConnectNodes(nodes);
+        plate.Assignments.LayerAxes=new CoordinateSystem(new Point3d(0,0,0),new Vector3d(0,1,0),new Vector3d(-1,0,0));
+        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());model.AddLoadCase(new LoadCaseBase("empty"));string folder=NativeFolder(),path=Path.Combine(folder,"rotated-plate.st7");
+        using(var writer=new Straus7NativeWriter(path,folder)){Straus7ModelWritePlan.Prepare(model).Write(writer,model);writer.Save();}
+        using(var reader=new Straus7NativeApi()){reader.OpenModelReadOnly(path,folder);var axes=reader.ReadElement(Straus7Entity.Plate,1).InitialAxes;Assert.AreEqual(0,axes[0],1e-10);Assert.AreEqual(1,axes[1],1e-10);}
+        model.AreaElements.Values.Single().Assignments.PhysicalThickness=20;
+        StringAssert.Contains(Assert.ThrowsException<ArgumentException>(()=>Straus7ModelWritePlan.Prepare(model)).Message,"LegacyShellThicknessConflicts");
+    }
+    [TestMethod]
+    public void PreservedPhysicalInputsCannotBeSilentlyDroppedByTheWriter()
+    {
+        var model=Cantilever();model.PreservedSourceData.Add(new PreservedAssignment {Kind="legacy physical input",SourceRecord="case/A",RawData="1",UnsupportedReason="unmapped acceleration"});
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(()=>Straus7ModelWritePlan.Prepare(model)).Message,"UnmappedPreservedModelInput");
+        model.PreservedSourceData.Clear();model.PreservedSourceData.Add(new PreservedAssignment {Kind="Straus7 API",SourceRecord="ResultFile/hash",RawData="[]",UnsupportedReason="retained result arrays"});
+        Straus7ModelWritePlan.Prepare(model);
+    }
+    [DataTestMethod,DataRow(BeamFormulation.PointContact,5),DataRow(BeamFormulation.Pipe,8),DataRow(BeamFormulation.Connection,9),TestCategory("Straus7Native")]
+    public void NativeAdditionalBeamFormulationsKeepTheirDeclaredType(BeamFormulation formulation,int nativeType)
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();beam.Assignments.Formulation=formulation;
+        beam.BeamProperty=new ElasticBeamProperty("CHS",new Material("E",210000,.3,0,0),new SectionCHS(100,5));
+        string fingerprint=model.AnalysisFingerprint(),folder=NativeFolder(),path=Path.Combine(folder,"formulation.st7");
+        var plan=Straus7ModelWritePlan.Prepare(model);
+        using(var writer=new Straus7NativeWriter(path,folder)){plan.Write(writer,model);writer.Save();}
+        using(var reader=new Straus7NativeApi()){reader.OpenModelReadOnly(path,folder);Assert.AreEqual(nativeType,reader.ReadProperty(Straus7Entity.Beam,1).Formulation);}
+        using(var stream=new MemoryStream()){ModelArchive.SaveDocument(model,stream);stream.Position=0;Assert.AreEqual(fingerprint,ModelArchive.Load(stream).AnalysisFingerprint());}
+        Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+    }
+    private static Model PrescribedDisplacementModel(bool staged)
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        beam.BeamProperty=new ElasticBeamProperty("prescribed bar",new Material("E",1000,.3,0,0),new SectionRectangular(10,10));
+        foreach(var node in model.NodesElements.Values)node.Loads.Clear();
+        var dofs=Enumerable.Range(0,6).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList();dofs[0].Prescribe(.04);dofs[5].Prescribe(.001);
+        beam.NodeJ.Assignments.Restrains.Add(new RestrainAssignment {Case=lc,FreedomCase=fc,Restrain=new NodeRestrain(beam.NodeJ,dofs)});
+        if(staged)
+        {
+            var group=model.AddGroup("bar");beam.Groups.Add(group.Name,group);
+            model.AddLoadCase(new StageResultCase("Prescribed response","NLA"));
+            model.Stages.Add(new Stage(1,"prescribed and released") {Definition=new StageDefinition(1,0),AnalysisState=new StageAnalysisState {
+                ActiveGroupGuids=new[]{group.Guid},ActiveFreedomCaseGuids=new[]{fc.Guid},Increments=new[]{.5,1,0}.Select((f,i)=>new StageLoadIncrement {
+                    Name="Step "+i,LoadFactors=new[]{new StageCaseFactor {CaseGuid=lc.Guid,Factor=f}},FreedomFactors=new[]{new StageCaseFactor {CaseGuid=fc.Guid,Factor=f}}}).ToArray()}});
+        }
+        return model;
+    }
+    [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
+    public void NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors(bool staged)
+    {
+        var model=PrescribedDisplacementModel(staged);var beam=model.BeamElements.Values.Single();string before=model.AnalysisFingerprint();
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder(),path=Path.Combine(folder,"prescribed.st7");
+        var run=staged?plan.RunStagedNonlinear(model,model.LoadCases.Values.OfType<StageResultCase>().Single().Guid,path,folder):plan.RunLinearStatic(model,path,folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);reader.OpenResults(run.ResultPath);double[] factors=staged?new[]{.5,1,0}:new[]{1d};
+            for(int i=0;i<factors.Length;i++)
+            {
+                var u=reader.ReadNodeResult(beam.NodeJ.Id,i+1,false).Values;var r=reader.ReadNodeResult(beam.NodeJ.Id,i+1,true).Values;
+                Assert.AreEqual(.04*factors[i],u[0],1e-10);Assert.AreEqual(.001*factors[i],u[5],1e-10);
+                Assert.AreEqual(4*factors[i],r[0],1e-8); // EA/L * 0.04, E=1000, A=100, L=1000.
+                Assert.AreEqual(10d/3*factors[i],r[5],1e-8); // 4EI/L * 0.001 with the end translations restrained.
+                Assert.AreEqual(0,r[0]+reader.ReadNodeResult(beam.NodeI.Id,i+1,true).Values[0],1e-8);
+            }
+        }
+        var report=run.ImportResults(model,"prescribed",includeElementNodeForces:true);
+        Assert.AreEqual(ImportStatus.Completed,report.Status,string.Join("; ",report.Diagnostics.Select(d=>d.Message)));Assert.AreEqual(before,model.AnalysisFingerprint());
+        using(var stream=new MemoryStream()){ModelArchive.SaveDocument(model,stream);stream.Position=0;Assert.AreEqual(before,ModelArchive.Load(stream).AnalysisFingerprint());}
+    }
+    [TestMethod]
+    public void PrescribedDisplacementPreflightRejectsConflictingCasesAndFactors()
+    {
+        var model=PrescribedDisplacementModel(true);Straus7ModelWritePlan.Prepare(model);
+        model.Stages[1].AnalysisState.Increments[0].FreedomFactors[0].Factor=.75;
+        StringAssert.Contains(Assert.ThrowsException<ArgumentException>(()=>Straus7ModelWritePlan.Prepare(model)).Message,"PrescribedDisplacementLoadAndFreedomFactorsDiffer");
+        model=PrescribedDisplacementModel(false);model.AddLoadCase(new LoadCaseBase("independent"));
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(()=>Straus7ModelWritePlan.Prepare(model)).Message,"MultipleCasesRequireExplicitStageFactors");
+    }
     [DataTestMethod,DataRow(false,false),DataRow(true,false),DataRow(false,true),DataRow(true,true),TestCategory("Straus7Native")]
     public void NativeGravityMassFamiliesMatchIndependentEquilibrium(bool structural,bool nonStructural)
     {

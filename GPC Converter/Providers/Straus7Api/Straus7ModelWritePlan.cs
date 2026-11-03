@@ -24,6 +24,7 @@ namespace GPC.Converter.Straus7
         private readonly bool requiresMaterialApi;
         private readonly bool requiresSectionGeometryApi;
         private readonly bool requiresSectionMeshApi;
+        private readonly bool requiresNativeSectionApi;
         private readonly bool requiresInertiaApi;
         private readonly bool requiresConstraintApi;
         private readonly bool requiresSurfacePressureApi;
@@ -33,6 +34,9 @@ namespace GPC.Converter.Straus7
         public IReadOnlyDictionary<Guid,int> FreedomCaseIds { get; }
         public IReadOnlyDictionary<Guid,int> GroupIds { get; }
         public IReadOnlyDictionary<int,int> MinimumOutputStations => physical.MinimumOutputStations;
+        public IReadOnlyDictionary<Guid,Straus7SectionDefinition> NativeSections { get; }
+        public IReadOnlyDictionary<Guid,int> BeamIntegrationSlices { get; }
+        public string ConfigurationFingerprint { get; }
 
         private Straus7ModelWritePlan(Builder builder, IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions)
         {
@@ -45,6 +49,10 @@ namespace GPC.Converter.Straus7
             requiresMaterialApi=builder.RequiresMaterialApi;
             requiresSectionGeometryApi=builder.RequiresSectionGeometryApi;
             requiresSectionMeshApi=builder.RequiresSectionMeshApi;
+            requiresNativeSectionApi=builder.NativeSections.Count!=0;
+            NativeSections=new ReadOnlyDictionary<Guid,Straus7SectionDefinition>(builder.NativeSections);
+            BeamIntegrationSlices=new ReadOnlyDictionary<Guid,int>(builder.IntegrationSlices.ToDictionary(p=>p.Key,p=>p.Value));
+            ConfigurationFingerprint=ModelValues.Fingerprint(new object[]{builder.ConfigurationValues()});
             requiresInertiaApi=builder.RequiresInertiaApi;
             requiresConstraintApi=builder.RequiresConstraintApi;
             requiresSurfacePressureApi=builder.RequiresSurfacePressureApi;
@@ -62,11 +70,17 @@ namespace GPC.Converter.Straus7
         /// omitted beams retain the native solver default. This numerical setting is not a physical section property.</param>
         public static Straus7ModelWritePlan Prepare(global::GPC.Model.Models.Model model,
             IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions,IReadOnlyDictionary<Guid,int> beamIntegrationSlices)
+            =>Prepare(model,movingOptions,beamIntegrationSlices,null);
+        /// <summary>Resolved native geometry is an immutable Converter input, separate from the GPC physical domain.
+        /// Persist each definition with Save(); results record its complete snapshot and configuration fingerprint.</summary>
+        public static Straus7ModelWritePlan Prepare(global::GPC.Model.Models.Model model,
+            IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions,IReadOnlyDictionary<Guid,int> beamIntegrationSlices,
+            IReadOnlyDictionary<Guid,Straus7SectionDefinition> nativeSections)
         {
             if(model==null)throw new ArgumentNullException(nameof(model));
             if(model.Stages.Count!=0 && movingOptions!=null && movingOptions.Values.Any(o=>o!=null&&o.ConvertToStaticCases))
                 throw new NotSupportedException("GeneratedMovingCasesNeedExplicitStageFactors");
-            var builder=new Builder(model,beamIntegrationSlices);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
+            var builder=new Builder(model,beamIntegrationSlices,nativeSections);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
         }
         private static string GroupFingerprint(global::GPC.Model.Models.Model model) => ModelValues.Fingerprint(new object[] {
             model.Name,
@@ -85,6 +99,7 @@ namespace GPC.Converter.Straus7
             if(requiresMaterialApi&&!(api is IStraus7MaterialWriteApi))throw new ArgumentException("MissingMaterialWriteApi");
             if(requiresSectionGeometryApi&&!(api is IStraus7SectionGeometryWriteApi))throw new ArgumentException("MissingSectionGeometryWriteApi");
             if(requiresSectionMeshApi&&!(api is IStraus7SectionMeshWriteApi))throw new ArgumentException("MissingSectionMeshWriteApi");
+            if(requiresNativeSectionApi&&!(api is IStraus7NativeSectionWriteApi))throw new ArgumentException("MissingNativeSectionWriteApi");
             if(requiresInertiaApi&&!(api is IStraus7InertiaWriteApi))throw new ArgumentException("MissingInertiaWriteApi");
             if(requiresConstraintApi&&!(api is IStraus7ConstraintWriteApi))throw new ArgumentException("MissingConstraintWriteApi");
             if(requiresSurfacePressureApi&&!(api is IStraus7SurfacePressureWriteApi))throw new ArgumentException("MissingSurfacePressureWriteApi");
@@ -102,13 +117,24 @@ namespace GPC.Converter.Straus7
             internal readonly List<Action<IStraus7ModelWriteApi>> Operations=new List<Action<IStraus7ModelWriteApi>>();
             private int nextUcs=2;
             private readonly IReadOnlyDictionary<Guid,int> beamIntegrationSlices;
-            internal Builder(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> slices)
+            internal IReadOnlyDictionary<Guid,int> IntegrationSlices=>beamIntegrationSlices;
+            internal readonly Dictionary<Guid,Straus7SectionDefinition> NativeSections;
+            internal object[] ConfigurationValues()=>new object[]{"Straus7 section configuration/1",NativeSections.OrderBy(p=>p.Key).Select(p=>new object[]{p.Key,p.Value.Fingerprint()}).ToArray(),beamIntegrationSlices.OrderBy(p=>p.Key).Select(p=>new object[]{p.Key,p.Value}).ToArray()};
+            internal Builder(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> slices,IReadOnlyDictionary<Guid,Straus7SectionDefinition> nativeSections)
             {
                 Model=model;beamIntegrationSlices=slices==null?new Dictionary<Guid,int>():slices.ToDictionary(p=>p.Key,p=>p.Value);
                 if(beamIntegrationSlices.Any(p=>p.Value<2||p.Value>10||!model.BeamElements.Values.Any(b=>b.Guid==p.Key)))throw new ArgumentException("InvalidBeamIntegrationSlices");
+                NativeSections=nativeSections==null?new Dictionary<Guid,Straus7SectionDefinition>():nativeSections.ToDictionary(p=>p.Key,p=>p.Value);
+                if(NativeSections.Any(p=>p.Value==null||!p.Value.IsResolved||!model.BeamElements.Values.Any(b=>b.Guid==p.Key)))throw new ArgumentException("InvalidResolvedNativeSections");
             }
             internal void Build()
             {
+                foreach(var item in Model.PreservedSourceData)
+                {
+                    var prefixes=new[]{"ResultFile/","ResultUnits/","ResultCases/","ResultValidation/","ExportIdentityMap/","GeneratedMovingCases/","GeneratedMovingCaseParents/","NativeSectionDefinitions/","SectionExportConfiguration/"};
+                    if(item==null||item.Kind!="Straus7 API"||item.SourceRecord==null||!prefixes.Any(p=>item.SourceRecord.StartsWith(p,StringComparison.Ordinal)))
+                        throw new NotSupportedException("UnmappedPreservedModelInput: "+item?.Kind+"/"+item?.SourceRecord+"; "+item?.UnsupportedReason);
+                }
                 if(Model.FormFinding!=null)throw new NotSupportedException("FormFindingRequiresItsDedicatedSolver");
                 if(Model.VolumeElements.Count!=0)throw new NotSupportedException("StrausSolidWriterRequired");
                 if(Model.ValidateTopology(supportsWarpedQuads:true,planarityToleranceMm:1e-6).Any(d=>d.Severity==GPC.Model.Core.Diagnostics.DiagnosticSeverity.Error))
@@ -139,6 +165,7 @@ namespace GPC.Converter.Straus7
                 foreach(var plate in Model.AreaElements.Values.OrderBy(n=>Entities[n.Guid])) Plate(plate);
                 Constraints();
                 ModelActions();
+                ValidatePrescribedCases();
             }
             private void Number<T>(IEnumerable<T> entities) where T:Element
             {int id=0;foreach(var e in entities.OrderBy(e=>e.Id).ThenBy(e=>e.Guid)) {if(e.Guid==Guid.Empty||e.Id<=0)throw new ArgumentException("UnregisteredStrausEntity");Entities.Add(e.Guid,++id);}}

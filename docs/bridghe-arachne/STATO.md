@@ -4,13 +4,13 @@ Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente;
 
 ## Stato effettivo
 
-**F5 in corso; F6–F8 autorizzate e in coda.** Checkpoint corrente: [F5-GEOMETRIA-MASSE.md](F5-GEOMETRIA-MASSE.md), geometria autonoma del ponte, archivio dei valori, sezioni BXS/generiche e partecipazione delle masse. **Model 1.933 PASS, 7 esclusioni; Checker 10.377 PASS, 1 esclusione**; API e audit superati. [Evidenze](f5-geometria-masse-evidenze.json). La matrice completa di revisione enumera i 2.309 campi e ne mantiene **632 aperti**: F5 non è chiusa, nessun rilascio. Il precedente ampliamento del dominio è documentato in [F5-DOMINIO-ESTESO.md](F5-DOMINIO-ESTESO.md).
+**F5 completata; F6–F8 autorizzate e in coda.** [Conclusione e vincoli per F6](F5-CONCLUSIONE.md), [evidenze finali](f5-conclusione-evidenze.json). La matrice copre **295 tipi e 2.309 campi, zero voci aperte**, con inventario sorgente invariato rispetto a F2. **Model 1.952 PASS, 7 esclusioni; Checker 10.382 PASS, 1 esclusione**; zero fallimenti, API e audit superati. Versioni Model **5.46.0.0**, Persistence **3.12.0.0**, Converter **2.18.0.0**, Checker.CompositeBridge **1.26.0.0**. Branch separato; nessun rilascio. La migrazione dei componenti di produzione rimane F6.
 
-Ultimo checkpoint consolidato: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
+Checkpoint storico dell'exporter: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
 
 Checkpoint precedente: [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice aggiornata](f5-destinazioni-parziali.json), [evidenze storiche](f5-evidenze.json).
 
-F0–F4 completate nei rispettivi perimetri. F4: [piloti e contratti](F4-PILOTI.md), [verifiche](F4-VERIFICHE.md), [evidenze](f4-evidenze.json). GPCModel 5.40.0.0 e GPC.Model.Persistence 3.6.0.0; GPC.Archive resta 1.0.0.0. Due varianti ponte e quattro casi membrana, con calcolo, sidecar e riapertura anche in processi distinti. Model 1.779 PASS e 12 ignorati preesistenti; Checker 10.361 PASS. Le build predefinite dei plugin sono state ripristinate e verificate. Nessuna migrazione estesa dei componenti o release: prossima fase F5, poi F6–F8.
+F0–F4 completate nei rispettivi perimetri. F4: [piloti e contratti](F4-PILOTI.md), [verifiche](F4-VERIFICHE.md), [evidenze](f4-evidenze.json). GPCModel 5.40.0.0 e GPC.Model.Persistence 3.6.0.0; GPC.Archive resta 1.0.0.0. Due varianti ponte e quattro casi membrana, con calcolo, sidecar e riapertura anche in processi distinti. Model 1.779 PASS e 12 ignorati preesistenti; Checker 10.361 PASS. Le build predefinite dei plugin sono state ripristinate e verificate. A quel checkpoint non era ancora iniziata F5. La migrazione estesa dei componenti e il rilascio restano F6–F8.
 
 F1: [baseline](F1-BASELINE.md), [evidenze](f1-evidenze.json). F2: [contratti](F2-CONTRATTI.md), [verifiche](F2-VERIFICHE.md). F3: [persistenza](F3-PERSISTENZA.md), [verifiche](F3-VERIFICHE.md). L’adattatore ANTHEA rimane opt-in; adozione predefinita e snapshot restano F7/F8.
 
@@ -68,7 +68,7 @@ Baseline conclusa: vedere il rapporto F1 per copertura, misure, esclusioni e ten
 
 F3 conclusa nello strato di persistenza: 1.765 test Model PASS, 12 ignorati preesistenti; 10.361 Checker PASS; ANTHEA prima/dopo e configurazione predefinita PASS per le due suite selezionate. Recupero incrociato .NET 8/Framework con valori binari identici; riferimento 457 byte, autosave invariato circa 14-15 ms di mediana nel probe (20.000 campioni).
 
-F4 avviata e conclusa il 3 novembre 2026 su richiesta esplicita dell’utente. Il perimetro transitorio e le esclusioni sono dichiarati nel rapporto F4: exporter Straus7 ancora nel backend BridGHe, preprocessore Arachne riutilizzato all’ingresso, componenti di produzione da migrare in F6. F5 è stata successivamente avviata; vedere il checkpoint sopra.
+F4 avviata e conclusa il 3 novembre 2026 su richiesta esplicita dell’utente. Il perimetro transitorio e le esclusioni sono dichiarati nel rapporto F4: exporter Straus7 ancora nel backend BridGHe, preprocessore Arachne riutilizzato all’ingresso, componenti di produzione da migrare in F6. F5 è stata successivamente completata; vedere il rapporto finale sopra.
 
 Checkpoint F1: Model `4134bd1a`, BridGHe `2b2c4b3`, Arachne `63b9516`. Le modifiche F2 appartengono al solo repository Model; Checker Ã¨ stato ricompilato e verificato senza modifiche ai suoi sorgenti. Nessuna integrazione nei checkout principali.
 

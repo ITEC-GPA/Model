@@ -23,6 +23,9 @@ namespace GPC.Converter.Straus7
         public string ResultHash { get; }
         public SolverIdentityMap IdentityMap { get; }
         private readonly string apiVersion;
+        private readonly Dictionary<Guid,string> nativeSections;
+        private readonly Dictionary<string,string> sectionConfiguration;
+        public string ConfigurationFingerprint { get; }
         private readonly IReadOnlyDictionary<Guid,int> loadCases;
         private readonly IReadOnlyDictionary<int,int> minimumStations;
         private readonly IReadOnlyDictionary<int,string> generatedCases;
@@ -34,6 +37,10 @@ namespace GPC.Converter.Straus7
             IReadOnlyDictionary<int,string> generated=null,Guid? stagedOutput=null,KeyValuePair<string,int>[] stageIncrements=null)
         {
             ModelPath=modelPath;ResultPath=resultPath;this.apiVersion=apiVersion;
+            ConfigurationFingerprint=plan.ConfigurationFingerprint;
+            nativeSections=plan.NativeSections.ToDictionary(p=>p.Key,p=>Convert.ToBase64String(p.Value.Save()));
+            sectionConfiguration=nativeSections.ToDictionary(p=>"Section/"+p.Key.ToString("D"),p=>p.Value);
+            foreach(var pair in plan.BeamIntegrationSlices)sectionConfiguration.Add("IntegrationSlices/"+pair.Key.ToString("D"),pair.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
             ModelHash=Hash(modelPath);ResultHash=Hash(resultPath);IdentityMap=plan.IdentityMap;
             loadCases=plan.LoadCaseIds;minimumStations=plan.MinimumOutputStations;
             generatedCases=(generated??new Dictionary<int,string>()).ToDictionary(p=>p.Key,p=>p.Value);generatedParents=(Guid[])plan.StaticMovingParentCases.Clone();
@@ -102,6 +109,9 @@ namespace GPC.Converter.Straus7
                 {
                     model.PreservedSourceData.Add(identityEvidence);
                     model.Datasets[datasetId].SourceHashes.Add("solver-identities",ModelValues.Fingerprint(new object[]{IdentityMap}));
+                    model.Datasets[datasetId].SourceHashes.Add("section-export-configuration",ConfigurationFingerprint);
+                    if(nativeSections.Count!=0)model.PreservedSourceData.Add(Straus7ApiConverter.Evidence("NativeSectionDefinitions/"+ModelHash,nativeSections));
+                    if(sectionConfiguration.Count!=0)model.PreservedSourceData.Add(Straus7ApiConverter.Evidence("SectionExportConfiguration/"+ModelHash,sectionConfiguration));
                     if(generatedEvidence!=null){model.PreservedSourceData.Add(generatedEvidence);model.PreservedSourceData.Add(parentEvidence);}
                 }
                 return report;

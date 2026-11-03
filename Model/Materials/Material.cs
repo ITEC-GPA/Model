@@ -15,6 +15,7 @@ namespace GPC.Model.Materials
         /// <summary>Optional physical orthotropy. Consumers must use this tensor explicitly, never the scalar isotropic modulus.</summary>
         public OrthotropicElasticity Orthotropy { get; set; }
         public MaterialAnalysisData AnalysisData { get; set; }
+        public MaterialDeclarations Declarations { get; set; }
 
         #region Variables
 
@@ -370,7 +371,10 @@ namespace GPC.Model.Materials
         {
             Orthotropy = SerializationFields.Read<OrthotropicElasticity>(info, "Orthotropy");
             AnalysisData = SerializationFields.Read<MaterialAnalysisData>(info, "AnalysisData");
-            double version = SerializationVersions.Read(info, "MaterialVersion", AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6, 1);
+            Declarations = SerializationFields.Read<MaterialDeclarations>(info, "Declarations");
+            double version = SerializationVersions.Read(info, "MaterialVersion", Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6, 1);
+            if(Declarations!=null&&version<8)throw new SerializationException("MaterialDeclarationsSchemaMismatch");
+            Declarations?.Validate();
             if(AnalysisData!=null&&version<7)throw new SerializationException("MaterialAnalysisSchemaMismatch");
             AnalysisData?.Validate();
             if (Orthotropy != null && version < 6) throw new SerializationException("OrthotropicMaterialSchemaMismatch");
@@ -534,7 +538,9 @@ namespace GPC.Model.Materials
 
             Orthotropy?.Validate();
             AnalysisData?.Validate();
-            double version = AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6;
+            Declarations?.Validate();
+            double version = Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6;
+            if(Declarations!=null)info.AddValue("Declarations",Declarations);
             if(AnalysisData!=null)info.AddValue("AnalysisData",AnalysisData);
             if (Orthotropy != null) info.AddValue("Orthotropy", Orthotropy);
 
@@ -612,6 +618,7 @@ namespace GPC.Model.Materials
                    _density == material._density &&
                    object.Equals(Orthotropy, material.Orthotropy) &&
                    object.Equals(AnalysisData, material.AnalysisData) &&
+                   object.Equals(Declarations, material.Declarations) &&
                    _accordingToStandard == material._accordingToStandard &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);

@@ -114,10 +114,16 @@ def propagate_backing_fields():
     for declaration in inventory['types']:
         code=(ROOT.parent/declaration['source']).read_text(encoding='utf-8-sig')
         names={m['name'] for m in declaration['members']}
-        for public, backing in re.findall(r'\bpublic\s+[\w.<>,?\[\]]+\s+(\w+)\s*\{\s*get\s*=>\s*(_\w+)\s*;', code):
+        for public, backing in re.findall(r'\bpublic[ \t]+[\w.<>,?\[\] \t]+[ \t]+(\w+)\s*(?:\{\s*get\s*)?=>\s*(_\w+)\s*;', code):
             key=(declaration['type'],public)
-            if public in names and backing in names and key in routes:
-                routes[(declaration['type'],backing)]=dict(routes[key], aliasOf=public)
+            proof=routes.get(key)
+            if proof is None and key in verified:
+                proof={k:verified[key][k] for k in ('destination','units','evidence')}
+                proof['disposition']='domain-contract'
+            # A source bug binds ShearUltimateStrength to the tensile field. Keep that discrepancy explicit.
+            if declaration['type']=='BridGHe.Common.Models.MaterialModel' and public=='ShearUltimateStrength':continue
+            if public in names and backing in names and proof is not None and (declaration['type'],backing) not in routes:
+                routes[(declaration['type'],backing)]=dict(proof, aliasOf=public)
 
 # Rhino algorithms, transient editing/search state and preview products remain in the plugin.
 # List source fields explicitly: a future physical field cannot silently inherit this disposition.
@@ -150,8 +156,10 @@ route(geometry+'BridgeMemberFamily', 'Girder SolidDiaphragm TopChord BottomChord
 
 
 def build():
+    from f5_remaining_routes import register, empty_type_routes
+    register(route, common)
     propagate_backing_fields()
-    rows=[]
+    rows=[];types=[];empty=empty_type_routes()
     for declaration in inventory['types']:
         for member in declaration['members']:
             key=(declaration['type'],member['name']); old=previous[key]
@@ -170,11 +178,41 @@ def build():
             actual=hashlib.sha256(source.read_bytes()).hexdigest().upper()
             row['currentSourceSha256']=actual
             row['sourceChangedSinceF2']=actual!=old['sourceSha256'].upper()
+            row['f2Status']=row.pop('status')
+            if row['reviewStatus']!='OPEN':
+                row['status']='contract-reviewed; F6 adapter execution separate'
+                row['meaning']=row['destination']
+                retained=row['disposition'].startswith('retain-')
+                row['identity']='Owned destination value; source entity/case IDs explicitly mapped to persistent Guid and per-run solver ID; caches/derived/static values have no independent identity'
+                if retained:
+                    row['serialization']='Plugin compatibility/preview/solver payload retains its source owner; contained physical references use the mapped GPC archive. F6 migrates the wrapper codec.'
+                    row['fingerprint']='No independent GPC physical fingerprint for a UI/cache/dormant value; active contained domain values use their explicit destination contracts. Unsupported physical data cannot silently enter export.'
+                elif row['disposition']=='converter-contract':
+                    row['serialization']='Straus7SectionDefinition.Save/Load schema 1, embedded BXS or expanded dimensions; complete snapshot also retained with result provenance'
+                    row['fingerprint']='SHA-256 of explicit bit-preserving native-section codec; bound by Straus7ModelWritePlan.ConfigurationFingerprint'
+                elif '.Common.Checks.' in row['sourceType']:
+                    row['serialization']='Checker BridgeWorkflowDefinition.Save/Read for recipe inputs; derived named scalar results stay in output wrappers/report contracts, without a second persistent calculation state'
+                    row['fingerprint']='Checker BridgeFingerprints explicitly registers workflow inputs; derived output scalars do not change analysis-input fingerprints'
+                else:
+                    row['serialization']='Registered GPC destination values use ModelValues/DataContracts and ModelArchive/ModelValueArchive; enum/scalar/derived aliases are owned by the containing contract'
+                    row['fingerprint']='Explicit destination FingerprintContracts (or ISerializable entries); optional null fields preserve older fingerprints; derived getters are not duplicate input fields'
             rows.append(row)
+        own=[r for r in rows if r['sourceType']==declaration['type']]
+        actual=hashlib.sha256((ROOT.parent/declaration['source']).read_bytes()).hexdigest().upper()
+        record=dict(sourceType=declaration['type'],source=declaration['source'],sourceSha256=declaration['sha256'],currentSourceSha256=actual,
+                    sourceChangedSinceF2=actual!=declaration['sha256'].upper(),memberCount=len(own))
+        if own:
+            record.update(reviewStatus='OPEN' if any(r['reviewStatus']=='OPEN' for r in own) else 'reviewed',
+                          destinations=sorted({r['destination'] for r in own}),evidence=sorted({r.get('evidence','') for r in own}))
+        elif declaration['type'] in empty:record.update(empty[declaration['type']],reviewStatus='reviewed-stateless')
+        else:record.update(reviewStatus='OPEN',destination='Unreviewed zero-field declaration')
+        types.append(record)
     counts=collections.Counter(r['reviewStatus'] for r in rows)
-    report=dict(schema=1,sourceInventory='f2-inventario.json',typeCount=len(inventory['types']),fieldCount=len(rows),
-                status='F5-OPEN' if counts['OPEN'] else 'field-review-complete; execution-gates-separate',
-                counts=dict(counts),fields=rows)
+    type_counts=collections.Counter(t['reviewStatus'] for t in types)
+    changed=sum(t['sourceChangedSinceF2'] for t in types)
+    report=dict(schema=2,sourceInventory='f2-inventario.json',typeCount=len(types),fieldCount=len(rows),
+                status='F5-OPEN' if counts['OPEN'] or type_counts['OPEN'] or changed else 'contract-review-complete; execution-gates-separate',
+                counts=dict(counts),typeCounts=dict(type_counts),changedSourceTypes=changed,types=types,fields=rows)
     return report
 
 
@@ -187,4 +225,4 @@ if __name__=='__main__':
     for row in report['fields']:
         if row['reviewStatus']=='OPEN':pending[row['sourceType']].append(row['member'])
     (DOC/'f5-campi-da-risolvere.json').write_text(json.dumps(pending,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    if args.check and pending:raise SystemExit(1)
+    if args.check and (pending or report['typeCounts'].get('OPEN') or report['changedSourceTypes']):raise SystemExit(1)

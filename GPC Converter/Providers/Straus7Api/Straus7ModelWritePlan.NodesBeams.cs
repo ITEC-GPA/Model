@@ -29,7 +29,17 @@ namespace GPC.Converter.Straus7
                 // Straus7 groups contain elements, not nodes. Nodal groups remain organizational GPC metadata.
                 var xyz=new[]{node.Position.X,node.Position.Y,node.Position.Z};Operations.Add(a=>a.SetNode(id,(double[])xyz.Clone()));
                 var scopes=new HashSet<string>(StringComparer.Ordinal);
-                if(p.Restrains.Any(r=>r==null||r.Restrain==null||r.Case!=null))throw new ArgumentException("RestraintRequiresExplicitFreedomCaseMigration");
+                if(p.Restrains.Any(r=>r==null||r.Restrain==null))throw new ArgumentException("MissingStrausNodeRestraint");
+                foreach(var restraint in p.Restrains)
+                {
+                    bool prescribed=restraint.Restrain.Restrains.Any(d=>d.HasImposedDisplacement);
+                    if(!prescribed)
+                    {if(restraint.Case!=null)throw new ArgumentException("CaseScopedRestraintRequiresExplicitFreedomCaseMigration");continue;}
+                    var loadCase=restraint.Case as GPC.Model.LoadCases.LoadCaseBase;
+                    int load=Load(loadCase),freedom=Freedom(restraint.FreedomCase);
+                    if(prescribedCases.TryGetValue(freedom,out int previous)&&previous!=load)throw new NotSupportedException("IndependentPrescribedCasesRequireDistinctFreedomCases");
+                    prescribedCases[freedom]=load;
+                }
                 if(p.Restrains.GroupBy(r=>r.FreedomCase?.Guid).Any(g=>g.Select(r=>ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})).Distinct().Count()>1))
                     throw new NotSupportedException("StrausNodeRequiresOneRestraintFramePerFreedomCase");
                 foreach(var group in p.Restrains.GroupBy(r=>new {Case=r.FreedomCase?.Guid,Axes=ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})}))
@@ -87,6 +97,7 @@ namespace GPC.Converter.Straus7
                 if(input.Sections.Count!=0)throw new NotSupportedException("ExplicitBeamSectionScheduleRequiresSubdivision");
                 if(beam.Loads.Count!=0)throw new NotSupportedException("BeamLoadsRequireExplicitStationAssignments");
                 int formulation=input.Formulation==BeamFormulation.StraightTwoNode?6:input.Formulation==BeamFormulation.Truss?3:input.Formulation==BeamFormulation.Cable?2:input.Formulation==BeamFormulation.CutoffBar?4:
+                    input.Formulation==BeamFormulation.PointContact?5:input.Formulation==BeamFormulation.Pipe?8:input.Formulation==BeamFormulation.Connection?9:
                     throw new NotSupportedException("UnsupportedStrausBeamFormulation: "+input.Formulation);
                 if(input.SectionAxes==null)throw new ArgumentException("ExplicitBeamSectionAxesRequired");
                 var axes=input.SectionAxes;var axesData=AxesData(axes);var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
@@ -101,7 +112,15 @@ namespace GPC.Converter.Straus7
                     cutoff.Validate();RequiresMaterialApi=true;int failure=(int)cutoff.Failure;bool keep=cutoff.KeepMass;double tension=cutoff.TensionLimit,compression=cutoff.CompressionLimit;
                     Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetCutoffLaw(id,failure,keep,tension,compression));
                 }
-                if(input.AnalysisProfile==null) BeamSectionGeometry(beam,id,property.Section);
+                if(NativeSections.TryGetValue(beam.Guid,out var nativeSection))
+                {
+                    if(input.AnalysisProfile!=null)throw new NotSupportedException("NativeSectionRequiresPhysicalBeamProperty");
+                    var reference=nativeSection.ReferenceProperties;
+                    for(int k=0;k<11;k++)if(Math.Abs(reference[k]-property.Section[k])>1e-8*Math.Max(1,Math.Abs(reference[k])))
+                        throw new ArgumentException("NativeSectionPhysicalPropertiesMismatch: slot "+k);
+                    Operations.Add(a=>((IStraus7NativeSectionWriteApi)a).SetNativeSection(id,nativeSection,(double[])property.Section.Clone()));
+                }
+                else if(input.AnalysisProfile==null) BeamSectionGeometry(beam,id,property.Section);
                 else if(input.Physical?.Taper!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
                 if(beamIntegrationSlices.TryGetValue(beam.Guid,out int slices))
                 {
@@ -128,7 +147,8 @@ namespace GPC.Converter.Straus7
                     {
                         int beamEnd=end;bool rotation=r==1;var connections=(end==1?release.I:release.J).Skip(r*3).Take(3).ToArray();
                         if(connections.Any(c=>c==null||c.Kind==BeamConnectionKind.RelativeFixity))throw new NotSupportedException("RelativeBeamFixityRequiresStiffnessConversion");
-                        var status=connections.Select(c=>c.Kind==BeamConnectionKind.Continuous?0:c.Kind==BeamConnectionKind.Released?1:2).ToArray();
+                        // R3 constants: brReleased=0, brFixed=1, brPartial=2.
+                        var status=connections.Select(c=>c.Kind==BeamConnectionKind.Continuous?1:c.Kind==BeamConnectionKind.Released?0:2).ToArray();
                         var values=connections.Select(c=>c.Value).ToArray();Operations.Add(a=>a.SetBeamRelease(id,beamEnd,rotation,(int[])status.Clone(),(double[])values.Clone()));
                     }
                 }
@@ -140,6 +160,35 @@ namespace GPC.Converter.Straus7
 
             internal bool RequiresSectionGeometryApi;
             internal bool RequiresSectionMeshApi;
+            private readonly Dictionary<int,int> prescribedCases=new Dictionary<int,int>();
+
+            private void ValidatePrescribedCases()
+            {
+                if(prescribedCases.Count==0)return;
+                if(Model.Stages.Count==0)
+                {
+                    if(Loads.Count!=1||Freedoms.Count>1||Model.MovingLoads!=null)
+                        throw new NotSupportedException("PrescribedDisplacementsWithMultipleCasesRequireExplicitStageFactors");
+                    return;
+                }
+                foreach(var stage in Model.Stages.Values)
+                {
+                    var state=stage.AnalysisState??throw new ArgumentException("PrescribedDisplacementsRequireExplicitStageState");
+                    state.Validate(Model);
+                    foreach(var pair in prescribedCases)
+                    {
+                        Guid freedom=Freedoms.Single(p=>p.Value==pair.Key).Key,load=Loads.Single(p=>p.Value==pair.Value).Key;
+                        if(!state.ActiveFreedomCaseGuids.Contains(freedom))continue;
+                        foreach(var increment in state.Increments)
+                        {
+                            double loadFactor=increment.LoadFactors.SingleOrDefault(p=>p.CaseGuid==load)?.Factor??0;
+                            double freedomFactor=increment.FreedomFactors.SingleOrDefault(p=>p.CaseGuid==freedom)?.Factor??0;
+                            if(Math.Abs(loadFactor-freedomFactor)>1e-12*Math.Max(1,Math.Max(Math.Abs(loadFactor),Math.Abs(freedomFactor))))
+                                throw new ArgumentException("PrescribedDisplacementLoadAndFreedomFactorsDiffer");
+                        }
+                    }
+                }
+            }
             private void BeamSectionGeometry(BeamElement beam,int id,double[] properties)
             {
                 if(beam.Assignments.AnalysisProfile!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");

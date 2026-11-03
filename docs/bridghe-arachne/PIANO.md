@@ -4,7 +4,7 @@ Piano concordato il 2 novembre 2026. Avvio autorizzato nella chat con richiesta 
 
 Ordine operativo aggiornato su richiesta dell'utente: F1, F2, F3 e F4 in coda. F4 è stata poi avviata e completata il 3 novembre 2026 nel perimetro documentato in [F4-PILOTI.md](F4-PILOTI.md), con [evidenze di verifica](F4-VERIFICHE.md).
 
-Il 3 novembre l’utente ha autorizzato la prosecuzione F5–F8. F5 è in corso: [avanzamento verificato](F5-AVANZAMENTO.md). I gate di uscita restano quelli sotto; F6–F8 non sono dichiarate completate.
+Il 3 novembre l’utente ha autorizzato la prosecuzione F5–F8. **F5 è completata**: [perimetro e verifiche finali](F5-CONCLUSIONE.md), [evidenze](f5-conclusione-evidenze.json). Matrice chiusa su 295 tipi e 2.309 campi; suite Model e Checker superate. I gate di uscita restano quelli sotto; F6–F8 non sono dichiarate completate.
 
 ## Obiettivo e perimetro
 

@@ -126,6 +126,11 @@ namespace GPC.Model.Models
                             + " member kept for geometry, loads and results; checks and physical members need straight two-node frames.");
                         axial.Severity = DiagnosticSeverity.Warning; issues.Add(axial);
                     }
+                    else if (formulation == BeamFormulation.PointContact || formulation == BeamFormulation.Pipe || formulation == BeamFormulation.Connection)
+                    {
+                        var specialized=ModelDiagnostic.Error("SpecializedBeamFormulation",element,"Specialized formulation retained for export/results; frame checks require an explicit compatible formulation.");
+                        specialized.Severity=DiagnosticSeverity.Warning;issues.Add(specialized);
+                    }
                     else if (formulation != BeamFormulation.StraightTwoNode)
                         issues.Add(ModelDiagnostic.Error("UnsupportedBeamFormulation", element));
                 }

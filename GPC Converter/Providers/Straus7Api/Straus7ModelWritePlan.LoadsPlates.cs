@@ -121,7 +121,9 @@ namespace GPC.Converter.Straus7
                 Operations.Add(a=>a.CreatePlateProperty(id,name,formulation,bending,membrane,(double[])values.Clone(),orthotropic));
                 MaterialLaw(id,2,material);
                 Operations.Add(a=>a.SetElement(2,id,id,(int[])nodes.Clone()));Group(plate,2);
-                if(orthotropic){var axes=AxesData(plate.Assignments.LayerAxes);Operations.Add(a=>a.SetPlateAxes(id,(double[])axes.Clone()));}
+                if(plate.Assignments.LayerAxes!=null){var axes=AxesData(plate.Assignments.LayerAxes);Operations.Add(a=>a.SetPlateAxes(id,(double[])axes.Clone()));}
+                if(plate.Assignments.PhysicalThickness.HasValue&&Math.Abs(plate.Assignments.PhysicalThickness.Value-membrane)>1e-9)
+                    throw new ArgumentException("LegacyShellThicknessConflictsWithPhysicalProperty");
                 if(plate.Assignments.Offset.HasValue)
                 {double offset=plate.Assignments.Offset.Value;Finite(new[]{offset});Operations.Add(a=>a.SetPlateOffset(id,offset));}
                 var totals=new Dictionary<int,Vector3d>();
