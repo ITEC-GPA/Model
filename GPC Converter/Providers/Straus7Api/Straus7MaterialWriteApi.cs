@@ -18,6 +18,7 @@ namespace GPC.Converter.Straus7
             {
                 var data=material?.AnalysisData;if(data?.StressStrainPairs==null)return;data.Validate();
                 if(material.Orthotropy!=null)throw new NotSupportedException("UniaxialTableCannotDefineOrthotropicNonlinearity");
+                if(family==2&&data.Hardening!=MaterialHardening.Isotropic)throw new NotSupportedException("PlateHardeningNotSupportedByStraus7Api");
                 var pairs=(double[])data.StressStrainPairs.Clone();int response=(int)data.NonlinearResponse,hardening=(int)data.Hardening;
                 RequiresMaterialApi=true;
                 Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetMaterialLaw(family,id,response,hardening,(double[])pairs.Clone()));
@@ -34,10 +35,17 @@ namespace GPC.Converter.Straus7
             int count=0,last=0;api.CheckWrite(api.WriteFunction<MaterialTables>("St7GetNumTables")(Id,4,ref count,ref last),"St7GetNumTables");int table=last+1;
             api.CheckWrite(api.WriteFunction<MaterialNewTable>("St7NewTableType")(Id,4,table,strainStressPairs.Length/2,"GPC material "+family+"/"+property,strainStressPairs),"St7NewTableType");
             api.CheckWrite(api.WriteFunction<Four>("St7SetPropertyTable")(Id,family==1?1011:2007,property,table),"St7SetPropertyTable");
-            string op=family==1?"St7SetBeamNonlinearType":"St7SetPlateNonlinearType";
-            api.CheckWrite(api.WriteFunction<Four>(op)(Id,property,response,family==1?2:1),op); // SDK uses different von Mises codes for beams and plates.
-            api.CheckWrite(api.WriteFunction<Four>("St7SetHardeningType")(Id,family,property,hardening),"St7SetHardeningType");
+            // Like the legacy writer, keep the native yield criterion: only a requested response or hardening different
+            // from the native one is written. St7SetHardeningType accepts ptBEAMPROP only (R31 manual).
+            int current=0,criterion=0;string get=family==1?"St7GetBeamNonlinearType":"St7GetPlateNonlinearType",set=family==1?"St7SetBeamNonlinearType":"St7SetPlateNonlinearType";
+            api.CheckWrite(api.WriteFunction<MaterialTypeRead>(get)(Id,property,ref current,ref criterion),get);
+            if(response!=current)api.CheckWrite(api.WriteFunction<Four>(set)(Id,property,response,criterion),set);
+            if(family==2){if(hardening!=0)throw new NotSupportedException("PlateHardeningNotSupportedByStraus7Api");return;}
+            int native=0;api.CheckWrite(api.WriteFunction<HardeningRead>("St7GetHardeningType")(Id,1,property,ref native),"St7GetHardeningType");
+            if(hardening!=native)api.CheckWrite(api.WriteFunction<Four>("St7SetHardeningType")(Id,1,property,hardening),"St7SetHardeningType");
         }
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MaterialTypeRead(int file,int property,ref int response,ref int criterion);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int HardeningRead(int file,int entity,int property,ref int hardening);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MaterialTables(int file,int type,ref int count,ref int last);
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MaterialNewTable(int file,int type,int table,int count,string name,double[] values);
     }
@@ -58,6 +66,12 @@ namespace GPC.Converter.Straus7
             response=0;hardening=0;int criterion=0;string op=family==1?"St7GetBeamNonlinearType":"St7GetPlateNonlinearType";
             Check(Call<MaterialLawRead>(op)(FileId,property,ref response,ref criterion),op);
             Check(Call<LibraryForceCount>("St7GetHardeningType")(FileId,family,property,ref hardening),"St7GetHardeningType");return values;
+        }
+        /// <summary>Native nonlinear material type and yield criterion of a beam (1) or plate (2) property.</summary>
+        public int ReadNonlinearType(int family,int property,out int criterion)
+        {
+            if(family!=1&&family!=2)throw new ArgumentOutOfRangeException(nameof(family));int response=0,yield=0;string op=family==1?"St7GetBeamNonlinearType":"St7GetPlateNonlinearType";
+            Check(Call<MaterialLawRead>(op)(FileId,property,ref response,ref yield),op);criterion=yield;return response;
         }
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MaterialTableRead(int file,int type,int table,int max,ref int rows,double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MaterialLawRead(int file,int property,ref int response,ref int criterion);

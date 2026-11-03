@@ -241,3 +241,49 @@ public class Straus7ExporterSessionCorrectionsTest
         using (var again = new Straus7NativeApi()) Assert.IsNotNull(again.Version);
     }
 }
+
+[TestClass]
+public class Straus7MaterialLawCorrectionsTest
+{
+    private static MaterialAnalysisData Law(MaterialNonlinearResponse response, MaterialHardening hardening) => new MaterialAnalysisData {
+        StressStrainPairs = new[] { 0d, 0, .001, 210, .1, 300 }, NonlinearResponse = response, Hardening = hardening };
+
+    internal static Model Plate(MaterialAnalysisData? law)
+    {
+        var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(100, 0, 0)), new NodeElement(new Point3d(100, 100, 0)), new NodeElement(new Point3d(0, 100, 0)) };
+        var plate = new AreaElement(null, new ElasticPlateProperty("law plate", new Material("S", 210000, .3, 0, 0) { AnalysisData = law }, 10, 10)); plate.ConnectNodes(nodes);
+        var model = ModelAssembly.Assemble(new Element[] { plate }, Guid.NewGuid()); model.AddLoadCase(new GPC.Model.LoadCases.LoadCaseBase("empty")); return model;
+    }
+    private static Model Beam(MaterialAnalysisData? law)
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.Single();
+        beam.BeamProperty = new ElasticBeamProperty("law beam", new Material("S", 210000, .3, 0, 0) { AnalysisData = law }, new SectionRectangular(10, 10)); return model;
+    }
+    private static (int Response, int Criterion) Native(Model model, int family)
+    {
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(), path = Path.Combine(folder, "law.st7");
+        using (var writer = new Straus7NativeWriter(path, folder)) { Straus7ModelWritePlan.Prepare(model).Write(writer, model); writer.Save(); }
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(path, folder);
+        int response = reader.ReadNonlinearType(family, 1, out int criterion); return (response, criterion);
+    }
+
+    [TestMethod]
+    public void C5_PlateHardeningOtherThanIsotropicIsRejectedBeforeWriting()
+    {
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => Straus7ModelWritePlan.Prepare(Plate(Law(MaterialNonlinearResponse.Elastoplastic, MaterialHardening.Kinematic)))).Message,
+            "PlateHardeningNotSupportedByStraus7Api");
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C5_NativeMaterialLawsKeepTheNativeYieldCriterion()
+    {
+        var plainBeam = Native(Beam(null), 1); var plainPlate = Native(Plate(null), 2); Console.WriteLine("C5 native defaults: beam " + plainBeam + ", plate " + plainPlate);
+        var beam = Native(Beam(Law(MaterialNonlinearResponse.Elastoplastic, MaterialHardening.Isotropic)), 1);
+        Assert.AreEqual(1, beam.Response); Assert.AreEqual(plainBeam.Criterion, beam.Criterion, "beam yield criterion");
+        var plate = Native(Plate(Law(MaterialNonlinearResponse.NonlinearElastic, MaterialHardening.Isotropic)), 2);
+        Assert.AreEqual(0, plate.Response, "the GPC response is written"); Assert.AreEqual(plainPlate.Criterion, plate.Criterion, "plate yield criterion");
+        var elastoplastic = Native(Plate(Law(MaterialNonlinearResponse.Elastoplastic, MaterialHardening.Isotropic)), 2);
+        Assert.AreEqual(1, elastoplastic.Response); Assert.AreEqual(plainPlate.Criterion, elastoplastic.Criterion, "plate yield criterion");
+        Console.WriteLine("C5 native defaults: beam " + plainBeam + ", plate " + plainPlate);
+    }
+}
