@@ -21,6 +21,17 @@ namespace GPC.Model.FreedomCases
         }
 
         /// <summary>
+        /// Creates a freedom case with the persistent identity supplied by its owner (plug-in adapters)
+        /// </summary>
+        /// <param name="guid">The identity (not empty)</param>
+        /// <param name="name">The name</param>
+        public FreedomCase(Guid guid, string name)
+            : base(guid, name)
+        {
+            if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid));
+        }
+
+        /// <summary>
         /// Deserialization constructor (see <see cref="ModelObject"/>)
         /// </summary>
         /// <param name="info">The serialization data</param>

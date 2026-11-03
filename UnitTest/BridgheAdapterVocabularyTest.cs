@@ -53,6 +53,19 @@ public class BridgheAdapterVocabularyTest
     }
 
     [TestMethod]
+    public void StagesAndFreedomCasesKeepTheSuppliedIdentity()
+    {
+        var stageId = new Guid("7d3a51c2-9e04-4b8f-a6d1-35c8e2f90b17"); var freedomId = new Guid("1e9b6c4d-02af-4f37-8b55-d6a0c3e8f241");
+        var stage = new GPC.Model.Stages.Stage(stageId, 3, "Deck");
+        Assert.AreEqual(stageId, stage.Guid); Assert.AreEqual(3, stage.Id); Assert.AreEqual("Deck", stage.Name);
+        var freedom = new GPC.Model.FreedomCases.FreedomCase(freedomId, "Default restraints");
+        Assert.AreEqual(freedomId, freedom.Guid); Assert.AreEqual("Default restraints", freedom.Name);
+        Assert.ThrowsException<ArgumentException>(() => new GPC.Model.Stages.Stage(Guid.Empty, 1, "x"));
+        Assert.ThrowsException<ArgumentException>(() => new GPC.Model.FreedomCases.FreedomCase(Guid.Empty, "x"));
+        Assert.AreEqual(freedomId, GPC.Model.Core.ModelValues.CopyValue(freedom).Guid);
+    }
+
+    [TestMethod]
     public void PathNamedChildGroupsAreWrittenWithTheirLeafName()
     {
         var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.First();
