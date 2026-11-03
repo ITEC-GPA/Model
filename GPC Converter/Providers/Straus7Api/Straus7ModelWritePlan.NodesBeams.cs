@@ -121,7 +121,7 @@ namespace GPC.Converter.Straus7
                 var nodes=new[]{Entities[beam.NodeI.Guid],Entities[beam.NodeJ.Guid]};
                 var property=BeamPropertyData(beam);string name=string.IsNullOrWhiteSpace(beam.Name)?"Beam "+id:beam.Name;
                 // Native beam axes are principal axes: the section frame rotated by the principal angle about the beam axis (C5).
-                var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=principal!=axes;
+                var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=!ReferenceEquals(principal,axes);
                 var taper=input.Physical?.Taper;bool uniformTaper=taper==null||taper.ScaleI1==taper.ScaleI2&&taper.ScaleJ1==taper.ScaleJ2&&taper.Alignment1==TaperAlignment.Symmetric&&taper.Alignment2==TaperAlignment.Symmetric;
                 // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame.
                 if(rotated&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
