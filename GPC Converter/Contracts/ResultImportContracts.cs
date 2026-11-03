@@ -56,6 +56,8 @@ namespace GPC.Converter
     }
     public sealed class ResultImportBatch
     {
+        /// <summary>Optional mapping for results of a GPC-authored export. Preserves the entities' original source identities.</summary>
+        public SolverIdentityMap SolverIdentities { get; set; }
         public AnalysisSource Source { get; set; }
         public string DatasetId { get; set; }
         public string SourceHash { get; set; }

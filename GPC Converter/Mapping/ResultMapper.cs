@@ -33,7 +33,8 @@ namespace GPC.Converter
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var source = batch.Source; var geometry = model.AnalysisSource;
+                batch.SolverIdentities?.ValidateAgainst(model);
+                var source = batch.Source; var geometry = batch.SolverIdentities==null?model.AnalysisSource:batch.Source;
                 if (source == null || geometry == null || string.IsNullOrWhiteSpace(source.Program) || string.IsNullOrWhiteSpace(source.SolverVersion)
                     || string.IsNullOrWhiteSpace(source.ModelRevision) || string.IsNullOrWhiteSpace(source.AnalysisId)
                     || source.Program != geometry.Program || source.SolverVersion != geometry.SolverVersion
@@ -54,8 +55,15 @@ namespace GPC.Converter
                 var staged = new List<Tuple<Element, ElementResult>>(); var keys = new HashSet<SampleKey>();
                 // One lookup per sample; same result as Model.FindBySource, which scans all elements and requires a unique match.
                 var bySource = model.AllElements.Where(e => e.Source != null).ToLookup(e => e.Source);
+                var byGuid = model.AllElements.ToDictionary(e=>e.Guid);
+                var bySolver = batch.SolverIdentities?.Entries.ToDictionary(e=>(e.Family,Id:e.SolverId.ToString(System.Globalization.CultureInfo.InvariantCulture)),e=>byGuid[e.EntityGuid]);
                 Element Find(SourceIdentity identity)
                 {
+                    if(bySolver!=null)
+                    {
+                        if(identity.Program!=source.Program||identity.ModelRevision!=source.ModelRevision)throw new ArgumentException("ResultSolverSourceMismatch");
+                        return bySolver.TryGetValue((identity.Family,identity.OriginalId),out var entity)?entity:null;
+                    }
                     var matches = bySource[identity].Take(2).ToArray();
                     if (matches.Length > 1) throw new InvalidOperationException("DuplicateSourceIdentity");
                     return matches.FirstOrDefault();

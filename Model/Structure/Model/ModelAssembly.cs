@@ -70,6 +70,7 @@ namespace GPC.Model.Models
                     if (restraint.Restrain == null || restraint.Restrain.Point == null || !ReferenceEquals(canonical[restraint.Restrain.Point.Guid], node))
                         throw new ArgumentException("RestraintNodeMismatch");
                     restraint.Restrain.Point = node;
+                    if (restraint.FreedomCase != null) restraint.FreedomCase = CanonicalFreedomCase(model, restraint.FreedomCase);
                     if (restraint.Case != null) restraint.Case = CanonicalCase(model, restraint.Case as LoadCaseBase ?? throw new NotSupportedException("AssemblyRequiresLoadCaseBase"));
                 }
             }
@@ -150,7 +151,7 @@ namespace GPC.Model.Models
         private static string MergeContent(NodeElement node) => ModelValues.Fingerprint(new object[] {
             node.Name, node.CoordinateSystem, node.Groups, node.Assignments.Dofs, node.Assignments.Active, node.Assignments.Mass,
             node.Assignments.GroundSprings, node.Assignments.Links, node.Assignments.Physical,
-            node.Assignments.Restrains.Select(r => new object[] { r.Case, r.Phase, r.SourceRecord, r.Restrain?.Name, r.Restrain?.CoordinateSystem, r.Restrain?.Restrains }).ToArray() });
+            node.Assignments.Restrains.Select(r => new object[] { r.Case, r.FreedomCase, r.Phase, r.SourceRecord, r.Restrain?.Name, r.Restrain?.CoordinateSystem, r.Restrain?.Restrains }).ToArray() });
 
         private static void Merge(NodeElement[] nodes, Dictionary<Guid, NodeElement> map, HashSet<Guid> separate, double tolerance)
         {

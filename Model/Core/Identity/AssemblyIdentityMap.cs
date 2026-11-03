@@ -79,6 +79,14 @@ namespace GPC.Model.Core.Identity
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class SolverIdentityMap
     {
+        /// <summary>Captures the current registered entities for an exporter, including models not created by ModelAssembly.
+        /// Does not replace the model's original assembly/merge provenance.</summary>
+        public static SolverIdentityMap Create(Models.Model model, string solver, IEnumerable<KeyValuePair<Guid, int>> ids)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            var map = new AssemblyIdentityMap(model.Guid, null, model.AllElements.Select(e => new AssemblyIdentityEntry(e, e, Models.Model.FamilyOf(e))));
+            return map.ToSolver(model, solver, ids);
+        }
         [DataMember(Order = 0)] public Guid ModelGuid { get; private set; }
         [DataMember(Order = 1)] public string Solver { get; private set; }
         [DataMember(Order = 2)] public string AnalysisFingerprint { get; private set; }
@@ -93,6 +101,15 @@ namespace GPC.Model.Core.Identity
             entries = canonical.Select(e => new SolverIdentityEntry(e, supplied[e.CanonicalGuid])).ToArray(); Validate();
         }
         [OnDeserialized] private void OnRead(StreamingContext context) => Validate();
+        /// <summary>Verifies the captured model revision, entity GUIDs and family-local IDs before reading solver results.</summary>
+        public void ValidateAgainst(Models.Model model)
+        {
+            Validate();if(model==null)throw new ArgumentNullException(nameof(model));
+            var current=model.AllElements.ToDictionary(e=>e.Guid);
+            if(model.Guid!=ModelGuid||Models.ModelRevisions.AnalysisFingerprint(model)!=AnalysisFingerprint||current.Count!=entries.Length
+                ||entries.Any(e=>!current.TryGetValue(e.EntityGuid,out var entity)||entity.Id!=e.ModelId||Models.Model.FamilyOf(entity)!=e.Family))
+                throw new InvalidOperationException("StaleSolverIdentityMap");
+        }
         public void Validate()
         {
             if (ModelGuid == Guid.Empty || string.IsNullOrWhiteSpace(Solver) || string.IsNullOrWhiteSpace(AnalysisFingerprint) || entries == null)

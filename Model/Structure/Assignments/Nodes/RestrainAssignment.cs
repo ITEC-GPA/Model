@@ -20,6 +20,11 @@ namespace GPC.Model.Structure.Assignments
         [field: System.Runtime.Serialization.DataMember(Name = "<Case>k__BackingField", IsRequired = true)]
         public ILoadCase Case { get; set; }
 
+        /// <summary>Physical boundary-condition case. Legacy load-case scoping remains distinct and requires explicit migration.</summary>
+        [field: OptionalField]
+        [field: DataMember(Name = "<FreedomCase>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public GPC.Model.FreedomCases.FreedomCase FreedomCase { get; set; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<Phase>k__BackingField", IsRequired = true)]
         public string Phase { get; set; }
 

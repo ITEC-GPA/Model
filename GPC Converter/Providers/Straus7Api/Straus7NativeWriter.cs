@@ -27,12 +27,13 @@ namespace GPC.Converter.Straus7
     public sealed partial class Straus7NativeWriter : IStraus7WriteApi, IDisposable
     {
         private readonly Straus7NativeApi api;
+        private readonly bool freshFile;
         private const int Id=1;
         public Straus7NativeApi Reader => api;
         public string OutputPath { get; }
         public Straus7NativeWriter(string outputPath,string scratchPath,string sourceModelPath=null,string libraryPath=null)
         {
-            OutputPath=Path.GetFullPath(outputPath); api=new Straus7NativeApi(libraryPath);
+            OutputPath=Path.GetFullPath(outputPath); freshFile=sourceModelPath==null; api=new Straus7NativeApi(libraryPath);
             try {
                 api.CreateWritable(OutputPath,Path.GetFullPath(scratchPath),sourceModelPath);
                 if(sourceModelPath==null) api.CheckWrite(api.WriteFunction<Units>("St7SetUnits")(Id,new[]{2,0,2,1,0,0}),"St7SetUnits");

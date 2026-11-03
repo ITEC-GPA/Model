@@ -105,21 +105,31 @@ namespace GPC.Converter.Straus7
         /// up to that stage, and node tables are kept for the nodes of the elements with results in the case or with a nonzero value: a node outside the
         /// active structure is not given a zero result.</summary>
         internal static ResultImportReport Normalize(GPC.Model.Models.Model model, Straus7ResultsReport native, string datasetId, Func<Straus7ResultCase, string> caseOf,
-            Func<Straus7ResultCase, int, ResultState> stateOf, AnalysisSemantics semantics, string readerVersion, bool isSynthetic, CancellationToken cancellationToken)
+            Func<Straus7ResultCase, int, ResultState> stateOf, AnalysisSemantics semantics, string readerVersion, bool isSynthetic, CancellationToken cancellationToken,
+            SolverIdentityMap exportIdentities=null, AnalysisSource exportSource=null)
         {
             var rejected = new ResultImportReport { Status = ImportStatus.Rejected };
             try
             {
-                var source = model.AnalysisSource;
+                exportIdentities?.ValidateAgainst(model);
+                var source = exportIdentities==null?model.AnalysisSource:exportSource;
                 if (source == null || source.Program != "Straus7" || source.GeometryHash != native.ModelHash || source.SolverVersion != native.ApiVersion
                     || string.IsNullOrWhiteSpace(source.AnalysisId) || string.IsNullOrWhiteSpace(native.ResultHash)) throw new InvalidDataException("Model/result source mismatch or missing analysis identity.");
-                var changed = SourceBinding.Check(model, Straus7ApiConverter.InputBindingKind, native.ModelHash, "Straus7");
+                var changed = exportIdentities==null?SourceBinding.Check(model, Straus7ApiConverter.InputBindingKind, native.ModelHash, "Straus7"):null;
+                var byGuid=model.AllElements.ToDictionary(e=>e.Guid);
+                var nativeEntities=exportIdentities?.Entries.ToDictionary(e=>(e.Family,e.SolverId),e=>byGuid[e.EntityGuid]);
+                var nativeIds=exportIdentities?.Entries.ToDictionary(e=>e.EntityGuid,e=>Straus7ApiConverter.Id(e.SolverId));
+                Element Find(EntityFamily family,int number)=>nativeEntities==null
+                    ?model.FindBySource(new SourceIdentity("Straus7",source.ModelRevision,family,Straus7ApiConverter.Id(number)))
+                    :nativeEntities.TryGetValue((family,number),out var value)?value:null;
+                string SourceId(Element element)=>nativeIds==null?element.Source?.OriginalId:nativeIds[element.Guid];
+                SourceIdentity SourceOf(Element element)=>new SourceIdentity("Straus7",source.ModelRevision,global::GPC.Model.Models.Model.FamilyOf(element),SourceId(element));
                 var cases = native.Cases.ToDictionary(c => c.Number);
                 var caseNumbers = new HashSet<int>(cases.Keys);
                 var units = Straus7ApiConverter.Units(native.Units);
-                var batch = new ResultImportBatch { Source = source, SourceHash = native.ResultHash, DatasetId = datasetId,
+                var batch = new ResultImportBatch { Source = source, SolverIdentities=exportIdentities, SourceHash = native.ResultHash, DatasetId = datasetId,
                     ExpectedInputFingerprint = model.AnalysisFingerprint(), ReaderVersion = readerVersion,
-                    AnalysisInputFingerprint = SourceBinding.AnalysisFingerprint(model, Straus7ApiConverter.InputBindingKind, native.ModelHash),
+                    AnalysisInputFingerprint = exportIdentities?.AnalysisFingerprint??SourceBinding.AnalysisFingerprint(model, Straus7ApiConverter.InputBindingKind, native.ModelHash),
                     ResolvedConvention = ResolvedConvention,
                     Units = units, ShellDenominatorLengthToMm = units.LengthToMm, Semantics = semantics, IsSynthetic = isSynthetic };
                 // Nodes of the elements with results in each staged case.
@@ -127,10 +137,9 @@ namespace GPC.Converter.Straus7
                 foreach (var table in native.Tables.Where(t => t != null && t.Entity != Straus7Entity.Node && caseNumbers.Contains(t.CaseNumber) && cases[t.CaseNumber].Stage > 0))
                 {
                     if (!activeNodes.TryGetValue(table.CaseNumber, out var set)) activeNodes[table.CaseNumber] = set = new HashSet<string>(StringComparer.Ordinal);
-                    var owner = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, table.Entity == Straus7Entity.Beam ? EntityFamily.Beam : EntityFamily.Shell,
-                        Straus7ApiConverter.Id(table.Number)));
-                    if (owner is BeamElement b) { set.Add(b.NodeI.Source?.OriginalId); set.Add(b.NodeJ.Source?.OriginalId); }
-                    else if (owner is AreaElement a) foreach (var n in a.Nodes) set.Add(n.Source?.OriginalId);
+                    var owner = Find(table.Entity == Straus7Entity.Beam ? EntityFamily.Beam : EntityFamily.Shell,table.Number);
+                    if (owner is BeamElement b) { set.Add(SourceId(b.NodeI)); set.Add(SourceId(b.NodeJ)); }
+                    else if (owner is AreaElement a) foreach (var n in a.Nodes) set.Add(SourceId(n));
                 }
                 var keys = new HashSet<string>();
                 foreach (var table in native.Tables)
@@ -144,16 +153,16 @@ namespace GPC.Converter.Straus7
                     if (!keys.Add(table.Entity + "/" + table.Number + "/" + table.CaseNumber + "/" + table.Quantity)) throw new InvalidDataException("Duplicate native table.");
                     if (table.Entity == Straus7Entity.Node)
                     {
-                        var node = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, EntityFamily.Node, Straus7ApiConverter.Id(table.Number))) as NodeElement;
+                        var node = Find(EntityFamily.Node,table.Number) as NodeElement;
                         if (node == null || table.Rows != 1) throw new InvalidDataException("Nodal result has no matching node or invalid row count.");
-                        if (cases[table.CaseNumber].Stage > 0 && (!activeNodes.TryGetValue(table.CaseNumber, out var active) || !active.Contains(node.Source.OriginalId))
+                        if (cases[table.CaseNumber].Stage > 0 && (!activeNodes.TryGetValue(table.CaseNumber, out var active) || !active.Contains(SourceId(node)))
                             && table.Values.All(v => v == 0)) continue;
                         var axes = SourceAxes(CoordinateSystem.Global, node.Position, units.LengthToMm);
                         var values = table.Values.Select(v => (double?)v).ToArray(); var record = "St7GetNodeResult/" + table.Quantity + "/" + table.Number + "/case/" + table.CaseNumber;
-                        if (table.Quantity == "NodeReactionGlobal") batch.NodeForces.Add(new NodeForceRecord { ElementId = node.Source.OriginalId,
+                        if (table.Quantity == "NodeReactionGlobal") batch.NodeForces.Add(new NodeForceRecord { ElementId = SourceId(node),
                             Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6), Axes = axes, Values = values, Record = record,
                             Kind = NodalForceKind.SupportReaction, Body = ActionBody.OnNode });
-                        else if (table.Quantity == "NodeDisplacementGlobal") batch.NodeDisplacements.Add(new NodeDisplacementRecord { ElementId = node.Source.OriginalId,
+                        else if (table.Quantity == "NodeDisplacementGlobal") batch.NodeDisplacements.Add(new NodeDisplacementRecord { ElementId = SourceId(node),
                             Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6), Axes = axes, Values = values, Record = record });
                         else throw new NotSupportedException("Unsupported nodal quantity: " + table.Quantity);
                         continue;
@@ -164,22 +173,22 @@ namespace GPC.Converter.Straus7
                         || table.ElementState[2] < 0 || table.ElementState[2] > Math.Max(1, cases[table.CaseNumber].Stage))
                         throw new NotSupportedException("Inactive, missing or later-stage element result.");
                     string id = Straus7ApiConverter.Id(table.Number); var family = table.Entity == Straus7Entity.Beam ? EntityFamily.Beam : EntityFamily.Shell;
-                    var element = model.FindBySource(new SourceIdentity("Straus7", source.ModelRevision, family, id));
+                    var element = Find(family,table.Number);
                     if (element == null) throw new InvalidDataException("Native result refers to an absent element.");
                     if (table.Quantity == "ElementNodeForceGlobal")
                     {
                         var nodes = element is BeamElement ownerBeam ? new[] { ownerBeam.NodeI, ownerBeam.NodeJ }
                             : element is AreaElement ownerPlate ? ownerPlate.Nodes.ToArray() : throw new NotSupportedException("Element node force family.");
-                        if (table.NodeNumbers == null || table.Rows != nodes.Length || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => n.Source?.OriginalId)))
+                        if (table.NodeNumbers == null || table.Rows != nodes.Length || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => SourceId(n))))
                             throw new InvalidDataException("Element node force rows do not match the owner's ordered connectivity.");
                         for (int row = 0; row < nodes.Length; row++)
                         {
                             var node = nodes[row];
-                            batch.NodeForces.Add(new NodeForceRecord { ElementId = node.Source.OriginalId, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6),
+                            batch.NodeForces.Add(new NodeForceRecord { ElementId = SourceId(node), Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6),
                                 Axes = SourceAxes(CoordinateSystem.Global, node.Position, units.LengthToMm), Values = table.Values.Skip(row * 6).Take(6).Select(v => (double?)v).ToArray(),
                                 Kind = element is BeamElement ? NodalForceKind.ElementEndForce : NodalForceKind.ElementNodeForce, Body = ActionBody.OnElement,
-                                OwnerSource = element.Source, ElementEnd = element is BeamElement ? (row == 0 ? "I" : "J") : null,
-                                Record = "Straus7 ElementNodeForceGlobal/" + table.Entity + "/" + id + "/node/" + node.Source.OriginalId + "/case/" + table.CaseNumber });
+                                OwnerSource = SourceOf(element), ElementEnd = element is BeamElement ? (row == 0 ? "I" : "J") : null,
+                                Record = "Straus7 ElementNodeForceGlobal/" + table.Entity + "/" + id + "/node/" + SourceId(node) + "/case/" + table.CaseNumber });
                         }
                     }
                     else if (table.Entity == Straus7Entity.Beam && table.Quantity == "BeamForceGlobal")
@@ -199,6 +208,8 @@ namespace GPC.Converter.Straus7
                             double station = table.Positions[row];
                             Vector3d delta = beam.EndPoint - beam.StartPoint;
                             var p = beam.StartPoint + delta * station;
+                            if(exportIdentities!=null && beam.Assignments.OffsetI!=null)
+                                p += (beam.Assignments.OffsetAxes??axes).ToGlobal(beam.Assignments.OffsetI);
                             batch.Beams.Add(new BeamForceRecord { ElementId = id, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 6),
                                 Axes = SourceAxes(axes, p, units.LengthToMm), Values = new double?[] { Axes.Dot(force, axes.V3), Axes.Dot(force, axes.V1), Axes.Dot(force, axes.V2),
                                     Axes.Dot(moment, axes.V3), Axes.Dot(moment, axes.V1), Axes.Dot(moment, axes.V2) },
@@ -229,7 +240,7 @@ namespace GPC.Converter.Straus7
                         var moments = native.Tables.Where(t => t.Entity == Straus7Entity.Plate && t.Number == table.Number && t.CaseNumber == table.CaseNumber && t.Quantity == "PlateMomentLocalNodes").ToArray();
                         var nodes = shell.Nodes.ToArray();
                         if (moments.Length != 1 || table.Rows != nodes.Length || moments[0].Rows != nodes.Length || moments[0].Columns != 6 || table.NodeNumbers == null || moments[0].NodeNumbers == null
-                            || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => n.Source?.OriginalId))
+                            || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => SourceId(n)))
                             || !moments[0].NodeNumbers.SequenceEqual(table.NodeNumbers))
                             throw new InvalidDataException("Matching node force and moment tables in the plate connectivity order are required.");
                         Straus7ApiConverter.Finite(moments[0].Values, moments[0].Values.Length, "Plate node moments");
@@ -242,8 +253,8 @@ namespace GPC.Converter.Straus7
                             batch.Shells.Add(new ShellForceRecord { ElementId = id, Case = caseOf(cases[table.CaseNumber]), State = stateOf(cases[table.CaseNumber], 8),
                                 Axes = SourceAxes(plateAxes, plateAxes.Origin, units.LengthToMm), Values = new double?[] { f[0], f[1], f[3], f[5], f[4], m[0], m[1], m[3] },
                                 Location = new Point2d(Axes.Dot(d, plateAxes.V1) / units.LengthToMm, Axes.Dot(d, plateAxes.V2) / units.LengthToMm),
-                                CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.ElementNodeExtrapolated, SourceNodeId = nodes[row].Source.OriginalId,
-                                Record = "St7GetPlateResultArray Plate/" + id + "/case/" + table.CaseNumber + "/node/" + nodes[row].Source.OriginalId + " (no averaging)" });
+                                CoordinateKind = ResultCoordinateKind.LocalPhysical, PointKind = ShellResultPointKind.ElementNodeExtrapolated, SourceNodeId = SourceId(nodes[row]),
+                                Record = "St7GetPlateResultArray Plate/" + id + "/case/" + table.CaseNumber + "/node/" + SourceId(nodes[row]) + " (no averaging)" });
                         }
                     }
                     else if (table.Entity != Straus7Entity.Plate || table.Quantity != "PlateMomentLocalCentroid" && table.Quantity != "PlateMomentLocalNodes")

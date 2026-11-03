@@ -43,11 +43,19 @@ namespace GPC.Converter.Straus7
         }
 
         public static Straus7StageWritePlan Prepare(global::GPC.Model.Models.Model model,
-            IReadOnlyDictionary<Guid, int> groupIds, IReadOnlyDictionary<Guid, int> loadCaseIds, IReadOnlyDictionary<Guid, int> freedomCaseIds)
+            IReadOnlyDictionary<Guid, int> groupIds, IReadOnlyDictionary<Guid, int> loadCaseIds, IReadOnlyDictionary<Guid, int> freedomCaseIds,
+            int? unassignedNativeGroup = null)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             StageAnalysisState.ValidateAll(model);
             int[] groups = Map(groupIds, model.Groups.Values.Select(g => g.Guid), "Group");
+            if (unassignedNativeGroup.HasValue)
+            {
+                if (unassignedNativeGroup.Value < 1 || groups.Contains(unassignedNativeGroup.Value)) throw new ArgumentException("InvalidUnassignedNativeGroup");
+                groups = groups.Concat(new[] { unassignedNativeGroup.Value }).OrderBy(id => id).ToArray();
+                if (model.BeamElements.Values.Cast<GPC.Model.Elements.Element>().Concat(model.AreaElements.Values).Any(e => e.Groups.Count == 0))
+                    throw new ArgumentException("StagedStructuralElementsRequireExplicitGroups");
+            }
             int[] loads = Map(loadCaseIds, model.LoadCases.Values.Select(c => c.Guid), "LoadCase");
             int[] freedoms = Map(freedomCaseIds, model.FreedomCases.Values.Select(c => c.Guid), "FreedomCase");
             if (model.Stages.Count == 0 || model.Stages.Values.Any(s => s.AnalysisState == null))

@@ -45,7 +45,7 @@ namespace GPC.Model.Structure.Assignments
                 throw new ArgumentNullException(nameof(assignment));
             if (!Enum.IsDefined(typeof(AssignmentMode), mode))
                 throw new ArgumentOutOfRangeException(nameof(mode));
-            var scope = Restrains.Where(a => Equals(a.Case, assignment.Case) && a.Phase == assignment.Phase).ToArray();
+            var scope = Restrains.Where(a => Equals(a.Case, assignment.Case) && a.FreedomCase?.Guid == assignment.FreedomCase?.Guid && a.Phase == assignment.Phase).ToArray();
             if (mode == AssignmentMode.Add && scope.Any(a => a.Restrain.Restrains.Any(d => assignment.Restrain.Restrains.Any(n => n.Dof == d.Dof))))
                 throw new InvalidOperationException("ConflictingRestrain: select ReplaceScope explicitly.");
             if (mode == AssignmentMode.ReplaceScope)

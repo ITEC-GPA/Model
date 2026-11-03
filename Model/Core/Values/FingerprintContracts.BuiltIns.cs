@@ -25,6 +25,7 @@ namespace GPC.Model.Core
             "SectionTrapezoidVersion", "SectionUBeamVersion",
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
+            "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion",
             "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion",
         };
 
@@ -145,13 +146,20 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<Alignment2>k__BackingField", "Alignment2", false));
             Register("GPC.Model.Structure.Assignments.NodePhysicalData", "GPC.Model.Structure.Assignments.NodePhysicalData",
                 Field("GPC.Model.Structure.Assignments.NodePhysicalData", "<Temperatures>k__BackingField", "Temperatures", false));
+            Register("GPC.Model.Structure.Assignments.LoadPatchDistribution", "GPC.Model.Structure.Assignments.LoadPatchDistribution",
+                Field("GPC.Model.Structure.Assignments.LoadPatchDistribution", "<Kind>k__BackingField", "Kind", false),
+                Field("GPC.Model.Structure.Assignments.LoadPatchDistribution", "<SelectedEdges>k__BackingField", "SelectedEdges", false),
+                Field("GPC.Model.Structure.Assignments.LoadPatchDistribution", "<EdgeWeights>k__BackingField", "EdgeWeights", false));
+            Register("GPC.Model.Structure.Assignments.LoadPatchDistributionKind", "GPC.Model.Structure.Assignments.LoadPatchDistributionKind", Field("GPC.Model.Structure.Assignments.LoadPatchDistributionKind", "value__", "value__", false));
             Register("GPC.Model.Structure.Assignments.BeamPhysicalData", "GPC.Model.Structure.Assignments.BeamPhysicalData",
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<StringGroup>k__BackingField", "StringGroup", true),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<TemperatureGradients>k__BackingField", "TemperatureGradients", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<InitialStates>k__BackingField", "InitialStates", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Supports>k__BackingField", "Supports", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Taper>k__BackingField", "Taper", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
             Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<LoadPatch>k__BackingField", "LoadPatch", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<NonStructuralMasses>k__BackingField", "NonStructuralMasses", false),
@@ -714,6 +722,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Checking.Contracts.RequiredBeamLocation", "<Station>k__BackingField", "<Station>k__BackingField", false),
                 Field("GPC.Model.Checking.Contracts.RequiredBeamLocation", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false));
             Register("GPC.Model.Structure.Assignments.RestrainAssignment", "GPC.Model.PostProcessing.RestrainAssignment",
+                Field("GPC.Model.Structure.Assignments.RestrainAssignment", "<FreedomCase>k__BackingField", "<FreedomCase>k__BackingField", true),
                 Field("GPC.Model.Structure.Assignments.RestrainAssignment", "<Case>k__BackingField", "<Case>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.RestrainAssignment", "<Phase>k__BackingField", "<Phase>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.RestrainAssignment", "<Restrain>k__BackingField", "<Restrain>k__BackingField", false),

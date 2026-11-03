@@ -286,6 +286,8 @@ namespace GPC.Converter.Straus7
         public int[] PlateNumbers { get; set; } = new int[0];
         public int[] NodeNumbers { get; set; } = new int[0];
         public int MinimumBeamStations { get; set; } = 11;
+        /// <summary>Optional per-native-beam sampling minima, applied after explicit identity mapping.</summary>
+        public IReadOnlyDictionary<int,int> BeamMinimumStations { get; set; }
         // Explicit opt-in: missing native element-node force output rejects the acquisition, never fabricates it.
         public bool IncludeElementNodeForces { get; set; }
         /// <summary>Also reads the plate force/moment tensors at the element nodes, without averaging (corner values of each plate).</summary>

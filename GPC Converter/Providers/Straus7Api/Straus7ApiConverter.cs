@@ -251,6 +251,8 @@ namespace GPC.Converter.Straus7
                 var cases = Selection(request.CaseNumbers ?? new int[0]); var beams = Selection(request.BeamNumbers); var plates = Selection(request.PlateNumbers); var nodes = Selection(request.NodeNumbers);
                 if (request.MinimumBeamStations < 2 || request.MinimumBeamStations > 100) throw new ArgumentOutOfRangeException(nameof(request.MinimumBeamStations));
                 int stations = request.MinimumBeamStations;
+                var perBeam = request.BeamMinimumStations == null ? new Dictionary<int,int>() : request.BeamMinimumStations.ToDictionary(p=>p.Key,p=>p.Value);
+                if(perBeam.Any(p=>!beams.Contains(p.Key)||p.Value<2||p.Value>100))throw new ArgumentException("InvalidBeamMinimumStations");
                 if (cases.Length == 0 && beams.Length + plates.Length + nodes.Length > 0) throw new ArgumentException("Select explicit result case numbers.");
                 cancellationToken.ThrowIfCancellationRequested(); Gate.Wait(cancellationToken); acquired = true;
                 using (var modelSource = new FileStream(modelPath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -313,7 +315,7 @@ namespace GPC.Converter.Straus7
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 if (!Active(Straus7Entity.Beam, b, c)) continue;
-                                Add(api.ReadBeamForces(b, c, stations), Straus7Entity.Beam, b, c, "BeamForceGlobal");
+                                Add(api.ReadBeamForces(b, c, perBeam.TryGetValue(b,out var minimum)?minimum:stations), Straus7Entity.Beam, b, c, "BeamForceGlobal");
                                 if (request.IncludeElementNodeForces)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();

@@ -27,6 +27,8 @@ namespace GPC.Converter.Straus7
         public bool TransitionTrailingLoad { get; set; }
         public bool BeamLateralTolerance { get; set; }
         public double RelativeTolerance { get; set; } = .01;
+        /// <summary>Generate native static cases at the centres of the path divisions.
+        /// The native conversion does not add endpoint positions or compute a continuous influence envelope.</summary>
         public bool ConvertToStaticCases { get; set; }
         internal void Validate()
         {

@@ -1,0 +1,104 @@
+using System;
+using System.Runtime.Serialization;
+using GPC.Model.Materials;
+using GPC.Model.Sections;
+
+namespace GPC.Model.ElementProperties
+{
+    /// <summary>Elastic beam section without an inferred design grade or strength. N, mm, t.</summary>
+    [Serializable]
+    public sealed class ElasticBeamProperty : BeamProperty
+    {
+        public Material Material { get; set; }
+        public ISectionShape Section { get; set; }
+        /// <summary>Effective shear areas (mm²); zero means no shear deformation in the native beam formulation.</summary>
+        public double ShearArea1 { get; set; }
+        public double ShearArea2 { get; set; }
+
+        public ElasticBeamProperty(string name, Material material, ISectionShape section, double shearArea1 = 0, double shearArea2 = 0) : base(name)
+        { Material = material; Section = section; ShearArea1 = shearArea1; ShearArea2 = shearArea2; Validate(); }
+        public void Validate()
+        {
+            if (Material == null || Section == null) throw new ArgumentException("MissingElasticBeamMaterialOrSection");
+            ElasticPropertyValidation.Positive(Section.Area, "SectionArea");
+            ElasticPropertyValidation.Nonnegative(Section.J11, "SectionI11"); ElasticPropertyValidation.Nonnegative(Section.J22, "SectionI22");
+            ElasticPropertyValidation.Nonnegative(Section.Jt, "SectionTorsion");
+            ElasticPropertyValidation.Nonnegative(ShearArea1, "ShearArea1"); ElasticPropertyValidation.Nonnegative(ShearArea2, "ShearArea2");
+            ElasticPropertyValidation.Material(Material);
+        }
+        private ElasticBeamProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            SerializationVersions.Read(info, "ElasticBeamPropertyVersion", 1);
+            Material = (Material)info.GetValue("Material", typeof(Material)); Section = (ISectionShape)info.GetValue("Section", typeof(ISectionShape));
+            ShearArea1 = info.GetDouble("ShearArea1"); ShearArea2 = info.GetDouble("ShearArea2"); Validate();
+        }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticBeamPropertyVersion", 1);
+            info.AddValue("Material", Material); info.AddValue("Section", Section); info.AddValue("ShearArea1", ShearArea1); info.AddValue("ShearArea2", ShearArea2);
+        }
+        public override bool Equals(object obj) => obj is ElasticBeamProperty other && base.Equals(other)
+            && GPC.Model.Core.ModelValues.Fingerprint(new object[]{this}) == GPC.Model.Core.ModelValues.Fingerprint(new object[]{other});
+        public override int GetHashCode() => 23;
+    }
+
+    public enum ElasticPlateFormulation { Shell, Membrane, PlaneStress, PlaneStrain, Axisymmetric, LoadPatch }
+
+    /// <summary>Elastic plate/shell property; strength checks require a separate recognized checking material.
+    /// Independent bending and membrane thicknesses use mm. Load patches carry load without stiffness.</summary>
+    [Serializable]
+    public sealed class ElasticPlateProperty : PlateProperty, IFemPlateProperty
+    {
+        public Material Material { get; set; }
+        public double BendingThickness { get; set; }
+        public double MembraneThickness { get; set; }
+        public ElasticPlateFormulation Formulation { get; set; }
+        public ElasticPlateProperty(string name, Material material, double bendingThickness, double membraneThickness,
+            ElasticPlateFormulation formulation = ElasticPlateFormulation.Shell) : base(name)
+        { Material = material; BendingThickness = bendingThickness; MembraneThickness = membraneThickness; Formulation = formulation; Validate(); }
+        public void Validate()
+        {
+            if (!Enum.IsDefined(typeof(ElasticPlateFormulation), Formulation)) throw new ArgumentException("InvalidElasticPlateFormulation");
+            if (Formulation == ElasticPlateFormulation.LoadPatch)
+            {
+                if(Material != null || BendingThickness != 0 || MembraneThickness != 0) throw new ArgumentException("LoadPatchHasNoMaterialOrThickness");
+                return;
+            }
+            ElasticPropertyValidation.Material(Material);
+            ElasticPropertyValidation.Nonnegative(BendingThickness, "BendingThickness");
+            ElasticPropertyValidation.Nonnegative(MembraneThickness, "MembraneThickness");
+            if (Formulation != ElasticPlateFormulation.LoadPatch && MembraneThickness == 0 && BendingThickness == 0)
+                throw new ArgumentException("ZeroElasticPlateThickness");
+        }
+        private ElasticPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            SerializationVersions.Read(info, "ElasticPlatePropertyVersion", 1);
+            Material = (Material)info.GetValue("Material", typeof(Material)); BendingThickness = info.GetDouble("BendingThickness");
+            MembraneThickness = info.GetDouble("MembraneThickness"); Formulation = (ElasticPlateFormulation)info.GetInt32("Formulation"); Validate();
+        }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticPlatePropertyVersion", 1);
+            info.AddValue("Material", Material); info.AddValue("BendingThickness", BendingThickness); info.AddValue("MembraneThickness", MembraneThickness); info.AddValue("Formulation", (int)Formulation);
+        }
+        public override bool Equals(object obj) => obj is ElasticPlateProperty other && base.Equals(other)
+            && GPC.Model.Core.ModelValues.Fingerprint(new object[]{this}) == GPC.Model.Core.ModelValues.Fingerprint(new object[]{other});
+        public override int GetHashCode() => 23;
+    }
+
+    internal static class ElasticPropertyValidation
+    {
+        internal static void Positive(double value, string name)
+        { Nonnegative(value, name); if (value == 0) throw new ArgumentException("Zero" + name); }
+        internal static void Nonnegative(double value, string name)
+        { if (double.IsNaN(value) || double.IsInfinity(value) || value < 0) throw new ArgumentException("Invalid" + name); }
+        internal static void Material(Material material)
+        {
+            if (material == null) throw new ArgumentException("MissingElasticMaterial");
+            Nonnegative(material.Density, "Density");
+            if (double.IsNaN(material.AlfaThermalExpansion) || double.IsInfinity(material.AlfaThermalExpansion)) throw new ArgumentException("InvalidThermalExpansion");
+            if (material.Orthotropy != null) material.Orthotropy.Validate();
+            else { Positive(material.E, "ElasticModulus"); if (material.Ni <= -1 || material.Ni >= .5 || double.IsNaN(material.Ni)) throw new ArgumentException("InvalidPoissonRatio"); }
+        }
+    }
+}

@@ -10,6 +10,7 @@ namespace GPC.Converter.Straus7
         public bool ReadStagedAnalysis()
         { byte value = 0; Check(Call<StageBool>("St7GetNLAStagedAnalysis")(FileId, ref value), "St7GetNLAStagedAnalysis"); return value != 0; }
         public bool ReadStageEnabled(int stage) => StageState("St7GetNLAStageState", stage);
+        public bool ReadResultConverged(int resultCase) => StageState("St7GetResultCaseConvergence", resultCase);
         public bool ReadStagePseudoTimeEnabled(int stage) => StageState("St7GetNLAPseudoTimeState", stage);
         private bool StageState(string operation, int stage)
         { byte value = 0; Check(Call<StageIndexBool>(operation)(FileId, stage, ref value), operation); return value != 0; }

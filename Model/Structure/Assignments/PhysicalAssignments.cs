@@ -113,6 +113,8 @@ namespace GPC.Model.Structure.Assignments
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class BeamPhysicalData
     {
+        /// <summary>Shared physical identity of a cable string; mapped to a solver-specific positive integer.</summary>
+        [field: OptionalField, DataMember(Order = 5, EmitDefaultValue = false)] public Guid? StringGroup { get; set; }
         [field: DataMember(Order = 0)] public List<BeamTemperatureGradient> TemperatureGradients { get; set; } = new List<BeamTemperatureGradient>();
         [field: DataMember(Order = 1)] public List<BeamInitialState> InitialStates { get; set; } = new List<BeamInitialState>();
         [field: DataMember(Order = 2)] public List<BeamDistributedSupport> Supports { get; set; } = new List<BeamDistributedSupport>();
@@ -124,6 +126,7 @@ namespace GPC.Model.Structure.Assignments
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class ShellPhysicalData
     {
+        [field: OptionalField, DataMember(Order = 4, EmitDefaultValue = false)] public LoadPatchDistribution LoadPatch { get; set; }
         [field: DataMember(Order = 3)] public Materials.MembraneMaterialData Membrane { get; set; }
         [field: DataMember(Order = 0)] public List<ShellInitialStress> InitialStresses { get; set; } = new List<ShellInitialStress>();
         [field: DataMember(Order = 1)] public List<ShellNonStructuralMass> NonStructuralMasses { get; set; } = new List<ShellNonStructuralMass>();
@@ -134,6 +137,10 @@ namespace GPC.Model.Structure.Assignments
     public static class PhysicalAssignments
     {
         public static bool HasData(Models.Model model) => model.AllElements.Any(e => Data(e) != null);
+        public static bool UsesExtendedExportContract(Models.Model model) =>
+            model.NodesElements.Values.Any(n => n.Assignments.Restrains.Any(r => r.FreedomCase != null)) ||
+            model.BeamElements.Values.Any(b => b.BeamProperty is ElementProperties.ElasticBeamProperty || b.Assignments.Physical?.StringGroup != null) ||
+            model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.Assignments.Physical?.LoadPatch != null);
         internal static object Data(Element element) => element is NodeElement n ? (object)n.Assignments.Physical
             : element is BeamElement b ? (object)b.Assignments.Physical : element is AreaElement s ? s.Assignments.Physical : null;
 
@@ -181,6 +188,7 @@ namespace GPC.Model.Structure.Assignments
                     if (Math.Abs(Axes.Length(v.Direction) - 1) > 1e-8) throw new ArgumentException("SupportDirectionMustBeUnit");
                     if (v.Axes != null) Axes.Validate(v.Axes);
                 }
+                if (p.StringGroup == Guid.Empty) throw new ArgumentException("EmptyBeamStringGroup");
                 if (p.MinimumOutputStations.HasValue && p.MinimumOutputStations < 2) throw new ArgumentException("InsufficientOutputStations");
                 if (p.Taper != null)
                 {
@@ -191,6 +199,7 @@ namespace GPC.Model.Structure.Assignments
             if (element is AreaElement area && area.Assignments.Physical != null)
             {
                 var p = area.Assignments.Physical;
+                p.LoadPatch?.Validate(area.Nodes.Count);
                 p.Membrane?.Validate();
                 Unique(Items(p.InitialStresses).Select(v => Case(v.Case)));
                 foreach (var v in p.InitialStresses) Vector(v.Components);

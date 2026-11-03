@@ -1,0 +1,552 @@
+{
+  "schema": 1,
+  "phase": "F5",
+  "status": "verified exporter/workflow checkpoint; F5 matrix still incomplete",
+  "versions": {
+    "Model": "5.43.0.0",
+    "Persistence": "3.9.0.0",
+    "Converter": "2.15.0.0",
+    "CompositeBridge": "1.25.0.0"
+  },
+  "verification": {
+    "model": {
+      "Model.Core.Tests": {
+        "passed": 63,
+        "other": 0
+      },
+      "Model.NetFramework.Tests": {
+        "passed": 76,
+        "other": 0
+      },
+      "UnitTest": {
+        "passed": 1729,
+        "other": 12
+      }
+    },
+    "modelPassed": 1868,
+    "checkerPassed": 10377,
+    "checkerOther": 1,
+    "apiCompatible": true,
+    "unexpectedCheckerFailures": []
+  },
+  "sources": [
+    {
+      "path": "Model/GPC Converter/Contracts/ResultImportContracts.cs",
+      "sha256": "E5455B08EEDA7E7E0C3BBFBD4C7133ED734131B2D24C9719DD81BDB0768BAF98",
+      "bytes": 4233,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Contracts/ResultImportContracts.cs"
+    },
+    {
+      "path": "Model/GPC Converter/GPC Converter.csproj",
+      "sha256": "D0C13482115151F873C15E813C438431F4296FD1F7354B6D75E1F63E0F516580",
+      "bytes": 655,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/GPC Converter.csproj"
+    },
+    {
+      "path": "Model/GPC Converter/Mapping/ResultMapper.cs",
+      "sha256": "23D84582F2577FC57E66A502E348E3C411051F8EB0D863FF7ADD7AB969BAD8FA",
+      "bytes": 22500,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Mapping/ResultMapper.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ApiConverter.cs",
+      "sha256": "21A17005A36EF68E3EA1928C9FB845B9D90F356D64D85165CA586A1865432307",
+      "bytes": 40673,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ApiConverter.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7Contracts.cs",
+      "sha256": "90BD4D42923479B0D8681C076C9CC2F474858A71D75477E077A0960CF8B32D51",
+      "bytes": 17392,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7Contracts.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7LinearStaticResults.cs",
+      "sha256": "E17B602FE1D6D1DB732F8BD73432B6B559FA049C7D065239A4DFD3A502D36DAE",
+      "bytes": 28738,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7LinearStaticResults.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7MovingWritePlan.cs",
+      "sha256": "D121BBCE8D9AAA3899F31C69F40D9465B64E31A5AD67A602DFF1A82520A2BD14",
+      "bytes": 9001,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7MovingWritePlan.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7NativeWriter.cs",
+      "sha256": "FE7618C6E250D875B342ADF3A87AD319216C659150AB12F8DD3F6352A5426087",
+      "bytes": 6698,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7NativeWriter.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalReadApi.cs",
+      "sha256": "D20C226ED447830C5CB9F0E4007E53F3E547EE794F76C28AAD9B199DFB3D0D2A",
+      "bytes": 3364,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalReadApi.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalWritePlan.cs",
+      "sha256": "16D07356437E0610107678EC361D5F002E73CE78F6424A60E80E8C5ADF158388",
+      "bytes": 12628,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalWritePlan.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7StageNativeApi.cs",
+      "sha256": "FADCBC651A47245009E7344FAB4A7F01B16DE1182AA6F8F8F5C7759CEF0C8406",
+      "bytes": 8153,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7StageNativeApi.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7StageWritePlan.cs",
+      "sha256": "6629CFB6C76F4EF78A0031B4E68DCC8837C3369AAC8A8A56602E1FB535407201",
+      "bytes": 9543,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7StageWritePlan.cs"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj",
+      "sha256": "881D6466A438EF5969938D43403F18388EC5A20429155F99762359C8FF626598",
+      "bytes": 449,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/ModelDocument.cs",
+      "sha256": "9A179CAE7A7B2B4272321D6EBC96FEF028B6B76C286CA5612301B074721F66A7",
+      "bytes": 10004,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC.Model.Persistence/ModelDocument.cs"
+    },
+    {
+      "path": "Model/Model.NetFramework.Tests/Model.NetFramework.Tests.csproj",
+      "sha256": "30E0A9368DB5E26DBE0E5DE4E22142FAB5E213BBC4D9D75DE9B84E69630F804E",
+      "bytes": 3032,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model.NetFramework.Tests/Model.NetFramework.Tests.csproj"
+    },
+    {
+      "path": "Model/Model/Core/Identity/AssemblyIdentityMap.cs",
+      "sha256": "6BE23248BE29877A967665D7809F6EB2225D92D3443F01B68B7CFBA96BD9B758",
+      "bytes": 9178,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Core/Identity/AssemblyIdentityMap.cs"
+    },
+    {
+      "path": "Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs",
+      "sha256": "363C11939A97D77E4E81714C6E1A3F88811AEE4F01586FBE6E9958BB202BEB70",
+      "bytes": 122365,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs"
+    },
+    {
+      "path": "Model/Model/Core/Values/ModelDataContracts.cs",
+      "sha256": "5DA3F3FB06622DE9B40872EA265F8635EE6C8848FCE3AB864E96A3EAD6B6C5C1",
+      "bytes": 31471,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Core/Values/ModelDataContracts.cs"
+    },
+    {
+      "path": "Model/Model/GPCModel.csproj",
+      "sha256": "EBD17AF4655CCE3D122F35F1BB0F0E216876D0182F8C5727293E524690C793D2",
+      "bytes": 1133,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/GPCModel.csproj"
+    },
+    {
+      "path": "Model/Model/Properties/AssemblyInfo.cs",
+      "sha256": "36E9E2E0245E881DF0E548DC6B937C4EEAE322B51D7FA7BA5200CC1899DCB306",
+      "bytes": 1769,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Properties/AssemblyInfo.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Nodes/NodeAssignments.cs",
+      "sha256": "DB36B21C8B2BF8FBBB4F6A433593559EB55B864F584062E2851059CAF6F104BF",
+      "bytes": 3054,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Assignments/Nodes/NodeAssignments.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Nodes/RestrainAssignment.cs",
+      "sha256": "562DDF4254F286378A13E328C7F90F12413FFB7EA14EAC1216AFE9C2E0161D2D",
+      "bytes": 1518,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Assignments/Nodes/RestrainAssignment.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/PhysicalAssignments.cs",
+      "sha256": "BA8B44C614A6BB29811885F3CC7C54CE6B55A0ACA16B8E80C4DBA8C1BD5DF4CE",
+      "bytes": 15288,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Assignments/PhysicalAssignments.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Model/Model.cs",
+      "sha256": "00365278C1BB15FAC236A4215067187C62EEBE6796FDD6AA591CBAFB3A42A314",
+      "bytes": 89526,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Model/Model.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelAssembly.cs",
+      "sha256": "6EDD793ECD54ACA7F04044FAB9BF17771673CF2835D705CF40CFD7AEBAE2EAE8",
+      "bytes": 17357,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Model/ModelAssembly.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelRevisions.cs",
+      "sha256": "5ADAB4E484192240E0EBC93B18D33ACB0EC5DFC71C3E6820B20FC3747A94CED8",
+      "bytes": 9294,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Model/ModelRevisions.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Properties/PlateSectionValidation.cs",
+      "sha256": "562FAD796772A5E1F07E07716C0D72C10F6239545F6D5666EB11C51B99B24DF1",
+      "bytes": 1825,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Properties/PlateSectionValidation.cs"
+    },
+    {
+      "path": "Model/UnitTest/UnitTest.csproj",
+      "sha256": "862FF6EDF9664C1FE5CE3E425E65F8BA68DF1188F3747445F2D98CBD80C7F191",
+      "bytes": 5020,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/UnitTest/UnitTest.csproj"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelRun.cs",
+      "sha256": "31800656A4D0573F9F5B56D4DD7BCD997D5FD6740A3533E92088B7F7F27DCA92",
+      "bytes": 7069,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ModelRun.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWriteApi.cs",
+      "sha256": "CB58A382CA50A52F8A265F896BA9C9C25551D411BE59F2090534AD42AF6F5BBF",
+      "bytes": 15768,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ModelWriteApi.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.LoadsPlates.cs",
+      "sha256": "494B668A00686FE2ACA79581F7945ABC0AC0E7DA862003BF01DAE341832C4371",
+      "bytes": 11326,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.LoadsPlates.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.NodesBeams.cs",
+      "sha256": "077C09404F07BEC8F13E4030FB7BA0513E258EB9EE38B75B6F3AF18D5CC4CAD0",
+      "bytes": 12281,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.NodesBeams.cs"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.cs",
+      "sha256": "7B3624AEF0799049E3811C5AD68750B1FFFA52493B2AC1CEA53EC899E13E61AA",
+      "bytes": 10782,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/GPC Converter/Providers/Straus7Api/Straus7ModelWritePlan.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/LoadPatchDistribution.cs",
+      "sha256": "9BED6E1BA2CB035A6EE5BDE63A57FF7523B68391051D59D3AECDA479C5421C4A",
+      "bytes": 2057,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Assignments/LoadPatchDistribution.cs"
+    },
+    {
+      "path": "Model/Model/Structure/Properties/ElasticProperties.cs",
+      "sha256": "71FE8A70404878530871F8D6BB696B5A034B79642C824E6D98952F2BF687F737",
+      "bytes": 7056,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/Model/Structure/Properties/ElasticProperties.cs"
+    },
+    {
+      "path": "Model/UnitTest/Straus7ModelWriteTest.cs",
+      "sha256": "602B14C7F0B252BD32C2C16B0C2E99903655EC8E9875464223D350C35302FF0D",
+      "bytes": 24701,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/UnitTest/Straus7ModelWriteTest.cs"
+    },
+    {
+      "path": "Model/tests/ElasticExportContractsTest.cs",
+      "sha256": "9523F51792EA1948F71AC256661951F685CD7ED0ED67E3739A6FF336F1DA7A91",
+      "bytes": 6104,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/tests/ElasticExportContractsTest.cs"
+    },
+    {
+      "path": "Model/tools/MigrationInventory/update_f5_exporter.py",
+      "sha256": "78D6A545DD03D3CA938987CDA4FE352FF2F8F4001B84128AF93909FEEBB2B287",
+      "bytes": 5308,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Model/tools/MigrationInventory/update_f5_exporter.py"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/GPCChecker.CompositeBridge.csproj",
+      "sha256": "185DD8CB37D7E54C5D985F6F3C2D3AC9B94C464F712ED49555F1FCE5423541A5",
+      "bytes": 2327,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Checker/GPCChecker.CompositeBridge/GPCChecker.CompositeBridge.csproj"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Models/BridgeWorkflowExecutor.cs",
+      "sha256": "29DD8EBF453BA7394B1A4C9A08E85A41D429612CFF695810C21E6A60EAB14D3F",
+      "bytes": 10767,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Checker/GPCChecker.CompositeBridge/Models/BridgeWorkflowExecutor.cs"
+    },
+    {
+      "path": "Checker/GPCChecker.Test.CompositeBridge/BridgeWorkflowExecutionTests.cs",
+      "sha256": "91CF663B50EF8CE8B0C1EA66A5D63F55CB02F92648BE41241A07FCC62D7CD5D4",
+      "bytes": 8708,
+      "snapshot": "artifacts/f5/exporter-snapshot/sources/Checker/GPCChecker.Test.CompositeBridge/BridgeWorkflowExecutionTests.cs"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "artifacts/f5/exporter-snapshot/lib/GPCModel.dll",
+      "sha256": "EEB13CE7F905932A8DF9CBEAE46292FF17175C6D1E8EAD889CDBFE549C116F10",
+      "bytes": 1747968
+    },
+    {
+      "path": "artifacts/f5/exporter-snapshot/lib/GPC.Model.Persistence.dll",
+      "sha256": "DB3FD607FE73C53D3AFAE1278CB3E837B8D4EFEB74BBC8E043DE03DBCBC54538",
+      "bytes": 37376
+    },
+    {
+      "path": "artifacts/f5/exporter-snapshot/lib/GPC.Converter.dll",
+      "sha256": "33FF70671BCA2FA0899D5AD2FEB4A94020C3114B06F0195AE43FBE3E1F459726",
+      "bytes": 569856
+    },
+    {
+      "path": "artifacts/f5/exporter-snapshot/lib/GPCChecker.CompositeBridge.dll",
+      "sha256": "ED1B3540710BB51E0B93436195C165C9BF0CC89231E24E04336430E4B3D48CE3",
+      "bytes": 532480
+    }
+  ],
+  "proofs": [
+    {
+      "path": "artifacts/f5/model-export-gate-final/Model.Core.Tests.trx",
+      "sha256": "26540C3664506EF320213EF5100DD4E5017C01975A8AC8260BBF9EF898D27D22",
+      "bytes": 86752
+    },
+    {
+      "path": "artifacts/f5/model-export-gate-final/Model.NetFramework.Tests.trx",
+      "sha256": "06CBF6BEA0D993583BCCCFC6B7A2B21B8731CF7147A5539EF6E56951FCB2F9D6",
+      "bytes": 104591
+    },
+    {
+      "path": "artifacts/f5/model-export-gate-final/UnitTest.trx",
+      "sha256": "D653021833CF96381FC96CC725C31931D76F343A4F77D30B53C067196712F4FC",
+      "bytes": 2399427
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/Design.Checks.net472.trx",
+      "sha256": "D16E8C3E67437ECC928C11EAE8FBD5191C25D70A7AECA95C01DE770F7E03C746",
+      "bytes": 366109
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/Design.Checks.trx",
+      "sha256": "CE926CDB73FB5B62F75AD25FE5C8CAA0867F6AD491BF37D197D8530AB04D0D54",
+      "bytes": 367671
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/EmbeddedWalls.Tests.trx",
+      "sha256": "7355803E499E1D57E1A94D61F7776549812AC217FC1B856A0766FA462EEBC303",
+      "bytes": 139422
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/GPCChecker.Test.Calculation.trx",
+      "sha256": "EEDEA01EC49764D815B42AD9304348D62C97E8B77226AE2B789DA62C2EAA6371",
+      "bytes": 240282
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/GPCChecker.Test.CompositeBridge.trx",
+      "sha256": "338ACA9E1B1880FD4BC05D3B946D645E0CE233E01F33EC637CC6984FA38A6DC1",
+      "bytes": 637022
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/GPCChecker.Test.Concrete.trx",
+      "sha256": "23C4AEDF75E467C5E85968F7753CFA57BEBE2E66FFD6C7CFF215719A055BDA7B",
+      "bytes": 7631298
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/GPCChecker.Test.Geotechnics.trx",
+      "sha256": "155DF4E5051A317DFC3E27F86F251EDBC956C1BAC10DA7B38C043A4A7F3C41CF",
+      "bytes": 279486
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/GPCChecker.Test.Steel.trx",
+      "sha256": "155B889BD0375AC1D40A23DCFAE2BB8B4A15705CDE66BE3EBC7FDD6CD536E4BA",
+      "bytes": 156088
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/ModelChecker.Tests.trx",
+      "sha256": "6875F2E61855DE9243917EC3EF9D641E73511B119F7ED636A9B77EAA7F611986",
+      "bytes": 924605
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/ShallowFoundation.Tests.trx",
+      "sha256": "2C2180DD41B9DC3E660824D8B420E70706BA883441556BAD33EFCF29CE539699",
+      "bytes": 39774
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/Steel.Members.Tests.trx",
+      "sha256": "A89A3E60DEF6B5FFE5534E0B7B9F6FECF9CE61D9C0B55EF82E364A63C90AE82B",
+      "bytes": 9952536
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate/summary.json",
+      "sha256": "9C76A1562FF64EA5E0A41125A53BD9505FA447A2ADA22B87FF81B0D081776FD9",
+      "bytes": 2404
+    },
+    {
+      "path": "artifacts/f5/model-export-gate-final.log",
+      "sha256": "660387C0CCA790AC65F1F87BF9B16ED4C11459AA49662A82C99B8FE7C305BC48",
+      "bytes": 5774
+    },
+    {
+      "path": "artifacts/f5/checker-export-gate.log",
+      "sha256": "40E10523DB4F43CFA03A05D7B7B1674BD71B04EBE834B1EB26840E3420B93FF7",
+      "bytes": 12096
+    },
+    {
+      "path": "artifacts/f5/model-export-tests/full-export-verified-2.trx",
+      "sha256": "2108EC9D28B1848CC92EB477F42C716C8626C763EACC86993EB3B97AE67DBB14",
+      "bytes": 27117
+    },
+    {
+      "path": "artifacts/f5/workflow-tests/workflow-verified.trx",
+      "sha256": "8DD371CD413A7F02130DA6BD5B8C387EC090F17235D15BB992C98CD9894694B9",
+      "bytes": 24024
+    },
+    {
+      "path": "artifacts/f5/straus-help-moving/ToolsConvertLoadPathsToLoadCases.htm",
+      "sha256": "C5F8D59CC8C8390D1B64598711FB1804B92F8D2E3B8BC60613C0938D053AA563",
+      "bytes": 7373
+    }
+  ],
+  "nativeFiles": [
+    {
+      "path": "artifacts/f5/076eb3215c0f4320aae2dd0d09a680cc/cantilever.LSA",
+      "sha256": "D4A0D7A438D4192DFFC6739924168ADC3ECD0406CC3DBA55DEEC7108EE53D8A4",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/076eb3215c0f4320aae2dd0d09a680cc/cantilever.st7",
+      "sha256": "C9A12B1CBA47CB85CEABE5887003409F81761483CD3680304CA13187C27E1C67",
+      "bytes": 3355787
+    },
+    {
+      "path": "artifacts/f5/156588b0c7ce44748e4ab4570f264ce2/bridge.LSA",
+      "sha256": "B82F50F964E48572EED4E5FF5F8A9BEF9CE28EEA2DDBA72BEC28FAF5B4EA7A6B",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/156588b0c7ce44748e4ab4570f264ce2/bridge.st7",
+      "sha256": "7E15F88D4400CAECF1B48911CA501CDA33DE22028A85B4F957C2907B67A57C46",
+      "bytes": 3356242
+    },
+    {
+      "path": "artifacts/f5/45517050b70f4937a41c025103aae5ed/moving.st7",
+      "sha256": "2541075386A5B89FD13D142899771A96D6AFD7955F13AD1E2038F3998E926114",
+      "bytes": 3606828
+    },
+    {
+      "path": "artifacts/f5/59a7ce5e477e4316a40882b49ffcd3e1/membrane.LSA",
+      "sha256": "6183FDE46CBB9E933E84D69ECA4A255E843DC1EB4B936E519D66D0DC5057FC4C",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/59a7ce5e477e4316a40882b49ffcd3e1/membrane.st7",
+      "sha256": "031B7B7209C173898E3B231AD52BF45BAAD92B8854F5634804FD0A79BD5F2869",
+      "bytes": 3355880
+    },
+    {
+      "path": "artifacts/f5/5c5b8569814f417f997a7cda128ecbb0/archive-run.LSA",
+      "sha256": "1458E5FE61DA00519B273CB92B0E848F8D3688B93FA51B19A38927CF381035E5",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/5c5b8569814f417f997a7cda128ecbb0/archive-run.st7",
+      "sha256": "BB4927A0FCA4E132C74C8B9A1634646507F0F9B2F8E501301FAC51FE282327B2",
+      "bytes": 3355777
+    },
+    {
+      "path": "artifacts/f5/6aca153a77054aa7ad1c7263bacaa786/patch.LSA",
+      "sha256": "032AF0E751F162469006F239043AD876397720761336B6FE9C81AD2C13B58BA3",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/6aca153a77054aa7ad1c7263bacaa786/patch.st7",
+      "sha256": "2AC94B9A384BBE19C115F9BBF10309BC4168ABE35C1B7E3DF4FD762D8144B0BA",
+      "bytes": 3357158
+    },
+    {
+      "path": "artifacts/f5/8d70d9d8f8f942e684639b8e6b7e9ab6/stages.NLA",
+      "sha256": "39A2130F3F427167554F6BA185921DAB707D5AED1206F9A1AA252EF4F3593192",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/8d70d9d8f8f942e684639b8e6b7e9ab6/stages.st7",
+      "sha256": "098CA3111C3DBD6159C836D72AC51476105690EFAEE5664C9B856CE45D7D4A0C",
+      "bytes": 3356080
+    },
+    {
+      "path": "artifacts/f5/99609298b92f4190bd5c59dd5e78071a/birth.NLA",
+      "sha256": "F14EEC1BA20839DCEAF31E36576C1B0D0322116979962FFAB4C10954D6B0E433",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/99609298b92f4190bd5c59dd5e78071a/birth.st7",
+      "sha256": "09E60F4D15F950F790064F99B27685CAC9E28E3C57C51727FE51554288FC5609",
+      "bytes": 3356525
+    },
+    {
+      "path": "artifacts/f5/9d01d4947dfa4ae8b9bd31cce8106bf9/birth.NLA",
+      "sha256": "8BE6EFFF1E86AD52E98384549FC6C4EB408F75161DD2A42ECD73A9B526DCD1B4",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/9d01d4947dfa4ae8b9bd31cce8106bf9/birth.st7",
+      "sha256": "AC47ED82CA9B2271312FF3C0495FC62091FC2F14D6A5891EC67A2BBEAC585592",
+      "bytes": 3356525
+    },
+    {
+      "path": "artifacts/f5/9d7ee95af7a3484c89234f4a95c29368/moving.LSA",
+      "sha256": "CEF65D927F83EE374EB5D08E9469C8754ABF61EDBE4DC31D4AF272C47ACE0708",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/9d7ee95af7a3484c89234f4a95c29368/moving.st7",
+      "sha256": "D08AC34DD54F12D13E36A50D6FAC8C42A31BB63FB933718F31B1E22ABBB9337E",
+      "bytes": 3356836
+    },
+    {
+      "path": "artifacts/f5/a2fa28340d3f489597ea877af0f8af1b/cantilever.LSA",
+      "sha256": "6076CF62AF940A9A1D096D6FD55E5CF675E4E05A33F5F7D9BB6AB2699E86825E",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/a2fa28340d3f489597ea877af0f8af1b/cantilever.st7",
+      "sha256": "A7EEA4EB49B785AFF3BC97757EFCB0AF16691A336ABF9F3E3B30C1C848AD5CE9",
+      "bytes": 3355775
+    },
+    {
+      "path": "artifacts/f5/bd2e9a11240a40d89cf286b773ba29e4/physical.st7",
+      "sha256": "835D0276A63285D2905F433E3C80E75F0593A8CA4426F7E0FB2787D7315DF390",
+      "bytes": 3606806
+    },
+    {
+      "path": "artifacts/f5/c61c655b9308494cb0d4378227c28904/written-stages.st7",
+      "sha256": "F9CEF4A49D5EC3C715F57FA03A03F89424C83738BE0F86677BB83182A1F2E50B",
+      "bytes": 3604659
+    },
+    {
+      "path": "artifacts/f5/d53c070c06c94e759e688927ae982b17/bridge.LSA",
+      "sha256": "22A02411C6F2BDD0E8DAB71BB5E0355BF5D92F2DC4347E720A4593073D25A61E",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/d53c070c06c94e759e688927ae982b17/bridge.st7",
+      "sha256": "464C2322CCEAC24388732BBFB75211FBDFE6AB731CF050B20CBABC9BD490EF46",
+      "bytes": 3356242
+    },
+    {
+      "path": "artifacts/f5/d8fd09c2328843f2a3cb0f9d6d21ec13/membrane.LSA",
+      "sha256": "7E02501BCD7B2FC67BF76E70EEE657F14C6C6E7754BA5E4299AC8D8FD4756218",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/d8fd09c2328843f2a3cb0f9d6d21ec13/membrane.st7",
+      "sha256": "5DED9BFF051868FCBC3C5BC5D6E43EFBB854EEA8A0D43A3B1010E8D8A545F2EB",
+      "bytes": 3355858
+    },
+    {
+      "path": "artifacts/f5/fa4eed52bebd43979747683a6470ea91/birth.NLA",
+      "sha256": "304DEB9F5A303B2CD2937B97C6FC9DC085895D1CBD610EF01A132AFCC2985DEE",
+      "bytes": 65536
+    },
+    {
+      "path": "artifacts/f5/fa4eed52bebd43979747683a6470ea91/birth.st7",
+      "sha256": "A9707CA834EDCFFC1ABFFC779E06AF53E6C754D0851D93FA74A062DDC8B49567",
+      "bytes": 3356525
+    }
+  ],
+  "remaining": "See F5-EXPORTER.md and f5-destinazioni-parziali.json; no production migration or release claimed."
+}

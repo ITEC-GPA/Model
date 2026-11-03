@@ -45,7 +45,7 @@ namespace GPC.Model.Models
                     // RestrainAssignment points back to the node; avoid following its results in a revision fingerprint.
                     foreach (var restraint in n.Assignments.Restrains)
                     {
-                        yield return restraint.Case; yield return restraint.Phase; yield return restraint.Restrain.CoordinateSystem;
+                        yield return restraint.Case; if (restraint.FreedomCase != null) yield return restraint.FreedomCase; yield return restraint.Phase; yield return restraint.Restrain.CoordinateSystem;
                         yield return restraint.Restrain.Restrains;
                     }
                     yield return n.Assignments.GroundSprings.ToArray(); yield return n.Assignments.Links.ToArray();
@@ -93,6 +93,8 @@ namespace GPC.Model.Models
                     if (properties) { yield return ElementProperties.PlateSections.AnalysisProperty(a); yield return ElementProperties.PlateSections.PhysicalThickness(a); }
                     if (a.Assignments.Physical != null) yield return a.Assignments.Physical;
                     yield return a.Assignments.Offset;
+                    if (a.PlateProperty is ElementProperties.IFemPlateProperty fem && fem.Material?.Orthotropy != null)
+                        yield return a.Assignments.LayerAxes;
                     foreach (var n2 in a.Nodes) yield return n2.Guid;
                 }
                 if (e is VolumeElement v) { yield return v.Nodes; if (properties) yield return v.PlateProperty; }

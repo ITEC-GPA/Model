@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><Compile Include="../tests/ElasticExportContractsTest.cs" Link="ElasticExportContractsTest.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../tests/StageAnalysisContractsTest.cs" Link="StageAnalysisContractsTest.cs" /></ItemGroup>
   <ItemGroup>
     <Compile Include="../tests/MovingLoadContractsTest.cs" Link="MovingLoadContractsTest.cs" />

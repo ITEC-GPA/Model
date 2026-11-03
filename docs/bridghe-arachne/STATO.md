@@ -4,7 +4,7 @@ Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente;
 
 ## Stato effettivo
 
-**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione del 3 novembre è in [F5-FASI.md](F5-FASI.md): stato fisico delle fasi, incrementi ordinati, writer Straus7 e attivazioni native verificate. Model 1.844 PASS con i writer nativi abilitati; Checker 10.369 PASS; 13 test dei writer PASS, compresi tre collaudi nativi. Matrice parziale: 103/2.309 campi riscontrati, nessuno dichiarato migrato in produzione. Exporter completo e migrazione dei plugin ancora da terminare. Nessun rilascio.
+**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione è documentata in [F5-EXPORTER.md](F5-EXPORTER.md): esportazione completa dei modelli elastici coperti, load patch/string group, fasi Original/Morph/Reset verificate numericamente, confronto con i due ponti F4, carichi mobili statici, importazione dei risultati e archivio. Il workflow Checker è eseguibile sui risultati GPC. Gate Model: **1.868 PASS**, 12 esclusioni preesistenti; gate Checker: **10.377 PASS**, un'esclusione preesistente; API e audit superati. Matrice F5 parziale: **126/2.309** campi riscontrati nell'overlay, nessuno dichiarato migrato in produzione. Restano i descrittori geometrici e le assegnazioni avanzate non ancora coperte; il rifiuto esplicito non ne certifica l'implementazione. Nessun rilascio.
 
 Checkpoint precedente: [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice aggiornata](f5-destinazioni-parziali.json), [evidenze storiche](f5-evidenze.json).
 
