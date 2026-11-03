@@ -135,7 +135,7 @@ namespace UnitTest
             CollectionAssert.AreEqual(expected.Nodes.Select(n => n.Guid).ToArray(), actual.Nodes.Select(n => n.Guid).ToArray());
         }
 
-        private static string ContractGraph(string xml)
+        internal static string ContractGraph(string xml)
         {
             XNamespace z = "http://schemas.microsoft.com/2003/10/Serialization/";
             XNamespace i = "http://www.w3.org/2001/XMLSchema-instance";

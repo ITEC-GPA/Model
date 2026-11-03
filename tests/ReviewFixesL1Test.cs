@@ -302,6 +302,45 @@ namespace UnitTest
             Assert.AreEqual(AnalysisSemantics.FormFinding, ModelValues.CopyValue(dataset).Semantics);
         }
 
+        // B9: physical validations that were missing.
+        [TestMethod] public void B9_SupportsTemperaturesAndMemberSegmentsAreValidated()
+        {
+            var model = PhysicalAssignmentsTest.Sample(); var shell = model.AreaElements.Values.Single(); var node = model.NodesElements.Values.First();
+            PhysicalAssignments.Validate(shell); PhysicalAssignments.Validate(node);
+            shell.Assignments.Physical.Supports.Add(new ShellDistributedSupport { Stiffness = .1, Gap = -1, Face = ShellFace.PositiveNormal, Behavior = DistributedSpringBehavior.CompressionOnly });
+            Assert.AreEqual("NegativePhysicalAssignment", Assert.ThrowsException<ArgumentException>(() => PhysicalAssignments.Validate(shell)).Message);
+            shell.Assignments.Physical.Supports[shell.Assignments.Physical.Supports.Count - 1].Gap = 0;
+            shell.Assignments.Physical.Supports[shell.Assignments.Physical.Supports.Count - 1].Stiffness = 0;
+            Assert.AreEqual("NonPositivePhysicalAssignment", Assert.ThrowsException<ArgumentException>(() => PhysicalAssignments.Validate(shell)).Message);
+            shell.Assignments.Physical.Supports.RemoveAt(shell.Assignments.Physical.Supports.Count - 1); PhysicalAssignments.Validate(shell);
+            node.Assignments.Physical = node.Assignments.Physical ?? new NodePhysicalData();
+            node.Assignments.Physical.Temperatures.Add(new NodalTemperatureAssignment { Case = new LoadCaseBase("cold"), Kind = NodalTemperatureKind.Prescribed, Celsius = -274 });
+            Assert.AreEqual("TemperatureBelowAbsoluteZero", Assert.ThrowsException<ArgumentException>(() => PhysicalAssignments.Validate(node)).Message);
+            // A zero-length part is refused (by the reference line, before the new segment guard).
+            var members = new Model("members"); var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(0, 0, 0));
+            members.NodesElements.Add(a); members.NodesElements.Add(b);
+            var beam = new BeamElement(a.Position, b.Position, null); beam.ConnectNodes(a, b); beam.Assignments.Formulation = BeamFormulation.StraightTwoNode; members.BeamElements.Add(beam);
+            var member = new GPC.Model.Structure.Members.PhysicalMemberDefinition("point", new[] { new GPC.Model.Structure.Members.BeamMemberPart(beam.Id, true) }, "NodeToNode");
+            Assert.AreEqual("InvalidBeamReferenceLine", Assert.ThrowsException<ArgumentException>(() => new GPC.Model.Structure.Members.PhysicalMemberPath(members, member)).Message);
+        }
+
+        // B9: the data-contract comparison now covers the NodeElement and CoordinateSystem fast copies.
+        [TestMethod] public void B9_NodeAndCoordinateFastCopiesMatchIndependentDataContractRoundTrip()
+        {
+            var node = new NodeElement(new Point3d(1, 2, 3), id: 7, name: "N") { CoordinateSystem = new CoordinateSystem(new Point3d(1, 2, 3), new Vector3d(0, 1, 0), new Vector3d(-1, 0, 0)) };
+            node.Assignments.Physical = new NodePhysicalData(); node.Assignments.Physical.Temperatures.Add(new NodalTemperatureAssignment { Case = new LoadCaseBase("T"), Celsius = 15 });
+            var serializer = new System.Runtime.Serialization.DataContractSerializer(typeof(NodeElement), new System.Runtime.Serialization.DataContractSerializerSettings
+            { KnownTypes = ModelValues.DataContracts, PreserveObjectReferences = true, MaxItemsInObjectGraph = 100000 });
+            string Graph(object value)
+            { using (var stream = new MemoryStream()) { serializer.WriteObject(stream, value); return MigrationCopyContractsTest.ContractGraph(System.Text.Encoding.UTF8.GetString(stream.ToArray())); } }
+            NodeElement expected;
+            using (var stream = new MemoryStream()) { serializer.WriteObject(stream, node); stream.Position = 0; expected = (NodeElement)serializer.ReadObject(stream); }
+            var actual = ModelValues.CopyValue(node);
+            Assert.AreEqual(Graph(expected), Graph(actual)); Assert.AreEqual(node.Guid, actual.Guid);
+            Assert.AreNotSame(node.CoordinateSystem, actual.CoordinateSystem); Assert.AreEqual(-1, actual.CoordinateSystem.V2.X, 1e-15);
+            Assert.AreNotSame(node.Position, actual.Position); Assert.AreEqual(15, actual.Assignments.Physical.Temperatures.Single().Celsius);
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {

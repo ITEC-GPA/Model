@@ -172,7 +172,7 @@ namespace GPC.Model.Structure.Assignments
             {
                 var values = Items(node.Assignments.Physical.Temperatures);
                 Unique(values.Select(v => Case(v.Case)));
-                foreach (var v in values) { Defined(v.Kind); Finite(v.Celsius); }
+                foreach (var v in values) { Defined(v.Kind); Finite(v.Celsius); if (v.Celsius < -273.15) throw new ArgumentException("TemperatureBelowAbsoluteZero"); }
             }
             if (element is BeamElement beam && beam.Assignments.Physical != null)
             {
@@ -184,7 +184,8 @@ namespace GPC.Model.Structure.Assignments
                 foreach (var v in p.InitialStates) { Defined(v.Kind); Finite(v.Value); }
                 foreach (var v in Items(p.Supports))
                 {
-                    Nonnegative(v.Stiffness); Finite(v.Gap); Defined(v.Behavior);
+                    // Review B9: a support has a stiffness, and the gap is a clearance in mm.
+                    Positive(v.Stiffness); Nonnegative(v.Gap); Defined(v.Behavior);
                     if (v.Behavior == DistributedSpringBehavior.Bilateral && v.Gap != 0) throw new ArgumentException("GapRequiresUnilateralSupport"); Vector(v.Direction);
                     if (Math.Abs(Axes.Length(v.Direction) - 1) > 1e-8) throw new ArgumentException("SupportDirectionMustBeUnit");
                     if (v.Axes != null) Axes.Validate(v.Axes);
@@ -205,7 +206,7 @@ namespace GPC.Model.Structure.Assignments
                 foreach (var v in p.InitialStresses) Vector(v.Components);
                 Unique(Items(p.NonStructuralMasses).Select(v => Case(v.Case)));
                 foreach (var v in p.NonStructuralMasses) { Nonnegative(v.MassPerArea); Nonnegative(v.DynamicFactor); Vector(v.GlobalOffset); }
-                foreach (var v in Items(p.Supports)) { Nonnegative(v.Stiffness); Finite(v.Gap); Defined(v.Behavior);
+                foreach (var v in Items(p.Supports)) { Positive(v.Stiffness); Nonnegative(v.Gap); Defined(v.Behavior);
                     if (v.Behavior == DistributedSpringBehavior.Bilateral && v.Gap != 0) throw new ArgumentException("GapRequiresUnilateralSupport"); Defined(v.Face); }
             }
         }
