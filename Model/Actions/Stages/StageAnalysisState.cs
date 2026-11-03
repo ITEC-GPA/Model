@@ -77,12 +77,48 @@ namespace GPC.Model.Stages
         {
             if (!HasData(model)) return;
             if (model.ValidateGroups().Count != 0) throw new ArgumentException("InvalidStageGroupGraph");
+            var conflict = ActivationConflict(model); if (conflict != null) throw new ArgumentException(conflict);
             foreach (var stage in model.Stages.Values)
             {
                 if (stage?.AnalysisState == null) continue;
                 if (stage.Definition == null) throw new ArgumentException("MissingStageSequence: " + stage.Name);
                 stage.AnalysisState.Validate(model);
             }
+        }
+
+        /// <summary>One activation model per model (review B2): either every stage carries the complete set of active group GUIDs in
+        /// its <see cref="StageAnalysisState"/>, or the stages carry only the source schedule (<c>Definition.GroupChanges</c>, by name
+        /// and incremental). A stage with both, or a model mixing the two, is ambiguous.</summary>
+        private static string ActivationConflict(Models.Model model)
+        {
+            var stages = model.Stages.Values.Where(s => s != null).ToArray();
+            if (stages.Any(s => s.AnalysisState != null && s.Definition != null && s.Definition.GroupChanges.Count != 0)) return "ConflictingStageActivation";
+            if (stages.Any(s => s.AnalysisState == null)) return "MixedStageActivation";
+            return null;
+        }
+
+        /// <summary>The complete active group set at the end of each stage, in <c>Definition.Sequence</c> order, derived from the single
+        /// activation model of the model: <see cref="ActiveGroupGuids"/> for physical stage states, otherwise the accumulated
+        /// structure-group changes of the source schedule (activation by name, order as given). Boundary and load group changes do
+        /// not activate element groups and are not included.</summary>
+        public static IReadOnlyList<KeyValuePair<Stage, Guid[]>> ActiveGroupSets(Models.Model model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            var result = new List<KeyValuePair<Stage, Guid[]>>(); var active = new List<Guid>();
+            if (model.Stages == null) return result;
+            if (HasData(model)) { var conflict = ActivationConflict(model); if (conflict != null) throw new InvalidOperationException(conflict); }
+            foreach (var stage in model.Stages.Values.Where(s => s?.Definition != null).OrderBy(s => s.Definition.Sequence))
+            {
+                if (stage.AnalysisState != null) { result.Add(new KeyValuePair<Stage, Guid[]>(stage, (stage.AnalysisState.ActiveGroupGuids ?? Array.Empty<Guid>()).ToArray())); continue; }
+                foreach (var change in stage.Definition.GroupChanges.Where(c => c.Kind == StageGroupKind.Structure))
+                {
+                    if (!model.Groups.TryGetValue(change.GroupName, out var group)) throw new InvalidOperationException("UnknownStageGroup: " + change.GroupName);
+                    if (change.Action == StageGroupAction.Deactivate) active.Remove(group.Guid);
+                    else if (!active.Contains(group.Guid)) active.Add(group.Guid);
+                }
+                result.Add(new KeyValuePair<Stage, Guid[]>(stage, active.ToArray()));
+            }
+            return result;
         }
 
         /// <summary>The stage states that the writers reject, as diagnostics: dangling group, case and freedom case references after
@@ -93,6 +129,7 @@ namespace GPC.Model.Stages
             var result = new List<Core.Diagnostics.ModelDiagnostic>();
             if (!HasData(model)) return result;
             if (model.ValidateGroups().Count != 0) result.Add(Core.Diagnostics.ModelDiagnostic.Error("InvalidStageGroupGraph"));
+            var conflict = ActivationConflict(model); if (conflict != null) result.Add(Core.Diagnostics.ModelDiagnostic.Error(conflict));
             foreach (var stage in model.Stages.Values)
             {
                 if (stage?.AnalysisState == null) continue;

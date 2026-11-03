@@ -132,6 +132,7 @@ namespace GPC.Converter.Straus7
                     Vector3d pressure;
                     if(load is AreaLoad area){FullPlateCoverage(area.Shape,plate);pressure=Global(new Vector3d(area.P1,area.P2,area.P3),area.CoordinateSystem);}
                     else if(load is NormalAreaLoad normal){FullPlateCoverage(normal.Shape,plate);pressure=normal.Shape.GetCoordinateSystem().V3*normal.Pressure;}
+                    else if(load is ShellFacePressure)continue; // Face and follower pressures: SurfacePressures below.
                     else throw new NotSupportedException("UnsupportedStrausPlateLoad: "+load.GetType().Name);
                     int lc=Load(load.LoadCase);Values(pressure);
                     totals[lc]=totals.TryGetValue(lc,out var previous)?previous+pressure:pressure;

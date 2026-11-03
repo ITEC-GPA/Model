@@ -26,7 +26,7 @@ namespace GPC.Model.Core
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
-            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion",
+            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion",
         };
 
         private static void RegisterBuiltIns()
@@ -211,7 +211,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Taper>k__BackingField", "Taper", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
             Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
-                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<SurfacePressures>k__BackingField", "SurfacePressures", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<LoadPatch>k__BackingField", "LoadPatch", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
@@ -228,12 +227,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<CompressionLimit>k__BackingField", "CompressionLimit", false),
                 Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<KeepMass>k__BackingField", "KeepMass", false));
             Register("GPC.Model.Structure.Assignments.SurfacePressureProjection", "GPC.Model.Structure.Assignments.SurfacePressureProjection", Field("GPC.Model.Structure.Assignments.SurfacePressureProjection", "value__", "value__", false));
-            Register("GPC.Model.Structure.Assignments.ShellSurfacePressure", "GPC.Model.Structure.Assignments.ShellSurfacePressure",
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Case>k__BackingField", "Case", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Face>k__BackingField", "Face", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<GlobalPressure>k__BackingField", "GlobalPressure", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<NormalPressure>k__BackingField", "NormalPressure", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Projection>k__BackingField", "Projection", false));
             Register("GPC.Model.Structure.Assignments.TaperAlignment", "GPC.Model.Structure.Assignments.TaperAlignment", Field("GPC.Model.Structure.Assignments.TaperAlignment", "value__", "value__", false));
             Register("GPC.Model.Materials.OrthotropicElasticity", "GPC.Model.Materials.OrthotropicElasticity",
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<E1>k__BackingField", "E1", false),

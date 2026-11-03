@@ -234,15 +234,15 @@ public class Straus7ModelWriteTest
         foreach(var node in nodes.Where(n=>n.Position.X==0))node.Assignments.Restrains.Add(new RestrainAssignment {Restrain=new NodeRestrain(node,Enumerable.Range(0,6).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
         var plate=new AreaElement(null,new ElasticPlateProperty("plate",new Material("E",210000,.3,0,0),10,10));plate.ConnectNodes(nodes);
         var lc=new LoadCaseBase("pressure");var vector=new Vector3d(.001,.002,-.003);
-        plate.Assignments.Physical=new ShellPhysicalData {SurfacePressures=new List<ShellSurfacePressure> {
-            new ShellSurfacePressure {Case=lc,Face=ShellFace.NegativeNormal,NormalPressure=.002},
-            new ShellSurfacePressure {Case=lc,Face=ShellFace.PositiveNormal,NormalPressure=.001},
-            new ShellSurfacePressure {Case=lc,Face=ShellFace.PositiveNormal,GlobalPressure=vector,Projection=(SurfacePressureProjection)projection}}};
+        // Review B2: face pressures are element loads, the single place that load consumers read.
+        plate.Loads.Add(ShellFacePressure.Normal(lc,ShellFace.NegativeNormal,.002));
+        plate.Loads.Add(ShellFacePressure.Normal(lc,ShellFace.PositiveNormal,.001));
+        plate.Loads.Add(ShellFacePressure.Global(lc,ShellFace.PositiveNormal,vector,(SurfacePressureProjection)projection));
         var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());string fingerprint=model.AnalysisFingerprint();
         foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
         {
             if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);stream.Position=0;var restored=ModelArchive.Load(stream);
-            Assert.AreEqual(fingerprint,restored.AnalysisFingerprint());restored.AreaElements.Values.Single().Assignments.Physical.SurfacePressures[0].NormalPressure=.003;
+            Assert.AreEqual(fingerprint,restored.AnalysisFingerprint());restored.AreaElements.Values.Single().Loads.Values.OfType<ShellFacePressure>().First(p=>p.Face==ShellFace.NegativeNormal).NormalPressure=.003;
             Assert.AreNotEqual(fingerprint,restored.AnalysisFingerprint());Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
         }
         var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"pressure.st7"),folder);

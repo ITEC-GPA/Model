@@ -126,7 +126,6 @@ namespace GPC.Model.Structure.Assignments
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class ShellPhysicalData
     {
-        [field: OptionalField, DataMember(Order = 5, EmitDefaultValue = false)] public List<ShellSurfacePressure> SurfacePressures { get; set; }
         [field: OptionalField, DataMember(Order = 4, EmitDefaultValue = false)] public LoadPatchDistribution LoadPatch { get; set; }
         [field: DataMember(Order = 3)] public Materials.MembraneMaterialData Membrane { get; set; }
         [field: DataMember(Order = 0)] public List<ShellInitialStress> InitialStresses { get; set; } = new List<ShellInitialStress>();
@@ -137,7 +136,8 @@ namespace GPC.Model.Structure.Assignments
     /// <summary>Shared validation and case rebinding for physical assignment graphs.</summary>
     public static class PhysicalAssignments
     {
-        public static bool UsesSurfacePressureContract(Models.Model model) => model.AreaElements.Values.Any(a=>a.Assignments.Physical?.SurfacePressures!=null);
+        /// <summary>Face pressures are element loads (<see cref="Loads.ShellFacePressure"/>, review B2); they need schema 9.</summary>
+        public static bool UsesSurfacePressureContract(Models.Model model) => model.AreaElements.Values.Any(a=>a.Loads.Values.Any(l=>l is Loads.ShellFacePressure));
         public static bool HasData(Models.Model model) => model.AllElements.Any(e => Data(e) != null);
         public static bool UsesExtendedExportContract(Models.Model model) =>
             model.NodesElements.Values.Any(n => n.Assignments.Restrains.Any(r => r.FreedomCase != null)) ||
@@ -162,7 +162,6 @@ namespace GPC.Model.Structure.Assignments
                 var p = area.Assignments.Physical;
                 foreach (var v in p.InitialStresses) v.Case = bind(v.Case);
                 foreach (var v in p.NonStructuralMasses) v.Case = bind(v.Case);
-                if(p.SurfacePressures!=null)foreach(var v in p.SurfacePressures)v.Case=bind(v.Case);
                 foreach (var v in p.Supports) if (v.FreedomCase != null) v.FreedomCase = bindFreedom(v.FreedomCase);
             }
         }
@@ -204,7 +203,6 @@ namespace GPC.Model.Structure.Assignments
                 var p = area.Assignments.Physical;
                 p.LoadPatch?.Validate(area.Nodes.Count);
                 p.Membrane?.Validate();
-                if(p.SurfacePressures!=null)foreach(var v in Items(p.SurfacePressures))v.Validate();
                 Unique(Items(p.InitialStresses).Select(v => Case(v.Case)));
                 foreach (var v in p.InitialStresses) Vector(v.Components);
                 Unique(Items(p.NonStructuralMasses).Select(v => Case(v.Case)));

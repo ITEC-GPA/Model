@@ -108,8 +108,8 @@ namespace GPC.Converter.Straus7
             }
             foreach(var shell in model.AreaElements.Values)
             {
+                if(!membranePropertiesPrepared&&shell.Loads.Values.Any(l=>l is GPC.Model.Loads.ShellFacePressure))throw new NotSupportedException("SurfacePressureRequiresFullModelLoadAssembly");
                 var p=shell.Assignments.Physical; if(p==null) continue; int n=Id(shell.Guid,EntityFamily.Shell);
-                if(p.SurfacePressures!=null&&!membranePropertiesPrepared)throw new NotSupportedException("SurfacePressureRequiresFullModelLoadAssembly");
                 if(p.LoadPatch!=null)
                 {
                     if(!(shell.PlateProperty is GPC.Model.ElementProperties.ElasticPlateProperty property)||property.Formulation!=GPC.Model.ElementProperties.ElasticPlateFormulation.LoadPatch)

@@ -32,7 +32,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Structure.Bridges.BridgeDeckMesh),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffLaw),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffFailure),
-            typeof(global::GPC.Model.Structure.Assignments.ShellSurfacePressure),
+            typeof(global::GPC.Model.Loads.ShellFacePressure),
             typeof(global::GPC.Model.Structure.Assignments.SurfacePressureProjection),
             typeof(global::GPC.Model.Structure.Bridges.BridgeSectionRule),
             typeof(global::GPC.Model.Structure.Bridges.BridgeFamilyProperty),

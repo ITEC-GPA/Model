@@ -9,6 +9,12 @@ using GPC.Model.Models;
 using GPC.Model.Persistence;
 using GPC.Model.Sections;
 using GPC.Model.Stages;
+using GPC.Geometry;
+using GPC.Model.Elements;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
+using GPC.Model.Structure.Assignments;
+using GPC.Model.Structure.Topology;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTest
@@ -87,6 +93,55 @@ namespace UnitTest
             Assert.IsTrue(model.ValidateDomain().Any(d => d.Code == "InvalidElasticProperty" && d.Message.Contains("InvalidMaterialAnalysisValue")));
             Assert.AreNotEqual(new MaterialAnalysisData { ModalDampingRatio = .05 }.GetHashCode(), new MaterialAnalysisData().GetHashCode());
             Assert.AreEqual(new MaterialAnalysisData { ModalDampingRatio = .05 }.GetHashCode(), new MaterialAnalysisData { ModalDampingRatio = .05 }.GetHashCode());
+        }
+
+        private static Model Plate(out AreaElement plate, out LoadCaseBase lc)
+        {
+            var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(100, 0, 0)), new NodeElement(new Point3d(100, 100, 0)), new NodeElement(new Point3d(0, 100, 0)) };
+            plate = new AreaElement(null, new ElasticPlateProperty("plate", new Material("E", 210000, .3, 0, 0), 10, 10)); plate.ConnectNodes(nodes);
+            lc = new LoadCaseBase("pressure");
+            plate.Loads.Add(ShellFacePressure.Normal(lc, ShellFace.PositiveNormal, .001));
+            var model = ModelAssembly.Assemble(new Element[] { plate }, Guid.NewGuid());
+            plate = model.AreaElements.Values.Single(); lc = model.LoadCases.Values.Single(); return model;
+        }
+
+        // B2: face and follower pressures are element loads, the single place that load consumers read.
+        [TestMethod] public void B2_FacePressureIsAnElementLoadWithItsOwnSemantics()
+        {
+            var model = Plate(out var plate, out var lc); string fingerprint = model.AnalysisFingerprint();
+            Assert.IsTrue(PhysicalAssignments.UsesSurfacePressureContract(model));
+            var pressure = plate.Loads.Values.OfType<ShellFacePressure>().Single();
+            Assert.IsTrue(pressure.IsFollower); Assert.AreSame(lc, pressure.LoadCase);
+            RoundTrips(model);
+            var copy = ModelValues.Copy(model); var copied = copy.AreaElements.Values.Single().Loads.Values.OfType<ShellFacePressure>().Single();
+            Assert.AreEqual(.001, copied.NormalPressure.Value); Assert.AreEqual(ShellFace.PositiveNormal, copied.Face);
+            copied.NormalPressure = .002; Assert.AreNotEqual(fingerprint, copy.AnalysisFingerprint()); Assert.AreEqual(fingerprint, model.AnalysisFingerprint());
+            copied.GlobalPressure = new Vector3d(0, 0, 1);
+            Assert.IsTrue(copy.ValidateAssignments().Any(d => d.Code == "InvalidShellFacePressure"));
+            var node = copy.NodesElements.Values.First(); node.Loads.Add(ShellFacePressure.Normal(copy.LoadCases.Values.Single(), ShellFace.NegativeNormal, .001));
+            Assert.IsTrue(copy.ValidateAssignments().Any(d => d.Code == "ShellFacePressureRequiresShell"));
+            Assert.ThrowsException<ArgumentException>(() => ShellFacePressure.Global(lc, ShellFace.PositiveNormal, new Vector3d(double.NaN, 0, 0)));
+            Assert.ThrowsException<NotSupportedException>(() => ModelOrientation.ReverseShell(model, plate.Id));
+        }
+
+        // B2: one activation model for stages; the complete sets are derived from either representation.
+        [TestMethod] public void B2_StageActivationHasOneModel()
+        {
+            var model = StageAnalysisContractsTest.Sample(); var stage = model.Stages[10];
+            stage.Definition = new StageDefinition(2, 0, groupChanges: new[] { new StageGroupChange("structure", StageGroupKind.Structure, StageGroupAction.Activate) });
+            Assert.AreEqual("ConflictingStageActivation", Assert.ThrowsException<ArgumentException>(() => StageAnalysisState.ValidateAll(model)).Message);
+            using (var session = new ModelEditSession(model)) Assert.IsTrue(session.Validate().Any(d => d.Code == "ConflictingStageActivation"));
+            model.Stages.Add(new Stage(11, "second") { Definition = new StageDefinition(3, 0) });
+            stage.Definition = new StageDefinition(2, 0);
+            Assert.AreEqual("MixedStageActivation", Assert.ThrowsException<ArgumentException>(() => StageAnalysisState.ValidateAll(model)).Message);
+            var group = model.Groups["structure"]; var other = model.AddGroup("deck");
+            stage.AnalysisState = null;
+            stage.Definition = new StageDefinition(2, 0, groupChanges: new[] { new StageGroupChange("structure", StageGroupKind.Structure, StageGroupAction.Activate),
+                new StageGroupChange("deck", StageGroupKind.Load, StageGroupAction.Activate) });
+            model.Stages[11].Definition = new StageDefinition(3, 0, groupChanges: new[] { new StageGroupChange("deck", StageGroupKind.Structure, StageGroupAction.Activate),
+                new StageGroupChange("structure", StageGroupKind.Structure, StageGroupAction.Deactivate) });
+            var sets = StageAnalysisState.ActiveGroupSets(model);
+            CollectionAssert.AreEqual(new[] { group.Guid }, sets[0].Value); CollectionAssert.AreEqual(new[] { other.Guid }, sets[1].Value);
         }
 
         // B9: stages may be absent in legacy graphs.
