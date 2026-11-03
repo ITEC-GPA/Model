@@ -565,14 +565,15 @@ namespace GPC.Model.Sections
         /// (no consistency between them is imposed); torsion and warping constants are those given, plastic moduli are zero
         /// (not available) and the shear centre is the centroid.
         /// </summary>
-        /// <exception cref="ArgumentException">If a value is not finite, or the area, a principal moment or a modulus is negative</exception>
+        /// <exception cref="ArgumentException">If a value is not finite or the area is negative. The other values are not checked: they belong to
+        /// the declaring calculator (FeMM, whose mirrored sections have negative moments, is reproduced as it is by Arachne).</exception>
         public Section(Shape2d outline, double area, double jxx, double jyy, double jxy, double j11, double j22, double jt,
             Point2d centroid, double angle, double elasticModulus1, double elasticModulus2, double elasticModulusX, double elasticModulusY, string name)
             : base(name)
         {
             foreach (double value in new[] { area, jxx, jyy, jxy, j11, j22, jt, angle, elasticModulus1, elasticModulus2, elasticModulusX, elasticModulusY })
                 if (double.IsNaN(value) || double.IsInfinity(value)) throw new ArgumentException("NonFiniteDeclaredSectionProperty");
-            if (area < 0 || j11 < 0 || j22 < 0 || jt < 0 || elasticModulus1 < 0 || elasticModulus2 < 0 || elasticModulusX < 0 || elasticModulusY < 0)
+            if (area < 0)
                 throw new ArgumentException("NegativeDeclaredSectionProperty");
             _shape = outline; _area = area; _jxx = jxx; _jyy = jyy; _jxy = jxy; _j11 = j11; _j22 = j22; _jp = j11 + j22; _jt = jt; _jw = 0;
             _centroid = centroid ?? throw new ArgumentNullException(nameof(centroid));
