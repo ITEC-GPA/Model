@@ -13,6 +13,7 @@
   <ItemGroup><Compile Include="../tests/MigrationCopyContractsTest.cs" Link="MigrationCopyContractsTest.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../tests/MigrationFoundationsTest.cs" Link="MigrationFoundationsTest.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../tests/ReviewFixesL1Test.cs" Link="ReviewFixesL1Test.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../tests/ArachneVocabularyTest.cs" Link="ArachneVocabularyTest.cs" /></ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>

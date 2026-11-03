@@ -27,6 +27,7 @@ namespace GPC.Model.Core
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
             "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion", "MembranePlatePropertyVersion",
+            "FormFindingGoalAttributeVersion", "FormFindingCoordinateAttributeVersion", "ElementLabelAttributeVersion",
         };
 
         private static void RegisterBuiltIns()
