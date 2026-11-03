@@ -54,12 +54,19 @@ namespace GPC.Model.Persistence
     /// One graph block, one compact results block per nonempty element, an optional solver map and a small manifest.
     /// Result blocks use ModelImage.WriteResults/ReadResults unchanged: no JSON conversion, no second deflate codec.
     /// Dataset names index the element blocks; cases/combinations keep their identities in the graph and the existing codec.
-    /// The caller supplies current AND retained historical references at Save; no application retention policy is imposed.</summary>
+    /// The caller supplies current AND retained historical references at Save; no application retention policy is imposed.
+    /// <para>Manifests are content-addressed, so each one is read at most once per session (or not at all for runs prepared here):
+    /// a save costs one lookup per run, not a decode of every manifest. Failures are per run: a missing or damaged sidecar, manifest or
+    /// block makes its runs unavailable at <see cref="Open(ExternalModelReference)"/> and never stops opening the session, saving or
+    /// autosaving the document; blocks of a run whose manifest cannot be read are retained, never pruned.</para></summary>
     public sealed class ExternalModelArchive
     {
         public const string Extension = ".gpc-results";
         private const byte GraphKind = 2, ResultsKind = 3, ManifestKind = 4, SolverMapKind = 5;
         private readonly BlockArchive archive;
+        private readonly object gate = new object();
+        // Manifest address -> the manifest, read or prepared once in this session (immutable: the address is its SHA-256).
+        private readonly Dictionary<string, Manifest> manifests = new Dictionary<string, Manifest>(StringComparer.Ordinal);
 
         [DataContract(Namespace = "urn:gpc:external:1")]
         private sealed class Manifest
@@ -81,17 +88,21 @@ namespace GPC.Model.Persistence
         }
 
         /// <param name="archivePath">Actual sidecar path; null for an unsaved document.</param>
-        /// <param name="savedRuns">References in the already saved document, including its history.</param>
+        /// <param name="savedRuns">References in the already saved document, including its history. A run whose manifest cannot be read
+        /// (missing or damaged sidecar) does not stop the session: the first save then retains every block of the sidecar.</param>
         public ExternalModelArchive(string archivePath = null, IEnumerable<ExternalModelReference> savedRuns = null)
         {
             archive = new BlockArchive(archivePath);
             if (savedRuns != null)
             {
-                var addresses = LiveAddresses(savedRuns);
-                archive = new BlockArchive(archivePath, addresses);
+                var addresses = Addresses(savedRuns, out bool unresolved);
+                if (!unresolved) archive = new BlockArchive(archivePath, addresses);
             }
         }
         public static string PathFor(string documentPath) => Path.ChangeExtension(Path.GetFullPath(documentPath), Extension);
+
+        /// <summary>The outcome of the last save: unavailable blocks, a sidecar set aside because it could not be read as one.</summary>
+        public ArchiveSaveReport LastSave => archive.LastSave;
 
         public ExternalModelReference Prepare(Models.Model model, SolverIdentityMap solverMap = null)
         {
@@ -115,7 +126,8 @@ namespace GPC.Model.Persistence
                     using (var stream = new MemoryStream())
                     {
                         using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true)) ModelImage.WriteResults(writer, new[] { elements[i].Guid }, new[] { results[i] });
-                        entry.Address = Add(ResultsKind, stream.ToArray(), false);
+                        // The codec buffer is discarded: the block takes it instead of a second copy.
+                        var block = ArchiveBlock.TakeStored(ResultsKind, stream.ToArray()); archive.Add(block); entry.Address = block.Address;
                     }
                 manifest.Elements[i] = entry;
             }
@@ -125,17 +137,20 @@ namespace GPC.Model.Persistence
             string address;
             using (var stream = new MemoryStream())
             { new DataContractSerializer(typeof(Manifest)).WriteObject(stream, manifest); address = Add(ManifestKind, stream.ToArray(), true); }
+            lock (gate) manifests[address] = manifest;
             return new ExternalModelReference(archive.FilePath == null ? "unsaved" + Extension : Path.GetFileName(archive.FilePath), address, model.Guid, fingerprint);
         }
 
         /// <summary>Save/Save As. Callback receives references rebased to the destination name; write them atomically in the document.
-        /// The returned references can be committed to the application's session after success. Reuse them for unchanged autosave.</summary>
+        /// The returned references can be committed to the application's session after success. Reuse them for unchanged autosave.
+        /// A run whose blocks are not all available is saved as it is (the document keeps citing it; <see cref="LastSave"/> counts the
+        /// missing blocks): one unavailable run never stops the save of the document.</summary>
         public IReadOnlyList<ExternalModelReference> Save(string archivePath, IEnumerable<ExternalModelReference> liveRuns, Action<IReadOnlyList<ExternalModelReference>> writeDocument)
         {
             if (writeDocument == null || liveRuns == null) throw new ArgumentNullException();
-            var runs = liveRuns.ToArray(); var addresses = LiveAddresses(runs);
+            var runs = liveRuns.ToArray(); var addresses = Addresses(runs, out bool unresolved);
             var rebased = Array.AsReadOnly(runs.Select(r => r.Rebase(archivePath)).ToArray());
-            archive.Save(archivePath, addresses, () => writeDocument(rebased), requireComplete: true);
+            archive.Save(archivePath, addresses, () => writeDocument(rebased), requireComplete: false, retainExisting: unresolved);
             return rebased;
         }
 
@@ -146,9 +161,9 @@ namespace GPC.Model.Persistence
         {
             if (liveRuns == null) throw new ArgumentNullException(nameof(liveRuns));
             var runs = liveRuns.ToArray();
-            var addresses = LiveAddresses(runs);
+            var addresses = Addresses(runs, out _);
             var rebased = Array.AsReadOnly(runs.Select(r => r.Rebase(archivePath)).ToArray());
-            archive.SaveSnapshot(archivePath, addresses, requireComplete: true);
+            archive.SaveSnapshot(archivePath, addresses);
             return rebased;
         }
 
@@ -160,11 +175,15 @@ namespace GPC.Model.Persistence
             using (var stream = new MemoryStream(graph, false)) model = ((ModelDocument)ModelImage.ReadGraph(stream, typeof(ModelDocument), graph.Length)).Restore();
             if (model.Guid != reference.ModelGuid || model.AnalysisFingerprint() != reference.AnalysisFingerprint) throw new SerializationException("ExternalModelFingerprintMismatch");
             var ids = new Guid[manifest.Elements.Length]; var results = new ResultStorage[ids.Length];
+            // One read of the sidecar for all element blocks (one pass in file order, decoded in parallel), not one per element.
+            var stored = manifest.Elements.Where(e => e.Address != null).Select(e => e.Address).Distinct(StringComparer.Ordinal).ToArray();
+            var contents = archive.Read(stored); var byAddress = new Dictionary<string, BlockContent>(stored.Length, StringComparer.Ordinal);
+            for (int i = 0; i < stored.Length; i++) byAddress.Add(stored[i], contents[i]);
             for (int i = 0; i < ids.Length; i++)
             {
                 var entry = manifest.Elements[i]; ids[i] = entry.Element;
                 if (entry.Address == null) { results[i] = ResultStorage.Empty; continue; }
-                byte[] bytes = Get(entry.Address, (byte)(ResultsKind | 128));
+                byte[] bytes = Bytes(entry.Address, byAddress[entry.Address], (byte)(ResultsKind | 128));
                 using (var stream = new MemoryStream(bytes, false))
                 using (var reader = new BinaryReader(stream))
                 {
@@ -194,9 +213,9 @@ namespace GPC.Model.Persistence
             => Array.AsReadOnly(ReadManifest(reference).Elements.Where(e => e.Address != null && e.Datasets.Contains(dataset, StringComparer.Ordinal)).Select(e => e.Address).Distinct().ToArray());
         private string Add(byte kind, byte[] bytes, bool compress)
         { var block = ArchiveBlock.Create(kind, bytes, compress); archive.Add(block); return block.Address; }
-        private byte[] Get(string address, byte kind)
+        private byte[] Get(string address, byte kind) => Bytes(address, archive.Read(new[] { address })[0], kind);
+        private static byte[] Bytes(string address, BlockContent content, byte kind)
         {
-            var content = archive.Read(new[] { address })[0];
             if (content.Failure != null) throw new InvalidDataException("ExternalModelDataUnavailable: " + address + ": " + content.Failure);
             if (content.Kind != kind) throw new InvalidDataException("ExternalModelBlockKindMismatch");
             return content.Bytes;
@@ -204,18 +223,38 @@ namespace GPC.Model.Persistence
         private Manifest ReadManifest(ExternalModelReference reference)
         {
             if (reference == null) throw new ArgumentNullException(nameof(reference)); reference.Validate();
-            byte[] bytes = Get(reference.ManifestAddress, ManifestKind); Manifest manifest;
-            using (var stream = new MemoryStream(bytes, false))
-            using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = Math.Max(1, bytes.Length) }))
-                manifest = (Manifest)new DataContractSerializer(typeof(Manifest), new DataContractSerializerSettings { MaxItemsInObjectGraph = Math.Max(1, bytes.Length) }).ReadObject(reader);
-            if (manifest.Version != 1 || manifest.Model != reference.ModelGuid || manifest.Fingerprint != reference.AnalysisFingerprint || !IsAddress(manifest.Graph) || manifest.Elements == null ||
-                manifest.SolverMap != null && !IsAddress(manifest.SolverMap) || manifest.Elements.Any(e => e == null || e.Element == Guid.Empty || e.Address != null && !IsAddress(e.Address) || e.Datasets == null || e.Datasets.Any(d => d == null)) ||
-                manifest.Elements.Select(e => e.Element).Distinct().Count() != manifest.Elements.Length)
-                throw new SerializationException("InvalidExternalModelManifest");
+            Manifest manifest;
+            lock (gate) manifests.TryGetValue(reference.ManifestAddress, out manifest);
+            if (manifest == null)
+            {
+                byte[] bytes = Get(reference.ManifestAddress, ManifestKind);
+                using (var stream = new MemoryStream(bytes, false))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = Math.Max(1, bytes.Length) }))
+                    manifest = (Manifest)new DataContractSerializer(typeof(Manifest), new DataContractSerializerSettings { MaxItemsInObjectGraph = Math.Max(1, bytes.Length) }).ReadObject(reader);
+                if (manifest.Version != 1 || !IsAddress(manifest.Graph) || manifest.Elements == null ||
+                    manifest.SolverMap != null && !IsAddress(manifest.SolverMap) || manifest.Elements.Any(e => e == null || e.Element == Guid.Empty || e.Address != null && !IsAddress(e.Address) || e.Datasets == null || e.Datasets.Any(d => d == null)) ||
+                    manifest.Elements.Select(e => e.Element).Distinct().Count() != manifest.Elements.Length)
+                    throw new SerializationException("InvalidExternalModelManifest");
+                lock (gate) manifests[reference.ManifestAddress] = manifest;
+            }
+            if (manifest.Model != reference.ModelGuid || manifest.Fingerprint != reference.AnalysisFingerprint) throw new SerializationException("InvalidExternalModelManifest");
             return manifest;
         }
-        private string[] LiveAddresses(IEnumerable<ExternalModelReference> runs)
-            => runs.SelectMany(r => ReadManifest(r).Addresses().Concat(new[] { r.ManifestAddress })).Distinct(StringComparer.Ordinal).ToArray();
+
+        /// <summary>The blocks of the runs, from the manifests of this session. A run whose manifest cannot be read keeps its manifest
+        /// address and sets <paramref name="unresolved"/>: its other blocks are unknown, so the caller retains the whole sidecar.</summary>
+        private string[] Addresses(IEnumerable<ExternalModelReference> runs, out bool unresolved)
+        {
+            unresolved = false; var addresses = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var run in runs)
+            {
+                if (run == null) throw new ArgumentNullException(nameof(runs));
+                addresses.Add(run.ManifestAddress);
+                try { addresses.UnionWith(ReadManifest(run).Addresses()); }
+                catch (Exception error) when (error is InvalidDataException || error is SerializationException || error is XmlException) { unresolved = true; }
+            }
+            return addresses.ToArray();
+        }
         internal static bool IsAddress(string value) => value != null && value.Length == 64 && value.All(c => c >= '0' && c <= '9' || c >= 'A' && c <= 'F');
         private static void ValidateMap(Models.Model model, SolverIdentityMap map, string fingerprint)
         {

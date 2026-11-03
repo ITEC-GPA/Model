@@ -18,6 +18,7 @@ using GPC.Model.Results.State;
 using GPC.Model.Results.Storage;
 using GPC.Persistence;
 
+if (args[0] == "bench") { Bench.Run(args); return; }
 string mode = args[0], folder = Path.GetFullPath(args[1]);
 string document = Path.Combine(folder, "probe.gh-reference"), sidecar = ExternalModelArchive.PathFor(document);
 var rows = new List<string> { "metric,value" };

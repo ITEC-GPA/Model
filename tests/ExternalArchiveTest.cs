@@ -174,11 +174,13 @@ namespace UnitTest
             var a = Block("alpha"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Save(path, new[] { a.Address }, () => { });
             var original = File.ReadAllBytes(path); var broken = (byte[])original.Clone(); broken[64] ^= 0xFF; File.WriteAllBytes(path, broken);
             Assert.IsNotNull(new BlockArchive(path).Read(new[] { a.Address })[0].Failure);
+            // Review D2 (3/11/2026): an archive that is not readable as one is renamed aside, byte for byte, and the document is saved.
             broken = (byte[])original.Clone(); broken[16] = 2; File.WriteAllBytes(path, broken);
             var future = new BlockArchive(path, new[] { a.Address }); Assert.IsNotNull(future.Read(new[] { a.Address })[0].Failure);
-            bool documentWritten = false; Assert.ThrowsException<InvalidDataException>(() => future.Save(path, new[] { a.Address }, () => documentWritten = true));
-            Assert.IsFalse(documentWritten); CollectionAssert.AreEqual(broken, File.ReadAllBytes(path));
-            File.Delete(path); var missing = new BlockArchive(path, new[] { a.Address });
+            bool documentWritten = false; Assert.AreEqual(1, future.Save(path, new[] { a.Address }, () => documentWritten = true));
+            Assert.IsTrue(documentWritten); Assert.IsFalse(File.Exists(path));
+            string aside = future.LastSave!.SetAside!; StringAssert.StartsWith(aside, path + ".danneggiato-"); CollectionAssert.AreEqual(broken, File.ReadAllBytes(aside));
+            File.Delete(aside); var missing = new BlockArchive(path, new[] { a.Address }); documentWritten = false;
             StringAssert.Contains(missing.Read(new[] { a.Address })[0].Failure!, "mancante");
             Assert.ThrowsException<InvalidDataException>(() => missing.Save(path, new[] { a.Address }, () => documentWritten = true, requireComplete: true));
             Assert.IsFalse(documentWritten);
@@ -186,10 +188,11 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void InvalidIndexRangesAndDuplicateAddressesAreRejectedEvenWithCorrectIndexHash()
+        public void InvalidIndexEntriesAndDuplicateAddressesAffectOnlyTheirBlockEvenWithCorrectIndexHash()
         {
             ArchiveBlock a = Block("a"), b = Block("b"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Add(b);
             store.Save(path, new[] { a.Address, b.Address }, () => { }); byte[] original = File.ReadAllBytes(path);
+            string first = Addresses(original)[0], second = Addresses(original)[1];
             foreach (int variant in new[] { 0, 1, 2, 3 })
             {
                 var bytes = (byte[])original.Clone(); int index = (int)BitConverter.ToInt64(bytes, 24);
@@ -198,8 +201,130 @@ namespace UnitTest
                 if (variant == 2) Buffer.BlockCopy(BitConverter.GetBytes((long)ArchiveBlock.MaximumBytes + 1), 0, bytes, index + 49, 8);
                 if (variant == 3) Buffer.BlockCopy(bytes, index + 33, bytes, index + 57 + 33, 8);
                 using var sha = System.Security.Cryptography.SHA256.Create(); var digest = sha.ComputeHash(bytes, index, bytes.Length - index); Buffer.BlockCopy(digest, 0, bytes, 32, 32);
-                File.WriteAllBytes(path, bytes); Assert.IsNotNull(new BlockArchive(path).Read(new[] { a.Address })[0].Failure, "variant " + variant);
+                File.WriteAllBytes(path, bytes);
+                // Variants 0 and 2 damage the first entry, 1 and 3 the second: only that block is unavailable.
+                string lost = variant == 0 || variant == 2 ? first : second, kept = lost == first ? second : first;
+                var reader = new BlockArchive(path, new[] { a.Address, b.Address }); var content = reader.Read(new[] { lost, kept });
+                Assert.IsNotNull(content[0].Failure, "variant " + variant); Assert.IsNull(content[1].Failure, "variant " + variant);
+                string copy = FileAt("copy" + variant + ".bin");
+                Assert.AreEqual(1, reader.Save(copy, new[] { a.Address, b.Address }, () => { }), "variant " + variant);
+                Assert.IsNull(new BlockArchive(copy).Read(new[] { kept })[0].Failure, "variant " + variant);
             }
+        }
+
+        [TestMethod]
+        public void InvalidReferenceStringsAreSingleUnavailableBlocks()
+        {
+            // Review D2: a malformed reference in a document made the whole project impossible to open or save.
+            var a = Block("a"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Save(path, new[] { a.Address }, () => { });
+            var session = new BlockArchive(path, new[] { a.Address, "not-a-block", "" });
+            var content = session.Read(new[] { "not-a-block", a.Address });
+            StringAssert.Contains(content[0].Failure!, "non valido"); Assert.IsNull(content[1].Failure);
+            bool written = false; Assert.AreEqual(1, session.Save(path, new[] { a.Address, "not-a-block" }, () => written = true));
+            Assert.IsTrue(written); Assert.AreEqual("a", Text(new BlockArchive(path), a.Address));
+        }
+
+        [TestMethod]
+        public void CopiedForwardBlocksAreVerifiedAndDamagedOnesDoNotStopTheSave()
+        {
+            ArchiveBlock a = Block("first block"), b = Block("second block"), c = Block("third"); string path = FileAt("a.bin");
+            var store = new BlockArchive(); store.Add(a); store.Add(b); store.Save(path, new[] { a.Address, b.Address }, () => { });
+            byte[] bytes = File.ReadAllBytes(path); int row = (int)BitConverter.ToInt64(bytes, 24) + Array.IndexOf(Addresses(bytes), b.Address) * 57;
+            bytes[(int)BitConverter.ToInt64(bytes, row + 33)] ^= 0x40; File.WriteAllBytes(path, bytes);
+            var session = new BlockArchive(path, new[] { a.Address, b.Address }); session.Add(c);
+            Assert.AreEqual(1, session.Save(path, new[] { a.Address, b.Address, c.Address }, () => { }));
+            CollectionAssert.AreEqual(new[] { b.Address }, session.LastSave!.Damaged.ToArray());
+            CollectionAssert.AreEquivalent(new[] { a.Address, c.Address }, Addresses(File.ReadAllBytes(path)));
+            Assert.AreEqual("first block", Text(new BlockArchive(path), a.Address));
+        }
+
+        [TestMethod]
+        public void PermanentlyMissingBlocksDoNotRewriteTheArchiveAtEverySave()
+        {
+            var a = Block("a"); string path = FileAt("a.bin"), absent = Block("never stored").Address;
+            var store = new BlockArchive(); store.Add(a); store.Save(path, new[] { a.Address, absent }, () => { });
+            var time = new DateTime(2020, 1, 2, 3, 4, 5, DateTimeKind.Utc); File.SetLastWriteTimeUtc(path, time);
+            Assert.AreEqual(1, store.Save(path, new[] { a.Address, absent }, () => { }));
+            Assert.AreEqual(time, File.GetLastWriteTimeUtc(path)); Assert.IsFalse(store.LastSave!.Written);
+        }
+
+        [TestMethod]
+        public void SaveNeverThrowsAfterTheDocumentIsWritten()
+        {
+            // An emptied document deletes its archive after the document is written; a failure there must not report a failed save.
+            var a = Block("a"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Save(path, new[] { a.Address }, () => { });
+            store.Save(path, Array.Empty<string>(), () => { }); // the previous document still cited the block: kept once more
+            bool written = false;
+            using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read)) Assert.AreEqual(0, store.Save(path, Array.Empty<string>(), () => written = true));
+            Assert.IsTrue(written); Assert.AreEqual("a", Text(store, a.Address));
+        }
+
+        [TestMethod]
+        public void MissingSidecarNeverStopsTheSessionOrTheSaveOnlyItsRuns()
+        {
+            // Review D2: the constructor and Save threw for a missing sidecar, so the whole document could not be saved or autosaved.
+            var model = ModelWithResults(); var store = new ExternalModelArchive(); var reference = store.Prepare(model);
+            string doc = FileAt("project.gh"), sidecar = ExternalModelArchive.PathFor(doc);
+            var live = store.Save(sidecar, new[] { reference }, r => BlockArchive.WriteFile(doc, s => r[0].Write(s)));
+            File.Delete(sidecar);
+            var session = new ExternalModelArchive(sidecar, live); bool written = false;
+            live = session.Save(sidecar, live, r => { written = true; BlockArchive.WriteFile(doc, s => r[0].Write(s)); });
+            Assert.IsTrue(written); Assert.IsTrue(session.LastSave.Unavailable > 0);
+            Assert.ThrowsException<InvalidDataException>(() => session.Open(live[0]));
+        }
+
+        [TestMethod]
+        public void AutosaveDoesNotReadTheManifestsAgain()
+        {
+            // Every save used to read, inflate, hash and parse the manifest of every live and retained run; now each is read once.
+            var model = ModelWithResults(); var store = new ExternalModelArchive(); var reference = store.Prepare(model);
+            string doc = FileAt("project.gh"), sidecar = ExternalModelArchive.PathFor(doc);
+            var live = store.Save(sidecar, new[] { reference }, r => BlockArchive.WriteFile(doc, s => r[0].Write(s)));
+            byte[] bytes = File.ReadAllBytes(sidecar); int row = (int)BitConverter.ToInt64(bytes, 24) + Array.IndexOf(Addresses(bytes), live[0].ManifestAddress) * 57;
+            bytes[(int)BitConverter.ToInt64(bytes, row + 33) + 1] ^= 0x40; File.WriteAllBytes(sidecar, bytes);
+            var time = new DateTime(2020, 1, 2, 3, 4, 5, DateTimeKind.Utc); File.SetLastWriteTimeUtc(sidecar, time);
+            for (int i = 0; i < 3; i++) live = store.Save(sidecar, live, r => BlockArchive.WriteFile(doc, s => r[0].Write(s)));
+            Assert.AreEqual(time, File.GetLastWriteTimeUtc(sidecar));
+            Assert.AreEqual(1, store.BlocksForDataset(live[0], "run-1").Count);
+        }
+
+        [TestMethod]
+        public void AnotherWriterOfTheSameArchiveNeverLosesItsBlocks()
+        {
+            // Two sessions (two processes) opened on the same document. The second one's save fails after its archive: the document on disk
+            // is the first one's, so every block the first one wrote must still be there.
+            var x = Block("x"); string path = FileAt("a.bin"), doc = FileAt("a.doc");
+            var origin = new BlockArchive(); origin.Add(x); origin.Save(path, new[] { x.Address }, () => File.WriteAllText(doc, x.Address));
+            var one = new BlockArchive(path, new[] { x.Address }); var two = new BlockArchive(path, new[] { x.Address });
+            ArchiveBlock a = Block("from one"), b = Block("from two"); one.Add(a); two.Add(b);
+            one.Save(path, new[] { a.Address }, () => File.WriteAllText(doc, a.Address));
+            Assert.ThrowsException<IOException>(() => two.Save(path, new[] { b.Address }, () => throw new IOException("document not written")));
+            Assert.AreEqual("from one", Text(new BlockArchive(path), File.ReadAllText(doc)));
+        }
+
+        [TestMethod]
+        public void LockedArchiveFailsTheSaveBeforeTheDocumentAndOrphanTemporariesAreRemoved()
+        {
+            var a = Block("a"); string path = FileAt("a.bin"); var store = new BlockArchive { LockTimeout = TimeSpan.FromMilliseconds(200) }; store.Add(a);
+            string orphan = path + "." + Guid.NewGuid().ToString("N") + ".tmp", fresh = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            File.WriteAllText(orphan, "left by a process that ended"); File.SetLastWriteTimeUtc(orphan, DateTime.UtcNow.AddHours(-1)); File.WriteAllText(fresh, "being written");
+            bool written = false;
+            using (new FileStream(path + ".lock", FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose))
+                Assert.ThrowsException<IOException>(() => store.Save(path, new[] { a.Address }, () => written = true));
+            Assert.IsFalse(written); Assert.IsFalse(File.Exists(path)); Assert.IsTrue(File.Exists(orphan));
+            store.Save(path, new[] { a.Address }, () => written = true);
+            Assert.IsTrue(written); Assert.IsFalse(File.Exists(orphan)); Assert.IsTrue(File.Exists(fresh)); Assert.IsFalse(File.Exists(path + ".lock"));
+        }
+
+        [TestMethod]
+        public void SaveAsOverADamagedDestinationKeepsItAsideAndSaves()
+        {
+            var a = Block("a"); string first = FileAt("a.bin"), second = FileAt("b.bin");
+            var store = new BlockArchive(); store.Add(a); store.Save(first, new[] { a.Address }, () => { });
+            File.WriteAllBytes(second, Encoding.ASCII.GetBytes("not an archive"));
+            bool written = false; Assert.AreEqual(0, store.Save(second, new[] { a.Address }, () => written = true));
+            Assert.IsTrue(written); Assert.AreEqual("a", Text(new BlockArchive(second), a.Address));
+            Assert.AreEqual("not an archive", File.ReadAllText(store.LastSave!.SetAside!));
         }
 
         private static Model ModelWithResults()
