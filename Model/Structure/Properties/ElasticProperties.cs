@@ -26,6 +26,8 @@ namespace GPC.Model.ElementProperties
             ElasticPropertyValidation.Nonnegative(Section.Jt, "SectionTorsion");
             ElasticPropertyValidation.Nonnegative(ShearArea1, "ShearArea1"); ElasticPropertyValidation.Nonnegative(ShearArea2, "ShearArea2");
             ElasticPropertyValidation.Material(Material);
+            // A beam has one axial modulus: the native writer and the checkers read Material.E (review B5).
+            if (Material.IsOrthotropic) throw new ArgumentException("OrthotropicBeamMaterialNotSupported");
             CutoffLaw?.Validate();
         }
         private ElasticBeamProperty(SerializationInfo info, StreamingContext context) : base(info, context)

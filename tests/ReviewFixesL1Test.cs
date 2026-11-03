@@ -170,6 +170,33 @@ namespace UnitTest
             Assert.IsTrue(copy.ValidateAssignments().Any(d => d.Severity == DiagnosticSeverity.Error));
         }
 
+        // B5: orthotropy only on the generic analysis material, explicit check, and beams reject it.
+        [TestMethod] public void B5_OrthotropyIsExplicitAndConfinedToTheGenericMaterial()
+        {
+            var tensor = new OrthotropicElasticity { E1 = 1000, E2 = 500, E3 = 100, G12 = 100, G23 = 50, G31 = 50, Nu12 = .2, Nu23 = .1, Nu31 = .05 };
+            var generic = new Material("orthotropic", 1000, .2, 1e-9, 0);
+            Assert.IsFalse(generic.IsOrthotropic); generic.Orthotropy = tensor; Assert.IsTrue(generic.IsOrthotropic);
+            Assert.ThrowsException<NotSupportedException>(() => generic.E);
+            var steel = new GPC.Model.Materials.SteelMaterial("S355", 210000, 355, 510);
+            Assert.AreEqual("OrthotropyRequiresGenericElasticMaterial: SteelMaterial", Assert.ThrowsException<NotSupportedException>(() => steel.Orthotropy = tensor).Message);
+            Assert.IsFalse(steel.IsOrthotropic); Assert.IsTrue(steel.E > 0);
+            Assert.AreEqual("OrthotropicBeamMaterialNotSupported", Assert.ThrowsException<ArgumentException>(() => new ElasticBeamProperty("beam", generic, new SectionRectangular(200, 100))).Message);
+            var copy = ModelValues.CopyValue(generic); Assert.IsTrue(copy.IsOrthotropic); Assert.AreEqual(500, copy.Orthotropy.E2);
+        }
+
+        // B5: the edit session validates physical members as straight by default; curved members are an explicit opt-in.
+        [TestMethod] public void B5_EditSessionRequiresStraightPhysicalMembersUnlessCurvedAreRequested()
+        {
+            var model = new Model("members"); var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(3000, 0, 0)); var c = new NodeElement(new Point3d(3000, 4000, 0));
+            foreach (var node in new[] { a, b, c }) model.NodesElements.Add(node);
+            BeamElement Beam(NodeElement i, NodeElement j) { var beam = new BeamElement(i.Position, j.Position, null); beam.ConnectNodes(i, j); beam.Assignments.Formulation = BeamFormulation.StraightTwoNode; return beam; }
+            var first = Beam(a, b); var second = Beam(b, c); model.BeamElements.Add(first); model.BeamElements.Add(second);
+            var member = new GPC.Model.Structure.Members.PhysicalMemberDefinition("corner", new[] { new GPC.Model.Structure.Members.BeamMemberPart(first.Id, true), new GPC.Model.Structure.Members.BeamMemberPart(second.Id, true) }, "NodeToNode");
+            model.PhysicalMembers.Add(member.Id, member);
+            using (var session = new ModelEditSession(model)) Assert.IsTrue(session.Validate().Any(d => d.Code == "InvalidPhysicalMember"));
+            using (var session = new ModelEditSession(model, curvedPhysicalMembers: true)) Assert.IsFalse(session.Validate().Any(d => d.Code == "InvalidPhysicalMember"));
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {

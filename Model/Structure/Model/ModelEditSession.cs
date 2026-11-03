@@ -62,11 +62,18 @@ namespace GPC.Model.Models
         private readonly Model _source;
         private readonly ModelRevision _baseline;
         private bool _closed;
+        private readonly bool _curvedPhysicalMembers;
         public Model Draft { get; }
         public ModelRevision Baseline => _baseline;
-        public ModelEditSession(Model source)
+        /// <summary>Opens a session whose validation requires straight physical members (<see cref="PhysicalMemberGeometry"/>),
+        /// the published contract of the checkers.</summary>
+        public ModelEditSession(Model source) : this(source, false) { }
+        /// <summary>Opens a session; <paramref name="curvedPhysicalMembers"/> = true validates the physical members as general
+        /// paths (<see cref="PhysicalMemberPath"/>: curved members and mixed formulations), an explicit opt-in of callers whose
+        /// consumers support them (review B5).</summary>
+        public ModelEditSession(Model source, bool curvedPhysicalMembers)
         {
-            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _source = source ?? throw new ArgumentNullException(nameof(source)); _curvedPhysicalMembers = curvedPhysicalMembers;
             _baseline = ModelRevision.Capture(source); Draft = ModelValues.Copy(source);
             RequireCurrentSource();
         }
@@ -83,7 +90,7 @@ namespace GPC.Model.Models
             foreach (var entry in Draft.PhysicalMembers)
             {
                 if (entry.Value == null || entry.Key != entry.Value.Id) { diagnostics.Add(ModelDiagnostic.Error("InvalidPhysicalMemberIdentity")); continue; }
-                try { new PhysicalMemberPath(Draft, entry.Value); }
+                try { if (_curvedPhysicalMembers) new PhysicalMemberPath(Draft, entry.Value); else new PhysicalMemberGeometry(Draft, entry.Value); }
                 catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException || ex is InvalidOperationException)
                 { diagnostics.Add(ModelDiagnostic.Error("InvalidPhysicalMember", message: entry.Key + ": " + ex.Message)); }
             }
