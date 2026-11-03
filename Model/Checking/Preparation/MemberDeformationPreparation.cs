@@ -167,8 +167,8 @@ namespace GPC.Model.Checking.Preparation
             if (state == null || string.IsNullOrWhiteSpace(state.ConcomitantStateId) || sample.Case == null || state.Components == null || state.Components.Length != 6
                 || state.Components.Any(v => v != ComponentAvailability.Available))
                 errors.Add(ModelDiagnostic.Error("IncompleteState", node));
-            if (state == null || state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState)
-                errors.Add(ModelDiagnostic.Error("NonConcomitantState", node));
+            if (state == null || !state.Semantics.IsStructuralState())
+                errors.Add(ModelDiagnostic.Error(AnalysisSemanticsRules.NonStructuralCode(state?.Semantics), node));
             if (state != null && (state.IsCumulative == false || !string.IsNullOrEmpty(state.Phase) && state.IsCumulative != true))
                 errors.Add(ModelDiagnostic.Error("IncrementalOrUnknownPhaseState", node));
             if (state != null && (state.InputFingerprint != model.AnalysisFingerprint() || !ResultAlgebra.HasCurrentDerivation(model, node, state)))

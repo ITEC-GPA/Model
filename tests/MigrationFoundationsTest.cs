@@ -71,12 +71,19 @@ namespace UnitTest
         [TestMethod]
         public void MergeUsesRepresentativeDistanceAndIsIndependentOfEnumeration()
         {
-            var nodes = new[] { Node(0), Node(0.9), Node(1.8), Node(2.7) }; var owner = Guid.NewGuid();
-            var a = ModelAssembly.Assemble(nodes, owner, mergeToleranceMm: 1);
-            var b = ModelAssembly.Assemble(nodes.Reverse(), owner, mergeToleranceMm: 1);
-            Assert.AreEqual(a.AnalysisFingerprint(), b.AnalysisFingerprint());
-            foreach (var entry in a.AssemblyMap.Entries)
-                Assert.IsTrue(Axes.Length(nodes.Single(n => n.Guid == entry.InputGuid).Position - a.NodesElements[entry.ModelId].Position) <= 1);
+            // Review B9: fixed GUIDs, so the representative (minimum GUID) and the merged result are known instead of random.
+            foreach (var order in new[] { new[] { 1, 2, 3, 4 }, new[] { 2, 1, 4, 3 } })
+            {
+                var nodes = new[] { 0, 0.9, 1.8, 2.7 }.Select((x, i) => new NodeElement(new Guid(order[i], 0, 0, new byte[8]), new Point3d(x, 0, 0))).ToArray();
+                var owner = new Guid("22222222-2222-2222-2222-222222222222");
+                var a = ModelAssembly.Assemble(nodes, owner, mergeToleranceMm: 1);
+                var b = ModelAssembly.Assemble(nodes.Reverse(), owner, mergeToleranceMm: 1);
+                Assert.AreEqual(a.AnalysisFingerprint(), b.AnalysisFingerprint());
+                // Order 1: x=0 is the first representative, so 0.9 joins it and 2.7 joins 1.8. Order 2: 0.9 absorbs 0 and 1.8; 2.7 stays.
+                CollectionAssert.AreEqual(order[0] == 1 ? new[] { 0, 1.8 } : new[] { 0.9, 2.7 }, a.NodesElements.Values.Select(n => n.Position.X).OrderBy(x => x).ToArray());
+                foreach (var entry in a.AssemblyMap.Entries)
+                    Assert.IsTrue(Axes.Length(nodes.Single(n => n.Guid == entry.InputGuid).Position - a.NodesElements[entry.ModelId].Position) <= 1);
+            }
         }
 
         [TestMethod]
@@ -122,11 +129,16 @@ namespace UnitTest
             var p = new ConcretePlateProperty(new ConcreteMaterialEN1992("C25/30"), 100, 100, "plate");
             var first = Shell(a, b, c); first.PlateProperty = p;
             var second = Shell(b, d, c); second.PlateProperty = ModelValues.CopyValue(p);
-            a.Loads.Add(new PointLoad(1, 0, 0, 0, 0, 0, a.Position, new LoadCaseBase("G")));
-            b.Loads.Add(new PointLoad(2, 0, 0, 0, 0, 0, b.Position, new LoadCaseBase("G")));
+            // Review B6: homonymous cases merge only as copies of one entity (same GUID); two GUIDs are two cases.
+            var g = new LoadCaseBase("G");
+            a.Loads.Add(new PointLoad(1, 0, 0, 0, 0, 0, a.Position, g));
+            b.Loads.Add(new PointLoad(2, 0, 0, 0, 0, 0, b.Position, ModelValues.CopyValue(g)));
             var model = ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid());
             var values = model.AreaElements.Values.ToArray(); Assert.AreSame(values[0].PlateProperty, values[1].PlateProperty);
             foreach (var load in model.AllElements.SelectMany(e => e.Loads.Values)) Assert.AreSame(model.LoadCases["G"], load.LoadCase);
+            b.Loads.Values.Single().LoadCase = new LoadCaseBase("G");
+            Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid()));
+            b.Loads.Values.Single().LoadCase = ModelValues.CopyValue(g);
             second.PlateProperty = new ConcretePlateProperty(new ConcreteMaterialEN1992("C25/30"), 150, 150, "plate");
             Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid()));
         }
@@ -158,7 +170,9 @@ namespace UnitTest
             Assert.AreEqual(0, q.PlanarityDeviation); Assert.AreEqual(1.5, q.PointAt(0, 0).X, 1e-12);
             Assert.AreEqual(1, q.NormalAt(0, 0).Z, 1e-12); Axes.Validate(q.AxesAt(0.3, -0.2));
             Assert.AreEqual(-1, new ShellGeometry(rectangle.Reverse()).NormalAt(0, 0).Z, 1e-12);
-            rectangle[1].X = 100; Assert.AreEqual(12, q.Area, 1e-12);
+            // Review B9: q.Area is already cached here; a geometry never read before the edit proves the vertices are copied.
+            var detached = new ShellGeometry(rectangle); rectangle[1].X = 100;
+            Assert.AreEqual(12, detached.Area, 1e-12); Assert.AreEqual(3, detached.PointAt(1, -1).X, 1e-12); Assert.AreEqual(12, q.Area, 1e-12);
         }
 
         [TestMethod]

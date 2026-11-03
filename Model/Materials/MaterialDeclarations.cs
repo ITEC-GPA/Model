@@ -24,15 +24,17 @@ namespace GPC.Model.Materials
 
         public void Validate()
         {
-            if(schema!=1)throw new SerializationException("UnsupportedMaterialDeclarationsSchema");
+            Schema();
             foreach(var value in new[]{ExpectedYieldStress,ExpectedTensileStrength,ExpectedCompressiveStrength,
                 CompressiveYieldStrength,TensileYieldStrength,TensileUltimateStrength,ShearUltimateStrength})
                 if(value.HasValue&&(double.IsNaN(value.Value)||double.IsInfinity(value.Value)||value.Value<0))
                     throw new ArgumentException("InvalidDeclaredMaterialStrength");
             if(!Enum.IsDefined(typeof(AluminiumManufacturingForm),AluminiumForm))throw new ArgumentException("UnknownAluminiumManufacturingForm");
         }
-        [OnDeserialized] private void Read(StreamingContext _)=>Validate();
-        public override bool Equals(object obj)=>obj is MaterialDeclarations other&&Core.ModelValues.Fingerprint(new object[]{this})==Core.ModelValues.Fingerprint(new object[]{other});
-        public override int GetHashCode()=>23;
+        // Reading checks the schema only; the values are validated by the edit session and the material property constructors.
+        private void Schema(){if(schema!=1)throw new SerializationException("UnsupportedMaterialDeclarationsSchema");}
+        [OnDeserialized] private void Read(StreamingContext _)=>Schema();
+        public override bool Equals(object obj)=>obj is MaterialDeclarations other&&Core.ModelValues.ContentEquals(this,other);
+        public override int GetHashCode()=>Core.ModelValues.ContentHash(this);
     }
 }

@@ -13,6 +13,7 @@ namespace GPC.Model.ElementProperties
             if (property.PhysicalThickness.HasValue && (!(NumericGuard.Finite(property.PhysicalThickness.Value,"thickness")>0)))
                 throw new ArgumentException("InvalidPhysicalThickness");
             if (property is ElasticPlateProperty elastic) { elastic.Validate(); return; }
+            if (property is MembranePlateProperty membrane) { membrane.Validate(); return; }
             if (property is IFemPlateProperty fem && (!(NumericGuard.Finite(fem.BendingThickness,"bending thickness")>0)
                 || !(NumericGuard.Finite(fem.MembraneThickness,"membrane thickness")>0) || fem.Material==null)) throw new ArgumentException("InvalidShellFemProperty");
             if (property is ReinforcedConcretePlateSection concrete)

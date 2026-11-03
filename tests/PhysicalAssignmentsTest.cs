@@ -1,4 +1,5 @@
 using System;
+using GPC.Model.ElementProperties;
 using System.IO;
 using System.Linq;
 using GPC.Geometry;
@@ -47,7 +48,7 @@ namespace UnitTest
         }
         [TestMethod] public void MembraneStiffnessUsesWidthUnitsAndReciprocalPoissonCoefficients()
         {
-            var m=new MembraneMaterialData {MassPerArea=1.05e-9, StiffnessWarp=1000,StiffnessWeft=500,ShearStiffness=100,NuWarpWeft=0.2,StrengthWarp=80,StrengthWeft=60};
+            var m=new MembranePlateProperty("fabric") {MassPerArea=1.05e-9, StiffnessWarp=1000,StiffnessWeft=500,ShearStiffness=100,NuWarpWeft=0.2,StrengthWarp=80,StrengthWeft=60};
             var a=m.Stiffness(); Assert.AreEqual(1000/0.98,a[0],1e-10); Assert.AreEqual(500/0.98,a[4],1e-10);
             Assert.AreEqual(100/0.98,a[1],1e-10); Assert.AreEqual(a[1],a[3]); Assert.AreEqual(100,a[8]);
             m.ShearStiffness=null; m.Validate(); Assert.ThrowsException<InvalidOperationException>(()=>m.Stiffness());
@@ -55,9 +56,12 @@ namespace UnitTest
         }
         [TestMethod] public void PhysicalMembraneMaterialSurvivesArchiveWithoutInventedThickness()
         {
-            var m=Sample(); m.AreaElements.Values.Single().Assignments.Physical.Membrane=new MembraneMaterialData {Name="1050",MassPerArea=1.05e-9,StrengthWarp=80,StrengthWeft=60};
+            // Review B3: the fabric is a shared, registered plate property instead of per-element data.
+            var m=Sample(); var fabric=new MembranePlateProperty("1050") {MassPerArea=1.05e-9,StrengthWarp=80,StrengthWeft=60};
+            m.AreaElements.Values.Single().PlateProperty=fabric; m.AddProperty(fabric);
             using(var bytes=new MemoryStream()) { ModelArchive.SaveDocument(m,bytes); bytes.Position=0; var copy=ModelArchive.Load(bytes);
-                Assert.AreEqual(m.AnalysisFingerprint(),copy.AnalysisFingerprint()); Assert.IsNull(copy.AreaElements.Values.Single().Assignments.Physical.Membrane.StiffnessWarp); }
+                Assert.AreEqual(m.AnalysisFingerprint(),copy.AnalysisFingerprint()); Assert.IsNull(((MembranePlateProperty)copy.AreaElements.Values.Single().PlateProperty).StiffnessWarp);
+                Assert.AreSame(copy.PlateProperties["1050"],copy.AreaElements.Values.Single().PlateProperty); }
         }
         internal static Model Sample()
         {

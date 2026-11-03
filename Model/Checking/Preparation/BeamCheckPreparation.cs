@@ -43,8 +43,8 @@ namespace GPC.Model.Checking.Preparation
                 if (state == null || string.IsNullOrWhiteSpace(state.DatasetId) || string.IsNullOrWhiteSpace(state.ConcomitantStateId)
                     || sample.Case == null || state.Components == null || state.Components.Length != 6 || state.Components.Any(c => c != ComponentAvailability.Available))
                     errors.Add(ModelDiagnostic.Error("IncompleteState", b));
-                if (state == null || (state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState))
-                    errors.Add(ModelDiagnostic.Error("NonConcomitantState", b));
+                if (state == null || !state.Semantics.IsStructuralState())
+                    errors.Add(ModelDiagnostic.Error(AnalysisSemanticsRules.NonStructuralCode(state?.Semantics), b));
                 if (state != null && (state.IsCumulative == false || (!string.IsNullOrEmpty(state.Phase) && state.IsCumulative != true)))
                     errors.Add(ModelDiagnostic.Error("IncrementalOrUnknownPhaseState", b));
                 if (state != null && state.InputFingerprint != model.AnalysisFingerprint()) { errors.Add(ModelDiagnostic.Error("StaleAnalysis", b)); status = DataStatus.Stale; }

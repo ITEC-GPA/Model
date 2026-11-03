@@ -108,17 +108,17 @@ namespace GPC.Converter.Straus7
             }
             foreach(var shell in model.AreaElements.Values)
             {
+                if(!membranePropertiesPrepared&&shell.Loads.Values.Any(l=>l is GPC.Model.Loads.ShellFacePressure))throw new NotSupportedException("SurfacePressureRequiresFullModelLoadAssembly");
+                if(!membranePropertiesPrepared&&shell.PlateProperty is GPC.Model.ElementProperties.MembranePlateProperty)throw new NotSupportedException("StrausMembraneRequiresExplicitConstitutivePropertyWriter");
                 var p=shell.Assignments.Physical; if(p==null) continue; int n=Id(shell.Guid,EntityFamily.Shell);
-                if(p.SurfacePressures!=null&&!membranePropertiesPrepared)throw new NotSupportedException("SurfacePressureRequiresFullModelLoadAssembly");
                 if(p.LoadPatch!=null)
                 {
                     if(!(shell.PlateProperty is GPC.Model.ElementProperties.ElasticPlateProperty property)||property.Formulation!=GPC.Model.ElementProperties.ElasticPlateFormulation.LoadPatch)
                         throw new ArgumentException("LoadPatchDistributionRequiresLoadPatchProperty");
                     p.LoadPatch.Validate(shell.Nodes.Count);int kind=new[]{3,2,1,0,4,5}[(int)p.LoadPatch.Kind];
-                    int bits=p.LoadPatch.SelectedEdges.Aggregate(0,(value,e)=>value|(1<<(e-1)));var weights=(double[])p.LoadPatch.EdgeWeights.Clone();
+                    int bits=p.LoadPatch.Edges.Aggregate(0,(value,e)=>value|(1<<(e-1)));var weights=p.LoadPatch.EffectiveWeights;
                     distributionOps.Add(a=>a.SetLoadPatch(n,kind,bits,(double[])weights.Clone()));
                 }
-                if(p.Membrane!=null&&!membranePropertiesPrepared) throw new NotSupportedException("StrausMembraneRequiresExplicitConstitutivePropertyWriter");
                 foreach(var t in p.InitialStresses)
                 {
                     // GPC AreaElement here denotes a shell; z preload is supported by R3 only for plane strain/axisymmetric plates.

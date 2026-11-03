@@ -26,7 +26,7 @@ namespace GPC.Model.Core
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
-            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion",
+            "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion", "MembranePlatePropertyVersion",
         };
 
         private static void RegisterBuiltIns()
@@ -211,9 +211,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Taper>k__BackingField", "Taper", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
             Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
-                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<SurfacePressures>k__BackingField", "SurfacePressures", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<LoadPatch>k__BackingField", "LoadPatch", true),
-                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<NonStructuralMasses>k__BackingField", "NonStructuralMasses", false),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Supports>k__BackingField", "Supports", false));
@@ -228,12 +226,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<CompressionLimit>k__BackingField", "CompressionLimit", false),
                 Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<KeepMass>k__BackingField", "KeepMass", false));
             Register("GPC.Model.Structure.Assignments.SurfacePressureProjection", "GPC.Model.Structure.Assignments.SurfacePressureProjection", Field("GPC.Model.Structure.Assignments.SurfacePressureProjection", "value__", "value__", false));
-            Register("GPC.Model.Structure.Assignments.ShellSurfacePressure", "GPC.Model.Structure.Assignments.ShellSurfacePressure",
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Case>k__BackingField", "Case", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Face>k__BackingField", "Face", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<GlobalPressure>k__BackingField", "GlobalPressure", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<NormalPressure>k__BackingField", "NormalPressure", false),
-                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Projection>k__BackingField", "Projection", false));
             Register("GPC.Model.Structure.Assignments.TaperAlignment", "GPC.Model.Structure.Assignments.TaperAlignment", Field("GPC.Model.Structure.Assignments.TaperAlignment", "value__", "value__", false));
             Register("GPC.Model.Materials.OrthotropicElasticity", "GPC.Model.Materials.OrthotropicElasticity",
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<E1>k__BackingField", "E1", false),
@@ -245,15 +237,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu12>k__BackingField", "Nu12", false),
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu23>k__BackingField", "Nu23", false),
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu31>k__BackingField", "Nu31", false));
-            Register("GPC.Model.Materials.MembraneMaterialData", "GPC.Model.Materials.MembraneMaterialData",
-                Field("GPC.Model.Materials.MembraneMaterialData", "<Name>k__BackingField", "Name", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<MassPerArea>k__BackingField", "MassPerArea", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWarp>k__BackingField", "StiffnessWarp", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWeft>k__BackingField", "StiffnessWeft", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<ShearStiffness>k__BackingField", "ShearStiffness", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<NuWarpWeft>k__BackingField", "NuWarpWeft", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWarp>k__BackingField", "StrengthWarp", false),
-                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWeft>k__BackingField", "StrengthWeft", false));
             Register("GPC.Model.Analysis.FormFindingGoal", "GPC.Model.Analysis.FormFindingGoal",
                 Field("GPC.Model.Analysis.FormFindingGoal", "<ChordLengthMm>k__BackingField", "ChordLengthMm", true),
                 Field("GPC.Model.Analysis.FormFindingGoal", "<BeamGuid>k__BackingField", "BeamGuid", false),
@@ -473,7 +456,9 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Loads.Assignments.BeamLoadAssignment", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false));
             Register("GPC.Model.Structure.Members.BeamMemberPart", "GPC.Model.PostProcessing.BeamMemberPart",
                 Field("GPC.Model.Structure.Members.BeamMemberPart", "<AlongIJ>k__BackingField", "<AlongIJ>k__BackingField", false),
-                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false));
+                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false),
+                // Per-part bridge labels (review B4): absent on the historical parts, whose fingerprints are unchanged.
+                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BridgeMetadata>k__BackingField", "<BridgeMetadata>k__BackingField", true));
             Register("GPC.Model.Structure.Assignments.BeamSectionAssignment", "GPC.Model.PostProcessing.BeamSectionAssignment",
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<End>k__BackingField", "<End>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<EndSection>k__BackingField", "<EndSection>k__BackingField", false),

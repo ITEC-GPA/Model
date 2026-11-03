@@ -29,12 +29,18 @@ namespace GPC.Model.Models
             if (mergeToleranceMm.HasValue && NumericGuard.Finite(mergeToleranceMm.Value, nameof(mergeToleranceMm)) < 0) throw new ArgumentOutOfRangeException(nameof(mergeToleranceMm));
             var roots = (input ?? throw new ArgumentNullException(nameof(input))).ToArray();
             var originals = Gather(roots);
+            // Copies of one GUID must be the same entity, including the identities of the cases, properties and groups they cite,
+            // so the copy kept never depends on the input order (review B6). A single copy is never fingerprinted.
             var distinct = originals.GroupBy(e => e.Guid).Select(group =>
             {
-                var first = group.First(); var token = Content(first);
-                if (group.Any(e => e.GetType() != first.GetType() || e.Id != first.Id || Content(e) != token)) throw new ArgumentException("ConflictingEntityGuid: " + group.Key);
+                var items = group.ToArray(); var first = items[0];
+                if (items.Length == 1) return first;
+                string token = Content(first), references = References(first);
+                if (items.Skip(1).Any(e => e.GetType() != first.GetType() || e.Id != first.Id || References(e) != references || Content(e) != token))
+                    throw new ArgumentException("ConflictingEntityGuid: " + group.Key);
                 return first;
             }).OrderBy(e => e.Guid).ToArray();
+            var memo = new Dictionary<object, string>(ReferenceComparer<object>.Instance);
             var protectedNodes = new HashSet<Guid>(keepSeparate ?? Enumerable.Empty<Guid>());
             if (protectedNodes.Except(distinct.OfType<NodeElement>().Select(n => n.Guid)).Any()) throw new ArgumentException("UnknownKeepSeparateNode");
             var copies = ModelValues.CopyValue(distinct.Cast<object>().ToArray()).Cast<Element>().ToDictionary(e => e.Guid);
@@ -70,8 +76,8 @@ namespace GPC.Model.Models
                     if (restraint.Restrain == null || restraint.Restrain.Point == null || !ReferenceEquals(canonical[restraint.Restrain.Point.Guid], node))
                         throw new ArgumentException("RestraintNodeMismatch");
                     restraint.Restrain.Point = node;
-                    if (restraint.FreedomCase != null) restraint.FreedomCase = CanonicalFreedomCase(model, restraint.FreedomCase);
-                    if (restraint.Case != null) restraint.Case = CanonicalCase(model, restraint.Case as LoadCaseBase ?? throw new NotSupportedException("AssemblyRequiresLoadCaseBase"));
+                    if (restraint.FreedomCase != null) restraint.FreedomCase = CanonicalFreedomCase(model, restraint.FreedomCase, memo);
+                    if (restraint.Case != null) restraint.Case = CanonicalCase(model, restraint.Case as LoadCaseBase ?? throw new NotSupportedException("AssemblyRequiresLoadCaseBase"), memo);
                 }
             }
             next = 0;
@@ -81,16 +87,16 @@ namespace GPC.Model.Models
                 if (ReferenceEquals(a, b)) throw new ArgumentException("MergeCollapsedBeam");
                 beam.ConnectNodes(a, b); beam.Id = ++next;
                 if (orientations.TryGetValue(beam.Guid, out var orientation)) beam.Assignments.OrientationNodeId = orientation.Id;
-                beam.BeamProperty = (BeamProperty)CanonicalProperty(model, beam.BeamProperty);
+                beam.BeamProperty = (BeamProperty)CanonicalProperty(model, beam.BeamProperty, memo);
                 foreach (var section in beam.Assignments.Sections)
                 {
-                    section.Property = (BeamProperty)CanonicalProperty(model, section.Property);
-                    section.EndProperty = (BeamProperty)CanonicalProperty(model, section.EndProperty);
-                    foreach (var station in section.Stations) station.Property = (BeamProperty)CanonicalProperty(model, station.Property);
+                    section.Property = (BeamProperty)CanonicalProperty(model, section.Property, memo);
+                    section.EndProperty = (BeamProperty)CanonicalProperty(model, section.EndProperty, memo);
+                    foreach (var station in section.Stations) station.Property = (BeamProperty)CanonicalProperty(model, station.Property, memo);
                 }
                 foreach (var load in beam.Assignments.Loads)
                     foreach (Load value in new Load[] { load.Concentrated, load.StartIntensity, load.EndIntensity })
-                        if (value != null) value.LoadCase = CanonicalCase(model, value.LoadCase);
+                        if (value != null) value.LoadCase = CanonicalCase(model, value.LoadCase, memo);
                 model.BeamElements.Add(beam);
             }
             next = 0;
@@ -99,13 +105,13 @@ namespace GPC.Model.Models
                 var connected = shell.Nodes.Select(n => canonical[n.Guid]).ToArray();
                 if (connected.Select(n => n.Guid).Distinct().Count() != connected.Length) throw new ArgumentException("MergeCollapsedShell");
                 shell.ConnectNodes(connected); shell.Id = ++next;
-                shell.PlateProperty = (PlateProperty)CanonicalProperty(model, shell.PlateProperty); model.AreaElements.Add(shell);
+                shell.PlateProperty = (PlateProperty)CanonicalProperty(model, shell.PlateProperty, memo); model.AreaElements.Add(shell);
             }
             foreach (var element in model.AllElements)
-                foreach (var load in element.Loads.Values) load.LoadCase = CanonicalCase(model, load.LoadCase);
+                foreach (var load in element.Loads.Values) load.LoadCase = CanonicalCase(model, load.LoadCase, memo);
             foreach (var element in model.AllElements)
-                PhysicalAssignments.RebindCases(element, c => CanonicalCase(model, c), c => CanonicalFreedomCase(model, c));
-            RegisterGroups(model);
+                PhysicalAssignments.RebindCases(element, c => CanonicalCase(model, c, memo), c => CanonicalFreedomCase(model, c, memo));
+            RegisterGroups(model, memo);
             model.AssemblyMap = new AssemblyIdentityMap(modelGuid, mergeToleranceMm, distinct.Select(original =>
                 new AssemblyIdentityEntry(original, original is NodeElement ? canonical[original.Guid] : copies[original.Guid], Family(original))));
             var errors = model.ValidateTopology(supportsWarpedQuads, GeometryBase.Tolerance).Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
@@ -148,6 +154,25 @@ namespace GPC.Model.Models
             foreach (SerializationEntry entry in info) if (entry.Name != "Guid" && entry.Name != "Id") fields.Add(entry.Name, entry.Value);
             return ModelValues.Fingerprint(new object[] { fields });
         }
+        /// <summary>The GUIDs of the cases, freedom cases, properties and groups an element cites, in a fixed traversal order.</summary>
+        private static string References(Element element)
+        {
+            var ids = new List<Guid>();
+            void Add(ModelObject value) { if (value != null) ids.Add(value.Guid); }
+            foreach (var load in element.Loads.Values) Add(load.LoadCase);
+            foreach (var group in element.Groups.Values) Add(group);
+            PhysicalAssignments.RebindCases(element, c => { Add(c); return c; }, c => { Add(c); return c; });
+            if (element is NodeElement node)
+                foreach (var restraint in node.Assignments.Restrains) { Add(restraint?.FreedomCase); Add(restraint?.Case as ModelObject); }
+            else if (element is BeamElement beam)
+            {
+                Add(beam.BeamProperty);
+                foreach (var section in beam.Assignments.Sections) { Add(section.Property); Add(section.EndProperty); foreach (var station in section.Stations) Add(station.Property); }
+                foreach (var load in beam.Assignments.Loads) foreach (Load value in new Load[] { load.Concentrated, load.StartIntensity, load.EndIntensity }) Add(value?.LoadCase);
+            }
+            else if (element is AreaElement shell) Add(shell.PlateProperty);
+            return string.Join(",", ids);
+        }
         private static string MergeContent(NodeElement node) => ModelValues.Fingerprint(new object[] {
             node.Name, node.CoordinateSystem, node.Groups, node.Assignments.Dofs, node.Assignments.Active, node.Assignments.Mass,
             node.Assignments.GroundSprings, node.Assignments.Links, node.Assignments.Physical,
@@ -189,30 +214,42 @@ namespace GPC.Model.Models
             double x = Math.Abs(a.X - b.X) / tolerance, y = Math.Abs(a.Y - b.Y) / tolerance, z = Math.Abs(a.Z - b.Z) / tolerance;
             return x <= 1 && y <= 1 && z <= 1 && x * x + y * y + z * z <= 1;
         }
-        private static GPC.Model.FreedomCases.FreedomCase CanonicalFreedomCase(Model model, GPC.Model.FreedomCases.FreedomCase value)
+        // Same name, different GUID: two entities, never merged because their content is equal (review B6), as for groups.
+        private static GPC.Model.FreedomCases.FreedomCase CanonicalFreedomCase(Model model, GPC.Model.FreedomCases.FreedomCase value, Dictionary<object, string> memo)
         {
             if (value == null || string.IsNullOrWhiteSpace(value.Name)) throw new ArgumentException("MissingAssemblyFreedomCase");
             if (model.FreedomCases.TryGetValue(value.Name, out var previous))
-            { SameValue(previous, value, "FreedomCaseConflict"); return previous; }
+            { SameEntity(previous, value, "FreedomCaseIdentityConflict", "FreedomCaseConflict", memo); return previous; }
             model.FreedomCases.Add(value); return value;
         }
-        private static LoadCaseBase CanonicalCase(Model model, LoadCaseBase value)
+        private static LoadCaseBase CanonicalCase(Model model, LoadCaseBase value, Dictionary<object, string> memo)
         {
             if (value == null) throw new ArgumentException("MissingAssemblyLoadCase");
             if (model.LoadCases.TryGetValue(value.Name, out var previous))
-            { SameValue(previous, value, "LoadCaseConflict"); return previous; }
+            { SameEntity(previous, value, "LoadCaseIdentityConflict", "LoadCaseConflict", memo); return previous; }
             model.AddLoadCase(value); return value;
         }
-        private static ElementProperty CanonicalProperty(Model model, ElementProperty value)
+        private static ElementProperty CanonicalProperty(Model model, ElementProperty value, Dictionary<object, string> memo)
         {
             if (value == null) return null;
             ElementProperty previous = value is BeamProperty ? (ElementProperty)model.GetBeamProperty(value.Name) : model.GetPlateProperty(value.Name);
-            if (previous != null) { SameValue(previous, value, "PropertyConflict"); return previous; }
+            if (previous != null) { SameEntity(previous, value, "PropertyIdentityConflict", "PropertyConflict", memo); return previous; }
             if (!model.AddProperty(value)) throw new ArgumentException("UnsupportedAssemblyProperty"); return value;
         }
-        private static void SameValue(object a, object b, string code)
-        { if (!ReferenceEquals(a, b) && (a.GetType() != b.GetType() || ModelValues.Fingerprint(new[] { a }) != ModelValues.Fingerprint(new[] { b }))) throw new ArgumentException(code); }
-        private static void RegisterGroups(Model model)
+        private static void SameEntity(ModelObject previous, ModelObject value, string identityCode, string contentCode, Dictionary<object, string> memo)
+        {
+            if (ReferenceEquals(previous, value)) return;
+            if (previous.Guid != value.Guid) throw new ArgumentException(identityCode + ": " + value.Name);
+            SameValue(previous, value, contentCode, memo);
+        }
+        /// <summary>Content equality; each instance is fingerprinted once per assembly (memo local to the call, rule P3).</summary>
+        private static void SameValue(object a, object b, string code, Dictionary<object, string> memo)
+        {
+            if (ReferenceEquals(a, b)) return;
+            string Print(object value) { if (!memo.TryGetValue(value, out var print)) memo.Add(value, print = ModelValues.Fingerprint(new[] { value })); return print; }
+            if (a.GetType() != b.GetType() || Print(a) != Print(b)) throw new ArgumentException(code);
+        }
+        private static void RegisterGroups(Model model, Dictionary<object, string> memo)
         {
             var visited = new HashSet<Group>(ReferenceComparer<Group>.Instance); var stack = new Stack<Group>(model.AllElements.SelectMany(e => e.Groups.Values));
             while (stack.Count > 0)
@@ -220,7 +257,7 @@ namespace GPC.Model.Models
                 var group = stack.Pop(); if (group == null || group.Childs == null) throw new ArgumentException("InvalidAssemblyGroup");
                 if (!visited.Add(group)) continue;
                 if (model.Groups.TryGetValue(group.Name, out var previous))
-                { if (previous.Guid != group.Guid) throw new ArgumentException("GroupIdentityConflict: " + group.Name); SameValue(previous, group, "GroupContentConflict"); }
+                { if (previous.Guid != group.Guid) throw new ArgumentException("GroupIdentityConflict: " + group.Name); SameValue(previous, group, "GroupContentConflict", memo); }
                 else model.Groups.Add(group.Name, group);
                 if (group.Parent != null) stack.Push(group.Parent); foreach (var child in group.Childs) stack.Push(child);
             }

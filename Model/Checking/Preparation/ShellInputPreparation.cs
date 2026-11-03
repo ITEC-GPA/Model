@@ -107,7 +107,7 @@ namespace GPC.Model.Checking.Preparation
             if (state == null || string.IsNullOrEmpty(state.DatasetId) || !model.Datasets.TryGetValue(state.DatasetId, out var dataset)
                 || dataset.ModelRevision != state.ModelRevision || dataset.InputFingerprint != state.InputFingerprint || dataset.NormalizedUnits != "N,mm,rad") errors.Add(ModelDiagnostic.Error("DatasetMismatchOrUnknownUnits", shell));
             if (state != null && state.InputFingerprint != model.AnalysisFingerprint()) { errors.Add(ModelDiagnostic.Error("StaleAnalysis", shell)); status = DataStatus.Stale; }
-            if (state == null || (state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState)) errors.Add(ModelDiagnostic.Error("NonConcomitantState", shell));
+            if (state == null || !state.Semantics.IsStructuralState()) errors.Add(ModelDiagnostic.Error(AnalysisSemanticsRules.NonStructuralCode(state?.Semantics), shell));
             if (state != null && (state.IsCumulative == false || (!string.IsNullOrEmpty(state.Phase) && state.IsCumulative != true))) errors.Add(ModelDiagnostic.Error("IncrementalOrUnknownPhaseState", shell));
             if (sample != null && (sample.PointKind == ShellResultPointKind.Unknown || sample.PointKind == ShellResultPointKind.Averaged || sample.CoordinateKind == ResultCoordinateKind.Unknown
                 || sample.Location == null || double.IsNaN(sample.Location.X) || double.IsInfinity(sample.Location.X) || double.IsNaN(sample.Location.Y) || double.IsInfinity(sample.Location.Y))) errors.Add(ModelDiagnostic.Error("UnsupportedShellResultLocation", shell));

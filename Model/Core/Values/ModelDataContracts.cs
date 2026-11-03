@@ -25,6 +25,7 @@ namespace GPC.Model.Core
         internal static readonly Type[] Domain = new Type[]
         {
             typeof(global::GPC.Model.Structure.Bridges.BridgeDefinition),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeAlignmentTable),
             typeof(global::GPC.Model.Structure.Bridges.BridgeGeometry),
             typeof(global::GPC.Model.Structure.Bridges.BridgeAxisMember),
             typeof(global::GPC.Model.Structure.Bridges.BridgeSupportPoint),
@@ -32,7 +33,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Structure.Bridges.BridgeDeckMesh),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffLaw),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffFailure),
-            typeof(global::GPC.Model.Structure.Assignments.ShellSurfacePressure),
+            typeof(global::GPC.Model.Loads.ShellFacePressure),
             typeof(global::GPC.Model.Structure.Assignments.SurfacePressureProjection),
             typeof(global::GPC.Model.Structure.Bridges.BridgeSectionRule),
             typeof(global::GPC.Model.Structure.Bridges.BridgeFamilyProperty),
@@ -88,7 +89,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Structure.Assignments.ShellFace),
             typeof(global::GPC.Model.Structure.Assignments.TaperAlignment),
             typeof(global::GPC.Model.Materials.OrthotropicElasticity),
-            typeof(global::GPC.Model.Materials.MembraneMaterialData),
+            typeof(global::GPC.Model.ElementProperties.MembranePlateProperty),
             typeof(FormFindingGoal), typeof(FormFindingCoordinateGoal), typeof(FormFindingSurfaceMass), typeof(FormFindingDefinition), typeof(FormFindingMethod), typeof(FormFindingGoalKind), typeof(FabricDirection),
             typeof(AssemblyIdentityMap), typeof(AssemblyIdentityEntry), typeof(SolverIdentityMap), typeof(SolverIdentityEntry),
             typeof(BridgeMemberMetadata), typeof(BridgeMemberFamily),

@@ -91,7 +91,9 @@ namespace UnitTest
         [TestMethod] public void CoordinatePenaltiesAreNotSilentlyDiscardedByLinearMethod()
         {
             var model=Sample(); model.FormFinding.Method=FormFindingMethod.LinearForceDensity;
-            Assert.ThrowsException<ArgumentException>(()=>model.FormFinding.Validate(model));
+            // Review B7 (approved change): kept and reported as ignored, like legacy Arachne, instead of rejected.
+            model.FormFinding.Validate(model);
+            Assert.AreEqual("FormFindingCoordinateWeightsIgnored", model.FormFinding.IgnoredInputs().Single().Code);
         }
         [TestMethod] public void CurvatureGoalRequiresChordAndRoundTripsExtendedContract()
         {
@@ -107,7 +109,9 @@ namespace UnitTest
             Assert.ThrowsException<ArgumentException>(()=>m.FormFinding.Validate(m)); m.FormFinding.Goals.RemoveAt(1);
             m.FormFinding.CoordinateGoals.Clear(); m.FormFinding.Method=FormFindingMethod.LinearForceDensity;
             var goal=m.FormFinding.Goals[0]; goal.Kind=FormFindingGoalKind.Length; goal.Direction=FabricDirection.Unspecified; goal.Target=1000;
-            Assert.ThrowsException<ArgumentException>(()=>m.FormFinding.Validate(m));
+            // Review B7 (approved change): the linear method keeps the fixed length and ignores it with a warning, as legacy Arachne.
+            m.FormFinding.Validate(m); Assert.IsFalse(m.FormFinding.Uses(goal));
+            Assert.AreEqual("FormFindingFixedLengthIgnored", m.FormFinding.IgnoredInputs().Single().Code);
             m.FormFinding.Method=FormFindingMethod.SteppedLinearForceDensity; m.FormFinding.Validate(m);
             m.FormFinding.Method=FormFindingMethod.NonlinearForceDensity; m.FormFinding.Validate(m);
         }

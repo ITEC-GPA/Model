@@ -126,9 +126,7 @@ namespace GPC.Model.Structure.Assignments
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class ShellPhysicalData
     {
-        [field: OptionalField, DataMember(Order = 5, EmitDefaultValue = false)] public List<ShellSurfacePressure> SurfacePressures { get; set; }
         [field: OptionalField, DataMember(Order = 4, EmitDefaultValue = false)] public LoadPatchDistribution LoadPatch { get; set; }
-        [field: DataMember(Order = 3)] public Materials.MembraneMaterialData Membrane { get; set; }
         [field: DataMember(Order = 0)] public List<ShellInitialStress> InitialStresses { get; set; } = new List<ShellInitialStress>();
         [field: DataMember(Order = 1)] public List<ShellNonStructuralMass> NonStructuralMasses { get; set; } = new List<ShellNonStructuralMass>();
         [field: DataMember(Order = 2)] public List<ShellDistributedSupport> Supports { get; set; } = new List<ShellDistributedSupport>();
@@ -137,12 +135,13 @@ namespace GPC.Model.Structure.Assignments
     /// <summary>Shared validation and case rebinding for physical assignment graphs.</summary>
     public static class PhysicalAssignments
     {
-        public static bool UsesSurfacePressureContract(Models.Model model) => model.AreaElements.Values.Any(a=>a.Assignments.Physical?.SurfacePressures!=null);
+        /// <summary>Face pressures are element loads (<see cref="Loads.ShellFacePressure"/>, review B2); they need schema 9.</summary>
+        public static bool UsesSurfacePressureContract(Models.Model model) => model.AreaElements.Values.Any(a=>a.Loads.Values.Any(l=>l is Loads.ShellFacePressure));
         public static bool HasData(Models.Model model) => model.AllElements.Any(e => Data(e) != null);
         public static bool UsesExtendedExportContract(Models.Model model) =>
             model.NodesElements.Values.Any(n => n.Assignments.Restrains.Any(r => r.FreedomCase != null)) ||
             model.BeamElements.Values.Any(b => b.BeamProperty is ElementProperties.ElasticBeamProperty || b.Assignments.Physical?.StringGroup != null) ||
-            model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.Assignments.Physical?.LoadPatch != null);
+            model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.PlateProperty is ElementProperties.MembranePlateProperty || s.Assignments.Physical?.LoadPatch != null);
         internal static object Data(Element element) => element is NodeElement n ? (object)n.Assignments.Physical
             : element is BeamElement b ? (object)b.Assignments.Physical : element is AreaElement s ? s.Assignments.Physical : null;
 
@@ -162,7 +161,6 @@ namespace GPC.Model.Structure.Assignments
                 var p = area.Assignments.Physical;
                 foreach (var v in p.InitialStresses) v.Case = bind(v.Case);
                 foreach (var v in p.NonStructuralMasses) v.Case = bind(v.Case);
-                if(p.SurfacePressures!=null)foreach(var v in p.SurfacePressures)v.Case=bind(v.Case);
                 foreach (var v in p.Supports) if (v.FreedomCase != null) v.FreedomCase = bindFreedom(v.FreedomCase);
             }
         }
@@ -174,7 +172,7 @@ namespace GPC.Model.Structure.Assignments
             {
                 var values = Items(node.Assignments.Physical.Temperatures);
                 Unique(values.Select(v => Case(v.Case)));
-                foreach (var v in values) { Defined(v.Kind); Finite(v.Celsius); }
+                foreach (var v in values) { Defined(v.Kind); Finite(v.Celsius); if (v.Celsius < -273.15) throw new ArgumentException("TemperatureBelowAbsoluteZero"); }
             }
             if (element is BeamElement beam && beam.Assignments.Physical != null)
             {
@@ -186,7 +184,8 @@ namespace GPC.Model.Structure.Assignments
                 foreach (var v in p.InitialStates) { Defined(v.Kind); Finite(v.Value); }
                 foreach (var v in Items(p.Supports))
                 {
-                    Nonnegative(v.Stiffness); Finite(v.Gap); Defined(v.Behavior);
+                    // Review B9: a support has a stiffness, and the gap is a clearance in mm.
+                    Positive(v.Stiffness); Nonnegative(v.Gap); Defined(v.Behavior);
                     if (v.Behavior == DistributedSpringBehavior.Bilateral && v.Gap != 0) throw new ArgumentException("GapRequiresUnilateralSupport"); Vector(v.Direction);
                     if (Math.Abs(Axes.Length(v.Direction) - 1) > 1e-8) throw new ArgumentException("SupportDirectionMustBeUnit");
                     if (v.Axes != null) Axes.Validate(v.Axes);
@@ -203,13 +202,11 @@ namespace GPC.Model.Structure.Assignments
             {
                 var p = area.Assignments.Physical;
                 p.LoadPatch?.Validate(area.Nodes.Count);
-                p.Membrane?.Validate();
-                if(p.SurfacePressures!=null)foreach(var v in Items(p.SurfacePressures))v.Validate();
                 Unique(Items(p.InitialStresses).Select(v => Case(v.Case)));
                 foreach (var v in p.InitialStresses) Vector(v.Components);
                 Unique(Items(p.NonStructuralMasses).Select(v => Case(v.Case)));
                 foreach (var v in p.NonStructuralMasses) { Nonnegative(v.MassPerArea); Nonnegative(v.DynamicFactor); Vector(v.GlobalOffset); }
-                foreach (var v in Items(p.Supports)) { Nonnegative(v.Stiffness); Finite(v.Gap); Defined(v.Behavior);
+                foreach (var v in Items(p.Supports)) { Positive(v.Stiffness); Nonnegative(v.Gap); Defined(v.Behavior);
                     if (v.Behavior == DistributedSpringBehavior.Bilateral && v.Gap != 0) throw new ArgumentException("GapRequiresUnilateralSupport"); Defined(v.Face); }
             }
         }

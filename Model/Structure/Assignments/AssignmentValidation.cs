@@ -21,8 +21,21 @@ namespace GPC.Model.Structure.Assignments
         {
             var result = new List<ModelDiagnostic>();
             foreach (var element in model.AllElements)
+            {
                 try { PhysicalAssignments.Validate(element); }
                 catch (ArgumentException ex) { result.Add(ModelDiagnostic.Error("InvalidPhysicalAssignment", element, ex.Message)); }
+                if (element is AreaElement patch && patch.Assignments.Physical?.LoadPatch?.IgnoresWeights == true)
+                {
+                    var warning = ModelDiagnostic.Error("LoadPatchWeightsIgnored", element, "Edge weights are used only by the manual load-patch distribution.");
+                    warning.Severity = DiagnosticSeverity.Warning; result.Add(warning);
+                }
+                foreach (var pressure in element.Loads.Values.OfType<global::GPC.Model.Loads.ShellFacePressure>())
+                {
+                    if (!(element is AreaElement)) { result.Add(ModelDiagnostic.Error("ShellFacePressureRequiresShell", element)); continue; }
+                    try { pressure.Validate(); }
+                    catch (ArgumentException ex) { result.Add(ModelDiagnostic.Error("InvalidShellFacePressure", element, ex.Message)); }
+                }
+            }
             foreach (var node in model.NodesElements.Values)
             {
                 var data = node.Assignments;

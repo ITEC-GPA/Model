@@ -30,9 +30,9 @@ namespace GPC.Converter.Straus7
                 var global=new Dictionary<(int Case,int Face),(SurfacePressureProjection Projection,Vector3d Vector)>();
                 foreach(var p in existing)global.Add((p.Key,2),(SurfacePressureProjection.None,p.Value));
                 var normal=new Dictionary<int,double[]>();
-                foreach(var p in plate.Assignments.Physical?.SurfacePressures??Enumerable.Empty<ShellSurfacePressure>())
+                foreach(var p in plate.Loads.Values.OfType<GPC.Model.Loads.ShellFacePressure>())
                 {
-                    p.Validate();int lc=Load(p.Case),face=p.Face==ShellFace.PositiveNormal?2:1;
+                    p.Validate();int lc=Load(p.LoadCase),face=p.Face==ShellFace.PositiveNormal?2:1;
                     if(p.NormalPressure.HasValue)
                     {
                         if(!normal.TryGetValue(lc,out var v))normal.Add(lc,v=new double[2]);v[face-1]+=p.NormalPressure.Value;

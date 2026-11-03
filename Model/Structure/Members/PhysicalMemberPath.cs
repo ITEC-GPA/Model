@@ -50,6 +50,7 @@ namespace GPC.Model.Structure.Members
                 var end = geometry.PointAt(part.AlongIJ ? 1 : 0, definition.StationDomain);
                 if (last != null && Axes.Length(start - last) > connectivityToleranceMm) throw new ArgumentException("UnresolvedMemberReferenceGap");
                 double length = geometry.DomainLength(definition.StationDomain);
+                if (!(length > 0)) throw new ArgumentException("DegenerateMemberSegment"); // stations divide by the segment length (review B9)
                 result.Add(new Segment { BeamId = beam.Id, AlongIJ = part.AlongIJ, Start = start, End = end, Distance = Length, Length = length });
                 Length = NumericGuard.Finite(Length + length, "memberLength"); last = end; previous = endNode.Guid;
             }

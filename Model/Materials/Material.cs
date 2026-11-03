@@ -12,8 +12,23 @@ namespace GPC.Model.Materials
     [Serializable]
     public class Material : ModelObject, ISerializable
     {
-        /// <summary>Optional physical orthotropy. Consumers must use this tensor explicitly, never the scalar isotropic modulus.</summary>
-        public OrthotropicElasticity Orthotropy { get; set; }
+        private OrthotropicElasticity _orthotropy;
+        /// <summary>Optional physical orthotropy. Consumers must use this tensor explicitly, never the scalar isotropic modulus;
+        /// check <see cref="IsOrthotropic"/> before reading <see cref="E"/> or <see cref="GetShearModule"/>, which throw for it. Only the
+        /// generic analysis <see cref="Material"/> can be orthotropic (review B5): the typed design materials (steel, concrete, ...)
+        /// read by the checkers keep a scalar modulus, so their consumers never meet an orthotropic tensor.</summary>
+        /// <exception cref="NotSupportedException">Orthotropy set on a typed design material</exception>
+        public OrthotropicElasticity Orthotropy
+        {
+            get => _orthotropy;
+            set
+            {
+                if (value != null && GetType() != typeof(Material)) throw new NotSupportedException("OrthotropyRequiresGenericElasticMaterial: " + GetType().Name);
+                _orthotropy = value;
+            }
+        }
+        /// <summary>True when <see cref="Orthotropy"/> is set: <see cref="E"/> and <see cref="GetShearModule"/> are then undefined.</summary>
+        public bool IsOrthotropic => _orthotropy != null;
         public MaterialAnalysisData AnalysisData { get; set; }
         public MaterialDeclarations Declarations { get; set; }
 
@@ -369,16 +384,14 @@ namespace GPC.Model.Materials
         protected Material(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            Orthotropy = SerializationFields.Read<OrthotropicElasticity>(info, "Orthotropy");
+            _orthotropy = SerializationFields.Read<OrthotropicElasticity>(info, "Orthotropy"); // Read as written: no domain check on read (B1).
             AnalysisData = SerializationFields.Read<MaterialAnalysisData>(info, "AnalysisData");
             Declarations = SerializationFields.Read<MaterialDeclarations>(info, "Declarations");
             double version = SerializationVersions.Read(info, "MaterialVersion", Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6, 1);
+            // Schema checks only: the values are validated by the property constructors and ModelEditSession.Validate (B1).
             if(Declarations!=null&&version<8)throw new SerializationException("MaterialDeclarationsSchemaMismatch");
-            Declarations?.Validate();
             if(AnalysisData!=null&&version<7)throw new SerializationException("MaterialAnalysisSchemaMismatch");
-            AnalysisData?.Validate();
             if (Orthotropy != null && version < 6) throw new SerializationException("OrthotropicMaterialSchemaMismatch");
-            Orthotropy?.Validate();
 
             if (version >= 2)
             {
@@ -536,9 +549,6 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            Orthotropy?.Validate();
-            AnalysisData?.Validate();
-            Declarations?.Validate();
             double version = Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6;
             if(Declarations!=null)info.AddValue("Declarations",Declarations);
             if(AnalysisData!=null)info.AddValue("AnalysisData",AnalysisData);

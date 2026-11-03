@@ -123,5 +123,21 @@ namespace GPC.Model.Core
             return copy;
         }
         public static string Fingerprint(IEnumerable<object> input) => InputFingerprint.Compute(input);
+        /// <summary>Content equality of two registered values through their fingerprints. Never throws: a value whose fingerprint
+        /// cannot be computed (incomplete or unregistered content) is equal only to itself.</summary>
+        internal static bool ContentEquals(object value, object other)
+        {
+            if (ReferenceEquals(value, other)) return true;
+            if (value == null || other == null) return false;
+            try { return Fingerprint(new[] { value }) == Fingerprint(new[] { other }); }
+            catch (Exception) { return false; }
+        }
+        /// <summary>Hash consistent with <see cref="ContentEquals"/>; never throws.</summary>
+        internal static int ContentHash(object value)
+        {
+            if (value == null) return 0;
+            try { return StringComparer.Ordinal.GetHashCode(Fingerprint(new[] { value })); }
+            catch (Exception) { return 23; }
+        }
     }
 }

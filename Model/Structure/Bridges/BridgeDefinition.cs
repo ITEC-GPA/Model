@@ -21,11 +21,17 @@ namespace GPC.Model.Structure.Bridges
         [field:DataMember(Order=6)] public BridgeFabricationPlan Fabrication {get;set;}
         [field:DataMember(Order=7)] public BridgeDiaphragmLayout Diaphragms {get;set;}=new BridgeDiaphragmLayout();
         [field:DataMember(Order=8)] public BridgeMeshSettings Mesh {get;set;}=new BridgeMeshSettings();
+        /// <summary>Alternative to <see cref="Alignment"/> for a host curve that Curve3d cannot represent (e.g. a Rhino NURBS):
+        /// exactly one of the two is set. Null keeps the historical archive text and fingerprint (review B4).</summary>
+        [field:OptionalField][field:DataMember(Order=9,EmitDefaultValue=false)] public BridgeAlignmentTable AlignmentTable {get;set;}
+        /// <summary>The alignment length in mm: the host curve length of the table, or the length of the Geometry curve.</summary>
+        public double AlignmentLength => AlignmentTable != null ? AlignmentTable.Length : Alignment.Length;
         public void Validate()
         {
             if(schema!=1)throw new SerializationException("UnsupportedBridgeDefinitionSchema");
-            if(Id==Guid.Empty||Alignment==null||Alignment.IsClosed)throw new ArgumentException("InvalidBridgeAlignmentIdentity");
-            double length=Alignment.Length;BridgeDimensions.Positive(length);
+            if(Id==Guid.Empty||(Alignment==null)==(AlignmentTable==null)||Alignment!=null&&Alignment.IsClosed)throw new ArgumentException("InvalidBridgeAlignmentIdentity");
+            AlignmentTable?.Validate();
+            double length=AlignmentLength;BridgeDimensions.Positive(length);
             if(Supports==null||Girders==null||Deck==null||Fabrication==null||Diaphragms==null||Mesh==null)throw new ArgumentException("MissingBridgeDefinitionPart");
             BridgeDimensions.Stations(Supports.Stations,length,2);BridgeDimensions.Expand(Supports.SkewRadians,Supports.Stations.Length);
             if(Supports.SkewRadians.Any(s=>Math.Abs(s)>=Math.PI/2))throw new ArgumentException("TransverseSupportDirectionRequired");

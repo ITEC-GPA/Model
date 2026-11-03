@@ -89,8 +89,8 @@ namespace GPC.Model.Checking.Preparation
                 diagnostics.Add(ModelDiagnostic.Error("DatasetMismatchOrUnknownUnits", beam));
             if (state == null || string.IsNullOrWhiteSpace(state.ConcomitantStateId) || sample.Case == null || state.Components == null || state.Components.Length != 6 || state.Components.Any(v => v != ComponentAvailability.Available))
                 diagnostics.Add(ModelDiagnostic.Error("IncompleteState", beam));
-            if (state == null || (state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState))
-                diagnostics.Add(ModelDiagnostic.Error("NonConcomitantState", beam));
+            if (state == null || !state.Semantics.IsStructuralState())
+                diagnostics.Add(ModelDiagnostic.Error(AnalysisSemanticsRules.NonStructuralCode(state?.Semantics), beam));
             if (state != null && (state.IsCumulative == false || (!string.IsNullOrEmpty(state.Phase) && state.IsCumulative != true)))
                 diagnostics.Add(ModelDiagnostic.Error("IncrementalOrUnknownPhaseState", beam));
             if (state != null && (state.InputFingerprint != model.AnalysisFingerprint() || !ResultAlgebra.HasCurrentDerivation(model, beam, state)))
