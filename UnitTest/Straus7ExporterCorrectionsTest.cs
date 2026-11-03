@@ -535,3 +535,49 @@ public class Straus7PropertySharingTest
         Assert.AreEqual(k * (s * s / section.J22 + c * c / section.J11), reader.ReadNodeResult(tip, 1, false).Values[2], 1e-6 * Math.Abs(k / section.J11));
     }
 }
+
+[TestClass]
+public class MovingPathOptionsContractTest
+{
+    public interface IRecordedMovingWriter : IStraus7MovingWriteApi, IStraus7AdvancedMovingWriteApi { }
+    private static Straus7MovingPathOptions Legacy() => new Straus7MovingPathOptions {
+        Colour = 0x00ff00, TransitionTrailingLoad = true, BeamLateralTolerance = true, RelativeTolerance = .05, ConvertToStaticCases = true };
+
+    [TestMethod]
+    public void B4_LoadApplicationControlsAndDisplayDataSurviveTheArchive()
+    {
+        var model = MovingLoadContractsTest.Sample(); var path = model.MovingLoads.Paths.Single(); string before = model.AnalysisFingerprint();
+        Legacy().Store(model, path.Id);
+        Assert.AreNotEqual(before, model.AnalysisFingerprint(), "the controls change the applied loads");
+        Model reopened; using (var stream = new MemoryStream()) { GPC.Model.Persistence.ModelArchive.SaveDocument(model, stream); stream.Position = 0; reopened = GPC.Model.Persistence.ModelArchive.Load(stream); }
+        Assert.AreEqual(model.AnalysisFingerprint(), reopened.AnalysisFingerprint());
+        var options = reopened.MovingLoads.Paths.Single().Options;
+        Assert.IsTrue(options.TransitionTrailingLoad); Assert.IsTrue(options.BeamLateralTolerance); Assert.AreEqual(.05, options.RelativeTolerance); Assert.IsTrue(options.ConvertToStaticCases);
+        Assert.AreEqual("65280", reopened.PreservedSourceData.Single(p => p.SourceRecord == Straus7MovingPathOptions.ColourRecord + path.Id.ToString("D")).RawData);
+        var copy = GPC.Model.Core.ModelValues.Copy(reopened); Assert.AreEqual(.05, copy.MovingLoads.Paths.Single().Options.RelativeTolerance);
+        copy.MovingLoads.Paths.Single().Options.RelativeTolerance = .02; Assert.AreEqual(.05, reopened.MovingLoads.Paths.Single().Options.RelativeTolerance);
+        Assert.AreNotEqual(reopened.AnalysisFingerprint(), copy.AnalysisFingerprint());
+
+        // The writer reads the persisted controls and colour without explicit options.
+        var api = System.Reflection.DispatchProxy.Create<IRecordedMovingWriter, Straus7ExporterCorrectionsTest.Recorder>(); var log = (Straus7ExporterCorrectionsTest.Recorder)(object)api;
+        var cases = reopened.LoadCases.Values.Select((c, i) => (c.Guid, i + 1)).ToDictionary(p => p.Guid, p => p.Item2);
+        Straus7MovingWritePlan.Prepare(reopened, cases).Write(api, reopened);
+        var template = log.Named(nameof(IStraus7MovingWriteApi.CreateMovingTemplate)).Single();
+        var flags = (int[])template.Args[2]!; var values = (double[])template.Args[3]!;
+        Assert.AreEqual(0x00ff00, flags[0]); Assert.AreEqual(1, flags[3]); Assert.AreEqual(1, flags[4]); Assert.AreEqual(.05, values[0]);
+        Assert.AreEqual(true, log.Named(nameof(IStraus7MovingWriteApi.SetMovingPath)).Single().Args[3]);
+    }
+
+    [TestMethod]
+    public void B4_ExplicitOptionsMustAgreeWithThePersistedControlsAndLegacySetsNeedASelection()
+    {
+        var model = MovingLoadContractsTest.Sample(); var path = model.MovingLoads.Paths.Single(); Legacy().Store(model, path.Id);
+        var cases = model.LoadCases.Values.Select((c, i) => (c.Guid, i + 1)).ToDictionary(p => p.Guid, p => p.Item2);
+        var other = Legacy(); other.RelativeTolerance = .02;
+        StringAssert.Contains(Assert.ThrowsException<ArgumentException>(() => Straus7MovingWritePlan.Prepare(model, cases, new Dictionary<Guid, Straus7MovingPathOptions> { { path.Id, other } })).Message,
+            "MovingPathOptionsConflictWithModel");
+        var colour = Legacy(); colour.Colour = 1; Straus7MovingWritePlan.Prepare(model, cases, new Dictionary<Guid, Straus7MovingPathOptions> { { path.Id, colour } });
+        var legacySet = Legacy(); legacySet.EntitySetId = 3; legacySet.Store(model, path.Id);
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => Straus7MovingWritePlan.Prepare(model, cases)).Message, "LegacyMovingEntitySetRequiresTargetSelection");
+    }
+}

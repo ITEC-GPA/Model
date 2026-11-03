@@ -40,7 +40,7 @@ namespace GPC.Converter.Straus7
 
         private Straus7ModelWritePlan(Builder builder, IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions)
         {
-            StaticMovingParentCases=builder.Model.MovingLoads?.Paths.Where(p=>movingOptions!=null&&movingOptions.TryGetValue(p.Id,out var o)&&o.ConvertToStaticCases).Select(p=>p.CaseGuid).Distinct().ToArray()??Array.Empty<Guid>();
+            StaticMovingParentCases=builder.Model.MovingLoads?.Paths.Where(p=>Straus7MovingPathOptions.Effective(builder.Model,p,movingOptions).ConvertToStaticCases).Select(p=>p.CaseGuid).Distinct().ToArray()??Array.Empty<Guid>();
             IdentityMap=SolverIdentityMap.Create(builder.Model,"Straus7-R3",builder.Entities);
             LoadCaseIds=new ReadOnlyDictionary<Guid,int>(builder.Loads);
             FreedomCaseIds=new ReadOnlyDictionary<Guid,int>(builder.Freedoms);
@@ -78,7 +78,7 @@ namespace GPC.Converter.Straus7
             IReadOnlyDictionary<Guid,Straus7SectionDefinition> nativeSections)
         {
             if(model==null)throw new ArgumentNullException(nameof(model));
-            if(model.Stages.Count!=0 && movingOptions!=null && movingOptions.Values.Any(o=>o!=null&&o.ConvertToStaticCases))
+            if(model.Stages.Count!=0 && model.MovingLoads!=null && model.MovingLoads.Paths.Any(p=>Straus7MovingPathOptions.Effective(model,p,movingOptions)?.ConvertToStaticCases==true))
                 throw new NotSupportedException("GeneratedMovingCasesNeedExplicitStageFactors");
             var builder=new Builder(model,beamIntegrationSlices,nativeSections);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
         }
@@ -131,7 +131,7 @@ namespace GPC.Converter.Straus7
             {
                 foreach(var item in Model.PreservedSourceData)
                 {
-                    var prefixes=new[]{"ResultFile/","ResultUnits/","ResultCases/","ResultValidation/","ExportIdentityMap/","GeneratedMovingCases/","GeneratedMovingCaseParents/","NativeSectionDefinitions/","SectionExportConfiguration/"};
+                    var prefixes=new[]{"ResultFile/","ResultUnits/","ResultCases/","ResultValidation/","ExportIdentityMap/","GeneratedMovingCases/","GeneratedMovingCaseParents/","NativeSectionDefinitions/","SectionExportConfiguration/",Straus7MovingPathOptions.ColourRecord,Straus7MovingPathOptions.EntitySetRecord};
                     if(item==null||item.Kind!="Straus7 API"||item.SourceRecord==null||!prefixes.Any(p=>item.SourceRecord.StartsWith(p,StringComparison.Ordinal)))
                         throw new NotSupportedException("UnmappedPreservedModelInput: "+item?.Kind+"/"+item?.SourceRecord+"; "+item?.UnsupportedReason);
                 }
