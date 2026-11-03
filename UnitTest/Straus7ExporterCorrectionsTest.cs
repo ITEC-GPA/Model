@@ -488,3 +488,50 @@ public class Straus7NativeCoverageTest
         Assert.AreEqual(1e6, root.M1, 1e-3); Assert.AreEqual(-1000, root.V2, 1e-6); Assert.AreEqual(0, root.M2, 1e-6);
     }
 }
+
+[TestClass]
+public class Straus7PropertySharingTest
+{
+    private static Model TwoBeams(BeamProperty first, BeamProperty second)
+    {
+        var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(500, 0, 0)), new NodeElement(new Point3d(1000, 0, 0)) };
+        nodes[0].Assignments.Restrains.Add(new RestrainAssignment { Restrain = new NodeRestrain(nodes[0], Enumerable.Range(0, 6).Select(i => new DofRestrain((GeometryRestrain.DOF)i, true)).ToList()) });
+        var beams = new[] { (nodes[0], nodes[1], first), (nodes[1], nodes[2], second) }.Select(p =>
+        {
+            var beam = new BeamElement(p.Item1.Position, p.Item2.Position, p.Item3); beam.ConnectNodes(p.Item1, p.Item2);
+            beam.Assignments.Formulation = BeamFormulation.StraightTwoNode;
+            beam.Assignments.SectionAxes = new CoordinateSystem(p.Item1.Position, new Vector3d(0, 1, 0), new Vector3d(0, 0, 1)); return (Element)beam;
+        }).ToArray();
+        nodes[2].Loads.Add(new GPC.Model.Loads.PointLoad(0, 0, -1000, 0, 0, 0, nodes[2].Position, new GPC.Model.LoadCases.LoadCaseBase("P")));
+        return ModelAssembly.Assemble(beams, Guid.NewGuid());
+    }
+    private static ElasticBeamProperty Rotated(string name) => new ElasticBeamProperty(name, new Material("S355 steel", 210000, .3, 7.85e-9, 0), new SectionRectangular(200, 100, .2));
+
+    [TestMethod]
+    public void C5_EquivalentBeamsShareOnePropertyAndItsBxs()
+    {
+        var property = Rotated("girder"); var log = Straus7ExporterCorrectionsTest.Record(TwoBeams(property, property));
+        var created = log.Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)); Assert.AreEqual(1, created.Length); Assert.AreEqual("girder", created[0].Args[1]);
+        Assert.AreEqual(1, log.Named(nameof(IStraus7SectionMeshWriteApi.SetBeamSectionMesh)).Length);
+        CollectionAssert.AreEqual(new[] { 1, 1 }, log.Named(nameof(IStraus7ModelWriteApi.SetElement)).Select(c => (int)c.Args[2]!).ToArray());
+        Assert.AreEqual("S355 steel", log.Named(nameof(IStraus7ModelWriteApi.SetBeamMaterialName)).Single().Args[1]);
+        // Equal values in distinct instances are shared too; a different property is not.
+        Assert.AreEqual(1, Straus7ExporterCorrectionsTest.Record(TwoBeams(Rotated("girder"), Rotated("girder"))).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Length);
+        var different = Straus7ExporterCorrectionsTest.Record(TwoBeams(Rotated("girder"), Rotated("cross girder")));
+        CollectionAssert.AreEqual(new[] { 1, 2 }, different.Named(nameof(IStraus7ModelWriteApi.SetElement)).Select(c => (int)c.Args[2]!).ToArray());
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C5_NativeSharedPropertyKeepsNamesAndResults()
+    {
+        var property = Rotated("girder"); var model = TwoBeams(property, property); string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "shared.st7"), folder);
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder);
+        var first = reader.ReadElement(Straus7Entity.Beam, 1); var second = reader.ReadElement(Straus7Entity.Beam, 2);
+        Assert.AreEqual(1, first.Property); Assert.AreEqual(1, second.Property);
+        var native = reader.ReadProperty(Straus7Entity.Beam, 1); Assert.AreEqual("girder", native.Name); Assert.AreEqual("S355 steel", native.MaterialName);
+        reader.OpenResults(run.ResultPath); int tip = model.NodesElements.Values.Single(n => n.Position.X == 1000).Id;
+        var section = (SectionRectangular)property.Section; double k = -1000 * Math.Pow(1000, 3) / (3 * 210000), c = Math.Cos(.2), s = Math.Sin(.2);
+        Assert.AreEqual(k * (s * s / section.J22 + c * c / section.J11), reader.ReadNodeResult(tip, 1, false).Values[2], 1e-6 * Math.Abs(k / section.J11));
+    }
+}

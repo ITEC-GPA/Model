@@ -119,40 +119,51 @@ namespace GPC.Converter.Straus7
                 var axes=input.SectionAxes;var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
                 if(!(length>1e-9)||Math.Abs(Axes.Dot(tangent/length,axes.V3)-1)>1e-8)throw new ArgumentException("InconsistentStrausBeamAxes");
                 var nodes=new[]{Entities[beam.NodeI.Guid],Entities[beam.NodeJ.Guid]};
-                var property=BeamPropertyData(beam);string name=string.IsNullOrWhiteSpace(beam.Name)?"Beam "+id:beam.Name;
+                var property=BeamPropertyData(beam);
                 // Native beam axes are principal axes: the section frame rotated by the principal angle about the beam axis (C5).
                 var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=!ReferenceEquals(principal,axes);
                 var taper=input.Physical?.Taper;bool uniformTaper=taper==null||taper.ScaleI1==taper.ScaleI2&&taper.ScaleJ1==taper.ScaleJ2&&taper.Alignment1==TaperAlignment.Symmetric&&taper.Alignment2==TaperAlignment.Symmetric;
                 // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame.
                 if(rotated&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
                     throw new NotSupportedException("PrincipalAngleWithTaperGradientOrSupportRequiresExplicitAxisConvention");
-                Operations.Add(a=>a.CreateBeamProperty(id,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
                 var cutoff=(beam.BeamProperty as ElasticBeamProperty)?.CutoffLaw;
                 if((cutoff!=null)!=(formulation==4)||cutoff!=null&&input.AnalysisProfile!=null)throw new ArgumentException("CutoffLawRequiresCutoffBarFormulationAndExplicitSection");
-                if(cutoff!=null)
-                {
-                    cutoff.Validate();RequiresMaterialApi=true;int failure=(int)cutoff.Failure;bool keep=cutoff.KeepMass;double tension=cutoff.TensionLimit,compression=cutoff.CompressionLimit;
-                    Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetCutoffLaw(id,failure,keep,tension,compression));
-                }
+                cutoff?.Validate();
                 if(NativeSections.TryGetValue(beam.Guid,out var nativeSection))
                 {
                     if(input.AnalysisProfile!=null)throw new NotSupportedException("NativeSectionRequiresPhysicalBeamProperty");
                     var reference=nativeSection.ReferenceProperties;
                     for(int k=0;k<11;k++)if(Math.Abs(reference[k]-property.Section[k])>1e-8*Math.Max(1,Math.Abs(reference[k])))
                         throw new ArgumentException("NativeSectionPhysicalPropertiesMismatch: slot "+k);
-                    Operations.Add(a=>((IStraus7NativeSectionWriteApi)a).SetNativeSection(id,nativeSection,(double[])property.Section.Clone()));
                 }
-                else if(input.AnalysisProfile==null) BeamSectionGeometry(beam,id,property.Section);
-                else if(input.Physical?.Taper!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
-                if(beamIntegrationSlices.TryGetValue(beam.Guid,out int slices))
-                {
-                    RequiresSectionGeometryApi=true;
-                    Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamIntegrationSlices(id,slices,(double[])property.Section.Clone()));
-                }
+                else if(input.AnalysisProfile!=null&&input.Physical?.Taper!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
+                bool sliced=beamIntegrationSlices.TryGetValue(beam.Guid,out int slices);
                 var beamMaterial=(beam.BeamProperty as ElasticBeamProperty)?.Material??(beam.BeamProperty as SteelSection)?.SteelMaterial;
                 if(cutoff!=null&&beamMaterial?.AnalysisData?.StressStrainPairs!=null)throw new NotSupportedException("CutoffLawCannotBeCombinedWithMaterialStressStrainLaw");
-                if(input.AnalysisProfile==null)MaterialLaw(id,1,beamMaterial);
-                Operations.Add(a=>a.SetElement(1,id,id,(int[])nodes.Clone()));Group(beam,1);Operations.Add(a=>a.SetBeamAxes(id,(double[])axesData.Clone()));
+                // Equivalent beams share one native property, BXS and material law, named after the GPC property and material (C5).
+                string key=PropertyKey(beam,formulation,property,nativeSection,sliced?slices:0);
+                if(!beamProperties.TryGetValue(key,out int pid))
+                {
+                    pid=beamProperties.Count+1;beamProperties.Add(key,pid);
+                    string name=string.IsNullOrWhiteSpace(beam.BeamProperty?.Name)?"Beam property "+pid:beam.BeamProperty.Name;
+                    Operations.Add(a=>a.CreateBeamProperty(pid,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
+                    string materialName=input.AnalysisProfile==null?beamMaterial?.Name:null;
+                    if(!string.IsNullOrWhiteSpace(materialName))Operations.Add(a=>a.SetBeamMaterialName(pid,materialName));
+                    if(cutoff!=null)
+                    {
+                        RequiresMaterialApi=true;int failure=(int)cutoff.Failure;bool keep=cutoff.KeepMass;double tension=cutoff.TensionLimit,compression=cutoff.CompressionLimit;
+                        Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetCutoffLaw(pid,failure,keep,tension,compression));
+                    }
+                    if(nativeSection!=null)Operations.Add(a=>((IStraus7NativeSectionWriteApi)a).SetNativeSection(pid,nativeSection,(double[])property.Section.Clone()));
+                    else if(input.AnalysisProfile==null)BeamSectionGeometry(beam,pid,property.Section);
+                    if(sliced)
+                    {
+                        RequiresSectionGeometryApi=true;
+                        Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamIntegrationSlices(pid,slices,(double[])property.Section.Clone()));
+                    }
+                    if(input.AnalysisProfile==null)MaterialLaw(pid,1,beamMaterial);
+                }
+                Operations.Add(a=>a.SetElement(1,id,pid,(int[])nodes.Clone()));Group(beam,1);Operations.Add(a=>a.SetBeamAxes(id,(double[])axesData.Clone()));
                 var offsetI=Global(input.OffsetI,input.OffsetAxes??axes);var offsetJ=Global(input.OffsetJ,input.OffsetAxes??axes);
                 if(Axes.Length(offsetI-offsetJ)>1e-8)throw new NotSupportedException("UnequalBeamOffsetsRequireRigidEndLinks");
                 double axial=Axes.Dot(offsetI,axes.V3);if(Math.Abs(axial)>1e-8)throw new NotSupportedException("AxialBeamOffsetRequiresRigidEndLinks");
@@ -276,13 +287,33 @@ namespace GPC.Converter.Straus7
                 Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
             }
 
-            /// <summary>Shear areas per section instance of this export only (no static cache).</summary>
-            private readonly Dictionary<ISectionShape,Dictionary<double,(double Area1,double Area2)>> shearAreas=new Dictionary<ISectionShape,Dictionary<double,(double Area1,double Area2)>>(ReferenceComparer.Instance);
-            private sealed class ReferenceComparer : IEqualityComparer<ISectionShape>
+            // Caches of this export only (no static cache): fingerprints per object instance, shear areas per section value and ν,
+            // native beam property per equivalent property data.
+            private readonly Dictionary<object,string> fingerprints=new Dictionary<object,string>(ReferenceComparer.Instance);
+            private readonly Dictionary<string,(double Area1,double Area2)> shearAreas=new Dictionary<string,(double Area1,double Area2)>(StringComparer.Ordinal);
+            private readonly Dictionary<string,int> beamProperties=new Dictionary<string,int>(StringComparer.Ordinal);
+            private sealed class ReferenceComparer : IEqualityComparer<object>
             {
                 internal static readonly ReferenceComparer Instance=new ReferenceComparer();
-                public bool Equals(ISectionShape x,ISectionShape y)=>ReferenceEquals(x,y);
-                public int GetHashCode(ISectionShape value)=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value);
+                public new bool Equals(object x,object y)=>ReferenceEquals(x,y);
+                public int GetHashCode(object value)=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value);
+            }
+            private string FingerprintOf(object value)
+            {
+                if(value==null)return "";
+                if(!fingerprints.TryGetValue(value,out var fingerprint))fingerprints.Add(value,fingerprint=ModelValues.Fingerprint(new object[]{value}));
+                return fingerprint;
+            }
+            private static string Doubles(double[] values)=>string.Join(",",values.Select(v=>v.ToString("R",System.Globalization.CultureInfo.InvariantCulture)));
+            /// <summary>Beams with equal native property data share one native property and its BXS (legacy: one property per BridGHe
+            /// property). The key holds every input of the property-level operations; tapered beams keep their own property so the
+            /// dimensional-geometry check runs for them.</summary>
+            private string PropertyKey(BeamElement beam,int formulation,(double[] Section,double[] Material) property,Straus7SectionDefinition native,int slices)
+            {
+                var input=beam.Assignments;
+                return string.Join("|",new[]{formulation.ToString(System.Globalization.CultureInfo.InvariantCulture),Doubles(property.Section),Doubles(property.Material),
+                    beam.BeamProperty?.Name??"",FingerprintOf(beam.BeamProperty),FingerprintOf(input.AnalysisProfile),native?.Fingerprint()??"",
+                    slices.ToString(System.Globalization.CultureInfo.InvariantCulture),input.Physical?.Taper!=null?"taper":""});
             }
             private (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
             {
@@ -305,9 +336,9 @@ namespace GPC.Converter.Straus7
                 {
                     // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
                     material=steel.SteelMaterial;section=steel.SectionShape;
-                    if(!shearAreas.TryGetValue(section,out var byPoisson))shearAreas.Add(section,byPoisson=new Dictionary<double,(double Area1,double Area2)>());
-                    // The flexure solution depends on the Poisson ratio of the material of this beam.
-                    if(!byPoisson.TryGetValue(material.Ni,out var areas))byPoisson.Add(material.Ni,areas=SectionShearAreas.Compute(section,material.Ni));
+                    // The flexure solution depends on the section geometry and on the Poisson ratio of the material of this beam.
+                    string key=FingerprintOf(section)+"|"+material.Ni.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
+                    if(!shearAreas.TryGetValue(key,out var areas))shearAreas.Add(key,areas=SectionShearAreas.Compute(section,material.Ni));
                     shear1=areas.Area1;shear2=areas.Area2;
                 }
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
