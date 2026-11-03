@@ -40,38 +40,54 @@ namespace GPC.Converter.Straus7
                     if(prescribedCases.TryGetValue(freedom,out int previous)&&previous!=load)throw new NotSupportedException("IndependentPrescribedCasesRequireDistinctFreedomCases");
                     prescribedCases[freedom]=load;
                 }
-                if(p.Restrains.GroupBy(r=>r.FreedomCase?.Guid).Any(g=>g.Select(r=>ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})).Distinct().Count()>1))
-                    throw new NotSupportedException("StrausNodeRequiresOneRestraintFramePerFreedomCase");
-                foreach(var group in p.Restrains.GroupBy(r=>new {Case=r.FreedomCase?.Guid,Axes=ModelValues.Fingerprint(new object[]{r.Restrain.CoordinateSystem??CoordinateSystem.Global})}))
+                // St7SetNodeRestraint6 and St7SetNodeK*3F replace all components of one node/native freedom case, so every
+                // assignment that resolves to the same native case (an unscoped one included) is merged into one call per attribute.
+                var attributes=new List<NodeFreedomAttributes>();
+                foreach(var restraint in p.Restrains)
                 {
-                    var first=group.First();
-                    int fc=Freedom(first.FreedomCase),ucs=Ucs(first.Restrain.CoordinateSystem);
-                    var status=new int[6];var prescribed=new double[6];var stiffness=new double[6];
-                    foreach(var restraint in group)
+                    if(restraint.Phase!=null)throw new NotSupportedException("PhaseDependentRestraintRequiresStageBoundaryConversion");
+                    int fc=Freedom(restraint.FreedomCase);var frame=restraint.Restrain.CoordinateSystem??CoordinateSystem.Global;Axes.Validate(frame);
+                    var target=attributes.SingleOrDefault(x=>x.FreedomCase==fc);
+                    if(target==null)attributes.Add(target=new NodeFreedomAttributes(fc,frame));
+                    else if(!Same(target.Frame,frame))throw new NotSupportedException("StrausNodeRequiresOneRestraintFramePerFreedomCase");
+                    foreach(var dof in restraint.Restrain.Restrains)
                     {
-                        if(restraint.Phase!=null)throw new NotSupportedException("PhaseDependentRestraintRequiresStageBoundaryConversion");
-                        foreach(var dof in restraint.Restrain.Restrains)
-                        {
-                            int k=(int)dof.Dof;if(k<0||k>5||!scopes.Add(fc+":"+k))throw new ArgumentException("OverlappingOrInvalidStrausRestraint");
-                            status[k]=dof.IsRestrained||dof.HasImposedDisplacement?1:0;prescribed[k]=dof.ImposedDisplacement;stiffness[k]=dof.Stiffness;
-                            if(dof.HasStiffness&&dof.HasImposedDisplacement)throw new NotSupportedException("CoupledPrescribedSpringRequiresExplicitLink");
-                        }
+                        int k=(int)dof.Dof;if(k<0||k>5||!scopes.Add(fc+":"+k))throw new ArgumentException("OverlappingOrInvalidStrausRestraint");
+                        target.Status[k]=dof.IsRestrained||dof.HasImposedDisplacement?1:0;target.Prescribed[k]=dof.ImposedDisplacement;target.Stiffness[k]=dof.Stiffness;
+                        if(dof.HasStiffness&&dof.HasImposedDisplacement)throw new NotSupportedException("CoupledPrescribedSpringRequiresExplicitLink");
                     }
-                    Finite(prescribed);Finite(stiffness);Operations.Add(a=>a.SetNodeRestraint(id,fc,ucs,(int[])status.Clone(),(double[])prescribed.Clone()));
-                    for(int r=0;r<2;r++)
-                    {bool rotation=r==1;var values=stiffness.Skip(r*3).Take(3).ToArray();if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,fc,ucs,rotation,(double[])values.Clone()));}
                 }
                 if(p.GroundSprings.Count>1)throw new NotSupportedException("MultipleGroundSpringsRequireExplicitAssembly");
+                var groundSprings=new List<NodeFreedomAttributes>();
                 foreach(var spring in p.GroundSprings)
                 {
                     if(Freedoms.Count>1)throw new NotSupportedException("UnscopedSpringWithMultipleFreedomCases");
-                    int ucs=Ucs(spring.CoordinateSystem);
+                    var frame=spring.CoordinateSystem??CoordinateSystem.Global;Axes.Validate(frame);
                     for(int r=0;r<6;r++)for(int c=0;c<6;c++)if(r!=c&&spring[r,c]!=0)throw new NotSupportedException("CoupledGroundSpringRequiresMatrixLinkWriter");
+                    var values=Enumerable.Range(0,6).Select(i=>spring[i,i]).ToArray();Finite(values);
+                    for(int i=0;i<6;i++)if(values[i]!=0&&scopes.Contains("1:"+i))throw new ArgumentException("OverlappingStrausSpringAndRestraint");
+                    var target=attributes.SingleOrDefault(x=>x.FreedomCase==1);
                     for(int r=0;r<2;r++)
                     {
-                        bool rotation=r==1;var values=Enumerable.Range(r*3,3).Select(i=>spring[i,i]).ToArray();Finite(values);
-                        if(Enumerable.Range(r*3,3).Any(i=>scopes.Contains("1:"+i)))throw new ArgumentException("OverlappingStrausSpringAndRestraint");
-                        if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,1,ucs,rotation,(double[])values.Clone()));
+                        var family=Enumerable.Range(r*3,3).ToArray();if(family.All(i=>values[i]==0))continue;
+                        // One native spring call per family and case: it merges with restraint springs only in the same frame.
+                        var owner=target!=null&&Same(target.Frame,frame)?target:null;
+                        if(owner==null&&target!=null&&family.Any(i=>target.Stiffness[i]!=0))throw new NotSupportedException("StrausNodeSpringFramesConflictInFreedomCase");
+                        if(owner==null){owner=groundSprings.SingleOrDefault(x=>Same(x.Frame,frame));if(owner==null)groundSprings.Add(owner=new NodeFreedomAttributes(1,frame,restraintCall:false));}
+                        foreach(int i in family)if(values[i]!=0)owner.Stiffness[i]=values[i];
+                    }
+                }
+                var frames=new List<KeyValuePair<CoordinateSystem,int>>();
+                foreach(var attribute in attributes.Concat(groundSprings))
+                {
+                    int fc=attribute.FreedomCase;
+                    int ucs=frames.Where(f=>Same(f.Key,attribute.Frame)).Select(f=>f.Value).DefaultIfEmpty(0).First();
+                    if(ucs==0){ucs=Ucs(attribute.Frame);frames.Add(new KeyValuePair<CoordinateSystem,int>(attribute.Frame,ucs));}
+                    var status=attribute.Status;var prescribed=attribute.Prescribed;var stiffness=attribute.Stiffness;Finite(prescribed);Finite(stiffness);
+                    if(attribute.RestraintCall)Operations.Add(a=>a.SetNodeRestraint(id,fc,ucs,(int[])status.Clone(),(double[])prescribed.Clone()));
+                    for(int r=0;r<2;r++)
+                    {
+                        bool rotation=r==1;var values=stiffness.Skip(r*3).Take(3).ToArray();if(values.Any(v=>v!=0))Operations.Add(a=>a.SetNodeSpring(id,fc,ucs,rotation,(double[])values.Clone()));
                     }
                 }
                 var totals=new Dictionary<int,double[]>();
@@ -153,6 +169,14 @@ namespace GPC.Converter.Straus7
                     }
                 }
                 BeamLoads(beam,axes,offsetI);
+            }
+
+            /// <summary>Restraint and spring components of one node in one native freedom case, in one frame.</summary>
+            private sealed class NodeFreedomAttributes
+            {
+                internal readonly int FreedomCase;internal readonly CoordinateSystem Frame;internal readonly bool RestraintCall;
+                internal readonly int[] Status=new int[6];internal readonly double[] Prescribed=new double[6],Stiffness=new double[6];
+                internal NodeFreedomAttributes(int freedomCase,CoordinateSystem frame,bool restraintCall=true){FreedomCase=freedomCase;Frame=frame;RestraintCall=restraintCall;}
             }
 
             private static Vector3d Global(Vector3d v,CoordinateSystem axes)
