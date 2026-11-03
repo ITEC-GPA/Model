@@ -1,0 +1,466 @@
+{
+  "phase": "F6",
+  "status": "in-progress; checkpoint 2 is not the F6 exit gate",
+  "arachneCommit": "62fedfa7c29828cc5329dbf8f769bf83b82d4270",
+  "versions": {
+    "Arachne": "0.4.0-f6.2",
+    "GPCModel": "5.47.0.0",
+    "GPC.Model.Persistence": "3.13.0.0",
+    "GPC.Archive": "1.1.0.0"
+  },
+  "arachne": {
+    "passed": 168,
+    "failed": 0,
+    "groups": {
+      "inventory": 66,
+      "formFinding": 38,
+      "patterning": 43,
+      "network": 6,
+      "F6Contracts": 15
+    }
+  },
+  "Model": [
+    {
+      "project": "Model.Core.Tests",
+      "counters": {
+        "total": "63",
+        "executed": "63",
+        "passed": "63",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "7977F99E1569E18EFE58461DDAD8A009AB4B5D575503F07408435E0979BC7106",
+      "excluded": []
+    },
+    {
+      "project": "Model.NetFramework.Tests",
+      "counters": {
+        "total": "98",
+        "executed": "98",
+        "passed": "98",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "9BFF2C6A5DB036E5EC16CCD5F87E6EB10C7F134FABB51BD960FF8E5335F73C06",
+      "excluded": []
+    },
+    {
+      "project": "UnitTest",
+      "counters": {
+        "total": "1802",
+        "executed": "1736",
+        "passed": "1736",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "sha256": "335EE7C64C2A6F4F7B41BD3A1DEAC13CE8E0539312B944F8EB44790235BCF8AE",
+      "excluded": [
+        "NativeStages_StagedNonlinearStatesPerStageAndIncrement",
+        "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (2)",
+        "NativeStages_DefinitionsMassesAndTemperaturesAreModelData",
+        "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (1)",
+        "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+        "NativeLoadPatchTransfersPressureToBeamsAndKeepsStringGroups",
+        "NativeUnsymmetricSectionRetainsShearCenterAndTorsionalResponse",
+        "NativeLibraryIsExpandedIntoIndependentDomainInput (EN1991 General)",
+        "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (1)",
+        "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (PointContact,5)",
+        "NativeLibraryIsExpandedIntoIndependentDomainInput (BS5400 Centrifugal)",
+        "NativeStages_UnstagedSolutionBalancesLoadsMassesAndReactions",
+        "NativeStagedCantileverUsesTotalLoadFactorsAndUnloads",
+        "NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap (True)",
+        "NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes (True)",
+        "EightNativePairsKeepGeometryAndGlobalActionSigns",
+        "NativeGravityUsesTonneMillimetreUnitsAndStalePlansDoNotWrite",
+        "NativeBeamLoadEccentricityIsMeasuredFromNodeLine",
+        "NativeTaperedBarMatchesIntegratedAxialCompliance",
+        "NativeGravityMassFamiliesMatchIndependentEquilibrium (True,False)",
+        "NativeMovingPathStaticCasesMatchBeamPointLoadSolutions",
+        "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (0)",
+        "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (False)",
+        "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+        "NativeGravityMassFamiliesMatchIndependentEquilibrium (True,True)",
+        "NativeMovingWriterPersistsVehiclePathAndForceUnits",
+        "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Connection,9)",
+        "NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes (False)",
+        "GeneratedMovingResultsRetainDistinctPositionsWithoutChangingLoadDefinitions",
+        "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (True)",
+        "TimingOfTheColdPreparation",
+        "NativeShearPanelMatchesUniformShearSolution",
+        "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+        "NativeOrthotropicMembraneRespectsMaterialAxes (False)",
+        "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+        "NativeWriterMatchesFrozenBridgePilotWithOffsetsAndReversedConnectivity (0)",
+        "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (False)",
+        "NativeStages_ActiveStageResultsSkipTheInactiveElements",
+        "NativeAdvancedMovingLoadsPreserveHeatCentrifugalAndSelectedElements",
+        "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (True)",
+        "NativeStageWriterPersistsMorphResetActivationAndTotalIncrementFactors",
+        "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (0)",
+        "NativeGravityMassFamiliesMatchIndependentEquilibrium (False,False)",
+        "NativeWriterMatchesFrozenBridgePilotWithOffsetsAndReversedConnectivity (1)",
+        "NativeElements_ReleasesSpringsLinksCombinationsAndPlateCorners",
+        "IsotropicPlateRetainsExplicitLocalAxes",
+        "NativeBirthGeometryChangesLoadSharingAsSpecified (2)",
+        "NativeMaterialLawPreservesThermalDampingDataAndBilinearTrussResponse",
+        "NativeGravityMassFamiliesMatchIndependentEquilibrium (False,True)",
+        "PartialEndReleasesMatchAxialAndTorsionalSeriesCompliance",
+        "NativeOrthotropicMembraneRespectsMaterialAxes (True)",
+        "NativeRigidLinkTransfersEccentricLoadAndPreservesRigidBodyKinematics",
+        "NativeManufacturerPlates_AreImported",
+        "NativeBirthGeometryChangesLoadSharingAsSpecified (1)",
+        "NativeNewModelSolvesCantileverAndReadsProducedResults (False)",
+        "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (2)",
+        "ExportedResultsAttachByStableIdentityAndSurviveArchiveRoundTrip",
+        "NativeNewModelSolvesCantileverAndReadsProducedResults (True)",
+        "EmbeddedBxsSurvivesRemovalOfTheSourceModelAndRetainsSectionProperties",
+        "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (True)",
+        "NativePhysicalWriterPersistsAttributesAndLeavesSourceUntouched",
+        "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Pipe,8)",
+        "NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap (False)",
+        "NativeBirthGeometryChangesLoadSharingAsSpecified (0)",
+        "StagedRunImportsTotalsWithPhaseAndIncrementAndSurvivesArchive",
+        "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (False)"
+      ]
+    }
+  ],
+  "targetedExternalArchiveTests": {
+    "net6.0": 16,
+    "net472": 16
+  },
+  "logs": {
+    "artifacts/f6/checkpoint2-build.log": "AB49443DB0A1B55FEF9ECC7F8258D19CA1B2E093AB37A8B159C243529FAE6718",
+    "artifacts/f6/checkpoint2-tests.log": "DDFD5E3C38BF2515D3E6876D09DE941AE0F6DF176920DB88840B8E0A78A7B4DA",
+    "artifacts/f6/model-checkpoint2-verify.log": "35549A76B4835ED9E49EDF8A2C5A8C05932566ED29F8F02F18347AE55E659EB9",
+    "artifacts/f6/external-net6.log": "304E32161ED12039898A5C6188F7E7697C79A301CD5FC206F3CBB8B264B6D9A5",
+    "artifacts/f6/external-net472.log": "AA727C884927265274F82E8057AE68D8E43753851A939757290BF9C3D328F4B4",
+    "artifacts/f6/model-checkpoint2-native-verify.log": "625B0BC9380DB387FF3E52F17A25EB62806A4800D342A118520CD8A5622F8CE9"
+  },
+  "baselinePolicy": "No fixtures, API baselines or F1/F2 expected values regenerated.",
+  "remaining": [
+    "Arachne physical wrappers and generators",
+    "Arachne output projection from persisted GPC datasets",
+    "Full interactive/scale document lifecycle gates",
+    "BridGHe F6A migration and equivalent native export",
+    "Full coherent candidate set and F6 exit gates"
+  ],
+  "nativeGateStatus": "failed: St7Init -8 hardware lock unavailable; user notified, independent work continues",
+  "nativeAttempt": [
+    {
+      "project": "Model.Core.Tests",
+      "counters": {
+        "total": "63",
+        "executed": "63",
+        "passed": "63",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [],
+      "sha256": "8A804B79742E93CC1F2B03630A1F230C4D6B53180B69D073F26D7FFE9454C6CB"
+    },
+    {
+      "project": "UnitTest",
+      "counters": {
+        "total": "1802",
+        "executed": "1795",
+        "passed": "1736",
+        "failed": "59",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "failures": [
+        {
+          "test": "StagedRunImportsTotalsWithPhaseAndIncrementAndSurvivesArchive",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.StagedRunImportsTotalsWithPhaseAndIncrementAndSurvivesArchive threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "GeneratedMovingResultsRetainDistinctPositionsWithoutChangingLoadDefinitions",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.GeneratedMovingResultsRetainDistinctPositionsWithoutChangingLoadDefinitions threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "EmbeddedBxsSurvivesRemovalOfTheSourceModelAndRetainsSectionProperties",
+          "message": "Test method UnitTest.Straus7SectionDefinitionTest.EmbeddedBxsSurvivesRemovalOfTheSourceModelAndRetainsSectionProperties threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (1)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (True)",
+          "message": "Test method UnitTest.Straus7SectionDefinitionTest.ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap (True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (True)",
+          "message": "Test method UnitTest.Straus7SectionDefinitionTest.InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStages_DefinitionsMassesAndTemperaturesAreModelData",
+          "message": "Assert.IsNotNull non riuscita. "
+        },
+        {
+          "test": "PartialEndReleasesMatchAxialAndTorsionalSeriesCompliance",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.PartialEndReleasesMatchAxialAndTorsionalSeriesCompliance threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeNewModelSolvesCantileverAndReadsProducedResults (True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeNewModelSolvesCantileverAndReadsProducedResults threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeBirthGeometryChangesLoadSharingAsSpecified (1)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeBirthGeometryChangesLoadSharingAsSpecified threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeLibraryIsExpandedIntoIndependentDomainInput (EN1991 General)",
+          "message": "Test method UnitTest.Straus7MovingWriteTest.NativeLibraryIsExpandedIntoIndependentDomainInput threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMovingWriterPersistsVehiclePathAndForceUnits",
+          "message": "Test method UnitTest.Straus7MovingWriteTest.NativeMovingWriterPersistsVehiclePathAndForceUnits threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeGravityMassFamiliesMatchIndependentEquilibrium (False,False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeGravityMassFamiliesMatchIndependentEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeGravityUsesTonneMillimetreUnitsAndStalePlansDoNotWrite",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeGravityUsesTonneMillimetreUnitsAndStalePlansDoNotWrite threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMaterialLawPreservesThermalDampingDataAndBilinearTrussResponse",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeMaterialLawPreservesThermalDampingDataAndBilinearTrussResponse threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeLibraryIsExpandedIntoIndependentDomainInput (BS5400 Centrifugal)",
+          "message": "Test method UnitTest.Straus7MovingWriteTest.NativeLibraryIsExpandedIntoIndependentDomainInput threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeOrthotropicMembraneRespectsMaterialAxes (False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeOrthotropicMembraneRespectsMaterialAxes threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeRigidLinkTransfersEccentricLoadAndPreservesRigidBodyKinematics",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeRigidLinkTransfersEccentricLoadAndPreservesRigidBodyKinematics threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStagedCantileverUsesTotalLoadFactorsAndUnloads",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeStagedCantileverUsesTotalLoadFactorsAndUnloads threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeGravityMassFamiliesMatchIndependentEquilibrium (False,True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeGravityMassFamiliesMatchIndependentEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStages_UnstagedSolutionBalancesLoadsMassesAndReactions",
+          "message": "Assert.IsNotNull non riuscita. "
+        },
+        {
+          "test": "NativeElements_ReleasesSpringsLinksCombinationsAndPlateCorners",
+          "message": "Assert.AreEqual non riuscita. Previsto:<Partial>. Effettivo:<Rejected>. "
+        },
+        {
+          "test": "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Connection,9)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeAdditionalBeamFormulationsKeepTheirDeclaredType threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes (False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeTaperedBarMatchesIntegratedAxialCompliance",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeTaperedBarMatchesIntegratedAxialCompliance threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse (False)",
+          "message": "Test method UnitTest.Straus7SectionDefinitionTest.ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeOrthotropicMembraneRespectsMaterialAxes (True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeOrthotropicMembraneRespectsMaterialAxes threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap (False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (1)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeBirthGeometryChangesLoadSharingAsSpecified (0)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeBirthGeometryChangesLoadSharingAsSpecified threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeWriterMatchesFrozenBridgePilotWithOffsetsAndReversedConnectivity (1)",
+          "message": "Assert.AreEqual non riuscita. Previsto:<Completed>. Effettivo:<Rejected>. St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes (True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (0)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (0)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium (2)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMovingPathStaticCasesMatchBeamPointLoadSolutions",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeMovingPathStaticCasesMatchBeamPointLoadSolutions threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeBirthGeometryChangesLoadSharingAsSpecified (2)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeBirthGeometryChangesLoadSharingAsSpecified threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeLoadPatchTransfersPressureToBeamsAndKeepsStringGroups",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeLoadPatchTransfersPressureToBeamsAndKeepsStringGroups threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeShearPanelMatchesUniformShearSolution",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeShearPanelMatchesUniformShearSolution threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup (False)",
+          "message": "Test method UnitTest.Straus7SectionDefinitionTest.InstalledSectionLibrariesAreExpandedAndRewrittenWithoutLibraryLookup threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (Pipe,8)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeAdditionalBeamFormulationsKeepTheirDeclaredType threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStageWriterPersistsMorphResetActivationAndTotalIncrementFactors",
+          "message": "Test method UnitTest.Straus7StageWriteTest.NativeStageWriterPersistsMorphResetActivationAndTotalIncrementFactors threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativePhysicalWriterPersistsAttributesAndLeavesSourceUntouched",
+          "message": "Test method UnitTest.Straus7PhysicalWriteTest.NativePhysicalWriterPersistsAttributesAndLeavesSourceUntouched threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeUnsymmetricSectionRetainsShearCenterAndTorsionalResponse",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeUnsymmetricSectionRetainsShearCenterAndTorsionalResponse threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStages_ActiveStageResultsSkipTheInactiveElements",
+          "message": "Assert.IsNotNull non riuscita. "
+        },
+        {
+          "test": "NativeAdditionalBeamFormulationsKeepTheirDeclaredType (PointContact,5)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeAdditionalBeamFormulationsKeepTheirDeclaredType threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeGravityMassFamiliesMatchIndependentEquilibrium (True,False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeGravityMassFamiliesMatchIndependentEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeBeamLoadEccentricityIsMeasuredFromNodeLine",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeBeamLoadEccentricityIsMeasuredFromNodeLine threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeStages_StagedNonlinearStatesPerStageAndIncrement",
+          "message": "Assert.IsNotNull non riuscita. "
+        },
+        {
+          "test": "NativeWriterMatchesFrozenBridgePilotWithOffsetsAndReversedConnectivity (0)",
+          "message": "Assert.AreEqual non riuscita. Previsto:<Completed>. Effettivo:<Rejected>. St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeNewModelSolvesCantileverAndReadsProducedResults (False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeNewModelSolvesCantileverAndReadsProducedResults threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeGravityMassFamiliesMatchIndependentEquilibrium (True,True)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeGravityMassFamiliesMatchIndependentEquilibrium threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "ExportedResultsAttachByStableIdentityAndSurviveArchiveRoundTrip",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.ExportedResultsAttachByStableIdentityAndSurviveArchiveRoundTrip threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance (2)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativeAdvancedMovingLoadsPreserveHeatCentrifugalAndSelectedElements",
+          "message": "Test method UnitTest.Straus7MovingWriteTest.NativeAdvancedMovingLoadsPreserveHeatCentrifugalAndSelectedElements threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors (False)",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.NativePrescribedTranslationAndRotationFollowLoadAndFreedomFactors threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        },
+        {
+          "test": "IsotropicPlateRetainsExplicitLocalAxes",
+          "message": "Test method UnitTest.Straus7ModelWriteTest.IsotropicPlateRetainsExplicitLocalAxes threw exception: \r\nGPC.Converter.Straus7.Straus7ApiException: St7Init: The API is running in STANDALONE mode but cannot find the hardware lock. (Straus7 -8)"
+        }
+      ],
+      "sha256": "FBCFE98E6C49171F0695C311DC0D64A2EBC235B6E74C00E91A481E9B7518AEAA"
+    }
+  ]
+}

@@ -60,6 +60,27 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void HostSnapshotsNeverPruneTheLastCommittedDocument()
+        {
+            string path = FileAt("host.gpc-results");
+            var store = new BlockArchive(); var first = Block("last successfully saved document");
+            store.Add(first); store.Save(path, new[] { first.Address }, () => { });
+            for (int i = 0; i < 4; i++)
+            {
+                var candidate = Block("uncommitted host document " + i); store.Add(candidate);
+                store.SaveSnapshot(path, new[] { candidate.Address }, requireComplete: true);
+                Assert.AreEqual("last successfully saved document", Text(new BlockArchive(path), first.Address));
+            }
+            byte[] before = File.ReadAllBytes(path); var stamp = File.GetLastWriteTimeUtc(path);
+            store.SaveSnapshot(path, Array.Empty<string>(), requireComplete: true);
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
+            Assert.AreEqual(stamp, File.GetLastWriteTimeUtc(path));
+            var reopened = new BlockArchive(path);
+            reopened.SaveSnapshot(path, Array.Empty<string>(), requireComplete: true);
+            Assert.AreEqual("last successfully saved document", Text(reopened, first.Address));
+        }
+
+        [TestMethod]
         public void CapturedAntheaArchiveReadsEveryBlockAndRewritesIdentically()
         {
             string fixture = Path.Combine(AppContext.BaseDirectory, "Fixtures", "anthea-blocks-v1-20261103.bin");

@@ -139,6 +139,19 @@ namespace GPC.Model.Persistence
             return rebased;
         }
 
+        /// <summary>Prepares a sidecar for a host-controlled document save. The host must write the returned
+        /// relative references in its document. All existing sidecar blocks are retained because the host's
+        /// final commit is not observable here; a failed or repeated host save cannot prune earlier results.</summary>
+        public IReadOnlyList<ExternalModelReference> SaveSnapshot(string archivePath, IEnumerable<ExternalModelReference> liveRuns)
+        {
+            if (liveRuns == null) throw new ArgumentNullException(nameof(liveRuns));
+            var runs = liveRuns.ToArray();
+            var addresses = LiveAddresses(runs);
+            var rebased = Array.AsReadOnly(runs.Select(r => r.Rebase(archivePath)).ToArray());
+            archive.SaveSnapshot(archivePath, addresses, requireComplete: true);
+            return rebased;
+        }
+
         /// <summary>Opens an unsaved prepared run or a run in this session, failing explicitly on any unavailable block.</summary>
         public ExternalModelRun Open(ExternalModelReference reference)
         {

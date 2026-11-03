@@ -100,6 +100,15 @@ namespace GPC.Persistence
         /// A different existing destination is preserved in full until the next save (Save As may overwrite another document).
         /// A failed callback leaves this session pointing at its original path. The callback must replace its document atomically.</summary>
         public int Save(string archivePath, IEnumerable<string> references, Action writeDocument, bool requireComplete = false)
+            => SaveCore(archivePath, references, writeDocument, requireComplete, false);
+
+        /// <summary>Writes blocks before a host-controlled document save whose completion cannot be observed.
+        /// Retains the entire destination history on every call. No document commit or pruning is inferred.
+        /// A later explicit Save with an atomic document callback may resume the normal retention policy.</summary>
+        public int SaveSnapshot(string archivePath, IEnumerable<string> references, bool requireComplete = false)
+            => SaveCore(archivePath, references, () => { }, requireComplete, true);
+
+        private int SaveCore(string archivePath, IEnumerable<string> references, Action writeDocument, bool requireComplete, bool retainHistory)
         {
             if (writeDocument == null) throw new ArgumentNullException(nameof(writeDocument));
             var current = Addresses(references); string target = Path.GetFullPath(archivePath);
@@ -116,8 +125,8 @@ namespace GPC.Persistence
                     string? sourceFailure = LoadIndex(file, out sourceIndex);
                     // A caller that did not supply the old document's references cannot safely prune its archive.
                     // Conservatively retain its entire index until one document save commits in this session.
-                    if (same && retainExistingOnFirstSave && sourceIndex != null) keep.UnionWith(sourceIndex.Keys);
-                    if (sourceFailure != null && file != null && File.Exists(file) && (retainExistingOnFirstSave || keep.Any(a => !memory.ContainsKey(a))))
+                    if (same && (retainExistingOnFirstSave || retainHistory) && sourceIndex != null) keep.UnionWith(sourceIndex.Keys);
+                    if (sourceFailure != null && file != null && File.Exists(file) && (retainExistingOnFirstSave || retainHistory || keep.Any(a => !memory.ContainsKey(a))))
                         throw new InvalidDataException("Il progetto non è stato salvato, per non perdere i risultati: " + sourceFailure);
                     if (!same && File.Exists(target))
                     {
