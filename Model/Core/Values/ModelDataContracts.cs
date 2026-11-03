@@ -25,6 +25,7 @@ namespace GPC.Model.Core
         internal static readonly Type[] Domain = new Type[]
         {
             typeof(global::GPC.Model.Structure.Bridges.BridgeDefinition),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeAlignmentTable),
             typeof(global::GPC.Model.Structure.Bridges.BridgeGeometry),
             typeof(global::GPC.Model.Structure.Bridges.BridgeAxisMember),
             typeof(global::GPC.Model.Structure.Bridges.BridgeSupportPoint),

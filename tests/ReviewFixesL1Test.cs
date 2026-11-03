@@ -341,6 +341,51 @@ namespace UnitTest
             Assert.AreNotSame(node.Position, actual.Position); Assert.AreEqual(15, actual.Assignments.Physical.Temperatures.Single().Celsius);
         }
 
+        // B4: bridge labels per FE part, as BridGHe splits one physical member into "Id/P1", "Id/P2".
+        [TestMethod] public void B4_BridgeMetadataCanBeGivenPerFePart()
+        {
+            var model = new Model(Guid.NewGuid(), "bridge"); var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(5000, 0, 0)); var c = new NodeElement(new Point3d(10000, 0, 0));
+            foreach (var node in new[] { a, b, c }) model.NodesElements.Add(node);
+            BeamElement Beam(NodeElement i, NodeElement j) { var beam = new BeamElement(i.Position, j.Position, null); beam.ConnectNodes(i, j); beam.Assignments.Formulation = BeamFormulation.StraightTwoNode; return beam; }
+            var first = Beam(a, b); var second = Beam(b, c); model.BeamElements.Add(first); model.BeamElements.Add(second);
+            GPC.Model.Structure.Members.BridgeMemberMetadata Part(int n, double from, double to) => new GPC.Model.Structure.Members.BridgeMemberMetadata("G1", GPC.Model.Structure.Members.BridgeMemberFamily.Girder, 1, 2, 1, from, to, new Vector3d(0, 0, 1), "G1-S2/P" + n);
+            var member = new GPC.Model.Structure.Members.PhysicalMemberDefinition("G1", new[] { new GPC.Model.Structure.Members.BeamMemberPart(first.Id, true, Part(1, 0, 5000)),
+                new GPC.Model.Structure.Members.BeamMemberPart(second.Id, true, Part(2, 5000, 10000)) }, "NodeToNode");
+            Assert.IsTrue(member.HasBridgeMetadata); Assert.IsNull(member.BridgeMetadata);
+            model.PhysicalMembers.Add(member.Id, member);
+            string fingerprint = model.AnalysisFingerprint(); RoundTrips(model);
+            var copy = ModelValues.Copy(model); var parts = copy.PhysicalMembers["G1"].Parts;
+            Assert.AreEqual("G1-S2/P2", parts[1].BridgeMetadata.GeometryId); Assert.AreEqual(5000, parts[1].BridgeMetadata.StationFromMm);
+            using (var stream = new MemoryStream()) { ModelArchive.SaveDocument(model, stream); stream.Position = 0; Assert.AreEqual(10000, ModelArchive.Load(stream).PhysicalMembers["G1"].Parts[1].BridgeMetadata.StationToMm); }
+            var plain = new GPC.Model.Structure.Members.PhysicalMemberDefinition("G1", new[] { new GPC.Model.Structure.Members.BeamMemberPart(first.Id, true), new GPC.Model.Structure.Members.BeamMemberPart(second.Id, true) }, "NodeToNode");
+            Assert.AreNotEqual(ModelValues.Fingerprint(new object[] { plain }), ModelValues.Fingerprint(new object[] { member }));
+            Assert.AreEqual("BridgePhysicalIdentityMismatch", Assert.ThrowsException<ArgumentException>(() => new GPC.Model.Structure.Members.PhysicalMemberDefinition("G2",
+                new[] { new GPC.Model.Structure.Members.BeamMemberPart(first.Id, true, Part(1, 0, 5000)) }, "NodeToNode")).Message);
+        }
+
+        // B4: a smooth host alignment (Rhino NURBS) as an exact chainage table that keeps the host length.
+        [TestMethod] public void B4_AlignmentTableKeepsTheHostLengthAndIsSmooth()
+        {
+            double radius = 100000, length = 30000.123456789; int count = 7;
+            var stations = Enumerable.Range(0, count).Select(i => i == count - 1 ? length : length * i / (count - 1)).ToArray(); // the host length, exactly
+            var table = new GPC.Model.Structure.Bridges.BridgeAlignmentTable { Stations = stations,
+                Points = stations.Select(s => new Point3d(radius * Math.Sin(s / radius), radius * (1 - Math.Cos(s / radius)), 0)).ToArray(),
+                Tangents = stations.Select(s => new Vector3d(Math.Cos(s / radius), Math.Sin(s / radius), 0)).ToArray() };
+            var definition = new GPC.Model.Structure.Bridges.BridgeDefinition { Id = Guid.NewGuid(), AlignmentTable = table,
+                Supports = new GPC.Model.Structure.Bridges.BridgeSupportLayout { Stations = new[] { 0d, length } },
+                Girders = new GPC.Model.Structure.Bridges.BridgeGirderLayout { Offsets = new[] { -3000d, 3000 } },
+                Fabrication = GPC.Model.Structure.Bridges.BridgeFabricationPlan.Create(length, 2, new GPC.Model.Structure.Bridges.BridgeSegmentSettings()) };
+            definition.Validate(); Assert.AreEqual(length, definition.AlignmentLength);
+            double s = length * .37; var p = table.PointAt(s);
+            Assert.AreEqual(radius * Math.Sin(s / radius), p.X, 1e-3); Assert.AreEqual(radius * (1 - Math.Cos(s / radius)), p.Y, 1e-3);
+            Assert.AreEqual(1, table.TangentAt(stations[3]).X / Math.Cos(stations[3] / radius), 1e-12);
+            var copy = ModelValues.CopyValue(definition); Assert.AreEqual(definition.Fingerprint(), copy.Fingerprint());
+            var moved = copy.AlignmentTable.Points[3]; copy.AlignmentTable.Points[3] = new Point3d(moved.X, moved.Y, moved.Z + .001); Assert.AreNotEqual(definition.Fingerprint(), copy.Fingerprint());
+            copy.AlignmentTable.Stations[3] = copy.AlignmentTable.Stations[2]; Assert.AreEqual("AlignmentStationsMustIncrease", Assert.ThrowsException<ArgumentException>(() => copy.Validate()).Message);
+            definition.Alignment = new LineCurve3d(new Point3d(0, 0, 0), new Point3d(length, 0, 0));
+            Assert.AreEqual("InvalidBridgeAlignmentIdentity", Assert.ThrowsException<ArgumentException>(() => definition.Validate()).Message);
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {

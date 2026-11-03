@@ -456,7 +456,9 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Loads.Assignments.BeamLoadAssignment", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false));
             Register("GPC.Model.Structure.Members.BeamMemberPart", "GPC.Model.PostProcessing.BeamMemberPart",
                 Field("GPC.Model.Structure.Members.BeamMemberPart", "<AlongIJ>k__BackingField", "<AlongIJ>k__BackingField", false),
-                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false));
+                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false),
+                // Per-part bridge labels (review B4): absent on the historical parts, whose fingerprints are unchanged.
+                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BridgeMetadata>k__BackingField", "<BridgeMetadata>k__BackingField", true));
             Register("GPC.Model.Structure.Assignments.BeamSectionAssignment", "GPC.Model.PostProcessing.BeamSectionAssignment",
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<End>k__BackingField", "<End>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<EndSection>k__BackingField", "<EndSection>k__BackingField", false),

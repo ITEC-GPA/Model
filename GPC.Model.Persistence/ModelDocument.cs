@@ -66,7 +66,7 @@ namespace GPC.Model.Persistence
 
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
             FormFinding = model.FormFinding, MovingLoads = model.MovingLoads,
-            Schema=model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 9 : (model.MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(model)) ? 8 : StageSchema(model) ? (PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : 6) : PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : (model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) ? 5 : model.FormFinding != null ? 4 : model.AssemblyMap != null || model.PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 3 : model.PhysicalSurfaces.Count==0 ? 1 : 2,
+            Schema=model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 9 : (model.MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(model)) ? 8 : StageSchema(model) ? (PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : 6) : PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : (model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) ? 5 : model.FormFinding != null ? 4 : model.AssemblyMap != null || model.PhysicalMembers.Values.Any(m => m.HasBridgeMetadata) ? 3 : model.PhysicalSurfaces.Count==0 ? 1 : 2,
             AssemblyMap = model.AssemblyMap, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
             Id = model.Guid, Name = model.Name, Nodes = model.NodesElements, Beams = model.BeamElements,
             Plates = model.AreaElements, Solids = model.VolumeElements, Constraints = model.Costrains,
@@ -89,7 +89,7 @@ namespace GPC.Model.Persistence
                 || StageCombinations == null || Groups == null || Stages == null || ModelLoads == null || Datasets == null
                 || Preserved == null || Members == null || Scenarios == null || Reports == null)
                 throw new SerializationException("Missing ModelDocument collection.");
-            if (AssemblyMap != null && (Schema < 3 || AssemblyMap.ModelGuid != Id) || Schema < 3 && Members.Any(m => m.BridgeMetadata != null)) throw new SerializationException("AssemblyMetadataSchemaMismatch");
+            if (AssemblyMap != null && (Schema < 3 || AssemblyMap.ModelGuid != Id) || Schema < 3 && Members.Any(m => m.HasBridgeMetadata)) throw new SerializationException("AssemblyMetadataSchemaMismatch");
             Constraints.RestoreCounter(ConstraintsMaxId);
             Stages.RestoreCounter(StagesMaxId);
             ModelLoads.RestoreCounter(ModelLoadsMaxId);

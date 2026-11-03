@@ -66,7 +66,13 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<Deck>k__BackingField", "Deck", false),
                 Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<Fabrication>k__BackingField", "Fabrication", false),
                 Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<Diaphragms>k__BackingField", "Diaphragms", false),
-                Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<Mesh>k__BackingField", "Mesh", false));
+                Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<Mesh>k__BackingField", "Mesh", false),
+                // Exact chainage table of a host curve (review B4): absent on the historical definitions, whose fingerprints are unchanged.
+                Field("GPC.Model.Structure.Bridges.BridgeDefinition", "<AlignmentTable>k__BackingField", "AlignmentTable", true));
+            Register("GPC.Model.Structure.Bridges.BridgeAlignmentTable", "GPC.Model.Structure.Bridges.BridgeAlignmentTable",
+                Field("GPC.Model.Structure.Bridges.BridgeAlignmentTable", "<Stations>k__BackingField", "Stations", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAlignmentTable", "<Points>k__BackingField", "Points", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAlignmentTable", "<Tangents>k__BackingField", "Tangents", false));
             Register("GPC.Model.Structure.Bridges.BridgeSupportLayout", "GPC.Model.Structure.Bridges.BridgeSupportLayout",
                 Field("GPC.Model.Structure.Bridges.BridgeSupportLayout", "<Stations>k__BackingField", "Stations", false),
                 Field("GPC.Model.Structure.Bridges.BridgeSupportLayout", "<SkewRadians>k__BackingField", "SkewRadians", false));
