@@ -4,7 +4,9 @@ Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente;
 
 ## Stato effettivo
 
-**F5 in corso su richiesta dell’utente; F6–F8 autorizzate e in coda.** Checkpoint verificato in [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice parziale](f5-destinazioni-parziali.json) ed [evidenze](f5-evidenze.json). Model 1.827 PASS; Checker 10.369 PASS; entrambi i nuovi writer nativi superati dopo il ripristino della licenza. Contratti e adapter pilota estesi; exporter completo e migrazione produttiva ancora da terminare. Nessun rilascio.
+**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione del 3 novembre è in [F5-FASI.md](F5-FASI.md): stato fisico delle fasi, incrementi ordinati, writer Straus7 e attivazioni native verificate. Model 1.844 PASS con i writer nativi abilitati; Checker 10.369 PASS; 13 test dei writer PASS, compresi tre collaudi nativi. Matrice parziale: 103/2.309 campi riscontrati, nessuno dichiarato migrato in produzione. Exporter completo e migrazione dei plugin ancora da terminare. Nessun rilascio.
+
+Checkpoint precedente: [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice aggiornata](f5-destinazioni-parziali.json), [evidenze storiche](f5-evidenze.json).
 
 F0–F4 completate nei rispettivi perimetri. F4: [piloti e contratti](F4-PILOTI.md), [verifiche](F4-VERIFICHE.md), [evidenze](f4-evidenze.json). GPCModel 5.40.0.0 e GPC.Model.Persistence 3.6.0.0; GPC.Archive resta 1.0.0.0. Due varianti ponte e quattro casi membrana, con calcolo, sidecar e riapertura anche in processi distinti. Model 1.779 PASS e 12 ignorati preesistenti; Checker 10.361 PASS. Le build predefinite dei plugin sono state ripristinate e verificate. Nessuna migrazione estesa dei componenti o release: prossima fase F5, poi F6–F8.
 

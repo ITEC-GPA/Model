@@ -1,0 +1,435 @@
+{
+  "phase": "F5",
+  "status": "in-progress; stage contracts and partial native writer verified; not a production migration or release",
+  "createdUtc": "2026-11-03T09:36:40.506703+00:00",
+  "branch": "codex/gpc-unification-20261102",
+  "modelParent": "47c9b4dfbd761e906a5d0f822b32269fa57e64c7",
+  "checkpointCommits": {
+    "BridGHe": "31818232f9e33e6f01cad7b1d5c9e8e8615f21f7",
+    "Checker": "a77676a2355cf6e22a984d4b51747edda3bd82c2",
+    "Arachne": "5ddbe6f8a78de788a120c23cd6015c350cd2c320"
+  },
+  "versions": {
+    "GPCModel": "5.42.0.0",
+    "GPC.Model.Persistence": "3.8.0.0",
+    "GPC.Converter": "2.14.0.0",
+    "GPCChecker.CompositeBridge": "1.24.0.0",
+    "GPC.Archive": "1.0.0.0"
+  },
+  "checks": {
+    "model": [
+      {
+        "suite": "Model.Core.Tests",
+        "passed": 63,
+        "failed": 0,
+        "notPassedOrFailed": 0
+      },
+      {
+        "suite": "Model.NetFramework.Tests",
+        "passed": 72,
+        "failed": 0,
+        "notPassedOrFailed": 0
+      },
+      {
+        "suite": "UnitTest",
+        "passed": 1709,
+        "failed": 0,
+        "notPassedOrFailed": 12
+      }
+    ],
+    "modelPassed": 1844,
+    "preexistingSkipped": 12,
+    "nativeWriterTestsEnabled": 3,
+    "writersInFullGate": [
+      {
+        "name": "StaticConversionReturnsGeneratedCasesOnlyAfterAllPaths",
+        "outcome": "Passed"
+      },
+      {
+        "name": "MissingCaseAndUnsupportedSpringDirectionsAreRejectedBeforeWriting",
+        "outcome": "Passed"
+      },
+      {
+        "name": "PhysicalPlanSeparatesFreedomCasesAndKeepsSamplingOutsideNativeWrites",
+        "outcome": "Passed"
+      },
+      {
+        "name": "NativeMovingWriterPersistsVehiclePathAndForceUnits",
+        "outcome": "Passed"
+      },
+      {
+        "name": "PlanDeduplicatesTemplatesAndSeparatesNativeOptionsFromPhysics",
+        "outcome": "Passed"
+      },
+      {
+        "name": "PlanRejectsStaleInputAmbiguousMapsAndUnsupportedSchedulesBeforeWriting",
+        "outcome": "Passed"
+      },
+      {
+        "name": "PlanDetachesCallerMapsAndDoesNotReuseMutableNativeArrays",
+        "outcome": "Passed"
+      },
+      {
+        "name": "StagePlanUsesFiveFlagsAndWritesCompleteTotalFactorMatrices",
+        "outcome": "Passed"
+      },
+      {
+        "name": "StalePlansInvalidCaseMapsAndFloatingStaticConversionCannotWrite",
+        "outcome": "Passed"
+      },
+      {
+        "name": "StaleInputAndUnsupportedThroughThicknessStressCauseNoWrites",
+        "outcome": "Passed"
+      },
+      {
+        "name": "StageOrderUsesSequenceAndPreflightFailureCannotPartiallyWrite",
+        "outcome": "Passed"
+      },
+      {
+        "name": "NativePhysicalWriterPersistsAttributesAndLeavesSourceUntouched",
+        "outcome": "Passed"
+      },
+      {
+        "name": "NativeStageWriterPersistsMorphResetActivationAndTotalIncrementFactors",
+        "outcome": "Passed"
+      }
+    ],
+    "checkerPassed": 10369,
+    "checkerSuites": 11,
+    "checkerApiCompatible": true,
+    "bridgePilotAssertions": 515,
+    "bridgeCases": 2,
+    "bridgeFreshProcessAssertions": 11,
+    "bridgeFreshProcessDocuments": 2,
+    "bridgeDefaultPassed": 269,
+    "matrixFieldsReviewed": 103,
+    "matrixFieldsTotal": 2309
+  },
+  "limits": [
+    "No NLA equivalence run for the new stage writer: persisted native configuration is verified.",
+    "The bridge numerical comparisons are the two linear F4 cases.",
+    "Full topology/property/load exporter, advanced data, production migration and F6-F8 remain open.",
+    "Historical f5-evidenze.json describes the preceding commit, not current source files."
+  ],
+  "sourceFiles": [
+    {
+      "path": "BridGHe/tests/BridGHe.Smoke/GpcPilot.cs",
+      "bytes": 12431,
+      "sha256": "36BFA75175D1C473B4B36CA6DD1BF66CBB48C20877AA388B2C199643BC76BC68"
+    },
+    {
+      "path": "BridGHe/tests/BridGHe.Smoke/GpcPilotAdapter.cs",
+      "bytes": 12588,
+      "sha256": "EEF17D36EB3CA8FE033FF3B840CF167154A40776DAB2D81ECC7C5F830F688A06"
+    },
+    {
+      "path": "Model/GPC Converter/GPC Converter.csproj",
+      "bytes": 655,
+      "sha256": "7375756EF60A57060FCE9214D02F4F61EFA1DD5FC97EB30E5F303A0BD68CF2F2"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7StageNativeApi.cs",
+      "bytes": 8039,
+      "sha256": "7413DD635A8E81C6B6EB2AFF648705212C925BDE9EEB43FE9E90C23A0E6CF77F"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7StageWritePlan.cs",
+      "bytes": 8907,
+      "sha256": "AFF7205E6EC80ED9BB017F6CBBB468AF38C7012D987D8F3778CCD2D93DB55123"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj",
+      "bytes": 449,
+      "sha256": "6324E8F6A0282D93F9AEB27756E6247DDAB70C97F395A22D8C17191EBCB4FBF8"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/ModelDocument.cs",
+      "bytes": 9716,
+      "sha256": "0EFC42D7092C9B4665A063ADF4C445C9108789AB412ADDD61A53C309EEEA8CD2"
+    },
+    {
+      "path": "Model/Model.NetFramework.Tests/Model.NetFramework.Tests.csproj",
+      "bytes": 2908,
+      "sha256": "11BF0D336B8FC17FFA328FE2414ED766C71DCD373C7D7F588717E6173E188B7A"
+    },
+    {
+      "path": "Model/Model/Actions/Stages/Stage.cs",
+      "bytes": 28565,
+      "sha256": "8D6FC042A97BA274760F97919DE92378EDB6A0EC6AD6B66AD8C2EAFB42D00F87"
+    },
+    {
+      "path": "Model/Model/Actions/Stages/StageAnalysisState.cs",
+      "bytes": 5639,
+      "sha256": "20923830CDB64A16D3459D1B16AF65E1A5AFBD479692E3EA57F8DAC5417BBB1C"
+    },
+    {
+      "path": "Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs",
+      "bytes": 121114,
+      "sha256": "A4820E48F003FF56D1BBD4E9EBC7B3D26BEB5F90BFD79C6C723AEA919CAD1D31"
+    },
+    {
+      "path": "Model/Model/Core/Values/ModelDataContracts.cs",
+      "bytes": 31060,
+      "sha256": "7B62D73BB900AC9CA0E7092A888AC1A2A74447484C08452E3B901C987C353B3C"
+    },
+    {
+      "path": "Model/Model/GPCModel.csproj",
+      "bytes": 1133,
+      "sha256": "454DCA8C5614DBC4B6442C79A61035DAF3A376C6F223436B5156BF6AEA509058"
+    },
+    {
+      "path": "Model/Model/Properties/AssemblyInfo.cs",
+      "bytes": 1769,
+      "sha256": "CEBD788E2F13E55765236F6B6FB528FBAEDF37808872644A822907A1AD19442C"
+    },
+    {
+      "path": "Model/Model/Structure/Model/Model.cs",
+      "bytes": 89310,
+      "sha256": "31C4B4F90315E91AA6B59FF06DE01589F4FC1DA8A2190F693F308C40A61D4E9E"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelRevisions.cs",
+      "bytes": 9039,
+      "sha256": "F4B477AA5023820EA05BCC6D88D85AD930A9A7834A571E4F64B473141BD55092"
+    },
+    {
+      "path": "Model/UnitTest/Straus7StageWriteTest.cs",
+      "bytes": 11142,
+      "sha256": "C37F253748C4ACF829537BFA751C8A822987B411638C7AE02416F7923C969300"
+    },
+    {
+      "path": "Model/UnitTest/UnitTest.csproj",
+      "bytes": 4896,
+      "sha256": "5F70E6A0A888D96D6968812348AF7C55FD2D61178A9E8CEDFE3A0B87F8987100"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/F5-AVANZAMENTO.md",
+      "bytes": 8429,
+      "sha256": "4CD9B80379CCBC96B68A948FB6D9CD4722B1AA9BB6538400EE7D21E37A73E9BF"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/F5-FASI.md",
+      "bytes": 6635,
+      "sha256": "77042FC76E2CEBABC785DEFC2641A38CCFAAB9702FC39539CE38A2D546BC9962"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/STATO.md",
+      "bytes": 7927,
+      "sha256": "9E3A52F1BF14F53A631DA3CCD1E5E7C909E616EF6238FE3D169E6BB3274E076A"
+    },
+    {
+      "path": "Model/docs/bridghe-arachne/f5-destinazioni-parziali.json",
+      "bytes": 51003,
+      "sha256": "7F01276459A07A6A5C48E9449CC24E3B1D61B025D8FA0C9847351724A3B544F1"
+    },
+    {
+      "path": "Model/tests/StageAnalysisContractsTest.cs",
+      "bytes": 6793,
+      "sha256": "1257C50EA24DAE8288EA28BE55AE41708A599026A84DD4C7025ED0F7DA772EC6"
+    }
+  ],
+  "proofFiles": [
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-0.ghx",
+      "bytes": 137567,
+      "sha256": "6E0D30D089D38C0244DB5DF02C573A7045044A92BD9F345EC7CEC8112BB7F687"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-0.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "175D6D20763AC6431C0A964F43C65AB16A317F0641433AEE25732FD458A9D994"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-0.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "C6E3B41F54CB5840A6970D6636141AC90F564075848C145A55DC2821A6619CDC"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-0.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "59D739649EB4E3DCDDC55D6F1E1661543638E6893F843352BAEC2E8C08458342"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-1.ghx",
+      "bytes": 137567,
+      "sha256": "15CC4CE97531676222933A3FB917FD0158A466A46E57696D4192268CB3E3F2B7"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-1.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "CAFB4483C5FACD88A453D1770FEBD9CB3188C1C777200E3A0626F91FD22C0C5D"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-1.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "61D70A607A7507E6EEFED3D1A15DDE45FD7C1C8D388EE37847A279BDD639ACDB"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-092142/bridge-1.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "12D84C86D9CA5740C385DF1451A64DB5D6C1FF7FDF11181E9EE5BFC840A31A83"
+    },
+    {
+      "path": "Model/UnitTest/Fixtures/Straus7/native-elements-r31.zip",
+      "bytes": 132659,
+      "sha256": "D15C4742EB7E5D576203FF6C2FAE465B9F05136B4F560B62139E68F59815139B"
+    },
+    {
+      "path": "Model/UnitTest/Fixtures/Straus7/native-stages-r31.zip",
+      "bytes": 128203,
+      "sha256": "68D774908F1BDD1966531EF6661C32EC106CE9DAD7841485F99E0E823E5AE9A8"
+    },
+    {
+      "path": "artifacts/f5/bridge-stage-default-build.log",
+      "bytes": 1388,
+      "sha256": "B1D62946BCA63E65ABA65DE139274F6A1C7D5A586422F8704E5B2A87B1BD16F5"
+    },
+    {
+      "path": "artifacts/f5/bridge-stage-default-tests.log",
+      "bytes": 15103,
+      "sha256": "CFF326D08813AB63964C75941FC563379ADDA636A37400BE5F4B331B7858C2DD"
+    },
+    {
+      "path": "artifacts/f5/bridge-stage-pilot-build.log",
+      "bytes": 1889,
+      "sha256": "6F8F2AABB31918EFE538F99DBC40934C24F336676997F18ED7BE32F20C148235"
+    },
+    {
+      "path": "artifacts/f5/bridge-stage-pilot.log",
+      "bytes": 13781,
+      "sha256": "997C2F2ECCA9166E0084977F1E16CAFA66A380D54A06B83174E3C25B48799F62"
+    },
+    {
+      "path": "artifacts/f5/bridge-stage-reopen.log",
+      "bytes": 388,
+      "sha256": "3171C71042FBB84336D71B9A95A9E2CFA9DA1008E0BF0D8A5F698B463C1018C3"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate.log",
+      "bytes": 3898,
+      "sha256": "A7931CC88487D1A270E1E855819D8C127D94F0632000CA05E12CE49C43CD3B13"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/summary.json",
+      "bytes": 2404,
+      "sha256": "8CDF301E377AC414D727A6896795F6BBB04D676277C2FA1FF2DEBA7799F5BEBB"
+    },
+    {
+      "path": "artifacts/f5/model-stage-native-gate.log",
+      "bytes": 6304,
+      "sha256": "1D40F4CE513289921975501F5FC4422A0585F4CA2E8060944AA9D802C0A6D286"
+    },
+    {
+      "path": "artifacts/f5/stage-followup/api-stage-factors.txt",
+      "bytes": 5020,
+      "sha256": "F97737568C9CF5104C723E96ACC982287D23DB31293968450161B43402914D3F"
+    },
+    {
+      "path": "artifacts/f5/stage-followup/native-api-probes.txt",
+      "bytes": 818,
+      "sha256": "0315C4B965E9C0E39A425D3669BCD0C7BFB1767560CA34350DE12F2E155030E6"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/Design.Checks.net472.trx",
+      "bytes": 366109,
+      "sha256": "6F0C623E63E05A50556DBE9A6240AE90E933CCEEB71B3DAB33E52467307D33C7"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/Design.Checks.trx",
+      "bytes": 367671,
+      "sha256": "03BEF89737A460A7F7D15AD948606A627B27B68C68AAA49F133B61B476B8B0B0"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/EmbeddedWalls.Tests.trx",
+      "bytes": 139422,
+      "sha256": "1A9E8A5C17B1C0E4C739BC85691DAFCF298EF392798B905CABC49A1B1BA20403"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/GPCChecker.Test.Calculation.trx",
+      "bytes": 240282,
+      "sha256": "71BBE25A8FF60A0139A839327BD29BE9F087B5992440844C5EFFF75C86B045A6"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/GPCChecker.Test.CompositeBridge.trx",
+      "bytes": 625546,
+      "sha256": "8FA317E857927F1EC6EF127F6BF1314867AC79A5E080B752F4290B358E898648"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/GPCChecker.Test.Concrete.trx",
+      "bytes": 7631295,
+      "sha256": "83CC25905C476FD737C7C7B9FA682F98B1519EA07C727E945C8D23818F6897F9"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/GPCChecker.Test.Geotechnics.trx",
+      "bytes": 279486,
+      "sha256": "FEADF9FC527B2139B14C43D8A36728348F49714B56DE4BEC263A339E54C0B1E6"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/GPCChecker.Test.Steel.trx",
+      "bytes": 156088,
+      "sha256": "34931DFA084AE095D5911FD0668964F229F7D24738858A70CF3B07EF8378B1CE"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/ModelChecker.Tests.trx",
+      "bytes": 924605,
+      "sha256": "9A80C83B66A8CFE0130EB07CE263CA0F2F071FE856D4054798EB71441A4BAAD0"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/ShallowFoundation.Tests.trx",
+      "bytes": 39774,
+      "sha256": "221FC6021F08E601EF5A7D69F729BF40DEDA5197AFD71A83930CA776F96FEF47"
+    },
+    {
+      "path": "artifacts/f5/checker-stage-final-gate/Steel.Members.Tests.trx",
+      "bytes": 9952536,
+      "sha256": "F68ADBB5F8B829EDD5B29DA7879C4819AC57BB5D8A5B6B8208F7E310CFF86EFD"
+    },
+    {
+      "path": "artifacts/f5/model-stage-native-gate/Model.Core.Tests.trx",
+      "bytes": 86752,
+      "sha256": "E7C45BC32EE9FB2B7D5394A29D021034ED470A24C509E2FAEAC1B787D33A2BB0"
+    },
+    {
+      "path": "artifacts/f5/model-stage-native-gate/Model.NetFramework.Tests.trx",
+      "bytes": 99062,
+      "sha256": "255FB5C8D5A79923CD3AC7ED1F953E08262618B652BE5F288975C6AAC7BC14BB"
+    },
+    {
+      "path": "artifacts/f5/model-stage-native-gate/UnitTest.trx",
+      "bytes": 2368404,
+      "sha256": "F2126B656F62D430FA761F797CAF98385F2D22C77F36A76DD2D53A8759C6E0B9"
+    },
+    {
+      "path": "artifacts/f5/stage-followup/native-full-gate/89f6a0f22e4a44dabb1c1970d8a06683/physical.st7",
+      "bytes": 3607318,
+      "sha256": "4A15030A82A8423A3DBBC7DB5C8B64053C23B817A296B4A041979738F038F7B1"
+    },
+    {
+      "path": "artifacts/f5/stage-followup/native-full-gate/b2e2e23afc9c441cb58499e6e036b93c/moving.st7",
+      "bytes": 3607340,
+      "sha256": "925ED17184EBB51A240C5BED199D195CA6935C5C51ADC7FD9E7DF616483D0B25"
+    },
+    {
+      "path": "artifacts/f5/stage-followup/native-full-gate/c66127102fee40bbbc8e372ec1ebcb87/written-stages.st7",
+      "bytes": 3604723,
+      "sha256": "7F45D4A401F28E5D4EB0C0558CBFB4334B0957196760F47D7B19049C18D40723"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "Model/Model/bin/Release/netstandard2.0/GPCModel.dll",
+      "bytes": 1737728,
+      "sha256": "132B0BBD6F92CB4AA6F3C8CA9F9E733BE7237A54427C2389D1E78F327DE17AEE"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/bin/Release/netstandard2.0/GPC.Model.Persistence.dll",
+      "bytes": 37376,
+      "sha256": "6ADA4AF70F215079B39B035D8AAC682D8B7A2804E97407AFDF54DBF774D1F3B7"
+    },
+    {
+      "path": "Model/GPC Converter/bin/Release/netstandard2.0/GPC.Converter.dll",
+      "bytes": 511488,
+      "sha256": "E8818E82BD0B4C7937D56E8EB511986C9488442BEC5D3D7C906B45440CBEC08F"
+    }
+  ]
+}

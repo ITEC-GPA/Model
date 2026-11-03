@@ -30,6 +30,24 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            Register("GPC.Model.Stages.StageCaseFactor", "GPC.Model.Stages.StageCaseFactor",
+                Field("GPC.Model.Stages.StageCaseFactor", "<CaseGuid>k__BackingField", "CaseGuid", false),
+                Field("GPC.Model.Stages.StageCaseFactor", "<Factor>k__BackingField", "Factor", false));
+            Register("GPC.Model.Stages.StageLoadIncrement", "GPC.Model.Stages.StageLoadIncrement",
+                Field("GPC.Model.Stages.StageLoadIncrement", "<Name>k__BackingField", "Name", false),
+                Field("GPC.Model.Stages.StageLoadIncrement", "<LoadFactors>k__BackingField", "LoadFactors", false),
+                Field("GPC.Model.Stages.StageLoadIncrement", "<FreedomFactors>k__BackingField", "FreedomFactors", false),
+                Field("GPC.Model.Stages.StageLoadIncrement", "<PseudoTimeSeconds>k__BackingField", "PseudoTimeSeconds", false));
+            Register("GPC.Model.Stages.StageAnalysisState", "GPC.Model.Stages.StageAnalysisState",
+                Field("GPC.Model.Stages.StageAnalysisState", "<BirthGeometry>k__BackingField", "BirthGeometry", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<MoveRestrainedNodes>k__BackingField", "MoveRestrainedNodes", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<RotateIncomingClusters>k__BackingField", "RotateIncomingClusters", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<FluidLevelMm>k__BackingField", "FluidLevelMm", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<ActiveGroupGuids>k__BackingField", "ActiveGroupGuids", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<ActiveFreedomCaseGuids>k__BackingField", "ActiveFreedomCaseGuids", false),
+                Field("GPC.Model.Stages.StageAnalysisState", "<Increments>k__BackingField", "Increments", false));
+            Register("GPC.Model.Stages.StageBirthGeometry", "GPC.Model.Stages.StageBirthGeometry",
+                Field("GPC.Model.Stages.StageBirthGeometry", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingLoadDefinition", "GPC.Model.Actions.Moving.MovingLoadDefinition",
                 Field("GPC.Model.Actions.Moving.MovingLoadDefinition", "<Paths>k__BackingField", "Paths", false));
             Register("GPC.Model.Actions.Moving.MovingLoadPath", "GPC.Model.Actions.Moving.MovingLoadPath",

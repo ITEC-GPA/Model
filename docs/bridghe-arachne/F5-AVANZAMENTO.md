@@ -4,6 +4,10 @@ Checkpoint del 3 novembre 2026. **F5 in corso; F6, F7 e F8 non completate.**
 L'utente ha autorizzato la prosecuzione delle quattro fasi, mantenendo i branch separati.
 Questa è una consegna intermedia verificata, non un rilascio del nuovo modello dei plugin.
 
+## Prosecuzione: fasi costruttive
+
+Il checkpoint successivo è descritto in [F5-FASI.md](F5-FASI.md): contratti di attivazione e incrementi, writer nativo delle fasi, controlli delle revisioni e del pilota ponte. Questo documento conserva i risultati del checkpoint `47c9b4df`; i relativi hash in `f5-evidenze.json` si riferiscono a quella revisione, non ai sorgenti aggiornati. La matrice corrente riscontra 103 campi su 2.309.
+
 ## Implementato
 
 | Ambito | Risultato verificato | Limite attuale |

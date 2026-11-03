@@ -12,11 +12,14 @@ namespace GPC.Model.Stages
         public bool? IsCumulative { get; set; }
         public string SourceStep { get; set; }
         public StageDefinition Definition { get; set; }
+        public StageAnalysisState AnalysisState { get; set; }
         public Stage() : base() { }
         public Stage(int id, string name) : base(id, name) { }
         private Stage(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            SerializationVersions.Read(info, "StageVersion", 1, 0);
+            AnalysisState = SerializationFields.Read<StageAnalysisState>(info, "AnalysisState");
+            int version = SerializationVersions.Read(info, "StageVersion", AnalysisState == null ? 1 : 2, 0);
+            if (AnalysisState != null && version < 2) throw new SerializationException("StageAnalysisSchemaMismatch");
             IsCumulative = SerializationFields.Read<bool?>(info, "IsCumulative");
             SourceStep = SerializationFields.Read<string>(info, "SourceStep");
             Definition = SerializationFields.Read<StageDefinition>(info, "Definition");
@@ -24,7 +27,8 @@ namespace GPC.Model.Stages
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context); info.AddValue("IsCumulative", IsCumulative); info.AddValue("SourceStep", SourceStep);
-            info.AddValue("StageVersion", 1);
+            info.AddValue("StageVersion", AnalysisState == null ? 1 : 2);
+            if (AnalysisState != null) info.AddValue("AnalysisState", AnalysisState);
             // An absent definition must retain the fingerprint of legacy stages.
             if (Definition != null) info.AddValue("Definition", Definition);
         }

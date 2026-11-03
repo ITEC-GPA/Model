@@ -28,10 +28,16 @@ namespace GPC.Model.Models
         private static IEnumerable<object> AnalysisInputs(Models.Model model, bool properties)
         {
             yield return model.Guid;
+            bool stagedActivation = Stages.StageAnalysisState.HasData(model);
+            if (stagedActivation)
+                foreach (var group in model.Groups.Values.OrderBy(g => g.Guid))
+                    yield return new object[] { group.Guid, group.Id, group.Name, group.Parent?.Guid };
             foreach (var e in model.AllElements)
             {
                 yield return e.Id; yield return e.Guid; yield return e.Source; yield return e.CoordinateSystem;
-                // Organizing groups after importing results does not alter the physical FEM problem.
+                // Group membership is physical input only when a stage activates elements by group.
+                // Preserve the historical fingerprints of models with purely organizational groups.
+                if (stagedActivation) yield return e.Groups.Values.Select(g => g.Guid).OrderBy(id => id).ToArray();
                 yield return e.Loads; yield return e.Attributes;
                 if (e is NodeElement n)
                 {
