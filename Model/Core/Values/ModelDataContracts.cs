@@ -49,6 +49,7 @@ namespace GPC.Model.Core
 
             typeof(global::GPC.Model.Actions.Moving.MovingLoadDefinition),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadPath),
+            typeof(global::GPC.Model.Actions.Moving.MovingPathOptions),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadTemplate),
             typeof(global::GPC.Model.Actions.Moving.MovingVehicle),
             typeof(global::GPC.Model.Actions.Moving.MovingHeatSource),
@@ -59,6 +60,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Materials.MaterialNonlinearResponse),
             typeof(global::GPC.Model.Materials.MaterialHardening),
             typeof(global::GPC.Model.Actions.Moving.MovingCentrifugalLaw),
+            typeof(global::GPC.Model.Actions.Moving.MovingCentrifugalFactorKind),
             typeof(global::GPC.Model.Actions.Moving.MovingPointForce),
             typeof(global::GPC.Model.Actions.Moving.MovingDistributedForce),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadAxes),

@@ -31,7 +31,7 @@ namespace UnitTest
         internal static void AddAdvancedLoads(Model model)
         {
             var template=model.MovingLoads.Paths[0].Template;
-            template.Centrifugal=new MovingCentrifugalLaw {ExpressionLanguage="Straus7-R3",OffsetExpression="0",FactorExpression="V^2/(g*R)",LengthUnit="m",ForceUnit="kN",LimitFactor=true,MinimumFactor=0,MaximumFactor=.2};
+            template.Centrifugal=new MovingCentrifugalLaw {FactorKind=MovingCentrifugalFactorKind.SpeedSquaredOverGravityRadius,LimitFactor=true,MinimumFactor=0,MaximumFactor=.2};
             template.Vehicles[0].PointForces[0].ApplyCentrifugal=true;
             template.Vehicles[0].HeatSources=new[]{new MovingHeatSource {X=100,Y=20,SizeX=50,SizeY=100,Power=250000}};
             model.MovingLoads.Validate(model);
@@ -46,7 +46,7 @@ namespace UnitTest
                 stream.Position=0;var copy=ModelArchive.Load(stream);Assert.AreEqual(fingerprint,copy.AnalysisFingerprint());
                 var t=copy.MovingLoads.Paths[0].Template;t.Vehicles[0].HeatSources[0].Power++;
                 Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
-                t.Vehicles[0].HeatSources[0].Power--;t.Centrifugal.FactorExpression="0.1";Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());
+                t.Vehicles[0].HeatSources[0].Power--;t.Centrifugal.FactorKind=MovingCentrifugalFactorKind.Constant;t.Centrifugal.Factor=.1;Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());
             }
         }
         [TestMethod] public void HeatOnlyVehiclesAndCentrifugalValidationAreExplicit()
