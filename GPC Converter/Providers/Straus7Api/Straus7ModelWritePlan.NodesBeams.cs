@@ -259,7 +259,15 @@ namespace GPC.Converter.Straus7
                 Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
             }
 
-            private static (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
+            /// <summary>Shear areas per section instance of this export only (no static cache).</summary>
+            private readonly Dictionary<ISectionShape,(double Area1,double Area2)> shearAreas=new Dictionary<ISectionShape,(double Area1,double Area2)>(ReferenceComparer.Instance);
+            private sealed class ReferenceComparer : IEqualityComparer<ISectionShape>
+            {
+                internal static readonly ReferenceComparer Instance=new ReferenceComparer();
+                public bool Equals(ISectionShape x,ISectionShape y)=>ReferenceEquals(x,y);
+                public int GetHashCode(ISectionShape value)=>System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value);
+            }
+            private (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
             {
                 var profile=beam.Assignments.AnalysisProfile;
                 if(profile!=null)
@@ -276,7 +284,13 @@ namespace GPC.Converter.Straus7
                 Material material;ISectionShape section;double shear1=0,shear2=0;
                 if(beam.BeamProperty is ElasticBeamProperty elastic)
                 {elastic.Validate();material=elastic.Material;section=elastic.Section;shear1=elastic.ShearArea1;shear2=elastic.ShearArea2;}
-                else if(beam.BeamProperty is SteelSection steel) {material=steel.SteelMaterial;section=steel.SectionShape;}
+                else if(beam.BeamProperty is SteelSection steel)
+                {
+                    // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
+                    material=steel.SteelMaterial;section=steel.SectionShape;
+                    if(!shearAreas.TryGetValue(section,out var areas))shearAreas.Add(section,areas=SectionShearAreas.Compute(section));
+                    shear1=areas.Area1;shear2=areas.Area2;
+                }
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
                 if(material.Orthotropy!=null)throw new NotSupportedException("OrthotropicBeamRequiresExplicitRigidityProfile");
                 var centroid=section.Centroid;

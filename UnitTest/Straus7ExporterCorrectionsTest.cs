@@ -96,6 +96,54 @@ public class Straus7ExporterCorrectionsTest
         Assert.AreEqual(1, springs.Length); CollectionAssert.AreEqual(new[] { 100d, 50d, 0d }, (double[])springs[0].Args[4]!, string.Join(",", (double[])springs[0].Args[4]!));
     }
 
+    [TestMethod]
+    public void C2_ShearAreasMatchElementaryShearFlowSolutions()
+    {
+        var rectangle = new SectionRectangular(200, 100); var (r1, r2) = SectionShearAreas.Compute(rectangle);
+        Assert.AreEqual(5d / 6 * rectangle.Area, r1, 1e-9 * rectangle.Area); Assert.AreEqual(5d / 6 * rectangle.Area, r2, 1e-9 * rectangle.Area);
+        var rotated = new SectionRectangular(200, 100, 0.3); var (q1, q2) = SectionShearAreas.Compute(rotated);
+        Assert.AreEqual(5d / 6 * rotated.Area, q1, 1e-9 * rotated.Area); Assert.AreEqual(5d / 6 * rotated.Area, q2, 1e-9 * rotated.Area);
+        var circle = new SectionCircular(100); var (c1, c2) = SectionShearAreas.Compute(circle); // 9/10 A
+        Assert.AreEqual(.9 * circle.Area, c1, .01 * circle.Area); Assert.AreEqual(c1, c2, .01 * circle.Area);
+        // Thin tube: the chord method gives 2/3 A (walls crossed obliquely); the thin-walled shear-flow value is A/2 (declared difference).
+        var pipe = new SectionCHS(500, 5); var (p1, _) = SectionShearAreas.Compute(pipe);
+        Assert.AreEqual(2d / 3 * pipe.Area, p1, .02 * pipe.Area);
+        var h = new SectionH(300, 10, 200, 15, 200, 15, "I"); var (h1, h2) = SectionShearAreas.Compute(h);
+        // Axis 1 is the strong axis: shear along it is carried by the flanges, shear along axis 2 by the web.
+        Assert.IsTrue(h1 > 5d / 6 * 2 * 200 * 15 && h1 < 2 * 200 * 15, h1.ToString("R"));
+        Assert.IsTrue(h2 > (300 - 30) * 10 && h2 < 1.1 * 300 * 10, h2.ToString("R"));
+    }
+
+    private static Model SteelCantilever(ISectionShape shape)
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var steel = new GPC.Model.Sections.Steel.SteelSection(shape, GPC.Model.Data.Steel.SteelMaterialEN1993Data.S355);
+        model.BeamElements.Values.Single().BeamProperty = steel; return model;
+    }
+
+    [TestMethod]
+    public void C2_SteelSectionSendsGpcShearAreasAndElasticPropertyKeepsExplicitOnes()
+    {
+        var shape = new SectionRectangular(200, 100); var section = (double[])Record(SteelCantilever(shape)).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Single().Args[3]!;
+        Assert.AreEqual(5d / 6 * shape.Area, section[6], 1e-9 * shape.Area); Assert.AreEqual(5d / 6 * shape.Area, section[7], 1e-9 * shape.Area);
+        var elastic = (double[])Record(Straus7ModelWriteTest.Cantilever()).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Single().Args[3]!;
+        Assert.AreEqual(0, elastic[6]); Assert.AreEqual(0, elastic[7]); // explicit ElasticBeamProperty contract: 0 = no shear deformation
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C2_NativeSteelCantileverMatchesTimoshenkoDeflection()
+    {
+        var shape = new SectionRectangular(200, 100); var model = SteelCantilever(shape); string folder = NativeFolder();
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "timoshenko.st7"), folder);
+        var material = ((GPC.Model.Sections.Steel.SteelSection)model.BeamElements.Values.Single().BeamProperty).SteelMaterial;
+        double e = material.E, g = material.GetShearModule(), l = 1000, p = 1000;
+        // Load along the section axis 2 (global Z): bending about axis 1 and shear area 5/6 A.
+        double expected = -(p * l * l * l / (3 * e * shape.J11) + p * l / (g * 5d / 6 * shape.Area));
+        int freeId = model.NodesElements.Values.Single(n => n.Position.X == 1000).Id;
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder); reader.OpenResults(run.ResultPath);
+        Assert.AreEqual(expected, reader.ReadNodeResult(freeId, 1, false).Values[2], 1e-7 * Math.Abs(expected));
+        Assert.AreEqual(5d / 6 * shape.Area, reader.ReadProperty(Straus7Entity.Beam, 1).SectionProperties[7], 1e-9 * shape.Area);
+    }
+
     [TestMethod, TestCategory("Straus7Native")]
     public void C1_NativeSplitClampKeepsAllSixRestraints()
     {
