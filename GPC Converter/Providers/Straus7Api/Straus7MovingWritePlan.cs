@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using GPC.Model.Actions.Moving;
 using GPC.Model.Core;
+using GPC.Model.Core.Identity;
 using GPC.Model.Models;
 
 namespace GPC.Converter.Straus7
 {
+    public interface IStraus7AdvancedMovingWriteApi
+    {
+        void SetMovingCentrifugal(int template,string offset,string factor,int[] flags,double[] limits);
+        void AddMovingHeatSource(int template,int vehicle,int position,double[] values);
+        void CreateMovingEntitySet(int id,int[] families,int[] entityIds);
+    }
     /// <summary>Load-path API operations. Arrays follow the R3 SDK, after domain validation and explicit identity mapping.</summary>
     public interface IStraus7MovingWriteApi
     {
@@ -44,25 +51,40 @@ namespace GPC.Converter.Straus7
         private readonly Action<IStraus7MovingWriteApi>[] operations;
         private readonly bool convert;
         private readonly Guid modelGuid;
+        private readonly bool advanced;
+        internal bool RequiresAdvancedApi => advanced;
         public string AnalysisFingerprint { get; }
         public int TemplateCount { get; }
         public int PathCount { get; }
-        private Straus7MovingWritePlan(Guid owner,string fingerprint,int templates,int paths,bool convert,List<Action<IStraus7MovingWriteApi>> operations)
-        { modelGuid=owner; AnalysisFingerprint=fingerprint; TemplateCount=templates; PathCount=paths; this.convert=convert; this.operations=operations.ToArray(); }
+        private Straus7MovingWritePlan(Guid owner,string fingerprint,int templates,int paths,bool convert,bool advanced,List<Action<IStraus7MovingWriteApi>> operations)
+        { modelGuid=owner; AnalysisFingerprint=fingerprint; TemplateCount=templates; PathCount=paths; this.convert=convert; this.advanced=advanced; this.operations=operations.ToArray(); }
         public static Straus7MovingWritePlan Prepare(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> loadCaseIds,
             IReadOnlyDictionary<Guid,Straus7MovingPathOptions> options=null)
+            => Prepare(model,loadCaseIds,options,null);
+
+        public static Straus7MovingWritePlan Prepare(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> loadCaseIds,
+            IReadOnlyDictionary<Guid,Straus7MovingPathOptions> options,SolverIdentityMap identity)
         {
             if(model==null||loadCaseIds==null) throw new ArgumentNullException();
             if(model.MovingLoads==null) throw new ArgumentException("MissingMovingLoadDefinition");
             model.MovingLoads.Validate(model);
             if(loadCaseIds.Values.Any(i=>i<1)||loadCaseIds.Values.Distinct().Count()!=loadCaseIds.Count) throw new ArgumentException("InvalidStrausLoadCaseMap");
-            var copy=ModelValues.CopyValue(model.MovingLoads); var ops=new List<Action<IStraus7MovingWriteApi>>(); var templates=new Dictionary<string,int>(); bool convert=false;
+            identity?.ValidateAgainst(model);
+            var copy=ModelValues.CopyValue(model.MovingLoads); var ops=new List<Action<IStraus7MovingWriteApi>>(); var templates=new Dictionary<string,int>(); bool convert=false,advanced=false;int entitySetCount=0;
             if(options!=null && options.Keys.Any(id=>!copy.Paths.Any(p=>p.Id==id))) throw new ArgumentException("UnknownMovingPathOptions");
             for(int pathIndex=0;pathIndex<copy.Paths.Count;pathIndex++)
             {
                 var path=copy.Paths[pathIndex]; var template=path.Template;
                 if(!loadCaseIds.TryGetValue(path.CaseGuid,out int loadCase)) throw new ArgumentException("MissingStrausMovingCaseIdentity");
-                if(path.Target==MovingPathTarget.Selection) throw new NotSupportedException("StrausMovingEntitySelectionRequiresEntitySetWriter");
+                int set=0;
+                if(path.Target==MovingPathTarget.Selection)
+                {
+                    if(identity==null)throw new ArgumentException("MovingSelectionRequiresSolverIdentityMap");
+                    var selected=path.TargetElementGuids.Select(g=>identity.Entries.Single(e=>e.EntityGuid==g)).ToArray();
+                    var families=selected.Select(e=>e.Family==EntityFamily.Beam?1:e.Family==EntityFamily.Shell?2:e.Family==EntityFamily.Solid?3:throw new ArgumentException("InvalidMovingTargetFamily")).ToArray();
+                    var ids=selected.Select(e=>e.SolverId).ToArray();set=++entitySetCount;int setId=set;advanced=true;
+                    ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).CreateMovingEntitySet(setId,(int[])families.Clone(),(int[])ids.Clone()));
+                }
                 var settings=options!=null && options.TryGetValue(path.Id,out var requested) ? requested : new Straus7MovingPathOptions();
                 if(settings==null) throw new ArgumentException("MissingStrausMovingOptions"); settings.Validate();
                 if(template.LaneFactors.Length>16) throw new NotSupportedException("StrausMovingMaximum16Lanes");
@@ -77,6 +99,15 @@ namespace GPC.Converter.Straus7
                 {
                     templateId=templates.Count+1; templates.Add(key,templateId); int id=templateId;
                     ops.Add(a=>a.CreateMovingTemplate(id,template.Name,(int[])flags.Clone(),(double[])values.Clone()));
+                    if(template.Centrifugal!=null)
+                    {
+                        var law=template.Centrifugal;
+                        if(law.ExpressionLanguage!="Straus7-R3")throw new NotSupportedException("UnsupportedCentrifugalExpressionLanguage");
+                        int length=Array.IndexOf(new[]{"m","cm","mm","ft","in"},law.LengthUnit),force=Array.IndexOf(new[]{"N","kN","MN","kgf","lbf","tf","kip"},law.ForceUnit);
+                        if(length<0||force<0)throw new NotSupportedException("UnsupportedCentrifugalExpressionUnits");
+                        int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor??0,law.MaximumFactor??0};advanced=true;
+                        ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).SetMovingCentrifugal(id,law.OffsetExpression,law.FactorExpression,(int[])cf.Clone(),(double[])limits.Clone()));
+                    }
                     for(int i=0;i<template.LaneFactors.Length;i++) { int lane=i+1; double factor=template.LaneFactors[i]; ops.Add(a=>a.SetMovingLaneFactor(id,lane,factor)); }
                     for(int v=0;v<template.Vehicles.Length;v++)
                     {
@@ -87,30 +118,37 @@ namespace GPC.Converter.Straus7
                         for(int i=0;i<vehicle.PointForces.Length;i++)
                         {
                             var force=vehicle.PointForces[i]; int position=i+1;
-                            var f=new[]{(int)force.Mobility,(int)force.Axes,force.ApplyAdjacencyFactor?1:0,0};
+                            var f=new[]{(int)force.Mobility,(int)force.Axes,force.ApplyAdjacencyFactor?1:0,force.ApplyCentrifugal==true?1:0};
                             var d=new[]{force.X,force.Y,force.Force.X,force.Force.Y,force.Force.Z};
                             ops.Add(a=>a.AddMovingPointForce(id,number,position,(int[])f.Clone(),(double[])d.Clone()));
                         }
                         for(int i=0;i<vehicle.DistributedForces.Length;i++)
                         {
                             var force=vehicle.DistributedForces[i]; int position=i+1;
-                            var f=new[]{(int)force.Mobility,(int)force.Axes,force.ApplyAdjacencyFactor?1:0,0};
+                            var f=new[]{(int)force.Mobility,(int)force.Axes,force.ApplyAdjacencyFactor?1:0,force.ApplyCentrifugal==true?1:0};
                             var d=new[]{force.X1,force.X2,force.Y1,force.Y2,force.ForcePerLength.X,force.ForcePerLength.Y,force.ForcePerLength.Z};
                             ops.Add(a=>a.AddMovingDistributedForce(id,number,position,(int[])f.Clone(),(double[])d.Clone()));
                         }
+                        if(vehicle.HeatSources!=null)for(int i=0;i<vehicle.HeatSources.Length;i++)
+                        {
+                            var h=vehicle.HeatSources[i];int position=i+1;advanced=true;
+                            var data=new[]{h.X,h.Y,h.SizeX,h.SizeY,h.Power/1000}; // N mm/s -> J/s, native energy unit J.
+                            ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).AddMovingHeatSource(id,number,position,(double[])data.Clone()));
+                        }
                     }
                 }
-                int target=path.Target==MovingPathTarget.AllStructuralElements?0:path.Target==MovingPathTarget.Beams?2:path.Target==MovingPathTarget.Shells?3:4;
-                int[] pathFlags={loadCase,templateId,(int)path.Shape,(int)path.Surface,target,path.Divisions,0};
+                int target=path.Target==MovingPathTarget.Selection?1:path.Target==MovingPathTarget.AllStructuralElements?0:path.Target==MovingPathTarget.Beams?2:path.Target==MovingPathTarget.Shells?3:4;
+                int[] pathFlags={loadCase,templateId,(int)path.Shape,(int)path.Surface,target,path.Divisions,set};
                 double[] coordinates={path.Start.X,path.Start.Y,path.Start.Z,path.End.X,path.End.Y,path.End.Z,path.Reference.X,path.Reference.Y,path.Reference.Z};
                 int pathId=pathIndex+1; ops.Add(a=>a.SetMovingPath(pathId,(int[])pathFlags.Clone(),(double[])coordinates.Clone(),toStatic)); convert|=toStatic;
             }
-            return new Straus7MovingWritePlan(model.Guid,model.AnalysisFingerprint(),templates.Count,copy.Paths.Count,convert,ops);
+            return new Straus7MovingWritePlan(model.Guid,model.AnalysisFingerprint(),templates.Count,copy.Paths.Count,convert,advanced,ops);
         }
         public IReadOnlyDictionary<int,string> Write(IStraus7MovingWriteApi api,global::GPC.Model.Models.Model currentInput)
         {
             if(api==null||currentInput==null) throw new ArgumentNullException();
             if(currentInput.Guid!=modelGuid||currentInput.AnalysisFingerprint()!=AnalysisFingerprint) throw new InvalidOperationException("StaleStrausMovingPlan");
+            if(advanced&&!(api is IStraus7AdvancedMovingWriteApi))throw new NotSupportedException("MissingAdvancedMovingWriteApi");
             api.RequireEmptyMovingLoads(); foreach(var operation in operations) operation(api);
             return convert ? api.ConvertSelectedMovingPaths() : new Dictionary<int,string>();
         }

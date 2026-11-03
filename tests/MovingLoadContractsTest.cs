@@ -28,6 +28,36 @@ namespace UnitTest
                     DistributedForces=new[]{new MovingDistributedForce {X1=0,X2=1000,Y1=-500,Y2=500,ForcePerLength=new Vector3d(0,0,-2)}}}}}});
             model.MovingLoads.Validate(model); return model;
         }
+        internal static void AddAdvancedLoads(Model model)
+        {
+            var template=model.MovingLoads.Paths[0].Template;
+            template.Centrifugal=new MovingCentrifugalLaw {ExpressionLanguage="Straus7-R3",OffsetExpression="0",FactorExpression="V^2/(g*R)",LengthUnit="m",ForceUnit="kN",LimitFactor=true,MinimumFactor=0,MaximumFactor=.2};
+            template.Vehicles[0].PointForces[0].ApplyCentrifugal=true;
+            template.Vehicles[0].HeatSources=new[]{new MovingHeatSource {X=100,Y=20,SizeX=50,SizeY=100,Power=250000}};
+            model.MovingLoads.Validate(model);
+        }
+        [TestMethod] public void HeatAndCentrifugalInputsSurviveBothArchivesAndDetachOnCopy()
+        {
+            var model=Sample();Assert.IsFalse(model.MovingLoads.UsesExtendedContract);AddAdvancedLoads(model);
+            Assert.IsTrue(model.MovingLoads.UsesExtendedContract);string fingerprint=model.AnalysisFingerprint();
+            foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
+            {
+                if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);
+                stream.Position=0;var copy=ModelArchive.Load(stream);Assert.AreEqual(fingerprint,copy.AnalysisFingerprint());
+                var t=copy.MovingLoads.Paths[0].Template;t.Vehicles[0].HeatSources[0].Power++;
+                Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+                t.Vehicles[0].HeatSources[0].Power--;t.Centrifugal.FactorExpression="0.1";Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());
+            }
+        }
+        [TestMethod] public void HeatOnlyVehiclesAndCentrifugalValidationAreExplicit()
+        {
+            var model=Sample();AddAdvancedLoads(model);var t=model.MovingLoads.Paths[0].Template;var v=t.Vehicles[0];
+            t.Centrifugal=null;Assert.ThrowsException<ArgumentException>(()=>model.MovingLoads.Validate(model));
+            v.PointForces=Array.Empty<MovingPointForce>();v.DistributedForces=Array.Empty<MovingDistributedForce>();model.MovingLoads.Validate(model);
+            v.HeatSources[0].SizeY=0;Assert.ThrowsException<ArgumentException>(()=>model.MovingLoads.Validate(model));
+            v.HeatSources[0].SizeX=0;model.MovingLoads.Validate(model);
+            v.HeatSources[0].Power=double.NaN;Assert.ThrowsException<ArgumentException>(()=>model.MovingLoads.Validate(model));
+        }
         [TestMethod] public void MovingDomainCopyDetachesMutableGeometryVehiclesAndForces()
         {
             var model=Sample(); string before=model.AnalysisFingerprint(); var copy=ModelValues.CopyValue(model); copy.MovingLoads.Validate(copy);
@@ -55,6 +85,12 @@ namespace UnitTest
             Assert.AreEqual(-2000,load.Resultant().Z); load.Y1=-5000; load.Y2=5000; Assert.AreEqual(-2000,load.Resultant().Z);
             load.X2=2000; Assert.AreEqual(-4000,load.Resultant().Z);
             load.ForcePerLength=new Vector3d(0,0,0); load.Validate(); Assert.AreEqual(0,load.Resultant().Length);
+        }
+        [DataTestMethod,DataRow(1),DataRow(2),DataRow(3)] public void PathDependentDistributedLoadsRequireExplicitLoadedLength(int mobility)
+        {
+            var load=new MovingDistributedForce {Mobility=(MovingDistributionMobility)mobility,ForcePerLength=new Vector3d(0,0,-2)};
+            load.Validate();Assert.ThrowsException<InvalidOperationException>(()=>load.Resultant());Assert.AreEqual(-6000,load.Resultant(3000).Z);
+            Assert.ThrowsException<ArgumentException>(()=>load.Resultant(-1));
         }
         [TestMethod] public void ChangesInvalidateBothAnalysisAndSolverBinding()
         {

@@ -4,7 +4,9 @@ Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente;
 
 ## Stato effettivo
 
-**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione è documentata in [F5-EXPORTER.md](F5-EXPORTER.md): esportazione completa dei modelli elastici coperti, load patch/string group, fasi Original/Morph/Reset verificate numericamente, confronto con i due ponti F4, carichi mobili statici, importazione dei risultati e archivio. Il workflow Checker è eseguibile sui risultati GPC. Gate Model: **1.868 PASS**, 12 esclusioni preesistenti; gate Checker: **10.377 PASS**, un'esclusione preesistente; API e audit superati. Matrice F5 parziale: **126/2.309** campi riscontrati nell'overlay, nessuno dichiarato migrato in produzione. Restano i descrittori geometrici e le assegnazioni avanzate non ancora coperte; il rifiuto esplicito non ne certifica l'implementazione. Nessun rilascio.
+**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione corrente è in [F5-DOMINIO-ESTESO.md](F5-DOMINIO-ESTESO.md): descrittori del ponte, materiali di analisi, membrane per unità di larghezza, carichi mobili avanzati, risultati generati e delle fasi, rastremazioni, collegamenti rigidi, pressioni sulle facce, cutoff e shear panel. Gate aggiornati superati: **Model 1.916 PASS, 7 esclusioni; Checker 10.377 PASS, 1 esclusione**; API e audit superati. [Evidenze del set](f5-dominio-esteso-evidenze.json). Overlay F5: **278/2.309** campi. La chiusura semantica dell'intera matrice resta necessaria: un rifiuto esplicito non certifica l'implementazione. Nessun rilascio.
+
+Ultimo checkpoint consolidato: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
 
 Checkpoint precedente: [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice aggiornata](f5-destinazioni-parziali.json), [evidenze storiche](f5-evidenze.json).
 

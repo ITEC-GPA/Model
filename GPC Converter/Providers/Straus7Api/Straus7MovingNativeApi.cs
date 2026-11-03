@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
 
 namespace GPC.Converter.Straus7
 {
@@ -16,6 +18,18 @@ namespace GPC.Converter.Straus7
     }
     public sealed partial class Straus7NativeApi : IStraus7MovingReadApi
     {
+        public double[] ReadMovingHeatSource(int template,int vehicle,int position)
+        {var flags=new int[1];var values=new double[5];Check(Call<MovingForceData>("St7GetLoadPathTemplateHeatSourceData")(FileId,template,vehicle,position,flags,values),"St7GetLoadPathTemplateHeatSourceData");return values;}
+        public GPC.Model.Actions.Moving.MovingCentrifugalLaw ReadMovingCentrifugal(int template)
+        {
+            var offset=new StringBuilder(1024);var factor=new StringBuilder(1024);var flags=new int[3];var values=new double[2];
+            Check(Call<MovingCentrifugalRead>("St7GetLoadPathTemplateCentrifugalData")(FileId,template,offset,factor,1024,flags,values),"St7GetLoadPathTemplateCentrifugalData");
+            return new GPC.Model.Actions.Moving.MovingCentrifugalLaw {ExpressionLanguage="Straus7-R3",OffsetExpression=offset.ToString(),FactorExpression=factor.ToString(),
+                LengthUnit=new[]{"m","cm","mm","ft","in"}[flags[1]],ForceUnit=new[]{"N","kN","MN","kgf","lbf","tf","kip"}[flags[2]],
+                LimitFactor=flags[0]!=0,MinimumFactor=values[0],MaximumFactor=values[1]};
+        }
+        public bool IsInMovingEntitySet(int family,int entity,int set)
+        {byte included=0;Check(Call<MovingSetRead>("St7GetEntitySetEntityState")(FileId,family,entity,set,ref included),"St7GetEntitySetEntityState");return included!=0;}
         public int MovingTemplateCount
         { get { int count=0,last=0; Check(Call<MovingTotals>("St7GetTotalLoadPathTemplates")(FileId,ref count,ref last),"St7GetTotalLoadPathTemplates"); return count; } }
         public double[] ReadMovingPath(int id,out int[] flags)
@@ -35,9 +49,33 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingVehicleData(int a,int b,int c,[Out] int[] flags,[Out] double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingForceData(int a,int b,int c,int d,[Out] int[] flags,[Out] double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingFactor(int a,int b,int c,ref double value);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MovingCentrifugalRead(int a,int b,StringBuilder offset,StringBuilder factor,int max,int[] flags,double[] limits);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingSetRead(int a,int family,int entity,int set,ref byte included);
     }
-    public sealed partial class Straus7NativeWriter : IStraus7MovingWriteApi
+    public sealed partial class Straus7NativeWriter : IStraus7MovingWriteApi,IStraus7AdvancedMovingWriteApi
     {
+        public void SetMovingCentrifugal(int template,string offset,string factor,int[] flags,double[] limits)
+            =>api.CheckWrite(api.WriteFunction<MovingCentrifugalWrite>("St7SetLoadPathTemplateCentrifugalData")(Id,template,offset,factor,flags,limits),"St7SetLoadPathTemplateCentrifugalData");
+        public void AddMovingHeatSource(int template,int vehicle,int position,double[] values)
+        {
+            if(api.ReadUnits()[5]!=0)throw new NotSupportedException("MovingHeatRequiresNativeJouleEnergyUnit");
+            AddMovingForce("HeatSource",template,vehicle,position,new int[1],values);
+        }
+        public void CreateMovingEntitySet(int id,int[] families,int[] entityIds)
+        {
+            if(families==null||entityIds==null||families.Length!=entityIds.Length||families.Length==0||families.Any(f=>f<1||f>3)||entityIds.Any(i=>i<=0))throw new ArgumentException("InvalidMovingNativeSelection");
+            int count=0;api.CheckWrite(api.WriteFunction<MovingSetCount>("St7GetNumEntitySets")(Id,ref count),"St7GetNumEntitySets");
+            if(count!=id-1)throw new InvalidOperationException("MovingEntitySetsRequireFreshConsecutiveIds");
+            api.CheckWrite(api.WriteFunction<MovingSetName>("St7NewEntitySet")(Id,"GPC moving selection "+id),"St7NewEntitySet");
+            foreach(int family in families.Distinct())
+            {
+                api.CheckWrite(api.WriteFunction<MovingSelectAll>("St7SetAllEntitySelectState")(Id,family,0),"St7SetAllEntitySelectState");
+                for(int i=0;i<families.Length;i++)if(families[i]==family)
+                    api.CheckWrite(api.WriteFunction<MovingSelect>("St7SetEntitySelectState")(Id,family,entityIds[i],0,1),"St7SetEntitySelectState");
+                api.CheckWrite(api.WriteFunction<MovingThree>("St7AddSelectedToEntitySet")(Id,family,id),"St7AddSelectedToEntitySet");
+                api.CheckWrite(api.WriteFunction<MovingSelectAll>("St7SetAllEntitySelectState")(Id,family,0),"St7SetAllEntitySelectState");
+            }
+        }
         public void RequireEmptyMovingLoads()
         {
             if(api.Count((Straus7Entity)8)!=0||api.MovingTemplateCount!=0) throw new InvalidOperationException("StrausMovingWriterRequiresEmptyPathsAndTemplates");
@@ -76,7 +114,7 @@ namespace GPC.Converter.Straus7
         public IReadOnlyDictionary<int,string> ConvertSelectedMovingPaths()
         {
             int before=api.LoadCaseCount;
-            api.CheckWrite(api.WriteFunction<MovingConvert>("St7ConvertLoadPathsToLoadCases")(Id,1,1,0),"St7ConvertLoadPathsToLoadCases");
+            api.CheckWrite(api.WriteFunction<MovingConvert>("St7ConvertLoadPathsToLoadCases")(Id,1,1,1),"St7ConvertLoadPathsToLoadCases");
             int after=api.LoadCaseCount; var cases=new Dictionary<int,string>();
             for(int i=before+1;i<=after;i++) cases.Add(i,api.ReadLoadCase(i));
             if(cases.Count==0) throw new InvalidOperationException("StrausMovingConversionProducedNoCases"); return cases;
@@ -91,5 +129,9 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingFactor(int a,int b,int c,double value);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingSelect(int a,int b,int c,int d,byte selected);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingConvert(int a,byte points,byte distributed,byte heat);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MovingCentrifugalWrite(int a,int b,string offset,string factor,int[] flags,double[] limits);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingSetCount(int a,ref int count);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MovingSetName(int a,string name);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MovingSelectAll(int a,int family,byte selected);
     }
 }

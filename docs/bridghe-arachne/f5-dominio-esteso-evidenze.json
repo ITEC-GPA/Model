@@ -1,0 +1,222 @@
+{
+  "schema": "gpc-f5-extended-domain-evidence-v1",
+  "phaseStatus": "in-progress; complete field matrix still required",
+  "date": "2026-11-03",
+  "versions": {
+    "Model": "5.44.0.0",
+    "Persistence": "3.10.0.0",
+    "Converter": "2.16.0.0",
+    "CompositeBridge": "1.25.0.0"
+  },
+  "modelGate": {
+    "passed": 1916,
+    "failed": 0,
+    "ignored": 7,
+    "suites": [
+      {
+        "path": "artifacts/f5/model-extended-gate-2/Model.Core.Tests.trx",
+        "sha256": "b81a8dd9c4cbbba715a1da1a7d9947ba60792f06bdfc0a453b2e64dee5078f80",
+        "bytes": 86752,
+        "counters": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      },
+      {
+        "path": "artifacts/f5/model-extended-gate-2/Model.NetFramework.Tests.trx",
+        "sha256": "c360cf4f1d48699fe62059fe5f8934188115ac56a8cd4cb99bfcf43d34aad9ce",
+        "bytes": 122384,
+        "counters": {
+          "total": "89",
+          "executed": "89",
+          "passed": "89",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      },
+      {
+        "path": "artifacts/f5/model-extended-gate-2/UnitTest.trx",
+        "sha256": "64a9872a666acb1ef982a2b9dfaeaf6d5bb40c5011d3d68b43818f05aa5d0752",
+        "bytes": 2450352,
+        "counters": {
+          "total": "1771",
+          "executed": "1764",
+          "passed": "1764",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      }
+    ],
+    "log": {
+      "path": "artifacts/f5/model-extended-gate-2.log",
+      "sha256": "7e308814fa845b3d884a5f7476c0e59beb4bfb7816027cc43125254576176d4b",
+      "bytes": 5379
+    },
+    "apiAndEqualityAudit": "passed"
+  },
+  "checkerGate": {
+    "passed": 10377,
+    "failed": 0,
+    "other": 1,
+    "suites": [
+      {
+        "name": "GPCChecker.Test.Concrete",
+        "passed": 962,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Steel",
+        "passed": 122,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.CompositeBridge",
+        "passed": 436,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Geotechnics",
+        "passed": 202,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Calculation",
+        "passed": 175,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ShallowFoundation.Tests",
+        "passed": 29,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "EmbeddedWalls.Tests",
+        "passed": 99,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Steel.Members.Tests",
+        "passed": 7132,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks",
+        "passed": 274,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks.net472",
+        "passed": 273,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ModelChecker.Tests",
+        "passed": 673,
+        "failed": 0,
+        "other": 1,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      }
+    ],
+    "summary": {
+      "path": "artifacts/f5/checker-extended-gate/summary.json",
+      "sha256": "ff65eab47cdfa59496a1bbb70f9d5290b712c689411f1a1997fbc016db7833f1",
+      "bytes": 2404
+    },
+    "log": {
+      "path": "artifacts/f5/checker-extended-gate.log",
+      "sha256": "a40fe2b539893111d3d959c73b6dae2f30862939d11e66d3f07d846cf5b04569",
+      "bytes": 12096
+    },
+    "apiCompatibility": "passed"
+  },
+  "matrix": {
+    "deltaRows": 278,
+    "totalFields": 2309,
+    "complete": false
+  },
+  "limitations": [
+    "Production adapters and component migration remain F6.",
+    "Unimplemented source fields remain an open F5 gate; explicit rejection is not implementation.",
+    "Staged result path uses small-displacement kinematics.",
+    "Native thermal and damping values read back; no full dynamic or heat-transfer analysis equivalence claimed.",
+    "No merge, push or release; no pre-existing fixture or API baseline regenerated."
+  ]
+}

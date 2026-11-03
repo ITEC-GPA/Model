@@ -86,7 +86,7 @@ namespace GPC.Converter.Straus7
                     throw new NotSupportedException("UnsupportedStrausBeamGeometryAssignment");
                 if(input.Sections.Count!=0)throw new NotSupportedException("ExplicitBeamSectionScheduleRequiresSubdivision");
                 if(beam.Loads.Count!=0)throw new NotSupportedException("BeamLoadsRequireExplicitStationAssignments");
-                int formulation=input.Formulation==BeamFormulation.StraightTwoNode?6:input.Formulation==BeamFormulation.Truss?3:input.Formulation==BeamFormulation.Cable?2:
+                int formulation=input.Formulation==BeamFormulation.StraightTwoNode?6:input.Formulation==BeamFormulation.Truss?3:input.Formulation==BeamFormulation.Cable?2:input.Formulation==BeamFormulation.CutoffBar?4:
                     throw new NotSupportedException("UnsupportedStrausBeamFormulation: "+input.Formulation);
                 if(input.SectionAxes==null)throw new ArgumentException("ExplicitBeamSectionAxesRequired");
                 var axes=input.SectionAxes;var axesData=AxesData(axes);var tangent=beam.NodeJ.Position-beam.NodeI.Position;double length=Axes.Length(tangent);
@@ -94,6 +94,20 @@ namespace GPC.Converter.Straus7
                 var nodes=new[]{Entities[beam.NodeI.Guid],Entities[beam.NodeJ.Guid]};
                 var property=BeamPropertyData(beam);string name=string.IsNullOrWhiteSpace(beam.Name)?"Beam "+id:beam.Name;
                 Operations.Add(a=>a.CreateBeamProperty(id,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
+                var cutoff=(beam.BeamProperty as ElasticBeamProperty)?.CutoffLaw;
+                if((cutoff!=null)!=(formulation==4)||cutoff!=null&&input.AnalysisProfile!=null)throw new ArgumentException("CutoffLawRequiresCutoffBarFormulationAndExplicitSection");
+                if(cutoff!=null)
+                {
+                    cutoff.Validate();RequiresMaterialApi=true;int failure=(int)cutoff.Failure;bool keep=cutoff.KeepMass;double tension=cutoff.TensionLimit,compression=cutoff.CompressionLimit;
+                    Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetCutoffLaw(id,failure,keep,tension,compression));
+                }
+                if(input.Physical?.Taper!=null) BeamSectionGeometry(beam,id,property.Section);
+                if(beamIntegrationSlices.TryGetValue(beam.Guid,out int slices))
+                {
+                    RequiresSectionGeometryApi=true;
+                    Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamIntegrationSlices(id,slices,(double[])property.Section.Clone()));
+                }
+                if(input.AnalysisProfile==null)MaterialLaw(id,1,(beam.BeamProperty as ElasticBeamProperty)?.Material??(beam.BeamProperty as SteelSection)?.SteelMaterial);
                 Operations.Add(a=>a.SetElement(1,id,id,(int[])nodes.Clone()));Group(beam,1);Operations.Add(a=>a.SetBeamAxes(id,(double[])axesData.Clone()));
                 var offsetI=Global(input.OffsetI,input.OffsetAxes??axes);var offsetJ=Global(input.OffsetJ,input.OffsetAxes??axes);
                 if(Axes.Length(offsetI-offsetJ)>1e-8)throw new NotSupportedException("UnequalBeamOffsetsRequireRigidEndLinks");
@@ -121,6 +135,27 @@ namespace GPC.Converter.Straus7
             private static Vector3d Global(Vector3d v,CoordinateSystem axes)
             {if(v==null)return new Vector3d(0,0,0);Axes.Validate(axes);return axes.V1*v.X+axes.V2*v.Y+axes.V3*v.Z;}
 
+            internal bool RequiresSectionGeometryApi;
+            private void BeamSectionGeometry(BeamElement beam,int id,double[] properties)
+            {
+                if(beam.Assignments.AnalysisProfile!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
+                var section=(beam.BeamProperty as ElasticBeamProperty)?.Section??(beam.BeamProperty as SteelSection)?.SectionShape;
+                int shape;double[] dimensions;
+                if(section is SectionRectangular rectangle && rectangle.Angle==0)
+                {shape=3;dimensions=new[]{rectangle.Width,rectangle.Height,0,0,0,0};}
+                else if(section is SectionCircular circle)
+                {shape=1;dimensions=new[]{circle.Diameter,0,0,0,0,0};}
+                else if(section is SectionCHS pipe)
+                {shape=2;dimensions=new[]{pipe.Diameter,0,0,pipe.Thickness,0,0};}
+                else if(section is SectionH h && h.R==0)
+                {shape=7;dimensions=new[]{h.LenghtTopFlange,h.LenghtBottomFlange,h.Height,h.ThicknessTopFlange,h.ThicknessWeb,h.ThicknessBottomFlange};}
+                else if(section is SectionRHS box && box.R==0 && box.ThicknessTop==box.ThicknessBottom && box.ThicknessWebLeft==box.ThicknessWebRight)
+                {shape=4;dimensions=new[]{box.Width,box.Height,0,box.ThicknessTop,box.ThicknessWebLeft,0};}
+                else throw new NotSupportedException("TaperSectionGeometryNotRepresentable: "+section?.GetType().Name);
+                RequiresSectionGeometryApi=true;
+                Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
+            }
+
             private static (double[] Section,double[] Material) BeamPropertyData(BeamElement beam)
             {
                 var profile=beam.Assignments.AnalysisProfile;
@@ -142,8 +177,13 @@ namespace GPC.Converter.Straus7
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
                 if(material.Orthotropy!=null)throw new NotSupportedException("OrthotropicBeamRequiresExplicitRigidityProfile");
                 var centroid=section.Centroid;
-                var shape=new[]{section.Area,section.J11,section.J22,section.Jt,0,0,shear1,shear2,centroid.X,centroid.Y,section.AngleX1};
-                var values=new[]{material.E,material.GetShearModule(),material.Ni,material.Density,material.AlfaThermalExpansion,0,0,0,0};Finite(shape);Finite(values);
+                var shearCenter=section.ShearCenter;
+                if(shearCenter==null)throw new NotSupportedException("SectionShearCenterRequired");
+                double dx=shearCenter.X-centroid.X,dy=shearCenter.Y-centroid.Y,c=Math.Cos(section.AngleX1),s=Math.Sin(section.AngleX1);
+                var shape=new[]{section.Area,section.J11,section.J22,section.Jt,c*dx+s*dy,-s*dx+c*dy,shear1,shear2,centroid.X,centroid.Y,section.AngleX1};
+                material.AnalysisData?.Validate();var analysis=material.AnalysisData;
+                var values=new[]{material.E,analysis?.BeamShearModulus??material.GetShearModule(),material.Ni,material.Density,material.AlfaThermalExpansion,
+                    analysis?.ViscousDampingDensity??0,analysis?.ModalDampingRatio??0,(analysis?.ThermalConductivity??0)/1000,(analysis?.SpecificHeat??0)/1000};Finite(shape);Finite(values);
                 return(shape,values);
             }
         }

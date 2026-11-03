@@ -21,7 +21,11 @@ namespace GPC.Converter.Straus7
         private readonly Straus7MovingWritePlan moving;
         private readonly Straus7StageWritePlan stages;
         private readonly string groupFingerprint;
-        private readonly bool hasStaticMovingConversion;
+        private readonly bool requiresMaterialApi;
+        private readonly bool requiresSectionGeometryApi;
+        private readonly bool requiresConstraintApi;
+        private readonly bool requiresSurfacePressureApi;
+        internal readonly Guid[] StaticMovingParentCases;
         public SolverIdentityMap IdentityMap { get; }
         public IReadOnlyDictionary<Guid,int> LoadCaseIds { get; }
         public IReadOnlyDictionary<Guid,int> FreedomCaseIds { get; }
@@ -30,26 +34,35 @@ namespace GPC.Converter.Straus7
 
         private Straus7ModelWritePlan(Builder builder, IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions)
         {
-            hasStaticMovingConversion=movingOptions!=null&&movingOptions.Values.Any(o=>o!=null&&o.ConvertToStaticCases);
+            StaticMovingParentCases=builder.Model.MovingLoads?.Paths.Where(p=>movingOptions!=null&&movingOptions.TryGetValue(p.Id,out var o)&&o.ConvertToStaticCases).Select(p=>p.CaseGuid).Distinct().ToArray()??Array.Empty<Guid>();
             IdentityMap=SolverIdentityMap.Create(builder.Model,"Straus7-R3",builder.Entities);
             LoadCaseIds=new ReadOnlyDictionary<Guid,int>(builder.Loads);
             FreedomCaseIds=new ReadOnlyDictionary<Guid,int>(builder.Freedoms);
             GroupIds=new ReadOnlyDictionary<Guid,int>(builder.Groups);
             groupFingerprint=GroupFingerprint(builder.Model);
-            physical=Straus7PhysicalWritePlan.Prepare(builder.Model,IdentityMap,
+            requiresMaterialApi=builder.RequiresMaterialApi;
+            requiresSectionGeometryApi=builder.RequiresSectionGeometryApi;
+            requiresConstraintApi=builder.RequiresConstraintApi;
+            requiresSurfacePressureApi=builder.RequiresSurfacePressureApi;
+            physical=Straus7PhysicalWritePlan.PrepareForFullModel(builder.Model,IdentityMap,
                 builder.Model.LoadCases.Values.ToDictionary(c=>c.Name,c=>builder.Loads[c.Guid]),
                 builder.Model.FreedomCases.Values.ToDictionary(c=>c.Name,c=>builder.Freedoms[c.Guid]));
-            if(builder.Model.MovingLoads!=null) moving=Straus7MovingWritePlan.Prepare(builder.Model,LoadCaseIds,movingOptions);
+            if(builder.Model.MovingLoads!=null) moving=Straus7MovingWritePlan.Prepare(builder.Model,LoadCaseIds,movingOptions,IdentityMap);
             if(builder.Model.Stages.Count!=0) stages=Straus7StageWritePlan.Prepare(builder.Model,GroupIds,LoadCaseIds,FreedomCaseIds,1);
             operations=builder.Operations.ToArray();
         }
         public static Straus7ModelWritePlan Prepare(global::GPC.Model.Models.Model model,
             IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions=null)
+            => Prepare(model,movingOptions,null);
+        /// <param name="beamIntegrationSlices">Explicit lengthwise numerical integration count by beam GUID;
+        /// omitted beams retain the native solver default. This numerical setting is not a physical section property.</param>
+        public static Straus7ModelWritePlan Prepare(global::GPC.Model.Models.Model model,
+            IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions,IReadOnlyDictionary<Guid,int> beamIntegrationSlices)
         {
             if(model==null)throw new ArgumentNullException(nameof(model));
             if(model.Stages.Count!=0 && movingOptions!=null && movingOptions.Values.Any(o=>o!=null&&o.ConvertToStaticCases))
                 throw new NotSupportedException("GeneratedMovingCasesNeedExplicitStageFactors");
-            var builder=new Builder(model);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
+            var builder=new Builder(model,beamIntegrationSlices);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
         }
         private static string GroupFingerprint(global::GPC.Model.Models.Model model) => ModelValues.Fingerprint(new object[] {
             model.Name,
@@ -64,6 +77,11 @@ namespace GPC.Converter.Straus7
             if(!(api is IStraus7WriteApi physicalApi) || moving!=null && !(api is IStraus7MovingWriteApi) || stages!=null && !(api is IStraus7StageWriteApi))
                 throw new ArgumentException("IncompleteStrausWriterCapabilities");
             if(physical.RequiresDistributionApi&&!(api is IStraus7DistributionWriteApi))throw new ArgumentException("MissingStrausDistributionWriteApi");
+            if(moving?.RequiresAdvancedApi==true&&!(api is IStraus7AdvancedMovingWriteApi))throw new ArgumentException("MissingAdvancedMovingWriteApi");
+            if(requiresMaterialApi&&!(api is IStraus7MaterialWriteApi))throw new ArgumentException("MissingMaterialWriteApi");
+            if(requiresSectionGeometryApi&&!(api is IStraus7SectionGeometryWriteApi))throw new ArgumentException("MissingSectionGeometryWriteApi");
+            if(requiresConstraintApi&&!(api is IStraus7ConstraintWriteApi))throw new ArgumentException("MissingConstraintWriteApi");
+            if(requiresSurfacePressureApi&&!(api is IStraus7SurfacePressureWriteApi))throw new ArgumentException("MissingSurfacePressureWriteApi");
             api.RequireEmptyTopology();foreach(var operation in operations)operation(api);
             physical.Write(physicalApi,currentInput);
             var generated=moving?.Write((IStraus7MovingWriteApi)api,currentInput)??new Dictionary<int,string>();
@@ -77,11 +95,16 @@ namespace GPC.Converter.Straus7
             internal readonly Dictionary<Guid,int> Entities=new Dictionary<Guid,int>(),Loads=new Dictionary<Guid,int>(),Freedoms=new Dictionary<Guid,int>(),Groups=new Dictionary<Guid,int>();
             internal readonly List<Action<IStraus7ModelWriteApi>> Operations=new List<Action<IStraus7ModelWriteApi>>();
             private int nextUcs=2;
-            internal Builder(global::GPC.Model.Models.Model model) {Model=model;}
+            private readonly IReadOnlyDictionary<Guid,int> beamIntegrationSlices;
+            internal Builder(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> slices)
+            {
+                Model=model;beamIntegrationSlices=slices==null?new Dictionary<Guid,int>():slices.ToDictionary(p=>p.Key,p=>p.Value);
+                if(beamIntegrationSlices.Any(p=>p.Value<2||p.Value>10||!model.BeamElements.Values.Any(b=>b.Guid==p.Key)))throw new ArgumentException("InvalidBeamIntegrationSlices");
+            }
             internal void Build()
             {
                 if(Model.FormFinding!=null)throw new NotSupportedException("FormFindingRequiresItsDedicatedSolver");
-                if(Model.VolumeElements.Count!=0 || Model.Costrains.Count!=0)throw new NotSupportedException("StrausSolidOrConstraintWriterRequired");
+                if(Model.VolumeElements.Count!=0)throw new NotSupportedException("StrausSolidWriterRequired");
                 if(Model.ValidateTopology(supportsWarpedQuads:true,planarityToleranceMm:1e-6).Any(d=>d.Severity==GPC.Model.Core.Diagnostics.DiagnosticSeverity.Error))
                     throw new ArgumentException("InvalidStrausModelTopology");
                 if(Model.ValidateGroups().Count!=0)throw new ArgumentException("InvalidStrausGroups");
@@ -108,6 +131,7 @@ namespace GPC.Converter.Straus7
                 foreach(var node in Model.NodesElements.Values.OrderBy(n=>Entities[n.Guid])) Node(node);
                 foreach(var beam in Model.BeamElements.Values.OrderBy(n=>Entities[n.Guid])) Beam(beam);
                 foreach(var plate in Model.AreaElements.Values.OrderBy(n=>Entities[n.Guid])) Plate(plate);
+                Constraints();
                 ModelActions();
             }
             private void Number<T>(IEnumerable<T> entities) where T:Element

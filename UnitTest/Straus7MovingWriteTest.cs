@@ -11,6 +11,52 @@ namespace UnitTest;
 public class Straus7MovingWriteTest
 {
     private static Dictionary<Guid,int> Cases(Model model) => new() {{model.LoadCases.Values.Single().Guid,1}};
+    [DataTestMethod,DataRow("EN1991 General"),DataRow("BS5400 Centrifugal"),TestCategory("Straus7Native")]
+    public void NativeLibraryIsExpandedIntoIndependentDomainInput(string requestedLibrary)
+    {
+        var root=Environment.GetEnvironmentVariable("GPC_STRAUS7_WRITE");if(string.IsNullOrWhiteSpace(root))Assert.Inconclusive("Set GPC_STRAUS7_WRITE.");
+        string folder=Path.Combine(Path.GetFullPath(root!),Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);
+        KeyValuePair<string,string[]> library;
+        using(var reader=new Straus7NativeApi())library=reader.MovingLibraryCatalog().Single(p=>p.Key.Contains(requestedLibrary));
+        var resolved=Straus7MovingLibrary.Resolve(library.Key,library.Value[0],folder);resolved.Template.Validate();
+        Assert.IsTrue(resolved.Template.Vehicles.Length>0);Assert.AreEqual(library.Key,resolved.LibraryName);
+        var model=MovingLoadContractsTest.Sample();var path=model.MovingLoads.Paths[0];path.Template=resolved.Template;
+        string fingerprint=ModelValues.Fingerprint(new object[]{resolved.Template}),output=Path.Combine(folder,"expanded-library.st7");
+        var plan=Straus7MovingWritePlan.Prepare(model,Cases(model),new Dictionary<Guid,Straus7MovingPathOptions>{{path.Id,resolved.Options}});
+        using(var writer=new Straus7NativeWriter(output,folder))
+        {
+            writer.CreateLoadCase(1,"traffic");plan.Write(writer,model);writer.Save();
+        }
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(output,folder);var reread=reader.ReadExpandedMovingTemplate(1);
+            Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{reread.Template}));
+            Assert.AreEqual(resolved.Options.RelativeTolerance,reread.Options.RelativeTolerance);
+        }
+        Console.WriteLine("F5 expanded library: "+library.Key+" / "+library.Value[0]+"; "+output);
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeAdvancedMovingLoadsPreserveHeatCentrifugalAndSelectedElements()
+    {
+        var root=Environment.GetEnvironmentVariable("GPC_STRAUS7_WRITE");if(string.IsNullOrWhiteSpace(root))Assert.Inconclusive("Set GPC_STRAUS7_WRITE.");
+        string folder=Path.Combine(Path.GetFullPath(root!),Guid.NewGuid().ToString("N"));Directory.CreateDirectory(folder);
+        string output=Path.Combine(folder,"advanced-moving.st7");
+        var model=MovingLoadContractsTest.Sample();MovingLoadContractsTest.AddAdvancedLoads(model);var path=model.MovingLoads.Paths[0];
+        var beam=model.BeamElements.Values.Single();beam.BeamProperty=new GPC.Model.ElementProperties.ElasticBeamProperty("beam",new GPC.Model.Materials.Material("steel",210000,.3,7.85e-9,0),new GPC.Model.Sections.SectionRectangular(100,100));
+        beam.Assignments.SectionAxes=new GPC.Geometry.CoordinateSystem(beam.StartPoint,new GPC.Geometry.Vector3d(0,1,0),new GPC.Geometry.Vector3d(0,0,1));
+        path.Target=MovingPathTarget.Selection;path.TargetElementGuids=new[]{beam.Guid};
+        var plan=Straus7ModelWritePlan.Prepare(model);
+        using(var writer=new Straus7NativeWriter(output,folder)){plan.Write(writer,model);writer.Save();}
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(output,folder);reader.ReadMovingPath(1,out var flags);Assert.AreEqual(1,flags[4]);Assert.AreEqual(1,flags[6]);
+            Assert.IsTrue(reader.IsInMovingEntitySet(1,1,1));Assert.IsFalse(reader.IsInMovingEntitySet(0,1,1));
+            CollectionAssert.AreEqual(new[]{100d,20,50,100,250},reader.ReadMovingHeatSource(1,1,1));
+            var law=reader.ReadMovingCentrifugal(1);Assert.AreEqual("V^2/(g*R)",law.FactorExpression);Assert.AreEqual("m",law.LengthUnit);Assert.AreEqual("kN",law.ForceUnit);Assert.AreEqual(.2,law.MaximumFactor);
+            reader.ReadMovingPointForce(1,1,1,out var forceFlags);Assert.AreEqual(1,forceFlags[3]);
+        }
+        Console.WriteLine("F5 advanced moving readback: "+output);
+    }
     [TestMethod] public void PlanDeduplicatesTemplatesAndSeparatesNativeOptionsFromPhysics()
     {
         var model=MovingLoadContractsTest.Sample(); var second=ModelValues.CopyValue(model.MovingLoads.Paths[0]); second.Id=Guid.NewGuid(); second.Start.Y+=10; second.End.Y+=10;

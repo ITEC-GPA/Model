@@ -18,6 +18,23 @@ using GPC.Model.Structure.Assignments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTest {
 [TestClass] public class ElasticExportContractsTest {
+    [TestMethod] public void MaterialAnalysisPropertiesAreCopiedArchivedAndFingerprintRelevant()
+    {
+        var model=Cantilever();var material=((ElasticBeamProperty)model.BeamElements.Values.Single().BeamProperty).Material;
+        material.AnalysisData=new MaterialAnalysisData {BeamShearModulus=80000,ViscousDampingDensity=1e-12,ModalDampingRatio=.03,ThermalConductivity=50,SpecificHeat=4.6e8,
+            StressStrainPairs=new[]{0d,0,.001,200,.01,250},NonlinearResponse=MaterialNonlinearResponse.Elastoplastic};
+        var fingerprint=model.AnalysisFingerprint();
+        foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
+        {
+            if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);
+            stream.Position=0;var copy=ModelArchive.Load(stream);Assert.AreEqual(fingerprint,copy.AnalysisFingerprint());
+            var restored=((ElasticBeamProperty)copy.BeamElements.Values.Single().BeamProperty).Material;
+            Assert.AreEqual(material.AnalysisData,restored.AnalysisData);restored.AnalysisData.StressStrainPairs[3]=210;
+            Assert.AreNotEqual(fingerprint,copy.AnalysisFingerprint());Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+        }
+        material.AnalysisData.StressStrainPairs[2]=-1;Assert.ThrowsException<ArgumentException>(()=>material.AnalysisData.Validate());
+        material.AnalysisData.StressStrainPairs=null;Assert.ThrowsException<ArgumentException>(()=>material.AnalysisData.Validate());
+    }
     internal static Model Cantilever(bool distributed=false)
     {
         var fixedNode=new NodeElement(new Point3d(0,0,0));var freeNode=new NodeElement(new Point3d(1000,0,0));

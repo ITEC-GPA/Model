@@ -22,6 +22,7 @@ namespace GPC.Model.Actions.Moving
     public sealed class MovingLoadDefinition
     {
         [field:DataMember(Order=0)] public List<MovingLoadPath> Paths { get; set; } = new List<MovingLoadPath>();
+        public bool UsesExtendedContract => Paths.Any(p=>p.Template.Centrifugal!=null||p.Template.Vehicles.Any(v=>v.HeatSources!=null||v.PointForces.Any(f=>f.ApplyCentrifugal.HasValue)||v.DistributedForces.Any(f=>f.ApplyCentrifugal.HasValue)));
         public void Validate(Models.Model model)
         {
             if(model==null) throw new ArgumentNullException(nameof(model));
@@ -85,6 +86,7 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=2)] public double[] LaneFactors { get; set; } = new[]{1.0};
         [field:DataMember(Order=3)] public MovingLaneFactorRule LaneFactorRule { get; set; }
         [field:DataMember(Order=4)] public double MinimumLaneWidth { get; set; }
+        [field:DataMember(Order=5,EmitDefaultValue=false)] public MovingCentrifugalLaw Centrifugal { get; set; }
         /// <summary>Factors for active lanes ordered from greatest to least influence.
         /// This returns multipliers only; it does not determine critical vehicle positions or solve an influence envelope.</summary>
         public double[] ActiveLaneFactors(int count)
@@ -101,9 +103,11 @@ namespace GPC.Model.Actions.Moving
             if(LaneFactors==null||LaneFactors.Length==0) throw new ArgumentException("MissingMovingLaneFactors");
             foreach(var factor in LaneFactors) MovingValidation.Nonnegative(factor);
             MovingValidation.Nonnegative(MinimumLaneWidth); MovingValidation.Enum(LaneFactorRule);
+            Centrifugal?.Validate();
             foreach(var vehicle in Vehicles)
             {
                 vehicle.Validate();
+                if(Centrifugal==null&&(vehicle.PointForces.Any(f=>f.ApplyCentrifugal==true)||vehicle.DistributedForces.Any(f=>f.ApplyCentrifugal==true)))throw new ArgumentException("MissingMovingCentrifugalLaw");
                 if(vehicle.AllowedLanes.Any(l=>l>LaneFactors.Length)) throw new ArgumentException("UnknownMovingVehicleLane");
                 if(vehicle.Placement==MovingVehiclePlacement.AdjacentLanePair && LaneFactors.Length<2) throw new ArgumentException("MovingVehicleNeedsTwoLanes");
             }
@@ -126,14 +130,16 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=6)] public int[] AllowedLanes { get; set; } = Array.Empty<int>();
         [field:DataMember(Order=7)] public MovingPointForce[] PointForces { get; set; } = Array.Empty<MovingPointForce>();
         [field:DataMember(Order=8)] public MovingDistributedForce[] DistributedForces { get; set; } = Array.Empty<MovingDistributedForce>();
+        [field:DataMember(Order=9,EmitDefaultValue=false)] public MovingHeatSource[] HeatSources { get; set; }
         public void Validate()
         {
             if(string.IsNullOrWhiteSpace(Name)) throw new ArgumentException("MissingMovingVehicleName");
             MovingValidation.Enum(Placement); MovingValidation.Enum(Direction); MovingValidation.Nonnegative(Speed); MovingValidation.Finite(StartTime);
             if(AllowedLanes==null||AllowedLanes.Any(l=>l<1)||AllowedLanes.Distinct().Count()!=AllowedLanes.Length) throw new ArgumentException("InvalidMovingVehicleLanes");
-            if(PointForces==null||DistributedForces==null||PointForces.Length+DistributedForces.Length==0) throw new ArgumentException("MissingMovingVehicleForces");
+            if(PointForces==null||DistributedForces==null||PointForces.Length+DistributedForces.Length+(HeatSources?.Length??0)==0) throw new ArgumentException("MissingMovingVehicleForces");
             foreach(var force in PointForces) { if(force==null) throw new ArgumentException("NullMovingForce"); force.Validate(); }
             foreach(var force in DistributedForces) { if(force==null) throw new ArgumentException("NullMovingForce"); force.Validate(); }
+            if(HeatSources!=null)foreach(var heat in HeatSources){if(heat==null)throw new ArgumentException("NullMovingHeatSource");heat.Validate();}
         }
     }
 
@@ -147,6 +153,7 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=4)] public double Y { get; set; }
         /// <summary>Signed components in N, in the specified axes.</summary>
         [field:DataMember(Order=5)] public Vector3d Force { get; set; } = new Vector3d(0,0,0);
+        [field:DataMember(Order=6,EmitDefaultValue=false)] public bool? ApplyCentrifugal { get; set; }
         public void Validate() { MovingValidation.Enum(Mobility); MovingValidation.Enum(Axes); MovingValidation.Finite(X); MovingValidation.Finite(Y); MovingValidation.Vector(Force); }
     }
 
@@ -162,14 +169,66 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=6)] public double Y2 { get; set; }
         /// <summary>N/mm measured along path x, independent of footprint width in y. Zero defines an unloaded moving region.</summary>
         [field:DataMember(Order=7)] public Vector3d ForcePerLength { get; set; } = new Vector3d(0,0,0);
+        [field:DataMember(Order=8,EmitDefaultValue=false)] public bool? ApplyCentrifugal { get; set; }
         public void Validate()
         {
             MovingValidation.Enum(Mobility); MovingValidation.Enum(Axes); MovingValidation.Vector(ForcePerLength);
             MovingValidation.Finite(X1); MovingValidation.Finite(X2); MovingValidation.Finite(Y1); MovingValidation.Finite(Y2);
-            if(X2<=X1||Y2<Y1) throw new ArgumentException("InvalidMovingForceFootprint");
+            if(((Mobility==MovingDistributionMobility.Grouped||Mobility==MovingDistributionMobility.Floating)&&X2<=X1)||Y2<Y1) throw new ArgumentException("InvalidMovingForceFootprint");
         }
         /// <summary>Resultant on the specified footprint. Width spreads the same force across the receiving surface.</summary>
-        public Vector3d Resultant() { Validate(); var result=ForcePerLength*(X2-X1); MovingValidation.Vector(result); return result; }
+        public Vector3d Resultant()
+        {
+            Validate();
+            if(Mobility!=MovingDistributionMobility.Grouped&&Mobility!=MovingDistributionMobility.Floating)throw new InvalidOperationException("MovingResultantRequiresLoadedPathLength");
+            return Resultant(X2-X1);
+        }
+        /// <summary>Resultant over an explicitly evaluated loaded length, e.g. the leading/trailing portion of a path.</summary>
+        public Vector3d Resultant(double loadedLength)
+        {Validate();MovingValidation.Nonnegative(loadedLength);var result=ForcePerLength*loadedLength;MovingValidation.Vector(result);return result;}
+    }
+
+    /// <summary>Grouped heat source; X/Y and footprint sizes in mm, total signed power in N mm/s.
+    /// A nonzero footprint distributes the same total power over its area. Zero sizes define a point source.</summary>
+    [Serializable,DataContract]
+    public sealed class MovingHeatSource
+    {
+        [field:DataMember(Order=0)] public double X { get; set; }
+        [field:DataMember(Order=1)] public double Y { get; set; }
+        [field:DataMember(Order=2)] public double SizeX { get; set; }
+        [field:DataMember(Order=3)] public double SizeY { get; set; }
+        [field:DataMember(Order=4)] public double Power { get; set; }
+        public void Validate()
+        {
+            MovingValidation.Finite(X);MovingValidation.Finite(Y);MovingValidation.Finite(Power);
+            MovingValidation.Nonnegative(SizeX);MovingValidation.Nonnegative(SizeY);
+            if((SizeX==0)!=(SizeY==0))throw new ArgumentException("MovingHeatRequiresPointOrAreaFootprint");
+        }
+    }
+
+    /// <summary>Signed radial force = OffsetExpression + FactorExpression * vertical force.
+    /// The explicit expression language and units are part of the physical input and its fingerprint.
+    /// An adapter must support the declared dialect; expressions are never evaluated as application code.</summary>
+    [Serializable,DataContract]
+    public sealed class MovingCentrifugalLaw
+    {
+        [field:DataMember(Order=0)] public string ExpressionLanguage { get; set; }
+        [field:DataMember(Order=1)] public string OffsetExpression { get; set; }
+        [field:DataMember(Order=2)] public string FactorExpression { get; set; }
+        [field:DataMember(Order=3)] public string LengthUnit { get; set; } = "mm";
+        [field:DataMember(Order=4)] public string ForceUnit { get; set; } = "N";
+        [field:DataMember(Order=5)] public double? MinimumFactor { get; set; }
+        [field:DataMember(Order=6)] public double? MaximumFactor { get; set; }
+        [field:DataMember(Order=7)] public bool LimitFactor { get; set; }
+        public void Validate()
+        {
+            // Native libraries may leave one term empty. Preserve it verbatim; the declared dialect defines its meaning.
+            if(new[]{ExpressionLanguage,LengthUnit,ForceUnit}.Any(string.IsNullOrWhiteSpace)||OffsetExpression==null||FactorExpression==null||
+                (string.IsNullOrWhiteSpace(OffsetExpression)&&string.IsNullOrWhiteSpace(FactorExpression)))throw new ArgumentException("IncompleteMovingCentrifugalLaw");
+            if(MinimumFactor.HasValue!=MaximumFactor.HasValue)throw new ArgumentException("IncompleteMovingCentrifugalLimits");
+            if(LimitFactor&&!MinimumFactor.HasValue)throw new ArgumentException("MissingMovingCentrifugalLimits");
+            if(MinimumFactor.HasValue){MovingValidation.Finite(MinimumFactor.Value);MovingValidation.Finite(MaximumFactor.Value);if(MinimumFactor>MaximumFactor)throw new ArgumentException("ReversedMovingCentrifugalLimits");}
+        }
     }
 
     internal static class MovingValidation

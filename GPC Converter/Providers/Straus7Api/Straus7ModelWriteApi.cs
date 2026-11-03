@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -69,14 +69,25 @@ namespace GPC.Converter.Straus7
             api.CheckWrite(api.WriteFunction<ModelProperty>("St7NewBeamProperty")(Id,id,formulation,name),"St7NewBeamProperty");
             api.CheckWrite(api.WriteFunction<ModelSection>("St7SetBeamSectionPropertyData")(Id,id,new[]{0},section),"St7SetBeamSectionPropertyData");
             api.CheckWrite(api.WriteFunction<ModelValues>("St7SetBeamMaterialData")(Id,id,material),"St7SetBeamMaterialData");
-            api.CheckWrite(api.WriteFunction<MovingThree>("St7SetBeamShearModulusMode")(Id,id,1),"St7SetBeamShearModulusMode");
+            if(formulation!=4)api.CheckWrite(api.WriteFunction<MovingThree>("St7SetBeamShearModulusMode")(Id,id,1),"St7SetBeamShearModulusMode");
             api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,id),"St7UpdateElementPropertyData");
         }
         public void CreatePlateProperty(int id,string name,int formulation,double bending,double membrane,double[] material,bool orthotropic)
         {
-            api.CheckWrite(api.WriteFunction<ModelPlateProperty>("St7NewPlateProperty")(Id,id,formulation,orthotropic?2:1,name),"St7NewPlateProperty");
+            bool shearPanel=formulation==5;
+            api.CheckWrite(api.WriteFunction<ModelPlateProperty>("St7NewPlateProperty")(Id,id,shearPanel?4:formulation,shearPanel||orthotropic?2:1,name),"St7NewPlateProperty");
             if(formulation==7)return; // Load patches have no physical material or stiffness thickness.
             api.CheckWrite(api.WriteFunction<ModelValues>("St7SetPlateThickness")(Id,id,new[]{membrane,bending}),"St7SetPlateThickness");
+            if(shearPanel)
+            {
+                if(orthotropic)throw new ArgumentException("ShearPanelRequiresIsotropicMaterial");
+                // R31 does not populate shear-panel G through SetPlateIsotropicMaterial. Seed G12 through
+                // an orthotropic shell, then switch formulation. Confirmed by the uniform-shear solver test.
+                double g=material[0],nu=material[1],e=2*g*(1+nu);
+                var seed=new[]{e,e,e,g,g,g,nu,nu,nu,material[2],material[3],material[3],material[3],material[4],material[5],material[6],material[6],material[7]};
+                api.CheckWrite(api.WriteFunction<ModelValues>("St7SetPlateOrthotropicMaterial")(Id,id,seed),"St7SetPlateOrthotropicMaterial");
+                api.CheckWrite(api.WriteFunction<Four>("St7SetPlatePropertyType")(Id,id,5,1),"St7SetPlatePropertyType");
+            }
             string op=orthotropic?"St7SetPlateOrthotropicMaterial":"St7SetPlateIsotropicMaterial";
             api.CheckWrite(api.WriteFunction<ModelValues>(op)(Id,id,material),op);
         }
@@ -138,6 +149,14 @@ namespace GPC.Converter.Straus7
             api.CheckWrite(api.WriteFunction<ModelName>("St7AddLSACombination")(Id,name),"St7AddLSACombination");
             for(int i=0;i<cases.Length;i++) api.CheckWrite(api.WriteFunction<ModelCombination>("St7SetLSACombinationFactor")(Id,0,id,cases[i],freedomCase,factors[i]),"St7SetLSACombinationFactor");
         }
+        /// <summary>Dimensionless displacement and residual convergence tolerances for nonlinear iterations.</summary>
+        public void SetNonlinearConvergence(double displacementTolerance,double residualTolerance,int maximumIterations)
+        {
+            if(!(displacementTolerance>0&&displacementTolerance<1)||!(residualTolerance>0&&residualTolerance<1)||maximumIterations<1)throw new ArgumentException("InvalidNonlinearConvergenceControls");
+            api.CheckWrite(api.WriteFunction<ModelScalar>("St7SetSolverDefaultsDouble")(Id,4,displacementTolerance),"St7SetSolverDefaultsDouble/displacement");
+            api.CheckWrite(api.WriteFunction<ModelScalar>("St7SetSolverDefaultsDouble")(Id,5,residualTolerance),"St7SetSolverDefaultsDouble/residual");
+            api.CheckWrite(api.WriteFunction<MovingThree>("St7SetSolverDefaultsInteger")(Id,5,maximumIterations),"St7SetSolverDefaultsInteger/iterations");
+        }
         /// <summary>Runs only this newly created output. Existing result files are never overwritten.</summary>
         public string Solve(bool stagedNonlinear=false,bool nonlinearGeometry=false,bool nonlinearMaterial=false)
         {
@@ -165,6 +184,7 @@ namespace GPC.Converter.Straus7
             finally {api.CloseResults();}
             return result;
         }
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelScalar(int file,int parameter,double value);
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int ModelName(int a,string name);
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int ModelGroup(int a,int parent,string name,ref int id);
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int ModelProperty(int a,int id,int kind,string name);

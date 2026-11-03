@@ -14,6 +14,7 @@ namespace GPC.Model.ElementProperties
         /// <summary>Effective shear areas (mm²); zero means no shear deformation in the native beam formulation.</summary>
         public double ShearArea1 { get; set; }
         public double ShearArea2 { get; set; }
+        public BeamCutoffLaw CutoffLaw { get; set; }
 
         public ElasticBeamProperty(string name, Material material, ISectionShape section, double shearArea1 = 0, double shearArea2 = 0) : base(name)
         { Material = material; Section = section; ShearArea1 = shearArea1; ShearArea2 = shearArea2; Validate(); }
@@ -25,16 +26,19 @@ namespace GPC.Model.ElementProperties
             ElasticPropertyValidation.Nonnegative(Section.Jt, "SectionTorsion");
             ElasticPropertyValidation.Nonnegative(ShearArea1, "ShearArea1"); ElasticPropertyValidation.Nonnegative(ShearArea2, "ShearArea2");
             ElasticPropertyValidation.Material(Material);
+            CutoffLaw?.Validate();
         }
         private ElasticBeamProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            SerializationVersions.Read(info, "ElasticBeamPropertyVersion", 1);
+            int version=SerializationVersions.Read(info, "ElasticBeamPropertyVersion", 2);
+            if(version>=2)CutoffLaw=(BeamCutoffLaw)info.GetValue("CutoffLaw",typeof(BeamCutoffLaw));
             Material = (Material)info.GetValue("Material", typeof(Material)); Section = (ISectionShape)info.GetValue("Section", typeof(ISectionShape));
             ShearArea1 = info.GetDouble("ShearArea1"); ShearArea2 = info.GetDouble("ShearArea2"); Validate();
         }
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticBeamPropertyVersion", 1);
+            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticBeamPropertyVersion", CutoffLaw==null?1:2);
+            if(CutoffLaw!=null)info.AddValue("CutoffLaw",CutoffLaw);
             info.AddValue("Material", Material); info.AddValue("Section", Section); info.AddValue("ShearArea1", ShearArea1); info.AddValue("ShearArea2", ShearArea2);
         }
         public override bool Equals(object obj) => obj is ElasticBeamProperty other && base.Equals(other)
@@ -42,7 +46,7 @@ namespace GPC.Model.ElementProperties
         public override int GetHashCode() => 23;
     }
 
-    public enum ElasticPlateFormulation { Shell, Membrane, PlaneStress, PlaneStrain, Axisymmetric, LoadPatch }
+    public enum ElasticPlateFormulation { Shell, Membrane, PlaneStress, PlaneStrain, Axisymmetric, LoadPatch, ShearPanel }
 
     /// <summary>Elastic plate/shell property; strength checks require a separate recognized checking material.
     /// Independent bending and membrane thicknesses use mm. Load patches carry load without stiffness.</summary>
@@ -72,13 +76,14 @@ namespace GPC.Model.ElementProperties
         }
         private ElasticPlateProperty(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            SerializationVersions.Read(info, "ElasticPlatePropertyVersion", 1);
+            int version=SerializationVersions.Read(info, "ElasticPlatePropertyVersion", 2);
             Material = (Material)info.GetValue("Material", typeof(Material)); BendingThickness = info.GetDouble("BendingThickness");
             MembraneThickness = info.GetDouble("MembraneThickness"); Formulation = (ElasticPlateFormulation)info.GetInt32("Formulation"); Validate();
+            if(Formulation==ElasticPlateFormulation.ShearPanel&&version<2)throw new SerializationException("ShearPanelSchemaMismatch");
         }
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticPlatePropertyVersion", 1);
+            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticPlatePropertyVersion", Formulation==ElasticPlateFormulation.ShearPanel?2:1);
             info.AddValue("Material", Material); info.AddValue("BendingThickness", BendingThickness); info.AddValue("MembraneThickness", MembraneThickness); info.AddValue("Formulation", (int)Formulation);
         }
         public override bool Equals(object obj) => obj is ElasticPlateProperty other && base.Equals(other)
@@ -95,6 +100,7 @@ namespace GPC.Model.ElementProperties
         internal static void Material(Material material)
         {
             if (material == null) throw new ArgumentException("MissingElasticMaterial");
+            material.AnalysisData?.Validate();
             Nonnegative(material.Density, "Density");
             if (double.IsNaN(material.AlfaThermalExpansion) || double.IsInfinity(material.AlfaThermalExpansion)) throw new ArgumentException("InvalidThermalExpansion");
             if (material.Orthotropy != null) material.Orthotropy.Validate();

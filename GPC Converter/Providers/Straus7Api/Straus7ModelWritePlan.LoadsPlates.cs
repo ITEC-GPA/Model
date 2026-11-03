@@ -77,9 +77,22 @@ namespace GPC.Converter.Straus7
                 if(plate.Nodes.Count!=3&&plate.Nodes.Count!=4)throw new NotSupportedException("StrausPlateRequiresThreeOrFourConnectedNodes");
                 if(plate.Nodes.Any(n=>!Entities.ContainsKey(n.Guid)))throw new ArgumentException("UnregisteredStrausPlateNode");
                 if(plate.Attributes.Count!=0)throw new NotSupportedException("UnsupportedStrausPlateAttributes");
-                PlateSectionValidation.ValidateProperty(plate.PlateProperty);
-                if(!(plate.PlateProperty is IFemPlateProperty p))throw new NotSupportedException("StrausPlateRequiresExplicitFemProperty");
-                var material=p.Material;int formulation=4;
+                var fabric=plate.Assignments.Physical?.Membrane;
+                IFemPlateProperty p=null;
+                if(fabric==null)
+                {
+                    PlateSectionValidation.ValidateProperty(plate.PlateProperty);
+                    p=plate.PlateProperty as IFemPlateProperty;
+                    if(p==null)throw new NotSupportedException("StrausPlateRequiresExplicitFemProperty");
+                }
+                else
+                {
+                    if(plate.PlateProperty!=null||plate.Assignments.Physical.LoadPatch!=null)throw new ArgumentException("ConflictingMembraneConstitutiveProperties");
+                    fabric.Stiffness();
+                    if(plate.Assignments.Physical.InitialStresses.Count!=0)throw new NotSupportedException("PerWidthMembraneRequiresInitialResultantsNotStress");
+                    if(plate.Nodes.Any(n=>(n.Assignments.Physical?.Temperatures.Count??0)!=0))throw new NotSupportedException("PerWidthMembraneHasNoThermalExpansionData");
+                }
+                var material=p?.Material;int formulation=fabric==null?4:6;
                 if(plate.PlateProperty is ElasticPlateProperty elastic)
                     switch(elastic.Formulation)
                     {
@@ -89,15 +102,24 @@ namespace GPC.Converter.Straus7
                         case ElasticPlateFormulation.PlaneStrain: formulation=2;break;
                         case ElasticPlateFormulation.Axisymmetric: formulation=3;break;
                         case ElasticPlateFormulation.LoadPatch: formulation=7;break;
+                        case ElasticPlateFormulation.ShearPanel: formulation=5;break;
                     }
                 if(formulation==7&&plate.Assignments.Physical?.LoadPatch==null)throw new ArgumentException("MissingLoadPatchDistribution");
                 var o=material?.Orthotropy;double rho=material?.Density??0,alpha=material?.AlfaThermalExpansion??0;
-                var values=formulation==7?new double[8]:o==null?new[]{material.E,material.Ni,rho,alpha,0,0,0,0}:
-                    new[]{o.E1,o.E2,o.E3,o.G12,o.G23,o.G31,o.Nu12,o.Nu23,o.Nu31,rho,alpha,alpha,alpha,0,0,0,0,0};
+                if(formulation==5&&(plate.Nodes.Count!=4||o!=null||material?.AnalysisData?.StressStrainPairs!=null))throw new NotSupportedException("ShearPanelRequiresQuad4IsotropicElasticMaterial");
+                material?.AnalysisData?.Validate();var ad=material?.AnalysisData;
+                if(ad?.BeamShearModulus!=null)throw new NotSupportedException("BeamShearModulusCannotDefinePlateElasticity");
+                // Numerical reference thickness = 1 mm: preserves A [N/mm] and mass/area without inventing physical thickness.
+                // Uncoupled out-of-plane moduli are unused by ptMembrane; no bending, thermal or strength law is inferred.
+                var values=fabric!=null?new[]{fabric.StiffnessWarp.Value,fabric.StiffnessWeft.Value,1,fabric.ShearStiffness.Value,1,1,fabric.NuWarpWeft.Value,0,0,fabric.MassPerArea,0,0,0,0,0,0,0,0}:
+                    formulation==7?new double[8]:o==null?new[]{material.E,material.Ni,rho,alpha,ad?.ViscousDampingDensity??0,ad?.ModalDampingRatio??0,(ad?.ThermalConductivity??0)/1000,(ad?.SpecificHeat??0)/1000}:
+                    new[]{o.E1,o.E2,o.E3,o.G12,o.G23,o.G31,o.Nu12,o.Nu23,o.Nu31,rho,alpha,alpha,alpha,ad?.ViscousDampingDensity??0,ad?.ModalDampingRatio??0,(ad?.ThermalConductivity??0)/1000,(ad?.ThermalConductivity??0)/1000,(ad?.SpecificHeat??0)/1000};
+                if(formulation==5)values[0]=material.GetShearModule(); // Shear-panel native modulus is G, not Young's E.
                 Finite(values);var nodes=plate.Nodes.Select(n=>Entities[n.Guid]).ToArray();string name=string.IsNullOrWhiteSpace(plate.Name)?"Plate "+id:plate.Name;
-                double bending=p.BendingThickness,membrane=p.MembraneThickness;bool orthotropic=o!=null;
+                double bending=p?.BendingThickness??0,membrane=p?.MembraneThickness??1;bool orthotropic=o!=null||fabric!=null;
                 if(orthotropic&&plate.Assignments.LayerAxes==null)throw new ArgumentException("OrthotropicPlateRequiresMaterialAxes");
                 Operations.Add(a=>a.CreatePlateProperty(id,name,formulation,bending,membrane,(double[])values.Clone(),orthotropic));
+                MaterialLaw(id,2,material);
                 Operations.Add(a=>a.SetElement(2,id,id,(int[])nodes.Clone()));Group(plate,2);
                 if(orthotropic){var axes=AxesData(plate.Assignments.LayerAxes);Operations.Add(a=>a.SetPlateAxes(id,(double[])axes.Clone()));}
                 if(plate.Assignments.Offset.HasValue)
@@ -112,8 +134,7 @@ namespace GPC.Converter.Straus7
                     int lc=Load(load.LoadCase);Values(pressure);
                     totals[lc]=totals.TryGetValue(lc,out var previous)?previous+pressure:pressure;
                 }
-                foreach(var pair in totals)
-                {int lc=pair.Key;var v=Values(pair.Value);Operations.Add(a=>a.SetPlatePressure(id,lc,2,(double[])v.Clone()));}
+                SurfacePressures(plate,id,totals);
             }
             private static void FullPlateCoverage(Shape shape,AreaElement plate)
             {

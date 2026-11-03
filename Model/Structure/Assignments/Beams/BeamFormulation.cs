@@ -10,5 +10,5 @@ using GPC.Model.Materials;
 
 namespace GPC.Model.Structure.Assignments
 {
-    public enum BeamFormulation { Unknown, StraightTwoNode, Truss, Cable, Link, Curved, HigherOrder, TensionOnly }
+    public enum BeamFormulation { Unknown, StraightTwoNode, Truss, Cable, Link, Curved, HigherOrder, TensionOnly, CutoffBar }
 }

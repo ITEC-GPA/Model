@@ -14,6 +14,7 @@ namespace GPC.Model.Materials
     {
         /// <summary>Optional physical orthotropy. Consumers must use this tensor explicitly, never the scalar isotropic modulus.</summary>
         public OrthotropicElasticity Orthotropy { get; set; }
+        public MaterialAnalysisData AnalysisData { get; set; }
 
         #region Variables
 
@@ -368,7 +369,10 @@ namespace GPC.Model.Materials
             : base(info, context)
         {
             Orthotropy = SerializationFields.Read<OrthotropicElasticity>(info, "Orthotropy");
-            double version = SerializationVersions.Read(info, "MaterialVersion", Orthotropy == null ? 5 : 6, 1);
+            AnalysisData = SerializationFields.Read<MaterialAnalysisData>(info, "AnalysisData");
+            double version = SerializationVersions.Read(info, "MaterialVersion", AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6, 1);
+            if(AnalysisData!=null&&version<7)throw new SerializationException("MaterialAnalysisSchemaMismatch");
+            AnalysisData?.Validate();
             if (Orthotropy != null && version < 6) throw new SerializationException("OrthotropicMaterialSchemaMismatch");
             Orthotropy?.Validate();
 
@@ -529,7 +533,9 @@ namespace GPC.Model.Materials
             base.GetObjectData(info, context);
 
             Orthotropy?.Validate();
-            double version = Orthotropy == null ? 5 : 6;
+            AnalysisData?.Validate();
+            double version = AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6;
+            if(AnalysisData!=null)info.AddValue("AnalysisData",AnalysisData);
             if (Orthotropy != null) info.AddValue("Orthotropy", Orthotropy);
 
             info.AddValue("MaterialVersion", version);
@@ -605,6 +611,7 @@ namespace GPC.Model.Materials
                    _alfaThermalExpansion == material._alfaThermalExpansion &&
                    _density == material._density &&
                    object.Equals(Orthotropy, material.Orthotropy) &&
+                   object.Equals(AnalysisData, material.AnalysisData) &&
                    _accordingToStandard == material._accordingToStandard &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);

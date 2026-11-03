@@ -31,6 +31,7 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            RegisterBridgeContracts();
             Register("GPC.Model.Stages.StageCaseFactor", "GPC.Model.Stages.StageCaseFactor",
                 Field("GPC.Model.Stages.StageCaseFactor", "<CaseGuid>k__BackingField", "CaseGuid", false),
                 Field("GPC.Model.Stages.StageCaseFactor", "<Factor>k__BackingField", "Factor", false));
@@ -68,7 +69,8 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Vehicles>k__BackingField", "Vehicles", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<LaneFactors>k__BackingField", "LaneFactors", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<LaneFactorRule>k__BackingField", "LaneFactorRule", false),
-                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<MinimumLaneWidth>k__BackingField", "MinimumLaneWidth", false));
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<MinimumLaneWidth>k__BackingField", "MinimumLaneWidth", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Centrifugal>k__BackingField", "Centrifugal", true));
             Register("GPC.Model.Actions.Moving.MovingVehicle", "GPC.Model.Actions.Moving.MovingVehicle",
                 Field("GPC.Model.Actions.Moving.MovingVehicle", "<Name>k__BackingField", "Name", false),
                 Field("GPC.Model.Actions.Moving.MovingVehicle", "<Placement>k__BackingField", "Placement", false),
@@ -78,14 +80,16 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingVehicle", "<ExclusiveSet>k__BackingField", "ExclusiveSet", false),
                 Field("GPC.Model.Actions.Moving.MovingVehicle", "<AllowedLanes>k__BackingField", "AllowedLanes", false),
                 Field("GPC.Model.Actions.Moving.MovingVehicle", "<PointForces>k__BackingField", "PointForces", false),
-                Field("GPC.Model.Actions.Moving.MovingVehicle", "<DistributedForces>k__BackingField", "DistributedForces", false));
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<DistributedForces>k__BackingField", "DistributedForces", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<HeatSources>k__BackingField", "HeatSources", true));
             Register("GPC.Model.Actions.Moving.MovingPointForce", "GPC.Model.Actions.Moving.MovingPointForce",
                 Field("GPC.Model.Actions.Moving.MovingPointForce", "<Mobility>k__BackingField", "Mobility", false),
                 Field("GPC.Model.Actions.Moving.MovingPointForce", "<Axes>k__BackingField", "Axes", false),
                 Field("GPC.Model.Actions.Moving.MovingPointForce", "<ApplyAdjacencyFactor>k__BackingField", "ApplyAdjacencyFactor", false),
                 Field("GPC.Model.Actions.Moving.MovingPointForce", "<X>k__BackingField", "X", false),
                 Field("GPC.Model.Actions.Moving.MovingPointForce", "<Y>k__BackingField", "Y", false),
-                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Force>k__BackingField", "Force", false));
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Force>k__BackingField", "Force", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<ApplyCentrifugal>k__BackingField", "ApplyCentrifugal", true));
             Register("GPC.Model.Actions.Moving.MovingDistributedForce", "GPC.Model.Actions.Moving.MovingDistributedForce",
                 Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Mobility>k__BackingField", "Mobility", false),
                 Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Axes>k__BackingField", "Axes", false),
@@ -94,7 +98,34 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<X2>k__BackingField", "X2", false),
                 Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Y1>k__BackingField", "Y1", false),
                 Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Y2>k__BackingField", "Y2", false),
-                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<ForcePerLength>k__BackingField", "ForcePerLength", false));
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<ForcePerLength>k__BackingField", "ForcePerLength", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<ApplyCentrifugal>k__BackingField", "ApplyCentrifugal", true));
+            Register("GPC.Model.Actions.Moving.MovingHeatSource", "GPC.Model.Actions.Moving.MovingHeatSource",
+                Field("GPC.Model.Actions.Moving.MovingHeatSource", "<X>k__BackingField", "X", false),
+                Field("GPC.Model.Actions.Moving.MovingHeatSource", "<Y>k__BackingField", "Y", false),
+                Field("GPC.Model.Actions.Moving.MovingHeatSource", "<SizeX>k__BackingField", "SizeX", false),
+                Field("GPC.Model.Actions.Moving.MovingHeatSource", "<SizeY>k__BackingField", "SizeY", false),
+                Field("GPC.Model.Actions.Moving.MovingHeatSource", "<Power>k__BackingField", "Power", false));
+            Register("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "GPC.Model.Actions.Moving.MovingCentrifugalLaw",
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<ExpressionLanguage>k__BackingField", "ExpressionLanguage", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<OffsetExpression>k__BackingField", "OffsetExpression", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<FactorExpression>k__BackingField", "FactorExpression", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LengthUnit>k__BackingField", "LengthUnit", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<ForceUnit>k__BackingField", "ForceUnit", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MinimumFactor>k__BackingField", "MinimumFactor", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MaximumFactor>k__BackingField", "MaximumFactor", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LimitFactor>k__BackingField", "LimitFactor", false));
+            Register("GPC.Model.Materials.MaterialAnalysisData", "GPC.Model.Materials.MaterialAnalysisData",
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<BeamShearModulus>k__BackingField", "BeamShearModulus", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<ViscousDampingDensity>k__BackingField", "ViscousDampingDensity", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<ModalDampingRatio>k__BackingField", "ModalDampingRatio", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<ThermalConductivity>k__BackingField", "ThermalConductivity", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<SpecificHeat>k__BackingField", "SpecificHeat", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<StressStrainPairs>k__BackingField", "StressStrainPairs", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<NonlinearResponse>k__BackingField", "NonlinearResponse", false),
+                Field("GPC.Model.Materials.MaterialAnalysisData", "<Hardening>k__BackingField", "Hardening", false));
+            Register("GPC.Model.Materials.MaterialNonlinearResponse", "GPC.Model.Materials.MaterialNonlinearResponse", Field("GPC.Model.Materials.MaterialNonlinearResponse", "value__", "value__", false));
+            Register("GPC.Model.Materials.MaterialHardening", "GPC.Model.Materials.MaterialHardening", Field("GPC.Model.Materials.MaterialHardening", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingLoadAxes", "GPC.Model.Actions.Moving.MovingLoadAxes", Field("GPC.Model.Actions.Moving.MovingLoadAxes", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingPointMobility", "GPC.Model.Actions.Moving.MovingPointMobility", Field("GPC.Model.Actions.Moving.MovingPointMobility", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingDistributionMobility", "GPC.Model.Actions.Moving.MovingDistributionMobility", Field("GPC.Model.Actions.Moving.MovingDistributionMobility", "value__", "value__", false));
@@ -159,6 +190,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Taper>k__BackingField", "Taper", false),
                 Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
             Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<SurfacePressures>k__BackingField", "SurfacePressures", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<LoadPatch>k__BackingField", "LoadPatch", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
                 Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
@@ -168,6 +200,19 @@ namespace GPC.Model.Core
             Register("GPC.Model.Structure.Assignments.BeamInitialStateKind", "GPC.Model.Structure.Assignments.BeamInitialStateKind", Field("GPC.Model.Structure.Assignments.BeamInitialStateKind", "value__", "value__", false));
             Register("GPC.Model.Structure.Assignments.DistributedSpringBehavior", "GPC.Model.Structure.Assignments.DistributedSpringBehavior", Field("GPC.Model.Structure.Assignments.DistributedSpringBehavior", "value__", "value__", false));
             Register("GPC.Model.Structure.Assignments.ShellFace", "GPC.Model.Structure.Assignments.ShellFace", Field("GPC.Model.Structure.Assignments.ShellFace", "value__", "value__", false));
+            Register("GPC.Model.ElementProperties.BeamCutoffFailure", "GPC.Model.ElementProperties.BeamCutoffFailure", Field("GPC.Model.ElementProperties.BeamCutoffFailure", "value__", "value__", false));
+            Register("GPC.Model.ElementProperties.BeamCutoffLaw", "GPC.Model.ElementProperties.BeamCutoffLaw",
+                Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<Failure>k__BackingField", "Failure", false),
+                Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<TensionLimit>k__BackingField", "TensionLimit", false),
+                Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<CompressionLimit>k__BackingField", "CompressionLimit", false),
+                Field("GPC.Model.ElementProperties.BeamCutoffLaw", "<KeepMass>k__BackingField", "KeepMass", false));
+            Register("GPC.Model.Structure.Assignments.SurfacePressureProjection", "GPC.Model.Structure.Assignments.SurfacePressureProjection", Field("GPC.Model.Structure.Assignments.SurfacePressureProjection", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.ShellSurfacePressure", "GPC.Model.Structure.Assignments.ShellSurfacePressure",
+                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Face>k__BackingField", "Face", false),
+                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<GlobalPressure>k__BackingField", "GlobalPressure", false),
+                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<NormalPressure>k__BackingField", "NormalPressure", false),
+                Field("GPC.Model.Structure.Assignments.ShellSurfacePressure", "<Projection>k__BackingField", "Projection", false));
             Register("GPC.Model.Structure.Assignments.TaperAlignment", "GPC.Model.Structure.Assignments.TaperAlignment", Field("GPC.Model.Structure.Assignments.TaperAlignment", "value__", "value__", false));
             Register("GPC.Model.Materials.OrthotropicElasticity", "GPC.Model.Materials.OrthotropicElasticity",
                 Field("GPC.Model.Materials.OrthotropicElasticity", "<E1>k__BackingField", "E1", false),

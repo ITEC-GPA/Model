@@ -120,7 +120,7 @@ namespace GPC.Model.Models
                     var formulation = beam.Assignments.Formulation;
                     // Axial-only members (truss, tension-only, cable) are kept for geometry, loads and imported results; checks and
                     // physical members still require straight two-node frames and refuse them element by element.
-                    if (formulation == BeamFormulation.Truss || formulation == BeamFormulation.TensionOnly || formulation == BeamFormulation.Cable)
+                    if (formulation == BeamFormulation.Truss || formulation == BeamFormulation.TensionOnly || formulation == BeamFormulation.Cable || formulation == BeamFormulation.CutoffBar)
                     {
                         var axial = ModelDiagnostic.Error("AxialOnlyBeamFormulation", element, "Beam " + beam.Id + ": " + formulation
                             + " member kept for geometry, loads and results; checks and physical members need straight two-node frames.");

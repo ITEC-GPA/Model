@@ -46,6 +46,14 @@ namespace GPC.Converter.Straus7
 
         public static Straus7PhysicalWritePlan Prepare(global::GPC.Model.Models.Model model, SolverIdentityMap identity,
             IReadOnlyDictionary<string,int> loadCases, IReadOnlyDictionary<string,int> freedomCases, int defaultFreedomCase=1)
+            => PrepareCore(model,identity,loadCases,freedomCases,defaultFreedomCase,false);
+
+        internal static Straus7PhysicalWritePlan PrepareForFullModel(global::GPC.Model.Models.Model model, SolverIdentityMap identity,
+            IReadOnlyDictionary<string,int> loadCases, IReadOnlyDictionary<string,int> freedomCases)
+            => PrepareCore(model,identity,loadCases,freedomCases,1,true);
+
+        private static Straus7PhysicalWritePlan PrepareCore(global::GPC.Model.Models.Model model, SolverIdentityMap identity,
+            IReadOnlyDictionary<string,int> loadCases, IReadOnlyDictionary<string,int> freedomCases, int defaultFreedomCase, bool membranePropertiesPrepared)
         {
             if(model==null || identity==null || loadCases==null || freedomCases==null) throw new ArgumentNullException();
             if(identity.ModelGuid!=model.Guid || identity.AnalysisFingerprint!=model.AnalysisFingerprint()) throw new ArgumentException("StaleStrausExportIdentity");
@@ -101,6 +109,7 @@ namespace GPC.Converter.Straus7
             foreach(var shell in model.AreaElements.Values)
             {
                 var p=shell.Assignments.Physical; if(p==null) continue; int n=Id(shell.Guid,EntityFamily.Shell);
+                if(p.SurfacePressures!=null&&!membranePropertiesPrepared)throw new NotSupportedException("SurfacePressureRequiresFullModelLoadAssembly");
                 if(p.LoadPatch!=null)
                 {
                     if(!(shell.PlateProperty is GPC.Model.ElementProperties.ElasticPlateProperty property)||property.Formulation!=GPC.Model.ElementProperties.ElasticPlateFormulation.LoadPatch)
@@ -109,7 +118,7 @@ namespace GPC.Converter.Straus7
                     int bits=p.LoadPatch.SelectedEdges.Aggregate(0,(value,e)=>value|(1<<(e-1)));var weights=(double[])p.LoadPatch.EdgeWeights.Clone();
                     distributionOps.Add(a=>a.SetLoadPatch(n,kind,bits,(double[])weights.Clone()));
                 }
-                if(p.Membrane!=null) throw new NotSupportedException("StrausMembraneRequiresExplicitConstitutivePropertyWriter");
+                if(p.Membrane!=null&&!membranePropertiesPrepared) throw new NotSupportedException("StrausMembraneRequiresExplicitConstitutivePropertyWriter");
                 foreach(var t in p.InitialStresses)
                 {
                     // GPC AreaElement here denotes a shell; z preload is supported by R3 only for plane strain/axisymmetric plates.

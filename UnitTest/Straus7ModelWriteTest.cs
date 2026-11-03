@@ -25,6 +25,152 @@ namespace UnitTest;
 [TestClass]
 public class Straus7ModelWriteTest
 {
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeUnsymmetricSectionRetainsShearCenterAndTorsionalResponse()
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var section=new SectionC(200,5,100,10,100,10);
+        var material=new Material("E",210000,.3,0,0);beam.BeamProperty=new ElasticBeamProperty("channel",material,section);
+        Assert.AreEqual(0,section.AngleX1,1e-10);double offset=section.ShearCenter.X-section.Centroid.X;Assert.IsTrue(Math.Abs(offset)>1);
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"channel.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);Assert.AreEqual(offset,reader.ReadProperty(Straus7Entity.Beam,1).SectionProperties[4],1e-10);
+            reader.OpenResults(run.ResultPath);double expected=1000*offset*1000/(material.GetShearModule()*section.Jt);
+            Assert.AreEqual(expected,reader.ReadNodeResult(beam.NodeJ.Id,1,false).Values[3],Math.Abs(expected)*1e-6);
+        }
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeShearPanelMatchesUniformShearSolution()
+    {
+        var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(100,0,0)),new NodeElement(new Point3d(100,100,0)),new NodeElement(new Point3d(0,100,0))};
+        var lc=new LoadCaseBase("shear");
+        foreach(var n in nodes)
+        {
+            n.Assignments.Restrains.Add(new RestrainAssignment {Restrain=new NodeRestrain(n,Enumerable.Range(n.Position.Y==0?0:1,n.Position.Y==0?6:5).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+            if(n.Position.Y>0)n.Loads.Add(new PointLoad(500,0,0,0,0,0,n.Position,lc));
+        }
+        var plate=new AreaElement(null,new ElasticPlateProperty("panel",new Material("E260",260000,.3,0,0),0,10,ElasticPlateFormulation.ShearPanel));plate.ConnectNodes(nodes);
+        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());
+        var top=model.NodesElements.Values.Where(n=>n.Position.Y>0).OrderBy(n=>n.Id).ToArray();
+        // A shear-only panel has no in-plane normal stiffness. Keep its loaded edge rigid to remove that free mode.
+        model.AddCostrain(new GPC.Model.Constraints.RigidLink(top[0],top[1]));string fp=model.AnalysisFingerprint();
+        using(var stream=new MemoryStream()){ModelArchive.SaveDocument(model,stream);stream.Position=0;Assert.AreEqual(fp,ModelArchive.Load(stream).AnalysisFingerprint());}
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"panel.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);reader.OpenResults(run.ResultPath);
+            foreach(var n in model.NodesElements.Values.Where(n=>n.Position.Y>0))Assert.AreEqual(.001,reader.ReadNodeResult(n.Id,1,false).Values[0],1e-9);
+        }
+    }
+    [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
+    public void NativeCutoffLawReproducesBrittleFailureAndDuctileForceCap(bool ductile)
+    {
+        var model=Cantilever();var first=model.BeamElements.Values.Single();var free=first.NodeJ;var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        first.Assignments.Formulation=BeamFormulation.Truss;first.BeamProperty=new ElasticBeamProperty("elastic",new Material("E1000",1000,.3,0,0),new SectionRectangular(10,10));
+        var law=new BeamCutoffLaw {Failure=ductile?BeamCutoffFailure.Ductile:BeamCutoffFailure.Brittle,TensionLimit=500,CompressionLimit=500,KeepMass=true};
+        var cutoff=new BeamElement(first.StartPoint,first.EndPoint,new ElasticBeamProperty("cutoff",new Material("E1000",1000,.3,0,0),new SectionRectangular(10,10)){CutoffLaw=law},id:2);
+        cutoff.ConnectNodes(first.NodeI,free);cutoff.Assignments.Formulation=BeamFormulation.CutoffBar;cutoff.Assignments.SectionAxes=first.Assignments.SectionAxes;model.BeamElements.Add(cutoff);
+        free.Loads.Clear();free.Loads.Add(new PointLoad(2000,0,0,0,0,0,free.Position,lc));
+        free.Assignments.Restrains.Add(new RestrainAssignment {FreedomCase=fc,Restrain=new NodeRestrain(free,Enumerable.Range(1,5).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        var group=model.AddGroup("bars");first.Groups.Add(group.Name,group);cutoff.Groups.Add(group.Name,group);var outputCase=new StageResultCase("NLA","NLA");model.AddLoadCase(outputCase);
+        model.Stages.Add(new Stage(1,"load") {Definition=new StageDefinition(1,0),AnalysisState=new StageAnalysisState {ActiveGroupGuids=new[]{group.Guid},ActiveFreedomCaseGuids=new[]{fc.Guid},
+            Increments=new[]{.25,1}.Select((f,i)=>new StageLoadIncrement {Name="step "+i,LoadFactors=new[]{new StageCaseFactor {CaseGuid=lc.Guid,Factor=f}},FreedomFactors=new[]{new StageCaseFactor {CaseGuid=fc.Guid,Factor=1}}}).ToArray()}});
+        string fingerprint=model.AnalysisFingerprint();foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
+        {if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);stream.Position=0;Assert.AreEqual(fingerprint,ModelArchive.Load(stream).AnalysisFingerprint());}
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunStagedNonlinear(model,outputCase.Guid,Path.Combine(folder,"cutoff.st7"),folder,nonlinearMaterial:true);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);CollectionAssert.AreEqual(new[]{500d,500},reader.ReadCutoffLaw(2,out int failure,out bool keep));Assert.AreEqual(ductile?1:0,failure);Assert.IsTrue(keep);
+            reader.OpenResults(run.ResultPath);Assert.AreEqual(2.5,reader.ReadNodeResult(free.Id,1,false).Values[0],1e-6);Assert.AreEqual(ductile?15:20,reader.ReadNodeResult(free.Id,2,false).Values[0],1e-5);
+        }
+    }
+    [DataTestMethod,DataRow(0),DataRow(1),DataRow(2),TestCategory("Straus7Native")]
+    public void NativeSurfacePressuresPreserveFacesProjectionAndForceEquilibrium(int projection)
+    {
+        var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(100,0,0)),new NodeElement(new Point3d(100,100,100)),new NodeElement(new Point3d(0,100,100))};
+        foreach(var node in nodes.Where(n=>n.Position.X==0))node.Assignments.Restrains.Add(new RestrainAssignment {Restrain=new NodeRestrain(node,Enumerable.Range(0,6).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        var plate=new AreaElement(null,new ElasticPlateProperty("plate",new Material("E",210000,.3,0,0),10,10));plate.ConnectNodes(nodes);
+        var lc=new LoadCaseBase("pressure");var vector=new Vector3d(.001,.002,-.003);
+        plate.Assignments.Physical=new ShellPhysicalData {SurfacePressures=new List<ShellSurfacePressure> {
+            new ShellSurfacePressure {Case=lc,Face=ShellFace.NegativeNormal,NormalPressure=.002},
+            new ShellSurfacePressure {Case=lc,Face=ShellFace.PositiveNormal,NormalPressure=.001},
+            new ShellSurfacePressure {Case=lc,Face=ShellFace.PositiveNormal,GlobalPressure=vector,Projection=(SurfacePressureProjection)projection}}};
+        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());string fingerprint=model.AnalysisFingerprint();
+        foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
+        {
+            if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);stream.Position=0;var restored=ModelArchive.Load(stream);
+            Assert.AreEqual(fingerprint,restored.AnalysisFingerprint());restored.AreaElements.Values.Single().Assignments.Physical.SurfacePressures[0].NormalPressure=.003;
+            Assert.AreNotEqual(fingerprint,restored.AnalysisFingerprint());Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+        }
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"pressure.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);CollectionAssert.AreEqual(new[]{.002,.001},reader.ReadPlateNormalPressure(1,1));
+            CollectionAssert.AreEqual(new[]{.001,.002,-.003},reader.ReadPlateGlobalPressure(1,2,1,out int mode));Assert.AreEqual(projection,mode);
+            reader.OpenResults(run.ResultPath);var normal=new Vector3d(0,-1/Math.Sqrt(2),1/Math.Sqrt(2));double area=10000*Math.Sqrt(2);
+            var global=projection==0?vector:projection==1?vector*(Math.Abs(normal.DotProduct(vector))/vector.Length):new Vector3d(0,vector.Y/Math.Sqrt(2),vector.Z/Math.Sqrt(2));
+            var force=(global+normal*.001)*area;
+            for(int i=0;i<3;i++)Assert.AreEqual(-new[]{force.X,force.Y,force.Z}[i],model.NodesElements.Values.Sum(n=>reader.ReadNodeResult(n.Id,1,true).Values[i]),1e-6);
+        }
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeRigidLinkTransfersEccentricLoadAndPreservesRigidBodyKinematics()
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var master=beam.NodeJ;var lc=model.LoadCases.Values.Single();
+        master.Loads.Clear();var slave=new NodeElement(new Point3d(1000,100,0));slave.Loads.Add(new PointLoad(1000,0,0,0,0,0,slave.Position,lc));
+        var link=new GPC.Model.Constraints.RigidLink(master,slave);model.AddCostrain(link);
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"rigid.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);reader.OpenResults(run.ResultPath);
+            var a=reader.ReadNodeResult(master.Id,1,false).Values;var b=reader.ReadNodeResult(slave.Id,1,false).Values;
+            Assert.AreEqual(a[0]-100*a[5],b[0],1e-9);Assert.AreEqual(a[1],b[1],1e-9);Assert.AreEqual(a[2]+100*a[3],b[2],1e-9);
+            for(int i=3;i<6;i++)Assert.AreEqual(a[i],b[i],1e-10);
+            var reaction=reader.ReadNodeResult(beam.NodeI.Id,1,true).Values;Assert.AreEqual(-1000,reaction[0],1e-6);Assert.AreEqual(100000,reaction[5],1e-3);
+        }
+        link.Links[0].Equations[0].Value=-2;
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(()=>Straus7ModelWritePlan.Prepare(model)).Message,"RigidLinkEquationsDoNotMatchCurrentGeometry");
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeTaperedBarMatchesIntegratedAxialCompliance()
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var free=beam.NodeJ;var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        beam.BeamProperty=new ElasticBeamProperty("tapered rectangle",new Material("E1000",1000,.3,0,0),new SectionRectangular(10,10));
+        beam.Assignments.Physical.Taper=new BeamSectionTaper {ScaleI1=1,ScaleJ1=2,ScaleI2=1,ScaleJ2=1,Alignment1=TaperAlignment.Symmetric,Alignment2=TaperAlignment.Symmetric};
+        free.Loads.Clear();free.Loads.Add(new PointLoad(1000,0,0,0,0,0,free.Position,lc));
+        free.Assignments.Restrains.Add(new RestrainAssignment {FreedomCase=fc,Restrain=new NodeRestrain(free,Enumerable.Range(1,5).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        var plan=Straus7ModelWritePlan.Prepare(model,null,new Dictionary<Guid,int>{{beam.Guid,10}});string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"tapered.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);reader.OpenResults(run.ResultPath);
+            double expected=1000*1000d/(1000*100)*Math.Log(2);
+            Assert.AreEqual(expected,reader.ReadNodeResult(free.Id,1,false).Values[0],expected*1e-5);
+        }
+        Console.WriteLine("F5 tapered axial compliance: "+run.ModelPath);
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void NativeMaterialLawPreservesThermalDampingDataAndBilinearTrussResponse()
+    {
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var free=beam.NodeJ;var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        var data=new MaterialAnalysisData {BeamShearModulus=300,ViscousDampingDensity=1e-12,ModalDampingRatio=.03,ThermalConductivity=50,SpecificHeat=4.6e8,
+            StressStrainPairs=new[]{0d,0,.005,5,.1,14.5},NonlinearResponse=MaterialNonlinearResponse.Elastoplastic};
+        beam.BeamProperty=new ElasticBeamProperty("bilinear",new Material("E1000",1000,.3,0,0){AnalysisData=data},new SectionRectangular(10,10));
+        beam.Assignments.Formulation=BeamFormulation.Truss;
+        free.Loads.Clear();free.Loads.Add(new PointLoad(1000,0,0,0,0,0,free.Position,lc));
+        free.Assignments.Restrains.Add(new RestrainAssignment {FreedomCase=fc,Restrain=new NodeRestrain(free,Enumerable.Range(1,5).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        var group=model.AddGroup("bar");beam.Groups.Add(group.Name,group);var outputCase=new StageResultCase("NLA","NLA");model.AddLoadCase(outputCase);
+        model.Stages.Add(new Stage(1,"tension") {Definition=new StageDefinition(1,0),AnalysisState=new StageAnalysisState {ActiveGroupGuids=new[]{group.Guid},ActiveFreedomCaseGuids=new[]{fc.Guid},
+            Increments=new[]{new StageLoadIncrement {Name="load",LoadFactors=new[]{new StageCaseFactor {CaseGuid=lc.Guid,Factor=1}},FreedomFactors=new[]{new StageCaseFactor {CaseGuid=fc.Guid,Factor=1}}}}}});
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunStagedNonlinear(model,outputCase.Guid,Path.Combine(folder,"bilinear.st7"),folder,nonlinearMaterial:true);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);var material=reader.ReadProperty(Straus7Entity.Beam,1).Material;
+            Assert.AreEqual(300,material[1]);Assert.AreEqual(1e-12,material[5]);Assert.AreEqual(.03,material[6]);Assert.AreEqual(.05,material[7]);Assert.AreEqual(460000,material[8]);
+            CollectionAssert.AreEqual(data.StressStrainPairs,reader.ReadMaterialLaw(1,1,out var response,out var hardening));Assert.AreEqual(1,response);Assert.AreEqual(0,hardening);
+            reader.OpenResults(run.ResultPath);Assert.AreEqual(55,reader.ReadNodeResult(free.Id,1,false).Values[0],1e-5);
+        }
+        Console.WriteLine("F5 bilinear material: "+run.ModelPath);
+    }
     [DataTestMethod,DataRow(0),DataRow(1),TestCategory("Straus7Native")]
     public void NativeWriterMatchesFrozenBridgePilotWithOffsetsAndReversedConnectivity(int variant)
     {
@@ -175,6 +321,51 @@ public class Straus7ModelWriteTest
         Console.WriteLine("F5 moving static solutions: "+output+"; cases="+generated.Count);
     }
     [TestMethod,TestCategory("Straus7Native")]
+    public void GeneratedMovingResultsRetainDistinctPositionsWithoutChangingLoadDefinitions()
+    {
+        var model=Cantilever();foreach(var n in model.NodesElements.Values)n.Loads.Clear();var lc=model.LoadCases.Values.Single();
+        var path=new MovingLoadPath {Id=Guid.NewGuid(),CaseGuid=lc.Guid,Divisions=3,Start=new Point3d(0,0,0),End=new Point3d(1000,0,0),Reference=new Point3d(0,100,0),Target=MovingPathTarget.Beams,
+            Template=new MovingLoadTemplate {Name="axle",Vehicles=new[]{new MovingVehicle {Name="vehicle",PointForces=new[]{new MovingPointForce {Force=new Vector3d(0,0,-1000),Axes=MovingLoadAxes.Global}}}}}};
+        model.MovingLoads=new MovingLoadDefinition();model.MovingLoads.Paths.Add(path);
+        var plan=Straus7ModelWritePlan.Prepare(model,new Dictionary<Guid,Straus7MovingPathOptions>{{path.Id,new Straus7MovingPathOptions {ConvertToStaticCases=true}}});
+        string folder=NativeFolder(),before=model.AnalysisFingerprint();var run=plan.RunLinearStatic(model,Path.Combine(folder,"moving-results.st7"),folder);
+        Assert.AreEqual(3,run.GeneratedCases.Count);var report=run.ImportResults(model,"moving-results",includeElementNodeForces:true);
+        Assert.AreEqual(ImportStatus.Completed,report.Status,string.Join("; ",report.Diagnostics.Select(d=>d.Message)));
+        Assert.AreEqual(before,model.AnalysisFingerprint());Assert.AreEqual(1,model.LoadCases.Count);
+        var samples=model.BeamElements.Values.Single().Results.SelectMany(r=>r.Results).OfType<GPC.Model.Results.Locations.StationResultBeamForces>().ToArray();
+        Assert.AreEqual(3,samples.Where(s=>s.State.Step!=null).Select(s=>s.State.Step).Distinct().Count());
+        Assert.IsTrue(samples.All(s=>s.State.Semantics==GPC.Model.Analysis.AnalysisSemantics.LinearStatic));
+        VerifyResultArchive(model,samples);
+    }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void StagedRunImportsTotalsWithPhaseAndIncrementAndSurvivesArchive()
+    {
+        var model=Cantilever();var group=model.AddGroup("structure");model.BeamElements.Values.Single().Groups.Add(group.Name,group);
+        var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        var outputCase=new StageResultCase("Construction response","NLA");model.AddLoadCase(outputCase);
+        model.Stages.Add(new Stage(1,"Load and unload") {Definition=new StageDefinition(1,0),AnalysisState=new StageAnalysisState {
+            ActiveGroupGuids=new[]{group.Guid},ActiveFreedomCaseGuids=new[]{fc.Guid},Increments=new[]{.5,1,0}.Select((f,i)=>new StageLoadIncrement {
+                Name="Step "+i,LoadFactors=new[]{new StageCaseFactor {CaseGuid=lc.Guid,Factor=f}},FreedomFactors=new[]{new StageCaseFactor {CaseGuid=fc.Guid,Factor=1}}}).ToArray()}});
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder(),before=model.AnalysisFingerprint();
+        var run=plan.RunStagedNonlinear(model,outputCase.Guid,Path.Combine(folder,"stage-results.st7"),folder);
+        var report=run.ImportResults(model,"staged-results",includeElementNodeForces:true);
+        Assert.AreEqual(ImportStatus.Completed,report.Status,string.Join("; ",report.Diagnostics.Select(d=>d.Message)));Assert.AreEqual(before,model.AnalysisFingerprint());
+        var samples=model.BeamElements.Values.Single().Results.SelectMany(r=>r.Results).OfType<GPC.Model.Results.Locations.StationResultBeamForces>().ToArray();
+        Assert.AreEqual(3,samples.Select(s=>s.State.Step).Distinct().Count());
+        Assert.IsTrue(samples.All(s=>s.State.Semantics==GPC.Model.Analysis.AnalysisSemantics.NonlinearStatic&&s.State.Phase=="Load and unload"&&s.State.IsCumulative==true&&s.State.IsCombined==false));
+        VerifyResultArchive(model,samples);
+    }
+    private static void VerifyResultArchive(Model model,GPC.Model.Results.Locations.StationResultBeamForces[] samples)
+    {
+        string results=ModelValues.Fingerprint(samples);
+        using(var stream=new MemoryStream())
+        {
+            ModelArchive.Save(model,stream);stream.Position=0;var copy=ModelArchive.Load(stream);
+            Assert.AreEqual(model.AnalysisFingerprint(),copy.AnalysisFingerprint());
+            Assert.AreEqual(results,ModelValues.Fingerprint(copy.BeamElements.Values.Single().Results.SelectMany(r=>r.Results).OfType<GPC.Model.Results.Locations.StationResultBeamForces>()));
+        }
+    }
+    [TestMethod,TestCategory("Straus7Native")]
     public void NativeLoadPatchTransfersPressureToBeamsAndKeepsStringGroups()
     {
         var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(1000,0,0)),new NodeElement(new Point3d(1000,100,0)),new NodeElement(new Point3d(0,100,0))};
@@ -205,10 +396,22 @@ public class Straus7ModelWriteTest
     }
     [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
     public void NativeOrthotropicMembraneRespectsMaterialAxes(bool rotate)
+        => SolveMembranePatch(rotate,false);
+    [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
+    public void NativePerWidthMembranePreservesStiffnessMassAndMaterialAxes(bool rotate)
+        => SolveMembranePatch(rotate,true);
+
+    private static void SolveMembranePatch(bool rotate,bool perWidth)
     {
         var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(1000,0,0)),new NodeElement(new Point3d(1000,100,0)),new NodeElement(new Point3d(0,100,0))};
         var material=new Material("ortho",210000,0,1e-9,0) {Orthotropy=new OrthotropicElasticity {E1=210000,E2=70000,E3=70000,G12=30000,G23=30000,G31=30000}};
         var plate=new AreaElement(null,new ElasticPlateProperty("membrane",material,0,10,ElasticPlateFormulation.Membrane));plate.ConnectNodes(nodes);
+        if(perWidth)
+        {
+            plate.PlateProperty=null;
+            plate.Assignments.Physical=new ShellPhysicalData {Membrane=new MembraneMaterialData {
+                StiffnessWarp=2100000,StiffnessWeft=700000,ShearStiffness=300000,NuWarpWeft=0,MassPerArea=1e-8}};
+        }
         plate.Assignments.LayerAxes=rotate?new CoordinateSystem(Point3d.Origin,new Vector3d(0,1,0),new Vector3d(-1,0,0)):CoordinateSystem.Global;
         var lc=new LoadCaseBase("tension");
         foreach(var n in nodes)
@@ -217,7 +420,16 @@ public class Straus7ModelWriteTest
             n.Assignments.Restrains.Add(new RestrainAssignment {Restrain=new NodeRestrain(n,fixedDofs.Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
             if(n.Position.X==1000)n.Loads.Add(new PointLoad(500,0,0,0,0,0,n.Position,lc));
         }
-        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());var plan=Straus7ModelWritePlan.Prepare(model);
+        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());
+        if(perWidth)
+        {
+            var weight=new LoadCase("weight",LoadCase.LoadCaseTypes.SelfWeight);model.AddLoadCase(weight);
+            model.ModelLoads.Add(new ModelGravityLoad(new Vector3d(0,0,-1),9810,weight,CoordinateSystem.Global));
+            var copy=ModelArchive.CopyValue(model);Assert.AreEqual(model.AnalysisFingerprint(),copy.AnalysisFingerprint());
+            copy.AreaElements.Values.Single().Assignments.LayerAxes=rotate?CoordinateSystem.Global:new CoordinateSystem(Point3d.Origin,new Vector3d(0,1,0),new Vector3d(-1,0,0));
+            Assert.AreNotEqual(model.AnalysisFingerprint(),copy.AnalysisFingerprint());
+        }
+        var plan=Straus7ModelWritePlan.Prepare(model);
         string folder=NativeFolder(),output=Path.Combine(folder,"membrane.st7"),result;
         using(var writer=new Straus7NativeWriter(output,folder)){plan.Write(writer,model);result=writer.Solve();}
         using(var reader=new Straus7NativeApi())
@@ -225,6 +437,7 @@ public class Straus7ModelWriteTest
             reader.OpenModelReadOnly(output,folder);reader.OpenResults(result);
             double expected=1000*1000/((rotate?70000d:210000)*100*10);
             foreach(var n in model.NodesElements.Values.Where(n=>n.Position.X==1000))Assert.AreEqual(expected,reader.ReadNodeResult(n.Id,1,false).Values[0],expected*1e-7);
+            if(perWidth)Assert.AreEqual(1000*100*1e-8*9810,model.NodesElements.Values.Sum(n=>reader.ReadNodeResult(n.Id,2,true).Values[2]),1e-7);
         }
         Console.WriteLine("F5 membrane patch test: "+output+"; rotated="+rotate);
     }
