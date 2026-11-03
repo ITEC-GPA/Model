@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "phase": "F6",
+  "status": "in-progress",
+  "increment": "Arachne production GPC analysis boundary and wrapper archive compatibility",
+  "branch": "codex/gpc-unification-20261102",
+  "commits": {
+    "Arachne": "7360f3cb2289694809f6fdb66cd57dc1a9408ac0",
+    "ModelBase": "381fd2f3fb92a170352291dcc2121878f54ee7b5"
+  },
+  "versions": {
+    "GPCModel": "5.47.0.0",
+    "Arachne": "0.4.0-f6.1",
+    "ArachneAssembly": "0.4.0.0"
+  },
+  "tests": {
+    "arachne": {
+      "counts": {
+        "Inventory": 66,
+        "Form finding": 38,
+        "Patterning": 43,
+        "Network": 6,
+        "F6": 13
+      },
+      "pass": 166,
+      "fail": 0,
+      "build": "Release net48, without GpcPilot flag"
+    },
+    "modelSharedXmlBoundary": {
+      "net6.0": {
+        "pass": 1,
+        "fail": 0
+      },
+      "net472": {
+        "pass": 1,
+        "fail": 0
+      }
+    }
+  },
+  "filesSha256": {
+    "artifacts/f6/arachne-checkpoint1-build.log": "2794DE7115378FFAC5A06769FA347E69A4490FF4542EAE20A97068EC50D8BE1B",
+    "artifacts/f6/arachne-checkpoint1-tests.log": "066AFADFAB22C11A339F7FE082C0D72FDFA8647BAB9F031BC259C45E1B35FAD9",
+    "artifacts/f6/model-xml-net6.log": "B0AF950A35C23908B3A62E6EB19459F0E201D61F24259E636AE89FE897C9EAE4",
+    "artifacts/f6/model-xml-net472.log": "D39CA8C7D96C0F92E977072CBAEEAD28D5E1E9E51F88B1BE602A612FB345DC09",
+    "Model/Model/Core/Values/ContractXml.cs": "E040CF30F929EF41AB8795050FA9B58017DB54E9BEDBB1937E859246EAAE1108",
+    "Model/Model/GPCModel.csproj": "5C26B8313017ABAA9A3877AF288B99B6030013A0F605AD1E8E7F9163E8F2F90C",
+    "Model/Model/Properties/AssemblyInfo.cs": "B469254087C1F8E3F640709BBDF59C2DAF465B7F09740ED875C7CD8839136E2B",
+    "Model/tests/ExternalArchiveTest.cs": "EC95875E3074F7DEC35BCAF25FF15A4AE1297913EA9F99B7C53359DF0143E168",
+    "Arachne/tools/Arachne.ExampleWriter/Fixtures/Legacy/model-v5.nrbf": "41A0F5CDD7616E5D8C8ED18D385C7BCE07C5DF064D1AB3032B908ACEBE2D99E4",
+    "Arachne/tools/Arachne.ExampleWriter/Fixtures/Legacy/solver-options-v03.nrbf": "45C853700F87EC81EFC1ED517E865CE9A655437B9F5AB0ACA8B70EA2A55D694C"
+  },
+  "limitations": [
+    "Full physical wrapper replacement not complete",
+    "Production document sidecar save/reopen/Save As lifecycle not connected",
+    "BridGHe production migration not started",
+    "Full F6 integration/native/performance gates not run",
+    "No merge, push or release"
+  ],
+  "fixturePolicy": "Existing F1/F2 baselines unchanged. New NRBF fixtures carry their own provenance."
+}

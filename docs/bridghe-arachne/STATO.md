@@ -1,10 +1,10 @@
-﻿# Stato della migrazione comune
+# Stato della migrazione comune
 
 Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente; piano in [PIANO.md](PIANO.md).
 
 ## Stato effettivo
 
-**F5 completata; F6–F8 autorizzate e in coda.** [Conclusione e vincoli per F6](F5-CONCLUSIONE.md), [evidenze finali](f5-conclusione-evidenze.json). La matrice copre **295 tipi e 2.309 campi, zero voci aperte**, con inventario sorgente invariato rispetto a F2. **Model 1.952 PASS, 7 esclusioni; Checker 10.382 PASS, 1 esclusione**; zero fallimenti, API e audit superati. Versioni Model **5.46.0.0**, Persistence **3.12.0.0**, Converter **2.18.0.0**, Checker.CompositeBridge **1.26.0.0**. Branch separato; nessun rilascio. La migrazione dei componenti di produzione rimane F6.
+**F5 completata; F6 in corso, F7–F8 in coda.** [Avanzamento F6](F6-AVANZAMENTO.md). [Conclusione e vincoli per F6](F5-CONCLUSIONE.md), [evidenze finali](f5-conclusione-evidenze.json). La matrice copre **295 tipi e 2.309 campi, zero voci aperte**, con inventario sorgente invariato rispetto a F2. **Model 1.952 PASS, 7 esclusioni; Checker 10.382 PASS, 1 esclusione**; zero fallimenti, API e audit superati. Versioni Model **5.46.0.0**, Persistence **3.12.0.0**, Converter **2.18.0.0**, Checker.CompositeBridge **1.26.0.0**. Branch separato; nessun rilascio. La migrazione dei componenti di produzione rimane F6.
 
 Checkpoint storico dell'exporter: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
 

@@ -24,6 +24,28 @@ namespace UnitTest
     [TestClass]
     public class ExternalArchiveTest
     {
+        [DataContract]
+        public sealed class ForeignWrapper
+        {
+            [DataMember] public double[] Values = Array.Empty<double>();
+        }
+
+        [TestMethod]
+        public void SharedXmlBoundaryPreservesForeignWrapperDoubleBits()
+        {
+            var source = new ForeignWrapper { Values = new[] { BitConverter.Int64BitsToDouble(long.MinValue),
+                double.Epsilon, double.MaxValue, 1.0000000000000002, -3.141592653589793, double.PositiveInfinity } };
+            var serializer = new DataContractSerializer(typeof(ForeignWrapper));
+            using var stream = new MemoryStream();
+            using (var writer = System.Xml.XmlDictionaryWriter.CreateBinaryWriter(stream, null, null, false))
+                ContractXml.Write(serializer, writer, source);
+            stream.Position = 0;
+            using var reader = System.Xml.XmlDictionaryReader.CreateBinaryReader(stream, System.Xml.XmlDictionaryReaderQuotas.Max);
+            var restored = (ForeignWrapper)ContractXml.Read(serializer, reader);
+            CollectionAssert.AreEqual(source.Values.Select(BitConverter.DoubleToInt64Bits).ToArray(),
+                restored.Values.Select(BitConverter.DoubleToInt64Bits).ToArray());
+        }
+
         private string folder = "";
         [TestInitialize] public void Start() { folder = Path.Combine(Path.GetTempPath(), "gpc-external-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder); }
         [TestCleanup] public void End() { Directory.Delete(folder, true); }
