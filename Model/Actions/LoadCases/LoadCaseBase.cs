@@ -11,6 +11,9 @@ namespace GPC.Model.LoadCases
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class LoadCaseBase : ModelObject, ISerializable, ILoadCase
     {
+        /// <summary>Explicit mass families participating in inertia actions. Null retains the historical solver default.
+        /// Selection changes applied inertia loads, not the mass stored in the model.</summary>
+        public InertiaMassSelection InertiaMasses { get; set; }
         #region PUBLIC CONSTRUCTOR
 
         /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
@@ -37,6 +40,15 @@ namespace GPC.Model.LoadCases
         protected LoadCaseBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            int version=SerializationVersions.Read(info,"LoadCaseBaseVersion",1,0);
+            if(version==1)InertiaMasses=(InertiaMassSelection)info.GetValue("InertiaMasses",typeof(InertiaMassSelection));
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info,context);
+            if(InertiaMasses!=null)
+            {info.AddValue("LoadCaseBaseVersion",1);info.AddValue("InertiaMasses",InertiaMasses);}
         }
 
         #endregion

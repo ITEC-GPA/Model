@@ -16,6 +16,17 @@ namespace UnitTest
     [TestClass]
     public class PhysicalAssignmentsTest
     {
+        [TestMethod] public void InertiaMassSelectionPreservesCaseIdentityAndArchiveFingerprint()
+        {
+            var c=new LoadCaseBase("gravity");string old=ModelValues.Fingerprint(new object[]{c});
+            c.InertiaMasses=new InertiaMassSelection {Structural=true,NonStructural=false};
+            string fingerprint=ModelValues.Fingerprint(new object[]{c});Assert.AreNotEqual(old,fingerprint);
+            var copy=ModelValues.CopyValue(c);Assert.AreEqual(c.Guid,copy.Guid);Assert.AreNotSame(c.InertiaMasses,copy.InertiaMasses);
+            Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{copy}));
+            using(var stream=new MemoryStream())
+            {ModelValueArchive.Save(c,stream);stream.Position=0;var restored=ModelValueArchive.Load<LoadCaseBase>(stream);Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{restored}));}
+            c.InertiaMasses=null;Assert.AreEqual(old,ModelValues.Fingerprint(new object[]{c}));
+        }
         [TestMethod] public void OrthotropicComplianceMatchesIndependentIsotropicLimit()
         {
             const double e=210000, nu=0.3, g=e/(2*(1+nu));

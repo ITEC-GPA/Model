@@ -12,6 +12,58 @@ namespace UnitTest
 {
     [TestClass]public class BridgeDefinitionContractsTest
     {
+        private static BridgeGeometry GeometrySample()
+        {
+            var start=new Point3d(0,0,0);var end=new Point3d(30000,0,0);
+            return new BridgeGeometry {Id=Guid.NewGuid(),Nodes=new[]{start,end},Stations=new[]{0d,30000},
+                Frames=new[]{new CoordinateSystem(start,new Vector3d(0,1,0),new Vector3d(0,0,1)),new CoordinateSystem(end,new Vector3d(0,1,0),new Vector3d(0,0,1))},
+                Members=new[]{new BridgeAxisMember {Guid=Guid.NewGuid(),Id="G1/S1/B1",Family=GPC.Model.Structure.Members.BridgeMemberFamily.Girder,Group=1,Segment=1,Span=1,NodeFrom=1,NodeTo=2,StationFrom=0,StationTo=30000}},
+                Supports=new[]{new BridgeSupportPoint {Support=1,Girder=1,Station=0,Point=start},new BridgeSupportPoint {Support=2,Girder=1,Station=30000,Point=end}},
+                Joints=new[]{new BridgeJointPoint {Joint=1,Girder=1,Station=15000,Point=new Point3d(15000,0,0)}},
+                Segments=new[]{new BridgeSegmentRange {Girder=1,Segment=1,Start=0,End=30000}},DeckThickness=250,
+                LeftEdge=new[]{new Point3d(0,1000,0),new Point3d(30000,1000,10)},RightEdge=new[]{new Point3d(0,-1000,0),new Point3d(30000,-1000,0)},
+                Deck=new BridgeDeckMesh {Vertices=new[]{new Point3d(0,-1000,0),new Point3d(30000,-1000,0),new Point3d(30000,1000,10),new Point3d(0,1000,0)},Faces=new[]{new[]{0,1,2,3}}}};
+        }
+        [TestMethod]public void SampledGeometryCopyAndArchiveKeepStableIdentityAndWarpedDeck()
+        {
+            var geometry=GeometrySample();string fp=geometry.Fingerprint();var copy=ModelValues.CopyValue(geometry);
+            Assert.AreEqual(fp,copy.Fingerprint());Assert.AreEqual(30000,copy.Axis(copy.Members[0].Guid).Length,1e-8);
+            Assert.AreEqual("Girder:1:1",copy.Members[0].PhysicalId);Assert.AreEqual(10,copy.Deck.Vertices[2].Z);
+            Assert.AreNotSame(geometry.Nodes[0],copy.Nodes[0]);Assert.AreSame(copy.Nodes[0],copy.Supports[0].Point);
+            copy.Deck.Vertices[2].Z=20;Assert.AreEqual(10,geometry.Deck.Vertices[2].Z);Assert.AreNotEqual(fp,copy.Fingerprint());
+            using(var stream=new MemoryStream())
+            {
+                GPC.Model.Persistence.ModelValueArchive.Save(geometry,stream);stream.Position=0;
+                var restored=GPC.Model.Persistence.ModelValueArchive.Load<BridgeGeometry>(stream);
+                Assert.AreEqual(fp,restored.Fingerprint());Assert.AreSame(restored.Nodes[0],restored.Supports[0].Point);
+            }
+        }
+        [TestMethod]public void SampledGeometryRejectsDanglingIndicesDuplicateIdentityAndFoldedDeck()
+        {
+            var geometry=GeometrySample();geometry.Members[0].NodeFrom=0;Assert.ThrowsException<ArgumentException>(()=>geometry.Validate());
+            geometry=GeometrySample();geometry.Members=new[]{geometry.Members[0],geometry.Members[0]};Assert.ThrowsException<ArgumentException>(()=>geometry.Validate());
+            geometry=GeometrySample();geometry.Deck.Faces[0]=new[]{0,2,1,3};Assert.ThrowsException<ArgumentException>(()=>geometry.Validate());
+            geometry=GeometrySample();geometry.Supports[0].Station=-1;Assert.ThrowsException<ArgumentException>(()=>geometry.Validate());
+            var serializer=new DataContractSerializer(typeof(BridgeGeometry),ModelValues.DataContracts);string xml;
+            using(var stream=new MemoryStream()){serializer.WriteObject(stream,GeometrySample());xml=Encoding.UTF8.GetString(stream.ToArray());}
+            using(var stream=new MemoryStream(Encoding.UTF8.GetBytes(xml.Replace("<schema>1</schema>","<schema>2</schema>"))))Assert.ThrowsException<SerializationException>(()=>serializer.ReadObject(stream));
+        }
+        [TestMethod]public void StandaloneArchiveRejectsFutureEnvelopeWrongRootAndUnregisteredTypes()
+        {
+            byte[] content;
+            using(var stream=new MemoryStream())
+            {
+                GPC.Model.Persistence.ModelValueArchive.Save(GeometrySample(),stream);Assert.IsTrue(stream.CanWrite);content=stream.ToArray();stream.Position=0;
+                Assert.ThrowsException<SerializationException>(()=>GPC.Model.Persistence.ModelValueArchive.Load<BridgeDefinition>(stream));Assert.IsTrue(stream.CanRead);
+            }
+            string xml=Encoding.UTF8.GetString(content);Assert.IsTrue(xml.Contains("version=\"1\""));
+            using(var stream=new MemoryStream(Encoding.UTF8.GetBytes(xml.Replace("version=\"1\"","version=\"2\""))))
+                Assert.ThrowsException<SerializationException>(()=>GPC.Model.Persistence.ModelValueArchive.Load<BridgeGeometry>(stream));
+            using(var stream=new MemoryStream())
+            {Assert.ThrowsException<SerializationException>(()=>GPC.Model.Persistence.ModelValueArchive.Save(new object(),stream));Assert.AreEqual(0,stream.Length);}
+            using(var stream=new MemoryStream(Encoding.UTF8.GetBytes("<!DOCTYPE x [<!ENTITY p 'blocked'>]><gpc-value version='1'>&p;</gpc-value>")))
+                Assert.ThrowsException<System.Xml.XmlException>(()=>GPC.Model.Persistence.ModelValueArchive.Load<BridgeGeometry>(stream));
+        }
         [TestMethod]public void SectionRulesKeepIndependentPropertiesSelectorsAndDimensionalScales()
         {
             var rule=new BridgeSectionRule {Family=GPC.Model.Structure.Members.BridgeMemberFamily.Girder,Group=2,Start=1000,End=3000,

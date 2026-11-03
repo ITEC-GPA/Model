@@ -25,6 +25,54 @@ namespace UnitTest;
 [TestClass]
 public class Straus7ModelWriteTest
 {
+    [DataTestMethod,DataRow(false,false),DataRow(true,false),DataRow(false,true),DataRow(true,true),TestCategory("Straus7Native")]
+    public void NativeGravityMassFamiliesMatchIndependentEquilibrium(bool structural,bool nonStructural)
+    {
+        var nodes=new[]{new NodeElement(new Point3d(0,0,0)),new NodeElement(new Point3d(100,0,0)),new NodeElement(new Point3d(100,100,0)),new NodeElement(new Point3d(0,100,0))};
+        foreach(var node in nodes.Where(n=>n.Position.X==0))node.Assignments.Restrains.Add(new RestrainAssignment {Restrain=new NodeRestrain(node,Enumerable.Range(0,6).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        var plate=new AreaElement(null,new ElasticPlateProperty("mass plate",new Material("E",210000,.3,1e-9,0),10,10));plate.ConnectNodes(nodes);
+        LoadCaseBase lc=new LoadCase("gravity",LoadCase.LoadCaseTypes.SelfWeight) {InertiaMasses=new InertiaMassSelection {Structural=structural,NonStructural=nonStructural}};
+        plate.Assignments.Physical=new ShellPhysicalData();plate.Assignments.Physical.NonStructuralMasses.Add(new ShellNonStructuralMass {Case=lc,MassPerArea=2e-8});
+        var model=ModelAssembly.Assemble(new Element[]{plate},Guid.NewGuid());lc=model.LoadCases.Values.Single();
+        model.ModelLoads.Add(new ModelGravityLoad(new Vector3d(0,0,-1),10000,lc,CoordinateSystem.Global));
+        string fingerprint=model.AnalysisFingerprint();
+        foreach(bool document in new[]{false,true})using(var stream=new MemoryStream())
+        {if(document)ModelArchive.SaveDocument(model,stream);else ModelArchive.Save(model,stream);stream.Position=0;var restored=ModelArchive.Load(stream);Assert.AreEqual(fingerprint,restored.AnalysisFingerprint());Assert.AreEqual(structural,restored.LoadCases.Values.Single().InertiaMasses.Structural);}
+        var plan=Straus7ModelWritePlan.Prepare(model);string folder=NativeFolder();var run=plan.RunLinearStatic(model,Path.Combine(folder,"mass-flags.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);CollectionAssert.AreEqual(new[]{structural,nonStructural},reader.ReadLoadCaseMassOption(1));reader.OpenResults(run.ResultPath);
+            double reaction=model.NodesElements.Values.Sum(n=>reader.ReadNodeResult(n.Id,1,true).Values[2]);
+            // rho*A*t*g = 1 N; mNS*A*g = 2 N. Input units t, mm, s give N without extra factors.
+            Assert.AreEqual((structural?1d:0)+(nonStructural?2d:0),reaction,1e-8);
+        }
+        Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+    }
+    [DataTestMethod,DataRow(0),DataRow(1),DataRow(2),TestCategory("Straus7Native")]
+    public void NativeMeshedSectionsRetainHolesMirrorsAndTaperedAxialCompliance(int kind)
+    {
+        Section section=kind==0?new SectionRectangular(20,10,.17):kind==1?new SectionRHS(30,20,2,3,2,3,"unequal walls"):
+            new SectionBuiltUp(new[]{new SectionBuiltUp.Part(new SectionRectangular(20,10),5,0),new SectionBuiltUp.Part(new SectionRectangular(20,10),-5,0,true)},"mirrored pair");
+        var model=Cantilever();var beam=model.BeamElements.Values.Single();var free=beam.NodeJ;var lc=model.LoadCases.Values.Single();var fc=model.FreedomCases.Values.Single();
+        beam.BeamProperty=new ElasticBeamProperty("BXS regions",new Material("E1000",1000,.3,0,0),section);
+        beam.Assignments.Physical.Taper=new BeamSectionTaper {ScaleI1=1,ScaleJ1=2,ScaleI2=1,ScaleJ2=2,Alignment1=TaperAlignment.Symmetric,Alignment2=TaperAlignment.Symmetric};
+        free.Loads.Clear();free.Loads.Add(new PointLoad(1000,0,0,0,0,0,free.Position,lc));
+        free.Assignments.Restrains.Add(new RestrainAssignment {FreedomCase=fc,Restrain=new NodeRestrain(free,Enumerable.Range(1,5).Select(i=>new DofRestrain((GeometryRestrain.DOF)i,true)).ToList())});
+        string fingerprint=model.AnalysisFingerprint(),folder=NativeFolder();
+        var plan=Straus7ModelWritePlan.Prepare(model,null,new Dictionary<Guid,int>{{beam.Guid,10}});
+        var run=plan.RunLinearStatic(model,Path.Combine(folder,"regions.st7"),folder);
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(run.ModelPath,folder);
+            Assert.AreEqual(section.Area,reader.ReadProperty(Straus7Entity.Beam,1).SectionProperties[0],section.Area*1e-9);
+            reader.OpenResults(run.ResultPath);
+            // BXS scales the complete outline in both directions: A(t)=A0(1+t)^2; integral 0..1 = 1/2.
+            double expected=1000*1000d/(1000*section.Area)/2;
+            Assert.AreEqual(expected,reader.ReadNodeResult(free.Id,1,false).Values[0],expected*5e-5);
+        }
+        Assert.AreEqual(fingerprint,model.AnalysisFingerprint());
+        Assert.AreEqual(0,Directory.GetFiles(folder,"gpc-section-*").Length,"Owned BXS scratch files must be removed after assignment.");
+    }
     [TestMethod,TestCategory("Straus7Native")]
     public void NativeUnsymmetricSectionRetainsShearCenterAndTorsionalResponse()
     {

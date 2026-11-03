@@ -18,6 +18,15 @@ using GPC.Model.Structure.Assignments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTest {
 [TestClass] public class ElasticExportContractsTest {
+    [TestMethod] public void GenericSectionRetainsDeclaredElasticModuliWithoutInventingAnOutline()
+    {
+        var section=new Section(100,800,200,30,0,new Point2d(2,3),new Point3d(2,3,0),0,"tabulated",80,40,75,35);
+        Assert.AreEqual(80,section.Wel1);Assert.AreEqual(40,section.Wel2);Assert.AreEqual(75,section.WelX);Assert.AreEqual(35,section.WelY);Assert.IsNull(section.Shape);
+        var copy=ModelValues.CopyValue(section);Assert.AreEqual(section,copy);
+        using(var stream=new MemoryStream())
+        {ModelValueArchive.Save(section,stream);stream.Position=0;var restored=ModelValueArchive.Load<Section>(stream);Assert.AreEqual(80,restored.Wel1);Assert.AreEqual(ModelValues.Fingerprint(new object[]{section}),ModelValues.Fingerprint(new object[]{restored}));}
+        Assert.ThrowsException<ArgumentOutOfRangeException>(()=>new Section(100,800,200,30,0,new Point2d(0,0),new Point3d(0,0,0),0,"bad",double.NaN,40));
+    }
     [TestMethod] public void MaterialAnalysisPropertiesAreCopiedArchivedAndFingerprintRelevant()
     {
         var model=Cantilever();var material=((ElasticBeamProperty)model.BeamElements.Values.Single().BeamProperty).Material;

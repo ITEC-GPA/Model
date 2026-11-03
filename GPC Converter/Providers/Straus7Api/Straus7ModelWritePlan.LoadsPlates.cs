@@ -146,6 +146,7 @@ namespace GPC.Converter.Straus7
                     Enumerable.Range(0,count).All(i=>Axes.Length(boundary[(start+direction*i+count)%count]-nodes[i])<1e-7)));
                 if(!matches)throw new NotSupportedException("PlatePressureRequiresFullElementCoverage");
             }
+            internal bool RequiresInertiaApi;
             private void ModelActions()
             {
                 var gravity=new Dictionary<int,Vector3d>();
@@ -159,6 +160,11 @@ namespace GPC.Converter.Straus7
                 {
                     int lc=pair.Key;var v=Values(pair.Value);if(v.Count(x=>x!=0)>1)throw new NotSupportedException("ObliqueGravityRequiresExplicitMassAccelerationConversion");
                     if(v.Any(x=>x!=0))Operations.Add(a=>a.SetGravity(lc,(double[])v.Clone()));
+                }
+                foreach(var c in Model.LoadCases.Values.Where(c=>c.InertiaMasses!=null))
+                {
+                    RequiresInertiaApi=true;int lc=Loads[c.Guid];bool structural=c.InertiaMasses.Structural,nonStructural=c.InertiaMasses.NonStructural;
+                    Operations.Add(a=>((IStraus7InertiaWriteApi)a).SetInertiaMassSelection(lc,structural,nonStructural));
                 }
                 if(Model.Combinations.Count!=0&&Freedoms.Count>1)throw new NotSupportedException("CombinationRequiresExplicitFreedomCasePairing");
                 int i=0;

@@ -25,7 +25,7 @@ namespace GPC.Model.Core
             "SectionTrapezoidVersion", "SectionUBeamVersion",
             // Id counters of UniqueIdCollection saved by their owners (11/10/2026): bookkeeping of the numbering, not inputs.
             "CostrainsMaxId", "StagesMaxId", "ModelLoadsMaxId", "AttributesMaxId", "LoadsMaxId", "RebarMaxId",
-            "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion",
+            "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
             "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion",
         };
 

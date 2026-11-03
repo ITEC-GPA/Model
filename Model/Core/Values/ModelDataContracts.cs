@@ -25,6 +25,11 @@ namespace GPC.Model.Core
         internal static readonly Type[] Domain = new Type[]
         {
             typeof(global::GPC.Model.Structure.Bridges.BridgeDefinition),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeGeometry),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeAxisMember),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeSupportPoint),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeJointPoint),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeDeckMesh),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffLaw),
             typeof(global::GPC.Model.ElementProperties.BeamCutoffFailure),
             typeof(global::GPC.Model.Structure.Assignments.ShellSurfacePressure),
@@ -158,6 +163,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.LoadCases.LoadCase),
             typeof(global::GPC.Model.LoadCases.LoadCase.LoadCaseTypes),
             typeof(global::GPC.Model.LoadCases.LoadCaseBase),
+            typeof(global::GPC.Model.LoadCases.InertiaMassSelection),
             typeof(global::GPC.Model.LoadCases.LoadCaseEn16612),
             typeof(global::GPC.Model.LoadCases.LoadCaseEn16612.LoadCaseEn16612Types),
             typeof(global::GPC.Model.Loads.AreaLoad),

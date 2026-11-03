@@ -23,6 +23,8 @@ namespace GPC.Converter.Straus7
         private readonly string groupFingerprint;
         private readonly bool requiresMaterialApi;
         private readonly bool requiresSectionGeometryApi;
+        private readonly bool requiresSectionMeshApi;
+        private readonly bool requiresInertiaApi;
         private readonly bool requiresConstraintApi;
         private readonly bool requiresSurfacePressureApi;
         internal readonly Guid[] StaticMovingParentCases;
@@ -42,6 +44,8 @@ namespace GPC.Converter.Straus7
             groupFingerprint=GroupFingerprint(builder.Model);
             requiresMaterialApi=builder.RequiresMaterialApi;
             requiresSectionGeometryApi=builder.RequiresSectionGeometryApi;
+            requiresSectionMeshApi=builder.RequiresSectionMeshApi;
+            requiresInertiaApi=builder.RequiresInertiaApi;
             requiresConstraintApi=builder.RequiresConstraintApi;
             requiresSurfacePressureApi=builder.RequiresSurfacePressureApi;
             physical=Straus7PhysicalWritePlan.PrepareForFullModel(builder.Model,IdentityMap,
@@ -80,6 +84,8 @@ namespace GPC.Converter.Straus7
             if(moving?.RequiresAdvancedApi==true&&!(api is IStraus7AdvancedMovingWriteApi))throw new ArgumentException("MissingAdvancedMovingWriteApi");
             if(requiresMaterialApi&&!(api is IStraus7MaterialWriteApi))throw new ArgumentException("MissingMaterialWriteApi");
             if(requiresSectionGeometryApi&&!(api is IStraus7SectionGeometryWriteApi))throw new ArgumentException("MissingSectionGeometryWriteApi");
+            if(requiresSectionMeshApi&&!(api is IStraus7SectionMeshWriteApi))throw new ArgumentException("MissingSectionMeshWriteApi");
+            if(requiresInertiaApi&&!(api is IStraus7InertiaWriteApi))throw new ArgumentException("MissingInertiaWriteApi");
             if(requiresConstraintApi&&!(api is IStraus7ConstraintWriteApi))throw new ArgumentException("MissingConstraintWriteApi");
             if(requiresSurfacePressureApi&&!(api is IStraus7SurfacePressureWriteApi))throw new ArgumentException("MissingSurfacePressureWriteApi");
             api.RequireEmptyTopology();foreach(var operation in operations)operation(api);

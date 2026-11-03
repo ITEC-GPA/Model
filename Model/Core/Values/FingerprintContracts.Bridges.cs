@@ -4,6 +4,47 @@ namespace GPC.Model.Core
     {
         private static void RegisterBridgeContracts()
         {
+            Register("GPC.Model.LoadCases.InertiaMassSelection", "GPC.Model.LoadCases.InertiaMassSelection",
+                Field("GPC.Model.LoadCases.InertiaMassSelection", "<Structural>k__BackingField", "Structural", false),
+                Field("GPC.Model.LoadCases.InertiaMassSelection", "<NonStructural>k__BackingField", "NonStructural", false));
+            Register("GPC.Model.Structure.Bridges.BridgeGeometry", "GPC.Model.Structure.Bridges.BridgeGeometry",
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "schema", "schema", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Id>k__BackingField", "Id", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Nodes>k__BackingField", "Nodes", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Members>k__BackingField", "Members", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Supports>k__BackingField", "Supports", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Joints>k__BackingField", "Joints", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Segments>k__BackingField", "Segments", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Frames>k__BackingField", "Frames", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Stations>k__BackingField", "Stations", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<Deck>k__BackingField", "Deck", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<DeckThickness>k__BackingField", "DeckThickness", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<LeftEdge>k__BackingField", "LeftEdge", false),
+                Field("GPC.Model.Structure.Bridges.BridgeGeometry", "<RightEdge>k__BackingField", "RightEdge", false));
+            Register("GPC.Model.Structure.Bridges.BridgeAxisMember", "GPC.Model.Structure.Bridges.BridgeAxisMember",
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Guid>k__BackingField", "Guid", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Id>k__BackingField", "Id", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Family>k__BackingField", "Family", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Group>k__BackingField", "Group", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Segment>k__BackingField", "Segment", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<Span>k__BackingField", "Span", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<NodeFrom>k__BackingField", "NodeFrom", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<NodeTo>k__BackingField", "NodeTo", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<StationFrom>k__BackingField", "StationFrom", false),
+                Field("GPC.Model.Structure.Bridges.BridgeAxisMember", "<StationTo>k__BackingField", "StationTo", false));
+            Register("GPC.Model.Structure.Bridges.BridgeSupportPoint", "GPC.Model.Structure.Bridges.BridgeSupportPoint",
+                Field("GPC.Model.Structure.Bridges.BridgeSupportPoint", "<Support>k__BackingField", "Support", false),
+                Field("GPC.Model.Structure.Bridges.BridgeSupportPoint", "<Girder>k__BackingField", "Girder", false),
+                Field("GPC.Model.Structure.Bridges.BridgeSupportPoint", "<Station>k__BackingField", "Station", false),
+                Field("GPC.Model.Structure.Bridges.BridgeSupportPoint", "<Point>k__BackingField", "Point", false));
+            Register("GPC.Model.Structure.Bridges.BridgeJointPoint", "GPC.Model.Structure.Bridges.BridgeJointPoint",
+                Field("GPC.Model.Structure.Bridges.BridgeJointPoint", "<Girder>k__BackingField", "Girder", false),
+                Field("GPC.Model.Structure.Bridges.BridgeJointPoint", "<Joint>k__BackingField", "Joint", false),
+                Field("GPC.Model.Structure.Bridges.BridgeJointPoint", "<Station>k__BackingField", "Station", false),
+                Field("GPC.Model.Structure.Bridges.BridgeJointPoint", "<Point>k__BackingField", "Point", false));
+            Register("GPC.Model.Structure.Bridges.BridgeDeckMesh", "GPC.Model.Structure.Bridges.BridgeDeckMesh",
+                Field("GPC.Model.Structure.Bridges.BridgeDeckMesh", "<Vertices>k__BackingField", "Vertices", false),
+                Field("GPC.Model.Structure.Bridges.BridgeDeckMesh", "<Faces>k__BackingField", "Faces", false));
             Register("GPC.Model.Structure.Bridges.BridgeSectionRule", "GPC.Model.Structure.Bridges.BridgeSectionRule",
                 Field("GPC.Model.Structure.Bridges.BridgeSectionRule", "<Family>k__BackingField", "Family", false),
                 Field("GPC.Model.Structure.Bridges.BridgeSectionRule", "<Group>k__BackingField", "Group", false),

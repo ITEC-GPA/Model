@@ -1,10 +1,10 @@
-# Stato della migrazione comune
+﻿# Stato della migrazione comune
 
 Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente; piano in [PIANO.md](PIANO.md).
 
 ## Stato effettivo
 
-**F5 in corso; F6–F8 autorizzate e in coda.** La prosecuzione corrente è in [F5-DOMINIO-ESTESO.md](F5-DOMINIO-ESTESO.md): descrittori del ponte, materiali di analisi, membrane per unità di larghezza, carichi mobili avanzati, risultati generati e delle fasi, rastremazioni, collegamenti rigidi, pressioni sulle facce, cutoff e shear panel. Gate aggiornati superati: **Model 1.916 PASS, 7 esclusioni; Checker 10.377 PASS, 1 esclusione**; API e audit superati. [Evidenze del set](f5-dominio-esteso-evidenze.json). Overlay F5: **278/2.309** campi. La chiusura semantica dell'intera matrice resta necessaria: un rifiuto esplicito non certifica l'implementazione. Nessun rilascio.
+**F5 in corso; F6–F8 autorizzate e in coda.** Checkpoint corrente: [F5-GEOMETRIA-MASSE.md](F5-GEOMETRIA-MASSE.md), geometria autonoma del ponte, archivio dei valori, sezioni BXS/generiche e partecipazione delle masse. **Model 1.933 PASS, 7 esclusioni; Checker 10.377 PASS, 1 esclusione**; API e audit superati. [Evidenze](f5-geometria-masse-evidenze.json). La matrice completa di revisione enumera i 2.309 campi e ne mantiene **632 aperti**: F5 non è chiusa, nessun rilascio. Il precedente ampliamento del dominio è documentato in [F5-DOMINIO-ESTESO.md](F5-DOMINIO-ESTESO.md).
 
 Ultimo checkpoint consolidato: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
 

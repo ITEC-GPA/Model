@@ -559,6 +559,23 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Creates a generic section with explicitly declared minimum elastic section moduli [mm³].
+        /// Each minimum is applied to both stress signs; unequal positive/negative moduli require an actual outline.
+        /// Zero denotes an unspecified modulus, as for the historical generic-section constructor.
+        /// No outline, plastic modulus or resistance classification is inferred.
+        /// </summary>
+        public Section(double area, double j11, double j22, double jt, double jw,
+            Point2d centroid, Point3d shearCenter, double angle, string name,
+            double elasticModulus1, double elasticModulus2, double elasticModulusX = 0, double elasticModulusY = 0)
+            : this(area,j11,j22,jt,jw,centroid,shearCenter,angle,name)
+        {
+            foreach(double value in new[]{elasticModulus1,elasticModulus2,elasticModulusX,elasticModulusY})
+                if(double.IsNaN(value)||double.IsInfinity(value)||value<0)throw new ArgumentOutOfRangeException("elasticModulus");
+            _wel1Min=_wel1Max=elasticModulus1;_wel2Min=_wel2Max=elasticModulus2;
+            _welXMin=_welXMax=elasticModulusX;_welYMin=_welYMax=elasticModulusY;
+        }
+
+        /// <summary>
         /// Deserialization constructor (the shape is read from the version 3)
         /// </summary>
         /// <param name="info">The serialization data</param>

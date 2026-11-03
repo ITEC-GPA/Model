@@ -1,0 +1,233 @@
+{
+  "schema": "gpc-f5-geometry-inertia-evidence-v1",
+  "date": "2026-11-03",
+  "phaseStatus": "F5-open",
+  "versions": {
+    "Model": "5.45.0.0",
+    "Persistence": "3.11.0.0",
+    "Converter": "2.17.0.0"
+  },
+  "modelGate": {
+    "passed": 1933,
+    "failed": 0,
+    "suites": [
+      {
+        "path": "artifacts/f5/model-domain-geometry-gate/Model.Core.Tests.trx",
+        "sha256": "2f12585dfdc1c6262b933ab591a58c87cb28a398c8b0933ad3d8d7cb53c0c8fb",
+        "bytes": 86752,
+        "counters": {
+          "total": "63",
+          "executed": "63",
+          "passed": "63",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      },
+      {
+        "path": "artifacts/f5/model-domain-geometry-gate/Model.NetFramework.Tests.trx",
+        "sha256": "639c974ff7b3d4eed1da00223317a3404d0993c2617b0e9951f6a9d0bcd5e533",
+        "bytes": 129344,
+        "counters": {
+          "total": "94",
+          "executed": "94",
+          "passed": "94",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      },
+      {
+        "path": "artifacts/f5/model-domain-geometry-gate/UnitTest.trx",
+        "sha256": "ec6edb7c6f1ca50ad9bd08c00014da58f25fc2b105a270fa3b7b74a51578a708",
+        "bytes": 2466471,
+        "counters": {
+          "total": "1783",
+          "executed": "1776",
+          "passed": "1776",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      }
+    ],
+    "log": {
+      "path": "artifacts/f5/model-domain-geometry-gate.log",
+      "sha256": "84ad0660b6a2d0733c0648dfeac01521e2cae899501a2b5edb7dc3097b453f81",
+      "bytes": 6421
+    },
+    "apiCompatibility": "passed",
+    "equalityAudit": "passed"
+  },
+  "checkerGate": {
+    "summary": {
+      "path": "artifacts/f5/checker-domain-geometry-gate/summary.json",
+      "sha256": "8cd5521c3f2bd86dc302f1af89b08b953699b2382b71ff0b0038077205418a1b",
+      "bytes": 2404
+    },
+    "log": {
+      "path": "artifacts/f5/checker-domain-geometry-gate.log",
+      "sha256": "7492f92d8c1f1fd9f5f0bfda21ffc2f3e97ced54a54dae5c1e9938b41052d70b",
+      "bytes": 12096
+    },
+    "results": {
+      "suites": "all",
+      "created": "2026-11-03T14:35:17",
+      "results": [
+        {
+          "name": "GPCChecker.Test.Concrete",
+          "passed": 962,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "GPCChecker.Test.Steel",
+          "passed": 122,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "GPCChecker.Test.CompositeBridge",
+          "passed": 436,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "GPCChecker.Test.Geotechnics",
+          "passed": 202,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "GPCChecker.Test.Calculation",
+          "passed": 175,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "ShallowFoundation.Tests",
+          "passed": 29,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "EmbeddedWalls.Tests",
+          "passed": 99,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "Steel.Members.Tests",
+          "passed": 7132,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "Design.Checks",
+          "passed": 274,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "Design.Checks.net472",
+          "passed": 273,
+          "failed": 0,
+          "other": 0,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        },
+        {
+          "name": "ModelChecker.Tests",
+          "passed": 673,
+          "failed": 0,
+          "other": 1,
+          "knownFailures": [],
+          "unexpectedFailures": [],
+          "knownNowPassing": []
+        }
+      ],
+      "apiCompatible": true,
+      "unexpected": []
+    }
+  },
+  "matrix": {
+    "fields": 2309,
+    "counts": {
+      "reviewed-retained": 678,
+      "reviewed": 736,
+      "reviewed-domain": 263,
+      "OPEN": 632
+    },
+    "complete": false
+  },
+  "newEvidence": [
+    "BridgeGeometry and standalone ModelValueArchive net6/net472, including negative-zero preservation and invalid archives",
+    "BXS sections with rotated outline, hole and disconnected mirrored regions; tapered axial compliance and native shear-centre response",
+    "All four structural/non-structural inertia selections: reactions 0/1/2/3 N; XML and package archive",
+    "Generic section declared elastic moduli preserved without an inferred outline"
+  ],
+  "limits": [
+    "F5 field review still open; no source adapter completion is inferred from target contracts",
+    "BXS scales complete coordinates; native standard shapes retain wall thickness. Native-source/taper rules require final semantic review",
+    "Prescribed displacement load/freedom case association still requires implementation",
+    "No fixture/API baseline regeneration, merge, push, release or Rhino installation update"
+  ]
+}

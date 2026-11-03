@@ -1,0 +1,828 @@
+{
+  "BridGHe.Common.Models.BeamPropertyType": [
+    "SpringDamper",
+    "PointContact",
+    "UserDefined",
+    "Pipe",
+    "Connection"
+  ],
+  "BridGHe.Common.Models.BeamPropertyModel": [
+    "_beamPropertyType",
+    "PropertyType"
+  ],
+  "BridGHe.Common.Models.BeamReleasesAttributeModel+AttributeData": [
+    "TransNode1",
+    "TransNode2",
+    "RotNode1",
+    "RotNode2",
+    "TransN1Partial",
+    "TransN2Partial",
+    "RotN1Partial",
+    "RotN2Partial"
+  ],
+  "BridGHe.Common.Models.BeamSupportAttributeModel+CoordinateSystem": [
+    "Global",
+    "Local"
+  ],
+  "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData": [
+    "SpringType",
+    "LinkProperty",
+    "SpringTensionOrientation",
+    "Plane12Angle",
+    "LocalAxis2Angle",
+    "CoordinateSystem"
+  ],
+  "BridGHe.Common.Models.CompositeBeamModel": [
+    "_beamId",
+    "_pointFrom",
+    "_pointTo",
+    "_startBeamProperty",
+    "_endBeamProperty",
+    "Length",
+    "BeamId",
+    "PointFrom",
+    "PointTo",
+    "StartBeamProperty",
+    "EndBeamProperty"
+  ],
+  "BridGHe.Common.Models.CompositeBeamPropertyModel": [
+    "_concreteSection",
+    "_steelSection",
+    "_concreteMaterial",
+    "_rebarMaterial",
+    "_steelMaterial",
+    "_verticalOffset",
+    "_nInfinite",
+    "_nInstant",
+    "_nShrinkage",
+    "_considerConcrete",
+    "_considerRebar",
+    "ConcreteSection",
+    "VerticalOffset",
+    "SteelSection",
+    "ConcreteMaterial",
+    "RebarMaterial",
+    "SteelMaterial",
+    "NInfinite",
+    "NInstant",
+    "NShrinkage",
+    "ConsiderConcrete",
+    "ConsiderRebar"
+  ],
+  "BridGHe.Common.Models.CompositeBeamSlabStrainModel+LoadData": [
+    "Strain"
+  ],
+  "BridGHe.Common.Models.CompositeSectionPreviewGeometry": [
+    "Steel",
+    "Slab"
+  ],
+  "BridGHe.Common.Models.LoadCaseModel": [
+    "_temperature",
+    "_globalInertiaLoad",
+    "_a",
+    "_v",
+    "_w",
+    "_origin",
+    "_stages",
+    "Temperature",
+    "GlobalInertiaLoad",
+    "A",
+    "V",
+    "W",
+    "Origin",
+    "Stages",
+    "Dead"
+  ],
+  "BridGHe.Common.Models.LoadCaseModel+GlobalInertiaLoads": [
+    "None",
+    "Gravity",
+    "AccelerationAndVelocity",
+    "Seismic"
+  ],
+  "BridGHe.Common.Models.LoadCaseModel+Stage": [
+    "_name",
+    "_bridgePhases",
+    "Name",
+    "BridgePhase"
+  ],
+  "BridGHe.Common.Models.LoadCaseModel+Stage+BridgePhases": [
+    "Unassigned",
+    "OnlySteel",
+    "NInfinite",
+    "NInstant",
+    "StrainInfinite",
+    "StrainInstant",
+    "NShrinkage"
+  ],
+  "BridGHe.Common.Models.LoadCombinationModel": [
+    "_values",
+    "Values"
+  ],
+  "BridGHe.Common.Models.LoadPatchTypeAttributeModel+PatchType": [
+    "Auto1",
+    "Auto2",
+    "Auto3",
+    "Auto4",
+    "AngleSplit",
+    "Manual"
+  ],
+  "BridGHe.Common.Models.MaterialModel": [
+    "_id",
+    "_name",
+    "_materialKind",
+    "_modulus",
+    "_poissonRatio",
+    "_density",
+    "_thermalExpansion",
+    "_temperatureOnTime",
+    "_materialMode",
+    "_minimumYieldStress",
+    "_minimumTensileStress",
+    "_expectedYieldStress",
+    "_expectedTensileStress",
+    "_specificCompressiveStrength",
+    "_expectedCompressiveStrength",
+    "_alumiumType",
+    "_alloy",
+    "_compressiveYieldStrength",
+    "_tensileYieldStrength",
+    "_tensileUltimateStrength",
+    "_shearUltimateStrength",
+    "Id",
+    "ReinforcementUltimateStrain",
+    "Name",
+    "Kind",
+    "Modulus",
+    "PoissonRatio",
+    "Density",
+    "ThermalExpansion",
+    "TemperatureOnTime",
+    "MinimumYieldStress",
+    "MinimumTensileStress",
+    "ExpectedYieldStress",
+    "ExpectedTensileStress",
+    "SpecificCompressiveStrength",
+    "ExpectedCompressiveStrength",
+    "AlumiumType",
+    "Alloy",
+    "CompressiveYieldStrength",
+    "TensileYieldStrength",
+    "TensileUltimateStrength",
+    "ShearUltimateStrength"
+  ],
+  "BridGHe.Common.Models.MaterialModel+MaterialKind": [
+    "Undefined",
+    "Steel",
+    "Concrete",
+    "Aluminium",
+    "Rebar"
+  ],
+  "BridGHe.Common.Models.MaterialModel+TemperatureOnTimeType": [
+    "Elastic",
+    "Plastic"
+  ],
+  "BridGHe.Common.Models.MaterialModel+MaterialMode": [
+    "Elastic",
+    "ElasticPlastic"
+  ],
+  "BridGHe.Common.Models.MaterialModel+HardeningType": [
+    "Isotropic",
+    "Kinematic",
+    "Takeda"
+  ],
+  "BridGHe.Common.Models.MaterialModel+AlumiumTypes": [
+    "Wrought",
+    "CastMold",
+    "CastSand"
+  ],
+  "BridGHe.Common.Models.ModelModel": [
+    "GRAVITY_mmSuS2",
+    "_name",
+    "_units",
+    "_elements",
+    "_nodes",
+    "_beams",
+    "_plates",
+    "_loadCases",
+    "_loadCombinations",
+    "_nodesIndexes",
+    "_beamsIndexes",
+    "_platesIndexes",
+    "_stagedConstruction",
+    "MovingPaths",
+    "GeneratedMovingCases",
+    "BridgeWorkflow",
+    "Name",
+    "Units",
+    "Elements",
+    "Nodes",
+    "Beams",
+    "Plates",
+    "LoadCases",
+    "LoadCombinations",
+    "StagedConstruction"
+  ],
+  "BridGHe.Common.Models.ModelModel+ModelUnits": [
+    "Knm",
+    "SI",
+    "Nmm",
+    "IPS"
+  ],
+  "BridGHe.Common.Models.NodeDisplacementLoadModel+LoadData": [
+    "Translation",
+    "Rotation"
+  ],
+  "BridGHe.Common.Models.NodeRestraintAttributeModel+AttributeData": [
+    "TransationalDisplacement",
+    "RotationDisplacement"
+  ],
+  "BridGHe.Common.Models.PlateForceResultModel": [
+    "_force",
+    "_forceMax",
+    "_forceMin",
+    "_forceAngle",
+    "_forceVonMises",
+    "_moment",
+    "_momentMax",
+    "_momentMin",
+    "_momentAngle",
+    "_transverseShearForce",
+    "_transverseShearForceMax",
+    "_transverseShearForceAng",
+    "_nodeId",
+    "Force",
+    "ForceMax",
+    "ForceMin",
+    "ForceAngle",
+    "ForceVonMises",
+    "Moment",
+    "MomentMax",
+    "MomentMin",
+    "MomentAngle",
+    "TransverseShearForce",
+    "TransverseShearForceMax",
+    "TransverseShearForceAng",
+    "NodeId"
+  ],
+  "BridGHe.Common.Models.PlateModel": [
+    "Type"
+  ],
+  "BridGHe.Common.Models.PlateModel+PlateType": [
+    "Invalid",
+    "Tri3",
+    "Quad4",
+    "Tri6",
+    "Quad8",
+    "Quad9",
+    "Generic"
+  ],
+  "BridGHe.Common.Models.PlatePressureModel+LoadFace": [
+    "Top",
+    "Bottom"
+  ],
+  "BridGHe.Common.Models.PlatePropertyModel": [
+    "_id"
+  ],
+  "BridGHe.Common.Models.PlateSupportAttributeModel+SupportedFace": [
+    "Top",
+    "Bottom"
+  ],
+  "BridGHe.Common.Models.ResultModel": [
+    "_case"
+  ],
+  "BridGHe.Common.Models.SectionConcreteSlabModel": [
+    "_height",
+    "_width",
+    "_topCover",
+    "_topRebarArea",
+    "_bottomCover",
+    "_bottomRebarArea",
+    "Height",
+    "Width",
+    "TopCover",
+    "TopRebarArea",
+    "BottomCover",
+    "BottomRebarArea",
+    "TotalRebarArea"
+  ],
+  "BridGHe.Common.Models.SectionModel": [
+    "_sectionArea_n0",
+    "_sectionArea_n1",
+    "_ixx_n0",
+    "_ixx_n1",
+    "_iyy_n0",
+    "_iyy_n1",
+    "_j_n0",
+    "_j_n1",
+    "_n0",
+    "_n1",
+    "_rebarDistance",
+    "_rebarArea",
+    "NativeSection",
+    "CompositePreview",
+    "SectionArea_n0",
+    "SectionArea_n1",
+    "Ixx_n0",
+    "Ixx_n1",
+    "Iyy_n0",
+    "Iyy_n1",
+    "J_n0",
+    "J_n1",
+    "RebarArea",
+    "RebarDistanceFromTop",
+    "N0",
+    "N1"
+  ],
+  "BridGHe.Common.MovingLoads.BridgeMovingCombinationTable": [
+    "Rows",
+    "ActionIds",
+    "Cases"
+  ],
+  "BridGHe.Common.Checks.BridgeCheckAdapter": [
+    "section",
+    "reference",
+    "options",
+    "PlanarAssumption",
+    "LocalStateAssumption",
+    "ignoreSecondaryActions"
+  ],
+  "BridGHe.Common.Checks.BridgePhaseActions": [
+    "Steel",
+    "Infinite",
+    "Instant",
+    "StrainInfinite",
+    "StrainInstant",
+    "Shrinkage"
+  ],
+  "BridGHe.Common.Checks.BridgePhaseAssembler+ResultIndex": [
+    "BeamId",
+    "_forces",
+    "_strains",
+    "_tolerance"
+  ],
+  "BridGHe.Common.Checks.BridgeResultLabelFormat": [
+    "Complete",
+    "BeamStation",
+    "Combination",
+    "Phase"
+  ],
+  "BridGHe.Common.Checks.BridgeResultSource": [
+    "LocationLabel",
+    "Label",
+    "BeamId",
+    "StationMm",
+    "Combination",
+    "SuperElement"
+  ],
+  "BridGHe.Common.Checks.StiffenerPlotRole": [
+    "Intermediate",
+    "Support"
+  ],
+  "BridGHe.Common.Checks.CheckPlotDisplay": [
+    "Utilization",
+    "Demand",
+    "Resistance",
+    "DemandAndResistance"
+  ],
+  "BridGHe.Common.Checks.StiffenerPlotReading": [
+    "Value",
+    "Limit",
+    "Unit",
+    "Governing",
+    "Unavailable"
+  ],
+  "BridGHe.Common.Checks.BridgeStiffenerPlotChecks": [
+    "MemberChecks"
+  ],
+  "BridGHe.Common.Checks.BridgeStressResult": [
+    "Analysis",
+    "Stage",
+    "Source",
+    "Assumptions",
+    "stageIndex",
+    "shear",
+    "rebarRows",
+    "Point1_ConcreteSigma",
+    "Point1_ConcreteEpsilon",
+    "Point2_RebarSigma",
+    "Point3_RebarSigma",
+    "Point4_ConcreteSigma",
+    "Point5_SteelSigma",
+    "Point6_SteelSigma",
+    "Point7_SteelSigma",
+    "Point6_SteelTau",
+    "Point7_SteelTau",
+    "Point6_SteelSigmaId",
+    "Point7_SteelSigmaId",
+    "Point8_SteelSigma",
+    "Point8_SteelEpsilon"
+  ],
+  "BridGHe.Common.Checks.BridgeActionBehavior": [
+    "Steel",
+    "LongTerm",
+    "ShortTerm",
+    "Shrinkage"
+  ],
+  "BridGHe.Common.Checks.BridgeSectionState": [
+    "Steel",
+    "Composite",
+    "ConcreteExcluded"
+  ],
+  "BridGHe.Common.Checks.BridgeWorkflowMethod": [
+    "Compatible",
+    "LinearHistory"
+  ],
+  "BridGHe.Common.Checks.BridgeWorkflowBuildResult": [
+    "Model",
+    "Summary",
+    "Warnings"
+  ],
+  "BridGHe.Common.Checks.CompositeShrinkageActions": [
+    "FreeStrain",
+    "Curvature",
+    "PreStrain",
+    "ThermalGradient",
+    "EigenForce",
+    "EigenMoment",
+    "Centroid"
+  ],
+  "BridGHe.Common.Checks.ConcreteShrinkageResult": [
+    "Increment",
+    "Total",
+    "Drying",
+    "Autogenous",
+    "NotionalSize",
+    "Kh"
+  ],
+  "BridGHe.Common.Geometry.BeamMomentSign": [
+    "Positive",
+    "Negative",
+    "Mixed",
+    "Zero",
+    "Missing"
+  ],
+  "BridGHe.Common.Geometry.BeamMomentState": [
+    "Source",
+    "Sign",
+    "Minimum",
+    "Maximum",
+    "Case"
+  ],
+  "BridGHe.Common.Geometry.BridgeAlignmentInputsResult": [
+    "Alignment",
+    "Length",
+    "Supports",
+    "Spans",
+    "StartOverhang",
+    "EndOverhang",
+    "Joints",
+    "SupportPoints",
+    "Information"
+  ],
+  "BridGHe.Common.Geometry.BridgeBearingKind": [
+    "FixedTranslation",
+    "GuidedLongitudinal",
+    "Multidirectional",
+    "Elastic"
+  ],
+  "BridGHe.Common.Geometry.BridgeBearingLayout": [
+    "Nodes",
+    "Frames",
+    "Labels"
+  ],
+  "BridGHe.Common.Geometry.BridgeConstructionSnapshot": [
+    "Model",
+    "Stage",
+    "ActivePhysicalIds",
+    "Diagnostics"
+  ],
+  "BridGHe.Common.Geometry.BridgeDeckStrip": [
+    "Member",
+    "Width"
+  ],
+  "BridGHe.Common.Geometry.BridgeDeckConnection": [
+    "Station",
+    "Girder",
+    "Axis"
+  ],
+  "BridGHe.Common.Geometry.BridgeDeckGrillageResult": [
+    "Geometry",
+    "Stations",
+    "Strips",
+    "Connections"
+  ],
+  "BridGHe.Common.Geometry.BridgeDeckResult": [
+    "Geometry",
+    "Mesh",
+    "Plates",
+    "Connections",
+    "Stations",
+    "Diagnostics"
+  ],
+  "BridGHe.Common.Geometry.IBridgeSegments": [
+    "FabricationSegments"
+  ],
+  "BridGHe.Common.Geometry.BridgeJointSet": [
+    "Stations",
+    "Girders"
+  ],
+  "BridGHe.Common.Geometry.BridgeDetailPlacement": [
+    "Id",
+    "Girder",
+    "Station",
+    "Definition",
+    "Kind"
+  ],
+  "BridGHe.Common.Geometry.BridgeDetailLayoutResult": [
+    "StudAxes",
+    "StudHeads",
+    "Stiffeners",
+    "Details",
+    "Diagnostics"
+  ],
+  "BridGHe.Common.Geometry.BridgeParametricLayoutResult": [
+    "Alignment",
+    "Supports",
+    "Offsets",
+    "DeckWidths",
+    "SpanLengths",
+    "BearingTypes"
+  ],
+  "BridGHe.Common.Geometry.BridgeAssignment": [
+    "Beams",
+    "Unassigned",
+    "Diagnostics"
+  ],
+  "BridGHe.Common.Geometry.BridgeSegmentCompositeResult": [
+    "Girders",
+    "Properties",
+    "SegmentIds"
+  ],
+  "BridGHe.Common.Geometry.BridgeSegmentOverrideResult": [
+    "Girders",
+    "OtherMembers"
+  ],
+  "BridGHe.Common.Geometry.BridgeSegmentSectionResult": [
+    "Rules",
+    "Table",
+    "ResolvedTable"
+  ],
+  "BridGHe.Common.Geometry.BridgeSlabGrillageResult": [
+    "Beams",
+    "Widths"
+  ],
+  "BridGHe.Common.Geometry.Shapes": [
+    "_items",
+    "Count",
+    "PREFIX"
+  ],
+  "Arachne.Common.Models.BeamNonPrismaticPropertyModel": [
+    "EndSection",
+    "Length",
+    "LengthType",
+    "Inertia33Type",
+    "Inertia22Type",
+    "EndSectionSectionArea",
+    "EndSectionIxx",
+    "EndSectionIyy",
+    "EndSectionIxy",
+    "EndSectionI11",
+    "EndSectionI22",
+    "EndSectionJ",
+    "EndSectionW11",
+    "EndSectionW22",
+    "EndSectionRho11",
+    "EndSectionRho22",
+    "EndSectionWxx",
+    "EndSectionWyy",
+    "EndSectionAngleX1Rad",
+    "EndSectionShearL1",
+    "EndSectionShearL2",
+    "EndSectionShearA1",
+    "EndSectionShearA2",
+    "EndSectionIntegrationPoints",
+    "EndSectionSectionType",
+    "EndSectionD",
+    "EndSectionB",
+    "EndSectionB1",
+    "EndSectionB2",
+    "EndSectionL",
+    "EndSectionT",
+    "EndSectionT1",
+    "EndSectionT2",
+    "EndSectionT3",
+    "EndSectionMirror",
+    "EndSectionMirrorGapA",
+    "EndSectionMirrorGapB",
+    "EndSectionCentroid",
+    "EndSectionIncludeTorsionalStiffness"
+  ],
+  "Arachne.Common.Models.BeamNonPrismaticPropertyModel+LengthTypes": [
+    "Variable",
+    "Absolute"
+  ],
+  "Arachne.Common.Models.BeamNonPrismaticPropertyModel+InertiaTypes": [
+    "Linear",
+    "Parabolic",
+    "Cubic"
+  ],
+  "Arachne.Common.Models.BeamPropertyType": [
+    "SpringDamper",
+    "PointContact",
+    "UserDefined",
+    "Pipe",
+    "Connection"
+  ],
+  "Arachne.Common.Models.BeamPropertyModel": [
+    "_beamPropertyType",
+    "PropertyType"
+  ],
+  "Arachne.Common.Models.FixedAxialForceModel": [
+    "_weight"
+  ],
+  "Arachne.Common.Models.FixedLengthModel": [
+    "_weight"
+  ],
+  "Arachne.Common.Models.ForceDensityModel": [
+    "_weight",
+    "_curvatureRatioValue",
+    "_type",
+    "_membraneType",
+    "_project"
+  ],
+  "Arachne.Common.Models.ForceDensityModel+ForceDensityTypes": [
+    "ForceDensity",
+    "Cable",
+    "Membrane",
+    "Curvature"
+  ],
+  "Arachne.Common.Models.ForceDensityModel+MembraneTypes": [
+    "Undefined",
+    "Warp",
+    "Weft"
+  ],
+  "Arachne.Common.Models.LoadCaseModel": [
+    "Dead"
+  ],
+  "Arachne.Common.Models.MaterialModel": [
+    "_id",
+    "_name",
+    "_materialKind",
+    "_modulus",
+    "_poissonRatio",
+    "_density",
+    "_thermalExpansion",
+    "_temperatureOnTime",
+    "_materialMode",
+    "_minimumYieldStress",
+    "_minimumTensileStress",
+    "_expectedYieldStress",
+    "_expectedTensileStress",
+    "_specificCompressiveStrength",
+    "_expectedCompressiveStrength",
+    "_alumiumType",
+    "_alloy",
+    "_compressiveYieldStrength",
+    "_tensileYieldStrength",
+    "_tensileUltimateStrength",
+    "_shearUltimateStrength",
+    "_areaDensity",
+    "_strengthWarp",
+    "_strengthWeft",
+    "_stiffnessWarp",
+    "_stiffnessWeft",
+    "_shearStiffness",
+    "Id",
+    "Name",
+    "Kind",
+    "Modulus",
+    "PoissonRatio",
+    "Density",
+    "ThermalExpansion",
+    "TemperatureOnTime",
+    "MinimumYieldStress",
+    "MinimumTensileStress",
+    "ExpectedYieldStress",
+    "ExpectedTensileStress",
+    "SpecificCompressiveStrength",
+    "ExpectedCompressiveStrength",
+    "AlumiumType",
+    "Alloy",
+    "CompressiveYieldStrength",
+    "TensileYieldStrength",
+    "TensileUltimateStrength",
+    "ShearUltimateStrength"
+  ],
+  "Arachne.Common.Models.MaterialModel+MaterialKind": [
+    "Undefined",
+    "Steel",
+    "Concrete",
+    "Aluminium",
+    "Rebar",
+    "Membrane"
+  ],
+  "Arachne.Common.Models.MaterialModel+TemperatureOnTimeType": [
+    "Elastic",
+    "Plastic"
+  ],
+  "Arachne.Common.Models.MaterialModel+MaterialMode": [
+    "Elastic",
+    "ElasticPlastic"
+  ],
+  "Arachne.Common.Models.MaterialModel+HardeningType": [
+    "Isotropic",
+    "Kinematic",
+    "Takeda"
+  ],
+  "Arachne.Common.Models.MaterialModel+AlumiumTypes": [
+    "Wrought",
+    "CastMold",
+    "CastSand"
+  ],
+  "Arachne.Common.Models.ModelModel": [
+    "GRAVITY_mmSuS2",
+    "_name",
+    "_units",
+    "_elements",
+    "_nodes",
+    "_beams",
+    "_plates",
+    "_loadCases",
+    "_nodesIndexes",
+    "_beamsIndexes",
+    "_platesIndexes",
+    "Name",
+    "Units",
+    "Elements",
+    "Nodes",
+    "Beams",
+    "Plates",
+    "LoadCases"
+  ],
+  "Arachne.Common.Models.ModelModel+ModelUnits": [
+    "Knm",
+    "SI",
+    "Nmm",
+    "IPS"
+  ],
+  "Arachne.Common.Models.PlateModel": [
+    "Type"
+  ],
+  "Arachne.Common.Models.PlateModel+PlateType": [
+    "Invalid",
+    "Tri3",
+    "Quad4",
+    "Tri6",
+    "Quad8",
+    "Quad9",
+    "Generic"
+  ],
+  "Arachne.Common.Models.PlatePropertyModel": [
+    "_id",
+    "_thickness",
+    "Thickness"
+  ],
+  "Arachne.Common.Models.ResultModel": [
+    "_case"
+  ],
+  "Arachne.Common.Models.SectionModel": [
+    "_sectionArea_n0",
+    "_sectionArea_n1",
+    "_ixx_n0",
+    "_ixx_n1",
+    "_iyy_n0",
+    "_iyy_n1",
+    "_j_n0",
+    "_j_n1",
+    "_n0",
+    "_n1",
+    "_rebarDistance",
+    "_rebarArea",
+    "SectionArea_n0",
+    "SectionArea_n1",
+    "Ixx_n0",
+    "Ixx_n1",
+    "Iyy_n0",
+    "Iyy_n1",
+    "J_n0",
+    "J_n1",
+    "RebarArea",
+    "RebarDistanceFromTop",
+    "N0",
+    "N1"
+  ],
+  "Arachne.Common.Models.SolverOptionsModel": [
+    "DefaultSolverTolerance",
+    "Gravity",
+    "Pressure",
+    "PressureLoadCase",
+    "LoadCases",
+    "MaxIterations",
+    "Tolerance",
+    "SolverMaxIterations",
+    "SolverToleranceA",
+    "SolverToleranceB",
+    "CreateMesh",
+    "PlateProperty"
+  ]
+}

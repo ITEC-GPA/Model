@@ -101,13 +101,16 @@ namespace GPC.Converter.Straus7
                     cutoff.Validate();RequiresMaterialApi=true;int failure=(int)cutoff.Failure;bool keep=cutoff.KeepMass;double tension=cutoff.TensionLimit,compression=cutoff.CompressionLimit;
                     Operations.Add(a=>((IStraus7MaterialWriteApi)a).SetCutoffLaw(id,failure,keep,tension,compression));
                 }
-                if(input.Physical?.Taper!=null) BeamSectionGeometry(beam,id,property.Section);
+                if(input.AnalysisProfile==null) BeamSectionGeometry(beam,id,property.Section);
+                else if(input.Physical?.Taper!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
                 if(beamIntegrationSlices.TryGetValue(beam.Guid,out int slices))
                 {
                     RequiresSectionGeometryApi=true;
                     Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamIntegrationSlices(id,slices,(double[])property.Section.Clone()));
                 }
-                if(input.AnalysisProfile==null)MaterialLaw(id,1,(beam.BeamProperty as ElasticBeamProperty)?.Material??(beam.BeamProperty as SteelSection)?.SteelMaterial);
+                var beamMaterial=(beam.BeamProperty as ElasticBeamProperty)?.Material??(beam.BeamProperty as SteelSection)?.SteelMaterial;
+                if(cutoff!=null&&beamMaterial?.AnalysisData?.StressStrainPairs!=null)throw new NotSupportedException("CutoffLawCannotBeCombinedWithMaterialStressStrainLaw");
+                if(input.AnalysisProfile==null)MaterialLaw(id,1,beamMaterial);
                 Operations.Add(a=>a.SetElement(1,id,id,(int[])nodes.Clone()));Group(beam,1);Operations.Add(a=>a.SetBeamAxes(id,(double[])axesData.Clone()));
                 var offsetI=Global(input.OffsetI,input.OffsetAxes??axes);var offsetJ=Global(input.OffsetJ,input.OffsetAxes??axes);
                 if(Axes.Length(offsetI-offsetJ)>1e-8)throw new NotSupportedException("UnequalBeamOffsetsRequireRigidEndLinks");
@@ -136,6 +139,7 @@ namespace GPC.Converter.Straus7
             {if(v==null)return new Vector3d(0,0,0);Axes.Validate(axes);return axes.V1*v.X+axes.V2*v.Y+axes.V3*v.Z;}
 
             internal bool RequiresSectionGeometryApi;
+            internal bool RequiresSectionMeshApi;
             private void BeamSectionGeometry(BeamElement beam,int id,double[] properties)
             {
                 if(beam.Assignments.AnalysisProfile!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
@@ -151,7 +155,33 @@ namespace GPC.Converter.Straus7
                 {shape=7;dimensions=new[]{h.LenghtTopFlange,h.LenghtBottomFlange,h.Height,h.ThicknessTopFlange,h.ThicknessWeb,h.ThicknessBottomFlange};}
                 else if(section is SectionRHS box && box.R==0 && box.ThicknessTop==box.ThicknessBottom && box.ThicknessWebLeft==box.ThicknessWebRight)
                 {shape=4;dimensions=new[]{box.Width,box.Height,0,box.ThicknessTop,box.ThicknessWebLeft,0};}
-                else throw new NotSupportedException("TaperSectionGeometryNotRepresentable: "+section?.GetType().Name);
+                else
+                {
+                    var outlines=section is SectionBuiltUp built?built.GetOutlines():section?.Shape==null?Array.Empty<Shape2d>():new[]{section.Shape};
+                    if(outlines.Count==0)
+                    {
+                        if(beam.Assignments.Physical?.Taper!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
+                        return; // Explicit generic section properties have no geometric outline.
+                    }
+                    var vertices=new List<double[]>();var faces=new List<int[]>();
+                    foreach(var outline in outlines)
+                    {
+                        var mesh=new Section(outline).GetMesh(initialMeshOnly:true);
+                        if(mesh==null||mesh.Faces.Count==0)throw new ArgumentException("EmptyStrausSectionMesh");
+                        var nodeIds=new Dictionary<int,int>();
+                        foreach(var vertex in mesh.Vertices)
+                        {
+                            nodeIds.Add(vertex.Id,vertices.Count);
+                            var xyz=new[]{vertex.Point.X,vertex.Point.Y,vertex.Point.Z};Finite(xyz);vertices.Add(xyz);
+                        }
+                        foreach(var face in mesh.Faces)faces.Add(mesh.GetFaceVertices(face).Select(v=>nodeIds[v.Id]).ToArray());
+                    }
+                    var xyzData=vertices.ToArray();var faceData=faces.ToArray();
+                    RequiresSectionMeshApi=true;
+                    Operations.Add(a=>((IStraus7SectionMeshWriteApi)a).SetBeamSectionMesh(id,
+                        xyzData.Select(v=>(double[])v.Clone()).ToArray(),faceData.Select(f=>(int[])f.Clone()).ToArray(),(double[])properties.Clone()));
+                    return;
+                }
                 RequiresSectionGeometryApi=true;
                 Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
             }
