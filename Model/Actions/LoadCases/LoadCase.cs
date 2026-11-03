@@ -78,6 +78,16 @@ namespace GPC.Model.LoadCases
             _loadCaseType = loadCaseType;
         }
 
+        /// <summary>Creates a typed load case with the persistent identity supplied by its owner (plug-in adapters).</summary>
+        /// <param name="guid">The identity (not empty)</param>
+        /// <param name="name">The name (not empty)</param>
+        /// <param name="loadCaseType">The type</param>
+        public LoadCase(Guid guid, string name, LoadCaseTypes loadCaseType)
+            : base(guid, name)
+        {
+            _loadCaseType = loadCaseType;
+        }
+
         /// <summary>
         /// Deserialization constructor: reads the data of <see cref="ModelObject"/> and the type
         /// </summary>

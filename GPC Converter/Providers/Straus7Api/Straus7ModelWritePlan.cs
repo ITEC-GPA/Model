@@ -158,7 +158,7 @@ namespace GPC.Converter.Straus7
                     var ready=pending.Where(g=>g.Parent==null||Groups.ContainsKey(g.Parent.Guid)).ToArray();
                     if(ready.Length==0)throw new ArgumentException("CyclicStrausGroups");
                     foreach(var g in ready)
-                    {int id=Groups.Count+2,parent=g.Parent==null?1:Groups[g.Parent.Guid];string name=g.Name;Groups.Add(g.Guid,id);Operations.Add(a=>a.CreateGroup(id,parent,name));pending.RemoveAll(candidate=>ReferenceEquals(candidate,g));}
+                    {int id=Groups.Count+2,parent=g.Parent==null?1:Groups[g.Parent.Guid];string name=NativeGroupName(g);Groups.Add(g.Guid,id);Operations.Add(a=>a.CreateGroup(id,parent,name));pending.RemoveAll(candidate=>ReferenceEquals(candidate,g));}
                 }
                 Number(Model.NodesElements.Values);Number(Model.BeamElements.Values);Number(Model.AreaElements.Values);
                 foreach(var node in Model.NodesElements.Values.OrderBy(n=>Entities[n.Guid])) Node(node);
@@ -169,6 +169,13 @@ namespace GPC.Converter.Straus7
                 ModelActions();
                 NonlinearCombinationIncrements();
                 ValidatePrescribedCases();
+            }
+            /// <summary>GPC group names are unique in the model; Straus7 names are unique only among siblings. A child named
+            /// "&lt;parent name&gt;\&lt;leaf&gt;" (path names, as BridGHe groups) is written with its leaf name under its native parent.</summary>
+            internal static string NativeGroupName(GPC.Model.Attributes.Group group)
+            {
+                string name=group.Name,parent=group.Parent?.Name;
+                return parent!=null&&name.Length>parent.Length+1&&name.StartsWith(parent+"\\",StringComparison.Ordinal)?name.Substring(parent.Length+1):name;
             }
             /// <summary>Legacy behaviour: native user IDs carry the GPC element Id (St7SetNodeID/BeamID/PlateID).</summary>
             private void UserIds()

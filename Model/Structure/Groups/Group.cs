@@ -55,6 +55,21 @@ namespace GPC.Model.Attributes
         }
 
         /// <summary>
+        /// Creates a root group with the persistent identity supplied by its owner (plug-in adapters: the same name
+        /// gives the same group in independent branches, as <see cref="Models.ModelAssembly"/> requires). The hierarchy is
+        /// built with <see cref="AddChild"/>.
+        /// </summary>
+        /// <param name="guid">The identity (not empty)</param>
+        /// <param name="name">The name (not empty)</param>
+        public Group(Guid guid, string name)
+            : base(IDUNASSIGNED, name, guid)
+        {
+            if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid));
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("EmptyGroupName", nameof(name));
+            _childs = new List<Group>();
+        }
+
+        /// <summary>
         /// Reads identity and hierarchy; missing legacy hierarchy is initialized empty.
         /// </summary>
         /// <param name="info">The serialization data</param>
