@@ -19,6 +19,7 @@ namespace GPC.Model.Models
             var result = new List<ModelDiagnostic>(global::GPC.Model.Stages.StageAnalysisState.Diagnose(model));
             Check(result, "InvalidMovingLoads", () => model.MovingLoads?.Validate(model));
             Check(result, "InvalidFormFinding", () => model.FormFinding?.Validate(model));
+            if (model.FormFinding != null) result.AddRange(model.FormFinding.IgnoredInputs());
             foreach (var property in model.BeamProperties.Values.OfType<ElasticBeamProperty>())
                 Check(result, "InvalidElasticProperty", property.Validate, property.Name);
             foreach (var property in model.PlateProperties.Values)

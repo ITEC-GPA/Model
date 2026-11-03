@@ -116,7 +116,7 @@ namespace GPC.Converter.Straus7
                     if(!(shell.PlateProperty is GPC.Model.ElementProperties.ElasticPlateProperty property)||property.Formulation!=GPC.Model.ElementProperties.ElasticPlateFormulation.LoadPatch)
                         throw new ArgumentException("LoadPatchDistributionRequiresLoadPatchProperty");
                     p.LoadPatch.Validate(shell.Nodes.Count);int kind=new[]{3,2,1,0,4,5}[(int)p.LoadPatch.Kind];
-                    int bits=p.LoadPatch.SelectedEdges.Aggregate(0,(value,e)=>value|(1<<(e-1)));var weights=(double[])p.LoadPatch.EdgeWeights.Clone();
+                    int bits=p.LoadPatch.Edges.Aggregate(0,(value,e)=>value|(1<<(e-1)));var weights=p.LoadPatch.EffectiveWeights;
                     distributionOps.Add(a=>a.SetLoadPatch(n,kind,bits,(double[])weights.Clone()));
                 }
                 foreach(var t in p.InitialStresses)

@@ -95,23 +95,22 @@ namespace GPC.Model.Analysis
                     Positive(goal.ChordLengthMm.Value);
                 }
                 else if (goal.ChordLengthMm.HasValue) throw new ArgumentException("ChordRequiresCurvatureGoal");
-                if ((goal.Kind == FormFindingGoalKind.Length || goal.Kind == FormFindingGoalKind.AxialForce)
-                    && Method == FormFindingMethod.LinearForceDensity)
-                    throw new ArgumentException("ObjectiveRequiresIterativeMethod");
+                // Review B7: the linear method ignores fixed lengths and axial forces with a warning (IgnoredInputs), as legacy Arachne.
                 if (goal.Kind != FormFindingGoalKind.MembraneForcePerWidth && goal.Direction != FabricDirection.Unspecified)
                     throw new ArgumentException("FabricDirectionRequiresMembraneGoal");
                 if (goal.ProjectToPlane && ProjectionPlane == null) throw new ArgumentException("MissingProjectionPlane");
             }
             foreach (var group in Goals.Where(g => g.Kind != FormFindingGoalKind.Length && g.Kind != FormFindingGoalKind.AxialForce).GroupBy(g => g.BeamGuid))
                 if (group.Count() > 1) throw new ArgumentException("ConflictingForceDensitySources");
+            // Legacy Arachne sets both as the one TensileLib axial target, the last one winning: ambiguous (review B7).
+            if (Goals.GroupBy(g => g.BeamGuid).Any(g => g.Any(x => x.Kind == FormFindingGoalKind.CableForce) && g.Any(x => x.Kind == FormFindingGoalKind.AxialForce)))
+                throw new ArgumentException("AmbiguousCableAndAxialForceGoals");
             keys.Clear();
             foreach (var goal in CoordinateGoals)
             {
                 if (goal == null || !nodes.Contains(goal.NodeGuid) || !keys.Add(goal.NodeGuid.ToString()) || goal.Weights == null)
                     throw new ArgumentException("InvalidOrDuplicateCoordinateGoal");
                 Nonnegative(goal.Weights.X); Nonnegative(goal.Weights.Y); Nonnegative(goal.Weights.Z);
-                if (Method != FormFindingMethod.NonlinearForceDensity && (goal.Weights.X != 0 || goal.Weights.Y != 0 || goal.Weights.Z != 0))
-                    throw new ArgumentException("CoordinateGoalsRequireNonlinearMethod");
             }
             keys.Clear();
             foreach (var mass in SurfaceMasses)
@@ -119,6 +118,26 @@ namespace GPC.Model.Analysis
                 if (mass == null || !areas.Contains(mass.AreaGuid) || !keys.Add(mass.AreaGuid.ToString())) throw new ArgumentException("InvalidOrDuplicateSurfaceMass");
                 Nonnegative(mass.MassPerArea);
             }
+        }
+        /// <summary>True when the selected method uses the goal: the linear method ignores fixed lengths and fixed axial forces.</summary>
+        public bool Uses(FormFindingGoal goal) => goal != null && (Method != FormFindingMethod.LinearForceDensity
+            || goal.Kind != FormFindingGoalKind.Length && goal.Kind != FormFindingGoalKind.AxialForce);
+
+        /// <summary>Inputs kept but not used by the selected method, as warnings, like legacy Arachne (FormFindingHelper at 5ddbe6f):
+        /// the linear method ignores fixed lengths and fixed axial forces, and only the nonlinear method uses the coordinate weights.</summary>
+        public IReadOnlyList<Core.Diagnostics.ModelDiagnostic> IgnoredInputs()
+        {
+            var result = new List<Core.Diagnostics.ModelDiagnostic>();
+            Core.Diagnostics.ModelDiagnostic Warning(string code, string message) => new Core.Diagnostics.ModelDiagnostic
+            { Code = code, Severity = Core.Diagnostics.DiagnosticSeverity.Warning, Message = message, SuggestedAction = "Select the nonlinear method to use these inputs." };
+            int lengths = Goals?.Count(g => g != null && g.Kind == FormFindingGoalKind.Length) ?? 0, forces = Goals?.Count(g => g != null && g.Kind == FormFindingGoalKind.AxialForce) ?? 0;
+            if (Method == FormFindingMethod.LinearForceDensity && lengths != 0)
+                result.Add(Warning("FormFindingFixedLengthIgnored", "Fixed length is used only by the iterative methods; the linear method ignores it (" + lengths + " beams)."));
+            if (Method == FormFindingMethod.LinearForceDensity && forces != 0)
+                result.Add(Warning("FormFindingFixedAxialForceIgnored", "Fixed axial force is used only by the iterative methods; the linear method ignores it (" + forces + " beams)."));
+            if (Method != FormFindingMethod.NonlinearForceDensity && (CoordinateGoals?.Any(g => g?.Weights != null && (g.Weights.X != 0 || g.Weights.Y != 0 || g.Weights.Z != 0)) ?? false))
+                result.Add(Warning("FormFindingCoordinateWeightsIgnored", "Weights on node coordinates are ignored by the linear solver."));
+            return result;
         }
         private static void Finite(double x) { if (double.IsNaN(x) || double.IsInfinity(x)) throw new ArgumentException("NonFiniteFormFindingValue"); }
         private static void Nonnegative(double x) { Finite(x); if (x < 0) throw new ArgumentException("NegativeFormFindingValue"); }

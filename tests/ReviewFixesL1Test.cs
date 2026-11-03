@@ -9,6 +9,7 @@ using GPC.Model.Models;
 using GPC.Model.Persistence;
 using GPC.Model.Sections;
 using GPC.Model.Stages;
+using GPC.Model.Analysis;
 using GPC.Geometry;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
@@ -230,6 +231,63 @@ namespace UnitTest
             var same = ModelValues.CopyValue(beam);
             string forward = ModelAssembly.Assemble(new Element[] { beam, same }, new Guid("11111111-1111-1111-1111-111111111111")).AnalysisFingerprint();
             Assert.AreEqual(forward, ModelAssembly.Assemble(new Element[] { same, beam }, new Guid("11111111-1111-1111-1111-111111111111")).AnalysisFingerprint());
+        }
+
+        private static Model Cable(FormFindingMethod method)
+        {
+            var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(1000, 0, 0));
+            var beam = new BeamElement(a.Position, b.Position, null); beam.ConnectNodes(a, b); beam.Assignments.Formulation = BeamFormulation.Cable;
+            var model = ModelAssembly.Assemble(new[] { beam }, Guid.NewGuid());
+            model.FormFinding = new FormFindingDefinition { Method = method };
+            return model;
+        }
+
+        // B7: the linear method keeps fixed length, axial force and node weights and ignores them with a warning (legacy Arachne).
+        [TestMethod] public void B7_LinearFormFindingIgnoresIterativeInputsWithWarnings()
+        {
+            var model = Cable(FormFindingMethod.LinearForceDensity); var beam = model.BeamElements.Values.Single();
+            var force = new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.AxialForce, Target = 100 };
+            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.ForceDensity, Target = 1 });
+            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.Length, Target = 900 });
+            model.FormFinding.Goals.Add(force);
+            model.FormFinding.CoordinateGoals.Add(new FormFindingCoordinateGoal { NodeGuid = model.NodesElements.Values.First().Guid, Weights = new Vector3d(0, 0, 5) });
+            model.FormFinding.Validate(model);
+            CollectionAssert.AreEquivalent(new[] { "FormFindingFixedLengthIgnored", "FormFindingFixedAxialForceIgnored", "FormFindingCoordinateWeightsIgnored" },
+                model.FormFinding.IgnoredInputs().Select(d => d.Code).ToArray());
+            Assert.IsTrue(model.FormFinding.IgnoredInputs().All(d => d.Severity == DiagnosticSeverity.Warning));
+            Assert.IsFalse(model.FormFinding.Uses(force)); Assert.IsTrue(model.FormFinding.Uses(model.FormFinding.Goals[0]));
+            Assert.IsTrue(model.ValidateDomain().Any(d => d.Code == "FormFindingFixedLengthIgnored"));
+            Assert.IsFalse(model.ValidateDomain().Any(d => d.Severity == DiagnosticSeverity.Error));
+            model.FormFinding.Method = FormFindingMethod.NonlinearForceDensity;
+            Assert.AreEqual(0, model.FormFinding.IgnoredInputs().Count); Assert.IsTrue(model.FormFinding.Uses(force));
+        }
+
+        // B7: legacy Arachne keeps one axial target; a cable force and an axial force on one beam are ambiguous.
+        [TestMethod] public void B7_CableForceAndAxialForceOnOneBeamAreRejected()
+        {
+            var model = Cable(FormFindingMethod.NonlinearForceDensity); var beam = model.BeamElements.Values.Single();
+            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.CableForce, Target = 100 });
+            model.FormFinding.Validate(model);
+            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.AxialForce, Target = 100 });
+            Assert.AreEqual("AmbiguousCableAndAxialForceGoals", Assert.ThrowsException<ArgumentException>(() => model.FormFinding.Validate(model)).Message);
+        }
+
+        // B7: the legacy BridGHe load-patch shape (int[4] padded with zeros, weights on automatic kinds) is accepted.
+        [TestMethod] public void B7_LoadPatchAcceptsZeroPaddedEdgesAndIgnoresAutomaticWeights()
+        {
+            var patch = new LoadPatchDistribution { Kind = LoadPatchDistributionKind.AutomaticTwoEdges, SelectedEdges = new[] { 1, 3, 0, 0 }, EdgeWeights = new[] { .5, 0, .5, 0 } };
+            patch.Validate(4);
+            CollectionAssert.AreEqual(new[] { 1, 3 }, patch.Edges); Assert.IsTrue(patch.IgnoresWeights); CollectionAssert.AreEqual(new double[4], patch.EffectiveWeights);
+            patch.Kind = LoadPatchDistributionKind.Manual; Assert.IsFalse(patch.IgnoresWeights); CollectionAssert.AreEqual(new[] { .5, 0, .5, 0 }, patch.EffectiveWeights); patch.Validate(4);
+            patch.SelectedEdges = new[] { 1, 1, 0, 0 }; Assert.ThrowsException<ArgumentException>(() => patch.Validate(4));
+            patch.Kind = LoadPatchDistributionKind.AutomaticTwoEdges; patch.SelectedEdges = new[] { 1, 3, 0, 0 };
+            var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(100, 0, 0)), new NodeElement(new Point3d(100, 100, 0)), new NodeElement(new Point3d(0, 100, 0)) };
+            var shell = new AreaElement(null, new ElasticPlateProperty("patch", null, 0, 0, ElasticPlateFormulation.LoadPatch)); shell.ConnectNodes(nodes);
+            shell.Assignments.Physical = new ShellPhysicalData { LoadPatch = patch };
+            var model = ModelAssembly.Assemble(new Element[] { shell }, Guid.NewGuid());
+            var diagnostics = model.ValidateAssignments();
+            Assert.IsTrue(diagnostics.Any(d => d.Code == "LoadPatchWeightsIgnored" && d.Severity == DiagnosticSeverity.Warning));
+            Assert.IsFalse(diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error));
         }
 
         // B9: stages may be absent in legacy graphs.
