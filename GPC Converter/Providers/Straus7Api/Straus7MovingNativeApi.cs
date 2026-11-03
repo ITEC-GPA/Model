@@ -20,12 +20,14 @@ namespace GPC.Converter.Straus7
     {
         public double[] ReadMovingHeatSource(int template,int vehicle,int position)
         {var flags=new int[1];var values=new double[5];Check(Call<MovingForceData>("St7GetLoadPathTemplateHeatSourceData")(FileId,template,vehicle,position,flags,values),"St7GetLoadPathTemplateHeatSourceData");return values;}
-        public GPC.Model.Actions.Moving.MovingCentrifugalLaw ReadMovingCentrifugal(int template)
+        /// <summary>Native centrifugal law in the R3 expression dialect; <see cref="Straus7CentrifugalExpression.ToDomain"/> gives the GPC N-mm law.</summary>
+        public Straus7CentrifugalExpression ReadMovingCentrifugal(int template)
         {
             var offset=new StringBuilder(1024);var factor=new StringBuilder(1024);var flags=new int[3];var values=new double[2];
             Check(Call<MovingCentrifugalRead>("St7GetLoadPathTemplateCentrifugalData")(FileId,template,offset,factor,1024,flags,values),"St7GetLoadPathTemplateCentrifugalData");
-            return new GPC.Model.Actions.Moving.MovingCentrifugalLaw {ExpressionLanguage="Straus7-R3",OffsetExpression=offset.ToString(),FactorExpression=factor.ToString(),
-                LengthUnit=new[]{"m","cm","mm","ft","in"}[flags[1]],ForceUnit=new[]{"N","kN","MN","kgf","lbf","tf","kip"}[flags[2]],
+            if(flags[1]<0||flags[1]>=Straus7CentrifugalExpression.LengthUnits.Count||flags[2]<0||flags[2]>=Straus7CentrifugalExpression.ForceUnits.Count)throw new System.IO.InvalidDataException("InvalidNativeCentrifugalUnits");
+            return new Straus7CentrifugalExpression {OffsetExpression=offset.ToString(),FactorExpression=factor.ToString(),
+                LengthUnit=Straus7CentrifugalExpression.LengthUnits[flags[1]],ForceUnit=Straus7CentrifugalExpression.ForceUnits[flags[2]],
                 LimitFactor=flags[0]!=0,MinimumFactor=values[0],MaximumFactor=values[1]};
         }
         public bool IsInMovingEntitySet(int family,int entity,int set)

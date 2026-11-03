@@ -16,6 +16,8 @@ namespace GPC.Converter.Straus7
         void SetNode(int id, double[] coordinates);
         void SetEntityGroup(int entity, int id, int group);
         void CreateBeamProperty(int id, string name, int formulation, double[] section, double[] material);
+        /// <summary>Name of the material of a beam property (St7SetMaterialName, ptBEAMPROP), as the legacy exporter.</summary>
+        void SetBeamMaterialName(int property, string name);
         void CreatePlateProperty(int id, string name, int formulation, double bending, double membrane, double[] material, bool orthotropic);
         void SetElement(int entity, int id, int property, int[] nodes);
         void SetBeamAxes(int id, double[] axes);
@@ -76,6 +78,7 @@ namespace GPC.Converter.Straus7
             if(formulation==2||formulation==3||formulation==6||formulation==8)api.CheckWrite(api.WriteFunction<MovingThree>("St7SetBeamShearModulusMode")(Id,id,1),"St7SetBeamShearModulusMode");
             api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,id),"St7UpdateElementPropertyData");
         }
+        public void SetBeamMaterialName(int property,string name)=>api.CheckWrite(api.WriteFunction<MaterialName>("St7SetMaterialName")(Id,1,property,name),"St7SetMaterialName");
         public void CreatePlateProperty(int id,string name,int formulation,double bending,double membrane,double[] material,bool orthotropic)
         {
             bool shearPanel=formulation==5;
@@ -218,6 +221,7 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelDistributedMoment(int a,int b,int c,int d,int e,int f,double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelDistributedForce(int a,int b,int c,int d,int e,int f,int g,double[] values);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelCombination(int a,int b,int c,int d,int e,double value);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MaterialName(int a,int entity,int property,string name);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int ModelIncrementFactor(int a,int stage,int increment,int loadCase,double factor);
     }
 }

@@ -63,7 +63,13 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Reference>k__BackingField", "Reference", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Target>k__BackingField", "Target", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<TargetElementGuids>k__BackingField", "TargetElementGuids", false),
-                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Divisions>k__BackingField", "Divisions", false));
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Divisions>k__BackingField", "Divisions", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Options>k__BackingField", "Options", true));
+            Register("GPC.Model.Actions.Moving.MovingPathOptions", "GPC.Model.Actions.Moving.MovingPathOptions",
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<TransitionTrailingLoad>k__BackingField", "TransitionTrailingLoad", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<BeamLateralTolerance>k__BackingField", "BeamLateralTolerance", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<RelativeTolerance>k__BackingField", "RelativeTolerance", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<ConvertToStaticCases>k__BackingField", "ConvertToStaticCases", false));
             Register("GPC.Model.Actions.Moving.MovingLoadTemplate", "GPC.Model.Actions.Moving.MovingLoadTemplate",
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Name>k__BackingField", "Name", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Vehicles>k__BackingField", "Vehicles", false),
@@ -107,14 +113,19 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingHeatSource", "<SizeY>k__BackingField", "SizeY", false),
                 Field("GPC.Model.Actions.Moving.MovingHeatSource", "<Power>k__BackingField", "Power", false));
             Register("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "GPC.Model.Actions.Moving.MovingCentrifugalLaw",
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<ExpressionLanguage>k__BackingField", "ExpressionLanguage", false),
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<OffsetExpression>k__BackingField", "OffsetExpression", false),
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<FactorExpression>k__BackingField", "FactorExpression", false),
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LengthUnit>k__BackingField", "LengthUnit", false),
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<ForceUnit>k__BackingField", "ForceUnit", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "legacyLanguage", "ExpressionLanguage", true),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "legacyOffset", "OffsetExpression", true),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "legacyFactor", "FactorExpression", true),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "legacyLengthUnit", "LengthUnit", true),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "legacyForceUnit", "ForceUnit", true),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MinimumFactor>k__BackingField", "MinimumFactor", false),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<MaximumFactor>k__BackingField", "MaximumFactor", false),
-                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LimitFactor>k__BackingField", "LimitFactor", false));
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<LimitFactor>k__BackingField", "LimitFactor", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<OffsetForce>k__BackingField", "OffsetForce", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<FactorKind>k__BackingField", "FactorKind", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<Factor>k__BackingField", "Factor", false),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<AdapterRecord>k__BackingField", "AdapterRecord", true),
+                Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<AdapterContentHash>k__BackingField", "AdapterContentHash", true));
             Register("GPC.Model.Analysis.CompositeSectionDefinition", "GPC.Model.Analysis.CompositeSectionDefinition",
                 Field("GPC.Model.Analysis.CompositeSectionDefinition", "schema", "schema", false),
                 Field("GPC.Model.Analysis.CompositeSectionDefinition", "<Id>k__BackingField", "Id", false),
@@ -156,6 +167,7 @@ namespace GPC.Model.Core
             Register("GPC.Model.Actions.Moving.MovingPathShape", "GPC.Model.Actions.Moving.MovingPathShape", Field("GPC.Model.Actions.Moving.MovingPathShape", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingPathSurface", "GPC.Model.Actions.Moving.MovingPathSurface", Field("GPC.Model.Actions.Moving.MovingPathSurface", "value__", "value__", false));
             Register("GPC.Model.Actions.Moving.MovingPathTarget", "GPC.Model.Actions.Moving.MovingPathTarget", Field("GPC.Model.Actions.Moving.MovingPathTarget", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingCentrifugalFactorKind", "GPC.Model.Actions.Moving.MovingCentrifugalFactorKind", Field("GPC.Model.Actions.Moving.MovingCentrifugalFactorKind", "value__", "value__", false));
             Register("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "GPC.Model.Structure.Assignments.NodalTemperatureAssignment",
                 Field("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "<Case>k__BackingField", "Case", false),
                 Field("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "<Kind>k__BackingField", "Kind", false),

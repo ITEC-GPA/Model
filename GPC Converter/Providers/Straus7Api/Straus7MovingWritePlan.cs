@@ -27,9 +27,12 @@ namespace GPC.Converter.Straus7
         IReadOnlyDictionary<int,string> ConvertSelectedMovingPaths();
     }
 
-    /// <summary>Software-specific controls, separate from physical moving-load inputs. Lengths use mm.</summary>
+    /// <summary>Straus7 load-path controls. The four controls that change the applied loads are persisted in the GPC model
+    /// (<see cref="MovingLoadPath.Options"/>); the display colour and the legacy native entity-set number are software data,
+    /// persisted as "Straus7 API" preserved data by <see cref="Store"/>. Lengths use mm.</summary>
     public sealed class Straus7MovingPathOptions
     {
+        public const string ColourRecord="MovingPathColour/",EntitySetRecord="MovingPathEntitySet/";
         public int Colour { get; set; } = 255;
         public bool TransitionTrailingLoad { get; set; }
         public bool BeamLateralTolerance { get; set; }
@@ -37,11 +40,52 @@ namespace GPC.Converter.Straus7
         /// <summary>Generate native static cases at the centres of the path divisions.
         /// The native conversion does not add endpoint positions or compute a continuous influence envelope.</summary>
         public bool ConvertToStaticCases { get; set; }
+        /// <summary>Native entity set of a legacy export. The writer regenerates sets from <see cref="MovingLoadPath.TargetElementGuids"/>:
+        /// a legacy set without a GPC selection is rejected instead of being dropped.</summary>
+        public int? EntitySetId { get; set; }
         internal void Validate()
         {
-            if(Colour<0||Colour>0xffffff||double.IsNaN(RelativeTolerance)||double.IsInfinity(RelativeTolerance)||RelativeTolerance<0)
+            if(Colour<0||Colour>0xffffff||double.IsNaN(RelativeTolerance)||double.IsInfinity(RelativeTolerance)||RelativeTolerance<0||EntitySetId<1)
                 throw new ArgumentException("InvalidStrausMovingOptions");
         }
+        private bool SameLoadApplication(MovingPathOptions o)=>o.TransitionTrailingLoad==TransitionTrailingLoad&&o.BeamLateralTolerance==BeamLateralTolerance
+            &&o.RelativeTolerance==RelativeTolerance&&o.ConvertToStaticCases==ConvertToStaticCases;
+
+        /// <summary>Persists these options with the model: the load-application controls in the path, colour and entity set as preserved data.</summary>
+        public void Store(global::GPC.Model.Models.Model model,Guid pathId)
+        {
+            Validate();var path=model?.MovingLoads?.Paths.SingleOrDefault(p=>p.Id==pathId)??throw new ArgumentException("UnknownMovingPath");
+            path.Options=new MovingPathOptions {TransitionTrailingLoad=TransitionTrailingLoad,BeamLateralTolerance=BeamLateralTolerance,RelativeTolerance=RelativeTolerance,ConvertToStaticCases=ConvertToStaticCases};
+            Preserve(model,ColourRecord+pathId.ToString("D"),Colour.ToString(System.Globalization.CultureInfo.InvariantCulture),"display colour of the native load path (no mechanical effect)");
+            if(EntitySetId.HasValue)Preserve(model,EntitySetRecord+pathId.ToString("D"),EntitySetId.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),"legacy native entity set; the writer uses TargetElementGuids");
+        }
+        private static void Preserve(global::GPC.Model.Models.Model model,string record,string value,string reason)
+        {
+            model.PreservedSourceData.RemoveAll(p=>p!=null&&p.Kind=="Straus7 API"&&p.SourceRecord==record);
+            model.PreservedSourceData.Add(new GPC.Model.Structure.Assignments.PreservedAssignment {Kind="Straus7 API",SourceRecord=record,RawData=value,UnsupportedReason=reason});
+        }
+
+        /// <summary>Options of one path: explicit ones (which must agree with the persisted load-application controls), else the persisted
+        /// controls and preserved display data, else the native defaults.</summary>
+        internal static Straus7MovingPathOptions Effective(global::GPC.Model.Models.Model model,MovingLoadPath path,IReadOnlyDictionary<Guid,Straus7MovingPathOptions> explicitOptions)
+        {
+            Straus7MovingPathOptions result=null;
+            if(explicitOptions!=null&&explicitOptions.TryGetValue(path.Id,out var requested))
+            {
+                result=requested??throw new ArgumentException("MissingStrausMovingOptions");
+                if(path.Options!=null&&!result.SameLoadApplication(path.Options))throw new ArgumentException("MovingPathOptionsConflictWithModel");
+                return result;
+            }
+            result=new Straus7MovingPathOptions();
+            if(path.Options!=null)
+            {result.TransitionTrailingLoad=path.Options.TransitionTrailingLoad;result.BeamLateralTolerance=path.Options.BeamLateralTolerance;result.RelativeTolerance=path.Options.RelativeTolerance;result.ConvertToStaticCases=path.Options.ConvertToStaticCases;}
+            string colour=Preserved(model,ColourRecord+path.Id.ToString("D")),set=Preserved(model,EntitySetRecord+path.Id.ToString("D"));
+            if(colour!=null)result.Colour=int.Parse(colour,System.Globalization.NumberStyles.Integer,System.Globalization.CultureInfo.InvariantCulture);
+            if(set!=null)result.EntitySetId=int.Parse(set,System.Globalization.NumberStyles.Integer,System.Globalization.CultureInfo.InvariantCulture);
+            return result;
+        }
+        private static string Preserved(global::GPC.Model.Models.Model model,string record)
+            =>model.PreservedSourceData.Where(p=>p!=null&&p.Kind=="Straus7 API"&&p.SourceRecord==record).Select(p=>p.RawData).SingleOrDefault();
     }
 
     /// <summary>Detached mechanical moving-load export. Does not create topology or native load cases.
@@ -85,8 +129,8 @@ namespace GPC.Converter.Straus7
                     var ids=selected.Select(e=>e.SolverId).ToArray();set=++entitySetCount;int setId=set;advanced=true;
                     ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).CreateMovingEntitySet(setId,(int[])families.Clone(),(int[])ids.Clone()));
                 }
-                var settings=options!=null && options.TryGetValue(path.Id,out var requested) ? requested : new Straus7MovingPathOptions();
-                if(settings==null) throw new ArgumentException("MissingStrausMovingOptions"); settings.Validate();
+                var settings=Straus7MovingPathOptions.Effective(model,path,options); settings.Validate();
+                if(settings.EntitySetId.HasValue&&path.Target!=MovingPathTarget.Selection) throw new NotSupportedException("LegacyMovingEntitySetRequiresTargetSelection");
                 if(template.LaneFactors.Length>16) throw new NotSupportedException("StrausMovingMaximum16Lanes");
                 bool toStatic=settings.ConvertToStaticCases;
                 if(toStatic && template.Vehicles.Any(v=>v.PointForces.Any(f=>f.Mobility==MovingPointMobility.Floating)
@@ -101,11 +145,10 @@ namespace GPC.Converter.Straus7
                     ops.Add(a=>a.CreateMovingTemplate(id,template.Name,(int[])flags.Clone(),(double[])values.Clone()));
                     if(template.Centrifugal!=null)
                     {
-                        var law=template.Centrifugal;
-                        if(law.ExpressionLanguage!="Straus7-R3")throw new NotSupportedException("UnsupportedCentrifugalExpressionLanguage");
-                        int length=Array.IndexOf(new[]{"m","cm","mm","ft","in"},law.LengthUnit),force=Array.IndexOf(new[]{"N","kN","MN","kgf","lbf","tf","kip"},law.ForceUnit);
-                        if(length<0||force<0)throw new NotSupportedException("UnsupportedCentrifugalExpressionUnits");
-                        int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor??0,law.MaximumFactor??0};advanced=true;
+                        // The N-mm GPC law becomes R3 expressions in mm and N (B8): the dialect and its unit codes stay in the Converter.
+                        var law=Straus7CentrifugalExpression.FromDomain(template.Centrifugal,model);
+                        int length=Straus7CentrifugalExpression.LengthUnits.ToList().IndexOf(law.LengthUnit),force=Straus7CentrifugalExpression.ForceUnits.ToList().IndexOf(law.ForceUnit);
+                        int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor,law.MaximumFactor};advanced=true;
                         ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).SetMovingCentrifugal(id,law.OffsetExpression,law.FactorExpression,(int[])cf.Clone(),(double[])limits.Clone()));
                     }
                     for(int i=0;i<template.LaneFactors.Length;i++) { int lane=i+1; double factor=template.LaneFactors[i]; ops.Add(a=>a.SetMovingLaneFactor(id,lane,factor)); }

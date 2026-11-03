@@ -22,7 +22,7 @@ namespace GPC.Model.Actions.Moving
     public sealed class MovingLoadDefinition
     {
         [field:DataMember(Order=0)] public List<MovingLoadPath> Paths { get; set; } = new List<MovingLoadPath>();
-        public bool UsesExtendedContract => Paths.Any(p=>p.Template.Centrifugal!=null||p.Template.Vehicles.Any(v=>v.HeatSources!=null||v.PointForces.Any(f=>f.ApplyCentrifugal.HasValue)||v.DistributedForces.Any(f=>f.ApplyCentrifugal.HasValue)));
+        public bool UsesExtendedContract => Paths.Any(p=>p.Options!=null||p.Template.Centrifugal!=null||p.Template.Vehicles.Any(v=>v.HeatSources!=null||v.PointForces.Any(f=>f.ApplyCentrifugal.HasValue)||v.DistributedForces.Any(f=>f.ApplyCentrifugal.HasValue)));
         public void Validate(Models.Model model)
         {
             if(model==null) throw new ArgumentNullException(nameof(model));
@@ -34,6 +34,7 @@ namespace GPC.Model.Actions.Moving
             foreach(var path in Paths)
             {
                 path.Validate();
+                path.Options?.Validate();
                 if(!cases.Contains(path.CaseGuid)) throw new ArgumentException("UnknownMovingLoadCase");
                 if(path.TargetElementGuids.Any(g=>!structural.Contains(g))) throw new ArgumentException("UnknownMovingTargetElement");
             }
@@ -56,6 +57,8 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=9)] public Guid[] TargetElementGuids { get; set; } = Array.Empty<Guid>();
         /// <summary>Longitudinal sampling intervals. This numerical control does not depend on the FEM mesh.</summary>
         [field:DataMember(Order=10)] public int Divisions { get; set; } = 20;
+        /// <summary>Load-application controls that change the applied loads; null keeps the solver defaults.</summary>
+        [field:OptionalField,DataMember(Order=11,EmitDefaultValue=false)] public MovingPathOptions Options { get; set; }
         public void Validate()
         {
             if(Id==Guid.Empty||CaseGuid==Guid.Empty) throw new ArgumentException("MissingMovingPathIdentity");
@@ -75,6 +78,22 @@ namespace GPC.Model.Actions.Moving
                 throw new ArgumentException("InvalidMovingTargetSelection");
             if((Target==MovingPathTarget.Selection)!=(TargetElementGuids.Length>0)) throw new ArgumentException("MovingTargetSelectionMismatch");
         }
+    }
+
+    /// <summary>Numerical controls of the load application along a path. They change the applied loads, so they are physical input
+    /// of the analysis (copy, archive and fingerprint). Display colour and native entity-set numbers stay with the software adapter.</summary>
+    [Serializable, DataContract]
+    public sealed class MovingPathOptions
+    {
+        /// <summary>Trailing loads enter and leave the path gradually instead of being cut at its ends.</summary>
+        [field:DataMember(Order=0)] public bool TransitionTrailingLoad { get; set; }
+        /// <summary>Beams within the lateral tolerance of the path are loaded.</summary>
+        [field:DataMember(Order=1)] public bool BeamLateralTolerance { get; set; }
+        /// <summary>Dimensionless tolerance of the search for loaded elements, relative to their size.</summary>
+        [field:DataMember(Order=2)] public double RelativeTolerance { get; set; } = .01;
+        /// <summary>Static cases at the centres of the path divisions (no end positions, no continuous envelope).</summary>
+        [field:DataMember(Order=3)] public bool ConvertToStaticCases { get; set; }
+        public void Validate() { MovingValidation.Nonnegative(RelativeTolerance); }
     }
 
     [Serializable, DataContract]
@@ -206,28 +225,72 @@ namespace GPC.Model.Actions.Moving
         }
     }
 
-    /// <summary>Signed radial force = OffsetExpression + FactorExpression * vertical force.
-    /// The explicit expression language and units are part of the physical input and its fingerprint.
-    /// An adapter must support the declared dialect; expressions are never evaluated as application code.</summary>
+    /// <summary>Constant factor; V²/(g R); or a law defined by a software adapter (an expression of its own dialect kept with the model
+    /// as preserved source data, referenced by record and SHA-256 of its content and not interpreted by Model).</summary>
+    public enum MovingCentrifugalFactorKind { Constant, SpeedSquaredOverGravityRadius, AdapterDefined }
+
+    /// <summary>Signed radial force on a vehicle = <see cref="OffsetForce"/> (N) + factor × vertical force. The factor is a constant
+    /// or the physical law V²/(g R): vehicle speed V (mm/s), path radius R (mm), standard gravity g = 9806.65 mm/s².
+    /// N-mm physical data only: solver expression dialects and their unit strings belong to the adapter (Converter).
+    /// Archives written before the N-mm contract (expression text with units) are converted when read; a text that is not a
+    /// constant or V²/(g R), or an unknown unit, is rejected.</summary>
     [Serializable,DataContract]
     public sealed class MovingCentrifugalLaw
     {
-        [field:DataMember(Order=0)] public string ExpressionLanguage { get; set; }
-        [field:DataMember(Order=1)] public string OffsetExpression { get; set; }
-        [field:DataMember(Order=2)] public string FactorExpression { get; set; }
-        [field:DataMember(Order=3)] public string LengthUnit { get; set; } = "mm";
-        [field:DataMember(Order=4)] public string ForceUnit { get; set; } = "N";
+        // Legacy text contract (read only, never written): converted by OnDeserialized.
+        [DataMember(Name="<ExpressionLanguage>k__BackingField",Order=0,EmitDefaultValue=false,IsRequired=false)] private string legacyLanguage;
+        [DataMember(Name="<OffsetExpression>k__BackingField",Order=1,EmitDefaultValue=false,IsRequired=false)] private string legacyOffset;
+        [DataMember(Name="<FactorExpression>k__BackingField",Order=2,EmitDefaultValue=false,IsRequired=false)] private string legacyFactor;
+        [DataMember(Name="<LengthUnit>k__BackingField",Order=3,EmitDefaultValue=false,IsRequired=false)] private string legacyLengthUnit;
+        [DataMember(Name="<ForceUnit>k__BackingField",Order=4,EmitDefaultValue=false,IsRequired=false)] private string legacyForceUnit;
         [field:DataMember(Order=5)] public double? MinimumFactor { get; set; }
         [field:DataMember(Order=6)] public double? MaximumFactor { get; set; }
         [field:DataMember(Order=7)] public bool LimitFactor { get; set; }
+        /// <summary>Constant radial force, N.</summary>
+        [field:OptionalField,DataMember(Order=8)] public double OffsetForce { get; set; }
+        [field:OptionalField,DataMember(Order=9)] public MovingCentrifugalFactorKind FactorKind { get; set; }
+        /// <summary>Dimensionless factor of the vertical force when <see cref="FactorKind"/> is Constant.</summary>
+        [field:OptionalField,DataMember(Order=10)] public double Factor { get; set; }
+        /// <summary>AdapterDefined only: record of the adapter data (<see cref="Structure.Assignments.PreservedAssignment.SourceRecord"/>) and SHA-256 of
+        /// its content, so a change of the adapter law changes the analysis fingerprint.</summary>
+        [field:OptionalField,DataMember(Order=11,EmitDefaultValue=false)] public string AdapterRecord { get; set; }
+        [field:OptionalField,DataMember(Order=12,EmitDefaultValue=false)] public string AdapterContentHash { get; set; }
         public void Validate()
         {
-            // Native libraries may leave one term empty. Preserve it verbatim; the declared dialect defines its meaning.
-            if(new[]{ExpressionLanguage,LengthUnit,ForceUnit}.Any(string.IsNullOrWhiteSpace)||OffsetExpression==null||FactorExpression==null||
-                (string.IsNullOrWhiteSpace(OffsetExpression)&&string.IsNullOrWhiteSpace(FactorExpression)))throw new ArgumentException("IncompleteMovingCentrifugalLaw");
+            MovingValidation.Enum(FactorKind);MovingValidation.Finite(OffsetForce);MovingValidation.Finite(Factor);
+            if(FactorKind==MovingCentrifugalFactorKind.Constant&&Factor==0&&OffsetForce==0)throw new ArgumentException("IncompleteMovingCentrifugalLaw");
+            if(FactorKind!=MovingCentrifugalFactorKind.Constant&&Factor!=0)throw new ArgumentException("ConstantFactorWithCentrifugalLaw");
+            bool adapter=FactorKind==MovingCentrifugalFactorKind.AdapterDefined;
+            if(adapter!=(!string.IsNullOrWhiteSpace(AdapterRecord)&&!string.IsNullOrWhiteSpace(AdapterContentHash))||!adapter&&(AdapterRecord!=null||AdapterContentHash!=null)||adapter&&OffsetForce!=0)
+                throw new ArgumentException("InconsistentAdapterCentrifugalLaw");
             if(MinimumFactor.HasValue!=MaximumFactor.HasValue)throw new ArgumentException("IncompleteMovingCentrifugalLimits");
             if(LimitFactor&&!MinimumFactor.HasValue)throw new ArgumentException("MissingMovingCentrifugalLimits");
             if(MinimumFactor.HasValue){MovingValidation.Finite(MinimumFactor.Value);MovingValidation.Finite(MaximumFactor.Value);if(MinimumFactor>MaximumFactor)throw new ArgumentException("ReversedMovingCentrifugalLimits");}
+        }
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            if(legacyLanguage==null&&legacyOffset==null&&legacyFactor==null&&legacyLengthUnit==null&&legacyForceUnit==null)return;
+            // Straus7 R3 dialect of GPCModel 5.43-5.48 archives: constants in the declared force unit, or the factor V^2/(g*R).
+            if(legacyLanguage!="Straus7-R3")throw new SerializationException("LegacyCentrifugalExpressionLanguageNotSupported: "+legacyLanguage);
+            if(!LegacyLengthUnits.Contains(legacyLengthUnit))throw new SerializationException("LegacyCentrifugalLengthUnitNotSupported: "+legacyLengthUnit);
+            if(!LegacyForceUnits.TryGetValue(legacyForceUnit??"",out double newtons))throw new SerializationException("LegacyCentrifugalForceUnitNotSupported: "+legacyForceUnit);
+            OffsetForce=LegacyConstant(legacyOffset,"offset")*newtons;
+            string factor=(legacyFactor??"").Replace(" ","");
+            if(LegacySpeedLaws.Contains(factor)){FactorKind=MovingCentrifugalFactorKind.SpeedSquaredOverGravityRadius;Factor=0;}
+            else {FactorKind=MovingCentrifugalFactorKind.Constant;Factor=LegacyConstant(factor,"factor");}
+            legacyLanguage=legacyOffset=legacyFactor=legacyLengthUnit=legacyForceUnit=null;
+        }
+        private static readonly string[] LegacyLengthUnits={"m","cm","mm","ft","in"};
+        private static readonly Dictionary<string,double> LegacyForceUnits=new Dictionary<string,double>{{"N",1},{"kN",1e3},{"MN",1e6},{"kgf",9.80665},{"lbf",4.4482216152605},{"tf",9806.65},{"kip",4448.2216152605}};
+        private static readonly string[] LegacySpeedLaws={"V^2/(g*R)","V^2/(R*g)","V*V/(g*R)","V^2/g/R"};
+        private static double LegacyConstant(string text,string term)
+        {
+            if(string.IsNullOrWhiteSpace(text))return 0;
+            if(!double.TryParse(text.Trim(),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out double value)||double.IsNaN(value)||double.IsInfinity(value))
+                throw new SerializationException("LegacyCentrifugalExpressionNotRepresentable: "+term+" '"+text+"'");
+            return value;
         }
     }
 
