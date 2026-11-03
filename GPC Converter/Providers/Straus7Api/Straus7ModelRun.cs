@@ -117,7 +117,7 @@ namespace GPC.Converter.Straus7
                 return report;
             }
             catch(OperationCanceledException){rejected.Status=ImportStatus.Cancelled;}
-            catch(Exception ex)when(ex is ArgumentException||ex is InvalidOperationException||ex is IOException||ex is NotSupportedException)
+            catch(Exception ex)when(ex is ArgumentException||ex is InvalidOperationException||ex is IOException||ex is InvalidDataException||ex is NotSupportedException)
             {rejected.Diagnostics.Add(ModelDiagnostic.Error("StrausExportResultImportRejected",message:ex.Message));}
             return rejected;
         }

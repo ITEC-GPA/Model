@@ -200,3 +200,44 @@ public class Straus7ExporterCorrectionsTest
         Assert.AreEqual(-1000 * Math.Pow(1000, 3) / (3 * ei), reader.ReadNodeResult(freeId, 1, false).Values[2], 1e-7 * 1000 * Math.Pow(1000, 3) / (3 * ei));
     }
 }
+
+[TestClass]
+public class Straus7ExporterSessionCorrectionsTest
+{
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C5_ReaderAfterWriterUsesItsOwnDelegateForTheSameFunction()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        using var writer = new Straus7NativeWriter(Path.Combine(folder, "delegates.st7"), folder);
+        Straus7ModelWritePlan.Prepare(model).Write(writer, model); // SetBeamAxes binds St7GetBeamAxisSystemInitial with the writer signature
+        var element = writer.Reader.ReadElement(Straus7Entity.Beam, 1); // the reader binds it with its own signature
+        Assert.AreEqual(1, element.InitialAxes[1], 1e-12);
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C5_ChangedExportFilesAreRejectedNotThrown()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "changed.st7"), folder);
+        File.AppendAllText(run.ResultPath, " ");
+        var report = run.ImportResults(model, "changed");
+        Assert.AreEqual(ImportStatus.Rejected, report.Status); StringAssert.Contains(report.Diagnostics.Single().Message, "StrausExportFilesChanged");
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C5_ConcurrentSessionsCannotShareTheNativeRuntime()
+    {
+        Straus7ExporterCorrectionsTest.NativeFolder();
+        const int threads = 4; using var start = new Barrier(threads); var sessions = new System.Collections.Concurrent.ConcurrentBag<Straus7NativeApi>();
+        var refused = new System.Collections.Concurrent.ConcurrentBag<Exception>();
+        var workers = Enumerable.Range(0, threads).Select(_ => new Thread(() =>
+        {
+            start.SignalAndWait();
+            try { sessions.Add(new Straus7NativeApi()); } catch (InvalidOperationException ex) { refused.Add(ex); }
+        })).ToArray();
+        foreach (var w in workers) w.Start(); foreach (var w in workers) w.Join();
+        Assert.AreEqual(1, sessions.Count); Assert.AreEqual(threads - 1, refused.Count);
+        sessions.Single().Dispose();
+        using (var again = new Straus7NativeApi()) Assert.IsNotNull(again.Version);
+    }
+}
