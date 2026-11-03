@@ -1,0 +1,138 @@
+{
+  "phase": "F6",
+  "status": "in-progress; checkpoint 4 is not the F6 exit gate",
+  "arachneCommit": "5f5170cd14267081f138f25fe1e8d70b97ad211a",
+  "version": "0.4.0-f6.4",
+  "arachne": {
+    "passed": 171,
+    "failed": 0,
+    "groups": {
+      "inventory": 66,
+      "formFinding": 38,
+      "patterning": 43,
+      "network": 6,
+      "F6Contracts": 18
+    }
+  },
+  "checker": {
+    "suites": "all",
+    "created": "2026-11-03T21:50:35",
+    "results": [
+      {
+        "name": "GPCChecker.Test.Concrete",
+        "passed": 962,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Steel",
+        "passed": 122,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.CompositeBridge",
+        "passed": 441,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Geotechnics",
+        "passed": 202,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "GPCChecker.Test.Calculation",
+        "passed": 175,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ShallowFoundation.Tests",
+        "passed": 29,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "EmbeddedWalls.Tests",
+        "passed": 99,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Steel.Members.Tests",
+        "passed": 7132,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks",
+        "passed": 274,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "Design.Checks.net472",
+        "passed": 273,
+        "failed": 0,
+        "other": 0,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      },
+      {
+        "name": "ModelChecker.Tests",
+        "passed": 673,
+        "failed": 0,
+        "other": 1,
+        "knownFailures": [],
+        "unexpectedFailures": [],
+        "knownNowPassing": []
+      }
+    ],
+    "apiCompatible": true,
+    "unexpected": []
+  },
+  "checkerSummarySha256": "cfe10da41d686c1eeed209f45490423b4f79b21a62f12917902d44a19f2abc09",
+  "logs": {
+    "artifacts\\f6\\checkpoint4-build.log": "a5b834daa31b54fdb231d4ada859a147a33a9df625180c1d1a34a8c3d631028d",
+    "artifacts\\f6\\checkpoint4-tests.log": "9072baa11e6c225cadf7e8e1dfd1ffb41652e0b656983e02a508c96cfc9ef957",
+    "artifacts\\f6\\checker-checkpoint3-verify.log": "ec8cb7a754a4a31aca72f1cbe3ef915b90bd684a2281e85ecae719c8af5cec64"
+  },
+  "baselinePolicy": "No fixtures, API baselines or expected values regenerated.",
+  "legacyPointLoad": "v1 omitted CoordinateSystem; reader preserves data with an explicit recovery flag; analysis requires regeneration upstream or explicit axis assignment. v2 persists axes and recovery flag.",
+  "remaining": [
+    "Arachne physical wrappers and generators",
+    "BridGHe F6A migration",
+    "Interactive and scale lifecycle gates",
+    "F6 coherent candidate gate"
+  ]
+}
