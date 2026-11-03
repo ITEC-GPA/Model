@@ -14,6 +14,10 @@ namespace GPC.Model.Structure.Assignments
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class ShellAssignments
     {
+        [field: OptionalField]
+        [field: DataMember(Name = "<Physical>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public ShellPhysicalData Physical { get; set; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<PhysicalThickness>k__BackingField", IsRequired = true)]
         /// <summary>Legacy storage; new models put thickness in PlateProperty.</summary>
         public double? PhysicalThickness { get; set; }

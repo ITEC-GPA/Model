@@ -1,0 +1,945 @@
+{
+  "schema": 1,
+  "phase": "F5",
+  "status": "partial; no source field is declared fully migrated to production",
+  "baselineFieldCount": 2309,
+  "reviewedFieldCount": 93,
+  "notReviewedInThisOverlay": 2216,
+  "limits": [
+    "Contracts and native write slices, not completed plugin migration.",
+    "Moving heat, centrifugal equations, library templates, native entity sets and static-result equivalence still pending.",
+    "Inherited fields and executable methods require additional mapping; this overlay does not close F2."
+  ],
+  "fields": [
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamOutputStationsModel.cs",
+      "line": 17,
+      "sourceType": "BridGHe.Common.Models.BeamOutputStationsModel+AttributeData",
+      "member": "MinimumNumberOfStations",
+      "destination": "BeamPhysicalData.MinimumOutputStations",
+      "units": "integer >=2; results query, not model attribute",
+      "evidence": "Straus7PhysicalWriteTest; full result-reader wiring pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "line": 263,
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData",
+      "member": "Stiffness",
+      "destination": "BeamDistributedSupport.Stiffness",
+      "units": "N/mm²; mm; explicit axes and signed unit direction",
+      "evidence": "PhysicalAssignmentsTest; native simple principal support only",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "line": 265,
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData",
+      "member": "Gap",
+      "destination": "BeamDistributedSupport.Gap",
+      "units": "N/mm²; mm; explicit axes and signed unit direction",
+      "evidence": "PhysicalAssignmentsTest; native simple principal support only",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "line": 267,
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData",
+      "member": "SimpleSpringType",
+      "destination": "BeamDistributedSupport.Behavior",
+      "units": "N/mm²; mm; explicit axes and signed unit direction",
+      "evidence": "PhysicalAssignmentsTest; native simple principal support only",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "line": 280,
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData",
+      "member": "CustomDirection",
+      "destination": "BeamDistributedSupport.Direction",
+      "units": "N/mm²; mm; explicit axes and signed unit direction",
+      "evidence": "PhysicalAssignmentsTest; native simple principal support only",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 26,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NFromX",
+      "destination": "BeamSectionTaper.ScaleI1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 27,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NToX",
+      "destination": "BeamSectionTaper.ScaleJ1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 28,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NFromY",
+      "destination": "BeamSectionTaper.ScaleI2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 29,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NToY",
+      "destination": "BeamSectionTaper.ScaleJ2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 30,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "AlignmentX",
+      "destination": "BeamSectionTaper.Alignment1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 31,
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "AlignmentY",
+      "destination": "BeamSectionTaper.Alignment2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeTemperatureLoadModel.cs",
+      "line": 45,
+      "sourceType": "BridGHe.Common.Models.NodeTemperatureLoadModel",
+      "member": "TemperatureLoadType",
+      "destination": "NodalTemperatureAssignment.Kind",
+      "units": "absolute Celsius; Reference/Prescribed/Initial",
+      "evidence": "PhysicalAssignmentsTest; Straus7PhysicalWriteTest",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateNSMassModel.cs",
+      "line": 16,
+      "sourceType": "BridGHe.Common.Models.PlateNSMassModel+LoadData",
+      "member": "Mass",
+      "destination": "ShellNonStructuralMass.MassPerArea",
+      "units": "t/mm²; dimensionless factor; global mm",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateNSMassModel.cs",
+      "line": 17,
+      "sourceType": "BridGHe.Common.Models.PlateNSMassModel+LoadData",
+      "member": "DynFactor",
+      "destination": "ShellNonStructuralMass.DynamicFactor",
+      "units": "t/mm²; dimensionless factor; global mm",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateNSMassModel.cs",
+      "line": 18,
+      "sourceType": "BridGHe.Common.Models.PlateNSMassModel+LoadData",
+      "member": "Offset",
+      "destination": "ShellNonStructuralMass.GlobalOffset",
+      "units": "t/mm²; dimensionless factor; global mm",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePreStressModel.cs",
+      "line": 17,
+      "sourceType": "BridGHe.Common.Models.PlatePreStressModel+LoadData",
+      "member": "LocalPressure",
+      "destination": "ShellInitialStress.Components",
+      "units": "N/mm²: sigma11,sigma22,sigma33; not in-plane shear",
+      "evidence": "PhysicalAssignmentsTest; native physical readback; reject nonzero sigma33 for shell",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "line": 24,
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel+AttributeData",
+      "member": "Stiffness",
+      "destination": "ShellDistributedSupport.Stiffness",
+      "units": "N/mm³; freedom case, not load case",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "line": 25,
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel+AttributeData",
+      "member": "CompressionOnly",
+      "destination": "ShellDistributedSupport.Behavior",
+      "units": "N/mm³; freedom case, not load case",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "line": 26,
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel+AttributeData",
+      "member": "Face",
+      "destination": "ShellDistributedSupport.Face",
+      "units": "N/mm³; freedom case, not load case",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 28,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "Mobility",
+      "destination": "MovingPointForce.Mobility",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 29,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "Axis",
+      "destination": "MovingPointForce.Axes",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 30,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "Adjacent",
+      "destination": "MovingPointForce.ApplyAdjacencyFactor",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 32,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "X",
+      "destination": "MovingPointForce.X",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 33,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "Y",
+      "destination": "MovingPointForce.Y",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 34,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "member": "Force",
+      "destination": "MovingPointForce.Force",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 41,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Mobility",
+      "destination": "MovingDistributedForce.Mobility",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 42,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Axis",
+      "destination": "MovingDistributedForce.Axes",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 43,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Adjacent",
+      "destination": "MovingDistributedForce.ApplyAdjacencyFactor",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 45,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "X1",
+      "destination": "MovingDistributedForce.X1",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 46,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "X2",
+      "destination": "MovingDistributedForce.X2",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 47,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Y1",
+      "destination": "MovingDistributedForce.Y1",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 48,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Y2",
+      "destination": "MovingDistributedForce.Y2",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 49,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "member": "Force",
+      "destination": "MovingDistributedForce.ForcePerLength",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 67,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "Name",
+      "destination": "MovingVehicle.Name",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 68,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "Instance",
+      "destination": "MovingVehicle.Placement",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 69,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "Direction",
+      "destination": "MovingVehicle.Direction",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 70,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "Velocity",
+      "destination": "MovingVehicle.Speed",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 71,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "StartTime",
+      "destination": "MovingVehicle.StartTime",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 72,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "VehicleSet",
+      "destination": "MovingVehicle.ExclusiveSet",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 73,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "member": "Lanes",
+      "destination": "MovingVehicle.AllowedLanes",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 101,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "Name",
+      "destination": "MovingLoadTemplate.Name",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 102,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "Vehicles",
+      "destination": "MovingLoadTemplate.Vehicles",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 103,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "LaneFactors",
+      "destination": "MovingLoadTemplate.LaneFactors",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 104,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "MultiLaneType",
+      "destination": "MovingLoadTemplate.LaneFactorRule",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 105,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "TransitionLoad",
+      "destination": "Straus7MovingPathOptions.TransitionTrailingLoad",
+      "units": "native display/numerical options; not physical model",
+      "evidence": "Straus7MovingWriteTest",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 106,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "BeamLateralTolerance",
+      "destination": "Straus7MovingPathOptions.BeamLateralTolerance",
+      "units": "native display/numerical options; not physical model",
+      "evidence": "Straus7MovingWriteTest",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 107,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "RelativeTolerance",
+      "destination": "Straus7MovingPathOptions.RelativeTolerance",
+      "units": "native display/numerical options; not physical model",
+      "evidence": "Straus7MovingWriteTest",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 108,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "MinimumLaneWidth",
+      "destination": "MovingLoadTemplate.MinimumLaneWidth",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 109,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "member": "Colour",
+      "destination": "Straus7MovingPathOptions.Colour",
+      "units": "native display/numerical options; not physical model",
+      "evidence": "Straus7MovingWriteTest",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 128,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "LoadCaseName",
+      "destination": "MovingLoadPath.CaseGuid",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 129,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Template",
+      "destination": "MovingLoadPath.Template",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 130,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Shape",
+      "destination": "MovingLoadPath.Shape",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 131,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Surface",
+      "destination": "MovingLoadPath.Surface",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 132,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Target",
+      "destination": "MovingLoadPath.Target",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 133,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Divisions",
+      "destination": "MovingLoadPath.Divisions",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 135,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "Coordinates",
+      "destination": "MovingLoadPath.Start/End/Reference",
+      "units": "N, mm, s; distributed N/mm; lane factors by active count or severity rank",
+      "evidence": "MovingLoadContractsTest; Straus7MovingWriteTest; native moving readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "line": 136,
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "member": "ConvertToStaticCases",
+      "destination": "Straus7MovingPathOptions.ConvertToStaticCases",
+      "units": "explicit export operation",
+      "evidence": "managed boundary test only; native generated-case equivalence remains pending",
+      "status": "boundary-verified; native-conversion-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 43,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflow",
+      "member": "Method",
+      "destination": "BridgeWorkflowDefinition.Method",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 44,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflow",
+      "member": "Phases",
+      "destination": "BridgeWorkflowDefinition.Phases",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 50,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "Id",
+      "destination": "BridgeWorkflowPhaseDefinition.Id",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 51,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "Order",
+      "destination": "BridgeWorkflowPhaseDefinition.Order",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 52,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "Name",
+      "destination": "BridgeWorkflowPhaseDefinition.Name",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 53,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "State",
+      "destination": "BridgeWorkflowPhaseDefinition.State",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 54,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "Day",
+      "destination": "BridgeWorkflowPhaseDefinition.Day",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 55,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "member": "Actions",
+      "destination": "BridgeWorkflowPhaseDefinition.Actions",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 62,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "ConcreteExcludedBeamIds",
+      "destination": "BridgeWorkflowActionDefinition.ConcreteExcludedBeamGuids",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 64,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "Key",
+      "destination": "BridgeWorkflowActionDefinition.Key",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 65,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "SourceName",
+      "destination": "BridgeWorkflowActionDefinition.SourceName",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 66,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "SourceCase",
+      "destination": "BridgeWorkflowActionDefinition.SourceCaseGuid",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 67,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "Behavior",
+      "destination": "BridgeWorkflowActionDefinition.Behavior",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 68,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "ForceCase",
+      "destination": "BridgeWorkflowActionDefinition.ForceCaseGuid",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 69,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "StrainCase",
+      "destination": "BridgeWorkflowActionDefinition.StrainCaseGuid",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 70,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "Strain",
+      "destination": "BridgeWorkflowActionDefinition.Strain",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "line": 71,
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "member": "BeamIds",
+      "destination": "BridgeWorkflowActionDefinition.BeamGuids",
+      "units": "GUID references; days; strain mm/mm contraction negative",
+      "evidence": "BridgeWorkflowDefinitionTests (8); workflow calculation port still pending",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 25,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NFromX",
+      "destination": "BeamSectionTaper.ScaleI1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 26,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NToX",
+      "destination": "BeamSectionTaper.ScaleJ1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 27,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NFromY",
+      "destination": "BeamSectionTaper.ScaleI2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 28,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "NToY",
+      "destination": "BeamSectionTaper.ScaleJ2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 29,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "AlignmentX",
+      "destination": "BeamSectionTaper.Alignment1",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "line": 30,
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "member": "AlignmentY",
+      "destination": "BeamSectionTaper.Alignment2",
+      "units": "dimensionless scales; local section axes",
+      "evidence": "PhysicalAssignmentsTest; native physical readback",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/FixedAxialForceModel.cs",
+      "line": 17,
+      "sourceType": "Arachne.Common.Models.FixedAxialForceModel",
+      "member": "Weight",
+      "destination": "FormFindingGoal.Weight",
+      "units": "dimensionless equation weight; target N or mm",
+      "evidence": "FormFindingContractsTest; analytical stepped cases",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/FixedLengthModel.cs",
+      "line": 17,
+      "sourceType": "Arachne.Common.Models.FixedLengthModel",
+      "member": "Weight",
+      "destination": "FormFindingGoal.Weight",
+      "units": "dimensionless equation weight; target N or mm",
+      "evidence": "FormFindingContractsTest; analytical stepped cases",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "line": 59,
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "member": "Weight",
+      "destination": "FormFindingGoal.Weight",
+      "units": "N/mm, N, dimensionless chord/sag; chord mm",
+      "evidence": "FormFindingContractsTest; GpcF5Objectives; opt-in solver adapter",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "line": 65,
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "member": "CurvatureLengthValue",
+      "destination": "FormFindingGoal.ChordLengthMm",
+      "units": "N/mm, N, dimensionless chord/sag; chord mm",
+      "evidence": "FormFindingContractsTest; GpcF5Objectives; opt-in solver adapter",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "line": 71,
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "member": "Project",
+      "destination": "FormFindingGoal.ProjectToPlane",
+      "units": "N/mm, N, dimensionless chord/sag; chord mm",
+      "evidence": "FormFindingContractsTest; GpcF5Objectives; opt-in solver adapter",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "line": 77,
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "member": "MembraneType",
+      "destination": "FormFindingGoal.Direction",
+      "units": "N/mm, N, dimensionless chord/sag; chord mm",
+      "evidence": "FormFindingContractsTest; GpcF5Objectives; opt-in solver adapter",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "line": 79,
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "member": "ForceDensityTipe",
+      "destination": "FormFindingGoal.Kind",
+      "units": "N/mm, N, dimensionless chord/sag; chord mm",
+      "evidence": "FormFindingContractsTest; GpcF5Objectives; opt-in solver adapter",
+      "status": "pilot-verified; component-migration-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 250,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "AreaDensity",
+      "destination": "MembraneMaterialData.MassPerArea",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 257,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "StrengthWarp",
+      "destination": "MembraneMaterialData.StrengthWarp",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 264,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "StrengthWeft",
+      "destination": "MembraneMaterialData.StrengthWeft",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 271,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "StiffnessWarp",
+      "destination": "MembraneMaterialData.StiffnessWarp",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 278,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "StiffnessWeft",
+      "destination": "MembraneMaterialData.StiffnessWeft",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    },
+    {
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "line": 285,
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "member": "ShearStiffness",
+      "destination": "MembraneMaterialData.ShearStiffness",
+      "units": "t/mm²; N/mm; source unit conversion remains in adapter",
+      "evidence": "PhysicalAssignmentsTest: constitutive matrix, copy and archive",
+      "status": "contract-verified; production-adapter-pending"
+    }
+  ]
+}

@@ -20,6 +20,9 @@ namespace GPC.Model.Structure.Assignments
         public static IReadOnlyList<ModelDiagnostic> ValidateAssignments(this Models.Model model)
         {
             var result = new List<ModelDiagnostic>();
+            foreach (var element in model.AllElements)
+                try { PhysicalAssignments.Validate(element); }
+                catch (ArgumentException ex) { result.Add(ModelDiagnostic.Error("InvalidPhysicalAssignment", element, ex.Message)); }
             foreach (var node in model.NodesElements.Values)
             {
                 var data = node.Assignments;

@@ -6,12 +6,13 @@ using GPC.Geometry;
 
 namespace GPC.Model.Analysis
 {
-    public enum FormFindingMethod { LinearForceDensity, NonlinearForceDensity }
-    public enum FormFindingGoalKind { ForceDensity, AxialForce, MembraneForcePerWidth, Length, CableForce }
+    public enum FormFindingMethod { LinearForceDensity, NonlinearForceDensity, SteppedLinearForceDensity }
+    public enum FormFindingGoalKind { ForceDensity, AxialForce, MembraneForcePerWidth, Length, CableForce, CurvatureRatio }
     public enum FabricDirection { Unspecified, Warp, Weft }
 
     /// <summary>One objective on an explicitly connected beam. Target units: N/mm for
     /// force density and membrane force/width, N for axial force, mm for length.
+    /// Force and force-density targets are signed (tension positive); zero is permitted unless the selected algorithm divides by that target.
     /// Weight is a dimensionless equation weight, not a physical mass or force.</summary>
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class FormFindingGoal
@@ -22,6 +23,9 @@ namespace GPC.Model.Analysis
         [field: DataMember(Order = 3)] public double Weight { get; set; } = 1;
         [field: DataMember(Order = 4)] public bool ProjectToPlane { get; set; }
         [field: DataMember(Order = 5)] public FabricDirection Direction { get; set; }
+        /// <summary>Chord in mm for CurvatureRatio (Target = chord/sag, dimensionless). Required only for that kind.</summary>
+        [field: OptionalField]
+        [field: DataMember(Order = 6, EmitDefaultValue = false)] public double? ChordLengthMm { get; set; }
     }
 
     /// <summary>Penalties on the initial global coordinates. Zero disables a coordinate
@@ -42,7 +46,7 @@ namespace GPC.Model.Analysis
         [field: DataMember(Order = 1)] public double MassPerArea { get; set; }
     }
 
-    /// <summary>Explicit pilot vocabulary; no solver object or opaque property bag.
+    /// <summary>Explicit form-finding vocabulary; no solver object or opaque property bag.
     /// Loads and kinematic restraints belong to the model nodes. Pressure follows the
     /// ordered surface normal; positive gravity acts along global -Z. All inputs use N, mm, s, tonne.</summary>
     [Serializable, DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
@@ -61,6 +65,9 @@ namespace GPC.Model.Analysis
         [field: DataMember(Order = 10)] public List<FormFindingCoordinateGoal> CoordinateGoals { get; set; } = new List<FormFindingCoordinateGoal>();
         [field: DataMember(Order = 11)] public List<FormFindingSurfaceMass> SurfaceMasses { get; set; } = new List<FormFindingSurfaceMass>();
 
+        public bool UsesExtendedContract => Method == FormFindingMethod.SteppedLinearForceDensity
+            || Goals != null && Goals.Any(g => g != null && (g.Kind == FormFindingGoalKind.CurvatureRatio || g.ChordLengthMm.HasValue || g.Target <= 0));
+
         public void Validate(Models.Model model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
@@ -68,6 +75,7 @@ namespace GPC.Model.Analysis
                 throw new ArgumentException("InvalidFormFindingOptions");
             Nonnegative(Gravity); Finite(Pressure); Positive(RelativeTolerance); Nonnegative(SolverToleranceA); Nonnegative(SolverToleranceB);
             if (Goals == null || CoordinateGoals == null || SurfaceMasses == null) throw new ArgumentException("MissingFormFindingCollection");
+            if (ProjectionPlane != null) Core.Coordinates.Axes.Validate(ProjectionPlane);
             var beams = new HashSet<Guid>(model.BeamElements.Values.Select(b => b.Guid));
             var nodes = new HashSet<Guid>(model.NodesElements.Values.Select(n => n.Guid));
             var areas = new HashSet<Guid>(model.AreaElements.Values.Select(a => a.Guid));
@@ -77,18 +85,32 @@ namespace GPC.Model.Analysis
                 if (goal == null || !beams.Contains(goal.BeamGuid) || !Enum.IsDefined(typeof(FormFindingGoalKind), goal.Kind)
                     || !Enum.IsDefined(typeof(FabricDirection), goal.Direction) || !keys.Add(goal.BeamGuid + ":" + goal.Kind))
                     throw new ArgumentException("InvalidOrDuplicateFormFindingGoal");
-                Positive(goal.Target); Nonnegative(goal.Weight);
+                Finite(goal.Target); Nonnegative(goal.Weight);
+                if (goal.Kind == FormFindingGoalKind.Length) Positive(goal.Target);
+                if ((goal.Kind == FormFindingGoalKind.CurvatureRatio || goal.Kind == FormFindingGoalKind.AxialForce && Method == FormFindingMethod.SteppedLinearForceDensity) && goal.Target == 0)
+                    throw new ArgumentException("ZeroTargetDivisor");
+                if (goal.Kind == FormFindingGoalKind.CurvatureRatio)
+                {
+                    if (!goal.ChordLengthMm.HasValue) throw new ArgumentException("MissingCurvatureChord");
+                    Positive(goal.ChordLengthMm.Value);
+                }
+                else if (goal.ChordLengthMm.HasValue) throw new ArgumentException("ChordRequiresCurvatureGoal");
+                if ((goal.Kind == FormFindingGoalKind.Length || goal.Kind == FormFindingGoalKind.AxialForce)
+                    && Method == FormFindingMethod.LinearForceDensity)
+                    throw new ArgumentException("ObjectiveRequiresIterativeMethod");
                 if (goal.Kind != FormFindingGoalKind.MembraneForcePerWidth && goal.Direction != FabricDirection.Unspecified)
                     throw new ArgumentException("FabricDirectionRequiresMembraneGoal");
                 if (goal.ProjectToPlane && ProjectionPlane == null) throw new ArgumentException("MissingProjectionPlane");
             }
+            foreach (var group in Goals.Where(g => g.Kind != FormFindingGoalKind.Length && g.Kind != FormFindingGoalKind.AxialForce).GroupBy(g => g.BeamGuid))
+                if (group.Count() > 1) throw new ArgumentException("ConflictingForceDensitySources");
             keys.Clear();
             foreach (var goal in CoordinateGoals)
             {
                 if (goal == null || !nodes.Contains(goal.NodeGuid) || !keys.Add(goal.NodeGuid.ToString()) || goal.Weights == null)
                     throw new ArgumentException("InvalidOrDuplicateCoordinateGoal");
                 Nonnegative(goal.Weights.X); Nonnegative(goal.Weights.Y); Nonnegative(goal.Weights.Z);
-                if (Method == FormFindingMethod.LinearForceDensity && (goal.Weights.X != 0 || goal.Weights.Y != 0 || goal.Weights.Z != 0))
+                if (Method != FormFindingMethod.NonlinearForceDensity && (goal.Weights.X != 0 || goal.Weights.Y != 0 || goal.Weights.Z != 0))
                     throw new ArgumentException("CoordinateGoalsRequireNonlinearMethod");
             }
             keys.Clear();

@@ -12,6 +12,9 @@ namespace GPC.Model.Materials
     [Serializable]
     public class Material : ModelObject, ISerializable
     {
+        /// <summary>Optional physical orthotropy. Consumers must use this tensor explicitly, never the scalar isotropic modulus.</summary>
+        public OrthotropicElasticity Orthotropy { get; set; }
+
         #region Variables
 
         /// <summary>
@@ -116,6 +119,7 @@ namespace GPC.Model.Materials
         {
             get
             {
+                if (Orthotropy != null) throw new NotSupportedException("OrthotropicMaterialRequiresDirectionalElasticity");
                 if (_elasticModulusCompression == _elasticModulusTension)
                     return _elasticModulusCompression;
                 else
@@ -363,7 +367,10 @@ namespace GPC.Model.Materials
         protected Material(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            double version = SerializationVersions.Read(info, "MaterialVersion", 5, 1);
+            Orthotropy = SerializationFields.Read<OrthotropicElasticity>(info, "Orthotropy");
+            double version = SerializationVersions.Read(info, "MaterialVersion", Orthotropy == null ? 5 : 6, 1);
+            if (Orthotropy != null && version < 6) throw new SerializationException("OrthotropicMaterialSchemaMismatch");
+            Orthotropy?.Validate();
 
             if (version >= 2)
             {
@@ -415,6 +422,7 @@ namespace GPC.Model.Materials
         /// <returns>The shear modulus</returns>
         public virtual double GetShearModule()
         {
+            if (Orthotropy != null) throw new NotSupportedException("OrthotropicMaterialRequiresDirectionalElasticity");
             return ElasticModulusCompression / (2.0 * (1.0 + Ni));
         }
 
@@ -520,7 +528,9 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            double version = 5;
+            Orthotropy?.Validate();
+            double version = Orthotropy == null ? 5 : 6;
+            if (Orthotropy != null) info.AddValue("Orthotropy", Orthotropy);
 
             info.AddValue("MaterialVersion", version);
 
@@ -594,6 +604,7 @@ namespace GPC.Model.Materials
                    _ni == material._ni &&
                    _alfaThermalExpansion == material._alfaThermalExpansion &&
                    _density == material._density &&
+                   object.Equals(Orthotropy, material.Orthotropy) &&
                    _accordingToStandard == material._accordingToStandard &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableCompression, material._stressStrainTableCompression) &&
                    EqualityComparer<StressStrainTable>.Default.Equals(_stressStrainTableTension, material._stressStrainTableTension);

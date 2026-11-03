@@ -15,6 +15,10 @@ namespace GPC.Model.Structure.Assignments
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class NodeAssignments
     {
+        [field: OptionalField]
+        [field: DataMember(Name = "<Physical>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public NodePhysicalData Physical { get; set; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<Dofs>k__BackingField", IsRequired = true)]
         // Availability is independent of kinematic constraints and exported results.
         public ComponentAvailability[] Dofs { get; set; }

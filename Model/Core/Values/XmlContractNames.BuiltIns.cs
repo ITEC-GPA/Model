@@ -8,6 +8,11 @@ namespace GPC.Model.Core
         // Historical wire names are fixed, never inferred from an input document.
         private static readonly Dictionary<XName, XName> ReadNames = new Dictionary<XName, XName>
         {
+            [XName.Get("NodalTemperatureKind", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("NodalTemperatureKind", "http://schemas.datacontract.org/2004/07/GPC.Model.Structure.Assignments"),
+            [XName.Get("BeamInitialStateKind", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("BeamInitialStateKind", "http://schemas.datacontract.org/2004/07/GPC.Model.Structure.Assignments"),
+            [XName.Get("DistributedSpringBehavior", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("DistributedSpringBehavior", "http://schemas.datacontract.org/2004/07/GPC.Model.Structure.Assignments"),
+            [XName.Get("ShellFace", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("ShellFace", "http://schemas.datacontract.org/2004/07/GPC.Model.Structure.Assignments"),
+            [XName.Get("TaperAlignment", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("TaperAlignment", "http://schemas.datacontract.org/2004/07/GPC.Model.Structure.Assignments"),
             [XName.Get("FormFindingMethod", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingMethod", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
             [XName.Get("FormFindingGoalKind", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingGoalKind", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
             [XName.Get("FabricDirection", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FabricDirection", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),

@@ -9,7 +9,7 @@ namespace GPC.Converter.Straus7
 {
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
-    public sealed class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi,
+    public sealed partial class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi,
         IStraus7StageReadApi, IStraus7MassTemperatureReadApi
     {
         private IntPtr library;
@@ -84,7 +84,7 @@ namespace GPC.Converter.Straus7
         public void CloseModel()
         {
             if (!modelOpen) return;
-            CloseResults(); Check(Call<OneInt>("St7CloseFile")(FileId), "St7CloseFile"); modelOpen = false; properties.Clear();
+            CloseResults(); Check(Call<OneInt>("St7CloseFile")(FileId), "St7CloseFile"); modelOpen = false; writable = false; properties.Clear();
         }
         public int[] ReadUnits()
         {

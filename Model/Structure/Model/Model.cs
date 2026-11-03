@@ -227,6 +227,9 @@ namespace GPC.Model.Models
         /// <summary>Optional physical form-finding inputs in the canonical unit system.</summary>
         public FormFindingDefinition FormFinding { get; set; }
 
+        /// <summary>Optional physical moving-load inputs; null preserves the historical archive contract.</summary>
+        public global::GPC.Model.Actions.Moving.MovingLoadDefinition MovingLoads { get; set; }
+
         /// <summary>
         /// Reads versioned model data and optional post-processing records.
         /// </summary>
@@ -236,7 +239,7 @@ namespace GPC.Model.Models
             : base(info, context)
         {
             int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
-            if (schemaVersion < 0 || schemaVersion > 5) throw new SerializationException("Unsupported Model schema version.");
+            if (schemaVersion < 0 || schemaVersion > 6) throw new SerializationException("Unsupported Model schema version.");
             AssemblyMap = SerializationFields.Read<global::GPC.Model.Core.Identity.AssemblyIdentityMap>(info, "AssemblyMap");
             if (AssemblyMap != null && (schemaVersion < 4 || AssemblyMap.ModelGuid != Guid)) throw new SerializationException("InvalidModelAssemblyMap");
             FormFinding = SerializationFields.Read<FormFindingDefinition>(info, "FormFinding");
@@ -273,6 +276,10 @@ namespace GPC.Model.Models
             _stages?.ReadCounter(info, "StagesMaxId");
             ModelLoads = SerializationFields.Read(info, "ModelLoads", new UniqueIdCollection<Load>());
             ModelLoads.ReadCounter(info, "ModelLoadsMaxId");
+            MovingLoads = SerializationFields.Read<global::GPC.Model.Actions.Moving.MovingLoadDefinition>(info, "MovingLoads");
+            if ((MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) && schemaVersion < 6)
+                throw new SerializationException("ExtendedPhysicalSchemaMismatch");
+            MovingLoads?.Validate(this);
         }
 
         #endregion
@@ -1758,8 +1765,9 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
-            info.AddValue("ModelSchemaVersion", FormFinding != null ? 5 : AssemblyMap != null || PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 4 : PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            info.AddValue("ModelSchemaVersion", (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null || PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 4 : PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
             if (FormFinding != null) info.AddValue("FormFinding", FormFinding);
+            if (MovingLoads != null) { MovingLoads.Validate(this); info.AddValue("MovingLoads", MovingLoads); }
             if (AssemblyMap != null) info.AddValue("AssemblyMap", AssemblyMap);
             if (Analysis != null) info.AddValue("AnalysisSnapshot", Analysis);
             if (VerificationContext != null) info.AddValue("VerificationContext", VerificationContext);

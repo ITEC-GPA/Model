@@ -74,5 +74,42 @@ namespace UnitTest
             var model=Sample(); model.FormFinding.Method=FormFindingMethod.LinearForceDensity;
             Assert.ThrowsException<ArgumentException>(()=>model.FormFinding.Validate(model));
         }
+        [TestMethod] public void CurvatureGoalRequiresChordAndRoundTripsExtendedContract()
+        {
+            var m=Sample(); var goal=m.FormFinding.Goals[0]; goal.Kind=FormFindingGoalKind.CurvatureRatio; goal.Direction=FabricDirection.Unspecified; goal.Target=10;
+            Assert.ThrowsException<ArgumentException>(()=>m.FormFinding.Validate(m)); goal.ChordLengthMm=1000; m.FormFinding.Validate(m);
+            var before=m.AnalysisFingerprint(); var archive=new ExternalModelArchive(); var reopened=archive.Open(archive.Prepare(m)).Model;
+            Assert.AreEqual(before,reopened.AnalysisFingerprint()); Assert.AreEqual(1000,reopened.FormFinding.Goals[0].ChordLengthMm.Value);
+            goal.ChordLengthMm=1100; Assert.AreNotEqual(before,m.AnalysisFingerprint());
+        }
+        [TestMethod] public void ConflictingSourcesAndLinearLengthGoalsFailExplicitly()
+        {
+            var m=Sample(); m.FormFinding.Goals.Add(new FormFindingGoal {BeamGuid=m.BeamElements.Values.Single().Guid,Kind=FormFindingGoalKind.ForceDensity,Target=2});
+            Assert.ThrowsException<ArgumentException>(()=>m.FormFinding.Validate(m)); m.FormFinding.Goals.RemoveAt(1);
+            m.FormFinding.CoordinateGoals.Clear(); m.FormFinding.Method=FormFindingMethod.LinearForceDensity;
+            var goal=m.FormFinding.Goals[0]; goal.Kind=FormFindingGoalKind.Length; goal.Direction=FabricDirection.Unspecified; goal.Target=1000;
+            Assert.ThrowsException<ArgumentException>(()=>m.FormFinding.Validate(m));
+            m.FormFinding.Method=FormFindingMethod.SteppedLinearForceDensity; m.FormFinding.Validate(m);
+            m.FormFinding.Method=FormFindingMethod.NonlinearForceDensity; m.FormFinding.Validate(m);
+        }
+        [TestMethod] public void SteppedLinearMethodIsDistinctAndPersists()
+        {
+            var m=Sample(); m.FormFinding.CoordinateGoals.Clear(); m.FormFinding.Method=FormFindingMethod.LinearForceDensity;
+            var before=m.AnalysisFingerprint(); m.FormFinding.Method=FormFindingMethod.SteppedLinearForceDensity; m.FormFinding.Validate(m);
+            Assert.AreNotEqual(before,m.AnalysisFingerprint()); using(var bytes=new MemoryStream()) {
+                ModelArchive.SaveDocument(m,bytes); bytes.Position=0; Assert.AreEqual(FormFindingMethod.SteppedLinearForceDensity,ModelArchive.Load(bytes).FormFinding.Method); }
+        }
+        [TestMethod] public void SignedForceTargetsRoundTripAndZeroDivisorsFailOnlyWhereRequired()
+        {
+            var model=Sample(); var goal=model.FormFinding.Goals[0]; goal.Target=-2;
+            model.FormFinding.Validate(model);
+            using(var stream=new MemoryStream()) { ModelArchive.SaveDocument(model,stream); stream.Position=0; Assert.AreEqual(-2,ModelArchive.Load(stream).FormFinding.Goals[0].Target); }
+            goal.Target=0; model.FormFinding.Validate(model);
+            goal.Kind=FormFindingGoalKind.AxialForce; goal.Direction=FabricDirection.Unspecified; model.FormFinding.Validate(model);
+            model.FormFinding.CoordinateGoals.Clear(); model.FormFinding.Method=FormFindingMethod.SteppedLinearForceDensity;
+            StringAssert.Contains(Assert.ThrowsException<ArgumentException>(()=>model.FormFinding.Validate(model)).Message,"ZeroTargetDivisor");
+            goal.Target=-100; model.FormFinding.Validate(model);
+            goal.Kind=FormFindingGoalKind.Length; Assert.ThrowsException<ArgumentException>(()=>model.FormFinding.Validate(model));
+        }
     }
 }

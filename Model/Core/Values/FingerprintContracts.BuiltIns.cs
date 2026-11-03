@@ -30,7 +30,140 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            Register("GPC.Model.Actions.Moving.MovingLoadDefinition", "GPC.Model.Actions.Moving.MovingLoadDefinition",
+                Field("GPC.Model.Actions.Moving.MovingLoadDefinition", "<Paths>k__BackingField", "Paths", false));
+            Register("GPC.Model.Actions.Moving.MovingLoadPath", "GPC.Model.Actions.Moving.MovingLoadPath",
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Id>k__BackingField", "Id", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<CaseGuid>k__BackingField", "CaseGuid", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Template>k__BackingField", "Template", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Shape>k__BackingField", "Shape", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Surface>k__BackingField", "Surface", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Start>k__BackingField", "Start", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<End>k__BackingField", "End", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Reference>k__BackingField", "Reference", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Target>k__BackingField", "Target", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<TargetElementGuids>k__BackingField", "TargetElementGuids", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Divisions>k__BackingField", "Divisions", false));
+            Register("GPC.Model.Actions.Moving.MovingLoadTemplate", "GPC.Model.Actions.Moving.MovingLoadTemplate",
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Name>k__BackingField", "Name", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Vehicles>k__BackingField", "Vehicles", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<LaneFactors>k__BackingField", "LaneFactors", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<LaneFactorRule>k__BackingField", "LaneFactorRule", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<MinimumLaneWidth>k__BackingField", "MinimumLaneWidth", false));
+            Register("GPC.Model.Actions.Moving.MovingVehicle", "GPC.Model.Actions.Moving.MovingVehicle",
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<Name>k__BackingField", "Name", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<Placement>k__BackingField", "Placement", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<Direction>k__BackingField", "Direction", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<Speed>k__BackingField", "Speed", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<StartTime>k__BackingField", "StartTime", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<ExclusiveSet>k__BackingField", "ExclusiveSet", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<AllowedLanes>k__BackingField", "AllowedLanes", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<PointForces>k__BackingField", "PointForces", false),
+                Field("GPC.Model.Actions.Moving.MovingVehicle", "<DistributedForces>k__BackingField", "DistributedForces", false));
+            Register("GPC.Model.Actions.Moving.MovingPointForce", "GPC.Model.Actions.Moving.MovingPointForce",
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Mobility>k__BackingField", "Mobility", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Axes>k__BackingField", "Axes", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<ApplyAdjacencyFactor>k__BackingField", "ApplyAdjacencyFactor", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<X>k__BackingField", "X", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Y>k__BackingField", "Y", false),
+                Field("GPC.Model.Actions.Moving.MovingPointForce", "<Force>k__BackingField", "Force", false));
+            Register("GPC.Model.Actions.Moving.MovingDistributedForce", "GPC.Model.Actions.Moving.MovingDistributedForce",
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Mobility>k__BackingField", "Mobility", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Axes>k__BackingField", "Axes", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<ApplyAdjacencyFactor>k__BackingField", "ApplyAdjacencyFactor", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<X1>k__BackingField", "X1", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<X2>k__BackingField", "X2", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Y1>k__BackingField", "Y1", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<Y2>k__BackingField", "Y2", false),
+                Field("GPC.Model.Actions.Moving.MovingDistributedForce", "<ForcePerLength>k__BackingField", "ForcePerLength", false));
+            Register("GPC.Model.Actions.Moving.MovingLoadAxes", "GPC.Model.Actions.Moving.MovingLoadAxes", Field("GPC.Model.Actions.Moving.MovingLoadAxes", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingPointMobility", "GPC.Model.Actions.Moving.MovingPointMobility", Field("GPC.Model.Actions.Moving.MovingPointMobility", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingDistributionMobility", "GPC.Model.Actions.Moving.MovingDistributionMobility", Field("GPC.Model.Actions.Moving.MovingDistributionMobility", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingVehiclePlacement", "GPC.Model.Actions.Moving.MovingVehiclePlacement", Field("GPC.Model.Actions.Moving.MovingVehiclePlacement", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingVehicleDirection", "GPC.Model.Actions.Moving.MovingVehicleDirection", Field("GPC.Model.Actions.Moving.MovingVehicleDirection", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingLaneFactorRule", "GPC.Model.Actions.Moving.MovingLaneFactorRule", Field("GPC.Model.Actions.Moving.MovingLaneFactorRule", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingPathShape", "GPC.Model.Actions.Moving.MovingPathShape", Field("GPC.Model.Actions.Moving.MovingPathShape", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingPathSurface", "GPC.Model.Actions.Moving.MovingPathSurface", Field("GPC.Model.Actions.Moving.MovingPathSurface", "value__", "value__", false));
+            Register("GPC.Model.Actions.Moving.MovingPathTarget", "GPC.Model.Actions.Moving.MovingPathTarget", Field("GPC.Model.Actions.Moving.MovingPathTarget", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "GPC.Model.Structure.Assignments.NodalTemperatureAssignment",
+                Field("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "<Kind>k__BackingField", "Kind", false),
+                Field("GPC.Model.Structure.Assignments.NodalTemperatureAssignment", "<Celsius>k__BackingField", "Celsius", false));
+            Register("GPC.Model.Structure.Assignments.BeamTemperatureGradient", "GPC.Model.Structure.Assignments.BeamTemperatureGradient",
+                Field("GPC.Model.Structure.Assignments.BeamTemperatureGradient", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.BeamTemperatureGradient", "<Axis1>k__BackingField", "Axis1", false),
+                Field("GPC.Model.Structure.Assignments.BeamTemperatureGradient", "<Axis2>k__BackingField", "Axis2", false));
+            Register("GPC.Model.Structure.Assignments.BeamInitialState", "GPC.Model.Structure.Assignments.BeamInitialState",
+                Field("GPC.Model.Structure.Assignments.BeamInitialState", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.BeamInitialState", "<Kind>k__BackingField", "Kind", false),
+                Field("GPC.Model.Structure.Assignments.BeamInitialState", "<Value>k__BackingField", "Value", false));
+            Register("GPC.Model.Structure.Assignments.ShellInitialStress", "GPC.Model.Structure.Assignments.ShellInitialStress",
+                Field("GPC.Model.Structure.Assignments.ShellInitialStress", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.ShellInitialStress", "<Components>k__BackingField", "Components", false));
+            Register("GPC.Model.Structure.Assignments.ShellNonStructuralMass", "GPC.Model.Structure.Assignments.ShellNonStructuralMass",
+                Field("GPC.Model.Structure.Assignments.ShellNonStructuralMass", "<Case>k__BackingField", "Case", false),
+                Field("GPC.Model.Structure.Assignments.ShellNonStructuralMass", "<MassPerArea>k__BackingField", "MassPerArea", false),
+                Field("GPC.Model.Structure.Assignments.ShellNonStructuralMass", "<DynamicFactor>k__BackingField", "DynamicFactor", false),
+                Field("GPC.Model.Structure.Assignments.ShellNonStructuralMass", "<GlobalOffset>k__BackingField", "GlobalOffset", false));
+            Register("GPC.Model.Structure.Assignments.BeamDistributedSupport", "GPC.Model.Structure.Assignments.BeamDistributedSupport",
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<FreedomCase>k__BackingField", "FreedomCase", false),
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<Stiffness>k__BackingField", "Stiffness", false),
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<Gap>k__BackingField", "Gap", false),
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<Behavior>k__BackingField", "Behavior", false),
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<Direction>k__BackingField", "Direction", false),
+                Field("GPC.Model.Structure.Assignments.BeamDistributedSupport", "<Axes>k__BackingField", "Axes", false));
+            Register("GPC.Model.Structure.Assignments.ShellDistributedSupport", "GPC.Model.Structure.Assignments.ShellDistributedSupport",
+                Field("GPC.Model.Structure.Assignments.ShellDistributedSupport", "<FreedomCase>k__BackingField", "FreedomCase", false),
+                Field("GPC.Model.Structure.Assignments.ShellDistributedSupport", "<Stiffness>k__BackingField", "Stiffness", false),
+                Field("GPC.Model.Structure.Assignments.ShellDistributedSupport", "<Gap>k__BackingField", "Gap", false),
+                Field("GPC.Model.Structure.Assignments.ShellDistributedSupport", "<Behavior>k__BackingField", "Behavior", false),
+                Field("GPC.Model.Structure.Assignments.ShellDistributedSupport", "<Face>k__BackingField", "Face", false));
+            Register("GPC.Model.Structure.Assignments.BeamSectionTaper", "GPC.Model.Structure.Assignments.BeamSectionTaper",
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<ScaleI1>k__BackingField", "ScaleI1", false),
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<ScaleJ1>k__BackingField", "ScaleJ1", false),
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<ScaleI2>k__BackingField", "ScaleI2", false),
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<ScaleJ2>k__BackingField", "ScaleJ2", false),
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<Alignment1>k__BackingField", "Alignment1", false),
+                Field("GPC.Model.Structure.Assignments.BeamSectionTaper", "<Alignment2>k__BackingField", "Alignment2", false));
+            Register("GPC.Model.Structure.Assignments.NodePhysicalData", "GPC.Model.Structure.Assignments.NodePhysicalData",
+                Field("GPC.Model.Structure.Assignments.NodePhysicalData", "<Temperatures>k__BackingField", "Temperatures", false));
+            Register("GPC.Model.Structure.Assignments.BeamPhysicalData", "GPC.Model.Structure.Assignments.BeamPhysicalData",
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<TemperatureGradients>k__BackingField", "TemperatureGradients", false),
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<InitialStates>k__BackingField", "InitialStates", false),
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Supports>k__BackingField", "Supports", false),
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<Taper>k__BackingField", "Taper", false),
+                Field("GPC.Model.Structure.Assignments.BeamPhysicalData", "<MinimumOutputStations>k__BackingField", "MinimumOutputStations", false));
+            Register("GPC.Model.Structure.Assignments.ShellPhysicalData", "GPC.Model.Structure.Assignments.ShellPhysicalData",
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Membrane>k__BackingField", "Membrane", true),
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<InitialStresses>k__BackingField", "InitialStresses", false),
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<NonStructuralMasses>k__BackingField", "NonStructuralMasses", false),
+                Field("GPC.Model.Structure.Assignments.ShellPhysicalData", "<Supports>k__BackingField", "Supports", false));
+            Register("GPC.Model.Structure.Assignments.NodalTemperatureKind", "GPC.Model.Structure.Assignments.NodalTemperatureKind", Field("GPC.Model.Structure.Assignments.NodalTemperatureKind", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.BeamInitialStateKind", "GPC.Model.Structure.Assignments.BeamInitialStateKind", Field("GPC.Model.Structure.Assignments.BeamInitialStateKind", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.DistributedSpringBehavior", "GPC.Model.Structure.Assignments.DistributedSpringBehavior", Field("GPC.Model.Structure.Assignments.DistributedSpringBehavior", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.ShellFace", "GPC.Model.Structure.Assignments.ShellFace", Field("GPC.Model.Structure.Assignments.ShellFace", "value__", "value__", false));
+            Register("GPC.Model.Structure.Assignments.TaperAlignment", "GPC.Model.Structure.Assignments.TaperAlignment", Field("GPC.Model.Structure.Assignments.TaperAlignment", "value__", "value__", false));
+            Register("GPC.Model.Materials.OrthotropicElasticity", "GPC.Model.Materials.OrthotropicElasticity",
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<E1>k__BackingField", "E1", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<E2>k__BackingField", "E2", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<E3>k__BackingField", "E3", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<G12>k__BackingField", "G12", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<G23>k__BackingField", "G23", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<G31>k__BackingField", "G31", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu12>k__BackingField", "Nu12", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu23>k__BackingField", "Nu23", false),
+                Field("GPC.Model.Materials.OrthotropicElasticity", "<Nu31>k__BackingField", "Nu31", false));
+            Register("GPC.Model.Materials.MembraneMaterialData", "GPC.Model.Materials.MembraneMaterialData",
+                Field("GPC.Model.Materials.MembraneMaterialData", "<Name>k__BackingField", "Name", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<MassPerArea>k__BackingField", "MassPerArea", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWarp>k__BackingField", "StiffnessWarp", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<StiffnessWeft>k__BackingField", "StiffnessWeft", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<ShearStiffness>k__BackingField", "ShearStiffness", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<NuWarpWeft>k__BackingField", "NuWarpWeft", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWarp>k__BackingField", "StrengthWarp", false),
+                Field("GPC.Model.Materials.MembraneMaterialData", "<StrengthWeft>k__BackingField", "StrengthWeft", false));
             Register("GPC.Model.Analysis.FormFindingGoal", "GPC.Model.Analysis.FormFindingGoal",
+                Field("GPC.Model.Analysis.FormFindingGoal", "<ChordLengthMm>k__BackingField", "ChordLengthMm", true),
                 Field("GPC.Model.Analysis.FormFindingGoal", "<BeamGuid>k__BackingField", "BeamGuid", false),
                 Field("GPC.Model.Analysis.FormFindingGoal", "<Kind>k__BackingField", "Kind", false),
                 Field("GPC.Model.Analysis.FormFindingGoal", "<Target>k__BackingField", "Target", false),
@@ -196,6 +329,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Analysis.BeamAnalysisStation", "<MassPerLength>k__BackingField", "<MassPerLength>k__BackingField", false),
                 Field("GPC.Model.Analysis.BeamAnalysisStation", "<Station>k__BackingField", "<Station>k__BackingField", false));
             Register("GPC.Model.Structure.Assignments.BeamAssignments", "GPC.Model.PostProcessing.BeamAssignments",
+                Field("GPC.Model.Structure.Assignments.BeamAssignments", "<Physical>k__BackingField", "<Physical>k__BackingField", true),
                 Field("GPC.Model.Structure.Assignments.BeamAssignments", "<ActionsAtSectionCentroidConfirmed>k__BackingField", "<ActionsAtSectionCentroidConfirmed>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.BeamAssignments", "<AnalysisProfile>k__BackingField", "<AnalysisProfile>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.BeamAssignments", "<Formulation>k__BackingField", "<Formulation>k__BackingField", false),
@@ -516,6 +650,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Assignments.NodalMass", "<Matrix6x6RowMajor>k__BackingField", "<Matrix6x6RowMajor>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.NodalMass", "<SourceRecord>k__BackingField", "<SourceRecord>k__BackingField", false));
             Register("GPC.Model.Structure.Assignments.NodeAssignments", "GPC.Model.PostProcessing.NodeAssignments",
+                Field("GPC.Model.Structure.Assignments.NodeAssignments", "<Physical>k__BackingField", "<Physical>k__BackingField", true),
                 Field("GPC.Model.Structure.Assignments.NodeAssignments", "<Active>k__BackingField", "<Active>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.NodeAssignments", "<Dofs>k__BackingField", "<Dofs>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.NodeAssignments", "<GroundSprings>k__BackingField", "<GroundSprings>k__BackingField", false),
@@ -640,6 +775,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Checking.Reports.CheckDetails", "_points", "_points", false),
                 Field("GPC.Model.Checking.Reports.CheckDetails", "_trace", "_trace", false));
             Register("GPC.Model.Structure.Assignments.ShellAssignments", "GPC.Model.PostProcessing.ShellAssignments",
+                Field("GPC.Model.Structure.Assignments.ShellAssignments", "<Physical>k__BackingField", "<Physical>k__BackingField", true),
                 Field("GPC.Model.Structure.Assignments.ShellAssignments", "<LayerAxes>k__BackingField", "<LayerAxes>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.ShellAssignments", "<Layers>k__BackingField", "<Layers>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.ShellAssignments", "<Offset>k__BackingField", "<Offset>k__BackingField", false),

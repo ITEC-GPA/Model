@@ -59,10 +59,11 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 31, EmitDefaultValue = false)] internal GPC.Model.Core.Identity.AssemblyIdentityMap AssemblyMap;
 
         [DataMember(Order = 32, EmitDefaultValue = false)] internal FormFindingDefinition FormFinding;
+        [DataMember(Order = 33, EmitDefaultValue = false)] internal global::GPC.Model.Actions.Moving.MovingLoadDefinition MovingLoads;
 
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
-            FormFinding = model.FormFinding,
-            Schema=model.FormFinding != null ? 4 : model.AssemblyMap != null || model.PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 3 : model.PhysicalSurfaces.Count==0 ? 1 : 2,
+            FormFinding = model.FormFinding, MovingLoads = model.MovingLoads,
+            Schema=(model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) ? 5 : model.FormFinding != null ? 4 : model.AssemblyMap != null || model.PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 3 : model.PhysicalSurfaces.Count==0 ? 1 : 2,
             AssemblyMap = model.AssemblyMap, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
             Id = model.Guid, Name = model.Name, Nodes = model.NodesElements, Beams = model.BeamElements,
             Plates = model.AreaElements, Solids = model.VolumeElements, Constraints = model.Costrains,
@@ -78,7 +79,7 @@ namespace GPC.Model.Persistence
 
         internal Models.Model Restore()
         {
-            if (Schema != 1 && Schema != 2 && Schema != 3 && Schema != 4) throw new SerializationException("Unsupported ModelDocument schema.");
+            if (Schema != 1 && Schema != 2 && Schema != 3 && Schema != 4 && Schema != 5) throw new SerializationException("Unsupported ModelDocument schema.");
             if (Schema==2 && (Surfaces==null || Surfaces.Length==0) || Schema==1 && Surfaces!=null && Surfaces.Length!=0) throw new SerializationException("PhysicalSurfaceSchemaMismatch");
             if (Nodes == null || Beams == null || Plates == null || Solids == null || Constraints == null || BeamProperties == null
                 || PlateProperties == null || SolidProperties == null || Cases == null || FreedomCases == null || Combinations == null
@@ -120,6 +121,9 @@ namespace GPC.Model.Persistence
             if (FormFinding != null && Schema < 4) throw new SerializationException("FormFindingSchemaMismatch");
             model.FormFinding = FormFinding;
             model.FormFinding?.Validate(model);
+            model.MovingLoads = MovingLoads; model.MovingLoads?.Validate(model);
+            if ((model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) && Schema < 5) throw new SerializationException("PhysicalAssignmentsSchemaMismatch");
+            foreach (var element in model.AllElements) PhysicalAssignments.Validate(element);
             return model;
         }
     }

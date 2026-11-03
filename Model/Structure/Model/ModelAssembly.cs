@@ -1,4 +1,5 @@
 using System;
+using GPC.Model.Structure.Assignments;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -101,6 +102,8 @@ namespace GPC.Model.Models
             }
             foreach (var element in model.AllElements)
                 foreach (var load in element.Loads.Values) load.LoadCase = CanonicalCase(model, load.LoadCase);
+            foreach (var element in model.AllElements)
+                PhysicalAssignments.RebindCases(element, c => CanonicalCase(model, c), c => CanonicalFreedomCase(model, c));
             RegisterGroups(model);
             model.AssemblyMap = new AssemblyIdentityMap(modelGuid, mergeToleranceMm, distinct.Select(original =>
                 new AssemblyIdentityEntry(original, original is NodeElement ? canonical[original.Guid] : copies[original.Guid], Family(original))));
@@ -122,6 +125,7 @@ namespace GPC.Model.Models
                 // Legacy generic attributes can contain constraints and arbitrary element references.
                 // Explicit assignments are supported; an unimplemented remap is never copied silently.
                 if (element.Attributes.Count != 0) throw new NotSupportedException("AssemblyRequiresExplicitAssignments: legacy Attributes require an adapter.");
+                PhysicalAssignments.Validate(element);
                 found.Add(element);
                 if (element is NodeElement node)
                 {
@@ -145,7 +149,7 @@ namespace GPC.Model.Models
         }
         private static string MergeContent(NodeElement node) => ModelValues.Fingerprint(new object[] {
             node.Name, node.CoordinateSystem, node.Groups, node.Assignments.Dofs, node.Assignments.Active, node.Assignments.Mass,
-            node.Assignments.GroundSprings, node.Assignments.Links,
+            node.Assignments.GroundSprings, node.Assignments.Links, node.Assignments.Physical,
             node.Assignments.Restrains.Select(r => new object[] { r.Case, r.Phase, r.SourceRecord, r.Restrain?.Name, r.Restrain?.CoordinateSystem, r.Restrain?.Restrains }).ToArray() });
 
         private static void Merge(NodeElement[] nodes, Dictionary<Guid, NodeElement> map, HashSet<Guid> separate, double tolerance)
@@ -183,6 +187,13 @@ namespace GPC.Model.Models
             if (tolerance == 0) return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
             double x = Math.Abs(a.X - b.X) / tolerance, y = Math.Abs(a.Y - b.Y) / tolerance, z = Math.Abs(a.Z - b.Z) / tolerance;
             return x <= 1 && y <= 1 && z <= 1 && x * x + y * y + z * z <= 1;
+        }
+        private static GPC.Model.FreedomCases.FreedomCase CanonicalFreedomCase(Model model, GPC.Model.FreedomCases.FreedomCase value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.Name)) throw new ArgumentException("MissingAssemblyFreedomCase");
+            if (model.FreedomCases.TryGetValue(value.Name, out var previous))
+            { SameValue(previous, value, "FreedomCaseConflict"); return previous; }
+            model.FreedomCases.Add(value); return value;
         }
         private static LoadCaseBase CanonicalCase(Model model, LoadCaseBase value)
         {

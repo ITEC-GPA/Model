@@ -1,0 +1,538 @@
+{
+  "phase": "F5",
+  "status": "in-progress; verified partial checkpoint, not a release",
+  "createdUtc": "2026-11-03T08:43:47.260680+00:00",
+  "branch": "codex/gpc-unification-20261102",
+  "versions": {
+    "GPCModel": "5.41.0.0",
+    "GPC.Model.Persistence": "3.7.0.0",
+    "GPC.Converter": "2.13.0.0",
+    "GPCChecker.CompositeBridge": "1.24.0.0",
+    "GPC.Archive": "1.0.0.0",
+    "TensileLib": "2.5.0.1 frozen F1 binary"
+  },
+  "modelParent": "35da4d8ee04173a9c098a4b9e679f2f799cd02e1",
+  "checkpointCommits": {
+    "Checker": "a77676a2355cf6e22a984d4b51747edda3bd82c2",
+    "Arachne": "5ddbe6f8a78de788a120c23cd6015c350cd2c320"
+  },
+  "checks": {
+    "modelPassed": 1827,
+    "modelSkippedInDefaultGate": 14,
+    "modelSkippedPreexisting": 12,
+    "newNativeTestsExecutedSeparately": 2,
+    "nativeWriterSuitePassed": 8,
+    "checkerPassed": 10369,
+    "checkerSuites": 11,
+    "checkerSkippedTimingTest": 1,
+    "membranePilotCases": 4,
+    "pilotAssertions": 899,
+    "f5PilotAssertions": 36,
+    "freshProcessGhDocuments": 4,
+    "arachneDefaultPassed": 153,
+    "unexpectedFailuresFinalRuns": 0
+  },
+  "coverage": {
+    "baselineFields": 2309,
+    "f5OverlayFields": 93,
+    "remainingFieldsOutsideOverlay": 2216,
+    "productionPluginMigrationComplete": false
+  },
+  "limits": [
+    "F5 not complete; F6/F7/F8 pending.",
+    "Writer slices do not replace the full production Straus exporter.",
+    "Moving heat, centrifugal laws, library templates, entity sets and native static-conversion equivalence pending.",
+    "Checker recipe implemented; legacy workflow calculations not ported.",
+    "Arachne adapter remains opt-in; BinaryFormatter removal and component identity migration pending.",
+    "Frozen CG backend rejects a non-positive-definite reduced system; signed inputs work in the tested positive-definite mixed-sign system.",
+    "ReBear identified at Repository/ConcreteSectionChecker; integration not run.",
+    "No merge/push or installed plug-in update."
+  ],
+  "intermediateFailures": [
+    "Straus St7Init -8 resolved by user restoring the licence; final native runs passed.",
+    "Material forward-version and historical-byte comparisons corrected without changing expected fixtures.",
+    "All-negative force-density trial documents the CG backend limitation; no solver modification."
+  ],
+  "sourceFiles": [
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/GpcF5Objectives.cs",
+      "bytes": 7596,
+      "sha256": "795107BD2381A44C3C6B5ACBB31261EF7636EE7C260E4A7DD17B3F5BCB004812"
+    },
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/GpcPilot.cs",
+      "bytes": 10708,
+      "sha256": "3E769411BCA758E2735FBB0738ABAEDE45FD6DE752957966D6408056C823CB2A"
+    },
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/GpcPilotAdapter.cs",
+      "bytes": 19691,
+      "sha256": "6955DEB9DA748D3A080654CEAFEE99CE30052F888506E87AD81A506EF94569B1"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/GPCChecker.CompositeBridge.csproj",
+      "bytes": 2327,
+      "sha256": "44FF1FFDD4599A5425CCFD1D54B9B75F42F5F0DE1AF130881564EA929943099F"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Models/BridgeFingerprints.cs",
+      "bytes": 5951,
+      "sha256": "BAD129322881086CEE384FFAAB224113146E593CA6815732A8E1305D1AA6068F"
+    },
+    {
+      "path": "Checker/GPCChecker.CompositeBridge/Models/BridgeWorkflowDefinition.cs",
+      "bytes": 13586,
+      "sha256": "B36B37A0DA2A1DF7229EBE70BCF9E3E6B096AC62EB1C000B120BEBD69D7079BE"
+    },
+    {
+      "path": "Checker/GPCChecker.Test.CompositeBridge/BridgeWorkflowDefinitionTests.cs",
+      "bytes": 6582,
+      "sha256": "EC9AE05308FA401943652AFC2C4A801C7C875CE546FCF6831334E813FE446A5D"
+    },
+    {
+      "path": "Model/GPC Converter/GPC Converter.csproj",
+      "bytes": 655,
+      "sha256": "0AB4A7C7829B814163113B2BD15EF734C1C63CE4CA719B6CEEC26D537451FB6A"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7MovingNativeApi.cs",
+      "bytes": 8540,
+      "sha256": "1C93C92D57DFF4E024A591A6A04E9E622036BAF9BDB3953C7245685AE8EECEBC"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7MovingWritePlan.cs",
+      "bytes": 8793,
+      "sha256": "BF1EE04D30B94C20603826E78F05E03CE681B708FEBAD1D49A2C2C9E4144EE20"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7NativeApi.cs",
+      "bytes": 41886,
+      "sha256": "154398F2B67DAEA13756C7B9B74A7DAE8EE83B25D2230EE6AF8E8A73FEB5CCA1"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7NativeWriter.cs",
+      "bytes": 6624,
+      "sha256": "9D6652B4C5B36CCEBD6CC4D88C1720C8BE227E3FF38A43A94392544CF2A00749"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalReadApi.cs",
+      "bytes": 2625,
+      "sha256": "0BD4A8F85934F74FEBF780C57FD90232638C85CB5B2C502BB740FDF5CE4C9C59"
+    },
+    {
+      "path": "Model/GPC Converter/Providers/Straus7Api/Straus7PhysicalWritePlan.cs",
+      "bytes": 10172,
+      "sha256": "11AE2464403EE3FCA071A1D3C6F8AA81D7B192252076DF2CDD0319BD8DF34029"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj",
+      "bytes": 449,
+      "sha256": "D96AF67CAC8A91DF4649B8FF181309769F5C6E601B077CD1D5EEC8C54F5385A7"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/ModelDocument.cs",
+      "bytes": 9236,
+      "sha256": "D924A455FB6A2B87825A858645BD21C0A86EC75D0352038FD12CFD9F6BA22CAD"
+    },
+    {
+      "path": "Model/Model.NetFramework.Tests/Model.NetFramework.Tests.csproj",
+      "bytes": 2784,
+      "sha256": "19361A1B3B11958C2E0836B2ED95F6F3E251658E16E78BF59ACC7B3309258919"
+    },
+    {
+      "path": "Model/Model/Actions/Moving/MovingLoadDefinition.cs",
+      "bytes": 13133,
+      "sha256": "2D6BCF586067E6FE530E8781DE787753D51D553A3A5E4F7DEF1F0A5D80685694"
+    },
+    {
+      "path": "Model/Model/Analysis/FormFindingDefinition.cs",
+      "bytes": 9321,
+      "sha256": "D9B7D5744719B0C5542EF089A047739CC21C0F96FE83B2B29A0F2E88356CA780"
+    },
+    {
+      "path": "Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs",
+      "bytes": 119047,
+      "sha256": "BC411BE82FD311CE4AA91306540B9D2FA5D92EEFEB8A57C53EF1992F200E13A9"
+    },
+    {
+      "path": "Model/Model/Core/Values/ModelDataContracts.cs",
+      "bytes": 30799,
+      "sha256": "6ECD23970D026D1E50D25620B1973C9BEA5CEEFD512DF192B9C33A6B1616699F"
+    },
+    {
+      "path": "Model/Model/Core/Values/XmlContractNames.BuiltIns.cs",
+      "bytes": 24311,
+      "sha256": "C61AFF66295E2AB5BBEE7F5C5DF4F3EB3A01E548912AD5266D7665C11779C5A0"
+    },
+    {
+      "path": "Model/Model/GPCModel.csproj",
+      "bytes": 1133,
+      "sha256": "71B327CCB4F4E2F86D22AC7A9AFBDF2750DA9A81D8460639D1B4CDCBC2F77DD5"
+    },
+    {
+      "path": "Model/Model/Materials/Material.cs",
+      "bytes": 30791,
+      "sha256": "BDDD7213896F7B2DD0C4163BA7294AB21CDA3AED74AF4EAFB793FBF533C33692"
+    },
+    {
+      "path": "Model/Model/Materials/OrthotropicElasticity.cs",
+      "bytes": 5980,
+      "sha256": "09BB309F5B448110FE3046F5A04C9E2BC2EB9AF5D0ED2DB503C8D23531BC639B"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/AssignmentValidation.cs",
+      "bytes": 12273,
+      "sha256": "6D50514F30118182912CBB14014D2263710B89240C5312429E30F87F8D81FB21"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Beams/BeamAssignments.cs",
+      "bytes": 5511,
+      "sha256": "B48A0559F6B28F430A99AB4A8F5CE0CB7418EEAFABB8E8B050594C8EBB83C3E1"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Nodes/NodeAssignments.cs",
+      "bytes": 2999,
+      "sha256": "20553F679FF7CEF0D93E5A1755245ABCBDD6082916DC43A0A25E519DFD47453E"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/PhysicalAssignments.cs",
+      "bytes": 14256,
+      "sha256": "18A083288245EF2F44CCF742699552FF447CD7A60C878479B741B056B4B425A2"
+    },
+    {
+      "path": "Model/Model/Structure/Assignments/Shells/ShellAssignments.cs",
+      "bytes": 1697,
+      "sha256": "83F0C27F09C6AF89679E1F2C96357D48D188344813CE6C5F5B4D862158A4265F"
+    },
+    {
+      "path": "Model/Model/Structure/Model/Model.cs",
+      "bytes": 89032,
+      "sha256": "834B257EE3D9B89F5EA359B05ADB2DAE09AE686E7FAFAB4A6C3406B39DAF40C4"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelAssembly.cs",
+      "bytes": 17210,
+      "sha256": "A47C86C360F2B67A90C876EB2A3C4400B84D38AE20D81C27B1810D4762CAAA22"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelRevisions.cs",
+      "bytes": 8521,
+      "sha256": "3D35696047CD821106B19121BCF9870E4578E640BD5416D72735342B5589C315"
+    },
+    {
+      "path": "Model/UnitTest/Straus7MovingWriteTest.cs",
+      "bytes": 6632,
+      "sha256": "AFCF50A998864C88483DCD9E3F556B75DC7635579CA4BB8B1BA0C1004A2EE83E"
+    },
+    {
+      "path": "Model/UnitTest/Straus7PhysicalWriteTest.cs",
+      "bytes": 6767,
+      "sha256": "5AA3E258BE074B65E1E8678E38AE8158A108AA5CDD4A3EB71055A817FC12675F"
+    },
+    {
+      "path": "Model/UnitTest/UnitTest.csproj",
+      "bytes": 4772,
+      "sha256": "25E837A0E1596985F4347B59F5CC369E102D197F18ADB43679E32451754CB9E8"
+    },
+    {
+      "path": "Model/tests/FormFindingContractsTest.cs",
+      "bytes": 8403,
+      "sha256": "F7DFB1A516124B018E0E0C663E944FBA83CB6ED7E292EFD84EDEBFD4FFA3F8E3"
+    },
+    {
+      "path": "Model/tests/MovingLoadContractsTest.cs",
+      "bytes": 6847,
+      "sha256": "F7BD0ABDA24CA09A3869B1BE15E3A87CB59D0EDE18270CA247771D713E6CA24D"
+    },
+    {
+      "path": "Model/tests/PhysicalAssignmentsTest.cs",
+      "bytes": 10852,
+      "sha256": "EAD192E9090964B469799F2B86608D7E8983DCDB15CCA8F736422BE4A3DDD1D0"
+    }
+  ],
+  "proofFiles": [
+    {
+      "path": "artifacts/f5/model-moving-gate/Model.Core.Tests.trx",
+      "bytes": 86752,
+      "sha256": "2030C5DE3DD31FAFE568F4585B7E8F69AA4DC605B19E2325C0EC6F08F03EF85E",
+      "passed": 63,
+      "failed": 0,
+      "total": 63,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/model-moving-gate/Model.NetFramework.Tests.trx",
+      "bytes": 92234,
+      "sha256": "730B7C74F393C2958F72790EC7E583F94244444C6D63D52223EA5D59B5449159",
+      "passed": 67,
+      "failed": 0,
+      "total": 67,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/model-moving-gate/UnitTest.trx",
+      "bytes": 2355478,
+      "sha256": "57AA1D738FE7B73281497B3708DCB6694198E16434195D86080CF34EA17B58C0",
+      "passed": 1697,
+      "failed": 0,
+      "total": 1711,
+      "notPassed": [
+        {
+          "name": "NativeStages_DefinitionsMassesAndTemperaturesAreModelData",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeAssignments_LoadsAndGravityBalanceTheSolverReactions",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativePhysicalWriterPersistsAttributesAndLeavesSourceUntouched",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeBridgheModels_AreReadWithTheirResultsAndBalance",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeStages_StagedNonlinearStatesPerStageAndIncrement",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "EightNativePairsKeepGeometryAndGlobalActionSigns",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeMovingWriterPersistsVehiclePathAndForceUnits",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeManufacturerPlates_AreImported",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeElements_ReleasesSpringsLinksCombinationsAndPlateCorners",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "RealExports_AreReadAndTheirTablesGiveTheSameModel",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeStages_UnstagedSolutionBalancesLoadsMassesAndReactions",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeStages_ActiveStageResultsSkipTheInactiveElements",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "NativeLinearStaticBenchmark_EquilibriumAndMembraneResultants",
+          "outcome": "NotExecuted"
+        },
+        {
+          "name": "TimingOfTheColdPreparation",
+          "outcome": "NotExecuted"
+        }
+      ]
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/Design.Checks.net472.trx",
+      "bytes": 366109,
+      "sha256": "B1B37E2129DF3575AAAF2737AF51ACED9ABD269FDD54BFD242BF17735FA0DA44",
+      "passed": 273,
+      "failed": 0,
+      "total": 273,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/Design.Checks.trx",
+      "bytes": 367671,
+      "sha256": "C43CB30F837575CF49FEF48C02C24DB5AF209A4E78E24FC6B80B4CF1BE74E48F",
+      "passed": 274,
+      "failed": 0,
+      "total": 274,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/EmbeddedWalls.Tests.trx",
+      "bytes": 139422,
+      "sha256": "3728641E6D00252B587C76B05AF8CE4E15629C3576CE9A96417B430AB46A99FD",
+      "passed": 99,
+      "failed": 0,
+      "total": 99,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/GPCChecker.Test.Calculation.trx",
+      "bytes": 240282,
+      "sha256": "2207396B7D3B4D3D57F5F0DDB3FE1E13A0DFB3A5E597D586E7C041390012D3F4",
+      "passed": 175,
+      "failed": 0,
+      "total": 175,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/GPCChecker.Test.CompositeBridge.trx",
+      "bytes": 625546,
+      "sha256": "C4944C8AA3B0C8BF64578A7DA0A0D44F304606F36F6937E365F87503C6AEFC41",
+      "passed": 428,
+      "failed": 0,
+      "total": 428,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/GPCChecker.Test.Concrete.trx",
+      "bytes": 7631296,
+      "sha256": "539425BC62DC2386D49DD07DBB70258F4B5EB2309EF31062660F0E3F2AFA3FFF",
+      "passed": 962,
+      "failed": 0,
+      "total": 962,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/GPCChecker.Test.Geotechnics.trx",
+      "bytes": 279486,
+      "sha256": "3B603475A2BF8CBCD5A72C0DC381C125C605518A6D20E48C69D986711146884B",
+      "passed": 202,
+      "failed": 0,
+      "total": 202,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/GPCChecker.Test.Steel.trx",
+      "bytes": 156088,
+      "sha256": "FDF93EF140DFF5D5746E076197CAF431BE45E87F3FF7818A4E5B0C529566E77B",
+      "passed": 122,
+      "failed": 0,
+      "total": 122,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/ModelChecker.Tests.trx",
+      "bytes": 924605,
+      "sha256": "237CB97B93EF0CE1CBE47205027469543B77C96A0A7FC5BFB532C09B031B2ACD",
+      "passed": 673,
+      "failed": 0,
+      "total": 674,
+      "notPassed": [
+        {
+          "name": "TimingOfTheConcreteRun",
+          "outcome": "NotExecuted"
+        }
+      ]
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/ShallowFoundation.Tests.trx",
+      "bytes": 39774,
+      "sha256": "E7D68BE7A747DCA5A5572921B9F61F36FCF35D2EC930F5BC60B3C3C0FC0325A8",
+      "passed": 29,
+      "failed": 0,
+      "total": 29,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate/Steel.Members.Tests.trx",
+      "bytes": 9952536,
+      "sha256": "A7BCD4BFF3828ECB65762B08567B3EAFBD8723771A40F77F266699DB5D29527F",
+      "passed": 7132,
+      "failed": 0,
+      "total": 7132,
+      "notPassed": []
+    },
+    {
+      "path": "artifacts/f5/model-moving-gate.log",
+      "bytes": 6439,
+      "sha256": "6501AE9B9D41B3F191C37FA3244ACD96CE2963B19ECF3A5A50C24DEEC8D75AFF"
+    },
+    {
+      "path": "artifacts/f5/checker-moving-gate.log",
+      "bytes": 12096,
+      "sha256": "0D66ABCB3CA9E81F8781770AE12EF26EF031F11CEFF9031BE829EB45B199264A"
+    },
+    {
+      "path": "artifacts/f5/native-writers-final.log",
+      "bytes": 567,
+      "sha256": "6FBCD66F2D5DF515AAEFD6217B5C31B90EF0AC62E127F9EE4769517FC21F7201"
+    },
+    {
+      "path": "artifacts/f5/native-writers-final.trx",
+      "bytes": 12398,
+      "sha256": "AF78229C6A54A02CE28968ABF07A62036CAFE94DFA898F74EAA990EA0AE67332"
+    },
+    {
+      "path": "artifacts/f5/moving-writer.log",
+      "bytes": 9905,
+      "sha256": "EE139F3F96F6860FC23163AD8DF2596EF1F5D821892002EF232B3CB329312EC9"
+    },
+    {
+      "path": "artifacts/f5/moving-writer.trx",
+      "bytes": 15778,
+      "sha256": "43E55890F2236BD995CE0D2927740281FB86D4454032C25DE26A337D75623EBB"
+    },
+    {
+      "path": "artifacts/f5/arachne-final-build.log",
+      "bytes": 1260,
+      "sha256": "D6716CADAFC3A623C77BFC803E1916F8F38696E90C747B8BCA407FD710E54BA8"
+    },
+    {
+      "path": "artifacts/f5/arachne-signed-pilot.log",
+      "bytes": 13542,
+      "sha256": "2BA24AD1C9E86CD0F4471E4CDB2DE9C7410F6CD99ACC0923FDD55B302AE027DA"
+    },
+    {
+      "path": "artifacts/f5/arachne-fresh-reopen.log",
+      "bytes": 877,
+      "sha256": "5AFF5637FC3A06EA62FB497CC4C95E986060A4958D2AD6A107F579C4CDF566B8"
+    },
+    {
+      "path": "artifacts/f5/arachne-default-build.log",
+      "bytes": 970,
+      "sha256": "93B09853283044F0BABDA5ED89FC357803FD2D669A1E7B217A66366F1FE98829"
+    },
+    {
+      "path": "artifacts/f5/arachne-default-tests.log",
+      "bytes": 11758,
+      "sha256": "6E834EAE0025AE3177394A062BC53AC699B37C957BB0DFE10141A55B14CFD9E5"
+    },
+    {
+      "path": "artifacts/f5/native-final/11b3f4bdbd4f440fb2c0815197637426/physical.st7",
+      "bytes": 3607014,
+      "sha256": "DA37ECB2F92C1FD69AD71B54D493AECF7C39F4C9D6E8EECC9E37736700AF07A2"
+    },
+    {
+      "path": "artifacts/f5/native-final/11b3f4bdbd4f440fb2c0815197637426/stages.st7",
+      "bytes": 3607352,
+      "sha256": "B5287F1DFD4D81DFBD4FA12A50411F2BB5331748E930F79E3BA8B7E706FE0454"
+    },
+    {
+      "path": "artifacts/f5/native-final/f714320382c44bd19d3e9b76326eb568/moving.st7",
+      "bytes": 3607036,
+      "sha256": "23D1AF9ED1D018996F5F17959484977C771DEA92174ACE59B2936A1E4F3A74F0"
+    },
+    {
+      "path": "artifacts/f5/native-final/f714320382c44bd19d3e9b76326eb568/stages.st7",
+      "bytes": 3607352,
+      "sha256": "B5287F1DFD4D81DFBD4FA12A50411F2BB5331748E930F79E3BA8B7E706FE0454"
+    },
+    {
+      "path": "Model/Model/bin/Release/netstandard2.0/GPCModel.dll",
+      "bytes": 1728000,
+      "sha256": "7E5842BF607DBA2A61F58B69599F4DA832B237CB563801F077F683DABB41E77F"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/bin/Release/netstandard2.0/GPC.Model.Persistence.dll",
+      "bytes": 37376,
+      "sha256": "A348FF39AE9BBF68E150B797B48EB0B731BB3F273420D8A4F2EB953855375D82"
+    },
+    {
+      "path": "Model/GPC Converter/bin/Release/netstandard2.0/GPC.Converter.dll",
+      "bytes": 494592,
+      "sha256": "34DB74B2D788F1C6D4B83B617557A6C5EE5C5D7698D380F70BE8C5DC7A7DE3FF"
+    },
+    {
+      "path": "baseline-dependencies/TensileLib/TensileLib.dll",
+      "bytes": 83968,
+      "sha256": "8C948FF2CB4BA4A954C61EA1BEB064B7C31D083ABA7A729E99B23C6F9E390818"
+    }
+  ]
+}

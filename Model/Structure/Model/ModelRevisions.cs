@@ -43,6 +43,7 @@ namespace GPC.Model.Models
                         yield return restraint.Restrain.Restrains;
                     }
                     yield return n.Assignments.GroundSprings.ToArray(); yield return n.Assignments.Links.ToArray();
+                    if (n.Assignments.Physical != null) yield return n.Assignments.Physical;
                     yield return n.Assignments.Mass; yield return n.Assignments.Dofs; yield return n.Assignments.Active;
                 }
                 if (e is BeamElement b)
@@ -58,6 +59,7 @@ namespace GPC.Model.Models
                         else yield return b.BeamProperty;
                     }
                     yield return b.RotationAroundFirstAxis;
+                    if (b.Assignments.Physical != null) yield return b.Assignments.Physical;
                     yield return b.Assignments.Formulation; yield return b.Assignments.SectionAxes;
                     yield return b.Assignments.SectionGeometryAxes;
                     yield return b.Assignments.OrientationNodeId; yield return b.Assignments.StationDomain;
@@ -83,6 +85,7 @@ namespace GPC.Model.Models
                 {
                     yield return a.Points;
                     if (properties) { yield return ElementProperties.PlateSections.AnalysisProperty(a); yield return ElementProperties.PlateSections.PhysicalThickness(a); }
+                    if (a.Assignments.Physical != null) yield return a.Assignments.Physical;
                     yield return a.Assignments.Offset;
                     foreach (var n2 in a.Nodes) yield return n2.Guid;
                 }
@@ -93,6 +96,7 @@ namespace GPC.Model.Models
             // Added later: it enters only when present, so the fingerprints of models without model loads are unchanged.
             if (model.ModelLoads.Count != 0) yield return model.ModelLoads;
             if (model.FormFinding != null) yield return model.FormFinding;
+            if (model.MovingLoads != null) yield return model.MovingLoads;
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {

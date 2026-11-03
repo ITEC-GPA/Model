@@ -17,6 +17,10 @@ namespace GPC.Model.Structure.Assignments
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class BeamAssignments
     {
+        [field: OptionalField]
+        [field: DataMember(Name = "<Physical>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public BeamPhysicalData Physical { get; set; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<Formulation>k__BackingField", IsRequired = true)]
         public BeamFormulation Formulation { get; set; }
 
