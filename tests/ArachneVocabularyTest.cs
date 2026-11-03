@@ -94,6 +94,28 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void RefreshedIdentityMapAcceptsShellsAddedAfterTheAssembly()
+        {
+            var points = new[] { new Point3d(0, 0, 0), new Point3d(1000, 0, 0), new Point3d(0, 1000, 0) };
+            var nodes = points.Select((p, i) => new NodeElement(Guid.Parse("00000000-0000-0000-0000-00000000010" + i), p)).ToArray();
+            var beams = new[] { (0, 1), (1, 2), (2, 0) }.Select((e, i) =>
+            {
+                var beam = new BeamElement(Guid.Parse("00000000-0000-0000-0000-00000000011" + i), points[e.Item1], points[e.Item2], null);
+                beam.ConnectNodes(nodes[e.Item1], nodes[e.Item2]); beam.Assignments.Formulation = GPC.Model.Structure.Assignments.BeamFormulation.Cable; return beam;
+            }).ToArray();
+            var model = ModelAssembly.Assemble(beams, Guid.Parse("00000000-0000-0000-0000-000000000120"));
+            var ids = model.AllElements.ToDictionary(e => e.Guid, e => e.Id);
+            var shell = new AreaElement(Guid.Parse("00000000-0000-0000-0000-000000000121"), null, null, null, "1", 1);
+            shell.ConnectNodes(model.NodesElements.Values.OrderBy(n => n.Id).ToArray());
+            model.AreaElements.Add(shell); ids.Add(shell.Guid, 1);
+            var map = GPC.Model.Core.Identity.SolverIdentityMap.Create(model, "test", ids);
+            Assert.ThrowsException<InvalidOperationException>(() => model.AssemblyMap.ToSolver(model, "test", ids), "the map of the assembly is stale");
+            ModelAssembly.RefreshIdentityMap(model);
+            Assert.AreEqual(7, model.AssemblyMap.ToSolver(model, "test", ids).Entries.Count);
+            Assert.AreEqual(map.AnalysisFingerprint, model.AssemblyMap.ToSolver(model, "test", ids).AnalysisFingerprint);
+        }
+
+        [TestMethod]
         public void InvalidVocabularyIsRejected()
         {
             Assert.ThrowsException<ArgumentException>(() => new ElementLabelAttribute(""));

@@ -159,6 +159,16 @@ namespace GPC.Model.Models
             }
             return found;
         }
+
+        /// <summary>Rebuilds the identity map of an assembled model after the application added or removed elements with their own
+        /// ids (e.g. the shells a form-finding solver generates from the cables): every element becomes its own canonical identity and
+        /// the records of the merged inputs are dropped. The model is otherwise unchanged; ids must be positive and unique per family.</summary>
+        public static void RefreshIdentityMap(Model model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            model.AssemblyMap = new AssemblyIdentityMap(model.Guid, model.AssemblyMap?.MergeToleranceMm, model.AllElements.Select(e => new AssemblyIdentityEntry(e, e, Model.FamilyOf(e))));
+        }
+
         private static bool SelfContained(Attributes.Attribute value) => value is ElementLabelAttribute || value is Analysis.FormFindingGoalAttribute || value is Analysis.FormFindingCoordinateAttribute;
         private static EntityFamily Family(Element value) => value is NodeElement ? EntityFamily.Node : value is BeamElement ? EntityFamily.Beam : EntityFamily.Shell;
         private static string Content(Element element)
