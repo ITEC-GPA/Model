@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "branch": "codex/gpc-unification-20261102",
+  "plan": "Model/docs/bridghe-arachne/PIANO.md",
+  "status": "Model/docs/bridghe-arachne/STATO.md",
+  "baseline": "Model/docs/bridghe-arachne/baseline-manifest.json",
+  "artifacts": "artifacts/f1",
+  "f2Artifacts": "artifacts/f2",
+  "f2Contracts": "Model/docs/bridghe-arachne/F2-CONTRATTI.md",
+  "f2Verification": "Model/docs/bridghe-arachne/F2-VERIFICHE.md",
+  "f2Evidence": "Model/docs/bridghe-arachne/f2-evidenze.json",
+  "modelVersion": "5.48.0.0",
+  "completedPhases": [
+    "F0",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5"
+  ],
+  "queue": [
+    "F7",
+    "F8"
+  ],
+  "performanceScope": "F1 median-of-five-warm-copies protocol; no hard worst-case latency bound",
+  "f3Artifacts": "artifacts/f3",
+  "f3Contracts": "Model/docs/bridghe-arachne/F3-PERSISTENZA.md",
+  "f3Verification": "Model/docs/bridghe-arachne/F3-VERIFICHE.md",
+  "f3Evidence": "Model/docs/bridghe-arachne/f3-evidenze.json",
+  "persistenceVersion": "3.13.0.0",
+  "blockArchiveVersion": "1.1.0.0",
+  "f3Commits": {
+    "Model": "cfacf482",
+    "ANTHEA": "85ebd43f",
+    "Checker": "e8a30582"
+  },
+  "activePhase": "F6",
+  "f4Artifacts": "artifacts/f4",
+  "nextPhase": "F6",
+  "f4Contracts": "Model/docs/bridghe-arachne/F4-PILOTI.md",
+  "f4Verification": "Model/docs/bridghe-arachne/F4-VERIFICHE.md",
+  "f4Evidence": "Model/docs/bridghe-arachne/f4-evidenze.json",
+  "f4Commits": {
+    "Model": "35da4d8ee04173a9c098a4b9e679f2f799cd02e1",
+    "BridGHe": "ffa7c60e3f3eee9ebe2b84c03139b62fa4bceff0",
+    "Arachne": "7478d8487592a46bd6fd39bee3d5ca345a9a1f7b"
+  },
+  "converterVersion": "2.18.0.0",
+  "compositeBridgeVersion": "1.26.0.0",
+  "f5Artifacts": "artifacts/f5",
+  "f5Status": "complete; 295 types and 2309 fields reviewed, zero open entries; Model and all Checker gates passed",
+  "f5Progress": "Model/docs/bridghe-arachne/F5-CONCLUSIONE.md",
+  "f5Evidence": "Model/docs/bridghe-arachne/f5-conclusione-evidenze.json",
+  "f5Matrix": "Model/docs/bridghe-arachne/f5-matrice-revisione.json",
+  "reBearSource": "C:/Users/g.pacini/Documents/Repository/ConcreteSectionChecker",
+  "f5Commits": {
+    "Model": "381fd2f3fb92a170352291dcc2121878f54ee7b5",
+    "Checker": "f37506327616537c0fbd859daa46e9052200bf0e",
+    "Arachne": "5ddbe6f8a78de788a120c23cd6015c350cd2c320",
+    "BridGHe": "31818232f9e33e6f01cad7b1d5c9e8e8615f21f7"
+  },
+  "f5PreviousEvidence": "Model/docs/bridghe-arachne/f5-geometria-masse-evidenze.json",
+  "f6Status": "paused, incomplete; verified Arachne checkpoint 4 and Model/Checker gates; BridGHe archive changes committed as unbuilt, untested WIP",
+  "f6Progress": "Model/docs/bridghe-arachne/F6-AVANZAMENTO.md",
+  "f6Checkpoint1": {
+    "Model": "a7cd54f1d40d55ffdb12ee1e2d14baa5220c28e7",
+    "Arachne": "7360f3cb2289694809f6fdb66cd57dc1a9408ac0",
+    "evidence": "Model/docs/bridghe-arachne/f6-incremento1-evidenze.json",
+    "status": "partial; phase F6 active"
+  },
+  "f6Checkpoint2": {
+    "Arachne": "62fedfa7c29828cc5329dbf8f769bf83b82d4270",
+    "evidence": "Model/docs/bridghe-arachne/f6-incremento2-evidenze.json",
+    "status": "partial; phase F6 active",
+    "Model": "0740761451fc1222ee322498ee48e91ac99cdc75"
+  },
+  "f6NativeStatus": "passed: Model full native gate 1958 passed, 7 expected exclusions, zero failures",
+  "f6Checkpoint3": {
+    "Arachne": "bd79ae28d3e42f82669d9c3d88582f72c9e636e8",
+    "evidence": "Model/docs/bridghe-arachne/f6-incremento3-evidenze.json",
+    "status": "partial; phase F6 active",
+    "Model": "28fb0127b0c989a340fc697a0ef2e6473ad13465"
+  },
+  "f6Checkpoint4": {
+    "Arachne": "5f5170cd14267081f138f25fe1e8d70b97ad211a",
+    "evidence": "Model/docs/bridghe-arachne/f6-incremento4-evidenze.json",
+    "status": "partial; phase F6 active",
+    "Model": "dc5d00bb70c813e9f4deb979fc293546959083c9"
+  },
+  "f6Execution": "stopped at explicit user request; commit current work and do not continue",
+  "f6WipBridGHe": {
+    "commit": "a0dbd4d0bda268c11721ac351f906ec6df331344",
+    "status": "not built or tested",
+    "file": "src/BridGHe.Common/Helpers/ModelArchive.cs",
+    "dependency": "Requires coherent candidate with GPCModel 5.48.0.0; pinned BridGHe bundle not updated"
+  },
+  "f6CandidatePreparation": {
+    "sources": "artifacts/f6/candidate-sources",
+    "status": "four clean detached worktrees created; Release-Set not started; no candidate package produced"
+  }
+}

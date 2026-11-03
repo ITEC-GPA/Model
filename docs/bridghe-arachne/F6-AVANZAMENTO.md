@@ -1,4 +1,4 @@
-# F6 — migrazione dei plugin, in corso
+# F6 — migrazione dei plugin, sospesa su richiesta
 
 Avvio richiesto dall'utente il 3 novembre 2026. Branch isolato `codex/gpc-unification-20261102`; nessun merge, push o rilascio. F5 resta conclusa sul suo set di commit. Questo documento registra incrementi di F6, **non il superamento del gate di uscita della fase**.
 
@@ -61,12 +61,20 @@ Nel secondo incremento gli output GH richiedevano ancora il calcolo. Il terzo in
 - **Dati legacy incompleti:** lo schema v1 del carico concentrato non scriveva `CoordinateSystem`. Il reader conserva componenti e posizione, ma marca l'asse mancante; il calcolo richiede il ricalcolo del componente upstream oppure un'assegnazione esplicita degli assi. Il flag sopravvive a un nuovo salvataggio. Non è possibile ricostruire un sistema perso dal solo payload.
 - Versione Arachne **0.4.0-f6.4**, commit `5f5170cd14267081f138f25fe1e8d70b97ad211a`. Suite completa **171 PASS, zero fallimenti** (66 inventario, 38 form finding, 43 patterning, 6 reti, 18 contratti F6). Tutte le 11 suite Checker sul Model 5.48.0.0: **10.382 PASS, zero fallimenti**, un controllo temporale escluso; API senza rimozioni inattese. [Evidenze del quarto incremento](f6-incremento4-evidenze.json).
 
+## Arresto richiesto dall'utente
+
+L'utente ha chiesto di fermare il lavoro, committare quanto fatto e non continuare. **F6 è incompleta e sospesa.** I quattro incrementi Arachne e i gate Model/Checker sopra restano verificati.
+
+L'ultima modifica BridGHe a `ModelArchive.cs` è salvata nel commit `a0dbd4d0bda268c11721ac351f906ec6df331344` come **WIP non compilato e non collaudato**: introduce BGHA2 con lettura BGHA1, codec numerico condiviso, limiti e risoluzione dei tipi su dipendenze predefinite. Richiede il nuovo GPCModel; il bundle fissato in BridGHe non è stato aggiornato. Non considerare questo commit eseguibile o validato.
+
+Sono stati creati quattro worktree detached puliti in `artifacts/f6/candidate-sources` (Utilities, Geometry, Model, Checker); la produzione del bundle candidato non è stata avviata. Nessun merge, push o rilascio. La configurazione del workspace e i commit disponibili sono conservati in [f6-workspace-arresto.json](f6-workspace-arresto.json). Log e artefatti dei collaudi restano nel workspace locale.
+
 ## Lavoro ancora necessario per chiudere F6
 
 1. Completare F6B: sostituire lo storage fisico legacy nei componenti e nei generatori; completare la separazione fra input, obiettivi e output; completare i collaudi interattivi/di scala dei sidecar; verificare tutte le conversioni dei tipi F5 e le diagnosi dei dati non supportati.
 2. Eseguire F6A: migrare componenti, generatori del ponte, carichi mobili, fasi e verifiche BridGHe; collegare Converter alla produzione e rimuovere l'exporter locale solo dopo confronto equivalente.
 3. Verificare GUID/porte, esempi 50/99 e membrane, input/output nativi, archivi e prestazioni sul set candidato completo. Conservare le baseline congelate e documentare le differenze, senza aggiornarle per ottenere test verdi.
 
-I gate generali F7/F8, integrazione degli altri consumatori e rilascio restano successivi. F6 rimane attiva finché i punti sopra non sono completati.
+I gate generali F7/F8, integrazione degli altri consumatori e rilascio restano successivi. F6 rimane incompleta; la prosecuzione è sospesa per richiesta esplicita dell’utente.
 
 La lettura NRBF segue il decoder ufficiale e la ricostruzione esplicita di un insieme chiuso di tipi: [guida Microsoft](https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/read-nrbf-payloads), [pacchetto fissato 9.0.16](https://www.nuget.org/packages/System.Formats.Nrbf/9.0.16).
