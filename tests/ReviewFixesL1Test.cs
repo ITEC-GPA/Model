@@ -197,6 +197,41 @@ namespace UnitTest
             using (var session = new ModelEditSession(model, curvedPhysicalMembers: true)) Assert.IsFalse(session.Validate().Any(d => d.Code == "InvalidPhysicalMember"));
         }
 
+        private static BeamElement LoadedBeam(NodeElement a, NodeElement b, LoadCaseBase lc, BeamProperty property = null)
+        {
+            var beam = new BeamElement(a.Position, b.Position, property); beam.ConnectNodes(a, b); beam.Assignments.Formulation = BeamFormulation.StraightTwoNode;
+            beam.Loads.Add(new PointLoad(0, 0, -1000, 0, 0, 0, a.Position, lc)); return beam;
+        }
+
+        // B6: equal content never merges two cases or properties with different GUIDs.
+        [TestMethod] public void B6_AssemblyRejectsHomonymousCasesAndPropertiesWithDifferentGuids()
+        {
+            var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(1000, 0, 0)); var c = new NodeElement(new Point3d(2000, 0, 0));
+            var first = LoadedBeam(a, b, new LoadCaseBase(Guid.NewGuid(), "dead")); var second = LoadedBeam(b, c, new LoadCaseBase(Guid.NewGuid(), "dead"));
+            Assert.AreEqual("LoadCaseIdentityConflict: dead", Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new Element[] { first, second }, Guid.NewGuid())).Message);
+            var shared = new LoadCaseBase(Guid.NewGuid(), "dead"); var copy = ModelValues.CopyValue(shared);
+            first = LoadedBeam(a, b, shared); second = LoadedBeam(b, c, copy);
+            var model = ModelAssembly.Assemble(new Element[] { first, second }, Guid.NewGuid());
+            Assert.AreEqual(shared.Guid, model.LoadCases.Values.Single().Guid);
+            var material = new Material("E", 210000, .3, 0, 0);
+            first = LoadedBeam(a, b, shared, new ElasticBeamProperty("rect", material, new SectionRectangular(200, 100)));
+            second = LoadedBeam(b, c, shared, new ElasticBeamProperty("rect", material, new SectionRectangular(200, 100)));
+            Assert.AreEqual("PropertyIdentityConflict: rect", Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new Element[] { first, second }, Guid.NewGuid())).Message);
+        }
+
+        // B6: two copies of one element citing cases with different GUIDs are a conflict, whatever the input order.
+        [TestMethod] public void B6_DuplicateElementsCitingDifferentCaseIdentitiesAreRejectedInAnyOrder()
+        {
+            var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(1000, 0, 0));
+            var beam = LoadedBeam(a, b, new LoadCaseBase(Guid.NewGuid(), "dead"));
+            var twin = ModelValues.CopyValue(beam); twin.Loads.Values.Single().LoadCase = new LoadCaseBase(Guid.NewGuid(), "dead");
+            foreach (var input in new[] { new Element[] { beam, twin }, new Element[] { twin, beam } })
+                StringAssert.StartsWith(Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(input, Guid.NewGuid())).Message, "ConflictingEntityGuid");
+            var same = ModelValues.CopyValue(beam);
+            string forward = ModelAssembly.Assemble(new Element[] { beam, same }, new Guid("11111111-1111-1111-1111-111111111111")).AnalysisFingerprint();
+            Assert.AreEqual(forward, ModelAssembly.Assemble(new Element[] { same, beam }, new Guid("11111111-1111-1111-1111-111111111111")).AnalysisFingerprint());
+        }
+
         // B9: stages may be absent in legacy graphs.
         [TestMethod] public void B9_StageHasDataToleratesMissingStages()
         {

@@ -122,11 +122,16 @@ namespace UnitTest
             var p = new ConcretePlateProperty(new ConcreteMaterialEN1992("C25/30"), 100, 100, "plate");
             var first = Shell(a, b, c); first.PlateProperty = p;
             var second = Shell(b, d, c); second.PlateProperty = ModelValues.CopyValue(p);
-            a.Loads.Add(new PointLoad(1, 0, 0, 0, 0, 0, a.Position, new LoadCaseBase("G")));
-            b.Loads.Add(new PointLoad(2, 0, 0, 0, 0, 0, b.Position, new LoadCaseBase("G")));
+            // Review B6: homonymous cases merge only as copies of one entity (same GUID); two GUIDs are two cases.
+            var g = new LoadCaseBase("G");
+            a.Loads.Add(new PointLoad(1, 0, 0, 0, 0, 0, a.Position, g));
+            b.Loads.Add(new PointLoad(2, 0, 0, 0, 0, 0, b.Position, ModelValues.CopyValue(g)));
             var model = ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid());
             var values = model.AreaElements.Values.ToArray(); Assert.AreSame(values[0].PlateProperty, values[1].PlateProperty);
             foreach (var load in model.AllElements.SelectMany(e => e.Loads.Values)) Assert.AreSame(model.LoadCases["G"], load.LoadCase);
+            b.Loads.Values.Single().LoadCase = new LoadCaseBase("G");
+            Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid()));
+            b.Loads.Values.Single().LoadCase = ModelValues.CopyValue(g);
             second.PlateProperty = new ConcretePlateProperty(new ConcreteMaterialEN1992("C25/30"), 150, 150, "plate");
             Assert.ThrowsException<ArgumentException>(() => ModelAssembly.Assemble(new[] { first, second }, Guid.NewGuid()));
         }
