@@ -56,8 +56,11 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 29, EmitDefaultValue = false)] internal int StagesMaxId;
         [DataMember(Order = 30, EmitDefaultValue = false)] internal int ModelLoadsMaxId;
 
+        [DataMember(Order = 31, EmitDefaultValue = false)] internal GPC.Model.Core.Identity.AssemblyIdentityMap AssemblyMap;
+
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
-            Schema=model.PhysicalSurfaces.Count==0 ? 1 : 2, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
+            Schema=model.AssemblyMap != null || model.PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 3 : model.PhysicalSurfaces.Count==0 ? 1 : 2,
+            AssemblyMap = model.AssemblyMap, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
             Id = model.Guid, Name = model.Name, Nodes = model.NodesElements, Beams = model.BeamElements,
             Plates = model.AreaElements, Solids = model.VolumeElements, Constraints = model.Costrains,
             BeamProperties = model.BeamProperties, PlateProperties = model.PlateProperties, SolidProperties = model.BrickProperties,
@@ -72,17 +75,18 @@ namespace GPC.Model.Persistence
 
         internal Models.Model Restore()
         {
-            if (Schema != 1 && Schema != 2) throw new SerializationException("Unsupported ModelDocument schema.");
+            if (Schema != 1 && Schema != 2 && Schema != 3) throw new SerializationException("Unsupported ModelDocument schema.");
             if (Schema==2 && (Surfaces==null || Surfaces.Length==0) || Schema==1 && Surfaces!=null && Surfaces.Length!=0) throw new SerializationException("PhysicalSurfaceSchemaMismatch");
             if (Nodes == null || Beams == null || Plates == null || Solids == null || Constraints == null || BeamProperties == null
                 || PlateProperties == null || SolidProperties == null || Cases == null || FreedomCases == null || Combinations == null
                 || StageCombinations == null || Groups == null || Stages == null || ModelLoads == null || Datasets == null
                 || Preserved == null || Members == null || Scenarios == null || Reports == null)
                 throw new SerializationException("Missing ModelDocument collection.");
+            if (AssemblyMap != null && (Schema < 3 || AssemblyMap.ModelGuid != Id) || Schema < 3 && Members.Any(m => m.BridgeMetadata != null)) throw new SerializationException("AssemblyMetadataSchemaMismatch");
             Constraints.RestoreCounter(ConstraintsMaxId);
             Stages.RestoreCounter(StagesMaxId);
             ModelLoads.RestoreCounter(ModelLoadsMaxId);
-            return Models.Model.FromGraph(new Models.ModelGraph {
+            var model = Models.Model.FromGraph(new Models.ModelGraph {
                 Id = Id,
                 Name = Name,
                 Nodes = Nodes,
@@ -109,6 +113,8 @@ namespace GPC.Model.Persistence
                 Scenarios = Scenarios,
                 Reports = Reports,
                 Surfaces = Surfaces });
+            model.AssemblyMap = AssemblyMap;
+            return model;
         }
     }
 }

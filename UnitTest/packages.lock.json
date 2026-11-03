@@ -73,17 +73,21 @@
         "resolved": "1.6.0",
         "contentHash": "COC1aiAJjCoA5GBF+QKL2uLqEBew4JsCkQmoHKbN3TlOZKa2fKLz5CpiRQKDz0RsAOEGsVKqOD5bomsXq/4STQ=="
       },
+      "gpc.archive": {
+        "type": "Project"
+      },
       "GPC.Converter": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )",
-          "GPCModelData": "[1.0.0, )"
+          "GPCModel": "[5.39.0, )",
+          "GPCModelData": "[0.3.0.26, )"
         }
       },
       "gpc.model.persistence": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )"
+          "GPC.Archive": "[1.0.0, )",
+          "GPCModel": "[5.39.0, )"
         }
       },
       "gpcmodel": {
@@ -95,7 +99,7 @@
       "gpcmodeldata": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[1.0.0, )"
+          "GPCModel": "[5.39.0, )"
         }
       }
     }

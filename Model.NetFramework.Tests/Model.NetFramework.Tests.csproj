@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
+    <None Include="../tests/Fixtures/anthea-blocks-v1-20261103.bin" Link="Fixtures/anthea-blocks-v1-20261103.bin" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <!-- The tests of tests/ that must hold on .NET Framework as on .NET, where UnitTest runs them: GPCModel is netstandard2.0 and its
        archives and fingerprints move between the two runtimes. -->
   <PropertyGroup>

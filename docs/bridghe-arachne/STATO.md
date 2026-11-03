@@ -1,14 +1,14 @@
 # Stato della migrazione comune
 
-Aggiornamento del 3 novembre 2026. Attività avviata su richiesta dell'utente; piano in [PIANO.md](PIANO.md).
+Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente; piano in [PIANO.md](PIANO.md).
 
 ## Stato effettivo
 
-F0, F1 e F2 completate per il perimetro dichiarato. F1: [F1-BASELINE.md](F1-BASELINE.md), [f1-evidenze.json](f1-evidenze.json). F2: [F2-CONTRATTI.md](F2-CONTRATTI.md), [F2-VERIFICHE.md](F2-VERIFICHE.md), [f2-evidenze.json](f2-evidenze.json). GPCModel 5.39.0.0 introduce le fondazioni; i componenti dei plugin e gli algoritmi dei solutori non sono ancora migrati. F3 e F4 in coda, poi F5-F8.
+F0, F1, F2 e F3 completate per il perimetro dichiarato. F1: [F1-BASELINE.md](F1-BASELINE.md), [f1-evidenze.json](f1-evidenze.json). F2: [F2-CONTRATTI.md](F2-CONTRATTI.md), [F2-VERIFICHE.md](F2-VERIFICHE.md), [f2-evidenze.json](f2-evidenze.json). GPCModel 5.39.0.0 introduce le fondazioni; i componenti dei plugin e gli algoritmi dei solutori non sono ancora migrati. F3: [F3-PERSISTENZA.md](F3-PERSISTENZA.md), [F3-VERIFICHE.md](F3-VERIFICHE.md), [f3-evidenze.json](f3-evidenze.json). F4 in coda, poi F5-F8. GPC.Archive 1.0.0.0 e GPC.Model.Persistence 3.5.0.0 sono verificati sui runtime dei consumatori. L’adattatore ANTHEA è provato in configurazione esplicita; adozione predefinita e snapshot restano F7/F8.
 
-Target copia F2: mediane 0,125 s su .NET 8 e 0,289 s su .NET Framework nel protocollo F1. Non è un limite massimo per ogni chiamata: su Framework la prima copia è 0,360 s e il massimo a caldo 0,304 s. Model: 1.737 test superati, 12 ignorati preesistenti. Checker: 10.361 superati. API e audit superati, fixture e attesi invariati.
+Target copia F2: mediane 0,125 s su .NET 8 e 0,289 s su .NET Framework nel protocollo F1. Non Ã¨ un limite massimo per ogni chiamata: su Framework la prima copia Ã¨ 0,360 s e il massimo a caldo 0,304 s. Model: 1.737 test superati, 12 ignorati preesistenti. Checker: 10.361 superati. API e audit superati, fixture e attesi invariati.
 
-Le sessioni Codex visibili pertinenti erano inattive; la conclusione della precedente sessione Claude non è attestabile da questi strumenti. La nuova autorizzazione della chat consente la preparazione e le verifiche nei worktree separati. Non assumere che una versione compilata equivalga a una release coordinata completata.
+Le sessioni Codex visibili pertinenti erano inattive; la conclusione della precedente sessione Claude non Ã¨ attestabile da questi strumenti. La nuova autorizzazione della chat consente la preparazione e le verifiche nei worktree separati. Non assumere che una versione compilata equivalga a una release coordinata completata.
 
 ## Branch e provenienza
 
@@ -23,13 +23,13 @@ Branch `codex/gpc-unification-20261102` in sei repository indipendenti:
 | tensilelib | `5e2576534f62ecca17d120430e3c29110a5e3de2` | Sorgenti separati; baseline usa DLL 2.5.0.1 catturata |
 | ANTHEA | `c4f68c5e69a88b4b0a13891fe2bd02db6afe7537` | Baseline selettiva con il suo set di librerie fissate; sorgente della persistenza F3 |
 
-Geometry e Utilities sono worktree detached su commit fissati. Le DLL corrispondono agli SHA-256 richiesti da Model. I branch di lavoro non hanno upstream sul master remoto. Non è stato eseguito alcun merge o push.
+Geometry e Utilities sono worktree detached su commit fissati. Le DLL corrispondono agli SHA-256 richiesti da Model. I branch di lavoro non hanno upstream sul master remoto. Non Ã¨ stato eseguito alcun merge o push.
 
 Il manifest [baseline-manifest.json](baseline-manifest.json) registra sette revisioni, dodici input e sei dipendenze. Il file `workspace.json` nella radice del workspace collega piano, stato, manifest e artefatti.
 
-Il GHX REV003 modificato nel checkout principale di BridGHe è stato lasciato intatto. La baseline catturata proviene dal file versionato del worktree (4.904.830 byte), non dal file dell'utente contenente risultati salvati.
+Il GHX REV003 modificato nel checkout principale di BridGHe Ã¨ stato lasciato intatto. La baseline catturata proviene dal file versionato del worktree (4.904.830 byte), non dal file dell'utente contenente risultati salvati.
 
-Durante i controlli finali il master principale di BridGHe è risultato avanzato, per attività esterna a questa chat, al commit locale `be9bb0b` (messaggio `minor`, 2 novembre 22:11). La sola differenza rispetto a `e7f650d` è il GHX REV003, cresciuto da 4.904.830 a 886.961.214 byte; il master risulta un commit avanti al remoto. Il branch isolato resta fissato alla versione pubblicata `e7f650d`. Prima delle catture native distinguere eventuali differenze degli input da quelle dovute ai risultati memorizzati; non incorporare automaticamente il file grande né modificare il commit dell'utente.
+Durante i controlli finali il master principale di BridGHe Ã¨ risultato avanzato, per attivitÃ  esterna a questa chat, al commit locale `be9bb0b` (messaggio `minor`, 2 novembre 22:11). La sola differenza rispetto a `e7f650d` Ã¨ il GHX REV003, cresciuto da 4.904.830 a 886.961.214 byte; il master risulta un commit avanti al remoto. Il branch isolato resta fissato alla versione pubblicata `e7f650d`. Prima delle catture native distinguere eventuali differenze degli input da quelle dovute ai risultati memorizzati; non incorporare automaticamente il file grande nÃ© modificare il commit dell'utente.
 
 ## Verifiche effettivamente eseguite
 
@@ -45,24 +45,25 @@ Durante i controlli finali il master principale di BridGHe è risultato avanzato
 | Model.NetFramework.Tests | 4 PASS |
 | Model API e audit uguaglianza | PASS; `build/Verify.ps1` completato con exit code 0 |
 
-Dettagli, inclusi i test ignorati, in [verifiche-iniziali.json](verifiche-iniziali.json). I test ignorati non sono considerati superati né copertura delle analisi native.
+Dettagli, inclusi i test ignorati, in [verifiche-iniziali.json](verifiche-iniziali.json). I test ignorati non sono considerati superati nÃ© copertura delle analisi native.
 
 Log e TRX: `../../../artifacts/f1` rispetto a questa cartella. Principali file: `bridghe-build.log`, `bridghe-smoke-build.log`, `bridghe-contracts.json`, `bridghe-core.log`, `arachne-build-arap-verified.log`, `arachne-headless.log`, `model-verify-complete.log`, cartella `model-tests-complete`.
 
 ## Problemi dell'ambiente risolti
 
-- Il primo build record di Arachne non conteneva il commit a causa della diversa proprietà Windows dei worktree. Risolto con `safe.directory` limitato al processo; build e test ripetuti, commit del record verificato. Non modificata la configurazione Git globale.
-- La prima esecuzione di Model Verify si è fermata alla compilazione UnitTest per il wrapper GMsh mancante nel checkout fratello. Aggiunta una copia della sola DLL managed, con hash verificato e destinazione riservata ai test; la suite completa successiva è riuscita. Gmsh non è stato aggiunto ai riferimenti di produzione o al set rilasciabile.
+- Il primo build record di Arachne non conteneva il commit a causa della diversa proprietÃ  Windows dei worktree. Risolto con `safe.directory` limitato al processo; build e test ripetuti, commit del record verificato. Non modificata la configurazione Git globale.
+- La prima esecuzione di Model Verify si Ã¨ fermata alla compilazione UnitTest per il wrapper GMsh mancante nel checkout fratello. Aggiunta una copia della sola DLL managed, con hash verificato e destinazione riservata ai test; la suite completa successiva Ã¨ riuscita. Gmsh non Ã¨ stato aggiunto ai riferimenti di produzione o al set rilasciabile.
 
-## Prossimo gate: F3, poi F4
+## Prossimo gate: F4
 
 Baseline conclusa: vedere il rapporto F1 per copertura, misure, esclusioni e tentativi scartati. I dati iniziali sopra restano il resoconto storico della preparazione.
 
-1. Estrarre l'archivio esterno riutilizzabile di ANTHEA, senza portare dipendenze applicative nel dominio.
-2. Conservare il codec GPC dei risultati e definire il rapporto con blocchi per caso/combinazione e mappe del solutore.
-3. Provare salvataggi atomici, Save As, trasferimento, documenti non salvati, archivi mancanti/corrotti, invalidazione e revisioni.
-4. Eseguire i due piloti F4 prima della migrazione estesa F5/F6. La matrice F2 contiene esplicitamente i gap ancora da chiudere.
+F3 conclusa nello strato di persistenza: 1.765 test Model PASS, 12 ignorati preesistenti; 10.361 Checker PASS; ANTHEA prima/dopo e configurazione predefinita PASS per le due suite selezionate. Recupero incrociato .NET 8/Framework con valori binari identici; riferimento 457 byte, autosave invariato circa 14-15 ms di mediana nel probe (20.000 campioni).
 
-Checkpoint F1: Model `4134bd1a`, BridGHe `2b2c4b3`, Arachne `63b9516`. Le modifiche F2 appartengono al solo repository Model; Checker è stato ricompilato e verificato senza modifiche ai suoi sorgenti. Nessuna integrazione nei checkout principali.
+F4 è la prossima fase, non ancora eseguita: ponte GH -> GPC -> Straus7 -> archivio -> riapertura; membrana GH -> GPC -> TensileLib -> archivio -> riapertura. Usare le evidenze F1, i contratti F2 e il ciclo Prepare/Save F3; introdurre solo i tipi necessari ai piloti prima della migrazione estesa.
+
+Checkpoint F1: Model `4134bd1a`, BridGHe `2b2c4b3`, Arachne `63b9516`. Le modifiche F2 appartengono al solo repository Model; Checker Ã¨ stato ricompilato e verificato senza modifiche ai suoi sorgenti. Nessuna integrazione nei checkout principali.
 
 ANTHEA aggiunta al workspace al commit c4f68c5e, sullo stesso branch separato; ModelWorkspace.Checks e Application.Tests superati con le sue librerie fissate. ReBear non individuato nei progetti disponibili.
+
+Checkpoint F2: Model `7e08ddc8`. F3 comprende Model (contenitore/API e test), ANTHEA (adattatore opt-in e registro differenze), Checker (inclusione della nuova DLL nel futuro set di rilascio). Tutte le modifiche restano nei worktree isolati; nessun merge o push.

@@ -1,0 +1,249 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using GPC.Geometry;
+using GPC.Model.Core;
+using GPC.Model.Core.Identity;
+using GPC.Model.Elements;
+using GPC.Model.LoadCases;
+using GPC.Model.Models;
+using GPC.Model.Persistence;
+using GPC.Model.Results;
+using GPC.Model.Results.Locations;
+using GPC.Model.Results.State;
+using GPC.Model.Results.Storage;
+using GPC.Persistence;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace UnitTest
+{
+    [TestClass]
+    public class ExternalArchiveTest
+    {
+        private string folder = "";
+        [TestInitialize] public void Start() { folder = Path.Combine(Path.GetTempPath(), "gpc-external-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder); }
+        [TestCleanup] public void End() { Directory.Delete(folder, true); }
+        private string FileAt(string name) => Path.Combine(folder, name);
+        private static ArchiveBlock Block(string text, bool compress = true) => ArchiveBlock.Create(7, Encoding.UTF8.GetBytes(text), compress);
+        private static string Text(BlockArchive store, string address)
+        { var item = store.Read(new[] { address })[0]; Assert.IsNull(item.Failure, item.Failure); return Encoding.UTF8.GetString(item.Bytes!); }
+        private static string[] Addresses(byte[] archive)
+        {
+            int count = BitConverter.ToInt32(archive, 20); long index = BitConverter.ToInt64(archive, 24);
+            return Enumerable.Range(0, count).Select(i => BitConverter.ToString(archive, (int)index + 57 * i, 32).Replace("-", "")).ToArray();
+        }
+
+        [TestMethod]
+        public void CapturedAntheaArchiveReadsEveryBlockAndRewritesIdentically()
+        {
+            string fixture = Path.Combine(AppContext.BaseDirectory, "Fixtures", "anthea-blocks-v1-20261103.bin");
+            byte[] bytes = File.ReadAllBytes(fixture); string[] addresses = Addresses(bytes);
+            var store = new BlockArchive(fixture, addresses, "ANTHEA.RISULTATI");
+            var content = store.Read(addresses); Assert.IsTrue(content.Length > 10);
+            // Independent legacy layout decoding; no expected data created with the extracted writer.
+            int index = (int)BitConverter.ToInt64(bytes, 24);
+            for (int i = 0; i < addresses.Length; i++)
+            {
+                int row = index + i * 57, offset = (int)BitConverter.ToInt64(bytes, row + 33), stored = (int)BitConverter.ToInt64(bytes, row + 41);
+                using var raw = new MemoryStream(bytes, offset, stored, false);
+                using var inflate = new DeflateStream(raw, CompressionMode.Decompress);
+                using var expected = new MemoryStream(); inflate.CopyTo(expected);
+                Assert.IsNull(content[i].Failure, content[i].Failure);
+                CollectionAssert.AreEqual(expected.ToArray(), content[i].Bytes);
+                Assert.AreEqual(addresses[i], ArchiveBlock.Digest(content[i].Bytes!));
+            }
+            string copy = FileAt("copy.anthea-risultati");
+            Assert.AreEqual(0, store.Save(copy, addresses, () => { }));
+            CollectionAssert.AreEqual(bytes, File.ReadAllBytes(copy), "Compressed payload and wire layout unchanged across runtimes.");
+        }
+
+        [TestMethod]
+        public void UnsavedBlocksAreDetachedDeduplicatedAndReopenInBothEncodings()
+        {
+            byte[] input = Encoding.UTF8.GetBytes("hello"); var deflated = ArchiveBlock.Create(1, input); var raw = Block("raw", false);
+            input[0] = 99; var store = new BlockArchive(); store.Add(deflated); store.Add(deflated); store.Add(raw);
+            Assert.AreEqual("hello", Text(store, deflated.Address)); Assert.AreEqual("raw", Text(store, raw.Address));
+            byte[] output = store.Read(new[] { deflated.Address })[0].Bytes!; output[0] = 98;
+            Assert.AreEqual("hello", Text(store, deflated.Address));
+            string path = FileAt("a.bin"); store.Save(path, new[] { raw.Address, deflated.Address }, () => { });
+            Assert.AreEqual(2, Addresses(File.ReadAllBytes(path)).Length);
+            Assert.AreEqual("raw", Text(new BlockArchive(path), raw.Address)); Assert.AreEqual("hello", Text(new BlockArchive(path), deflated.Address));
+        }
+
+        [TestMethod]
+        public void UnchangedSaveDoesNotRewritePayloadOrTimestamp()
+        {
+            var block = Block(new string('x', 20000)); var store = new BlockArchive(); store.Add(block);
+            string path = FileAt("a.bin"); store.Save(path, new[] { block.Address }, () => { });
+            var before = File.ReadAllBytes(path); var oldTime = new DateTime(2020, 1, 2, 3, 4, 5, DateTimeKind.Utc); File.SetLastWriteTimeUtc(path, oldTime);
+            new BlockArchive(path, new[] { block.Address }).Save(path, new[] { block.Address }, () => { });
+            Assert.AreEqual(oldTime, File.GetLastWriteTimeUtc(path)); CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
+        }
+
+        [TestMethod]
+        public void InterruptedSavePreservesPriorDocumentAndRetiredBlocksSupportUndo()
+        {
+            ArchiveBlock a = Block("old"), b = Block("new"); var store = new BlockArchive(); store.Add(a); store.Add(b);
+            string path = FileAt("a.bin"), doc = FileAt("a.doc");
+            store.Save(path, new[] { a.Address }, () => File.WriteAllText(doc, a.Address));
+            Assert.ThrowsException<IOException>(() => store.Save(path, new[] { b.Address }, () => BlockArchive.WriteFile(doc, s => { s.WriteByte(1); throw new IOException("interrupted"); })));
+            Assert.AreEqual(a.Address, File.ReadAllText(doc)); Assert.AreEqual("old", Text(new BlockArchive(path), a.Address));
+            store.Save(path, new[] { b.Address }, () => File.WriteAllText(doc, b.Address));
+            store.Save(path, new[] { b.Address }, () => { }); // old-only blocks are now retired
+            Assert.AreEqual(1, Addresses(File.ReadAllBytes(path)).Length); Assert.AreEqual("old", Text(store, a.Address));
+            store.Save(path, new[] { a.Address }, () => { }); Assert.AreEqual("old", Text(new BlockArchive(path), a.Address));
+            Assert.AreEqual(0, Directory.GetFiles(folder, "*.tmp").Length);
+        }
+
+        [TestMethod]
+        public void SaveAsFailurePreservesExistingDestinationAndSessionSource()
+        {
+            ArchiveBlock a = Block("a"), b = Block("b"); string first = FileAt("a.bin"), second = FileAt("b.bin");
+            var store = new BlockArchive(); store.Add(a); store.Save(first, new[] { a.Address }, () => { });
+            var prior = new BlockArchive(); prior.Add(b); prior.Save(second, new[] { b.Address }, () => { });
+            byte[] source = File.ReadAllBytes(first);
+            Assert.ThrowsException<IOException>(() => store.Save(second, new[] { a.Address }, () => throw new IOException()));
+            Assert.AreEqual(first, store.FilePath); Assert.AreEqual("b", Text(new BlockArchive(second), b.Address));
+            CollectionAssert.AreEqual(source, File.ReadAllBytes(first));
+            store.Save(second, new[] { a.Address }, () => { }); Assert.AreEqual(second, store.FilePath);
+            store.Save(second, new[] { a.Address }, () => { }); Assert.AreEqual(1, Addresses(File.ReadAllBytes(second)).Length);
+        }
+
+        [TestMethod]
+        public void FirstSaveWithoutPriorDocumentReferencesRetainsItsWholeArchiveOnFailure()
+        {
+            var a = Block("old"); var b = Block("new"); string path = FileAt("a.bin");
+            var first = new BlockArchive(); first.Add(a); first.Save(path, new[] { a.Address }, () => { });
+            var session = new BlockArchive(path); session.Add(b);
+            Assert.ThrowsException<IOException>(() => session.Save(path, new[] { b.Address }, () => throw new IOException()));
+            Assert.AreEqual("old", Text(new BlockArchive(path), a.Address));
+            session.Save(path, new[] { b.Address }, () => { }); session.Save(path, new[] { b.Address }, () => { });
+            Assert.AreEqual(1, Addresses(File.ReadAllBytes(path)).Length);
+        }
+
+        [TestMethod]
+        public void MissingCorruptAndFutureArchivesAreExplicitAndNeverSilentlyReplaced()
+        {
+            var a = Block("alpha"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Save(path, new[] { a.Address }, () => { });
+            var original = File.ReadAllBytes(path); var broken = (byte[])original.Clone(); broken[64] ^= 0xFF; File.WriteAllBytes(path, broken);
+            Assert.IsNotNull(new BlockArchive(path).Read(new[] { a.Address })[0].Failure);
+            broken = (byte[])original.Clone(); broken[16] = 2; File.WriteAllBytes(path, broken);
+            var future = new BlockArchive(path, new[] { a.Address }); Assert.IsNotNull(future.Read(new[] { a.Address })[0].Failure);
+            bool documentWritten = false; Assert.ThrowsException<InvalidDataException>(() => future.Save(path, new[] { a.Address }, () => documentWritten = true));
+            Assert.IsFalse(documentWritten); CollectionAssert.AreEqual(broken, File.ReadAllBytes(path));
+            File.Delete(path); var missing = new BlockArchive(path, new[] { a.Address });
+            StringAssert.Contains(missing.Read(new[] { a.Address })[0].Failure!, "mancante");
+            Assert.ThrowsException<InvalidDataException>(() => missing.Save(path, new[] { a.Address }, () => documentWritten = true, requireComplete: true));
+            Assert.IsFalse(documentWritten);
+            Assert.AreEqual(1, missing.Save(path, new[] { a.Address }, () => { })); Assert.IsFalse(File.Exists(path));
+        }
+
+        [TestMethod]
+        public void InvalidIndexRangesAndDuplicateAddressesAreRejectedEvenWithCorrectIndexHash()
+        {
+            ArchiveBlock a = Block("a"), b = Block("b"); string path = FileAt("a.bin"); var store = new BlockArchive(); store.Add(a); store.Add(b);
+            store.Save(path, new[] { a.Address, b.Address }, () => { }); byte[] original = File.ReadAllBytes(path);
+            foreach (int variant in new[] { 0, 1, 2, 3 })
+            {
+                var bytes = (byte[])original.Clone(); int index = (int)BitConverter.ToInt64(bytes, 24);
+                if (variant == 0) Buffer.BlockCopy(BitConverter.GetBytes(long.MaxValue), 0, bytes, index + 33, 8);
+                if (variant == 1) Buffer.BlockCopy(bytes, index, bytes, index + 57, 32);
+                if (variant == 2) Buffer.BlockCopy(BitConverter.GetBytes((long)ArchiveBlock.MaximumBytes + 1), 0, bytes, index + 49, 8);
+                if (variant == 3) Buffer.BlockCopy(bytes, index + 33, bytes, index + 57 + 33, 8);
+                using var sha = System.Security.Cryptography.SHA256.Create(); var digest = sha.ComputeHash(bytes, index, bytes.Length - index); Buffer.BlockCopy(digest, 0, bytes, 32, 32);
+                File.WriteAllBytes(path, bytes); Assert.IsNotNull(new BlockArchive(path).Read(new[] { a.Address })[0].Failure, "variant " + variant);
+            }
+        }
+
+        private static Model ModelWithResults()
+        {
+            var model = ModelAssembly.Assemble(new[] { new NodeElement(new Point3d(1, 2, 3)), new NodeElement(new Point3d(4, 5, 6)) }, Guid.NewGuid());
+            var load = new LoadCaseBase("G"); model.LoadCases.Add(load);
+            var sample = new NodeResultDisplacement(load, new ResultDisplacement(1.0 / 3, BitConverter.Int64BitsToDouble(long.MinValue), double.Epsilon, 0, 0, 0)) { State = new ResultState { DatasetId = "run-1" } };
+            model.NodesElements[1].AddResult(new NodeResult(new List<INodeResultLocation> { sample }));
+            model.CompactResults(); return model;
+        }
+        private static string Content(Model model)
+        {
+            // Model/Element value fingerprints intentionally carry identity, not the full graph.
+            // Compare engineering inputs plus the actual compact results section, including every double bit.
+            using var stream = new MemoryStream(); ModelArchive.Save(model, stream); stream.Position = 0;
+            using var zip = new ZipArchive(stream, ZipArchiveMode.Read); using var results = zip.GetEntry("results.bin")!.Open();
+            using var bytes = new MemoryStream(); results.CopyTo(bytes);
+            return model.AnalysisFingerprint() + ":" + ArchiveBlock.Digest(bytes.ToArray()) + ":" + ModelValues.Fingerprint(new object[] { model.AssemblyMap, model.Name });
+        }
+
+        [TestMethod]
+        public void ModelDocumentAndZipRetainF2AssemblyMap()
+        {
+            var model = ModelWithResults(); string map = ModelValues.Fingerprint(new object[] { model.AssemblyMap });
+            using var zip = new MemoryStream(); ModelArchive.Save(model, zip); Assert.AreEqual((byte)'P', zip.ToArray()[0]); zip.Position = 0;
+            var copy = ModelArchive.Load(zip); Assert.AreEqual(map, ModelValues.Fingerprint(new object[] { copy.AssemblyMap })); Assert.AreEqual(Content(model), Content(copy));
+            using var xml = new MemoryStream(); ModelArchive.SaveDocument(model, xml); xml.Position = 0;
+            Assert.AreEqual(map, ModelValues.Fingerprint(new object[] { ModelArchive.Load(xml).AssemblyMap }));
+        }
+
+        [TestMethod]
+        public void ExternalRunIsExactDetachedAndKeepsSolverMapAndDatasetIndex()
+        {
+            var model = ModelWithResults(); var map = model.AssemblyMap.ToSolver(model, "test", model.AllElements.Select(e => new KeyValuePair<Guid, int>(e.Guid, e.Id + 100)));
+            var store = new ExternalModelArchive(); var reference = store.Prepare(model, map); var copy = store.Open(reference);
+            Assert.AreEqual(Content(model), Content(copy.Model)); Assert.AreEqual(ModelValues.Fingerprint(new object[] { map }), ModelValues.Fingerprint(new object[] { copy.SolverMap }));
+            Assert.AreEqual(1, store.BlocksForDataset(reference, "run-1").Count); Assert.AreEqual(0, store.BlocksForDataset(reference, "absent").Count);
+            Assert.IsTrue(reference.IsCurrent(model)); copy.Model.NodesElements[1].Position.X = 100; Assert.IsFalse(reference.IsCurrent(copy.Model));
+            Assert.AreNotEqual(100.0, model.NodesElements[1].Position.X);
+            using var small = new MemoryStream(); reference.Write(small); Assert.IsTrue(small.Length < 1200); small.Position = 0;
+            Assert.AreEqual(reference.ManifestAddress, ExternalModelReference.Read(small).ManifestAddress);
+        }
+
+        [TestMethod]
+        public void PortableReferenceSupportsSaveAsTransferHistoryAndUnchangedAutosave()
+        {
+            var model = ModelWithResults(); var store = new ExternalModelArchive(); var first = store.Prepare(model);
+            string doc = FileAt("project.gh"), sidecar = ExternalModelArchive.PathFor(doc);
+            var live = store.Save(sidecar, new[] { first }, r => BlockArchive.WriteFile(doc, s => r[0].Write(s)));
+            DateTime time = new DateTime(2020, 1, 2, 3, 4, 5, DateTimeKind.Utc); File.SetLastWriteTimeUtc(sidecar, time);
+            store.Save(sidecar, live, r => BlockArchive.WriteFile(doc, s => r[0].Write(s))); Assert.AreEqual(time, File.GetLastWriteTimeUtc(sidecar));
+            model.NodesElements[1].Position.X += 1; var second = store.Prepare(model);
+            live = store.Save(sidecar, new[] { second, first }, r => BlockArchive.WriteFile(doc, s => r[0].Write(s)));
+            var reopened = new ExternalModelArchive(sidecar, live); Assert.AreEqual(Content(model), Content(reopened.Open(live[0]).Model)); Assert.IsFalse(live[1].IsCurrent(model));
+            string copyDoc = FileAt("copy.gh"); live = reopened.Save(ExternalModelArchive.PathFor(copyDoc), live, r => BlockArchive.WriteFile(copyDoc, s => r[0].Write(s)));
+            string transfer = FileAt("transfer"); Directory.CreateDirectory(transfer); File.Copy(copyDoc, Path.Combine(transfer, "copy.gh")); File.Copy(ExternalModelArchive.PathFor(copyDoc), Path.Combine(transfer, live[0].ArchiveFile));
+            Assert.AreEqual(Content(model), Content(ExternalModelArchive.Open(Path.Combine(transfer, "copy.gh"), live[0]).Model));
+            Assert.IsFalse(live[1].IsCurrent(model)); Assert.AreNotEqual(Content(model), Content(reopened.Open(live[1]).Model));
+        }
+
+        [TestMethod]
+        public void UnavailableExternalResultCannotMasqueradeAsCompleteModel()
+        {
+            var model = ModelWithResults(); var store = new ExternalModelArchive(); var reference = store.Prepare(model);
+            string path = FileAt("a.gpc-results"); reference = store.Save(path, new[] { reference }, _ => { })[0];
+            byte[] bytes = File.ReadAllBytes(path); string address = store.BlocksForDataset(reference, "run-1")[0];
+            int row = (int)BitConverter.ToInt64(bytes, 24) + Array.IndexOf(Addresses(bytes), address) * 57;
+            int offset = (int)BitConverter.ToInt64(bytes, row + 33); bytes[offset] ^= 0x40; File.WriteAllBytes(path, bytes);
+            Assert.ThrowsException<InvalidDataException>(() => new ExternalModelArchive(path).Open(reference));
+            File.Delete(path); Assert.ThrowsException<InvalidDataException>(() => ExternalModelArchive.Open(FileAt("a.gh"), reference));
+        }
+
+        [TestMethod]
+        public void ExternalReferenceRejectsFutureVersionAndEscapingPath()
+        {
+            var store = new ExternalModelArchive(); var reference = store.Prepare(ModelWithResults());
+            using var stream = new MemoryStream(); reference.Write(stream); string xml = Encoding.UTF8.GetString(stream.ToArray());
+            foreach (string bad in new[] { xml.Replace("<Version>1</Version>", "<Version>2</Version>"), xml.Replace("unsaved.gpc-results", "../outside.gpc-results") })
+            { using var input = new MemoryStream(Encoding.UTF8.GetBytes(bad)); Assert.ThrowsException<SerializationException>(() => ExternalModelReference.Read(input)); }
+        }
+
+        [TestMethod]
+        public void ExistingGpcArchivesCanBeExternalizedWithoutResultOrInputChanges()
+        {
+            using var input = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Fixtures", "model-v5-5.23.0.2.zip"));
+            var model = ModelArchive.Load(input); var store = new ExternalModelArchive(); var reference = store.Prepare(model);
+            Assert.AreEqual(Content(model), Content(store.Open(reference).Model));
+        }
+    }
+}

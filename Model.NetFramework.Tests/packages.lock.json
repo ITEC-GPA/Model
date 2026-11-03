@@ -41,10 +41,14 @@
         "resolved": "4.4.0",
         "contentHash": "BahUww/+mdP4ARCAh2RQhQTg13wYLVrBb9SYVgW8ZlrwjraGCXHGjo0oIiUfZ34LUZkMMR+RAzR7dEY4S1HeQQ=="
       },
+      "gpc.archive": {
+        "type": "Project"
+      },
       "gpc.model.persistence": {
         "type": "Project",
         "dependencies": {
-          "GPCModel": "[5.37.0, )"
+          "GPC.Archive": "[1.0.0, )",
+          "GPCModel": "[5.39.0, )"
         }
       },
       "gpcmodel": {
