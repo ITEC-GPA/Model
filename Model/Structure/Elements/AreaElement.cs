@@ -79,6 +79,10 @@ namespace GPC.Model.Elements
 
         #region PUBLIC CONSTRUCTORS
 
+        /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
+        public AreaElement(Guid guid, Shape shape, PlateProperty plateProperty, CoordinateSystem coordinateSystem = null, string name = "", int id = IDUNASSIGNED) : this(shape, plateProperty, coordinateSystem, name, id)
+        { if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid)); _guid = guid; }
+
         /// <summary>
         /// Creates an area element (the shape instance is kept)
         /// </summary>

@@ -92,6 +92,7 @@ namespace GPC.Model.Models
             yield return model.Stages; yield return model.StageCombinationsMap; yield return model.Costrains;
             // Added later: it enters only when present, so the fingerprints of models without model loads are unchanged.
             if (model.ModelLoads.Count != 0) yield return model.ModelLoads;
+            if (model.FormFinding != null) yield return model.FormFinding;
         }
         public static string VerificationFingerprint(this Models.Model model, string settings)
         {

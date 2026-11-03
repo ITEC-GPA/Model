@@ -1,0 +1,726 @@
+{
+  "phase": "F4",
+  "status": "complete within the documented pilot scope",
+  "createdUtc": "2026-11-03T06:04:53.352617+00:00",
+  "branch": "codex/gpc-unification-20261102",
+  "versions": {
+    "GPCModel": "5.40.0.0",
+    "GPC.Model.Persistence": "3.6.0.0",
+    "GPC.Archive": "1.0.0.0",
+    "TensileLib": "2.5.0.1 frozen F1 binary"
+  },
+  "pluginCommits": {
+    "BridGHe": "ffa7c60e3f3eee9ebe2b84c03139b62fa4bceff0",
+    "Arachne": "7478d8487592a46bd6fd39bee3d5ca345a9a1f7b"
+  },
+  "modelParent": "cfacf482",
+  "checks": {
+    "modelPassed": 1779,
+    "modelSkippedPreexisting": 12,
+    "checkerPassed": 10361,
+    "checkerSuites": 11,
+    "bridgePilotVariants": 2,
+    "bridgePilotAssertions": 511,
+    "membranePilotCases": 4,
+    "membranePilotAssertions": 863,
+    "freshProcessGhDocuments": 6,
+    "bridgeDefaultSmokePassed": 269,
+    "arachneDefaultPassed": 153,
+    "defaultOptInGuardExpectedExit": 2,
+    "unexpectedFailures": 0
+  },
+  "limits": [
+    "Test-only opt-in adapters; production GH component migration remains F6.",
+    "Existing BridGHe Straus writer and Arachne preprocessor remain transitional dependencies.",
+    "N-mm pilots; full field/unit vocabulary remains F5.",
+    "Bridge stiffness surrogate is not a physical section for resistance checks.",
+    "Fabric directions are form-finding objectives, not a validated orthotropic constitutive model.",
+    "Paired pilot baselines, not a complete replay of F1 examples 50/99 or all TensileLib captures.",
+    "Prototype topology keys are fixed fixture slots; editable production topology needs persistent component-owned keys.",
+    "Failed preliminary attempts are retained outside the final checks below."
+  ],
+  "sourceFiles": [
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/Arachne.ExampleWriter.csproj",
+      "bytes": 2006,
+      "sha256": "F81E071AA6C33219BDB66378083DBB95BCBF9FD392FDF916C731CE08311B9183"
+    },
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/GpcPilot.cs",
+      "bytes": 10676,
+      "sha256": "4307AF640D7A337447E66604B30A34B95C5931293B44C57013298062C530996A"
+    },
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/GpcPilotAdapter.cs",
+      "bytes": 17468,
+      "sha256": "CD281AB790B5BF5B44F1C45B7DABF3720F96EA32E88A51CCC4123157F233C471"
+    },
+    {
+      "path": "Arachne/tools/Arachne.ExampleWriter/Program.cs",
+      "bytes": 5190,
+      "sha256": "880020D5D0861CF8A0FF00D09C26FA652AA282D276162A190632AF464F10A5E7"
+    },
+    {
+      "path": "BridGHe/build/GpcReferences.props",
+      "bytes": 2145,
+      "sha256": "FF723E65F0C0F49C51526B70E353FB4633AA49C3A2E19786E87DE9E23E26E5D0"
+    },
+    {
+      "path": "BridGHe/tests/BridGHe.Smoke/GpcPilot.cs",
+      "bytes": 11762,
+      "sha256": "630C1F1A63410322EF22F649F559588FDA7AABDEA9EA9BFADF829C9F087C16AC"
+    },
+    {
+      "path": "BridGHe/tests/BridGHe.Smoke/GpcPilotAdapter.cs",
+      "bytes": 12523,
+      "sha256": "90DD038061175BE33779E46C6EEFD60D25E125CB12F03496FCD914C74100951F"
+    },
+    {
+      "path": "BridGHe/tests/BridGHe.Smoke/Program.cs",
+      "bytes": 31902,
+      "sha256": "0A17B56885FDB1AF4F5A3AE40AADED6B7E6FBD6B166E3333AA0EEBC03B8B53D5"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/GPC.Model.Persistence.csproj",
+      "bytes": 449,
+      "sha256": "32BF6CED4033AB481AAC3A9D4A8128EEF1568FCFA22289E7A82754D2A89F150C"
+    },
+    {
+      "path": "Model/GPC.Model.Persistence/ModelDocument.cs",
+      "bytes": 8532,
+      "sha256": "76BF25409072132BCA9A6F19373F1D1936D70AA4E90D4DCFEB9C312E56B9964F"
+    },
+    {
+      "path": "Model/Model.NetFramework.Tests/Model.NetFramework.Tests.csproj",
+      "bytes": 2590,
+      "sha256": "9FE886C2C56F370CC69168938200ABAB39ACE7853DBED15E234104FA371D156D"
+    },
+    {
+      "path": "Model/Model/Actions/LoadCases/LoadCaseBase.cs",
+      "bytes": 3933,
+      "sha256": "98657163A53E26B2ED31BA79710C75DE59FBF34462B4796FA0F0E5DE64D421D4"
+    },
+    {
+      "path": "Model/Model/Analysis/FormFindingDefinition.cs",
+      "bytes": 7238,
+      "sha256": "50A91F57BE4B1FCC0EA82BF9A2CC91E2A0B230ADA94088282041BB71152562CB"
+    },
+    {
+      "path": "Model/Model/Core/Values/FingerprintContracts.BuiltIns.cs",
+      "bytes": 101168,
+      "sha256": "066FC550F4EA878ED466B90C1022E2D617D892C61B4D620E1A3CEAABD258AD2A"
+    },
+    {
+      "path": "Model/Model/Core/Values/ModelDataContracts.cs",
+      "bytes": 28231,
+      "sha256": "D36FF38067078375E4BD796B030D5AC12AE945991FC661F7D6A5486A0A617051"
+    },
+    {
+      "path": "Model/Model/Core/Values/XmlContractNames.BuiltIns.cs",
+      "bytes": 23190,
+      "sha256": "F510B4C3441B146CE1DC8CA38CCC2D0D82D89D20224E23D4A417C51A20813FF1"
+    },
+    {
+      "path": "Model/Model/GPCModel.csproj",
+      "bytes": 1133,
+      "sha256": "B7F751961DF4EECE911093E3A55DC087B77BFD598A436585AC06207337E9625E"
+    },
+    {
+      "path": "Model/Model/Structure/Elements/AreaElement.cs",
+      "bytes": 7940,
+      "sha256": "4D2D29EB0BE0CCAA06F8F1B1FCE7BA14D3B2E98184D2F536995FC2D577222439"
+    },
+    {
+      "path": "Model/Model/Structure/Elements/BeamElement.cs",
+      "bytes": 9017,
+      "sha256": "F09D6D00669D604B4B728DFB6706C4BB16D27ECDDA0412E4121AC03EB4481D45"
+    },
+    {
+      "path": "Model/Model/Structure/Elements/NodeElement.cs",
+      "bytes": 6526,
+      "sha256": "0117D35A941359B30D2198E0A729E64F99BF8E179396BDCC6EE5D2426D666A77"
+    },
+    {
+      "path": "Model/Model/Structure/Model/Model.cs",
+      "bytes": 88194,
+      "sha256": "F74A68BE7E0FFB3D6B00BFCD9B6831CCC950DA9396FB889035C92B8814D88A7A"
+    },
+    {
+      "path": "Model/Model/Structure/Model/ModelRevisions.cs",
+      "bytes": 8163,
+      "sha256": "B914BE0BD8D4339B5FE741943CBC18ADA58950EB2401D7C9AEB392E70054E67F"
+    },
+    {
+      "path": "Model/UnitTest/UnitTest.csproj",
+      "bytes": 4578,
+      "sha256": "70454B65EE349A5C1215004C1E11121E597F1E25BB17AA9A6A8B779B526BF1AA"
+    },
+    {
+      "path": "Model/tests/FormFindingContractsTest.cs",
+      "bytes": 4893,
+      "sha256": "E7155EB236DE937762567E3B644DE3C14DFEEB5AABDED11D7EB23AAFD298DE62"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/case-0.txt",
+      "bytes": 2559,
+      "sha256": "C5F7C31447EC24CD4C11B2360583CE0F47A19C95783E47D37EDFE78462590EA3"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/case-1.txt",
+      "bytes": 2569,
+      "sha256": "789FFA15B8B1885A9CD7C5E2B8868821B6ABCED52B1B0F2ED6D1091BE24EC2F3"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/case-2.txt",
+      "bytes": 120,
+      "sha256": "4EAD98FAB956828FEAA27EE9272C21AA804AC2B83EBF98F99AAB126E94A0153D"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/case-3.txt",
+      "bytes": 2569,
+      "sha256": "13032E411CDC49727DF8FE5C8B0F08C583604C691C894D8F520920072CF8391F"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-0.ghx",
+      "bytes": 231301,
+      "sha256": "98149ACCD7FF42C01ED7215EBD38393E18AD2800FD9D401B52288459D4DF7360"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-0.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "C2E00A3637EC8D0FBBF2D9E92057122BB91C9F0F22B80D6D6B7359E0B328DF81"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-0.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "7E7A42D18455C75718A2FE1620BBFA798741B34DA708311E4F62E107DEF24139"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-0.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "CE7F10FF2F34F5700FB0FA7A45BC8B145DEDF8223BD0E938E86C7AEAB9F607EE"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-0.gpc-results",
+      "bytes": 340107,
+      "sha256": "61F189ED8867841FB0BCF431EC5BF28B9B80F9CCCFBF5050886E707BAE920717"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-1.ghx",
+      "bytes": 231301,
+      "sha256": "3A818C89D51CC4DBB62AA75A94B2FFA090E34B59DE11EE10A1A867F39B70106B"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-1.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "86E12162719340885B597F1886428090933B07EEC4D533AD1822E5E13C08AA37"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-1.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "A77D3F924F75E8C31EAC8F715BB4DB3EDD7E2A694FC8C26D9CD28AC888018104"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-1.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "88A6846DDFAECCBAD04E88C3432A244989588FF1A33FF3321B890681C65D8557"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-1.gpc-results",
+      "bytes": 343819,
+      "sha256": "1BE96F6B03B150769D8BF575E347628A579886CF77D9A40AB01A8B3EE2C40446"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-2.ghx",
+      "bytes": 231434,
+      "sha256": "4D0B23FA01EC7AA4A6A014386D757FE70FCD8035A50EF7FCF8E98C8C61B4B38C"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-2.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "9467589A28AA6A8C68FDDCC399D1FE854A2BEEA8EFE77629936DED624C79429B"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-2.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "B1F8274EE9C0CB644E314DAD659FF94E692A8F3C03882F3DB840EC709FD838CA"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-2.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "EA97BBF48AE20E82D771A657302C0F1DAAFA7051D88F851EF3DFD2306AA33442"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-2.gpc-results",
+      "bytes": 345119,
+      "sha256": "D7467F98AB1AE5B4146E8C849220EC304D3C46611806B0B1573E4FA5D06C03BF"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-3.ghx",
+      "bytes": 231301,
+      "sha256": "C543B041E8363772E17145F4622DD88BD8B09347BCA54A880811D7AA775DBB9B"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-3.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "5F4855B04D486BA43930FEF5DC9723E58AD3CFA5634A84CEC7FCC6AF4370FC12"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-3.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "80FE5E5DA90548FBBFBA9DB066E93E8A19A8D550376B2B30FE34AE9BB631C1B9"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-3.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "54A38CC10324474108B30435ED9603DF9C5BE9C57131D2B42B7D7546509D7311"
+    },
+    {
+      "path": "Arachne/artifacts/f4/membrane-20261103-055003/membrane-3.gpc-results",
+      "bytes": 342191,
+      "sha256": "7345CB5EEBA2FC27139C550A5EA276D07B03C6E4AE3A53B32C4697DB683EF391"
+    },
+    {
+      "path": "artifacts/f4/binaries/bridge/GPC.Archive.dll",
+      "bytes": 18944,
+      "sha256": "9FC1EDC11F579A891FD73F8389ABA95F33B494800E97F76C4917F0BFA782925C"
+    },
+    {
+      "path": "artifacts/f4/binaries/bridge/GPC.Model.Persistence.dll",
+      "bytes": 36352,
+      "sha256": "39377BF3FEDE45885ECD098F0F8C267784BB3DE03A256935C209505A6A741825"
+    },
+    {
+      "path": "artifacts/f4/binaries/bridge/GPCGeometry.dll",
+      "bytes": 245248,
+      "sha256": "7EF76EDFB4C3736AAE7B6F66B2F3CE30A8BB8DE031C492B03BD52289D6E9D29E"
+    },
+    {
+      "path": "artifacts/f4/binaries/bridge/GPCModel.dll",
+      "bytes": 1674752,
+      "sha256": "F3CA03B0F75A0A925CADDCF9EA8E6373A08D4533277269E7504ECF2788007895"
+    },
+    {
+      "path": "artifacts/f4/binaries/bridge/GPCUtilities.dll",
+      "bytes": 44544,
+      "sha256": "92031B381F9AA426A5F88B48762C72DB89724F784670FFDA8802203FC52A05E5"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/alglibnet2.dll",
+      "bytes": 1126400,
+      "sha256": "26FF13124DD899E8D2A5D5FB4028DC0B889C3A1257A427E16391A1155D59E4F4"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/GPC.Archive.dll",
+      "bytes": 18944,
+      "sha256": "9FC1EDC11F579A891FD73F8389ABA95F33B494800E97F76C4917F0BFA782925C"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/GPC.Model.Persistence.dll",
+      "bytes": 36352,
+      "sha256": "39377BF3FEDE45885ECD098F0F8C267784BB3DE03A256935C209505A6A741825"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/GPCGeometry.dll",
+      "bytes": 245248,
+      "sha256": "7EF76EDFB4C3736AAE7B6F66B2F3CE30A8BB8DE031C492B03BD52289D6E9D29E"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/GPCModel.dll",
+      "bytes": 1674752,
+      "sha256": "F3CA03B0F75A0A925CADDCF9EA8E6373A08D4533277269E7504ECF2788007895"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/GPCUtilities.dll",
+      "bytes": 44544,
+      "sha256": "92031B381F9AA426A5F88B48762C72DB89724F784670FFDA8802203FC52A05E5"
+    },
+    {
+      "path": "artifacts/f4/binaries/membrane/TensileLib.dll",
+      "bytes": 83968,
+      "sha256": "8C948FF2CB4BA4A954C61EA1BEB064B7C31D083ABA7A729E99B23C6F9E390818"
+    },
+    {
+      "path": "artifacts/f4/bridge-build-final.log",
+      "bytes": 89,
+      "sha256": "C25CBEE6B87F8C3D22DF6C6F2E040AD3F7713EE07FCBC7DFEEE5155B3E9A0988"
+    },
+    {
+      "path": "artifacts/f4/bridge-default-build-final.log",
+      "bytes": 89,
+      "sha256": "1C225B515E721C4A27965D237CEAFDB2DFF98CD5EF74141FFA4567C65F3EBF1B"
+    },
+    {
+      "path": "artifacts/f4/bridge-default-smoke.log",
+      "bytes": 15103,
+      "sha256": "CFF326D08813AB63964C75941FC563379ADDA636A37400BE5F4B331B7858C2DD"
+    },
+    {
+      "path": "artifacts/f4/bridge-optin-guard.log",
+      "bytes": 44,
+      "sha256": "62F85494B17D5BB183BD4A173FAE7288BCB0D9F540E6F37DF9AF52A3DAAEE58E"
+    },
+    {
+      "path": "artifacts/f4/bridge-pilot-final.log",
+      "bytes": 13585,
+      "sha256": "A26CBE918A3CF36C2BF8570B46CE6B4071BE89C431BF4421AB4A4540442E3DDA"
+    },
+    {
+      "path": "artifacts/f4/bridge-reopen-final.log",
+      "bytes": 388,
+      "sha256": "3171C71042FBB84336D71B9A95A9E2CFA9DA1008E0BF0D8A5F698B463C1018C3"
+    },
+    {
+      "path": "artifacts/f4/build-libraries.json",
+      "bytes": 2477,
+      "sha256": "167613C651DBCF98DE8223984216D1116944F2202A2DC3B96518CEDE2F8490AD"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Design.Checks.log",
+      "bytes": 597,
+      "sha256": "099D092BF47747CCB4281CCE0A5A7BB160E7958BB520C0488A3B1FFD2CA632B0"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Design.Checks.net472.log",
+      "bytes": 608,
+      "sha256": "BCE4278F5071A03E25700DEA4E918353F906D81D789D96857F9A0367CE7C9E40"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Design.Checks.net472.trx",
+      "bytes": 366109,
+      "sha256": "484166E900124518E5B0AB2232403E591DF11687F21BC534BA0A7310A2ABA16E"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Design.Checks.trx",
+      "bytes": 367671,
+      "sha256": "45347FC02E54CDC7EEEF2B0051444013192671F8B4D5F1919B05657E4CED3D55"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/EmbeddedWalls.Tests.log",
+      "bytes": 621,
+      "sha256": "B9BB1252AC3F1158FD063939D24388E577B05A2F47BB02B5F98C9E38F96F8694"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/EmbeddedWalls.Tests.trx",
+      "bytes": 139422,
+      "sha256": "EEC7317DE66E58A3B5F1133005003BA2CFF9FB43F4522CD2CD43B15A8C102A6C"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/g.pacini_ITEC-137_2026-11-03_06_43_51/In/257c2554-09ff-45d9-986c-e6f8ff3b4252/ITEC-137/pile-legacy.tsv",
+      "bytes": 2210,
+      "sha256": "3F8106C1EF6DA2D78C3DD693E4F114A287715EEE873C6A5A6AC1EBD26FCA0B37"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/g.pacini_ITEC-137_2026-11-03_06_43_51/In/84b1b952-3149-48fb-b0bb-d6b75ccbeb85/ITEC-137/wall-legacy.tsv",
+      "bytes": 460,
+      "sha256": "14A345FB46085EDDBA07C889BFF0468356138FFC9EF5732D0B508B9B84D9043E"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Calculation.log",
+      "bytes": 647,
+      "sha256": "BCB7708287440A63CBF8268AE158B600088490A9627E48526DDC9E8F82974567"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Calculation.trx",
+      "bytes": 240282,
+      "sha256": "35A8D0C09DEF63FF716C4C0DE9D87DC4BF75611A71581A32A6FA6B83C5F86F6E"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.CompositeBridge.log",
+      "bytes": 664,
+      "sha256": "28CA195B8717939F82465D4183C8E3C5BD4E326502F8A76DEEE23299CD968840"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.CompositeBridge.trx",
+      "bytes": 614219,
+      "sha256": "A07EEEDB60C5FF4C95F748D2E5916B1D85F3646FFBE1E5F840F4CE5021FBFB21"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Concrete.log",
+      "bytes": 59350,
+      "sha256": "687EDD53C4B1B0A217558A30EA9E0A081DF0BAE73E3E4E732CDF71FBA06F43D2"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Concrete.trx",
+      "bytes": 7631297,
+      "sha256": "35A2BF0389CC1A1E9EEBBEAF19EAF31E58B91023BE603EDB7B62A242707F7ACA"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Geotechnics.log",
+      "bytes": 648,
+      "sha256": "649E1AEAAED5CB3CC02A756F5BF97EADE1503AA681529045AC443093E52F5C9D"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Geotechnics.trx",
+      "bytes": 279486,
+      "sha256": "2F27A7A789070B5150A0AD5237DB5AEA07574CB56207B5871D0C8D5744B9891A"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Steel.log",
+      "bytes": 6819,
+      "sha256": "976281C75C021E342E968B740B3061E1102ADEB8257131DB609C46E3CB90B57E"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/GPCChecker.Test.Steel.trx",
+      "bytes": 156088,
+      "sha256": "6EA661D5982AA59FCA24A1A603A51E1920BCE4DBD2621BF5085FBB3DF68E0FE2"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/ModelChecker.Tests.log",
+      "bytes": 659,
+      "sha256": "D0C7BAEF11B3E3D2EB6DB588562981C7BA75501CC9E0E92830284D2FDEB68E24"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/ModelChecker.Tests.trx",
+      "bytes": 924605,
+      "sha256": "0FEC3BF02F1DC2CB11ED189DDF940C539D0F3C7E30B7F0801E04166984126EB9"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/ShallowFoundation.Tests.log",
+      "bytes": 640,
+      "sha256": "2B0422F0FE3E6AAF0B987B503C3BFCC44344C42BBAE7D834201B0E5B3E7FE438"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/ShallowFoundation.Tests.trx",
+      "bytes": 39774,
+      "sha256": "3A1B7C88E781BB0FC4557B639D63C222DCAF6D89D7819FF77A46D3ECA4F8F602"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Steel.Members.Tests.log",
+      "bytes": 621,
+      "sha256": "08C31845B407C168D2596F6B5C50D143924BF0167B91B22EE6E3AA97B4E9A982"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/Steel.Members.Tests.trx",
+      "bytes": 9952536,
+      "sha256": "A48722818102E16F0C361D28DBEC0346135FCD3D84692CDF298913304103BA44"
+    },
+    {
+      "path": "artifacts/f4/checker-tests/summary.json",
+      "bytes": 2404,
+      "sha256": "36586A8BF2715226848936C1B20DC1776A6DB7AE579D421F9CE4299F9B73BE0F"
+    },
+    {
+      "path": "artifacts/f4/checker-verify.log",
+      "bytes": 11295,
+      "sha256": "94CD62D7710733AC06473BD0308F1C4B7D209E91366396D3F1E55D9835E73CA7"
+    },
+    {
+      "path": "artifacts/f4/membrane-build.log",
+      "bytes": 89,
+      "sha256": "D9BE343F8E046C5D9A1086DCC66D246E4188C17BE0B0DA04BE2804E4738C92FA"
+    },
+    {
+      "path": "artifacts/f4/membrane-default-build-final.log",
+      "bytes": 89,
+      "sha256": "58A463A65F430B3215431242809D5173D93A942A5DF317B5D3D2D88D39D4457F"
+    },
+    {
+      "path": "artifacts/f4/membrane-default-full-tests.log",
+      "bytes": 11758,
+      "sha256": "6E834EAE0025AE3177394A062BC53AC699B37C957BB0DFE10141A55B14CFD9E5"
+    },
+    {
+      "path": "artifacts/f4/membrane-optin-guard.log",
+      "bytes": 44,
+      "sha256": "62F85494B17D5BB183BD4A173FAE7288BCB0D9F540E6F37DF9AF52A3DAAEE58E"
+    },
+    {
+      "path": "artifacts/f4/membrane-pilot.log",
+      "bytes": 12213,
+      "sha256": "D3D6B312EB1AA7E82F7D43FA8036848A03401148E2E9026AC02F927A86955956"
+    },
+    {
+      "path": "artifacts/f4/membrane-reopen-process.log",
+      "bytes": 877,
+      "sha256": "5AFF5637FC3A06EA62FB497CC4C95E986060A4958D2AD6A107F579C4CDF566B8"
+    },
+    {
+      "path": "artifacts/f4/model-tests-final/Model.Core.Tests.trx",
+      "bytes": 86752,
+      "sha256": "B8BABFB82F0BC9D60BBFC40066DCD6EB09FF082626068E76C565517A661F7924"
+    },
+    {
+      "path": "artifacts/f4/model-tests-final/Model.NetFramework.Tests.trx",
+      "bytes": 63823,
+      "sha256": "CBA0CF6F4E7A7CE160DF654838AD575E27EEBDC44C2CB3B49E38237F4EE59F50"
+    },
+    {
+      "path": "artifacts/f4/model-tests-final/UnitTest.trx",
+      "bytes": 2316632,
+      "sha256": "D496D3B496422744B73663F160EAD81D9C557C5868BFDCBFB9BF8B46272A95B5"
+    },
+    {
+      "path": "artifacts/f4/model-verify-final.log",
+      "bytes": 5388,
+      "sha256": "E514CC96C6E3631EEE71CBD1ADCDC83007182CC03B64DA8984D22CE3D6423378"
+    },
+    {
+      "path": "artifacts/f4/native-dependencies.json",
+      "bytes": 607,
+      "sha256": "2CD9995F80910E2D57F903D49BFA160762FD0402DEBFCF42F4E42B695E1E8968"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-0.LSA",
+      "bytes": 65536,
+      "sha256": "F06174EF57DD3BD12B75F39626BBAAC9BC9EE6A75C3239B2EAF3B01AEF0E07A1"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-0.LSL",
+      "bytes": 3337,
+      "sha256": "632BFB410AD2D12F9B1201F7D9CBA519C21E5832E68ED7D4540095285434235E"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-0.st7",
+      "bytes": 3356011,
+      "sha256": "E344E8C43BC55528FED95414DBDD26EC6792CB93BED4EDF782AB2A2E9A9B0E9F"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-1.LSA",
+      "bytes": 65536,
+      "sha256": "FF403C014560565CC041AE48627A0DEB2B73FBA34122873388BC166A18494F3C"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-1.LSL",
+      "bytes": 3336,
+      "sha256": "7D20D8B5904BAC9AC0DBCEDF4FF3163560D4E16E19AA0A7C3738951F5DDEB20F"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/baseline-1.st7",
+      "bytes": 3356011,
+      "sha256": "649963D4DB4DD7839709B7C9B334FA5275183A90AE59DFA689BF87AED18D32E9"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-0.ghx",
+      "bytes": 137567,
+      "sha256": "14A4DBDC0BB26C0CA32E6A34E865291034F77FCA5973EEE984847657F250CAAD"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-0.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "175D6D20763AC6431C0A964F43C65AB16A317F0641433AEE25732FD458A9D994"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-0.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "C6E3B41F54CB5840A6970D6636141AC90F564075848C145A55DC2821A6619CDC"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-0.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "8D7BFF1F958B3EEAE234549388E067902F870EF98912B74F96E84CD26E17717D"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-0.gpc-results",
+      "bytes": 35375,
+      "sha256": "A5FC871A6DF1B84F3C4E9F027843E3ED7C935B8BAA3411071A26D4AFB118E440"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-1.ghx",
+      "bytes": 137567,
+      "sha256": "7781BFE9159138765919A9E8F41B2A7E679971749976206DF6A9402DE8B361F6"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-1.ghx.input.sha256",
+      "bytes": 64,
+      "sha256": "CAFB4483C5FACD88A453D1770FEBD9CB3188C1C777200E3A0626F91FD22C0C5D"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-1.ghx.map.sha256",
+      "bytes": 64,
+      "sha256": "61D70A607A7507E6EEFED3D1A15DDE45FD7C1C8D388EE37847A279BDD639ACDB"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-1.ghx.numeric.sha256",
+      "bytes": 64,
+      "sha256": "A16AD2FB0113D1F01F26148843055401BCF00A450D40E8474A75F8BDA5D8426F"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/bridge-1.gpc-results",
+      "bytes": 35341,
+      "sha256": "F0D897F144937752248D62EB4F5D6A7D74F5B637D6C2F7FA90FF5788169F4AE1"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/case-0.txt",
+      "bytes": 206,
+      "sha256": "637023CA88D5E8BC9C06C581143E8EF8DCA0628C5DEA0872ABB560777724313C"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/case-1.txt",
+      "bytes": 206,
+      "sha256": "F38BDF9A170406381061ABD7F3BFFE53374844CEF69CEDC13089E6153CAE0D82"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-0.LSA",
+      "bytes": 65536,
+      "sha256": "C40FE74DD241D28BC6DBB632F15605F26CE85E56DBBE71D10A3C58AC45DB1F6F"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-0.LSL",
+      "bytes": 3326,
+      "sha256": "67D7DE599510720094CFE68FB90A55E702A45684B1F5E7B0C3C83745518E78F8"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-0.st7",
+      "bytes": 3356417,
+      "sha256": "A1BD69A8B737F114B2FAF0A0D85B7A2D40E45FF8BEC2ACA5CBDBE35810967CE2"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-1.LSA",
+      "bytes": 65536,
+      "sha256": "4B86051F5AC360C02597712FD3DE6AA6AC723AE9B840B28F6C7364B8666B0791"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-1.LSL",
+      "bytes": 3327,
+      "sha256": "40AB9BBD99D4E6AD1612B6B357DC51AB4178F4469F2BDA5335A7F17A0E1991A9"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/gpc-1.st7",
+      "bytes": 3356417,
+      "sha256": "2FC3430726C6135DBBCB7EE288C165B29E4CBE888F28FDD8EFF44A1BB4199D2C"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/metrics-0.csv",
+      "bytes": 264,
+      "sha256": "60922E1C93B3F70AE27110BDC312B0D40E63B9688AA8F4E290A0FF16F4CFF939"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/metrics-1.csv",
+      "bytes": 264,
+      "sha256": "95036A6FE6CC28AC9CD09310E3F1DC5A783F7068FE564AEBA938B3FCEA9A14EF"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-0.LSA",
+      "bytes": 65536,
+      "sha256": "3CE3E70318DD9E584C3DB67BF47D149E944E7B93D4B6A052726E6B875C8B71E3"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-0.LSL",
+      "bytes": 3336,
+      "sha256": "5AD756EEE49CFD286755D582452616FE76B6EE9F66B467DB724E3A0B3E0F43DD"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-0.st7",
+      "bytes": 3356427,
+      "sha256": "8D9561B261CC427DEAA0F8540DB938BD7B80B9D0AEBC7558044A272F3CA4B7C1"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-1.LSA",
+      "bytes": 65536,
+      "sha256": "7889FE2C01E6F493FB96AC74DCA761C9E4704B0E199AC42D7EB7AEED9F548A3F"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-1.LSL",
+      "bytes": 3337,
+      "sha256": "403652F74442D0F96040F7F7D62CB0B61231155EA150621B4FFB971AA557EED4"
+    },
+    {
+      "path": "BridGHe/artifacts/f4/bridge-20261103-055300/reopened-1.st7",
+      "bytes": 3356427,
+      "sha256": "A14CD385C1D0A32F5D5E3B0F45BAC82AE94A8F3D9DB05349A56D2FA47FEA7F16"
+    }
+  ]
+}

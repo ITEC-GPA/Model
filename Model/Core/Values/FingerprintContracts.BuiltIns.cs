@@ -30,6 +30,35 @@ namespace GPC.Model.Core
 
         private static void RegisterBuiltIns()
         {
+            Register("GPC.Model.Analysis.FormFindingGoal", "GPC.Model.Analysis.FormFindingGoal",
+                Field("GPC.Model.Analysis.FormFindingGoal", "<BeamGuid>k__BackingField", "BeamGuid", false),
+                Field("GPC.Model.Analysis.FormFindingGoal", "<Kind>k__BackingField", "Kind", false),
+                Field("GPC.Model.Analysis.FormFindingGoal", "<Target>k__BackingField", "Target", false),
+                Field("GPC.Model.Analysis.FormFindingGoal", "<Weight>k__BackingField", "Weight", false),
+                Field("GPC.Model.Analysis.FormFindingGoal", "<ProjectToPlane>k__BackingField", "ProjectToPlane", false),
+                Field("GPC.Model.Analysis.FormFindingGoal", "<Direction>k__BackingField", "Direction", false));
+            Register("GPC.Model.Analysis.FormFindingCoordinateGoal", "GPC.Model.Analysis.FormFindingCoordinateGoal",
+                Field("GPC.Model.Analysis.FormFindingCoordinateGoal", "<NodeGuid>k__BackingField", "NodeGuid", false),
+                Field("GPC.Model.Analysis.FormFindingCoordinateGoal", "<Weights>k__BackingField", "Weights", false));
+            Register("GPC.Model.Analysis.FormFindingSurfaceMass", "GPC.Model.Analysis.FormFindingSurfaceMass",
+                Field("GPC.Model.Analysis.FormFindingSurfaceMass", "<AreaGuid>k__BackingField", "AreaGuid", false),
+                Field("GPC.Model.Analysis.FormFindingSurfaceMass", "<MassPerArea>k__BackingField", "MassPerArea", false));
+            Register("GPC.Model.Analysis.FormFindingDefinition", "GPC.Model.Analysis.FormFindingDefinition",
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<Method>k__BackingField", "Method", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<ProjectionPlane>k__BackingField", "ProjectionPlane", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<Pressure>k__BackingField", "Pressure", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<Gravity>k__BackingField", "Gravity", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<MaxIterations>k__BackingField", "MaxIterations", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<RelativeTolerance>k__BackingField", "RelativeTolerance", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<SolverMaxIterations>k__BackingField", "SolverMaxIterations", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<SolverToleranceA>k__BackingField", "SolverToleranceA", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<SolverToleranceB>k__BackingField", "SolverToleranceB", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<Goals>k__BackingField", "Goals", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<CoordinateGoals>k__BackingField", "CoordinateGoals", false),
+                Field("GPC.Model.Analysis.FormFindingDefinition", "<SurfaceMasses>k__BackingField", "SurfaceMasses", false));
+            Register("GPC.Model.Analysis.FormFindingMethod", "GPC.Model.Analysis.FormFindingMethod", Field("GPC.Model.Analysis.FormFindingMethod", "value__", "value__", false));
+            Register("GPC.Model.Analysis.FormFindingGoalKind", "GPC.Model.Analysis.FormFindingGoalKind", Field("GPC.Model.Analysis.FormFindingGoalKind", "value__", "value__", false));
+            Register("GPC.Model.Analysis.FabricDirection", "GPC.Model.Analysis.FabricDirection", Field("GPC.Model.Analysis.FabricDirection", "value__", "value__", false));
             Register("GPC.Model.Structure.Members.BridgeMemberMetadata", "GPC.Model.Structure.Members.BridgeMemberMetadata",
                 Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<PhysicalId>k__BackingField", "PhysicalId", false),
                 Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Family>k__BackingField", "Family", false),

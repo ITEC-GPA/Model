@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
@@ -12,6 +12,10 @@ namespace GPC.Model.LoadCases
     public class LoadCaseBase : ModelObject, ISerializable, ILoadCase
     {
         #region PUBLIC CONSTRUCTOR
+
+        /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
+        public LoadCaseBase(Guid guid, string name) : this(name)
+        { if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid)); _guid = guid; }
 
         /// <summary>
         /// Creates a load case with a new Guid

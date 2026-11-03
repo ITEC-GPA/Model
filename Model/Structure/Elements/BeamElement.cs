@@ -86,6 +86,10 @@ namespace GPC.Model.Elements
             _endNode = null;
         }
 
+        /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
+        public BeamElement(Guid guid, Point3d startPoint, Point3d endPoint, BeamProperty beamProperty, CoordinateSystem coordinateSystem = null, string name = "", int id = IDUNASSIGNED) : this(startPoint, endPoint, beamProperty, coordinateSystem, name, id)
+        { if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid)); _guid = guid; }
+
         /// <summary>
         /// Creates a beam (the point instances are kept)
         /// </summary>

@@ -2,7 +2,7 @@
 
 Piano concordato il 2 novembre 2026. Avvio autorizzato nella chat con richiesta di branch separato.
 
-Ordine operativo aggiornato su richiesta dell'utente: F1, F2, F3 e F4 in coda. F4 resta subordinata ai criteri di uscita delle fasi precedenti; l'aggiunta alla coda non ne attesta il completamento.
+Ordine operativo aggiornato su richiesta dell'utente: F1, F2, F3 e F4 in coda. F4 è stata poi avviata e completata il 3 novembre 2026 nel perimetro documentato in [F4-PILOTI.md](F4-PILOTI.md), con [evidenze di verifica](F4-VERIFICHE.md).
 
 ## Obiettivo e perimetro
 
@@ -120,6 +120,6 @@ Uscita: rilascio identificabile e riproducibile. I branch di questa attività re
 
 ## Stime e scostamenti
 
-La precedente stima 29-39 giorni è preliminare e non copre separatamente tutti i dettagli di persistenza e integrazione. Ristimare dopo F4. Il percorso più breve presuppone lavoro parallelo su F6A/F6B e assenza di revisioni sostanziali dei contratti.
+La precedente stima 29-39 giorni è preliminare e non copre separatamente tutti i dettagli di persistenza e integrazione. La stima residua dopo F4 è 25–38 giornate equivalenti sequenziali, con ripartizione e limiti in [F4-PILOTI.md](F4-PILOTI.md). Il percorso più breve presuppone lavoro parallelo su F6A/F6B e assenza di revisioni sostanziali dei contratti.
 
 Le decisioni che richiedono l'utente sono registrate con problema, evidenza, effetto e alternative; in attesa della risposta proseguono soltanto le attività indipendenti.

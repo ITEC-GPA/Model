@@ -41,6 +41,10 @@ namespace GPC.Model.Elements
 
         #region Constructor
 
+        /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
+        public NodeElement(Guid guid, Point3d position, CoordinateSystem coordinateSystem = null, string name = "", int id = IDUNASSIGNED) : this(position, coordinateSystem, name, id)
+        { if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid)); _guid = guid; }
+
         /// <summary>
         /// Creates a node (the point instance is kept)
         /// </summary>

@@ -4,7 +4,9 @@ Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente;
 
 ## Stato effettivo
 
-F0, F1, F2 e F3 completate per il perimetro dichiarato. F1: [F1-BASELINE.md](F1-BASELINE.md), [f1-evidenze.json](f1-evidenze.json). F2: [F2-CONTRATTI.md](F2-CONTRATTI.md), [F2-VERIFICHE.md](F2-VERIFICHE.md), [f2-evidenze.json](f2-evidenze.json). GPCModel 5.39.0.0 introduce le fondazioni; i componenti dei plugin e gli algoritmi dei solutori non sono ancora migrati. F3: [F3-PERSISTENZA.md](F3-PERSISTENZA.md), [F3-VERIFICHE.md](F3-VERIFICHE.md), [f3-evidenze.json](f3-evidenze.json). F4 in coda, poi F5-F8. GPC.Archive 1.0.0.0 e GPC.Model.Persistence 3.5.0.0 sono verificati sui runtime dei consumatori. L’adattatore ANTHEA è provato in configurazione esplicita; adozione predefinita e snapshot restano F7/F8.
+F0–F4 completate nei rispettivi perimetri. F4: [piloti e contratti](F4-PILOTI.md), [verifiche](F4-VERIFICHE.md), [evidenze](f4-evidenze.json). GPCModel 5.40.0.0 e GPC.Model.Persistence 3.6.0.0; GPC.Archive resta 1.0.0.0. Due varianti ponte e quattro casi membrana, con calcolo, sidecar e riapertura anche in processi distinti. Model 1.779 PASS e 12 ignorati preesistenti; Checker 10.361 PASS. Le build predefinite dei plugin sono state ripristinate e verificate. Nessuna migrazione estesa dei componenti o release: prossima fase F5, poi F6–F8.
+
+F1: [baseline](F1-BASELINE.md), [evidenze](f1-evidenze.json). F2: [contratti](F2-CONTRATTI.md), [verifiche](F2-VERIFICHE.md). F3: [persistenza](F3-PERSISTENZA.md), [verifiche](F3-VERIFICHE.md). L’adattatore ANTHEA rimane opt-in; adozione predefinita e snapshot restano F7/F8.
 
 Target copia F2: mediane 0,125 s su .NET 8 e 0,289 s su .NET Framework nel protocollo F1. Non Ã¨ un limite massimo per ogni chiamata: su Framework la prima copia Ã¨ 0,360 s e il massimo a caldo 0,304 s. Model: 1.737 test superati, 12 ignorati preesistenti. Checker: 10.361 superati. API e audit superati, fixture e attesi invariati.
 
@@ -54,13 +56,13 @@ Log e TRX: `../../../artifacts/f1` rispetto a questa cartella. Principali file: 
 - Il primo build record di Arachne non conteneva il commit a causa della diversa proprietÃ  Windows dei worktree. Risolto con `safe.directory` limitato al processo; build e test ripetuti, commit del record verificato. Non modificata la configurazione Git globale.
 - La prima esecuzione di Model Verify si Ã¨ fermata alla compilazione UnitTest per il wrapper GMsh mancante nel checkout fratello. Aggiunta una copia della sola DLL managed, con hash verificato e destinazione riservata ai test; la suite completa successiva Ã¨ riuscita. Gmsh non Ã¨ stato aggiunto ai riferimenti di produzione o al set rilasciabile.
 
-## Prossimo gate: F4
+## Gate F4 e seguito
 
 Baseline conclusa: vedere il rapporto F1 per copertura, misure, esclusioni e tentativi scartati. I dati iniziali sopra restano il resoconto storico della preparazione.
 
 F3 conclusa nello strato di persistenza: 1.765 test Model PASS, 12 ignorati preesistenti; 10.361 Checker PASS; ANTHEA prima/dopo e configurazione predefinita PASS per le due suite selezionate. Recupero incrociato .NET 8/Framework con valori binari identici; riferimento 457 byte, autosave invariato circa 14-15 ms di mediana nel probe (20.000 campioni).
 
-F4 è la prossima fase, non ancora eseguita: ponte GH -> GPC -> Straus7 -> archivio -> riapertura; membrana GH -> GPC -> TensileLib -> archivio -> riapertura. Usare le evidenze F1, i contratti F2 e il ciclo Prepare/Save F3; introdurre solo i tipi necessari ai piloti prima della migrazione estesa.
+F4 avviata e conclusa il 3 novembre 2026 su richiesta esplicita dell’utente. Il perimetro transitorio e le esclusioni sono dichiarati nel rapporto F4: exporter Straus7 ancora nel backend BridGHe, preprocessore Arachne riutilizzato all’ingresso, componenti di produzione da migrare in F6. F5 non è stata avviata.
 
 Checkpoint F1: Model `4134bd1a`, BridGHe `2b2c4b3`, Arachne `63b9516`. Le modifiche F2 appartengono al solo repository Model; Checker Ã¨ stato ricompilato e verificato senza modifiche ai suoi sorgenti. Nessuna integrazione nei checkout principali.
 

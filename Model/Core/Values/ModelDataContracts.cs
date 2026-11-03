@@ -24,6 +24,7 @@ namespace GPC.Model.Core
     {
         internal static readonly Type[] Domain = new Type[]
         {
+            typeof(FormFindingGoal), typeof(FormFindingCoordinateGoal), typeof(FormFindingSurfaceMass), typeof(FormFindingDefinition), typeof(FormFindingMethod), typeof(FormFindingGoalKind), typeof(FabricDirection),
             typeof(AssemblyIdentityMap), typeof(AssemblyIdentityEntry), typeof(SolverIdentityMap), typeof(SolverIdentityEntry),
             typeof(BridgeMemberMetadata), typeof(BridgeMemberFamily),
             typeof(global::GPC.Model.Actions.TimeEffects.AxialRestraint),
