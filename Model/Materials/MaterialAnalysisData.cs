@@ -39,7 +39,7 @@ namespace GPC.Model.Materials
             else if(NonlinearResponse!=MaterialNonlinearResponse.NonlinearElastic||Hardening!=MaterialHardening.Isotropic)throw new ArgumentException("MaterialLawRequiresStressStrainTable");
         }
         private static void Nonnegative(double value){if(double.IsNaN(value)||double.IsInfinity(value)||value<0)throw new ArgumentException("InvalidMaterialAnalysisValue");}
-        public override bool Equals(object obj)=>obj is MaterialAnalysisData other&&Core.ModelValues.Fingerprint(new object[]{this})==Core.ModelValues.Fingerprint(new object[]{other});
-        public override int GetHashCode()=>23;
+        public override bool Equals(object obj)=>obj is MaterialAnalysisData other&&Core.ModelValues.ContentEquals(this,other);
+        public override int GetHashCode()=>Core.ModelValues.ContentHash(this);
     }
 }

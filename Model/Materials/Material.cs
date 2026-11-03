@@ -373,12 +373,10 @@ namespace GPC.Model.Materials
             AnalysisData = SerializationFields.Read<MaterialAnalysisData>(info, "AnalysisData");
             Declarations = SerializationFields.Read<MaterialDeclarations>(info, "Declarations");
             double version = SerializationVersions.Read(info, "MaterialVersion", Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6, 1);
+            // Schema checks only: the values are validated by the property constructors and ModelEditSession.Validate (B1).
             if(Declarations!=null&&version<8)throw new SerializationException("MaterialDeclarationsSchemaMismatch");
-            Declarations?.Validate();
             if(AnalysisData!=null&&version<7)throw new SerializationException("MaterialAnalysisSchemaMismatch");
-            AnalysisData?.Validate();
             if (Orthotropy != null && version < 6) throw new SerializationException("OrthotropicMaterialSchemaMismatch");
-            Orthotropy?.Validate();
 
             if (version >= 2)
             {
@@ -536,9 +534,6 @@ namespace GPC.Model.Materials
         {
             base.GetObjectData(info, context);
 
-            Orthotropy?.Validate();
-            AnalysisData?.Validate();
-            Declarations?.Validate();
             double version = Declarations != null ? 8 : AnalysisData != null ? 7 : Orthotropy == null ? 5 : 6;
             if(Declarations!=null)info.AddValue("Declarations",Declarations);
             if(AnalysisData!=null)info.AddValue("AnalysisData",AnalysisData);

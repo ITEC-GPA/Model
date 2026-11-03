@@ -62,7 +62,7 @@ namespace GPC.Model.Persistence
         [DataMember(Order = 33, EmitDefaultValue = false)] internal global::GPC.Model.Actions.Moving.MovingLoadDefinition MovingLoads;
 
         private static bool StageSchema(Models.Model model)
-        { global::GPC.Model.Stages.StageAnalysisState.ValidateAll(model); return global::GPC.Model.Stages.StageAnalysisState.HasData(model); }
+            => global::GPC.Model.Stages.StageAnalysisState.HasData(model);
 
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
             FormFinding = model.FormFinding, MovingLoads = model.MovingLoads,
@@ -124,14 +124,13 @@ namespace GPC.Model.Persistence
             if(model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) && Schema<9)throw new SerializationException("InertiaMassSchemaMismatch");
             if (PhysicalAssignments.UsesExtendedExportContract(model) && Schema < 7) throw new SerializationException("ElasticExportSchemaMismatch");
             if (FormFinding != null && Schema < 4) throw new SerializationException("FormFindingSchemaMismatch");
+            // Schema checks only: domain references are diagnosed by ModelEditSession.Validate and the export preflight, so an
+            // archive saved after an edit that left a dangling reference can still be opened and repaired.
             model.FormFinding = FormFinding;
-            model.FormFinding?.Validate(model);
-            model.MovingLoads = MovingLoads; model.MovingLoads?.Validate(model);
+            model.MovingLoads = MovingLoads;
             if ((model.MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(model)) && Schema < 8) throw new SerializationException("ExtendedMovingSchemaMismatch");
             if ((model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) && Schema < 5) throw new SerializationException("PhysicalAssignmentsSchemaMismatch");
-            foreach (var element in model.AllElements) PhysicalAssignments.Validate(element);
             if (global::GPC.Model.Stages.StageAnalysisState.HasData(model) && Schema < 6) throw new SerializationException("StageAnalysisSchemaMismatch");
-            global::GPC.Model.Stages.StageAnalysisState.ValidateAll(model);
             return model;
         }
     }

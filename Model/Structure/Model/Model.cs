@@ -280,10 +280,9 @@ namespace GPC.Model.Models
             if ((MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) && schemaVersion < 6)
                 throw new SerializationException("ExtendedPhysicalSchemaMismatch");
             if(LoadCases.Values.Any(c=>c.InertiaMasses!=null) && schemaVersion<10)throw new SerializationException("InertiaMassSchemaMismatch");
-            MovingLoads?.Validate(this);
             if ((MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) && schemaVersion < 9) throw new SerializationException("ExtendedMovingSchemaMismatch");
             if (StageAnalysisState.HasData(this) && schemaVersion < 7) throw new SerializationException("StageAnalysisSchemaMismatch");
-            StageAnalysisState.ValidateAll(this);
+            // Schema checks only: reading never runs domain validation (ModelEditSession.Validate and the export preflight do).
             if (PhysicalAssignments.UsesExtendedExportContract(this) && schemaVersion < 8) throw new SerializationException("ElasticExportSchemaMismatch");
         }
 
@@ -1770,10 +1769,10 @@ namespace GPC.Model.Models
         {
             base.GetObjectData(info, context);
 
-            StageAnalysisState.ValidateAll(this);
+            // No domain validation here: a model with dangling stage or moving-load references stays copyable and saveable.
             info.AddValue("ModelSchemaVersion", LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 10 : (MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) ? 9 : PhysicalAssignments.UsesExtendedExportContract(this) ? 8 : StageAnalysisState.HasData(this) ? 7 : (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null || PhysicalMembers.Values.Any(m => m.BridgeMetadata != null) ? 4 : PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
             if (FormFinding != null) info.AddValue("FormFinding", FormFinding);
-            if (MovingLoads != null) { MovingLoads.Validate(this); info.AddValue("MovingLoads", MovingLoads); }
+            if (MovingLoads != null) info.AddValue("MovingLoads", MovingLoads);
             if (AssemblyMap != null) info.AddValue("AssemblyMap", AssemblyMap);
             if (Analysis != null) info.AddValue("AnalysisSnapshot", Analysis);
             if (VerificationContext != null) info.AddValue("VerificationContext", VerificationContext);

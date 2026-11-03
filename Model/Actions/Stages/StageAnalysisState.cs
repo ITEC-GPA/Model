@@ -69,17 +69,38 @@ namespace GPC.Model.Stages
             }
         }
 
-        public static bool HasData(Models.Model model) => model.Stages.Values.Any(s => s.AnalysisState != null);
+        /// <summary>True when a stage carries the physical stage state. A model without a stage collection has none.</summary>
+        public static bool HasData(Models.Model model) => model?.Stages != null && model.Stages.Values.Any(s => s?.AnalysisState != null);
 
+        /// <summary>Export preflight: throws on the first invalid stage state. Serialization, copies and fingerprints never call it.</summary>
         public static void ValidateAll(Models.Model model)
         {
-            if (HasData(model) && model.ValidateGroups().Count != 0) throw new ArgumentException("InvalidStageGroupGraph");
+            if (!HasData(model)) return;
+            if (model.ValidateGroups().Count != 0) throw new ArgumentException("InvalidStageGroupGraph");
             foreach (var stage in model.Stages.Values)
             {
-                if (stage.AnalysisState == null) continue;
+                if (stage?.AnalysisState == null) continue;
                 if (stage.Definition == null) throw new ArgumentException("MissingStageSequence: " + stage.Name);
                 stage.AnalysisState.Validate(model);
             }
+        }
+
+        /// <summary>The stage states that the writers reject, as diagnostics: dangling group, case and freedom case references after
+        /// an edit leave the model saveable and are reported here (ModelEditSession.Validate) instead.</summary>
+        public static IReadOnlyList<Core.Diagnostics.ModelDiagnostic> Diagnose(Models.Model model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            var result = new List<Core.Diagnostics.ModelDiagnostic>();
+            if (!HasData(model)) return result;
+            if (model.ValidateGroups().Count != 0) result.Add(Core.Diagnostics.ModelDiagnostic.Error("InvalidStageGroupGraph"));
+            foreach (var stage in model.Stages.Values)
+            {
+                if (stage?.AnalysisState == null) continue;
+                if (stage.Definition == null) { result.Add(Core.Diagnostics.ModelDiagnostic.Error("InvalidStageAnalysisState", message: "MissingStageSequence: " + stage.Name)); continue; }
+                try { stage.AnalysisState.Validate(model); }
+                catch (ArgumentException ex) { result.Add(Core.Diagnostics.ModelDiagnostic.Error("InvalidStageAnalysisState", message: stage.Name + ": " + ex.Message)); }
+            }
+            return result;
         }
 
         private static void Factors(StageCaseFactor[] factors, IEnumerable<Guid> known, string context)

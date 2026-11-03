@@ -33,17 +33,18 @@ namespace GPC.Model.ElementProperties
             int version=SerializationVersions.Read(info, "ElasticBeamPropertyVersion", 2);
             if(version>=2)CutoffLaw=(BeamCutoffLaw)info.GetValue("CutoffLaw",typeof(BeamCutoffLaw));
             Material = (Material)info.GetValue("Material", typeof(Material)); Section = (ISectionShape)info.GetValue("Section", typeof(ISectionShape));
-            ShearArea1 = info.GetDouble("ShearArea1"); ShearArea2 = info.GetDouble("ShearArea2"); Validate();
+            ShearArea1 = info.GetDouble("ShearArea1"); ShearArea2 = info.GetDouble("ShearArea2");
         }
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticBeamPropertyVersion", CutoffLaw==null?1:2);
+            base.GetObjectData(info, context); info.AddValue("ElasticBeamPropertyVersion", CutoffLaw==null?1:2);
             if(CutoffLaw!=null)info.AddValue("CutoffLaw",CutoffLaw);
             info.AddValue("Material", Material); info.AddValue("Section", Section); info.AddValue("ShearArea1", ShearArea1); info.AddValue("ShearArea2", ShearArea2);
         }
-        public override bool Equals(object obj) => obj is ElasticBeamProperty other && base.Equals(other)
-            && GPC.Model.Core.ModelValues.Fingerprint(new object[]{this}) == GPC.Model.Core.ModelValues.Fingerprint(new object[]{other});
-        public override int GetHashCode() => 23;
+        /// <summary>Same name and same fingerprinted content; never throws, also for an incomplete property.</summary>
+        public override bool Equals(object obj) => obj is ElasticBeamProperty other && base.Equals(other) && GPC.Model.Core.ModelValues.ContentEquals(this, other);
+        /// <summary>The name hash (equal properties have the same name), so distinct properties do not share one bucket.</summary>
+        public override int GetHashCode() => Name == null ? 0 : StringComparer.Ordinal.GetHashCode(Name);
     }
 
     public enum ElasticPlateFormulation { Shell, Membrane, PlaneStress, PlaneStrain, Axisymmetric, LoadPatch, ShearPanel }
@@ -78,17 +79,17 @@ namespace GPC.Model.ElementProperties
         {
             int version=SerializationVersions.Read(info, "ElasticPlatePropertyVersion", 2);
             Material = (Material)info.GetValue("Material", typeof(Material)); BendingThickness = info.GetDouble("BendingThickness");
-            MembraneThickness = info.GetDouble("MembraneThickness"); Formulation = (ElasticPlateFormulation)info.GetInt32("Formulation"); Validate();
+            MembraneThickness = info.GetDouble("MembraneThickness"); Formulation = (ElasticPlateFormulation)info.GetInt32("Formulation");
             if(Formulation==ElasticPlateFormulation.ShearPanel&&version<2)throw new SerializationException("ShearPanelSchemaMismatch");
         }
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            Validate(); base.GetObjectData(info, context); info.AddValue("ElasticPlatePropertyVersion", Formulation==ElasticPlateFormulation.ShearPanel?2:1);
+            base.GetObjectData(info, context); info.AddValue("ElasticPlatePropertyVersion", Formulation==ElasticPlateFormulation.ShearPanel?2:1);
             info.AddValue("Material", Material); info.AddValue("BendingThickness", BendingThickness); info.AddValue("MembraneThickness", MembraneThickness); info.AddValue("Formulation", (int)Formulation);
         }
-        public override bool Equals(object obj) => obj is ElasticPlateProperty other && base.Equals(other)
-            && GPC.Model.Core.ModelValues.Fingerprint(new object[]{this}) == GPC.Model.Core.ModelValues.Fingerprint(new object[]{other});
-        public override int GetHashCode() => 23;
+        /// <summary>Same name and same fingerprinted content; never throws, also for an incomplete property.</summary>
+        public override bool Equals(object obj) => obj is ElasticPlateProperty other && base.Equals(other) && GPC.Model.Core.ModelValues.ContentEquals(this, other);
+        public override int GetHashCode() => Name == null ? 0 : StringComparer.Ordinal.GetHashCode(Name);
     }
 
     internal static class ElasticPropertyValidation

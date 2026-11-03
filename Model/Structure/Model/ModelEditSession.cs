@@ -79,7 +79,7 @@ namespace GPC.Model.Models
         public IReadOnlyList<ModelDiagnostic> Validate()
         {
             RequireOpen();
-            var diagnostics = Draft.ValidateTopology().Concat(Draft.ValidateAssignments()).ToList();
+            var diagnostics = Draft.ValidateTopology().Concat(Draft.ValidateAssignments()).Concat(Draft.ValidateDomain()).ToList();
             foreach (var entry in Draft.PhysicalMembers)
             {
                 if (entry.Value == null || entry.Key != entry.Value.Id) { diagnostics.Add(ModelDiagnostic.Error("InvalidPhysicalMemberIdentity")); continue; }
