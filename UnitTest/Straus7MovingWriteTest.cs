@@ -20,7 +20,7 @@ public class Straus7MovingWriteTest
         using(var reader=new Straus7NativeApi())library=reader.MovingLibraryCatalog().Single(p=>p.Key.Contains(requestedLibrary));
         var resolved=Straus7MovingLibrary.Resolve(library.Key,library.Value[0],folder);resolved.Template.Validate();
         Assert.IsTrue(resolved.Template.Vehicles.Length>0);Assert.AreEqual(library.Key,resolved.LibraryName);
-        var model=MovingLoadContractsTest.Sample();var path=model.MovingLoads.Paths[0];path.Template=resolved.Template;
+        var model=MovingLoadContractsTest.Sample();var path=model.MovingLoads.Paths[0];resolved.AttachTo(model,path.Id); // B8: the template brings its R3 expression record
         string fingerprint=ModelValues.Fingerprint(new object[]{resolved.Template}),output=Path.Combine(folder,"expanded-library.st7");
         var plan=Straus7MovingWritePlan.Prepare(model,Cases(model),new Dictionary<Guid,Straus7MovingPathOptions>{{path.Id,resolved.Options}});
         using(var writer=new Straus7NativeWriter(output,folder))
@@ -52,7 +52,9 @@ public class Straus7MovingWriteTest
             reader.OpenModelReadOnly(output,folder);reader.ReadMovingPath(1,out var flags);Assert.AreEqual(1,flags[4]);Assert.AreEqual(1,flags[6]);
             Assert.IsTrue(reader.IsInMovingEntitySet(1,1,1));Assert.IsFalse(reader.IsInMovingEntitySet(0,1,1));
             CollectionAssert.AreEqual(new[]{100d,20,50,100,250},reader.ReadMovingHeatSource(1,1,1));
-            var law=reader.ReadMovingCentrifugal(1);Assert.AreEqual("V^2/(g*R)",law.FactorExpression);Assert.AreEqual("m",law.LengthUnit);Assert.AreEqual("kN",law.ForceUnit);Assert.AreEqual(.2,law.MaximumFactor);
+            // B8: the N-mm GPC law is written in mm and N (before: the text law of the test in m and kN).
+            var law=reader.ReadMovingCentrifugal(1);Assert.AreEqual("V^2/(g*R)",law.FactorExpression);Assert.AreEqual("mm",law.LengthUnit);Assert.AreEqual("N",law.ForceUnit);Assert.AreEqual(.2,law.MaximumFactor);
+            Assert.AreEqual(MovingCentrifugalFactorKind.SpeedSquaredOverGravityRadius,law.ToDomain(out _).FactorKind);
             reader.ReadMovingPointForce(1,1,1,out var forceFlags);Assert.AreEqual(1,forceFlags[3]);
         }
         Console.WriteLine("F5 advanced moving readback: "+output);

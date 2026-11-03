@@ -131,7 +131,7 @@ namespace GPC.Converter.Straus7
             {
                 foreach(var item in Model.PreservedSourceData)
                 {
-                    var prefixes=new[]{"ResultFile/","ResultUnits/","ResultCases/","ResultValidation/","ExportIdentityMap/","GeneratedMovingCases/","GeneratedMovingCaseParents/","NativeSectionDefinitions/","SectionExportConfiguration/",Straus7MovingPathOptions.ColourRecord,Straus7MovingPathOptions.EntitySetRecord};
+                    var prefixes=new[]{"ResultFile/","ResultUnits/","ResultCases/","ResultValidation/","ExportIdentityMap/","GeneratedMovingCases/","GeneratedMovingCaseParents/","NativeSectionDefinitions/","SectionExportConfiguration/",Straus7MovingPathOptions.ColourRecord,Straus7MovingPathOptions.EntitySetRecord,Straus7CentrifugalExpression.RecordPrefix};
                     if(item==null||item.Kind!="Straus7 API"||item.SourceRecord==null||!prefixes.Any(p=>item.SourceRecord.StartsWith(p,StringComparison.Ordinal)))
                         throw new NotSupportedException("UnmappedPreservedModelInput: "+item?.Kind+"/"+item?.SourceRecord+"; "+item?.UnsupportedReason);
                 }

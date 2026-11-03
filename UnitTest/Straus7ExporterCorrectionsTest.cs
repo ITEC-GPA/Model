@@ -581,3 +581,65 @@ public class MovingPathOptionsContractTest
         StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => Straus7MovingWritePlan.Prepare(model, cases)).Message, "LegacyMovingEntitySetRequiresTargetSelection");
     }
 }
+
+[TestClass]
+public class MovingCentrifugalContractTest
+{
+    /// <summary>The text contract of GPCModel 5.43-5.48 (same data-contract name, namespace and member names).</summary>
+    [System.Runtime.Serialization.DataContract(Name = "MovingCentrifugalLaw", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Actions.Moving")]
+    public sealed class LegacyLaw
+    {
+        [System.Runtime.Serialization.DataMember(Name = "<ExpressionLanguage>k__BackingField", Order = 0)] public string? Language;
+        [System.Runtime.Serialization.DataMember(Name = "<OffsetExpression>k__BackingField", Order = 1)] public string? Offset;
+        [System.Runtime.Serialization.DataMember(Name = "<FactorExpression>k__BackingField", Order = 2)] public string? Factor;
+        [System.Runtime.Serialization.DataMember(Name = "<LengthUnit>k__BackingField", Order = 3)] public string? Length;
+        [System.Runtime.Serialization.DataMember(Name = "<ForceUnit>k__BackingField", Order = 4)] public string? Force;
+        [System.Runtime.Serialization.DataMember(Name = "<MinimumFactor>k__BackingField", Order = 5)] public double? Minimum;
+        [System.Runtime.Serialization.DataMember(Name = "<MaximumFactor>k__BackingField", Order = 6)] public double? Maximum;
+        [System.Runtime.Serialization.DataMember(Name = "<LimitFactor>k__BackingField", Order = 7)] public bool Limit;
+    }
+    private static GPC.Model.Actions.Moving.MovingCentrifugalLaw ReadLegacy(LegacyLaw legacy)
+    {
+        using var stream = new MemoryStream(); new System.Runtime.Serialization.DataContractSerializer(typeof(LegacyLaw)).WriteObject(stream, legacy); stream.Position = 0;
+        return (GPC.Model.Actions.Moving.MovingCentrifugalLaw)new System.Runtime.Serialization.DataContractSerializer(typeof(GPC.Model.Actions.Moving.MovingCentrifugalLaw)).ReadObject(stream)!;
+    }
+
+    [TestMethod]
+    public void B8_LegacyTextLawsAreConvertedToNewtonMillimetreData()
+    {
+        var law = ReadLegacy(new LegacyLaw { Language = "Straus7-R3", Offset = "2", Factor = "V^2/(g*R)", Length = "m", Force = "kN", Limit = true, Minimum = 0, Maximum = .2 });
+        Assert.AreEqual(2000, law.OffsetForce); Assert.AreEqual(GPC.Model.Actions.Moving.MovingCentrifugalFactorKind.SpeedSquaredOverGravityRadius, law.FactorKind);
+        Assert.AreEqual(.2, law.MaximumFactor); Assert.IsTrue(law.LimitFactor); law.Validate();
+        var constant = ReadLegacy(new LegacyLaw { Language = "Straus7-R3", Offset = "", Factor = "0.1", Length = "mm", Force = "N" });
+        Assert.AreEqual(GPC.Model.Actions.Moving.MovingCentrifugalFactorKind.Constant, constant.FactorKind); Assert.AreEqual(.1, constant.Factor); Assert.AreEqual(0, constant.OffsetForce);
+        // Written back without any text: the copy has only the N-mm members.
+        using (var stream = new MemoryStream())
+        {
+            new System.Runtime.Serialization.DataContractSerializer(typeof(GPC.Model.Actions.Moving.MovingCentrifugalLaw)).WriteObject(stream, law);
+            string xml = System.Text.Encoding.UTF8.GetString(stream.ToArray()); Assert.IsFalse(xml.Contains("Straus7-R3")); Assert.IsFalse(xml.Contains("kN"));
+        }
+        foreach (var bad in new[] { new LegacyLaw { Language = "Straus7-R3", Offset = "0", Factor = "V^2/(9.81*R)", Length = "m", Force = "kN" },
+            new LegacyLaw { Language = "Straus7-R3", Offset = "0", Factor = "0.1", Length = "furlong", Force = "N" },
+            new LegacyLaw { Language = "Other", Offset = "0", Factor = "0.1", Length = "mm", Force = "N" } })
+            Assert.ThrowsException<System.Runtime.Serialization.SerializationException>(() => ReadLegacy(bad));
+    }
+
+    [TestMethod]
+    public void B8_Straus7DialectStaysInTheConverter()
+    {
+        var expression = new Straus7CentrifugalExpression { OffsetExpression = "1.5", FactorExpression = "V^2/(g*R)", LengthUnit = "m", ForceUnit = "kN", LimitFactor = true, MinimumFactor = 0, MaximumFactor = .3 };
+        var law = expression.ToDomain(out var none); Assert.IsNull(none); Assert.AreEqual(1500, law.OffsetForce, 1e-9);
+        var written = Straus7CentrifugalExpression.FromDomain(law, null);
+        Assert.AreEqual("1500", written.OffsetExpression); Assert.AreEqual("V^2/(g*R)", written.FactorExpression); Assert.AreEqual("mm", written.LengthUnit); Assert.AreEqual("N", written.ForceUnit);
+        // A radius-dependent library law (EN 1991-2 style) stays in the R3 dialect, outside Model, bound by record and SHA-256.
+        var library = new Straus7CentrifugalExpression { OffsetExpression = "0", FactorExpression = "((IFPOSB(R-0)*0.2)-(IFPOSB(R-200)*0.2))+((IFPOSB(R-200)*(40/R))-(IFPOSB(R-1500)*(40/R)))", LengthUnit = "m", ForceUnit = "kN" };
+        var adapter = library.ToDomain(out var record); Assert.IsNotNull(record);
+        Assert.AreEqual(GPC.Model.Actions.Moving.MovingCentrifugalFactorKind.AdapterDefined, adapter.FactorKind); Assert.AreEqual(record!.SourceRecord, adapter.AdapterRecord);
+        var model = MovingLoadContractsTest.Sample(); StringAssert.Contains(Assert.ThrowsException<ArgumentException>(() => Straus7CentrifugalExpression.FromDomain(adapter, model)).Message, "MissingOrChangedStrausCentrifugalExpression");
+        model.PreservedSourceData.Add(record); var back = Straus7CentrifugalExpression.FromDomain(adapter, model);
+        Assert.AreEqual(library.FactorExpression, back.FactorExpression); Assert.AreEqual("m", back.LengthUnit); Assert.AreEqual("kN", back.ForceUnit);
+        record.RawData = record.RawData.Replace("0.2", "0.3"); Assert.ThrowsException<ArgumentException>(() => Straus7CentrifugalExpression.FromDomain(adapter, model));
+        Assert.IsFalse(typeof(GPC.Model.Actions.Moving.MovingCentrifugalLaw).GetProperties().Any(p => p.Name.Contains("Expression") || p.Name.Contains("Unit") || p.Name.Contains("Language")),
+            "no dialect or unit text in Model");
+    }
+}

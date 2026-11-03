@@ -145,11 +145,10 @@ namespace GPC.Converter.Straus7
                     ops.Add(a=>a.CreateMovingTemplate(id,template.Name,(int[])flags.Clone(),(double[])values.Clone()));
                     if(template.Centrifugal!=null)
                     {
-                        var law=template.Centrifugal;
-                        if(law.ExpressionLanguage!="Straus7-R3")throw new NotSupportedException("UnsupportedCentrifugalExpressionLanguage");
-                        int length=Array.IndexOf(new[]{"m","cm","mm","ft","in"},law.LengthUnit),force=Array.IndexOf(new[]{"N","kN","MN","kgf","lbf","tf","kip"},law.ForceUnit);
-                        if(length<0||force<0)throw new NotSupportedException("UnsupportedCentrifugalExpressionUnits");
-                        int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor??0,law.MaximumFactor??0};advanced=true;
+                        // The N-mm GPC law becomes R3 expressions in mm and N (B8): the dialect and its unit codes stay in the Converter.
+                        var law=Straus7CentrifugalExpression.FromDomain(template.Centrifugal,model);
+                        int length=Straus7CentrifugalExpression.LengthUnits.ToList().IndexOf(law.LengthUnit),force=Straus7CentrifugalExpression.ForceUnits.ToList().IndexOf(law.ForceUnit);
+                        int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor,law.MaximumFactor};advanced=true;
                         ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).SetMovingCentrifugal(id,law.OffsetExpression,law.FactorExpression,(int[])cf.Clone(),(double[])limits.Clone()));
                     }
                     for(int i=0;i<template.LaneFactors.Length;i++) { int lane=i+1; double factor=template.LaneFactors[i]; ops.Add(a=>a.SetMovingLaneFactor(id,lane,factor)); }

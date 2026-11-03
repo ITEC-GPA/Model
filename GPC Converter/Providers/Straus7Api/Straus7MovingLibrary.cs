@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using GPC.Geometry;
 using GPC.Model.Actions.Moving;
+using GPC.Model.Structure.Assignments;
 
 namespace GPC.Converter.Straus7
 {
@@ -18,6 +19,15 @@ namespace GPC.Converter.Straus7
         public string ApiVersion { get; internal set; }
         public MovingLoadTemplate Template { get; internal set; }
         public Straus7MovingPathOptions Options { get; internal set; }
+        /// <summary>Adapter data the template refers to (an R3 centrifugal expression): it must be stored with the model.</summary>
+        public IReadOnlyList<PreservedAssignment> PreservedData { get; internal set; } = new PreservedAssignment[0];
+        /// <summary>Assigns the template to a path of <paramref name="model"/> and stores its adapter data with the model.</summary>
+        public void AttachTo(global::GPC.Model.Models.Model model,Guid pathId)
+        {
+            var path=model?.MovingLoads?.Paths.SingleOrDefault(p=>p.Id==pathId)??throw new ArgumentException("UnknownMovingPath");path.Template=Template;
+            foreach(var item in PreservedData)if(!model.PreservedSourceData.Any(p=>p!=null&&p.Kind==item.Kind&&p.SourceRecord==item.SourceRecord))
+                model.PreservedSourceData.Add(new PreservedAssignment {Kind=item.Kind,SourceRecord=item.SourceRecord,RawData=item.RawData,UnsupportedReason=item.UnsupportedReason});
+        }
     }
 
     public static class Straus7MovingLibrary
@@ -78,9 +88,10 @@ namespace GPC.Converter.Straus7
                 if(heat!=0)vehicle.HeatSources=Enumerable.Range(1,heat).Select(p=>{var d=ReadMovingHeatSource(id,v,p);return new MovingHeatSource {X=d[0],Y=d[1],SizeX=d[2],SizeY=d[3],Power=d[4]*1000};}).ToArray();
                 vehicles.Add(vehicle);
             }
-            template.Vehicles=vehicles.ToArray();template.Centrifugal=ReadMovingCentrifugal(id);
-            if(string.IsNullOrWhiteSpace(template.Centrifugal.OffsetExpression)&&string.IsNullOrWhiteSpace(template.Centrifugal.FactorExpression))template.Centrifugal=null;
-            template.Validate();return new Straus7ResolvedMovingTemplate {Template=template,ApiVersion=Version,
+            template.Vehicles=vehicles.ToArray();var centrifugal=ReadMovingCentrifugal(id);PreservedAssignment record=null;
+            // N-mm GPC law; an R3 expression that is not representable stays in its dialect as preserved data (B8).
+            template.Centrifugal=centrifugal.IsEmpty?null:centrifugal.ToDomain(out record);
+            template.Validate();return new Straus7ResolvedMovingTemplate {Template=template,ApiVersion=Version,PreservedData=record==null?new PreservedAssignment[0]:new[]{record},
                 Options=new Straus7MovingPathOptions {Colour=flags[0],TransitionTrailingLoad=flags[3]!=0,BeamLateralTolerance=flags[4]!=0,RelativeTolerance=parameters[0]}};
         }
         private int ForceCount(string kind,int template,int vehicle)
