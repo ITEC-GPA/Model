@@ -63,7 +63,13 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Reference>k__BackingField", "Reference", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Target>k__BackingField", "Target", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadPath", "<TargetElementGuids>k__BackingField", "TargetElementGuids", false),
-                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Divisions>k__BackingField", "Divisions", false));
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Divisions>k__BackingField", "Divisions", false),
+                Field("GPC.Model.Actions.Moving.MovingLoadPath", "<Options>k__BackingField", "Options", true));
+            Register("GPC.Model.Actions.Moving.MovingPathOptions", "GPC.Model.Actions.Moving.MovingPathOptions",
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<TransitionTrailingLoad>k__BackingField", "TransitionTrailingLoad", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<BeamLateralTolerance>k__BackingField", "BeamLateralTolerance", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<RelativeTolerance>k__BackingField", "RelativeTolerance", false),
+                Field("GPC.Model.Actions.Moving.MovingPathOptions", "<ConvertToStaticCases>k__BackingField", "ConvertToStaticCases", false));
             Register("GPC.Model.Actions.Moving.MovingLoadTemplate", "GPC.Model.Actions.Moving.MovingLoadTemplate",
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Name>k__BackingField", "Name", false),
                 Field("GPC.Model.Actions.Moving.MovingLoadTemplate", "<Vehicles>k__BackingField", "Vehicles", false),

@@ -48,6 +48,7 @@ namespace GPC.Model.Core
 
             typeof(global::GPC.Model.Actions.Moving.MovingLoadDefinition),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadPath),
+            typeof(global::GPC.Model.Actions.Moving.MovingPathOptions),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadTemplate),
             typeof(global::GPC.Model.Actions.Moving.MovingVehicle),
             typeof(global::GPC.Model.Actions.Moving.MovingHeatSource),

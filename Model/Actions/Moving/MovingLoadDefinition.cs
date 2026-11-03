@@ -22,7 +22,7 @@ namespace GPC.Model.Actions.Moving
     public sealed class MovingLoadDefinition
     {
         [field:DataMember(Order=0)] public List<MovingLoadPath> Paths { get; set; } = new List<MovingLoadPath>();
-        public bool UsesExtendedContract => Paths.Any(p=>p.Template.Centrifugal!=null||p.Template.Vehicles.Any(v=>v.HeatSources!=null||v.PointForces.Any(f=>f.ApplyCentrifugal.HasValue)||v.DistributedForces.Any(f=>f.ApplyCentrifugal.HasValue)));
+        public bool UsesExtendedContract => Paths.Any(p=>p.Options!=null||p.Template.Centrifugal!=null||p.Template.Vehicles.Any(v=>v.HeatSources!=null||v.PointForces.Any(f=>f.ApplyCentrifugal.HasValue)||v.DistributedForces.Any(f=>f.ApplyCentrifugal.HasValue)));
         public void Validate(Models.Model model)
         {
             if(model==null) throw new ArgumentNullException(nameof(model));
@@ -34,6 +34,7 @@ namespace GPC.Model.Actions.Moving
             foreach(var path in Paths)
             {
                 path.Validate();
+                path.Options?.Validate();
                 if(!cases.Contains(path.CaseGuid)) throw new ArgumentException("UnknownMovingLoadCase");
                 if(path.TargetElementGuids.Any(g=>!structural.Contains(g))) throw new ArgumentException("UnknownMovingTargetElement");
             }
@@ -56,6 +57,8 @@ namespace GPC.Model.Actions.Moving
         [field:DataMember(Order=9)] public Guid[] TargetElementGuids { get; set; } = Array.Empty<Guid>();
         /// <summary>Longitudinal sampling intervals. This numerical control does not depend on the FEM mesh.</summary>
         [field:DataMember(Order=10)] public int Divisions { get; set; } = 20;
+        /// <summary>Load-application controls that change the applied loads; null keeps the solver defaults.</summary>
+        [field:OptionalField,DataMember(Order=11,EmitDefaultValue=false)] public MovingPathOptions Options { get; set; }
         public void Validate()
         {
             if(Id==Guid.Empty||CaseGuid==Guid.Empty) throw new ArgumentException("MissingMovingPathIdentity");
@@ -75,6 +78,22 @@ namespace GPC.Model.Actions.Moving
                 throw new ArgumentException("InvalidMovingTargetSelection");
             if((Target==MovingPathTarget.Selection)!=(TargetElementGuids.Length>0)) throw new ArgumentException("MovingTargetSelectionMismatch");
         }
+    }
+
+    /// <summary>Numerical controls of the load application along a path. They change the applied loads, so they are physical input
+    /// of the analysis (copy, archive and fingerprint). Display colour and native entity-set numbers stay with the software adapter.</summary>
+    [Serializable, DataContract]
+    public sealed class MovingPathOptions
+    {
+        /// <summary>Trailing loads enter and leave the path gradually instead of being cut at its ends.</summary>
+        [field:DataMember(Order=0)] public bool TransitionTrailingLoad { get; set; }
+        /// <summary>Beams within the lateral tolerance of the path are loaded.</summary>
+        [field:DataMember(Order=1)] public bool BeamLateralTolerance { get; set; }
+        /// <summary>Dimensionless tolerance of the search for loaded elements, relative to their size.</summary>
+        [field:DataMember(Order=2)] public double RelativeTolerance { get; set; } = .01;
+        /// <summary>Static cases at the centres of the path divisions (no end positions, no continuous envelope).</summary>
+        [field:DataMember(Order=3)] public bool ConvertToStaticCases { get; set; }
+        public void Validate() { MovingValidation.Nonnegative(RelativeTolerance); }
     }
 
     [Serializable, DataContract]
