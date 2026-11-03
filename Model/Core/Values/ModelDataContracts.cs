@@ -59,6 +59,7 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Materials.MaterialNonlinearResponse),
             typeof(global::GPC.Model.Materials.MaterialHardening),
             typeof(global::GPC.Model.Actions.Moving.MovingCentrifugalLaw),
+            typeof(global::GPC.Model.Actions.Moving.MovingCentrifugalFactorKind),
             typeof(global::GPC.Model.Actions.Moving.MovingPointForce),
             typeof(global::GPC.Model.Actions.Moving.MovingDistributedForce),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadAxes),
