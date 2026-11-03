@@ -144,6 +144,49 @@ public class Straus7ExporterCorrectionsTest
         Assert.AreEqual(5d / 6 * shape.Area, reader.ReadProperty(Straus7Entity.Beam, 1).SectionProperties[7], 1e-9 * shape.Area);
     }
 
+    /// <summary>Mono-symmetric I: wide thick bottom flange, narrow thin top flange, thin web.</summary>
+    private static SectionH MonoI() => new SectionH(500, 5, 100, 10, 300, 20, "mono I");
+
+    [TestMethod]
+    public void C3_ISectionDimensionsFollowStraus7Order()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.Single();
+        beam.BeamProperty = new ElasticBeamProperty("I", new Material("E", 210000, .3, 0, 0), MonoI());
+        var call = Record(model).Named(nameof(IStraus7SectionGeometryWriteApi.SetBeamSectionGeometry)).Single();
+        // bsISection: B1 bottom flange, B2 top flange, D, T1 bottom flange, T2 top flange, T3 web (as the Converter importer).
+        Assert.AreEqual(7, (int)call.Args[1]!); CollectionAssert.AreEqual(new[] { 300d, 100, 500, 20, 10, 5 }, (double[])call.Args[2]!);
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C3_NativeISectionGeometryReproducesGpcProperties()
+    {
+        var section = MonoI(); string folder = NativeFolder();
+        var resolved = Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(7, new[] { 300d, 100, 500, 20, 10, 5 }), folder).ReferenceProperties;
+        Assert.AreEqual(section.Area, resolved[0], 1e-6 * section.Area, "A"); Assert.AreEqual(section.J11, resolved[1], 1e-6 * section.J11, "I11");
+        Assert.AreEqual(section.J22, resolved[2], 1e-6 * section.J22, "I22");
+        Console.WriteLine("C3 shape 7 native properties: " + string.Join(", ", resolved.Select(v => v.ToString("R"))));
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void C3_NativeTaperedISectionMatchesIntegratedAxialCompliance()
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); var beam = model.BeamElements.Values.Single(); var free = beam.NodeJ;
+        var lc = model.LoadCases.Values.Single(); var fc = model.FreedomCases.Values.Single(); var section = MonoI();
+        beam.BeamProperty = new ElasticBeamProperty("tapered I", new Material("E1000", 1000, .3, 0, 0), section);
+        beam.Assignments.Physical.Taper = new BeamSectionTaper { ScaleI1 = 1, ScaleJ1 = 1, ScaleI2 = 1, ScaleJ2 = 2, Alignment1 = TaperAlignment.Symmetric, Alignment2 = TaperAlignment.Symmetric };
+        free.Loads.Clear(); free.Loads.Add(new GPC.Model.Loads.PointLoad(1000, 0, 0, 0, 0, 0, free.Position, lc));
+        free.Assignments.Restrains.Add(new RestrainAssignment { FreedomCase = fc, Restrain = new NodeRestrain(free, Dofs(1, 2, 3, 4, 5)) });
+        var plan = Straus7ModelWritePlan.Prepare(model, null, new Dictionary<Guid, int> { { beam.Guid, 10 } }); string folder = NativeFolder();
+        var run = plan.RunLinearStatic(model, Path.Combine(folder, "tapered-i.st7"), folder);
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder);
+        var property = reader.ReadProperty(Straus7Entity.Beam, 1); Assert.AreEqual(7, property.SectionType);
+        CollectionAssert.AreEqual(new[] { 300d, 100, 500, 20, 10, 5 }, property.Geometry);
+        reader.OpenResults(run.ResultPath);
+        // Depth doubles along the beam with constant plate thicknesses: A(x) = A0 + T3 D0 x/L.
+        double a0 = section.Area, a1 = a0 + 5 * 500, expected = 1000 * 1000 / (1000 * (a1 - a0)) * Math.Log(a1 / a0);
+        Assert.AreEqual(expected, reader.ReadNodeResult(free.Id, 1, false).Values[0], expected * 1e-4);
+    }
+
     [TestMethod, TestCategory("Straus7Native")]
     public void C1_NativeSplitClampKeepsAllSixRestraints()
     {

@@ -225,7 +225,8 @@ namespace GPC.Converter.Straus7
                 else if(section is SectionCHS pipe)
                 {shape=2;dimensions=new[]{pipe.Diameter,0,0,pipe.Thickness,0,0};}
                 else if(section is SectionH h && h.R==0)
-                {shape=7;dimensions=new[]{h.LenghtTopFlange,h.LenghtBottomFlange,h.Height,h.ThicknessTopFlange,h.ThicknessWeb,h.ThicknessBottomFlange};}
+                // bsISection: B1/T1 bottom flange, B2/T2 top flange, T3 web (native readback in C3 tests; same order as the importer).
+                {shape=7;dimensions=new[]{h.LenghtBottomFlange,h.LenghtTopFlange,h.Height,h.ThicknessBottomFlange,h.ThicknessTopFlange,h.ThicknessWeb};}
                 else if(section is SectionRHS box && box.R==0 && box.ThicknessTop==box.ThicknessBottom && box.ThicknessWebLeft==box.ThicknessWebRight)
                 {shape=4;dimensions=new[]{box.Width,box.Height,0,box.ThicknessTop,box.ThicknessWebLeft,0};}
                 else
