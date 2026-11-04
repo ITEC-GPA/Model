@@ -9,9 +9,6 @@ namespace GPC.Converter
     [Obsolete("Use GPC.Model.Sections.SectionShearAreas.Compute (GPCModel), which also returns the separate bodies and the method.")]
     public static class SectionShearAreas
     {
-        /// <summary>See <see cref="GPC.Model.Sections.SectionShearAreas.MinimumTriangles"/>.</summary>
-        public const int MinimumTriangles = GPC.Model.Sections.SectionShearAreas.MinimumTriangles;
-
         /// <summary>Shear areas in the principal 1 and 2 directions (Straus7 ipSA1/ipSA2): <see cref="GPC.Model.Sections.SectionShearAreas.Compute"/>.</summary>
         public static (double Area1, double Area2) Compute(ISectionShape section, double poissonRatio)
         {

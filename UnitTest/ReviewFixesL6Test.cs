@@ -23,7 +23,7 @@ public class ReviewFixesL6Test
         var h = new SectionH(300, 10, 200, 15, 200, 15, "I");
         var single = SectionShearAreas.Compute(h, .3);
         Assert.AreEqual(1, single.Bodies); Assert.IsFalse(single.HasSeparateParts); Assert.AreEqual(SectionShearAreaMethod.SaintVenantFlexure, single.Method);
-        Assert.AreEqual(.3, single.PoissonRatio); Assert.IsTrue(single.Triangles >= SectionShearAreas.MinimumTriangles && single.Nodes > single.Triangles / 3, single.ToString());
+        Assert.AreEqual(.3, single.PoissonRatio); Assert.IsTrue(single.Nodes > single.Triangles / 3, single.ToString());
         var (a1, a2) = single; Assert.AreEqual(single.Area1, a1); Assert.AreEqual(single.Area2, a2);
         var pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3);
         Assert.AreEqual(2, pair.Bodies); Assert.IsTrue(pair.HasSeparateParts); Assert.AreEqual(SectionShearAreaMethod.SeparatePartsBendingTogether, pair.Method);
@@ -32,6 +32,29 @@ public class ReviewFixesL6Test
         var forwarded = GPC.Converter.SectionShearAreas.Compute(h, .3, out int bodies);
 #pragma warning restore CS0618
         Assert.AreEqual(single.Area1, forwarded.Area1); Assert.AreEqual(single.Area2, forwarded.Area2); Assert.AreEqual(1, bodies);
+    }
+
+    [TestMethod]
+    public void L6_TheAnalysisMeshHasAnExplicitDensityWhateverTheSection()
+    {
+        // Before (review L4, latent): the mesh size came from the area of an uncomputed section (0), so every region took the default
+        // DelaunayMesh size (half its smaller side) and was subdivided until 20 000 triangles: 20 480 for a bridge girder, 73 728 for a
+        // rectangle 2:1, 76 288 for a cover-plated I, by accident of the shape. Now 6.4 √(A/N) with 20°, then two subdivisions: about N.
+        const int n = SectionShearAreas.TargetTriangles;
+        var sections = new ISectionShape[] { new SectionRectangular(200, 100), new SectionRectangular(2000, 1000), new SectionCircular(100),
+            new SectionH(300, 10, 200, 15, 200, 15, "I"), new SectionH(1800, 16, 600, 30, 800, 40, "girder"), new SectionL(50, 5, 50, 5, "L50"),
+            ShearAreaPartsTest.CoverPlated(), SectionWelded.CruciformPlates(317, 263, 13) };
+        foreach (var section in sections)
+        {
+            var areas = SectionShearAreas.Compute(section, .3);
+            Console.WriteLine($"L6 mesh {section.Name} {section.GetType().Name}: {areas}");
+            Assert.AreEqual(SectionShearAreas.MeshSize(section.Area), areas.MeshSize, 1e-12 * areas.MeshSize, section.Name);
+            Assert.AreEqual(6.4 * Math.Sqrt(section.Area / n), areas.MeshSize, 1e-12 * areas.MeshSize, section.Name);
+            Assert.IsTrue(areas.Triangles > .85 * n && areas.Triangles < 1.25 * n, section.Name + ": " + areas.Triangles + " triangles");
+        }
+        // A wall thinner than the size gets smaller triangles, not a coarser solution.
+        var pipe = SectionShearAreas.Compute(new SectionCHS(500, 5), .3);
+        Assert.IsTrue(pipe.Triangles > n && pipe.Triangles < 2 * n, pipe.ToString());
     }
 
     [TestMethod]

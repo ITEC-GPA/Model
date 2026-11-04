@@ -28,7 +28,7 @@ namespace GPC.Model.Sections
     /// </summary>
     public sealed class SectionShearAreaProperties
     {
-        internal SectionShearAreaProperties(double area1, double area2, int bodies, double poissonRatio, int triangles, int nodes)
+        internal SectionShearAreaProperties(double area1, double area2, int bodies, double poissonRatio, int triangles, int nodes, double meshSize)
         {
             Area1 = area1;
             Area2 = area2;
@@ -36,6 +36,7 @@ namespace GPC.Model.Sections
             PoissonRatio = poissonRatio;
             Triangles = triangles;
             Nodes = nodes;
+            MeshSize = meshSize;
         }
 
         /// <summary>
@@ -81,6 +82,12 @@ namespace GPC.Model.Sections
         public int Nodes { get; }
 
         /// <summary>
+        /// The DelaunayMesh size of the regions (<see cref="SectionShearAreas.MeshSize"/>), mm, before the
+        /// <see cref="SectionShearAreas.SubdivisionLevels"/> uniform subdivisions
+        /// </summary>
+        public double MeshSize { get; }
+
+        /// <summary>
         /// The two areas, for <c>var (a1, a2) = SectionShearAreas.Compute(section, nu)</c>
         /// </summary>
         public void Deconstruct(out double area1, out double area2)
@@ -93,7 +100,7 @@ namespace GPC.Model.Sections
         /// The description of the values
         /// </summary>
         public override string ToString() =>
-            $"SA1 = {Area1:G6}, SA2 = {Area2:G6} mm² ({Method}, {Bodies} bodies, ν = {PoissonRatio:G3}, {Triangles} triangles)";
+            $"SA1 = {Area1:G6}, SA2 = {Area2:G6} mm² ({Method}, {Bodies} bodies, ν = {PoissonRatio:G3}, {Triangles} triangles, mesh size {MeshSize:G4} mm)";
     }
 
     /// <summary>Effective (energy) shear areas of a section from its GPC geometry, in mm², in the principal axes of the section.
@@ -114,11 +121,27 @@ namespace GPC.Model.Sections
     /// V_k = I_k κ' and its flexure stresses store U_k; the section stores ΣU_k for V = ΣV_k, so A_i = (Σ I_k)² / Σ U_k: the energy shear area
     /// of the whole, the same rule R31 applies to a BXS of separate regions (checked natively on two angles with a gusset gap).</para>
     /// <para>Moved from GPC.Converter to GPCModel (review L6, 4/11/2026), next to the torsion that shares the joining of the regions, so that
-    /// every adapter (the Straus7 writer, the BridGHe adapter for <c>ElasticBeamProperty.ShearArea1/2</c>) calls one public API.</para></summary>
+    /// every adapter (the Straus7 writer, the BridGHe adapter for <c>ElasticBeamProperty.ShearArea1/2</c>) calls one public API.</para>
+    /// <para>Mesh (review L6): about <see cref="TargetTriangles"/> triangles whatever the size of the section. Each region is meshed by
+    /// DelaunayMesh with the size <see cref="MeshSize"/> = 6.4 √(A/N) (A the area of the section, N = <see cref="TargetTriangles"/>) and a
+    /// minimum angle of 20°, then <see cref="SubdivisionLevels"/> times subdivided uniformly (each triangle into four, the angles kept). At the
+    /// size 1.6 √(A/N) DelaunayMesh gives N ± 5 % triangles on the reference sections; two subdivisions multiply them by 16. A wall thinner
+    /// than the size gets smaller triangles (more of them: 26 624 for a CHS 500 × 5). Before, the size was computed from the area of an
+    /// uncomputed section (zero), so each region took the default DelaunayMesh size (half its smaller side), subdivided until 20 000
+    /// triangles: 20 000 to 76 000 triangles by accident of the shape. Same accuracy (within 0.3 % of R31 on the C2/L4 tables, values within
+    /// 0.3 % of the previous ones), less time: circle Ø100 1.5 s, now 0.08 s; 13 reference sections 4.1 s, now 0.4 s; 50 bridge girders
+    /// 1.9 s, now 1.5 s (24 processors, one by one).</para></summary>
     public static class SectionShearAreas
     {
-        /// <summary>Minimum number of triangles of the section mesh (the default mesh of each region, uniformly subdivided if needed).</summary>
-        public const int MinimumTriangles = 20000;
+        /// <summary>The number of triangles the analysis mesh aims at (about this many; more where walls are thinner than the mesh size).</summary>
+        public const int TargetTriangles = 20000;
+
+        /// <summary>The uniform subdivisions of the DelaunayMesh of the regions (each triangle into four through its edge midpoints).</summary>
+        public const int SubdivisionLevels = 2;
+
+        /// <summary>The DelaunayMesh size of the regions of a section of area <paramref name="area"/> (mm², mm): 6.4 √(A/N), N =
+        /// <see cref="TargetTriangles"/>, so that the mesh after <see cref="SubdivisionLevels"/> subdivisions has about N triangles.</summary>
+        public static double MeshSize(double area) => 6.4 * Math.Sqrt(area / TargetTriangles);
 
         /// <summary>The shear areas of the section in its principal axes 1 and 2 (Straus7 ipSA1/ipSA2), with the separate bodies and the method.
         /// <para>A generic <see cref="Section"/> built from an outline whose properties are not computed yet (area not positive) is solved on a
@@ -143,7 +166,7 @@ namespace GPC.Model.Sections
                 throw new NotSupportedException("ShearAreasAxesDoNotMatchSectionGeometry: " + section.Name);
             var parts = mesh.Bodies();
             double c = poissonRatio / (2 * (1 + poissonRatio));
-            int triangles = mesh.Triangles.Count, nodes = mesh.UsedNodes();
+            int triangles = mesh.Triangles.Count, nodes = mesh.UsedNodes(); double size = mesh.Size;
             if (parts.Count == 1)
             {
                 // The Laplacian does not depend on the shear direction: one factorization, two right-hand sides.
@@ -151,7 +174,7 @@ namespace GPC.Model.Sections
                 // Shear along axis 1: bending about axis 2 (I = ∫u1²), transverse coordinate u2; and conversely.
                 var (inertia1, energy1) = Flexure(mesh, frame, solver, 0, c); var (inertia2, energy2) = Flexure(mesh, frame, solver, 1, c);
                 double factor1 = inertia1 * inertia1 / (mesh.Area * energy1), factor2 = inertia2 * inertia2 / (mesh.Area * energy2);
-                return new SectionShearAreaProperties(factor1 * section.Area, factor2 * section.Area, 1, poissonRatio, triangles, nodes);
+                return new SectionShearAreaProperties(factor1 * section.Area, factor2 * section.Area, 1, poissonRatio, triangles, nodes, size);
             }
             double sum1 = 0, sum2 = 0, stored1 = 0, stored2 = 0;
             foreach (var body in parts)
@@ -162,7 +185,7 @@ namespace GPC.Model.Sections
                 sum1 += inertia1; stored1 += energy1; sum2 += inertia2; stored2 += energy2;
             }
             double scale = section.Area / mesh.Area;
-            return new SectionShearAreaProperties(sum1 * sum1 / stored1 * scale, sum2 * sum2 / stored2 * scale, parts.Count, poissonRatio, triangles, nodes);
+            return new SectionShearAreaProperties(sum1 * sum1 / stored1 * scale, sum2 * sum2 / stored2 * scale, parts.Count, poissonRatio, triangles, nodes, size);
         }
 
         /// <summary>The section with its properties: the section itself, or for a generic <see cref="Section"/> whose properties are not computed
@@ -368,23 +391,39 @@ namespace GPC.Model.Sections
                 if (outlines.Length == 0) throw new NotSupportedException("ShearAreasRequireSectionGeometry: " + section.Name);
                 // The parts of a welded section work as one region; those of another built-up section are connected at discrete points.
                 bool join = !(section is SectionBuiltUp) || section is SectionWelded;
-                // The default mesh of each region (DelaunayMesh size of the region), refined uniformly below to MinimumTriangles: the mesh of
-                // the C2 comparisons with R31 (review L4: the size computed before from `new Section(o).Area`, zero without its properties,
-                // was always this default; the triangles are unchanged).
-                var meshes = outlines.Select(o => new Section(o).GetMesh()).ToArray();
-                if (meshes.Any(m => m == null || m.Faces.Count == 0)) throw new ArgumentException("EmptySectionMesh: " + section.Name);
-                double size = meshes.SelectMany(m => m.Vertices).Max(v => Math.Max(Math.Abs(v.Point.X), Math.Abs(v.Point.Y)));
-                // Length scale of the joining: the side of the target triangles (search cells), 1e-7 of it to merge or split.
-                double spacing = Math.Sqrt(4 * Math.Abs(section.Area) / (Math.Sqrt(3) * MinimumTriangles));
-                if (!(spacing > 0) || double.IsInfinity(spacing)) spacing = 1e-3 * Math.Max(size, 1);
+                // Each region at the explicit size of the section (see the class), then subdivided uniformly: about TargetTriangles triangles.
+                double meshSize = MeshSize(Math.Abs(section.Area));
+                if (!(meshSize > 0) || double.IsInfinity(meshSize)) throw new NotSupportedException("ShearAreasRequireSectionProperties: " + section.Name);
+                var meshes = outlines.Select(o => Triangulate(o, meshSize, section.Name)).ToArray();
+                double extent = meshes.SelectMany(m => m.Vertices).Max(v => Math.Max(Math.Abs(v.Point.X), Math.Abs(v.Point.Y)));
+                // Length scale of the joining: the side of TargetTriangles equilateral triangles (search cells), 1e-7 of it to merge or split.
+                double spacing = Math.Sqrt(4 * Math.Abs(section.Area) / (Math.Sqrt(3) * TargetTriangles));
                 var x = new List<double>(); var y = new List<double>(); var triangles = new List<int[]>();
                 SectionMeshJoiner.Join(meshes, join, spacing, x, y, triangles);
-                var result = new SectionMesh(x, y, triangles);
-                result.Triangles.RemoveAll(t => Math.Abs(result.Det(t)) <= 1e-14 * size * size);
+                var result = new SectionMesh(x, y, triangles) { Size = meshSize };
+                result.Triangles.RemoveAll(t => Math.Abs(result.Det(t)) <= 1e-14 * extent * extent);
                 result.Measure();
-                while (result.Triangles.Count < MinimumTriangles) result.Subdivide();
+                for (int level = 0; level < SubdivisionLevels; level++) result.Subdivide();
                 return result;
             }
+
+            /// <summary>The DelaunayMesh of a region at <paramref name="size"/> with a minimum angle of 20°, without it if that fails (as the
+            /// torsion meshes its regions).</summary>
+            private static Mesh Triangulate(Shape2d outline, double size, string name)
+            {
+                string error = null;
+                foreach (double minimumAngle in new[] { 20.0, 0.0 })
+                {
+                    var options = new GPC.Geometry.Meshes.DelaunayMesh.DelaunayMesh.DelaunayGenerateOptions { MeshSize = size, Recombine = false, MinAngle = minimumAngle };
+                    if (GPC.Geometry.Meshes.DelaunayMesh.DelaunayMesh.Generate(outline, options, out Mesh mesh, out var status) && mesh != null && mesh.Faces.Count > 0)
+                        return mesh;
+                    error = status?.GetLastCustomErrorMessage();
+                }
+                throw new ArgumentException("EmptySectionMesh: " + name + (error == null ? "" : ": " + error));
+            }
+
+            /// <summary>The DelaunayMesh size of the regions.</summary>
+            internal double Size { get; private set; }
             private double Det(int[] t) => (px[t[1]] - px[t[0]]) * (py[t[2]] - py[t[0]]) - (px[t[2]] - px[t[0]]) * (py[t[1]] - py[t[0]]);
 
             /// <summary>Area and centroid.</summary>
