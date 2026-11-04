@@ -7,23 +7,6 @@ using System.Linq;
 namespace GPC.Model.Sections
 {
     /// <summary>
-    /// How <see cref="SectionShearAreas.Compute"/> obtained the shear areas
-    /// </summary>
-    public enum SectionShearAreaMethod
-    {
-        /// <summary>
-        /// One connected body: the Saint-Venant flexure solved by finite elements (Trefftz energy), A = I² / ∫|∇χ + a|² dA
-        /// </summary>
-        SaintVenantFlexure,
-
-        /// <summary>
-        /// Separate bodies (the parts of a built-up section connected at discrete points, or regions that do not touch) that bend together
-        /// without shear flow between them: the flexure of each body, A = (Σ I_k)² / Σ U_k
-        /// </summary>
-        SeparatePartsBendingTogether,
-    }
-
-    /// <summary>
     /// The shear areas of a section computed by <see cref="SectionShearAreas.Compute"/>, in mm², in the principal axes of the section
     /// </summary>
     public sealed class SectionShearAreaProperties
@@ -62,9 +45,10 @@ namespace GPC.Model.Sections
         public bool HasSeparateParts => Bodies > 1;
 
         /// <summary>
-        /// The method of the calculation
+        /// The method of the calculation: <see cref="SectionShearAreas.SaintVenantFlexure"/> or
+        /// <see cref="SectionShearAreas.SeparatePartsBendingTogether"/> (a text, not an enum: a computed value, never archived)
         /// </summary>
-        public SectionShearAreaMethod Method => Bodies > 1 ? SectionShearAreaMethod.SeparatePartsBendingTogether : SectionShearAreaMethod.SaintVenantFlexure;
+        public string Method => Bodies > 1 ? SectionShearAreas.SeparatePartsBendingTogether : SectionShearAreas.SaintVenantFlexure;
 
         /// <summary>
         /// The Poisson ratio of the material used in the flexure solution
@@ -133,6 +117,13 @@ namespace GPC.Model.Sections
     /// 1.9 s, now 1.5 s (24 processors, one by one).</para></summary>
     public static class SectionShearAreas
     {
+        /// <summary>Method of one connected body: the Saint-Venant flexure solved by finite elements (Trefftz energy), A = I² / ∫|∇χ + a|² dA.</summary>
+        public const string SaintVenantFlexure = "SaintVenantFlexure";
+
+        /// <summary>Method of separate bodies (the parts of a built-up section connected at discrete points, or regions that do not touch) that
+        /// bend together without shear flow between them: the flexure of each body, A = (Σ I_k)² / Σ U_k.</summary>
+        public const string SeparatePartsBendingTogether = "SeparatePartsBendingTogether";
+
         /// <summary>The number of triangles the analysis mesh aims at (about this many; more where walls are thinner than the mesh size).</summary>
         public const int TargetTriangles = 20000;
 

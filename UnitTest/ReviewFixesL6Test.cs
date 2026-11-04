@@ -25,11 +25,11 @@ public class ReviewFixesL6Test
             .Cast<System.Runtime.CompilerServices.InternalsVisibleToAttribute>().Any(a => a.AssemblyName == "GPC.Converter"), "no InternalsVisibleTo for the Converter");
         var h = new SectionH(300, 10, 200, 15, 200, 15, "I");
         var single = SectionShearAreas.Compute(h, .3);
-        Assert.AreEqual(1, single.Bodies); Assert.IsFalse(single.HasSeparateParts); Assert.AreEqual(SectionShearAreaMethod.SaintVenantFlexure, single.Method);
+        Assert.AreEqual(1, single.Bodies); Assert.IsFalse(single.HasSeparateParts); Assert.AreEqual(SectionShearAreas.SaintVenantFlexure, single.Method);
         Assert.AreEqual(.3, single.PoissonRatio); Assert.IsTrue(single.Nodes > single.Triangles / 3, single.ToString());
         var (a1, a2) = single; Assert.AreEqual(single.Area1, a1); Assert.AreEqual(single.Area2, a2);
         var pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3);
-        Assert.AreEqual(2, pair.Bodies); Assert.IsTrue(pair.HasSeparateParts); Assert.AreEqual(SectionShearAreaMethod.SeparatePartsBendingTogether, pair.Method);
+        Assert.AreEqual(2, pair.Bodies); Assert.IsTrue(pair.HasSeparateParts); Assert.AreEqual(SectionShearAreas.SeparatePartsBendingTogether, pair.Method);
         // The forwarder kept for the F6 branches gives the same values, bit for bit.
 #pragma warning disable CS0618
         var forwarded = GPC.Converter.SectionShearAreas.Compute(h, .3, out int bodies);
