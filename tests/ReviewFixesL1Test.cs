@@ -262,14 +262,24 @@ namespace UnitTest
             Assert.AreEqual(0, model.FormFinding.IgnoredInputs().Count); Assert.IsTrue(model.FormFinding.Uses(force));
         }
 
-        // B7: legacy Arachne keeps one axial target; a cable force and an axial force on one beam are ambiguous.
-        [TestMethod] public void B7_CableForceAndAxialForceOnOneBeamAreRejected()
+        // B7, changed by the user on 4/11/2026 («cable e fixed axial force possono convivere»): a cable force and a fixed axial force on
+        // one beam coexist, as in Arachne 7b1108d (the fixed axial force replaces the axial target of the cable; lane L5). With every method;
+        // the linear one keeps its warning that it ignores the fixed axial force.
+        [TestMethod] public void B7_CableForceAndAxialForceOnOneBeamCoexist()
         {
-            var model = Cable(FormFindingMethod.NonlinearForceDensity); var beam = model.BeamElements.Values.Single();
-            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.CableForce, Target = 100 });
-            model.FormFinding.Validate(model);
-            model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.AxialForce, Target = 100 });
-            Assert.AreEqual("AmbiguousCableAndAxialForceGoals", Assert.ThrowsException<ArgumentException>(() => model.FormFinding.Validate(model)).Message);
+            foreach (var method in new[] { FormFindingMethod.LinearForceDensity, FormFindingMethod.SteppedLinearForceDensity, FormFindingMethod.NonlinearForceDensity })
+            {
+                var model = Cable(method); var beam = model.BeamElements.Values.Single();
+                model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.CableForce, Target = 100 });
+                model.FormFinding.Validate(model);
+                model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.AxialForce, Target = 150, Weight = 2 });
+                model.FormFinding.Validate(model);
+                Assert.IsFalse(model.ValidateDomain().Any(d => d.Severity == DiagnosticSeverity.Error), method.ToString());
+                Assert.AreEqual(method == FormFindingMethod.LinearForceDensity, model.FormFinding.IgnoredInputs().Any(d => d.Code == "FormFindingFixedAxialForceIgnored"), method.ToString());
+                // still one goal of a kind per beam: a second cable force is refused
+                model.FormFinding.Goals.Add(new FormFindingGoal { BeamGuid = beam.Guid, Kind = FormFindingGoalKind.CableForce, Target = 120 });
+                Assert.AreEqual("InvalidOrDuplicateFormFindingGoal", Assert.ThrowsException<ArgumentException>(() => model.FormFinding.Validate(model)).Message);
+            }
         }
 
         // B7: the legacy BridGHe load-patch shape (int[4] padded with zeros, weights on automatic kinds) is accepted.

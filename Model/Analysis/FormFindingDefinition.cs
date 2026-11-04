@@ -102,9 +102,9 @@ namespace GPC.Model.Analysis
             }
             foreach (var group in Goals.Where(g => g.Kind != FormFindingGoalKind.Length && g.Kind != FormFindingGoalKind.AxialForce).GroupBy(g => g.BeamGuid))
                 if (group.Count() > 1) throw new ArgumentException("ConflictingForceDensitySources");
-            // Legacy Arachne sets both as the one TensileLib axial target, the last one winning: ambiguous (review B7).
-            if (Goals.GroupBy(g => g.BeamGuid).Any(g => g.Any(x => x.Kind == FormFindingGoalKind.CableForce) && g.Any(x => x.Kind == FormFindingGoalKind.AxialForce)))
-                throw new ArgumentException("AmbiguousCableAndAxialForceGoals");
+            // A cable force and a fixed axial force on one beam coexist, as in Arachne 7b1108d (user decision 4/11/2026, «cable e fixed
+            // axial force possono convivere»): the cable force sets the axial target, then the fixed axial force replaces it and fixes it,
+            // with every method (the linear one warns that it ignores the fixed axial force, but its target is the one used).
             keys.Clear();
             foreach (var goal in CoordinateGoals)
             {
