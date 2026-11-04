@@ -64,6 +64,10 @@ namespace GPC.Model.Results.Storage
     {
         private readonly Dictionary<object, Tuple<byte, Guid, string>> _keys = new Dictionary<object, Tuple<byte, Guid, string>>(ResultIdentity.Instance);
         private readonly Models.Model _model;
+        // The writers of this table, reused by the segments that its call encodes (one per thread at a time)
+        private readonly System.Collections.Concurrent.ConcurrentBag<ResultCodec.Writer> _writers = new System.Collections.Concurrent.ConcurrentBag<ResultCodec.Writer>();
+        internal ResultCodec.Writer TakeWriter() => _writers.TryTake(out var writer) ? writer : null;
+        internal void ReturnWriter(ResultCodec.Writer writer) => _writers.Add(writer);
         internal ResultCaseTable(Models.Model model)
         {
             _model = model;
@@ -314,23 +318,32 @@ namespace GPC.Model.Results.Storage
         /// <summary>Encodes <paramref name="count"/> results from <paramref name="start"/>. References outside the run are rejected.</summary>
         internal static ResultSegment Encode(IReadOnlyList<ElementResult> results, int start, int count, ResultCaseTable cases)
         {
-            var writer = new Writer(cases);
-            for (int i = start; i < start + count; i++)
+            // The writers of one case table (one compaction, one capture: a call) are reused by its threads, cleared before each
+            // segment: the same bytes, without the collections, buffers and streams of a writer per element (lane L9). The table, and
+            // its writers with it, belong to the call: nothing is kept between calls (rule P3).
+            var writer = cases.TakeWriter() ?? new Writer(cases);
+            try
             {
-                var r = results[i];
-                if (r == null) throw new ResultEncodingException("NullElementResult", false);
-                writer.Owned.Add(r);
-                if (r.Results != null) foreach (var s in r.Results) if (s != null) writer.Owned.Add(s);
+                for (int i = start; i < start + count; i++)
+                {
+                    var r = results[i];
+                    if (r == null) throw new ResultEncodingException("NullElementResult", false);
+                    writer.Owned.Add(r);
+                    if (r.Results != null) foreach (var s in r.Results) if (s != null) writer.Owned.Add(s);
+                }
+                writer.Header(count);
+                for (int i = start; i < start + count; i++) writer.Value(results[i]);
+                return writer.Finish(count);
             }
-            writer.Header(count);
-            for (int i = start; i < start + count; i++) writer.Value(results[i]);
-            return writer.Finish(count);
+            finally { writer.Clear(); cases.ReturnWriter(writer); }
         }
 
-        private sealed class Writer
+        internal sealed class Writer
         {
             // A segment of the results of one element is a few KB: one buffer of that size instead of six doublings from 256 bytes.
             private readonly MemoryStream _stream = new MemoryStream(4096);
+            private readonly MemoryStream _packed = new MemoryStream(2048);
+            private SHA256 _sha;
             private byte[] _text = new byte[256];
             private readonly BinaryWriter _out;
             private readonly ResultCaseTable _cases;
@@ -346,10 +359,23 @@ namespace GPC.Model.Results.Storage
 
             internal void Header(int count) { _out.Write(Magic); _out.Write(Version); VarUInt(count); }
 
+            /// <summary>Empty again, with the capacity of its collections and buffers: the state of a new writer.</summary>
+            internal void Clear()
+            {
+                _out.Flush(); _stream.SetLength(0); _stream.Position = 0;
+                _objects.Clear(); _strings.Clear(); _types.Clear(); _layouts.Clear(); _layoutCount = 0;
+                _caseIndex.Clear(); _datasets.Clear(); Owned.Clear();
+            }
+
             internal ResultSegment Finish(int count)
             {
                 _out.Flush();
-                return Seal(_stream.GetBuffer(), (int)_stream.Length, count, _datasets.ToArray());
+                // As Seal, with the hash and the output stream of the writer
+                byte[] raw = _stream.GetBuffer(); int length = (int)_stream.Length;
+                byte[] digest = (_sha ?? (_sha = SHA256.Create())).ComputeHash(raw, 0, length);
+                _packed.SetLength(0); _packed.Position = 0;
+                using (var deflate = new DeflateStream(_packed, CompressionLevel.Fastest, true)) deflate.Write(raw, 0, length);
+                return new ResultSegment(_packed.ToArray(), length, count, digest, _datasets.ToArray());
             }
 
             private void VarUInt(long value) { ulong v = (ulong)value; while (v >= 0x80) { _out.Write((byte)(v | 0x80)); v >>= 7; } _out.Write((byte)v); }
