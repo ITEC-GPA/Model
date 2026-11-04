@@ -46,7 +46,11 @@ namespace GPC.Persistence
     /// block unavailable. A missing archive, or one that cannot be read as an archive (it is renamed aside, never overwritten), does not
     /// block the save of the document. The index of the file is kept live: a save reads the 64-byte header, copies the kept blocks byte for
     /// byte (each one verified against its address once per session) and never decodes them. A lock file serializes the writers of one
-    /// archive across processes, and a file rewritten by another writer since this session last saw it is retained whole.</para></summary>
+    /// archive across processes (Save As locks its source too), and a file rewritten by another writer since this session last saw it is
+    /// retained whole.</para>
+    /// <para>Only a block whose bytes do not match its address is damage (left out and reported). A read that fails while a save checks or
+    /// copies blocks (an IO error, access denied, a file replaced by another program after its index was read) stops that save before the
+    /// document, and loses nothing: the next save tries again.</para></summary>
     public sealed class BlockArchive
     {
         public const string DefaultMark = "GPC.BLOCKS";
@@ -64,7 +68,14 @@ namespace GPC.Persistence
         private Index? index;
         private byte[]? known;
         private readonly HashSet<string> verified = new HashSet<string>(StringComparer.Ordinal);
+        // Blocks in memory read from a file without checking them against their address (retired from a file for an undo): checked before
+        // they are written again, so a damaged one never becomes a verified block of the new file (review L4).
+        private readonly HashSet<string> unverified = new HashSet<string>(StringComparer.Ordinal);
         private ArchiveSaveReport? lastSave;
+
+        /// <summary>Test seam (review L4): called with the address of each block before it is read from a file during the checks and the copy
+        /// of a save; an exception it returns is thrown there, as a failed read. Null in production.</summary>
+        internal Func<string, Exception?>? ReadFault { get; set; }
 
         private enum FailureKind { Missing, Unreadable, Invalid }
         private sealed class Failure
@@ -111,8 +122,13 @@ namespace GPC.Persistence
         public void Add(ArchiveBlock block)
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
-            // Kept even when the file has it: another writer may replace the file before the next save.
-            lock (gate) if (!memory.ContainsKey(block.Address)) memory.Add(block.Address, block);
+            // Kept even when the file has it: another writer may replace the file before the next save. A block of the caller, hashed when it
+            // was created, replaces an unchecked copy read from a file.
+            lock (gate)
+            {
+                if (!memory.ContainsKey(block.Address)) memory.Add(block.Address, block);
+                else if (unverified.Remove(block.Address)) memory[block.Address] = block;
+            }
         }
 
         /// <summary>The decoded blocks, each checked against its address; a block that cannot be given back has its reason.</summary>
@@ -203,7 +219,12 @@ namespace GPC.Persistence
                 saving = true;
                 try
                 {
-                    using (AcquireLock(target))
+                    // Save As copies blocks from the session's archive: it is locked too (review L4), so that no other writer replaces it while
+                    // its blocks are checked and copied. The two locks are taken in a fixed order, so two writers never wait for each other.
+                    string? from = file != null && !string.Equals(file, target, StringComparison.OrdinalIgnoreCase) ? file : null;
+                    bool sourceFirst = from != null && string.Compare(from, target, StringComparison.OrdinalIgnoreCase) < 0;
+                    using (AcquireLock(sourceFirst ? from! : target))
+                    using (from == null ? null : AcquireLock(sourceFirst ? target : from))
                         return SaveLocked(target, current, invalid, writeDocument, requireComplete, snapshot, retainExisting);
                 }
                 finally { saving = false; }
@@ -296,8 +317,9 @@ namespace GPC.Persistence
         private void Commit(Index now, bool written)
         {
             index = now; known = now.Digest;
+            // Every block of a file written by this session was checked: hashed when created, or checked before the copy (Write).
             if (written) { verified.Clear(); verified.UnionWith(now.Entries.Keys); }
-            foreach (string address in now.Entries.Keys) memory.Remove(address);
+            foreach (string address in now.Entries.Keys) { memory.Remove(address); unverified.Remove(address); }
         }
 
         /// <summary>Writes <paramref name="blocks"/> (sorted, as ANTHEA format 1) into a temporary file beside the target, then replaces it.
@@ -307,15 +329,26 @@ namespace GPC.Persistence
         {
             var origin = new Dictionary<string, KeyValuePair<Index, Entry>>(StringComparer.Ordinal);
             var toVerify = new List<KeyValuePair<string, KeyValuePair<Index, Entry>>>();
+            // A block in memory that was read from a file without a check (retired for an undo) is checked now (review L4).
+            var badMemory = new List<string>();
             foreach (string address in blocks)
             {
-                if (memory.ContainsKey(address)) continue;
+                if (memory.TryGetValue(address, out var held))
+                {
+                    if (unverified.Contains(address))
+                    {
+                        try { held.Decode(); unverified.Remove(address); }
+                        catch (InvalidDataException) { badMemory.Add(address); }
+                    }
+                    continue;
+                }
                 var from = source != null && source.Entries.TryGetValue(address, out var entry) ? new KeyValuePair<Index, Entry>(source, entry)
                     : new KeyValuePair<Index, Entry>(destination!, destination!.Entries[address]);
                 origin.Add(address, from);
                 if (!(ReferenceEquals(from.Key, index) && verified.Contains(address))) toVerify.Add(new KeyValuePair<string, KeyValuePair<Index, Entry>>(address, from));
             }
             var bad = VerifyAll(toVerify);
+            foreach (string address in badMemory) { bad[address] = true; memory.Remove(address); unverified.Remove(address); }
             damaged.AddRange(bad.Keys.OrderBy(a => a, StringComparer.Ordinal));
             string temporary = target + "." + Guid.NewGuid().ToString("N") + ".tmp";
             var entries = new Dictionary<string, Entry>(blocks.Count, StringComparer.Ordinal);
@@ -340,16 +373,20 @@ namespace GPC.Persistence
                                 continue;
                             }
                             var from = origin[address];
-                            if (!inputs.TryGetValue(from.Key, out var input)) inputs.Add(from.Key, input = OpenRead(from.Key.Path));
+                            // The file the index was read from, or the save stops (another writer replaced it meanwhile): never other bytes
+                            // under valid addresses (review L4).
+                            Fault(address);
+                            if (!inputs.TryGetValue(from.Key, out var input)) inputs.Add(from.Key, input = OpenChecked(from.Key));
                             entries.Add(address, new Entry(from.Value.Kind, output.Position, from.Value.Stored, from.Value.Length));
                             Copy(input, from.Value.Offset, from.Value.Stored, output, buffer);
                         }
-                        // The blocks the new file drops stay in memory for the rest of the session: an undo may cite them again.
+                        // The blocks the new file drops stay in memory for the rest of the session: an undo may cite them again. A damaged block
+                        // does not (it is reported), and the others are checked before they are written again (unverified).
                         if (same && source != null)
                         {
-                            if (!inputs.TryGetValue(source, out var input)) inputs.Add(source, input = OpenRead(source.Path));
+                            if (!inputs.TryGetValue(source, out var input)) inputs.Add(source, input = OpenChecked(source));
                             foreach (var pair in source.Entries)
-                                if (!entries.ContainsKey(pair.Key) && !memory.ContainsKey(pair.Key) && !pair.Value.Oversized)
+                                if (!entries.ContainsKey(pair.Key) && !memory.ContainsKey(pair.Key) && !pair.Value.Oversized && !bad.ContainsKey(pair.Key))
                                     retired[pair.Key] = ArchiveBlock.FromFile(pair.Key, pair.Value.Kind, pair.Value.Length, ReadAt(input, pair.Value.Offset, pair.Value.Stored));
                         }
                         long indexOffset = output.Position;
@@ -374,16 +411,53 @@ namespace GPC.Persistence
                 Replace(temporary, target);
             }
             finally { TryDelete(temporary); }
-            foreach (var pair in retired) memory[pair.Key] = pair.Value;
+            bool checkedSource = ReferenceEquals(source, index);
+            foreach (var pair in retired)
+            {
+                memory[pair.Key] = pair.Value;
+                if (!(checkedSource && verified.Contains(pair.Key))) unverified.Add(pair.Key);
+            }
             return new Index { Path = target, Length = length, Digest = digest, Entries = entries, Damaged = new Dictionary<string, string>(StringComparer.Ordinal) };
         }
 
         private void Retire(Index source, HashSet<string> keep)
         {
-            using (var input = OpenRead(source.Path))
+            bool checkedSource = ReferenceEquals(source, index);
+            using (var input = OpenChecked(source))
                 foreach (var pair in source.Entries)
                     if (!keep.Contains(pair.Key) && !memory.ContainsKey(pair.Key) && !pair.Value.Oversized)
+                    {
                         memory[pair.Key] = ArchiveBlock.FromFile(pair.Key, pair.Value.Kind, pair.Value.Length, ReadAt(input, pair.Value.Offset, pair.Value.Stored));
+                        if (!(checkedSource && verified.Contains(pair.Key))) unverified.Add(pair.Key);
+                    }
+        }
+
+        /// <summary>The file of <paramref name="from"/>, opened for reading and checked to be the one its index was read from (length and
+        /// digest of the index in the header): a file replaced since then stops the save instead of giving other bytes under valid addresses.
+        /// The handle keeps reading this file even if another writer replaces it afterwards.</summary>
+        private static FileStream OpenChecked(Index from, int bufferSize = 4096, FileOptions options = FileOptions.None)
+        {
+            var stream = new FileStream(from.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, bufferSize, options);
+            try
+            {
+                var header = new byte[HeaderBytes];
+                if (stream.Length == from.Length && stream.Length >= HeaderBytes)
+                {
+                    ArchiveBlock.ReadExactly(stream, header);
+                    bool same = true;
+                    for (int i = 0; i < 32; i++) same &= header[32 + i] == from.Digest[i];
+                    if (same) return stream;
+                }
+                throw new IOException("Il progetto non è stato salvato: l'archivio dei risultati " + Path.GetFileName(from.Path) + " è stato cambiato da un altro " +
+                    "programma durante il salvataggio. Nessun risultato è andato perso: salva di nuovo.");
+            }
+            catch { stream.Dispose(); throw; }
+        }
+
+        private void Fault(string address)
+        {
+            var fault = ReadFault?.Invoke(address);
+            if (fault != null) throw fault;
         }
 
         /// <summary>The index of the session's file, from the header alone when the file did not change. Under the gate.</summary>
@@ -459,35 +533,46 @@ namespace GPC.Persistence
         }
 
         /// <summary>Checks blocks in files against their addresses, in parallel ranges in file order; each range has one stream, one hash
-        /// and one buffer. Returns the blocks that do not match.</summary>
-        private static ConcurrentDictionary<string, bool> VerifyAll(List<KeyValuePair<string, KeyValuePair<Index, Entry>>> items)
+        /// and one buffer. Returns the blocks that do not match (a different hash or length, or data that does not inflate). A failed read
+        /// (IO error, access denied, a file replaced meanwhile) is not damage: the save stops before anything is written, and every block
+        /// stays where it is (review L4: before, the blocks of the range were dropped from the new file).</summary>
+        private ConcurrentDictionary<string, bool> VerifyAll(List<KeyValuePair<string, KeyValuePair<Index, Entry>>> items)
         {
             var bad = new ConcurrentDictionary<string, bool>(StringComparer.Ordinal);
-            foreach (var group in items.GroupBy(i => i.Value.Key.Path, StringComparer.OrdinalIgnoreCase))
+            foreach (var group in items.GroupBy(i => i.Value.Key))
             {
                 var list = group.OrderBy(i => i.Value.Value.Offset).ToArray();
                 var ranges = System.Collections.Concurrent.Partitioner.Create(0, list.Length, Math.Max(16, list.Length / (4 * Environment.ProcessorCount) + 1));
-                Parallel.ForEach(ranges, range =>
+                Exception? failure = null;
+                Parallel.ForEach(ranges, (range, state) =>
                 {
                     FileStream? input = null;
                     try
                     {
-                        input = new FileStream(group.Key, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 1 << 16, FileOptions.SequentialScan);
                         using (var sha = SHA256.Create())
                         {
                             var buffer = new byte[1 << 16];
-                            for (int k = range.Item1; k < range.Item2; k++)
+                            for (int k = range.Item1; k < range.Item2 && !state.IsStopped; k++)
+                            {
+                                Fault(list[k].Key);
+                                if (input == null) input = OpenChecked(group.Key, 1 << 16, FileOptions.SequentialScan);
                                 if (!Verify(input, sha, buffer, list[k].Key, list[k].Value.Value)) bad[list[k].Key] = true;
+                            }
                         }
                     }
-                    catch (Exception error) when (IoError(error)) { for (int k = range.Item1; k < range.Item2; k++) bad[list[k].Key] = true; }
+                    catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
+                    { Interlocked.CompareExchange(ref failure, error, null); state.Stop(); }
                     finally { input?.Dispose(); }
                 });
+                if (failure != null)
+                    throw new IOException("Il progetto non è stato salvato, per non perdere i risultati: l'archivio dei risultati " + Path.GetFileName(group.Key.Path) +
+                        " non si è potuto leggere durante il controllo dei blocchi (" + failure.Message + "). Salva di nuovo.", failure);
             }
             return bad;
         }
 
-        /// <summary>Checks one block by streaming it (no buffer of its size, any length).</summary>
+        /// <summary>Checks one block by streaming it (no buffer of its size, any length): false for a different hash or length, or data that
+        /// does not inflate; a failed read throws.</summary>
         private static bool Verify(FileStream input, SHA256 sha, byte[] buffer, string address, Entry entry)
         {
             try
@@ -507,7 +592,8 @@ namespace GPC.Persistence
                 sha.TransformFinalBlock(buffer, 0, 0);
                 return ArchiveBlock.Hex(sha.Hash) == address;
             }
-            catch (Exception error) when (IoError(error)) { return false; }
+            // Damaged data (deflate); an IOException, EndOfStreamException included, is a failed read and goes to the caller.
+            catch (InvalidDataException) { return false; }
         }
 
         /// <summary>Atomic sibling-file replacement, also available to application document writers.</summary>

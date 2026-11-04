@@ -47,6 +47,16 @@ namespace GPC.Converter.Straus7
             int? unassignedNativeGroup = null)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
+            model.RequireExportable(); // domain preflight of every exporter (review L4)
+            return PrepareCore(model, groupIds, loadCaseIds, freedomCaseIds, unassignedNativeGroup);
+        }
+
+        /// <summary>The stage part of a full export, whose preflight already ran (Straus7ModelWritePlan.Prepare).</summary>
+        internal static Straus7StageWritePlan PrepareCore(global::GPC.Model.Models.Model model,
+            IReadOnlyDictionary<Guid, int> groupIds, IReadOnlyDictionary<Guid, int> loadCaseIds, IReadOnlyDictionary<Guid, int> freedomCaseIds,
+            int? unassignedNativeGroup = null)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
             StageAnalysisState.ValidateAll(model);
             int[] groups = Map(groupIds, model.Groups.Values.Select(g => g.Guid), "Group");
             if (unassignedNativeGroup.HasValue)

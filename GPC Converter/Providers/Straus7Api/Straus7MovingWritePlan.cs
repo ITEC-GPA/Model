@@ -109,6 +109,15 @@ namespace GPC.Converter.Straus7
         public static Straus7MovingWritePlan Prepare(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> loadCaseIds,
             IReadOnlyDictionary<Guid,Straus7MovingPathOptions> options,SolverIdentityMap identity)
         {
+            if(model==null) throw new ArgumentNullException(nameof(model));
+            model.RequireExportable(); // domain preflight of every exporter (review L4)
+            return PrepareCore(model,loadCaseIds,options,identity);
+        }
+
+        /// <summary>The moving-load part of a full export, whose preflight already ran (Straus7ModelWritePlan.Prepare).</summary>
+        internal static Straus7MovingWritePlan PrepareCore(global::GPC.Model.Models.Model model,IReadOnlyDictionary<Guid,int> loadCaseIds,
+            IReadOnlyDictionary<Guid,Straus7MovingPathOptions> options,SolverIdentityMap identity)
+        {
             if(model==null||loadCaseIds==null) throw new ArgumentNullException();
             if(model.MovingLoads==null) throw new ArgumentException("MissingMovingLoadDefinition");
             model.MovingLoads.Validate(model);
