@@ -84,12 +84,18 @@ namespace GPC.Model.Core
         }
 
         /// <summary>Detached copy of one registered domain value; aliases inside the value are preserved, references to the source are not.</summary>
-        public static T CopyValue<T>(T value) where T : class
+        public static T CopyValue<T>(T value) where T : class => CopyValue(value, ModelCopyOptions.None);
+
+        /// <summary>Detached copy of one registered domain value, sharing with the source what <paramref name="options"/> allows
+        /// (<see cref="ModelCopyOptions.ShareProperties"/>: the properties, materials and sections it cites; the value itself is
+        /// always copied). Aliases inside the value are preserved. A value the copy in memory does not reproduce is copied
+        /// completely, through its XML.</summary>
+        public static T CopyValue<T>(T value, ModelCopyOptions options) where T : class
         {
             if (value == null) return null;
             if (!KnownTypeSet.Contains(value.GetType())) throw new SerializationException("UnregisteredDomainValue: " + value.GetType().FullName);
             if (value is Sections.ISectionShape section) { var shape = section.Shape; }
-            try { return (T)ContractCopy.Copy(value, value.GetType()); }
+            try { return (T)ContractCopy.Copy(value, value.GetType(), options); }
             catch (ContractCopy.UnsupportedException) { return (T)Detach(value).Read(); }
         }
         /// <summary>The XML that <see cref="CopyValue{T}"/> writes for the value now. Each <see cref="DetachedValue.Read"/> returns a new
@@ -113,11 +119,18 @@ namespace GPC.Model.Core
         }
         /// <summary>Copies the complete graph, preserving IDs, aliases and group event wiring. The results are shared in compact
         /// form and decoded, as new objects, on the first access to the results of each element of the copy.</summary>
-        public static Models.Model Copy(Models.Model model)
+        public static Models.Model Copy(Models.Model model) => Copy(model, ModelCopyOptions.None);
+
+        /// <summary>As <see cref="Copy(Models.Model)"/>, sharing with the source what <paramref name="options"/> allows. With
+        /// <see cref="ModelCopyOptions.ShareProperties"/> the copy is still a model of its own (elements, nodes, cases, groups,
+        /// registries are new objects) whose registries and elements cite the property, material and section instances of the
+        /// source: the elements of the copy cite the properties registered in the copy, as in the source. Fingerprints and
+        /// archives are those of the complete copy.</summary>
+        public static Models.Model Copy(Models.Model model, ModelCopyOptions options)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(model.CheckReports.ToArray());
-            var copy = ModelImage.Copy(model);
+            var copy = ModelImage.Copy(model, options);
             global::GPC.Model.Checking.Reports.ReportSchema.Validate(copy.CheckReports.ToArray());
             copy.Analysis?.Validate();
             return copy;

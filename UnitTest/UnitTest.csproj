@@ -8,6 +8,7 @@
     <Compile Include="../tests/FormFindingContractsTest.cs" Link="FormFindingContractsTest.cs" />
     <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
     <Compile Include="../tests/CompactArchiveTest.cs" Link="CompactArchiveTest.cs" />
+    <Compile Include="../tests/SharedPropertyCopyTest.cs" Link="SharedPropertyCopyTest.cs" />
     <None Include="../tests/Fixtures/external-v1-cc050bec/*" Link="Fixtures/external-v1-cc050bec/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../tests/Fixtures/anthea-blocks-v1-20261103.bin" Link="Fixtures/anthea-blocks-v1-20261103.bin" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

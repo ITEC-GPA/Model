@@ -51,11 +51,30 @@ namespace GPC.Model.Core
         };
 
         private readonly Dictionary<object, object> _copies;
+        // ModelCopyOptions.ShareProperties: the properties, materials and sections cited by the value are returned as they are
+        // (never the root, which is the value asked for). Per copy, as the reference map: nothing is kept between copies (rule P3).
+        private readonly bool _shareProperties;
+        private object _root;
 
-        private ContractCopy(int capacity) { _copies = new Dictionary<object, object>(capacity, ReferenceComparer<object>.Instance); }
+        private ContractCopy(int capacity, bool shareProperties)
+        {
+            _copies = new Dictionary<object, object>(capacity, ReferenceComparer<object>.Instance);
+            _shareProperties = shareProperties;
+        }
 
         /// <summary>The copy of <paramref name="value"/>, written as <paramref name="declared"/>.</summary>
-        internal static object Copy(object value, Type declared, int capacity = 0) => new ContractCopy(capacity).Value(value, declared);
+        internal static object Copy(object value, Type declared, int capacity = 0) => Copy(value, declared, ModelCopyOptions.None, capacity);
+
+        /// <summary>The copy of <paramref name="value"/>, written as <paramref name="declared"/>, sharing what <paramref name="options"/>
+        /// allows (<see cref="ModelCopyOptions"/>).</summary>
+        internal static object Copy(object value, Type declared, ModelCopyOptions options, int capacity = 0)
+        {
+            var copy = new ContractCopy(capacity, options?.SharesProperties == true) { _root = value };
+            return copy.Value(value, declared);
+        }
+
+        /// <summary>The values that <see cref="ModelCopyOptions.ShareProperties"/> shares: element properties, materials, sections.</summary>
+        internal static bool IsSharedProperty(object value) => value is ElementProperties.ElementProperty || value is Materials.Material || value is Sections.ISectionShape;
 
         /// <summary>How a value of <paramref name="type"/> is copied, or why it goes through the XML (the tests compare it with the
         /// contract of the serializer).</summary>
@@ -382,6 +401,9 @@ namespace GPC.Model.Core
             var plan = PlanOf(type);
             if (!plan.Known && type != declared && type != Nullable.GetUnderlyingType(declared))
                 throw new UnsupportedException("UnregisteredDomainValue: " + type.FullName);
+            // A shared instance is valid where its copy would be (the vocabulary check above), and stays the same object for every
+            // reference to it, as a copy would.
+            if (_shareProperties && !ReferenceEquals(value, _root) && IsSharedProperty(value)) return value;
             if (plan.Unsupported != null) throw new UnsupportedException(plan.Unsupported);
             if (plan.Kind == Kind.Shared) return value;
             if (!type.IsValueType && _copies.TryGetValue(value, out var done)) return done;

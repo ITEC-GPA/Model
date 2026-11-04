@@ -53,7 +53,11 @@ namespace GPC.Model.Core
 
         /// <summary>A new, independent graph, the one <c>Capture(model).Open()</c> returns, copied in memory (<see cref="ContractCopy"/>)
         /// with the same compact results attached. A graph the in-memory copy does not reproduce goes through the image.</summary>
-        internal static Models.Model Copy(Models.Model model)
+        internal static Models.Model Copy(Models.Model model) => Copy(model, ModelCopyOptions.None);
+
+        /// <summary>As <see cref="Copy(Models.Model)"/>, sharing what <paramref name="options"/> allows; the image (XML) copies
+        /// everything.</summary>
+        internal static Models.Model Copy(Models.Model model, ModelCopyOptions options)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             var elements = model.AllElements.ToArray();
@@ -65,7 +69,7 @@ namespace GPC.Model.Core
                 // collections, assignments). Reserve a bounded estimate, avoiding repeated large
                 // reference-map reallocations; aliases and extra payloads still grow normally.
                 int capacity = (int)Math.Min(1000000L, 16L * elements.Length);
-                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model), capacity);
+                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model), options, capacity);
             }
             catch (ContractCopy.UnsupportedException) { return Capture(model, elements, results).Open(); }
             AttachResults(copy, elements.Select(e => e.Guid).ToArray(), results);
