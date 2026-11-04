@@ -1,4 +1,6 @@
 using GPC.Converter.Straus7;
+using GPC.Geometry;
+using GPC.Model.Actions.Moving;
 using GPC.Model.ElementProperties;
 using GPC.Model.Materials;
 using GPC.Model.Models;
@@ -39,6 +41,52 @@ public class ReviewFixesL4Test
         RejectedByThePreflight(() => Straus7MovingWritePlan.Prepare(moving, new Dictionary<Guid, int>()), "moving loads");
         // The valid model is exported as before.
         Straus7ModelWritePlan.Prepare(Straus7ModelWriteTest.Cantilever());
+    }
+
+    /// <summary>The horizontal reaction of the clamp of the cantilever of Straus7ModelWriteTest in each generated static case of a moving axle
+    /// of 1000 N at 20 m/s along a circular path through (0, 0, 0), <paramref name="onTheArc"/> and (1000, 0, 0), with a centrifugal law.</summary>
+    private static List<double> HorizontalReactions(MovingCentrifugalLaw law, Point3d onTheArc, MovingLoadAxes axes, string name)
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); foreach (var node in model.NodesElements.Values) node.Loads.Clear();
+        var path = new MovingLoadPath { Id = Guid.NewGuid(), CaseGuid = model.LoadCases.Values.Single().Guid, Divisions = 4, Shape = MovingPathShape.Circular,
+            Start = new Point3d(0, 0, 0), End = new Point3d(1000, 0, 0), Reference = onTheArc, Target = MovingPathTarget.Beams,
+            Template = new MovingLoadTemplate { Name = "axle", Centrifugal = law, Vehicles = new[] { new MovingVehicle { Name = "P1000", Speed = 20000,
+                PointForces = new[] { new MovingPointForce { Force = new Vector3d(0, 0, -1000), Axes = axes, ApplyCentrifugal = true } } } } } };
+        model.MovingLoads = new MovingLoadDefinition(); model.MovingLoads.Paths.Add(path); model.MovingLoads.Validate(model);
+        var plan = Straus7ModelWritePlan.Prepare(model, new Dictionary<Guid, Straus7MovingPathOptions> { { path.Id, new Straus7MovingPathOptions { ConvertToStaticCases = true } } });
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(), output = Path.Combine(folder, name + ".st7"), result; IReadOnlyDictionary<int, string> generated;
+        using (var writer = new Straus7NativeWriter(output, folder)) { generated = plan.Write(writer, model); writer.Save(); result = writer.Solve(); }
+        int clamp = model.NodesElements.Values.Single(n => n.Position.X == 0).Id; var horizontal = new List<double>();
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(output, folder); reader.OpenResults(result);
+        foreach (int c in generated.Keys)
+        {
+            var reaction = reader.ReadNodeResult(clamp, c, true).Values;
+            Console.WriteLine($"L4 centrifugal {name} case {c}: reaction X {reaction[0]:G6} Y {reaction[1]:G6} Z {reaction[2]:G6} N");
+            if (Math.Abs(reaction[2]) > 1e-6) horizontal.Add(Math.Sqrt(reaction[0] * reaction[0] + reaction[1] * reaction[1]));
+        }
+        return horizontal;
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void L4_NativeCentrifugalForceOfAnNmmLawMatchesTheHandCalculation()
+    {
+        // Review L4 on the B8 test (it only read back the text): the force R31 applies for a GPC law, now written in mm and N. The third point of
+        // the path lies on the arc (R31): 1.25 mm beside the middle of the beam, R = (500² + 1.25²)/(2 × 1.25) = 100000.625 mm. The horizontal
+        // reaction of the clamp in each generated static case is the radial force.
+        var onTheArc = new Point3d(500, -1.25, 0); double radius = (500d * 500 + 1.25 * 1.25) / (2 * 1.25);
+        // Constant law: radial force = OffsetForce + Factor × |vertical force| = 50 N + 0.1 × 1000 N (a law read in kN would give 1000 times more).
+        var constant = HorizontalReactions(new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 }, onTheArc, MovingLoadAxes.Path, "constant");
+        Assert.AreEqual(4, constant.Count, "loaded cases");
+        foreach (double force in constant) Assert.AreEqual(150, force, 1e-6, "constant N-mm law");
+        // V²/(g R) with V in mm/s, R in mm and g = 9806.65 mm/s² (a length read in m would give 1000 times less, in km 10⁶).
+        double expected = 20000d * 20000 / (9806.65 * radius) * 1000;
+        var speed = HorizontalReactions(new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.SpeedSquaredOverGravityRadius }, onTheArc, MovingLoadAxes.Path, "speed");
+        Console.WriteLine($"L4 centrifugal V²/(gR): expected {expected:G8} N with R = {radius:G9} mm; R31 {string.Join(", ", speed.Select(f => f.ToString("G8")))}");
+        Assert.AreEqual(4, speed.Count, "loaded cases");
+        foreach (double force in speed) Assert.AreEqual(expected, force, 1e-5 * expected, "V²/(g R) N-mm law");
+        // Observed on R31 (reported, not a GPC rule): a force in global axes gets no centrifugal force at all, even with ApplyCentrifugal.
+        var global = HorizontalReactions(new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 }, onTheArc, MovingLoadAxes.Global, "global");
+        Console.WriteLine("L4 centrifugal of a force in global axes (R31): " + string.Join(", ", global.Select(f => f.ToString("G6"))) + " N");
     }
 
     private static Dictionary<string, string> Files(string folder, string stem) => Directory.GetFiles(folder, stem + ".*")
