@@ -422,8 +422,11 @@ namespace GPC.Model.Loads
         /// Return an array with forces and moments per unit length in global coordinate system
         /// </summary>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
-        /// <remarks>The origin of the coordinate system is subtracted from the rotated vectors: the result is wrong if the origin is not at
-        /// the origin of the axes (see the list of the defects found)</remarks>
+        /// <remarks>The components are rotated from the axes of the coordinate system to the global axes, as in
+        /// <see cref="PointLoad.GetGlobalForces"/> and <see cref="ToGlobal"/>: the origin of the coordinate system does not enter (until
+        /// 4/11/2026 it was subtracted from the rotated vectors, which shifted the intensities of a load in axes whose origin is not the
+        /// global one, e.g. beam axes at the start node; user decision «correggilo», lane L9). For axes at the global origin the result is the
+        /// same as before, bit for bit, except the sign of a zero component when an origin coordinate is -0.</remarks>
         public double[] GetGlobalForces()
         {
             // Crea un array di double in le 3 componenti di forza e di momento nelle 3 direzioni del sistema di coordinate globali
@@ -432,12 +435,14 @@ namespace GPC.Model.Loads
             Vector3d forceLocal = new Vector3d(_f1, _f2, _f3);
             Vector3d momentLocal = new Vector3d(_m1, _m2, _m3);
 
-            double fX = _coordinateSystem.ToGlobal(forceLocal).X - _coordinateSystem.Origin.X;
-            double fY = _coordinateSystem.ToGlobal(forceLocal).Y - _coordinateSystem.Origin.Y;
-            double fZ = _coordinateSystem.ToGlobal(forceLocal).Z - _coordinateSystem.Origin.Z;
-            double mX = _coordinateSystem.ToGlobal(momentLocal).X - _coordinateSystem.Origin.X;
-            double mY = _coordinateSystem.ToGlobal(momentLocal).Y - _coordinateSystem.Origin.Y;
-            double mZ = _coordinateSystem.ToGlobal(momentLocal).Z - _coordinateSystem.Origin.Z;
+            Vector3d forceGlobal = _coordinateSystem.ToGlobal(forceLocal);
+            Vector3d momentGlobal = _coordinateSystem.ToGlobal(momentLocal);
+            double fX = forceGlobal.X;
+            double fY = forceGlobal.Y;
+            double fZ = forceGlobal.Z;
+            double mX = momentGlobal.X;
+            double mY = momentGlobal.Y;
+            double mZ = momentGlobal.Z;
 
             double[] PointLoad = new double[6];
             PointLoad[0] = fX;
