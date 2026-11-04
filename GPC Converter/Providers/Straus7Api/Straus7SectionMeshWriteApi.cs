@@ -22,14 +22,31 @@ namespace GPC.Converter.Straus7
     {
         public void SetBeamSectionMesh(int property,double[][] vertices,int[][] faces,double[] referenceProperties)
         {
-            if(property<1||vertices==null||vertices.Length<3||faces==null||faces.Length==0||referenceProperties==null||referenceProperties.Length!=11
+            if(property<1||referenceProperties==null||referenceProperties.Length!=11)throw new ArgumentException("InvalidStrausSectionMesh");
+            GenerateBxs(vertices,faces,bxsPath=>
+            {
+                api.CheckWrite(api.WriteFunction<SectionAssign>("St7AssignBXS")(Id,property,bxsPath),"St7AssignBXS");
+                api.CheckWrite(api.WriteFunction<ModelSection>("St7SetBeamSectionPropertyData")(Id,property,new[]{0},referenceProperties),"St7SetBeamSectionPropertyData");
+                api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,property),"St7UpdateElementPropertyData");
+            });
+        }
+
+        /// <summary>The section properties R31 computes for these regions (St7GenerateBXS), in its ipBXS order: XBar, YBar, Area, I11, I22,
+        /// principal angle, ..., SA1 (14), SA2 (15), ..., J (32). Nothing is assigned: the native reference for comparisons with GPC.</summary>
+        public double[] NativeSectionMeshProperties(double[][] vertices,int[][] faces)=>GenerateBxs(vertices,faces,null);
+
+        /// <summary>The regions as plates of a scratch section model, then the BXS file and its properties; <paramref name="use"/> runs while the
+        /// BXS file exists. The scratch files are removed.</summary>
+        private double[] GenerateBxs(double[][] vertices,int[][] faces,Action<string> use)
+        {
+            if(vertices==null||vertices.Length<3||faces==null||faces.Length==0
                 ||vertices.Any(v=>v==null||v.Length!=3||v.Any(x=>double.IsNaN(x)||double.IsInfinity(x))||v[2]!=0)
                 ||faces.Any(f=>f==null||(f.Length!=3&&f.Length!=4)||f.Distinct().Count()!=f.Length||f.Any(i=>i<0||i>=vertices.Length)))
                 throw new ArgumentException("InvalidStrausSectionMesh");
             // A second file ID shares this writer's sole runtime owner; no second St7Init/St7Release pair.
             const int sectionFile=2;
             string directory=Path.GetDirectoryName(OutputPath),stem=Path.Combine(directory,"gpc-section-"+Guid.NewGuid().ToString("N"));
-            string modelPath=stem+".st7",bxsPath=stem+".bxs";bool opened=false;
+            string modelPath=stem+".st7",bxsPath=stem+".bxs";bool opened=false;var data=new double[39];
             try
             {
                 api.CreateSectionModel(modelPath,directory);opened=true;
@@ -41,16 +58,15 @@ namespace GPC.Converter.Straus7
                     var connection=new[]{faces[i].Length}.Concat(faces[i].Select(n=>n+1)).ToArray();
                     api.CheckWrite(api.WriteFunction<ModelElement>("St7SetElementConnection")(sectionFile,2,i+1,1,connection),"St7SetElementConnection BXS");
                 }
-                api.CheckWrite(api.WriteFunction<SectionGenerate>("St7GenerateBXS")(sectionFile,bxsPath,new double[39]),"St7GenerateBXS");
-                api.CheckWrite(api.WriteFunction<SectionAssign>("St7AssignBXS")(Id,property,bxsPath),"St7AssignBXS");
-                api.CheckWrite(api.WriteFunction<ModelSection>("St7SetBeamSectionPropertyData")(Id,property,new[]{0},referenceProperties),"St7SetBeamSectionPropertyData");
-                api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,property),"St7UpdateElementPropertyData");
+                api.CheckWrite(api.WriteFunction<SectionGenerate>("St7GenerateBXS")(sectionFile,bxsPath,data),"St7GenerateBXS");
+                use?.Invoke(bxsPath);
             }
             finally
             {
                 try {if(opened)api.CloseSectionModel();}
                 finally {if(File.Exists(bxsPath))File.Delete(bxsPath);if(File.Exists(modelPath))File.Delete(modelPath);}
             }
+            return data;
         }
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int SectionGenerate(int file,string path,double[] data);
         [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int SectionAssign(int file,int property,string path);

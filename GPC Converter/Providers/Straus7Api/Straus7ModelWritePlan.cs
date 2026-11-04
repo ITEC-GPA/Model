@@ -37,9 +37,13 @@ namespace GPC.Converter.Straus7
         public IReadOnlyDictionary<Guid,Straus7SectionDefinition> NativeSections { get; }
         public IReadOnlyDictionary<Guid,int> BeamIntegrationSlices { get; }
         public string ConfigurationFingerprint { get; }
+        /// <summary>Warnings of the preparation that do not stop the export, for example shear areas of a section of separate parts
+        /// (SeparateSectionPartsShearAreas).</summary>
+        public IReadOnlyList<GPC.Model.Core.Diagnostics.ModelDiagnostic> Diagnostics { get; }
 
         private Straus7ModelWritePlan(Builder builder, IReadOnlyDictionary<Guid,Straus7MovingPathOptions> movingOptions)
         {
+            Diagnostics=builder.Diagnostics.AsReadOnly();
             StaticMovingParentCases=builder.Model.MovingLoads?.Paths.Where(p=>Straus7MovingPathOptions.Effective(builder.Model,p,movingOptions).ConvertToStaticCases).Select(p=>p.CaseGuid).Distinct().ToArray()??Array.Empty<Guid>();
             IdentityMap=SolverIdentityMap.Create(builder.Model,"Straus7-R3",builder.Entities);
             LoadCaseIds=new ReadOnlyDictionary<Guid,int>(builder.Loads);
@@ -161,6 +165,7 @@ namespace GPC.Converter.Straus7
                     {int id=Groups.Count+2,parent=g.Parent==null?1:Groups[g.Parent.Guid];string name=g.Name;Groups.Add(g.Guid,id);Operations.Add(a=>a.CreateGroup(id,parent,name));pending.RemoveAll(candidate=>ReferenceEquals(candidate,g));}
                 }
                 Number(Model.NodesElements.Values);Number(Model.BeamElements.Values);Number(Model.AreaElements.Values);
+                PrepareShearAreas();
                 foreach(var node in Model.NodesElements.Values.OrderBy(n=>Entities[n.Guid])) Node(node);
                 foreach(var beam in Model.BeamElements.Values.OrderBy(n=>Entities[n.Guid])) Beam(beam);
                 foreach(var plate in Model.AreaElements.Values.OrderBy(n=>Entities[n.Guid])) Plate(plate);
