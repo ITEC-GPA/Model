@@ -41,9 +41,12 @@ namespace GPC.Model.Models
         public long CompactResults()
         {
             var cases = new global::GPC.Model.Results.Storage.ResultCaseTable(this);
-            long bytes = 0;
-            foreach (var element in AllElements) bytes += element.CompactResults(cases, this).Bytes;
-            return bytes;
+            var elements = AllElements.ToArray();
+            var bytes = new long[elements.Length];
+            // Each element encodes its own results under its own lock with the read-only case table: in parallel, the same segments as
+            // one element after the other (lane L5: 4.5 s of the 8 s of the outputs of a form finding of 10,000 nodes).
+            global::GPC.Model.Core.ParallelElements.For(elements.Length, i => bytes[i] = elements[i].CompactResults(cases, this).Bytes);
+            return bytes.Sum();
         }
 
         /// <summary>True if a result of an element belongs to the dataset. Compact results are not decoded.</summary>

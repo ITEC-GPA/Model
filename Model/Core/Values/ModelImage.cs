@@ -53,7 +53,11 @@ namespace GPC.Model.Core
 
         /// <summary>A new, independent graph, the one <c>Capture(model).Open()</c> returns, copied in memory (<see cref="ContractCopy"/>)
         /// with the same compact results attached. A graph the in-memory copy does not reproduce goes through the image.</summary>
-        internal static Models.Model Copy(Models.Model model)
+        internal static Models.Model Copy(Models.Model model) => Copy(model, ModelCopyOptions.None);
+
+        /// <summary>As <see cref="Copy(Models.Model)"/>, sharing what <paramref name="options"/> allows; the image (XML) copies
+        /// everything.</summary>
+        internal static Models.Model Copy(Models.Model model, ModelCopyOptions options)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             var elements = model.AllElements.ToArray();
@@ -65,7 +69,7 @@ namespace GPC.Model.Core
                 // collections, assignments). Reserve a bounded estimate, avoiding repeated large
                 // reference-map reallocations; aliases and extra payloads still grow normally.
                 int capacity = (int)Math.Min(1000000L, 16L * elements.Length);
-                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model), capacity);
+                using (ResultScope.Externalize(elements)) copy = (Models.Model)ContractCopy.Copy(model, typeof(Models.Model), options, capacity);
             }
             catch (ContractCopy.UnsupportedException) { return Capture(model, elements, results).Open(); }
             AttachResults(copy, elements.Select(e => e.Guid).ToArray(), results);
@@ -76,7 +80,10 @@ namespace GPC.Model.Core
         internal static ResultStorage[] CaptureResults(Models.Model model, Element[] elements)
         {
             var cases = new ResultCaseTable(model);
-            return elements.Select(e => e.CaptureResults(cases)).ToArray();
+            var results = new ResultStorage[elements.Length];
+            // Each element encodes its own results (its lock, the read-only case table): in parallel, the same segments.
+            ParallelElements.For(elements.Length, i => results[i] = elements[i].CaptureResults(cases));
+            return results;
         }
 
         /// <summary>A new, independent graph. The compact results are attached, not decoded. The graph is read within what deflate
@@ -125,6 +132,21 @@ namespace GPC.Model.Core
             using (ResultScope.Externalize(externalized))
                 ModelValues.ImageSerializer(rootType).WriteObject(destination, root);
         }
+
+        /// <summary>As <see cref="WriteGraph(Stream, object, Type, IEnumerable{Element})"/> in the compact binary form (<see cref="ContractBinary"/>).
+        /// Throws <see cref="ContractCopy.UnsupportedException"/> for a graph that form does not reproduce: the caller writes the XML.</summary>
+        internal static void WriteBinaryGraph(Stream destination, object root, Type rootType, IEnumerable<Element> externalized)
+        {
+            if (externalized == null) { ContractBinary.Write(destination, root, rootType); return; }
+            using (ResultScope.Externalize(externalized))
+                ContractBinary.Write(destination, root, rootType);
+        }
+
+        /// <summary>Reads a graph of <paramref name="length"/> bytes written by <see cref="WriteBinaryGraph"/>.</summary>
+        internal static object ReadBinaryGraph(Stream source, long length, Type rootType) => ContractBinary.Read(source, length, rootType);
+
+        /// <summary>True for the bytes of a binary graph (<see cref="WriteBinaryGraph"/>).</summary>
+        internal static bool IsBinaryGraph(byte[] bytes, int offset = 0) => ContractBinary.IsBinary(bytes, offset);
 
         /// <summary>Reads a graph of at most <paramref name="characters"/> characters with the objects so many characters can hold
         /// (<see cref="ModelValues.ImageSerializer(Type, long)"/>): without a ceiling, a short text declaring z:Size="1500000000"
@@ -232,6 +254,113 @@ namespace GPC.Model.Core
                 results[i] = n == 0 ? ResultStorage.Empty : new ResultStorage(segments);
             }
         }
+
+        #region Result sections (compact archives)
+
+        private const int SectionMagic = 0x54525047; // "GPRT"
+
+        /// <summary>
+        /// The results of the elements <paramref name="first"/> to <paramref name="last"/> that have results, for the compact archives
+        /// (review A2, lane L5): per element its index (as the distance from the previous one) and its segments as they decode, raw (the
+        /// <see cref="ResultCodec"/> bytes, not deflated one by one), with the dataset names once per section. The caller deflates the
+        /// section as a whole: the field names and type names that every segment repeats compress across the elements, which deflating
+        /// each segment alone cannot do (a node with one displacement took 4 KB). The digests are not written: they are the SHA-256 of
+        /// the raw bytes and are computed again on reading.
+        /// </summary>
+        internal static void WriteResultSection(Stream destination, ResultStorage[] results, int first, int last)
+        {
+            var names = results.Skip(first).Take(last - first + 1).SelectMany(r => r.Segments).SelectMany(s => s.Datasets)
+                .Distinct(StringComparer.Ordinal).OrderBy(s => s, StringComparer.Ordinal).ToArray();
+            var index = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < names.Length; i++) index.Add(names[i], i);
+            using (var writer = new BinaryWriter(destination, System.Text.Encoding.UTF8, true))
+            {
+                writer.Write(SectionMagic); writer.Write((byte)1);
+                VarUInt(writer, names.Length); foreach (var name in names) writer.Write(name);
+                int count = 0; for (int i = first; i <= last; i++) if (results[i].Count != 0) count++;
+                VarUInt(writer, count);
+                int previous = first - 1;
+                for (int i = first; i <= last; i++)
+                {
+                    if (results[i].Count == 0) continue;
+                    VarUInt(writer, i - previous - 1); previous = i;
+                    var segments = results[i].Segments; VarUInt(writer, segments.Length);
+                    foreach (var segment in segments)
+                    {
+                        VarUInt(writer, segment.Count); VarUInt(writer, segment.Length);
+                        VarUInt(writer, segment.Datasets.Length); foreach (var d in segment.Datasets) VarUInt(writer, index[d]);
+                        writer.Write(Inflate(segment));
+                    }
+                }
+            }
+        }
+
+        /// <summary>Reads a section of at most <paramref name="bytes"/> bytes written by <see cref="WriteResultSection"/> for the
+        /// elements <paramref name="first"/> to <paramref name="first"/> + <paramref name="span"/> - 1 into <paramref name="results"/> (which
+        /// must hold null there). Every count is bounded by the bytes left; each segment is deflated again, as the codec keeps it.</summary>
+        internal static void ReadResultSection(Stream source, long bytes, ResultStorage[] results, int first, int span)
+        {
+            var reader = new BinaryReader(source, System.Text.Encoding.UTF8, true);
+            long remaining = bytes;
+            try
+            {
+                if (reader.ReadInt32() != SectionMagic || reader.ReadByte() != 1) throw new SerializationException("UnsupportedResultSection");
+                var names = new string[Bounded(reader, remaining)];
+                for (int i = 0; i < names.Length; i++) names[i] = reader.ReadString();
+                int count = Bounded(reader, remaining); long previous = first - 1, end = (long)first + span;
+                var pending = new List<KeyValuePair<int, byte[][]>>(count); var shapes = new List<ResultSegment[]>(count);
+                for (int k = 0; k < count; k++)
+                {
+                    long at = previous + 1 + Bounded(reader, remaining);
+                    if (at >= end || results[at] != null) throw new SerializationException("CorruptResultSection");
+                    previous = at;
+                    int n = Bounded(reader, remaining); if (n == 0) throw new SerializationException("CorruptResultSection");
+                    var raws = new byte[n][]; var segments = new ResultSegment[n]; long total = 0;
+                    for (int s = 0; s < n; s++)
+                    {
+                        int items = Bounded(reader, remaining), length = Bounded(reader, remaining);
+                        var datasets = new string[Bounded(reader, remaining)];
+                        for (int d = 0; d < datasets.Length; d++) { int i = Bounded(reader, remaining); if (i >= names.Length) throw new SerializationException("CorruptResultSection"); datasets[d] = names[i]; }
+                        if (items > length || (total += items) > int.MaxValue) throw new SerializationException("CorruptResultSection");
+                        raws[s] = Exactly(reader, length);
+                        segments[s] = new ResultSegment(null, length, items, null, datasets);
+                    }
+                    pending.Add(new KeyValuePair<int, byte[][]>((int)at, raws)); shapes.Add(segments);
+                    results[at] = ResultStorage.Empty; // reserved: a second entry for the element is refused above
+                }
+                // Digest and deflate of each segment (as ResultCodec keeps them), in parallel.
+                System.Threading.Tasks.Parallel.For(0, pending.Count, k =>
+                {
+                    var raws = pending[k].Value; var shape = shapes[k]; var segments = new ResultSegment[raws.Length];
+                    for (int s = 0; s < raws.Length; s++) segments[s] = ResultCodec.Seal(raws[s], shape[s].Count, shape[s].Datasets);
+                    results[pending[k].Key] = new ResultStorage(segments);
+                });
+            }
+            catch (EndOfStreamException ex) { throw new SerializationException("CorruptResultSection", ex); }
+        }
+
+        private static byte[] Inflate(ResultSegment segment)
+        {
+            var raw = new byte[segment.Length];
+            using (var inflate = new DeflateStream(new MemoryStream(segment.Payload, false), CompressionMode.Decompress))
+            {
+                int read = 0;
+                while (read < raw.Length) { int n = inflate.Read(raw, read, raw.Length - read); if (n == 0) break; read += n; }
+                if (read != raw.Length || inflate.ReadByte() != -1) throw new SerializationException("CorruptResultSegment");
+            }
+            return raw;
+        }
+
+        private static void VarUInt(BinaryWriter writer, long value) { ulong v = (ulong)value; while (v >= 0x80) { writer.Write((byte)(v | 0x80)); v >>= 7; } writer.Write((byte)v); }
+        private static int Bounded(BinaryReader reader, long limit)
+        {
+            ulong v = 0; int shift = 0;
+            while (true) { byte b = reader.ReadByte(); v |= (ulong)(b & 0x7F) << shift; if (b < 0x80) break; shift += 7; if (shift > 35) throw new SerializationException("CorruptResultSection"); }
+            if (v > (ulong)Math.Min(limit, int.MaxValue)) throw new SerializationException("CorruptResultSection");
+            return (int)v;
+        }
+
+        #endregion
 
         private static byte[] Exactly(BinaryReader reader, int count)
         {

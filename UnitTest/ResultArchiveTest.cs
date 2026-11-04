@@ -74,6 +74,38 @@ public class ResultArchiveTest
         }
     }
 
+    /// <summary>The segments of the archives written by GPCModel 5.23.0.2 and 5.37.0.1 (fixtures) and of the mixed model, decoded and encoded again:
+    /// the same codec bytes (SHA-256 of the raw segment), so the writer with fewer allocations (lane L9) writes what it wrote.</summary>
+    [TestMethod]
+    public void Codec_EncodesTheSegmentsOfEarlierVersionsAgainToTheSameBytes()
+    {
+        Model fixture;
+        using (var package = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Fixtures", "model-v5-5.23.0.2.zip"))) fixture = ModelArchive.Load(package);
+        Model doubles;
+        using (var package = File.OpenRead(Path.Combine(AppContext.BaseDirectory, "Fixtures", "doubles-5.37.0.1-v5.zip"))) doubles = ModelArchive.Load(package);
+        var mixed = MixedModelFactory.Create(); mixed.CompactResults();
+        int compared = 0;
+        foreach (var model in new[] { fixture, doubles, mixed })
+        {
+            var cases = new ResultCaseTable(model);
+            var elements = model.AllElements.ToArray();
+            var stored = ModelImage.CaptureResults(model, elements);
+            for (int i = 0; i < elements.Length; i++)
+            {
+                if (stored[i].Count == 0) continue;
+                var decoded = elements[i].Results;
+                int at = 0;
+                foreach (var segment in stored[i].Segments)
+                {
+                    var again = ResultCodec.Encode(decoded, at, segment.Count, cases); at += segment.Count;
+                    Assert.IsTrue(again.SameContent(segment), "Element " + elements[i].Id + ": " + again.Length + " bytes, written " + segment.Length);
+                    compared++;
+                }
+            }
+        }
+        Assert.IsTrue(compared >= 8, "Segments compared: " + compared);
+    }
+
     [TestMethod]
     public void Copy_SharesCompactResults_DecodesOnFirstAccess_AndKeepsTheDigest()
     {

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <LangVersion>10.0</LangVersion><PlatformTarget>x64</PlatformTarget>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects><ServerGarbageCollection>false</ServerGarbageCollection>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../GPC.Model.Persistence/GPC.Model.Persistence.csproj" />
+    <Reference Include="GPCGeometry"><HintPath>../../../Geometry/GPCGeometry/bin/Release/netstandard2.0/GPCGeometry.dll</HintPath></Reference>
+    <Reference Include="GPCUtilities"><HintPath>../../../Utilities/GPCUtilities/bin/Release/netstandard2.0/GPCUtilities.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

@@ -107,6 +107,20 @@ namespace GPC.Model.Elements
             _beamProperty = beamProperty;
         }
 
+        /// <summary>Exact BeamElement contract (<see cref="GetObjectData"/> and the deserialization constructor), in the order of
+        /// GetObjectData; subclasses continue through their own serialization constructor.</summary>
+        internal void CopyContractFrom(BeamElement source, Core.ContractCopy context)
+        {
+            CopyElementContractFrom(source, context);
+            Assignments = context.Child(source.Assignments);
+            _endNode = context.Child(source._endNode);
+            _startNode = context.Child(source._startNode);
+            _beamProperty = context.Child(source._beamProperty);
+            RotationAroundFirstAxis = source._axisAngleRadians;
+            _nodeI = context.Child(source._nodeI);
+            _nodeJ = context.Child(source._nodeJ);
+        }
+
         /// <summary>
         /// Deserialization constructor: reads the data of <see cref="Element"/>, the version, the points and the section
         /// </summary>

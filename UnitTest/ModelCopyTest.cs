@@ -75,6 +75,35 @@ public class ModelCopyTest
         }
     }
 
+    /// <summary>Copies sharing the properties (<see cref="ModelCopyOptions.ShareProperties"/>, lane L9) on the corpus: the graph of the
+    /// complete copy, the same fingerprints and results; the registries of the copy hold the instances of the source, which every element
+    /// of the copy cites where the source's did; nothing else is shared.</summary>
+    [TestMethod]
+    public void SharedCopiesHaveTheGraphOfTheCompleteCopy()
+    {
+        foreach (var (name, model) in Corpus())
+        {
+            var deep = ModelValues.Copy(model);
+            var shared = ModelValues.Copy(model, ModelCopyOptions.ShareProperties);
+            Assert.AreEqual(Graph(deep), Graph(shared), name);
+            CollectionAssert.AreEqual(Results(deep), Results(shared), name);
+            Assert.AreEqual(model.AnalysisFingerprint(), shared.AnalysisFingerprint(), name);
+            Assert.AreEqual(deep.VerificationFingerprint(null), shared.VerificationFingerprint(null), name);
+            var registered = model.BeamProperties.Values.Cast<GPC.Model.ElementProperties.ElementProperty>().Concat(model.PlateProperties.Values).Concat(model.BrickProperties.Values).ToArray();
+            var copied = shared.BeamProperties.Values.Cast<GPC.Model.ElementProperties.ElementProperty>().Concat(shared.PlateProperties.Values).Concat(shared.BrickProperties.Values).ToArray();
+            Assert.AreEqual(registered.Length, copied.Length, name);
+            Assert.IsTrue(registered.Zip(copied).All(p => ReferenceEquals(p.First, p.Second)), name);
+            Assert.IsTrue(registered.Length == 0 || !ReferenceEquals(model.BeamProperties, shared.BeamProperties), name);
+            Assert.IsTrue(shared.BeamElements.Values.Zip(model.BeamElements.Values).All(p => ReferenceEquals(p.First.BeamProperty, p.Second.BeamProperty)), name);
+            Assert.IsTrue(shared.AreaElements.Values.Zip(model.AreaElements.Values).All(p => ReferenceEquals(p.First.PlateProperty, p.Second.PlateProperty)), name);
+            Assert.IsTrue(shared.BeamElements.Values.All(b => b.BeamProperty == null || !model.BeamProperties.ContainsKey(b.BeamProperty.Name)
+                || ReferenceEquals(b.BeamProperty, shared.BeamProperties[b.BeamProperty.Name]) == ReferenceEquals(b.BeamProperty, model.BeamProperties[b.BeamProperty.Name])), name);
+            Assert.IsTrue(shared.AllElements.Zip(model.AllElements).All(p => !ReferenceEquals(p.First, p.Second) && !ReferenceEquals(p.First.Groups, p.Second.Groups)), name);
+            Assert.IsTrue(shared.LoadCases.Values.Zip(model.LoadCases.Values).All(p => !ReferenceEquals(p.First, p.Second)), name);
+            Assert.IsTrue(shared.Groups.Values.Zip(model.Groups.Values).All(p => !ReferenceEquals(p.First, p.Second)), name);
+        }
+    }
+
     [TestMethod]
     public void InMemoryCopiesKeepTheModelIndependentAndRewired()
     {
