@@ -100,10 +100,6 @@ namespace GPC.Converter.Straus7
 
         internal const string ResolvedConvention = "Beam: negative of global equilibrating actions on End-2 cut, projected onto GPC V1/V2/V3; N tension-positive. Solver torque is retained about the shear centre; bending is about centroidal axes. Beam section actions are not a common-point wrench when the shear centre is eccentric; use element node forces for equilibrium. Plate: local stress-resultant tensor; positive Mxx/Myy tension on +z; per native width. Nodal reactions: XYZ forces/moments on node. Element node forces: XYZ forces/moments on owning element. Nodal displacements: XYZ translations and rotations in radians.";
 
-        /// <summary>The conversion shared by the linear static and the staged profiles: identity checks, native tables to GPC records with the case and the
-        /// state given by the profile, registration through <see cref="ResultMapper"/>. In a staged case (stage &gt; 0) element tables may come from elements born
-        /// up to that stage, and node tables are kept for the nodes of the elements with results in the case or with a nonzero value: a node outside the
-        /// active structure is not given a zero result.</summary>
         /// <summary>The information diagnostic counting the merged result-dependent stations (<see cref="SnapStations"/>).</summary>
         public const string StationSnapCode = "Straus7ResultStationsSnapped";
         /// <summary>The snap tolerance of <see cref="SnapStations"/>.</summary>
@@ -113,10 +109,12 @@ namespace GPC.Converter.Straus7
         /// minimum n, a pair of stations at each concentrated load (the load position ∓ 1e-6 of the length, the two sides of the jump) and
         /// result-dependent stations (extrema). A result-dependent station can fall within roundoff of a regular or load station (an extremum
         /// at the jump of a concentrated load, 1e-5 mm from its side station): two samples at one physical station that consumers cannot tell
-        /// apart. Such a station is merged into the regular or load station when they are closer than max(1e-3 mm, L 1e-6) — half the
-        /// spacing of a load pair, so the two sides of a jump are never merged — and their values agree: forces within twice the steepest
-        /// slope of the table (a distributed load, between stations at least 1e-4 of the length apart, so a jump is not a slope) times the
-        /// distance, moments within the largest force times the distance (dM/dx = V), each plus 1e-9 of the largest value (+ 1e-9);
+        /// apart. Such a station is merged into the regular or load station when they are closer than max(1e-3 mm, L 1e-6), no load centre
+        /// (the midpoint of a pair) lies between them or on either of them, and their values agree. L 1e-6 is half the spacing of a load
+        /// pair, but on a beam shorter than 1 m the 1e-3 mm floor reaches it (L = 500 mm in the moving-load benchmark: the floor is the whole
+        /// spacing), so the tolerance alone does not keep the two sides of a jump apart: the load-centre rule does. Values agree when forces
+        /// are within twice the steepest slope of the table (a distributed load, between stations at least 1e-4 of the length apart, so a
+        /// jump is not a slope) times the distance, moments within the largest force times the distance (dM/dx = V), each plus 1e-9 of the largest value (+ 1e-9);
         /// otherwise the import throws Straus7ResultStationSnapValuesDisagree. The regular or load station keeps its location; of two
         /// result-dependent stations within the tolerance the first is kept.</summary>
         internal static bool[] SnapStations(Straus7ResultTable table, double lengthMm, double lengthToMm, ref int snapped)
@@ -127,8 +125,12 @@ namespace GPC.Converter.Straus7
             int n = table.MinimumStations;
             bool Regular(int i) => n >= 2 && Math.Abs(p[i] * (n - 1) - Math.Round(p[i] * (n - 1))) <= 1e-9;
             // The two sides of a concentrated load are 2e-6 of the length apart.
-            bool LoadSide(int i) => Enumerable.Range(0, rows).Any(j => j != i && Math.Abs(Math.Abs(p[j] - p[i]) - 2e-6) <= 1e-11);
-            bool Fixed(int i) => Regular(i) || LoadSide(i);
+            var centres = new List<double>(); var loadSide = new bool[rows];
+            for (int i = 0; i < rows; i++) for (int j = i + 1; j < rows; j++)
+                if (Math.Abs(p[j] - p[i] - 2e-6) <= 1e-11) { loadSide[i] = loadSide[j] = true; centres.Add((p[i] + p[j]) / 2); }
+            bool Fixed(int i) => Regular(i) || loadSide[i];
+            // A load centre between two stations, or on one of them: the two are on different sides of a jump (or one is at the jump).
+            bool AcrossLoad(int a, int b) => centres.Any(c => c >= p[a] - 1e-12 && c <= p[b] + 1e-12);
             double forceScale = 0, momentScale = 0; var v = table.Values;
             for (int i = 0; i < rows; i++) for (int k = 0; k < 3; k++)
             { forceScale = Math.Max(forceScale, Math.Abs(v[6 * i + 2 * k])); momentScale = Math.Max(momentScale, Math.Abs(v[6 * i + 2 * k + 1])); }
@@ -142,9 +144,9 @@ namespace GPC.Converter.Straus7
             }
             for (int i = 0; i + 1 < rows; i++)
             {
-                if (!keep[i] || p[i + 1] - p[i] > tolerance) continue;
+                if (!keep[i] || p[i + 1] - p[i] > tolerance || AcrossLoad(i, i + 1)) continue;
                 bool fixedI = Fixed(i), fixedJ = Fixed(i + 1);
-                if (fixedI && fixedJ) continue; // two regular or load stations: both kept (never closer than the tolerance in practice)
+                if (fixedI && fixedJ) continue; // two regular or load stations: both kept (the two sides of a load are within the tolerance on beams up to 500 mm)
                 // A result-dependent station goes into the fixed one; of two result-dependent stations the first is kept.
                 int drop = fixedI || !fixedJ ? i + 1 : i, stay = drop == i + 1 ? i : i + 1;
                 double distance = (p[i + 1] - p[i]) * lengthMm / lengthToMm; // native length units, as the moments
@@ -160,6 +162,10 @@ namespace GPC.Converter.Straus7
             return keep;
         }
 
+        /// <summary>The conversion shared by the linear static and the staged profiles: identity checks, native tables to GPC records with the case and the
+        /// state given by the profile, registration through <see cref="ResultMapper"/>. In a staged case (stage &gt; 0) element tables may come from elements born
+        /// up to that stage, and node tables are kept for the nodes of the elements with results in the case or with a nonzero value: a node outside the
+        /// active structure is not given a zero result.</summary>
         internal static ResultImportReport Normalize(GPC.Model.Models.Model model, Straus7ResultsReport native, string datasetId, Func<Straus7ResultCase, string> caseOf,
             Func<Straus7ResultCase, int, ResultState> stateOf, AnalysisSemantics semantics, string readerVersion, bool isSynthetic, CancellationToken cancellationToken,
             SolverIdentityMap exportIdentities=null, AnalysisSource exportSource=null)
