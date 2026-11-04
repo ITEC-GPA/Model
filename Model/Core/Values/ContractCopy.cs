@@ -51,15 +51,16 @@ namespace GPC.Model.Core
         };
 
         private readonly Dictionary<object, object> _copies;
-        // ModelCopyOptions.ShareProperties: the properties, materials and sections cited by the value are returned as they are
-        // (never the root, which is the value asked for). Per copy, as the reference map: nothing is kept between copies (rule P3).
-        private readonly bool _shareProperties;
+        // ModelCopyOptions.ShareProperties / ShareCoordinateSystems: the properties, materials and sections, and the coordinate
+        // systems, cited by the value are returned as they are (never the root, which is the value asked for). Per copy, as the
+        // reference map: nothing is kept between copies (rule P3).
+        private readonly bool _shareProperties, _shareCoordinateSystems;
         private object _root;
 
-        private ContractCopy(int capacity, bool shareProperties)
+        private ContractCopy(int capacity, bool shareProperties, bool shareCoordinateSystems = false)
         {
             _copies = new Dictionary<object, object>(capacity, ReferenceComparer<object>.Instance);
-            _shareProperties = shareProperties;
+            _shareProperties = shareProperties; _shareCoordinateSystems = shareCoordinateSystems;
         }
 
         /// <summary>The copy of <paramref name="value"/>, written as <paramref name="declared"/>.</summary>
@@ -69,7 +70,7 @@ namespace GPC.Model.Core
         /// allows (<see cref="ModelCopyOptions"/>).</summary>
         internal static object Copy(object value, Type declared, ModelCopyOptions options, int capacity = 0)
         {
-            var copy = new ContractCopy(capacity, options?.SharesProperties == true) { _root = value };
+            var copy = new ContractCopy(capacity, options?.SharesProperties == true, options?.SharesCoordinateSystems == true) { _root = value };
             return copy.Value(value, declared);
         }
 
@@ -404,6 +405,7 @@ namespace GPC.Model.Core
             // A shared instance is valid where its copy would be (the vocabulary check above), and stays the same object for every
             // reference to it, as a copy would.
             if (_shareProperties && !ReferenceEquals(value, _root) && IsSharedProperty(value)) return value;
+            if (_shareCoordinateSystems && !ReferenceEquals(value, _root) && value is GPC.Geometry.CoordinateSystem) return value;
             if (plan.Unsupported != null) throw new UnsupportedException(plan.Unsupported);
             if (plan.Kind == Kind.Shared) return value;
             if (!type.IsValueType && _copies.TryGetValue(value, out var done)) return done;

@@ -86,6 +86,13 @@ public class ModelCopyTest
             var deep = ModelValues.Copy(model);
             var shared = ModelValues.Copy(model, ModelCopyOptions.ShareProperties);
             Assert.AreEqual(Graph(deep), Graph(shared), name);
+            // with the coordinate systems shared too (second decision of 4/11/2026): the same graph, fingerprints and results
+            var frames = ModelValues.Copy(model, ModelCopyOptions.ShareProperties | ModelCopyOptions.ShareCoordinateSystems);
+            Assert.AreEqual(Graph(deep), Graph(frames), name + " (coordinate systems)");
+            CollectionAssert.AreEqual(Results(deep), Results(frames), name + " (coordinate systems)");
+            Assert.AreEqual(model.AnalysisFingerprint(), frames.AnalysisFingerprint(), name + " (coordinate systems)");
+            Assert.AreEqual(deep.VerificationFingerprint(null), frames.VerificationFingerprint(null), name + " (coordinate systems)");
+            Assert.IsTrue(frames.AllElements.Zip(model.AllElements).All(p => ReferenceEquals(p.First.CoordinateSystem, p.Second.CoordinateSystem) && !ReferenceEquals(p.First, p.Second)), name);
             CollectionAssert.AreEqual(Results(deep), Results(shared), name);
             Assert.AreEqual(model.AnalysisFingerprint(), shared.AnalysisFingerprint(), name);
             Assert.AreEqual(deep.VerificationFingerprint(null), shared.VerificationFingerprint(null), name);

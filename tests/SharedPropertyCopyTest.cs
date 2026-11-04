@@ -12,6 +12,7 @@ using GPC.Model.LoadCases;
 using GPC.Model.Materials;
 using GPC.Model.Models;
 using GPC.Model.Persistence;
+using GPC.Model.Restraints;
 using GPC.Model.Results.Storage;
 using GPC.Model.Sections;
 using GPC.Model.Structure.Assignments;
@@ -136,6 +137,95 @@ namespace UnitTest
             Assert.AreEqual(210000, property.Material.ElasticModulusTension);
             Assert.AreEqual(210000, property.Material.E);
             Assert.AreSame(property, source.BeamProperty);
+        }
+
+        private static readonly ModelCopyOptions Both = ModelCopyOptions.ShareProperties | ModelCopyOptions.ShareCoordinateSystems;
+
+        /// <summary>A coordinate system bit for bit: name, origin, axes and what its cached components give (ToGlobal/ToLocal of a point).</summary>
+        private static string Frame(CoordinateSystem cs)
+        {
+            string B(double v) => BitConverter.DoubleToInt64Bits(v).ToString("X16");
+            string P(double x, double y, double z) => B(x) + B(y) + B(z);
+            var g = cs.ToGlobal(new Point3d(1.5, -2.5, 3.25)); var l = cs.ToLocal(new Point3d(1.5, -2.5, 3.25));
+            return cs.Name + "|" + P(cs.Origin.X, cs.Origin.Y, cs.Origin.Z) + P(cs.V1.X, cs.V1.Y, cs.V1.Z) + P(cs.V2.X, cs.V2.Y, cs.V2.Z) + P(cs.V3.X, cs.V3.Y, cs.V3.Z)
+                + P(g.X, g.Y, g.Z) + P(l.X, l.Y, l.Z);
+        }
+        private static IEnumerable<CoordinateSystem> Frames(Model model) => model.AllElements.SelectMany(e => new[] { e.CoordinateSystem }
+            .Concat(e is NodeElement n ? n.Assignments.Restrains.Select(r => r.Restrain?.CoordinateSystem) : Enumerable.Empty<CoordinateSystem>())
+            .Concat(e.Loads.Values.Select(x => x.CoordinateSystem))).Where(cs => cs != null);
+
+        /// <summary>The net with its own frames: beam axes at the start node, restraints along an inclined plane at their node.</summary>
+        private static Model Framed(int k, bool results = true)
+        {
+            var model = CompactArchiveTest.Grid(k, results);
+            foreach (var beam in model.BeamElements.Values)
+            {
+                var d = new Vector3d(beam.StartPoint, beam.EndPoint); d = d / d.Length;
+                var side = new Vector3d(0, 0, 1).CrossProduct(d); side = side / side.Length;
+                beam.CoordinateSystem = new CoordinateSystem(beam.StartPoint, d, side, "beam " + beam.Id);
+            }
+            foreach (var node in model.NodesElements.Values)
+                foreach (var r in node.Assignments.Restrains)
+                    r.Restrain = new NodeRestrain(node, new CoordinateSystem(node.Position, new Vector3d(1, 0, 0.25), new Vector3d(0, 1, 0), "inclined"), r.Restrain.Restrains.ToList());
+            return model;
+        }
+
+        /// <summary>User decision of 4/11/2026 (lane L9, «si» to sharing the coordinate systems, provided a test shows they stay unchanged):
+        /// copies with <see cref="ModelCopyOptions.ShareCoordinateSystems"/> cite the coordinate systems of the source, fingerprint and save
+        /// as the complete copy, and the edits made downstream (new frames assigned, nodes moved, restraints replaced, assemblies, complete
+        /// copies and archives of the copy changed in place, compaction) leave every coordinate system of the source as it was.</summary>
+        [TestMethod]
+        public void SharedCoordinateSystemsStayAsTheyWereAfterTheEditsDownstream()
+        {
+            var model = Framed(6);
+            var frames = Frames(model).Select(Frame).ToArray(); string fingerprint = model.AnalysisFingerprint();
+            Assert.IsTrue(frames.Length > model.AllElements.Count(), "frames of elements and restraints");
+            var shared = ModelValues.Copy(model, Both);
+            var deep = ModelValues.Copy(model);
+            var onlyProperties = ModelValues.Copy(model, ModelCopyOptions.ShareProperties);
+            CollectionAssert.AreEqual(Frames(model).ToArray(), Frames(shared).ToArray(), "shared instances");
+            Assert.IsTrue(Frames(model).Zip(Frames(deep), (a, b) => !ReferenceEquals(a, b)).All(x => x), "the complete copy copies them");
+            Assert.IsTrue(Frames(model).Zip(Frames(onlyProperties), (a, b) => !ReferenceEquals(a, b)).All(x => x), "ShareProperties alone copies them");
+            Assert.IsTrue(shared.AllElements.Zip(model.AllElements, (a, b) => ReferenceEquals(a.CoordinateSystem, b.CoordinateSystem)).All(x => x));
+            Assert.IsTrue(Frames(model).Zip(Frames(shared), (a, b) => ReferenceEquals(a, b)).All(x => x));
+            Assert.AreSame(model.BeamProperties["Cable"], shared.BeamProperties["Cable"]);
+            // the same fingerprints, document and compact bytes (a coordinate system writes no GUID in the compact form)
+            Assert.AreEqual(deep.AnalysisFingerprint(), shared.AnalysisFingerprint());
+            Assert.AreEqual(CompactArchiveTest.Document(deep), CompactArchiveTest.Document(shared));
+            CollectionAssert.AreEqual(Save(model, ModelArchiveFormat.Compact), Save(shared, ModelArchiveFormat.Compact));
+            var reopened = Load(Save(shared, ModelArchiveFormat.Compact));
+            Assert.AreEqual(fingerprint, reopened.AnalysisFingerprint());
+            Assert.IsTrue(Frames(reopened).Zip(Frames(model), (a, b) => !ReferenceEquals(a, b) && Frame(a) == Frame(b)).All(x => x));
+            // a value copy shares what it cites and copies itself
+            var beam = model.BeamElements.Values.First();
+            Assert.AreSame(beam.CoordinateSystem, ModelValues.CopyValue(beam, Both).CoordinateSystem);
+            var frameCopy = ModelValues.CopyValue(beam.CoordinateSystem, Both);
+            Assert.AreNotSame(beam.CoordinateSystem, frameCopy); Assert.AreEqual(Frame(beam.CoordinateSystem), Frame(frameCopy));
+
+            // Downstream, as a component does: new frames and restraints assigned, nodes moved, the results compacted again
+            foreach (var b in shared.BeamElements.Values) b.CoordinateSystem = new CoordinateSystem(b.StartPoint, new Vector3d(0, 0, 1), new Vector3d(1, 0, 0), "turned");
+            foreach (var node in shared.NodesElements.Values)
+            {
+                node.Position = new Point3d(node.Position.X + 1, node.Position.Y, node.Position.Z);
+                foreach (var r in node.Assignments.Restrains) r.Restrain = new NodeRestrain(node, new CoordinateSystem(node.Position, new Vector3d(0, 1, 0), new Vector3d(0, 0, 1)), r.Restrain.Restrains.ToList());
+            }
+            foreach (var element in shared.AllElements) { var count = element.Results.Count; }
+            shared.CompactResults();
+            // what is not shared may be changed in place: a complete copy, an assembly of shared element copies, a model read back
+            var again = ModelValues.Copy(ModelValues.Copy(model, Both));
+            var bare = Framed(4, results: false); var bareFrames = Frames(bare).Select(Frame).ToArray();
+            var assembled = ModelAssembly.Assemble(bare.AllElements.Select(e => ModelValues.CopyValue(e, Both)).ToArray(), Guid.NewGuid(), "assembled");
+            var changed = new List<CoordinateSystem>();
+            foreach (var other in new[] { again, assembled, reopened })
+                foreach (var cs in Frames(other).ToArray())
+                {
+                    if (changed.Any(x => ReferenceEquals(x, cs))) continue;
+                    Assert.IsFalse(Frames(model).Concat(Frames(bare)).Any(x => ReferenceEquals(x, cs)), "a copy of its own");
+                    cs.RotateV3(0.3); cs.SetOrigin(new Point3d(-1, -2, -3)); cs.Origin.X = 7; changed.Add(cs);
+                }
+            CollectionAssert.AreEqual(frames, Frames(model).Select(Frame).ToArray(), "the coordinate systems of the source are unchanged");
+            CollectionAssert.AreEqual(bareFrames, Frames(bare).Select(Frame).ToArray(), "the coordinate systems of the assembled drafts are unchanged");
+            Assert.AreEqual(fingerprint, model.AnalysisFingerprint());
         }
 
         /// <summary>ModelAssembly copies its input as one graph (complete): the assembled model registers its own property, cited by every
