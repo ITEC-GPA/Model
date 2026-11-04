@@ -234,6 +234,9 @@ namespace GPC.Converter.Straus7
         /// BeamForceGlobal retains solver torque about the shear centre; bending is about centroidal axes.
         /// Null means this metadata was not supplied, not that the two centres coincide.</summary>
         public double[] BeamShearCentreOffsetGlobal { get; set; }
+        /// <summary>Beam force tables: the minimum number of stations requested from St7GetBeamResultArray (0 when unknown); its stations
+        /// i / (n - 1) are the regular stations of the table.</summary>
+        public int MinimumStations { get; set; }
     }
     /// <summary>Read-only native boundary. Implementations throw Straus7ApiException on nonzero API return codes.
     /// The caller owns one complete, exclusive API session and disposes it after closing results and model.</summary>

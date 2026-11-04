@@ -103,7 +103,50 @@ namespace GPC.Converter.Straus7
             }
             finally {scratch.DeleteCreated();}
         }
+        /// <summary>The section resolved as <see cref="Resolve"/> does, with its display triangulation (St7SaveBeamSectionMesh) in mm, in one
+        /// session. <paramref name="circularDivisions"/> &gt; 0 sets the display discretisation of the standard circular shapes after their
+        /// properties are read. The mesh is display data only: never used for stiffness.</summary>
+        public static Straus7SectionMesh Mesh(Straus7SectionDefinition definition,string scratchDirectory,int circularDivisions=0)
+        {
+            if(definition==null)throw new ArgumentNullException(nameof(definition));
+            return Mesh(scratchDirectory,circularDivisions,definition.Source,writer=>
+                {if(definition.IsResolved)writer.SetNativeSection(1,definition,definition.ReferenceProperties);else writer.AssignNativeSection(1,definition);});
+        }
+        /// <summary>An installed library section (BSL or BGL) resolved as <see cref="ResolveLibrary"/> does, with its display triangulation.</summary>
+        public static Straus7SectionMesh MeshLibrary(bool bgl,string library,string item,string scratchDirectory,int circularDivisions=0)
+        {
+            if(string.IsNullOrWhiteSpace(library)||string.IsNullOrWhiteSpace(item))throw new ArgumentException("MissingSectionLibraryReference");
+            return Mesh(scratchDirectory,circularDivisions,(bgl?"BGL/":"BSL/")+library+"/"+item,writer=>writer.AssignSectionLibrary(bgl,library,item));
+        }
+        private static Straus7SectionMesh Mesh(string scratchDirectory,int circularDivisions,string source,Action<Straus7NativeWriter> assign)
+        {
+            if(circularDivisions<0)throw new ArgumentOutOfRangeException(nameof(circularDivisions));
+            var scratch=Straus7ScratchFiles.Create(scratchDirectory,"section-mesh-");
+            try
+            {
+                using(var writer=Scratch(scratch))
+                {
+                    writer.CreateSectionProperty();assign(writer);
+                    var section=writer.Reader.ReadExpandedSection(1,scratchDirectory,source);
+                    bool circular=!section.IsBgl&&(section.Shape==1||section.Shape==2);
+                    return writer.SaveSectionMesh(1,circular?circularDivisions:0,section);
+                }
+            }
+            finally {scratch.DeleteCreated();}
+        }
         private static Straus7NativeWriter Scratch(Straus7ScratchFiles scratch)=>new Straus7NativeWriter(scratch.Path,Path.GetDirectoryName(scratch.Path));
+    }
+
+    /// <summary>A resolved section with its display mesh in mm: vertices {x, y, 0} and zero-based corner indices of triangles or
+    /// quadrilaterals. <see cref="Section"/> carries the properties read before any display discretisation.</summary>
+    public sealed class Straus7SectionMesh
+    {
+        private readonly double[][] vertices;
+        private readonly int[][] faces;
+        public Straus7SectionDefinition Section { get; }
+        public double[][] Vertices=>vertices.Select(v=>(double[])v.Clone()).ToArray();
+        public int[][] Faces=>faces.Select(f=>(int[])f.Clone()).ToArray();
+        internal Straus7SectionMesh(Straus7SectionDefinition section,double[][] vertices,int[][] faces){Section=section;this.vertices=vertices;this.faces=faces;}
     }
 
     public interface IStraus7NativeSectionWriteApi
@@ -145,6 +188,55 @@ namespace GPC.Converter.Straus7
             api.CheckWrite(api.WriteFunction<ModelSection>("St7SetBeamSectionPropertyData")(Id,property,new[]{0},referenceProperties),"St7SetBeamSectionPropertyData");
             api.CheckWrite(api.WriteFunction<MovingThree>("St7UpdateElementPropertyData")(Id,1,property),"St7UpdateElementPropertyData");
         }
+        /// <summary>Saves the section mesh of <paramref name="property"/> as a second native file and reads it back (corner nodes only).</summary>
+        internal Straus7SectionMesh SaveSectionMesh(int property,int circularDivisions,Straus7SectionDefinition section)
+        {
+            // A second file ID shares this writer's sole runtime owner; no second St7Init/St7Release pair.
+            const int meshFile=2;
+            string directory=Path.GetDirectoryName(OutputPath);
+            var files=new Straus7ScratchFiles(Path.Combine(directory,"section-mesh-"+Guid.NewGuid().ToString("N")+".st7"));bool opened=false;
+            try
+            {
+                if(circularDivisions>0)
+                    api.CheckWrite(api.WriteFunction<MeshDivisions>("St7SetBeamSectionCircularDiscretisation")(Id,property,new[]{circularDivisions}),"St7SetBeamSectionCircularDiscretisation");
+                api.CheckWrite(api.WriteFunction<MeshPath>("St7SaveBeamSectionMesh")(Id,property,files.Path),"St7SaveBeamSectionMesh");
+                api.CheckWrite(api.WriteFunction<MeshOpen>("St7OpenFileReadOnly")(meshFile,files.Path,directory),"St7OpenFileReadOnly section mesh");opened=true;
+                int nodes=0,plates=0;
+                api.CheckWrite(api.WriteFunction<MeshTotal>("St7GetTotal")(meshFile,(int)Straus7Entity.Node,ref nodes),"St7GetTotal section mesh nodes");
+                api.CheckWrite(api.WriteFunction<MeshTotal>("St7GetTotal")(meshFile,(int)Straus7Entity.Plate,ref plates),"St7GetTotal section mesh plates");
+                if(nodes<3||plates<1)throw new InvalidDataException("EmptySectionMesh");
+                // The section mesh generated by Straus7 has consecutive node and plate numbering.
+                var vertices=new double[nodes][];
+                for(int i=0;i<nodes;i++)
+                {
+                    var xyz=new double[3];api.CheckWrite(api.WriteFunction<MeshValues>("St7GetNodeXYZ")(meshFile,i+1,xyz),"St7GetNodeXYZ section mesh");vertices[i]=xyz;
+                }
+                var faces=new int[plates][];
+                for(int i=0;i<plates;i++)
+                {
+                    var connection=new int[21];
+                    api.CheckWrite(api.WriteFunction<MeshConnection>("St7GetElementConnection")(meshFile,(int)Straus7Entity.Plate,i+1,connection),"St7GetElementConnection section mesh");
+                    // Tri3/Tri6: three corners; Quad4/Quad8/Quad9: four corners (mid-side nodes follow the corners).
+                    int corners=connection[0]==3||connection[0]==6?3:connection[0]==4||connection[0]==8||connection[0]==9?4:0;
+                    if(corners==0)throw new NotSupportedException("UnsupportedSectionMeshPlate: "+connection[0]);
+                    faces[i]=Enumerable.Range(1,corners).Select(k=>connection[k]-1).ToArray();
+                    if(faces[i].Any(k=>k<0||k>=nodes))throw new InvalidDataException("InvalidSectionMeshConnectivity");
+                }
+                return new Straus7SectionMesh(section,vertices,faces);
+            }
+            finally
+            {
+                try {if(opened)api.CheckWrite(api.WriteFunction<MeshClose>("St7CloseFile")(meshFile),"St7CloseFile section mesh");}
+                finally {files.DeleteCreated();}
+            }
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshDivisions(int file,int property,int[] divisions);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MeshPath(int file,int property,string path);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int MeshOpen(int file,string path,string scratch);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshClose(int file);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshTotal(int file,int entity,ref int count);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshValues(int file,int node,[Out] double[] values);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshConnection(int file,int entity,int number,[Out] int[] connection);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionLibraryAssign(int a,int b,int c,int d,int[] flags);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionCalculate(int a,int b,byte shear);
     }

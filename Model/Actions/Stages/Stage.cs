@@ -15,6 +15,8 @@ namespace GPC.Model.Stages
         public StageAnalysisState AnalysisState { get; set; }
         public Stage() : base() { }
         public Stage(int id, string name) : base(id, name) { }
+        /// <summary>Creates a stage with the persistent identity supplied by its owner (plug-in adapters).</summary>
+        public Stage(Guid guid, int id, string name) : base(id, name, guid) { if (guid == Guid.Empty) throw new ArgumentException("EmptyEntityGuid", nameof(guid)); }
         private Stage(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             AnalysisState = SerializationFields.Read<StageAnalysisState>(info, "AnalysisState");

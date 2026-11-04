@@ -707,9 +707,16 @@ namespace GPC.Model.Sections
         /// <param name="y">The Y of the vertices (filled)</param>
         /// <param name="triangles">The triangles (filled)</param>
         internal static void Join(IReadOnlyList<Mesh> meshes, bool join, double spacing, List<double> x, List<double> y, List<int[]> triangles)
+            => Join(meshes, join, spacing, x, y, triangles, new List<int>());
+
+        /// <summary>
+        /// <see cref="Join(IReadOnlyList{Mesh}, bool, double, List{double}, List{double}, List{int[]})"/> with the region of each triangle
+        /// (the index of its mesh in <paramref name="meshes"/>), also for the triangles split by the joining
+        /// </summary>
+        /// <param name="regions">The region of each triangle (filled, parallel to <paramref name="triangles"/>)</param>
+        internal static void Join(IReadOnlyList<Mesh> meshes, bool join, double spacing, List<double> x, List<double> y, List<int[]> triangles, List<int> regions)
         {
             double tolerance = 1e-7 * spacing;
-            var regions = new List<int>();
             SectionMeshJoiner joiner = null;
             for (int r = 0; r < meshes.Count; r++)
             {
