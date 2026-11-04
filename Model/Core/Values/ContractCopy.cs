@@ -37,9 +37,9 @@ namespace GPC.Model.Core
 
         private static readonly StreamingContext Context = new StreamingContext(StreamingContextStates.All);
         private static readonly FormatterConverter Converter = new FormatterConverter();
-        private static readonly HashSet<Type> Vocabulary = new HashSet<Type>(ModelValues.DataContracts);
+        internal static readonly HashSet<Type> Vocabulary = new HashSet<Type>(ModelValues.DataContracts);
         // Values of the built-in contracts of the serializer, valid wherever an object is declared.
-        private static readonly HashSet<Type> Primitives = new HashSet<Type> { typeof(bool), typeof(char), typeof(sbyte), typeof(byte), typeof(short),
+        internal static readonly HashSet<Type> Primitives = new HashSet<Type> { typeof(bool), typeof(char), typeof(sbyte), typeof(byte), typeof(short),
             typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal), typeof(string),
             typeof(DateTime), typeof(TimeSpan), typeof(Guid), typeof(Uri), typeof(byte[]) };
         private static readonly ConcurrentDictionary<Type, Plan> Plans = new ConcurrentDictionary<Type, Plan>();
@@ -67,10 +67,13 @@ namespace GPC.Model.Core
 
         #region Plans
 
-        private enum Kind { Shared, Array, Dictionary, Collection, Custom, Members, Pair }
+        internal enum Kind { Shared, Array, Dictionary, Collection, Custom, Members, Pair }
 
-        private sealed class Member
+        internal sealed class Member
         {
+            /// <summary>The persisted name: the data member name, or the field name of a serializable type.</summary>
+            internal string Name;
+            internal bool IsRequired;
             internal FieldInfo Field;
             internal PropertyInfo Property;
             internal Type Type;
@@ -80,7 +83,7 @@ namespace GPC.Model.Core
             internal Action<object, object> Set;
         }
 
-        private sealed class Plan
+        internal sealed class Plan
         {
             internal Kind Kind;
             /// <summary>In the vocabulary or a built-in value: valid where another type is declared.</summary>
@@ -101,11 +104,11 @@ namespace GPC.Model.Core
             internal bool Callback;
         }
 
-        private static Plan PlanOf(Type type) => Plans.GetOrAdd(type, NewPlan);
+        internal static Plan PlanOf(Type type) => Plans.GetOrAdd(type, NewPlan);
 
         private static Plan Unsupported(Type type, string reason) => new Plan { Unsupported = reason + ": " + type.FullName };
 
-        private static bool IsShared(Type type) => type.IsEnum || type != typeof(byte[]) && Primitives.Contains(type);
+        internal static bool IsShared(Type type) => type.IsEnum || type != typeof(byte[]) && Primitives.Contains(type);
 
         private static Plan Create(Type type)
         {
@@ -270,6 +273,7 @@ namespace GPC.Model.Core
             Expression access = field != null ? (Expression)Expression.Field(instance, field) : Expression.Property(instance, property);
             var member = new Member
             {
+                Name = attribute?.Name ?? field?.Name ?? property.Name, IsRequired = attribute != null && attribute.IsRequired,
                 Field = field, Property = property, Type = type, EmitDefault = attribute == null || attribute.EmitDefaultValue,
                 Default = type.IsValueType && Nullable.GetUnderlyingType(type) == null ? Activator.CreateInstance(type) : null,
                 Get = Expression.Lambda<Func<object, object>>(Expression.Convert(access, typeof(object)), target).Compile()

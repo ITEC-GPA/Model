@@ -342,7 +342,30 @@ namespace UnitTest
             using var stream = new MemoryStream(); ModelArchive.Save(model, stream); stream.Position = 0;
             using var zip = new ZipArchive(stream, ZipArchiveMode.Read); using var results = zip.GetEntry("results.bin")!.Open();
             using var bytes = new MemoryStream(); results.CopyTo(bytes);
-            return model.AnalysisFingerprint() + ":" + ArchiveBlock.Digest(bytes.ToArray()) + ":" + ModelValues.Fingerprint(new object[] { model.AssemblyMap, model.Name });
+            return model.AnalysisFingerprint() + ":" + ArchiveBlock.Digest(ResultsWithoutDeflate(bytes.ToArray())) + ":" + ModelValues.Fingerprint(new object[] { model.AssemblyMap, model.Name });
+        }
+
+        /// <summary>results.bin of a package without the deflated payloads: element GUIDs and, per segment, its count, raw length, the SHA-256
+        /// of its raw codec bytes (every double bit) and datasets. The compact archives (lane L5) keep the raw bytes and deflate them again
+        /// on reading: the deflate of the reading runtime may differ (.NET Framework, zlib-ng), the content may not.</summary>
+        private static byte[] ResultsWithoutDeflate(byte[] section)
+        {
+            using var reader = new BinaryReader(new MemoryStream(section));
+            using var output = new MemoryStream(); using var writer = new BinaryWriter(output);
+            writer.Write(reader.ReadInt32()); writer.Write(reader.ReadByte());
+            int elements = reader.ReadInt32(); writer.Write(elements);
+            for (int i = 0; i < elements; i++)
+            {
+                writer.Write(reader.ReadBytes(16)); int segments = reader.ReadInt32(); writer.Write(segments);
+                for (int s = 0; s < segments; s++)
+                {
+                    writer.Write(reader.ReadInt32()); writer.Write(reader.ReadInt32()); writer.Write(reader.ReadBytes(32));
+                    int datasets = reader.ReadInt32(); writer.Write(datasets); for (int d = 0; d < datasets; d++) writer.Write(reader.ReadString());
+                    reader.ReadBytes(reader.ReadInt32());
+                }
+            }
+            Assert.AreEqual(section.Length, reader.BaseStream.Position);
+            return output.ToArray();
         }
 
         [TestMethod]

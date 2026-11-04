@@ -234,6 +234,19 @@ namespace GPC.Model.Results.Storage
 
         #region Writing
 
+        /// <summary>The segment of the first <paramref name="length"/> bytes of <paramref name="raw"/> (codec bytes of <paramref name="count"/>
+        /// results): their SHA-256 and their deflate, as every segment is kept (also for the raw segments of the compact archives).</summary>
+        internal static ResultSegment Seal(byte[] raw, int length, int count, string[] datasets)
+        {
+            byte[] digest; using (var sha = SHA256.Create()) digest = sha.ComputeHash(raw, 0, length);
+            using (var packed = new MemoryStream())
+            {
+                using (var deflate = new DeflateStream(packed, CompressionLevel.Fastest, true)) deflate.Write(raw, 0, length);
+                return new ResultSegment(packed.ToArray(), length, count, digest, datasets);
+            }
+        }
+        internal static ResultSegment Seal(byte[] raw, int count, string[] datasets) => Seal(raw, raw.Length, count, datasets);
+
         /// <summary>Encodes <paramref name="count"/> results from <paramref name="start"/>. References outside the run are rejected.</summary>
         internal static ResultSegment Encode(IReadOnlyList<ElementResult> results, int start, int count, ResultCaseTable cases)
         {
@@ -270,13 +283,7 @@ namespace GPC.Model.Results.Storage
             internal ResultSegment Finish(int count)
             {
                 _out.Flush();
-                var raw = _stream.GetBuffer(); int length = (int)_stream.Length;
-                byte[] digest; using (var sha = SHA256.Create()) digest = sha.ComputeHash(raw, 0, length);
-                using (var packed = new MemoryStream())
-                {
-                    using (var deflate = new DeflateStream(packed, CompressionLevel.Fastest, true)) deflate.Write(raw, 0, length);
-                    return new ResultSegment(packed.ToArray(), length, count, digest, _datasets.ToArray());
-                }
+                return Seal(_stream.GetBuffer(), (int)_stream.Length, count, _datasets.ToArray());
             }
 
             private void VarUInt(long value) { ulong v = (ulong)value; while (v >= 0x80) { _out.Write((byte)(v | 0x80)); v >>= 7; } _out.Write((byte)v); }

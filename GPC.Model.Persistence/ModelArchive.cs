@@ -31,12 +31,17 @@ namespace GPC.Model.Persistence
             CheckReportArchive.Validate(model.CheckReports.ToArray());
             using (var memory = new MemoryStream())
             {
-                using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
-                {
-                    writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", "4");
-                    Serializer(typeof(ModelDocument)).WriteObject(writer, ModelDocument.Capture(model)); writer.WriteEndElement();
-                }
+                WriteDocument(model, memory);
                 memory.Position = 0; memory.CopyTo(destination);
+            }
+        }
+
+        private static void WriteDocument(Models.Model model, Stream destination)
+        {
+            using (var writer = XmlWriter.Create(destination, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
+            {
+                writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", "4");
+                Serializer(typeof(ModelDocument)).WriteObject(writer, ModelDocument.Capture(model)); writer.WriteEndElement();
             }
         }
 
@@ -55,24 +60,195 @@ namespace GPC.Model.Persistence
             }
         }
 
+        /// <summary>Save with an explicit <paramref name="format"/>. <see cref="ModelArchiveFormat.Xml"/> is <see cref="Save(Models.Model, Stream)"/>;
+        /// <see cref="ModelArchiveFormat.Compact"/> writes version 6 (the document and the compact results in binary form, deflated), read
+        /// by <see cref="Load"/> from GPC.Model.Persistence 3.14 on, or the XML form when the binary form does not reproduce the graph.</summary>
+        public static void Save(Models.Model model, Stream destination, ModelArchiveFormat format)
+        {
+            if (format == ModelArchiveFormat.Xml) { Save(model, destination); return; }
+            if (format != ModelArchiveFormat.Compact) throw new ArgumentOutOfRangeException(nameof(format));
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (destination == null) throw new ArgumentNullException(nameof(destination));
+            CheckReportArchive.Validate(model.CheckReports.ToArray());
+            using (var memory = new MemoryStream())
+            {
+                if (!TrySaveCompact(model, memory))
+                {
+                    memory.SetLength(0);
+                    if (model.AllElements.Any(e => e.HasResults) || !TrySaveXml(model, memory)) { memory.SetLength(0); SavePackage(model, memory); }
+                }
+                memory.Position = 0; memory.CopyTo(destination);
+            }
+        }
+
         private static bool TrySaveXml(Models.Model model, MemoryStream memory)
         {
+            // The document is written until it exceeds the size of an XML document, not to its end (a model of 10,000 elements wrote
+            // 500 MB of XML to discard them): the same documents as before are XML, the larger ones a package.
+            var limited = new LimitedStream(memory, XmlDocumentBytes);
             try
             {
-                if (model.PhysicalSurfaces.Count > 0 || model.Analysis?.UsesCanonicalFingerprint == true || CheckReportArchive.RequiresVersion4(model.CheckReports)) SaveDocument(model, memory);
+                if (model.PhysicalSurfaces.Count > 0 || model.Analysis?.UsesCanonicalFingerprint == true || CheckReportArchive.RequiresVersion4(model.CheckReports)) WriteDocument(model, limited);
                 else
-                    using (var writer = XmlWriter.Create(memory, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
+                    using (var writer = XmlWriter.Create(limited, new XmlWriterSettings { NewLineHandling = NewLineHandling.Entitize, Indent = true, CloseOutput = false }))
                     {
                         writer.WriteStartElement("GpcModelArchive"); writer.WriteAttributeString("version", model.Analysis != null || model.VerificationContext != null || model.VerificationScenarios.Count != 0 || CheckReportArchive.RequiresVersion3(model.CheckReports)
                             ? "3" : model.PhysicalMembers.Count != 0 || CheckReportArchive.RequiresVersion2(model.CheckReports) ? "2" : "1");
                         Serializer(typeof(Models.Model)).WriteObject(writer, model); writer.WriteEndElement();
                     }
             }
+            // Larger documents are read slowly as text and approach the characters a document may hold: package.
+            catch (Exception) when (limited.Exceeded) { return false; }
             // The graph exceeds the objects of an XML document: the package has no such ceiling.
             catch (SerializationException) { return false; }
-            // Larger documents are read slowly as text and approach the characters a document may hold: package.
-            return memory.Length <= XmlDocumentBytes;
+            return !limited.Exceeded && memory.Length <= XmlDocumentBytes;
         }
+
+        /// <summary>Write-only view of a stream that refuses to grow it beyond a length (and remembers that it did).</summary>
+        private sealed class LimitedStream : Stream
+        {
+            private readonly Stream _inner;
+            private readonly long _limit;
+            internal bool Exceeded { get; private set; }
+            internal LimitedStream(Stream inner, long limit) { _inner = inner; _limit = limit; }
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                if (Exceeded || _inner.Length + count > _limit) { Exceeded = true; throw new IOException("ArchiveDocumentLimit"); }
+                _inner.Write(buffer, offset, count);
+            }
+            public override void Flush() => _inner.Flush();
+            public override bool CanRead => false;
+            public override bool CanSeek => false;
+            public override bool CanWrite => true;
+            public override long Length => _inner.Length;
+            public override long Position { get => _inner.Position; set => throw new NotSupportedException(); }
+            public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+        }
+
+        #region Version 6 (compact)
+
+        // "GPCMOD", version 6, flags; the raw and stored lengths of the deflated graph and of the deflated result section.
+        private static readonly byte[] CompactMagic = { (byte)'G', (byte)'P', (byte)'C', (byte)'M', (byte)'O', (byte)'D' };
+        private const byte CompactVersion = 6;
+
+        private static bool IsCompact(byte[] head) => head.Length >= 6 && head.Take(6).SequenceEqual(CompactMagic);
+
+        /// <summary>Version 6: the document without the element results (<see cref="ModelDocument"/>, as in the package of version 5) in
+        /// binary form (ModelImage.WriteBinaryGraph), deflated, then, when some element has results, their section
+        /// (ModelImage.WriteResultSection: raw segments, deflated as a whole). False, with nothing kept, when the binary form does not
+        /// reproduce the graph.</summary>
+        private static bool TrySaveCompact(Models.Model model, MemoryStream memory)
+        {
+            var elements = model.AllElements.ToArray();
+            var results = ModelImage.CaptureResults(model, elements);
+            long start = memory.Position;
+            memory.Write(CompactMagic, 0, CompactMagic.Length); memory.WriteByte(CompactVersion); memory.WriteByte(0);
+            memory.Write(new byte[32], 0, 32);
+            long at = memory.Position, graphRaw, resultsRaw = 0;
+            try { graphRaw = Deflated(memory, stream => ModelImage.WriteBinaryGraph(stream, ModelDocument.Capture(model), typeof(ModelDocument), elements)); }
+            catch (ContractCopy.UnsupportedException) { return false; }
+            long graphStored = memory.Position - at; at = memory.Position;
+            if (results.Any(r => r.Count != 0)) resultsRaw = Deflated(memory, stream => ModelImage.WriteResultSection(stream, results, 0, results.Length - 1));
+            long resultsStored = memory.Position - at, end = memory.Position;
+            memory.Position = start + 8;
+            using (var writer = new BinaryWriter(memory, System.Text.Encoding.UTF8, true)) { writer.Write(graphRaw); writer.Write(graphStored); writer.Write(resultsRaw); writer.Write(resultsStored); }
+            memory.Position = end;
+            return true;
+        }
+
+        private static long Deflated(Stream destination, Action<Stream> write)
+        {
+            using (var deflate = new DeflateStream(destination, CompressionLevel.Fastest, true))
+            using (var counting = new CountingStream(deflate)) { write(counting); return counting.Count; }
+        }
+
+        /// <summary>Version 6: each section is read within the bytes it declares, which deflate must be able to expand from its stored
+        /// bytes; the sections fill the archive exactly.</summary>
+        private static Models.Model LoadCompact(Stream source)
+        {
+            try
+            {
+                var reader = new BinaryReader(source, System.Text.Encoding.UTF8, true);
+                var head = reader.ReadBytes(8);
+                if (head.Length != 8 || !IsCompact(head) || head[6] != CompactVersion || head[7] != 0) throw new SerializationException("Unsupported archive version.");
+                long graphRaw = reader.ReadInt64(), graphStored = reader.ReadInt64(), resultsRaw = reader.ReadInt64(), resultsStored = reader.ReadInt64();
+                long left = source.Length - source.Position;
+                if (graphRaw < 5 || graphStored <= 0 || resultsRaw < 0 || resultsStored < 0 || graphStored > left || resultsStored != left - graphStored ||
+                    graphRaw > graphStored * Core.DomainXmlSerializer.DeflateExpansion || resultsRaw > resultsStored * Core.DomainXmlSerializer.DeflateExpansion ||
+                    (resultsRaw == 0) != (resultsStored == 0))
+                    throw new SerializationException("Corrupt archive package.");
+                Models.Model model;
+                using (var inflate = Inflated(reader, graphStored))
+                {
+                    model = ((ModelDocument)ModelImage.ReadBinaryGraph(inflate, graphRaw, typeof(ModelDocument))).Restore();
+                    if (inflate.ReadByte() != -1) throw new SerializationException("Corrupt archive package.");
+                }
+                if (resultsRaw != 0)
+                {
+                    var elements = model.AllElements.ToArray(); var results = new Results.Storage.ResultStorage[elements.Length];
+                    using (var inflate = Inflated(reader, resultsStored))
+                    using (var counted = new CountingReader(inflate))
+                    {
+                        ModelImage.ReadResultSection(counted, resultsRaw, results, 0, results.Length);
+                        if (counted.Count != resultsRaw || inflate.ReadByte() != -1) throw new SerializationException("Corrupt archive package.");
+                    }
+                    for (int i = 0; i < results.Length; i++) if (results[i] == null) results[i] = Results.Storage.ResultStorage.Empty;
+                    ModelImage.AttachResults(model, elements.Select(e => e.Guid).ToArray(), results);
+                }
+                CheckReportArchive.Validate(model.CheckReports.ToArray());
+                model.Analysis?.Validate();
+                return model;
+            }
+            catch (InvalidDataException ex) { throw new SerializationException("Corrupt archive package.", ex); }
+            catch (EndOfStreamException ex) { throw new SerializationException("Corrupt archive package.", ex); }
+        }
+
+        private static Stream Inflated(BinaryReader reader, long stored)
+        {
+            var packed = reader.ReadBytes(checked((int)stored));
+            if (packed.Length != stored) throw new SerializationException("Corrupt archive package.");
+            return new DeflateStream(new MemoryStream(packed, false), CompressionMode.Decompress);
+        }
+
+        /// <summary>Read-only pass-through counting the bytes read.</summary>
+        internal sealed class CountingReader : Stream
+        {
+            private readonly Stream _inner;
+            internal long Count { get; private set; }
+            internal CountingReader(Stream inner) { _inner = inner; }
+            public override int Read(byte[] buffer, int offset, int count) { int n = _inner.Read(buffer, offset, count); Count += n; return n; }
+            public override void Flush() { }
+            public override bool CanRead => true;
+            public override bool CanSeek => false;
+            public override bool CanWrite => false;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => Count; set => throw new NotSupportedException(); }
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        }
+
+        /// <summary>Write-only pass-through counting the bytes written.</summary>
+        internal sealed class CountingStream : Stream
+        {
+            private readonly Stream _inner;
+            internal long Count { get; private set; }
+            internal CountingStream(Stream inner) { _inner = inner; }
+            public override void Write(byte[] buffer, int offset, int count) { _inner.Write(buffer, offset, count); Count += count; }
+            public override void Flush() => _inner.Flush();
+            public override bool CanRead => false;
+            public override bool CanSeek => false;
+            public override bool CanWrite => true;
+            public override long Length => Count;
+            public override long Position { get => Count; set => throw new NotSupportedException(); }
+            public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+        }
+
+        #endregion
 
         /// <summary>Package version 5: ZIP with the document without element results (model.xml) and their compact form (results.bin).</summary>
         private static void SavePackage(Models.Model model, Stream destination)
@@ -103,10 +279,11 @@ namespace GPC.Model.Persistence
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (!source.CanSeek) { var buffer = new MemoryStream(); source.CopyTo(buffer); buffer.Position = 0; source = buffer; }
-            long start = source.Position; var head = new byte[4]; int read = 0;
-            while (read < 4) { int n = source.Read(head, read, 4 - read); if (n == 0) break; read += n; }
+            long start = source.Position; var head = new byte[8]; int read = 0;
+            while (read < 8) { int n = source.Read(head, read, 8 - read); if (n == 0) break; read += n; }
             source.Position = start;
-            if (!(read == 4 && head[0] == 0x50 && head[1] == 0x4B && head[2] == 3 && head[3] == 4)) return LoadXml(source, source.Length - start);
+            if (read >= 6 && IsCompact(head)) return LoadCompact(source);
+            if (!(read >= 4 && head[0] == 0x50 && head[1] == 0x4B && head[2] == 3 && head[3] == 4)) return LoadXml(source, source.Length - start);
             // ZIP offsets count from the start of the stream.
             if (start != 0) { var tail = new MemoryStream(); source.CopyTo(tail); tail.Position = 0; source = tail; }
             return LoadPackage(source);
