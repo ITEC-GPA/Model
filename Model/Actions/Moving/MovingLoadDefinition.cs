@@ -243,9 +243,15 @@ namespace GPC.Model.Actions.Moving
 
     /// <summary>Signed radial force on a vehicle = <see cref="OffsetForce"/> (N) + factor × vertical force. The factor is a constant
     /// or the physical law V²/(g R): vehicle speed V (mm/s), path radius R (mm), standard gravity g = 9806.65 mm/s².
+    /// <para>Convention (user decision 6 of 4/11): <see cref="OffsetForce"/> is the radial force on the whole vehicle, in N, whatever the number
+    /// of its forces; the vertical force is the one of the forces of the vehicle that apply the centrifugal force (ApplyCentrifugal), which
+    /// carry the radial force. A vehicle without such forces has none. How the offset is spread over those forces is the adapter's: the Straus7
+    /// writer divides it equally per point force and per mm of distributed force, as R31 applies its offset (review L10, measured), and rejects
+    /// a template whose vehicles cannot all receive the same offset.</para>
     /// N-mm physical data only: solver expression dialects and their unit strings belong to the adapter (Converter).
     /// Archives written before the N-mm contract (expression text with units) are converted when read; a text that is not a
-    /// constant or V²/(g R), or an unknown unit, is rejected.</summary>
+    /// constant or V²/(g R), or an unknown unit, is rejected. Their offset constant is taken as the offset of the vehicle: R31 applied it
+    /// per force, so the two agree for vehicles of one point force.</summary>
     [Serializable,DataContract]
     public sealed class MovingCentrifugalLaw
     {
