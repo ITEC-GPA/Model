@@ -46,7 +46,11 @@ namespace GPC.Converter.Straus7
 
         public static Straus7PhysicalWritePlan Prepare(global::GPC.Model.Models.Model model, SolverIdentityMap identity,
             IReadOnlyDictionary<string,int> loadCases, IReadOnlyDictionary<string,int> freedomCases, int defaultFreedomCase=1)
-            => PrepareCore(model,identity,loadCases,freedomCases,defaultFreedomCase,false);
+        {
+            if(model==null) throw new ArgumentNullException(nameof(model));
+            model.RequireExportable(); // domain preflight of every exporter (review L4)
+            return PrepareCore(model,identity,loadCases,freedomCases,defaultFreedomCase,false);
+        }
 
         internal static Straus7PhysicalWritePlan PrepareForFullModel(global::GPC.Model.Models.Model model, SolverIdentityMap identity,
             IReadOnlyDictionary<string,int> loadCases, IReadOnlyDictionary<string,int> freedomCases)

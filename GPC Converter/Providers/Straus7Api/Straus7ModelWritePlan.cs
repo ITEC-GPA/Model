@@ -63,8 +63,9 @@ namespace GPC.Converter.Straus7
             physical=Straus7PhysicalWritePlan.PrepareForFullModel(builder.Model,IdentityMap,
                 builder.Model.LoadCases.Values.ToDictionary(c=>c.Name,c=>builder.Loads[c.Guid]),
                 builder.Model.FreedomCases.Values.ToDictionary(c=>c.Name,c=>builder.Freedoms[c.Guid]));
-            if(builder.Model.MovingLoads!=null) moving=Straus7MovingWritePlan.Prepare(builder.Model,LoadCaseIds,movingOptions,IdentityMap);
-            if(builder.Model.Stages.Count!=0) stages=Straus7StageWritePlan.Prepare(builder.Model,GroupIds,LoadCaseIds,FreedomCaseIds,1);
+            // The parts of this export: the domain preflight ran once in Prepare.
+            if(builder.Model.MovingLoads!=null) moving=Straus7MovingWritePlan.PrepareCore(builder.Model,LoadCaseIds,movingOptions,IdentityMap);
+            if(builder.Model.Stages.Count!=0) stages=Straus7StageWritePlan.PrepareCore(builder.Model,GroupIds,LoadCaseIds,FreedomCaseIds,1);
             operations=builder.Operations.ToArray();
         }
         public static Straus7ModelWritePlan Prepare(global::GPC.Model.Models.Model model,
@@ -82,6 +83,8 @@ namespace GPC.Converter.Straus7
             IReadOnlyDictionary<Guid,Straus7SectionDefinition> nativeSections)
         {
             if(model==null)throw new ArgumentNullException(nameof(model));
+            // Domain preflight of every exporter (review L4): dangling stage/moving-load references, invalid elastic properties and form finding.
+            model.RequireExportable();
             if(model.Stages.Count!=0 && model.MovingLoads!=null && model.MovingLoads.Paths.Any(p=>Straus7MovingPathOptions.Effective(model,p,movingOptions)?.ConvertToStaticCases==true))
                 throw new NotSupportedException("GeneratedMovingCasesNeedExplicitStageFactors");
             var builder=new Builder(model,beamIntegrationSlices,nativeSections);builder.Build();return new Straus7ModelWritePlan(builder,movingOptions);
