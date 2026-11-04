@@ -44,6 +44,31 @@ namespace UnitTest
             Assert.AreEqual(1.5 * Math.Sqrt(0.5) + 2.25 * Math.Sqrt(0.5), global[0], 1e-12);
         }
 
+        /// <summary><see cref="LineLoad.GetLocalForces(CoordinateSystem)"/> takes the components in the axes of the load (second fix of
+        /// 4/11/2026, lane L9): before, they were taken as global whatever the axes of the load, and moved as points. Now as
+        /// <see cref="PointLoad.GetLocalForces(CoordinateSystem)"/>.</summary>
+        [TestMethod]
+        public void LocalForcesTakeTheComponentsInTheAxesOfTheLoad()
+        {
+            var start = new Point3d(1000, 2000, 300); var end = new Point3d(2000, 3000, 300);
+            var axes = BeamAxes(start);
+            var load = new LineLoad(1.5, -2.25, -5, 0.5, 0, 7, new Line3d(start, end), Case, axes);
+            var other = new CoordinateSystem(new Point3d(-40, 7, 1e6), new Vector3d(0, 0, 1), new Vector3d(1, 0, 0), "other");
+            var point = new PointLoad(1.5, -2.25, -5, 0.5, 0, 7, start, Case, axes);
+            foreach (var cs in new[] { CoordinateSystem.Global, axes, other, BeamAxes(new Point3d(0, 0, 0)) })
+                CollectionAssert.AreEqual(Bits(point.GetLocalForces(cs)), Bits(load.GetLocalForces(cs)), cs.Name);
+            // in the global axes: the global components; in its own axes: its components (within the rounding of the two rotations)
+            var global = load.GetGlobalForces(); var inGlobal = load.GetLocalForces(CoordinateSystem.Global);
+            for (int i = 0; i < 6; i++) Assert.IsTrue(global[i] == inGlobal[i], "global " + i);
+            var own = load.GetLocalForces(); var components = new[] { 1.5, -2.25, -5, 0.5, 0, 7 };
+            for (int i = 0; i < 6; i++) Assert.AreEqual(components[i], own[i], 1e-12, "own " + i);
+            // in axes turned about Z by 90 degrees: X' = Y, Y' = -X
+            var turned = new CoordinateSystem(new Point3d(5, 5, 5), new Vector3d(0, 1, 0), new Vector3d(-1, 0, 0), "turned");
+            var g = new LineLoad(3, 4, -5, 0, 0, 0, new Line3d(start, end), Case);
+            var t = g.GetLocalForces(turned);
+            Assert.AreEqual(4, t[0], 1e-12); Assert.AreEqual(-3, t[1], 1e-12); Assert.AreEqual(-5, t[2], 1e-12);
+        }
+
         /// <summary>For axes at the global origin the components are those of before, bit for bit (the subtraction of +0 changed nothing).</summary>
         [TestMethod]
         public void AxesAtTheGlobalOriginGiveTheValuesOfBefore()
