@@ -8,6 +8,8 @@
     <Compile Include="../tests/FormFindingContractsTest.cs" Link="FormFindingContractsTest.cs" />
     <Compile Include="../tests/ArachneVocabularyTest.cs" Link="ArachneVocabularyTest.cs" />
     <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
+    <Compile Include="../tests/CompactArchiveTest.cs" Link="CompactArchiveTest.cs" />
+    <None Include="../tests/Fixtures/external-v1-cc050bec/*" Link="Fixtures/external-v1-cc050bec/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../tests/Fixtures/anthea-blocks-v1-20261103.bin" Link="Fixtures/anthea-blocks-v1-20261103.bin" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <!-- The tests of tests/ that must hold on .NET Framework as on .NET, where UnitTest runs them: GPCModel is netstandard2.0 and its

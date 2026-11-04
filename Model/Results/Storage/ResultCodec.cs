@@ -131,8 +131,39 @@ namespace GPC.Model.Results.Storage
         private sealed class Member
         {
             internal string Name; internal FieldInfo Field; internal PropertyInfo Property;
-            internal object Get(object o) => Field != null ? Field.GetValue(o) : Property.GetValue(o);
-            internal void Set(object o, object v) { if (Field != null) Field.SetValue(o, v); else Property.SetValue(o, v); }
+            private Func<object, object> _get; private Action<object, object> _set;
+            // Compiled accessors (reflection GetValue/SetValue cost most of the encoding of a result on .NET Framework, lane L5); the
+            // same values as reflection. Fields that cannot be assigned by an expression (readonly, value-type owners) keep reflection.
+            internal object Get(object o) => (_get ?? (_get = Getter()))(o);
+            internal void Set(object o, object v) => (_set ?? (_set = Setter()))(o, v);
+            private Func<object, object> Getter()
+            {
+                try
+                {
+                    var target = System.Linq.Expressions.Expression.Parameter(typeof(object));
+                    var owner = System.Linq.Expressions.Expression.Convert(target, Field?.DeclaringType ?? Property.DeclaringType);
+                    System.Linq.Expressions.Expression access = Field != null ? System.Linq.Expressions.Expression.Field(owner, Field) : (System.Linq.Expressions.Expression)System.Linq.Expressions.Expression.Property(owner, Property);
+                    return System.Linq.Expressions.Expression.Lambda<Func<object, object>>(System.Linq.Expressions.Expression.Convert(access, typeof(object)), target).Compile();
+                }
+                catch (Exception) { var field = Field; var property = Property; return o => field != null ? field.GetValue(o) : property.GetValue(o); }
+            }
+            private Action<object, object> Setter()
+            {
+                var field = Field; var property = Property; var declaring = field?.DeclaringType ?? property.DeclaringType;
+                Action<object, object> reflection = (o, v) => { if (field != null) field.SetValue(o, v); else property.SetValue(o, v); };
+                var type = field?.FieldType ?? property.PropertyType;
+                // Reflection also for value-type members (it sets the default for a null), as before.
+                if (field?.IsInitOnly == true || declaring.IsValueType || type.IsValueType && Nullable.GetUnderlyingType(type) == null ||
+                    field == null && property.GetSetMethod(true) == null) return reflection;
+                try
+                {
+                    var target = System.Linq.Expressions.Expression.Parameter(typeof(object)); var value = System.Linq.Expressions.Expression.Parameter(typeof(object));
+                    var owner = System.Linq.Expressions.Expression.Convert(target, declaring);
+                    System.Linq.Expressions.Expression access = field != null ? System.Linq.Expressions.Expression.Field(owner, field) : (System.Linq.Expressions.Expression)System.Linq.Expressions.Expression.Property(owner, property);
+                    return System.Linq.Expressions.Expression.Lambda<Action<object, object>>(System.Linq.Expressions.Expression.Assign(access, System.Linq.Expressions.Expression.Convert(value, type)), target, value).Compile();
+                }
+                catch (Exception) { return reflection; }
+            }
         }
         private sealed class Shape
         {
@@ -234,6 +265,19 @@ namespace GPC.Model.Results.Storage
 
         #region Writing
 
+        /// <summary>The segment of the first <paramref name="length"/> bytes of <paramref name="raw"/> (codec bytes of <paramref name="count"/>
+        /// results): their SHA-256 and their deflate, as every segment is kept (also for the raw segments of the compact archives).</summary>
+        internal static ResultSegment Seal(byte[] raw, int length, int count, string[] datasets)
+        {
+            byte[] digest; using (var sha = SHA256.Create()) digest = sha.ComputeHash(raw, 0, length);
+            using (var packed = new MemoryStream())
+            {
+                using (var deflate = new DeflateStream(packed, CompressionLevel.Fastest, true)) deflate.Write(raw, 0, length);
+                return new ResultSegment(packed.ToArray(), length, count, digest, datasets);
+            }
+        }
+        internal static ResultSegment Seal(byte[] raw, int count, string[] datasets) => Seal(raw, raw.Length, count, datasets);
+
         /// <summary>Encodes <paramref name="count"/> results from <paramref name="start"/>. References outside the run are rejected.</summary>
         internal static ResultSegment Encode(IReadOnlyList<ElementResult> results, int start, int count, ResultCaseTable cases)
         {
@@ -270,13 +314,7 @@ namespace GPC.Model.Results.Storage
             internal ResultSegment Finish(int count)
             {
                 _out.Flush();
-                var raw = _stream.GetBuffer(); int length = (int)_stream.Length;
-                byte[] digest; using (var sha = SHA256.Create()) digest = sha.ComputeHash(raw, 0, length);
-                using (var packed = new MemoryStream())
-                {
-                    using (var deflate = new DeflateStream(packed, CompressionLevel.Fastest, true)) deflate.Write(raw, 0, length);
-                    return new ResultSegment(packed.ToArray(), length, count, digest, _datasets.ToArray());
-                }
+                return Seal(_stream.GetBuffer(), (int)_stream.Length, count, _datasets.ToArray());
             }
 
             private void VarUInt(long value) { ulong v = (ulong)value; while (v >= 0x80) { _out.Write((byte)(v | 0x80)); v >>= 7; } _out.Write((byte)v); }
