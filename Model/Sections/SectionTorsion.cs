@@ -691,11 +691,41 @@ namespace GPC.Model.Sections
 
     /// <summary>
     /// Joins the triangulations of regions meshed one by one into one conforming mesh, as the torsion of the welded sections needs (here) and the
-    /// shear areas of the sections of the Converter (GPC.Converter.SectionShearAreas): the coincident vertices are merged (within a tolerance) and
+    /// shear areas of the sections (<see cref="SectionShearAreas"/>): the coincident vertices are merged (within a tolerance) and
     /// a vertex of a region on a side of another one splits that triangle, so the regions that touch along their sides exchange their flows
     /// </summary>
     internal sealed class SectionMeshJoiner
     {
+        /// <summary>
+        /// The meshes of the regions of a section in one list of vertices and triangles (faces split from their first vertex): joined into one
+        /// conforming mesh (<see cref="Vertex"/> and <see cref="Conform"/>) when <paramref name="join"/>, otherwise each region on its own vertices
+        /// </summary>
+        /// <param name="meshes">The meshes of the regions</param>
+        /// <param name="join">True to join the regions (a single region, the parts of a welded section)</param>
+        /// <param name="spacing">The length scale of the joining: the cells of the search grid; 1e-7 of it to merge or split</param>
+        /// <param name="x">The X of the vertices (filled)</param>
+        /// <param name="y">The Y of the vertices (filled)</param>
+        /// <param name="triangles">The triangles (filled)</param>
+        internal static void Join(IReadOnlyList<Mesh> meshes, bool join, double spacing, List<double> x, List<double> y, List<int[]> triangles)
+        {
+            double tolerance = 1e-7 * spacing;
+            var regions = new List<int>();
+            SectionMeshJoiner joiner = null;
+            for (int r = 0; r < meshes.Count; r++)
+            {
+                if (joiner == null || !join) joiner = new SectionMeshJoiner(x, y, tolerance);
+                var mesh = meshes[r]; var ids = new Dictionary<int, int>();
+                foreach (var v in mesh.Vertices) ids.Add(v.Id, joiner.Vertex(v.Point.X, v.Point.Y));
+                foreach (var face in mesh.Faces)
+                {
+                    var f = mesh.GetFaceVertices(face).Select(v => ids[v.Id]).ToArray();
+                    for (int k = 1; k + 1 < f.Length; k++) { triangles.Add(new[] { f[0], f[k], f[k + 1] }); regions.Add(r); }
+                }
+            }
+            // A vertex of a part on a side of another part splits that triangle (T-junctions of plates of different widths).
+            if (join && meshes.Count > 1) Conform(x, y, triangles, regions, spacing, tolerance);
+        }
+
         private readonly List<double> x, y;
         private readonly double tolerance;
         private readonly Dictionary<(long, long), List<int>> merge = new Dictionary<(long, long), List<int>>();
