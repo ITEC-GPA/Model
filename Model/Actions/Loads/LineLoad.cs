@@ -363,30 +363,25 @@ namespace GPC.Model.Loads
         /// </summary>
         /// <param name="cSys">The coordinate system</param>
         /// <returns>The array [fx, fy, fz, mx, my, mz]</returns>
-        /// <remarks>The components are rotated as if they were in the global system, not in the coordinate system of the load (see the list of the defects found)</remarks>
+        /// <remarks>The components are rotated from the axes of the load to the global axes and then to the axes of
+        /// <paramref name="cSys"/> (<see cref="ToLocal(CoordinateSystem)"/>), as in <see cref="PointLoad.GetLocalForces(CoordinateSystem)"/>;
+        /// the origins do not enter. Until 4/11/2026 the components were taken as global, whatever the coordinate system of the load,
+        /// and moved as points (translation of <paramref name="cSys"/> added, then that of the global origin subtracted); lane L9, the same
+        /// class of defect as <see cref="GetGlobalForces"/>.</remarks>
         public double[] GetLocalForces(CoordinateSystem cSys)
         {
             // Crea un array di double in le 3 componenti di forza e di momento
             // nelle 3 direzioni del sistema di coordinate locali.
 
-            Point3d forceGlobal = new Point3d(_f1, _f2, _f3);
-            Point3d momentglobal = new Point3d(_m1, _m2, _m3);
-
-            Point3d PointForceLocal = cSys.ToLocal(forceGlobal);
-            Point3d PointMomentLocal = cSys.ToLocal(momentglobal);
-
-            Point3d OriginGlobal = cSys.ToLocal(CoordinateSystem.Global.Origin);
-
-            Vector3d forceLocal = new Vector3d(PointForceLocal - OriginGlobal);
-            Vector3d momentLocal = new Vector3d(PointMomentLocal - OriginGlobal);
+            LineLoad local = ToLocal(cSys);
 
             double[] pointLoad = new double[6];
-            pointLoad[0] = forceLocal.X;
-            pointLoad[1] = forceLocal.Y;
-            pointLoad[2] = forceLocal.Z;
-            pointLoad[3] = momentLocal.X;
-            pointLoad[4] = momentLocal.Y;
-            pointLoad[5] = momentLocal.Z;
+            pointLoad[0] = local.F1;
+            pointLoad[1] = local.F2;
+            pointLoad[2] = local.F3;
+            pointLoad[3] = local.M1;
+            pointLoad[4] = local.M2;
+            pointLoad[5] = local.M3;
 
             return pointLoad;
         }
