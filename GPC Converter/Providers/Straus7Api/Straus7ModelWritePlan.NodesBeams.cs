@@ -21,10 +21,15 @@ namespace GPC.Converter.Straus7
     {
         private sealed partial class Builder
         {
+            /// <summary>The attributes that enter the native model: an element label (<see cref="ElementLabelAttribute"/>, an
+            /// identifier given by the user to select the element, e.g. the Element Id of BridGHe and Arachne) is descriptive and is not
+            /// written (the native numbering is the GPC one), as the former BridGHe exporter.</summary>
+            private static int Exported(Element element)=>element.Attributes.Values.Count(a=>!(a is ElementLabelAttribute));
+
             private void Node(NodeElement node)
             {
                 int id=Entities[node.Guid];var p=node.Assignments;
-                if(p.Active==false || p.Dofs!=null || node.Attributes.Count!=0 || p.Links.Count!=0 || p.Mass!=null)
+                if(p.Active==false || p.Dofs!=null || Exported(node)!=0 || p.Links.Count!=0 || p.Mass!=null)
                     throw new NotSupportedException("StrausNodeDofsLinksMassOrAttributesNeedExplicitMapping");
                 if(!Axes.IsFinite(node.Position))throw new ArgumentException("InvalidStrausNodePosition");
                 // Straus7 groups contain elements, not nodes. Nodal groups remain organizational GPC metadata.
@@ -173,7 +178,7 @@ namespace GPC.Converter.Straus7
                     throw new NotSupportedException("SectionCentroidOffsetRequiresExplicitReferenceConvention");
                 if(offsets.Any(v=>v!=0))Operations.Add(a=>a.SetBeamOffset(id,(double[])offsets.Clone()));
                 if(beam.Attributes.Values.Count(a=>a is BeamReleasesAttribute)>1)throw new ArgumentException("DuplicateBeamReleases");
-                foreach(var attribute in beam.Attributes.Values)
+                foreach(var attribute in beam.Attributes.Values.Where(a=>!(a is ElementLabelAttribute)))
                 {
                     if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes)&&!Same(release.CoordinateSystem,principal))
                         throw new NotSupportedException("UnsupportedStrausBeamAttributeOrReleaseAxes");

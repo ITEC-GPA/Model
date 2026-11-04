@@ -76,7 +76,7 @@ namespace GPC.Converter.Straus7
                 int id=Entities[plate.Guid];
                 if(plate.Nodes.Count!=3&&plate.Nodes.Count!=4)throw new NotSupportedException("StrausPlateRequiresThreeOrFourConnectedNodes");
                 if(plate.Nodes.Any(n=>!Entities.ContainsKey(n.Guid)))throw new ArgumentException("UnregisteredStrausPlateNode");
-                if(plate.Attributes.Count!=0)throw new NotSupportedException("UnsupportedStrausPlateAttributes");
+                if(Exported(plate)!=0)throw new NotSupportedException("UnsupportedStrausPlateAttributes");
                 var fabric=plate.PlateProperty as MembranePlateProperty; // Shared fabric property (review B3).
                 IFemPlateProperty p=null;
                 if(fabric==null)
