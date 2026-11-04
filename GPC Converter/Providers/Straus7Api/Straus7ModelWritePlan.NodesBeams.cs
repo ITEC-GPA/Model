@@ -275,17 +275,28 @@ namespace GPC.Converter.Straus7
                         foreach(var vertex in conforming.Vertices){var xyz=(double[])vertex.Clone();Finite(xyz);vertices.Add(xyz);}
                         faces.AddRange(conforming.Triangles);outlines=Array.Empty<Shape2d>();
                     }
+                    var partMeshes=new List<(List<double[]> Vertices,List<int[]> Faces)>();
                     foreach(var outline in outlines)
                     {
                         var mesh=new Section(outline).GetMesh(initialMeshOnly:true);
                         if(mesh==null||mesh.Faces.Count==0)throw new ArgumentException("EmptyStrausSectionMesh");
-                        var nodeIds=new Dictionary<int,int>();
+                        var nodeIds=new Dictionary<int,int>();var partVertices=new List<double[]>();var partFaces=new List<int[]>();
                         foreach(var vertex in mesh.Vertices)
                         {
-                            nodeIds.Add(vertex.Id,vertices.Count);
-                            var xyz=new[]{vertex.Point.X,vertex.Point.Y,vertex.Point.Z};Finite(xyz);vertices.Add(xyz);
+                            nodeIds.Add(vertex.Id,partVertices.Count);
+                            var xyz=new[]{vertex.Point.X,vertex.Point.Y,vertex.Point.Z};Finite(xyz);partVertices.Add(xyz);
                         }
-                        foreach(var face in mesh.Faces)faces.Add(mesh.GetFaceVertices(face).Select(v=>nodeIds[v.Id]).ToArray());
+                        foreach(var face in mesh.Faces)partFaces.Add(mesh.GetFaceVertices(face).Select(v=>nodeIds[v.Id]).ToArray());
+                        partMeshes.Add((partVertices,partFaces));
+                    }
+                    // The parts of a built-up section that is not welded stay separate bodies for R31, as for GPC (user decision 5 of 4/11,
+                    // «separa i nodi»): R31 merges the nodes it finds closer than its tolerance, so touching vertices of different parts move into
+                    // their own part by a negligible distance (Straus7SectionPartSeparation). Parts that do not touch keep their mesh value for value.
+                    if(section is SectionBuiltUp&&partMeshes.Count>1)Straus7SectionPartSeparation.Separate(partMeshes,section.Name);
+                    foreach(var part in partMeshes)
+                    {
+                        int offset=vertices.Count;vertices.AddRange(part.Vertices);
+                        foreach(var face in part.Faces)faces.Add(face.Select(i=>i+offset).ToArray());
                     }
                     var xyzData=vertices.ToArray();var faceData=faces.ToArray();
                     RequiresSectionMeshApi=true;

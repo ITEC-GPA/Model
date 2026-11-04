@@ -93,7 +93,7 @@ public class ReviewFixesL6Test
 
     /// <summary>The BXS the writer sends for the section of a cantilever (elastic property: the BXS does not depend on the property type, and a
     /// SteelSection does not take a generic polygon): vertices and faces of SetBeamSectionMesh.</summary>
-    private static (double[][] Vertices, int[][] Faces) SentBxs(ISectionShape section)
+    internal static (double[][] Vertices, int[][] Faces) SentBxs(ISectionShape section)
     {
         var model = Straus7ModelWriteTest.Cantilever();
         model.BeamElements.Values.Single().BeamProperty = new GPC.Model.ElementProperties.ElasticBeamProperty("BXS", new GPC.Model.Materials.Material("E", 210000, .3, 0, 0), section);
@@ -103,7 +103,7 @@ public class ReviewFixesL6Test
 
     /// <summary>The connected components of a triangulation (faces sharing a vertex) and the vertices lying strictly inside a side that only
     /// one face uses (hanging nodes: the faces on the two sides of it are not connected along it).</summary>
-    private static (int Components, int Hanging) Topology(double[][] vertices, int[][] faces)
+    internal static (int Components, int Hanging) Topology(double[][] vertices, int[][] faces)
     {
         var parent = Enumerable.Range(0, vertices.Length).ToArray();
         int Find(int i) { while (parent[i] != i) i = parent[i] = parent[parent[i]]; return i; }
@@ -227,7 +227,7 @@ public class ReviewFixesL6Test
 
     /// <summary>The cantilever of Straus7ModelWriteTest (beam from (0,0,0) to (1000,0,0), clamped at X = 0) with a moving-load path along it,
     /// converted to static cases.</summary>
-    private static (GPC.Model.Models.Model Model, MovingLoadPath Path) PathOnTheCantilever(MovingLoadTemplate template, MovingPathShape shape, Point3d reference)
+    internal static (GPC.Model.Models.Model Model, MovingLoadPath Path) PathOnTheCantilever(MovingLoadTemplate template, MovingPathShape shape, Point3d reference)
     {
         var model = Straus7ModelWriteTest.Cantilever(); foreach (var node in model.NodesElements.Values) node.Loads.Clear();
         var path = new MovingLoadPath { Id = Guid.NewGuid(), CaseGuid = model.LoadCases.Values.Single().Guid, Divisions = 4, Shape = shape,
@@ -261,7 +261,7 @@ public class ReviewFixesL6Test
 
     /// <summary>The reaction of the clamp in each generated static case that carries a load (written natively, optionally through
     /// <see cref="GlobalCentrifugalFlag"/>).</summary>
-    private static List<double[]> ClampReactions(GPC.Model.Models.Model model, MovingLoadPath path, string name, bool flagGlobalCentrifugal = false)
+    internal static List<double[]> ClampReactions(GPC.Model.Models.Model model, MovingLoadPath path, string name, bool flagGlobalCentrifugal = false)
     {
         var plan = Straus7ModelWritePlan.Prepare(model, new Dictionary<Guid, Straus7MovingPathOptions> { { path.Id, new Straus7MovingPathOptions { ConvertToStaticCases = true } } });
         string folder = Straus7ExporterCorrectionsTest.NativeFolder(), output = Path.Combine(folder, name + ".st7"), result; IReadOnlyDictionary<int, string> generated;
