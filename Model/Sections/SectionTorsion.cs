@@ -210,30 +210,8 @@ namespace GPC.Model.Sections
             var triangles = new List<int[]>();
             var regionOf = new List<int>();
             double tolerance = 1e-7 * size;
-            var merge = new Dictionary<(long, long), List<int>>();
-            int Vertex(double px, double py)
-            {
-                long cx = (long)Math.Floor(px / (4 * tolerance)), cy = (long)Math.Floor(py / (4 * tolerance));
-                for (long i = cx - 1; i <= cx + 1; i++)
-                {
-                    for (long j = cy - 1; j <= cy + 1; j++)
-                    {
-                        if (!merge.TryGetValue((i, j), out List<int> list))
-                            continue;
-                        foreach (int v in list)
-                        {
-                            if (Math.Abs(x[v] - px) <= tolerance && Math.Abs(y[v] - py) <= tolerance)
-                                return v;
-                        }
-                    }
-                }
-                x.Add(px);
-                y.Add(py);
-                if (!merge.TryGetValue((cx, cy), out List<int> cell))
-                    merge[(cx, cy)] = cell = new List<int>();
-                cell.Add(x.Count - 1);
-                return x.Count - 1;
-            }
+            var joiner = new SectionMeshJoiner(x, y, tolerance);
+            int Vertex(double px, double py) => joiner.Vertex(px, py);
 
             for (int r = 0; r < valid.Count; r++)
             {
@@ -269,7 +247,7 @@ namespace GPC.Model.Sections
             if (triangles.Count == 0)
                 return new SectionTorsionProperties("the mesh has no elements", size);
             if (valid.Count > 1)
-                Conform(x, y, triangles, regionOf, size, tolerance);
+                SectionMeshJoiner.Conform(x, y, triangles, regionOf, size, tolerance);
 
             int vertices = x.Count;
             var nodes = new List<int[]>(triangles.Count);
@@ -466,99 +444,6 @@ namespace GPC.Model.Sections
                     action(e, gauss, gauss[3] * elementArea, gauss[0] * x1 + gauss[1] * x2 + gauss[2] * x3,
                         gauss[0] * y1 + gauss[1] * y2 + gauss[2] * y3);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Makes the joined meshes of the regions conforming: a vertex inside a side of the boundary of the mesh (a side of one triangle only)
-        /// splits that triangle in two, until no vertex lies inside a boundary side
-        /// </summary>
-        /// <param name="x">The X of the vertices</param>
-        /// <param name="y">The Y of the vertices</param>
-        /// <param name="triangles">The triangles (counterclockwise)</param>
-        /// <param name="region">The region of each triangle</param>
-        /// <param name="size">The size of the mesh (the cells of the search grid)</param>
-        /// <param name="tolerance">The distance of a vertex from a side to be on it</param>
-        private static void Conform(List<double> x, List<double> y, List<int[]> triangles, List<int> region, double size, double tolerance)
-        {
-            var grid = new Dictionary<(long, long), List<int>>();
-            for (int i = 0; i < x.Count; i++)
-            {
-                var cell = ((long)Math.Floor(x[i] / size), (long)Math.Floor(y[i] / size));
-                if (!grid.TryGetValue(cell, out List<int> list))
-                    grid[cell] = list = new List<int>();
-                list.Add(i);
-            }
-
-            int Hanging(int a, int b)
-            {
-                double ex = x[b] - x[a], ey = y[b] - y[a], length2 = ex * ex + ey * ey;
-                double length = Math.Sqrt(length2);
-                if (length == 0)
-                    return -1;
-                long x0 = (long)Math.Floor((Math.Min(x[a], x[b]) - tolerance) / size), x1 = (long)Math.Floor((Math.Max(x[a], x[b]) + tolerance) / size);
-                long y0 = (long)Math.Floor((Math.Min(y[a], y[b]) - tolerance) / size), y1 = (long)Math.Floor((Math.Max(y[a], y[b]) + tolerance) / size);
-                int best = -1;
-                double bestT = double.MaxValue;
-                for (long i = x0; i <= x1; i++)
-                {
-                    for (long j = y0; j <= y1; j++)
-                    {
-                        if (!grid.TryGetValue((i, j), out List<int> list))
-                            continue;
-                        foreach (int v in list)
-                        {
-                            if (v == a || v == b)
-                                continue;
-                            double wx = x[v] - x[a], wy = y[v] - y[a];
-                            double t = (wx * ex + wy * ey) / length2;
-                            double distance = Math.Abs(ex * wy - ey * wx) / length;
-                            if (distance <= tolerance && t * length > tolerance && (1 - t) * length > tolerance && t < bestT)
-                            {
-                                best = v;
-                                bestT = t;
-                            }
-                        }
-                    }
-                }
-                return best;
-            }
-
-            int count = x.Count;
-            for (int pass = 0; pass < 100; pass++)
-            {
-                var uses = new Dictionary<long, int>();
-                foreach (int[] t in triangles)
-                {
-                    for (int k = 0; k < 3; k++)
-                    {
-                        long key = (long)Math.Min(t[k], t[(k + 1) % 3]) * count + Math.Max(t[k], t[(k + 1) % 3]);
-                        uses[key] = uses.TryGetValue(key, out int u) ? u + 1 : 1;
-                    }
-                }
-
-                bool changed = false;
-                int triangleCount = triangles.Count;
-                for (int ti = 0; ti < triangleCount; ti++)
-                {
-                    int[] t = triangles[ti];
-                    for (int k = 0; k < 3; k++)
-                    {
-                        int a = t[k], b = t[(k + 1) % 3], c = t[(k + 2) % 3];
-                        if (uses[(long)Math.Min(a, b) * count + Math.Max(a, b)] != 1)
-                            continue;
-                        int p = Hanging(a, b);
-                        if (p < 0)
-                            continue;
-                        triangles[ti] = new[] { a, p, c };
-                        triangles.Add(new[] { p, b, c });
-                        region.Add(region[ti]);
-                        changed = true;
-                        break;
-                    }
-                }
-                if (!changed)
-                    return;
             }
         }
 
@@ -801,6 +686,151 @@ namespace GPC.Model.Sections
             for (int i = 0; i < a.Length; i++)
                 s += a[i] * b[i];
             return s;
+        }
+    }
+
+    /// <summary>
+    /// Joins the triangulations of regions meshed one by one into one conforming mesh, as the torsion of the welded sections needs (here) and the
+    /// shear areas of the sections of the Converter (GPC.Converter.SectionShearAreas): the coincident vertices are merged (within a tolerance) and
+    /// a vertex of a region on a side of another one splits that triangle, so the regions that touch along their sides exchange their flows
+    /// </summary>
+    internal sealed class SectionMeshJoiner
+    {
+        private readonly List<double> x, y;
+        private readonly double tolerance;
+        private readonly Dictionary<(long, long), List<int>> merge = new Dictionary<(long, long), List<int>>();
+
+        /// <summary>
+        /// Creates the joiner of the vertices that go to <paramref name="x"/> and <paramref name="y"/>
+        /// </summary>
+        /// <param name="x">The X of the vertices (the merged vertices are added to it)</param>
+        /// <param name="y">The Y of the vertices</param>
+        /// <param name="tolerance">The distance of two vertices to be the same one</param>
+        internal SectionMeshJoiner(List<double> x, List<double> y, double tolerance)
+        {
+            this.x = x;
+            this.y = y;
+            this.tolerance = tolerance;
+        }
+
+        /// <summary>
+        /// The index of the vertex (px, py): a vertex already added within the tolerance, otherwise a new one
+        /// </summary>
+        internal int Vertex(double px, double py)
+        {
+            long cx = (long)Math.Floor(px / (4 * tolerance)), cy = (long)Math.Floor(py / (4 * tolerance));
+            for (long i = cx - 1; i <= cx + 1; i++)
+            {
+                for (long j = cy - 1; j <= cy + 1; j++)
+                {
+                    if (!merge.TryGetValue((i, j), out List<int> list))
+                        continue;
+                    foreach (int v in list)
+                    {
+                        if (Math.Abs(x[v] - px) <= tolerance && Math.Abs(y[v] - py) <= tolerance)
+                            return v;
+                    }
+                }
+            }
+            x.Add(px);
+            y.Add(py);
+            if (!merge.TryGetValue((cx, cy), out List<int> cell))
+                merge[(cx, cy)] = cell = new List<int>();
+            cell.Add(x.Count - 1);
+            return x.Count - 1;
+        }
+
+        /// <summary>
+        /// Makes the joined meshes of the regions conforming: a vertex inside a side of the boundary of the mesh (a side of one triangle only)
+        /// splits that triangle in two, until no vertex lies inside a boundary side
+        /// </summary>
+        /// <param name="x">The X of the vertices</param>
+        /// <param name="y">The Y of the vertices</param>
+        /// <param name="triangles">The triangles (counterclockwise)</param>
+        /// <param name="region">The region of each triangle</param>
+        /// <param name="size">The size of the mesh (the cells of the search grid)</param>
+        /// <param name="tolerance">The distance of a vertex from a side to be on it</param>
+        internal static void Conform(List<double> x, List<double> y, List<int[]> triangles, List<int> region, double size, double tolerance)
+        {
+            var grid = new Dictionary<(long, long), List<int>>();
+            for (int i = 0; i < x.Count; i++)
+            {
+                var cell = ((long)Math.Floor(x[i] / size), (long)Math.Floor(y[i] / size));
+                if (!grid.TryGetValue(cell, out List<int> list))
+                    grid[cell] = list = new List<int>();
+                list.Add(i);
+            }
+
+            int Hanging(int a, int b)
+            {
+                double ex = x[b] - x[a], ey = y[b] - y[a], length2 = ex * ex + ey * ey;
+                double length = Math.Sqrt(length2);
+                if (length == 0)
+                    return -1;
+                long x0 = (long)Math.Floor((Math.Min(x[a], x[b]) - tolerance) / size), x1 = (long)Math.Floor((Math.Max(x[a], x[b]) + tolerance) / size);
+                long y0 = (long)Math.Floor((Math.Min(y[a], y[b]) - tolerance) / size), y1 = (long)Math.Floor((Math.Max(y[a], y[b]) + tolerance) / size);
+                int best = -1;
+                double bestT = double.MaxValue;
+                for (long i = x0; i <= x1; i++)
+                {
+                    for (long j = y0; j <= y1; j++)
+                    {
+                        if (!grid.TryGetValue((i, j), out List<int> list))
+                            continue;
+                        foreach (int v in list)
+                        {
+                            if (v == a || v == b)
+                                continue;
+                            double wx = x[v] - x[a], wy = y[v] - y[a];
+                            double t = (wx * ex + wy * ey) / length2;
+                            double distance = Math.Abs(ex * wy - ey * wx) / length;
+                            if (distance <= tolerance && t * length > tolerance && (1 - t) * length > tolerance && t < bestT)
+                            {
+                                best = v;
+                                bestT = t;
+                            }
+                        }
+                    }
+                }
+                return best;
+            }
+
+            int count = x.Count;
+            for (int pass = 0; pass < 100; pass++)
+            {
+                var uses = new Dictionary<long, int>();
+                foreach (int[] t in triangles)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        long key = (long)Math.Min(t[k], t[(k + 1) % 3]) * count + Math.Max(t[k], t[(k + 1) % 3]);
+                        uses[key] = uses.TryGetValue(key, out int u) ? u + 1 : 1;
+                    }
+                }
+
+                bool changed = false;
+                int triangleCount = triangles.Count;
+                for (int ti = 0; ti < triangleCount; ti++)
+                {
+                    int[] t = triangles[ti];
+                    for (int k = 0; k < 3; k++)
+                    {
+                        int a = t[k], b = t[(k + 1) % 3], c = t[(k + 2) % 3];
+                        if (uses[(long)Math.Min(a, b) * count + Math.Max(a, b)] != 1)
+                            continue;
+                        int p = Hanging(a, b);
+                        if (p < 0)
+                            continue;
+                        triangles[ti] = new[] { a, p, c };
+                        triangles.Add(new[] { p, b, c });
+                        region.Add(region[ti]);
+                        changed = true;
+                        break;
+                    }
+                }
+                if (!changed)
+                    return;
+            }
         }
     }
 }

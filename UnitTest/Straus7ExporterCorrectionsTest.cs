@@ -515,8 +515,10 @@ public class Straus7PropertySharingTest
         Assert.AreEqual(1, log.Named(nameof(IStraus7SectionMeshWriteApi.SetBeamSectionMesh)).Length);
         CollectionAssert.AreEqual(new[] { 1, 1 }, log.Named(nameof(IStraus7ModelWriteApi.SetElement)).Select(c => (int)c.Args[2]!).ToArray());
         Assert.AreEqual("S355 steel", log.Named(nameof(IStraus7ModelWriteApi.SetBeamMaterialName)).Single().Args[1]);
-        // Equal values in distinct instances are shared too; a different property is not.
-        Assert.AreEqual(1, Straus7ExporterCorrectionsTest.Record(TwoBeams(Rotated("girder"), Rotated("girder"))).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Length);
+        // A copy of the same property (same identity, equal values) in a distinct instance is shared too; a different property is not.
+        // Homonymous properties with different identities are rejected by ModelAssembly (B6, ModelAssembly.SameEntity).
+        Assert.AreEqual(1, Straus7ExporterCorrectionsTest.Record(TwoBeams(property, GPC.Model.Core.ModelValues.CopyValue(property))).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Length);
+        StringAssert.Contains(Assert.ThrowsException<ArgumentException>(() => TwoBeams(Rotated("girder"), Rotated("girder"))).Message, "PropertyIdentityConflict");
         var different = Straus7ExporterCorrectionsTest.Record(TwoBeams(Rotated("girder"), Rotated("cross girder")));
         CollectionAssert.AreEqual(new[] { 1, 2 }, different.Named(nameof(IStraus7ModelWriteApi.SetElement)).Select(c => (int)c.Args[2]!).ToArray());
     }

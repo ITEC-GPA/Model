@@ -20,13 +20,13 @@ public class BridgheAdapterVocabularyTest
     public void GroupsWithASuppliedIdentityAreTheSameGroupInIndependentBranches()
     {
         var id = new Guid("8b1d7c55-6a33-4f62-9d1b-0e4a5c2f9a10");
-        var a = new Group(id, "Girder"); var b = new Group(id, "Girder");
+        var a = Group.Create(id, "Girder"); var b = Group.Create(id, "Girder");
         Assert.AreEqual(id, a.Guid); Assert.IsNull(a.Parent); Assert.AreEqual(0, a.Childs.Count);
-        var parent = new Group(new Guid("6c2e1f08-3a5d-4e7b-9c10-2b4d6f8a0c13"), "Deck");
-        var child = new Group(new Guid("2f6a9d10-0b44-4b0c-8a3e-7d1c5e9b2a64"), "Deck\\Slab"); parent.AddChild(child);
+        var parent = Group.Create(new Guid("6c2e1f08-3a5d-4e7b-9c10-2b4d6f8a0c13"), "Deck");
+        var child = Group.Create(new Guid("2f6a9d10-0b44-4b0c-8a3e-7d1c5e9b2a64"), "Deck\\Slab"); parent.AddChild(child);
         Assert.AreSame(parent, child.Parent); Assert.AreSame(child, parent.Childs.Single());
-        Assert.ThrowsException<ArgumentException>(() => new Group(Guid.Empty, "x"));
-        Assert.ThrowsException<ArgumentException>(() => new Group(id, " "));
+        Assert.ThrowsException<ArgumentException>(() => Group.Create(Guid.Empty, "x"));
+        Assert.ThrowsException<ArgumentException>(() => Group.Create(id, " "));
         var material = new Material("S355", 210000, 0.3, 7.85e-9, 1.2e-5); var property = new ElasticBeamProperty("p", material, new SectionRectangular(200, 100));
         var n1 = new NodeElement(new Guid("00000000-0000-0000-0000-000000000001"), new Point3d(0, 0, 0));
         var n2 = new NodeElement(new Guid("00000000-0000-0000-0000-000000000002"), new Point3d(1000, 0, 0));

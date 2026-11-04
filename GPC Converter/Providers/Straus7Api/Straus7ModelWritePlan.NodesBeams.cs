@@ -6,6 +6,7 @@ using GPC.Model.Analysis;
 using GPC.Model.Attributes;
 using GPC.Model.Core;
 using GPC.Model.Core.Coordinates;
+using GPC.Model.Core.Diagnostics;
 using GPC.Model.ElementProperties;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
@@ -290,8 +291,38 @@ namespace GPC.Converter.Straus7
             // Caches of this export only (no static cache): fingerprints per object instance, shear areas per section value and ν,
             // native beam property per equivalent property data.
             private readonly Dictionary<object,string> fingerprints=new Dictionary<object,string>(ReferenceComparer.Instance);
-            private readonly Dictionary<string,(double Area1,double Area2)> shearAreas=new Dictionary<string,(double Area1,double Area2)>(StringComparer.Ordinal);
+            private readonly Dictionary<string,ShearAreaResult> shearAreas=new Dictionary<string,ShearAreaResult>(StringComparer.Ordinal);
             private readonly Dictionary<string,int> beamProperties=new Dictionary<string,int>(StringComparer.Ordinal);
+            /// <summary>Warnings of the preparation (the plan's <see cref="Straus7ModelWritePlan.Diagnostics"/>).</summary>
+            internal readonly List<ModelDiagnostic> Diagnostics=new List<ModelDiagnostic>();
+
+            /// <summary>The FE shear areas of one section value and ν, or the failure the serial computation would have thrown at that beam.</summary>
+            private sealed class ShearAreaResult
+            {
+                internal double Area1,Area2;internal int Bodies;internal System.Runtime.ExceptionServices.ExceptionDispatchInfo Failure;internal bool Reported;
+            }
+            private string ShearKey(ISectionShape section,Material material)=>FingerprintOf(section)+"|"+material.Ni.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
+
+            /// <summary>The shear areas of the distinct steel sections of this export, computed in parallel before the beams are written (0.05–1.5 s
+            /// each; BridGHe girders have many segment sections). Same values as one by one: each section is solved on its own. A failure is kept and
+            /// thrown at its beam, in beam order, as the serial preparation did.</summary>
+            private void PrepareShearAreas()
+            {
+                var pending=new List<KeyValuePair<string,(ISectionShape Section,double Nu)>>();
+                foreach(var beam in Model.BeamElements.Values.OrderBy(b=>Entities[b.Guid]))
+                {
+                    if(beam.Assignments.AnalysisProfile!=null||!(beam.BeamProperty is SteelSection steel)||steel.SteelMaterial==null||steel.SectionShape==null)continue;
+                    string key=ShearKey(steel.SectionShape,steel.SteelMaterial);
+                    if(shearAreas.ContainsKey(key))continue;
+                    shearAreas.Add(key,new ShearAreaResult());pending.Add(new KeyValuePair<string,(ISectionShape,double)>(key,(steel.SectionShape,steel.SteelMaterial.Ni)));
+                }
+                System.Threading.Tasks.Parallel.ForEach(pending,item=>
+                {
+                    var result=shearAreas[item.Key];
+                    try{var areas=SectionShearAreas.Compute(item.Value.Section,item.Value.Nu,out int bodies);result.Area1=areas.Area1;result.Area2=areas.Area2;result.Bodies=bodies;}
+                    catch(Exception error){result.Failure=System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error);}
+                });
+            }
             private sealed class ReferenceComparer : IEqualityComparer<object>
             {
                 internal static readonly ReferenceComparer Instance=new ReferenceComparer();
@@ -306,8 +337,10 @@ namespace GPC.Converter.Straus7
             }
             private static string Doubles(double[] values)=>string.Join(",",values.Select(v=>v.ToString("R",System.Globalization.CultureInfo.InvariantCulture)));
             /// <summary>Beams with equal native property data share one native property and its BXS (legacy: one property per BridGHe
-            /// property). The key holds every input of the property-level operations; tapered beams keep their own property so the
-            /// dimensional-geometry check runs for them.</summary>
+            /// property). The key holds every input of the property-level operations. Tapered and untapered beams of one property get two
+            /// native properties, so that the dimensional-geometry check of the property (TaperRequiresDimensionalSectionGeometry) runs for
+            /// the tapered ones; the taper itself is written per element (St7SetBeamTaper2, Straus7PhysicalWritePlan), so tapered beams with
+            /// different tapers share their property.</summary>
             private string PropertyKey(BeamElement beam,int formulation,(double[] Section,double[] Material) property,Straus7SectionDefinition native,int slices)
             {
                 var input=beam.Assignments;
@@ -337,9 +370,24 @@ namespace GPC.Converter.Straus7
                     // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
                     material=steel.SteelMaterial;section=steel.SectionShape;
                     // The flexure solution depends on the section geometry and on the Poisson ratio of the material of this beam.
-                    string key=FingerprintOf(section)+"|"+material.Ni.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
-                    if(!shearAreas.TryGetValue(key,out var areas))shearAreas.Add(key,areas=SectionShearAreas.Compute(section,material.Ni));
+                    string key=ShearKey(section,material);
+                    if(!shearAreas.TryGetValue(key,out var areas))
+                    {
+                        areas=new ShearAreaResult();var computed=SectionShearAreas.Compute(section,material.Ni,out areas.Bodies);
+                        areas.Area1=computed.Area1;areas.Area2=computed.Area2;shearAreas.Add(key,areas);
+                    }
+                    areas.Failure?.Throw();
                     shear1=areas.Area1;shear2=areas.Area2;
+                    if(areas.Bodies>1&&!areas.Reported)
+                    {
+                        areas.Reported=true;
+                        Diagnostics.Add(new ModelDiagnostic{Code="SeparateSectionPartsShearAreas",Severity=GPC.Model.Core.Diagnostics.DiagnosticSeverity.Warning,ElementId=beam.Id,
+                            Family=GPC.Model.Core.Identity.EntityFamily.Beam,Record=steel.Name,
+                            Message=string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                "{0}: {1} separate parts (connected at discrete points or not touching); SA1 = {2:G6}, SA2 = {3:G6} mm² with the parts bending together "+
+                                "about their own centroids and no shear flow between them.",section.Name,areas.Bodies,areas.Area1,areas.Area2),
+                            SuggestedAction="Check that the parts act together in shear (battens, gusset plates); otherwise model them as separate members."});
+                    }
                 }
                 else throw new NotSupportedException("StrausBeamRequiresElasticPropertyOrAnalysisProfile");
                 if(material.Orthotropy!=null)throw new NotSupportedException("OrthotropicBeamRequiresExplicitRigidityProfile");

@@ -9,86 +9,174 @@ namespace GPC.Converter
     /// Saint-Venant flexure solved by finite elements (Trefftz/Pilkey energy method): for a shear force V along a principal
     /// axis y, with x the other principal axis and I = ∫y² dA, the shear stresses are τ = (V/I)(∇χ + a), a = (0, ν x²/(2(1+ν))),
     /// where ∇²χ = −y in the section and τ·n = 0 on every contour (outer and holes). A_s = V²/∫τ² dA = I²/∫|∇χ + a|² dA.
-    /// Linear triangles on a size-controlled section mesh; ν is the Poisson ratio of the material.</summary>
+    /// Linear triangles on a size-controlled section mesh; ν is the Poisson ratio of the material.
+    /// <para>Axes (review L4, 4/11/2026): 1 and 2 are the principal axes of the GPC section (<see cref="ISectionShape.AngleX1"/>, J11 about
+    /// axis 1), the axes of the Straus7 writer. They are not derived again from the mesh, where two equal moments of inertia leave them
+    /// undetermined and SA1/SA2 could be swapped.</para>
+    /// <para>Parts (review L4): the regions of a section are meshed one by one and joined as the torsion of GPCModel joins them
+    /// (SectionMeshJoiner: coincident vertices merged, a vertex on a side of another region splits that triangle), so the parts of a
+    /// <see cref="SectionWelded"/>, welded along their sides, are one conforming body. The parts of any other <see cref="SectionBuiltUp"/> are
+    /// connected at discrete points (battens, gussets, bolts), as for its torsion constant: they are not joined. Separate bodies (those parts,
+    /// or regions that do not touch) bend together, as the moments of inertia of the built-up section assume: in each principal direction of
+    /// the section they have the same curvature rate, about axes parallel to the principal axes of the section through their own centroids
+    /// (the connections carry the longitudinal forces between them), and no shear flow passes from one to another. Body k carries
+    /// V_k = I_k κ' and its flexure stresses store U_k; the section stores ΣU_k for V = ΣV_k, so A_i = (Σ I_k)² / Σ U_k: the energy shear area
+    /// of the whole, the same rule R31 applies to a BXS of separate regions (checked natively on two angles with a gusset gap).</para></summary>
     public static class SectionShearAreas
     {
-        /// <summary>Minimum number of triangles of the section mesh (size-controlled, then uniformly subdivided if needed).</summary>
+        /// <summary>Minimum number of triangles of the section mesh (the default mesh of each region, uniformly subdivided if needed).</summary>
         public const int MinimumTriangles = 20000;
 
         /// <summary>Shear areas in the principal 1 and 2 directions (Straus7 ipSA1/ipSA2).</summary>
-        /// <exception cref="NotSupportedException">The section has no geometric outline or its parts are not connected.</exception>
-        public static (double Area1, double Area2) Compute(ISectionShape section, double poissonRatio)
+        /// <exception cref="NotSupportedException">The section has no geometric outline, or its outline does not match its principal axes.</exception>
+        public static (double Area1, double Area2) Compute(ISectionShape section, double poissonRatio) => Compute(section, poissonRatio, out _);
+
+        /// <summary>Shear areas in the principal 1 and 2 directions (Straus7 ipSA1/ipSA2).</summary>
+        /// <param name="bodies">The separate bodies that carry the shear: 1 for a connected section; more for the parts of a built-up
+        /// section or regions that do not touch (see the class).</param>
+        /// <exception cref="NotSupportedException">The section has no geometric outline, or its outline does not match its principal axes.</exception>
+        public static (double Area1, double Area2) Compute(ISectionShape section, double poissonRatio, out int bodies)
         {
             if (section == null) throw new ArgumentNullException(nameof(section));
             if (double.IsNaN(poissonRatio) || poissonRatio <= -1 || poissonRatio >= .5) throw new ArgumentOutOfRangeException(nameof(poissonRatio));
             var mesh = SectionMesh.Create(section);
-            var (u1, u2) = mesh.Principal(); var u = new[] { u1, u2 };
-            // The Laplacian does not depend on the shear direction: one factorization, two right-hand sides.
-            var solver = new EnvelopeCholesky(mesh, u);
-            // Shear along axis 1: bending about axis 2 (I = ∫u1²), transverse coordinate u2; and conversely.
-            double factor1 = Factor(mesh, u, solver, 0, poissonRatio), factor2 = Factor(mesh, u, solver, 1, poissonRatio);
-            return (factor1 * section.Area, factor2 * section.Area);
+            double angle = AxisOneInShape(section);
+            var (i11, i22, i12) = mesh.Inertia(mesh.Axes(angle));
+            // A gross mismatch between the outline and the stated axes (a shape in another frame) is rejected, never computed on wrong axes.
+            double j11 = section.J11, j22 = section.J22;
+            if (j11 - j22 > 1e-3 * (j11 + j22) && (i11 - i22 < .5 * (j11 - j22) || Math.Abs(i12) > .25 * (j11 - j22)))
+                throw new NotSupportedException("ShearAreasAxesDoNotMatchSectionGeometry: " + section.Name);
+            var parts = mesh.Bodies(); bodies = parts.Count;
+            double c = poissonRatio / (2 * (1 + poissonRatio));
+            if (parts.Count == 1)
+            {
+                // The Laplacian does not depend on the shear direction: one factorization, two right-hand sides.
+                var frame = new Frame(mesh, mesh.Axes(angle)); var solver = new EnvelopeCholesky(mesh, frame);
+                // Shear along axis 1: bending about axis 2 (I = ∫u1²), transverse coordinate u2; and conversely.
+                var (inertia1, energy1) = Flexure(mesh, frame, solver, 0, c); var (inertia2, energy2) = Flexure(mesh, frame, solver, 1, c);
+                double factor1 = inertia1 * inertia1 / (mesh.Area * energy1), factor2 = inertia2 * inertia2 / (mesh.Area * energy2);
+                return (factor1 * section.Area, factor2 * section.Area);
+            }
+            double sum1 = 0, sum2 = 0, stored1 = 0, stored2 = 0;
+            foreach (var body in parts)
+            {
+                // The axes of the section through the centroid of the body.
+                var frame = new Frame(body, body.Axes(angle)); var solver = new EnvelopeCholesky(body, frame);
+                var (inertia1, energy1) = Flexure(body, frame, solver, 0, c); var (inertia2, energy2) = Flexure(body, frame, solver, 1, c);
+                sum1 += inertia1; stored1 += energy1; sum2 += inertia2; stored2 += energy2;
+            }
+            double scale = section.Area / mesh.Area;
+            return (sum1 * sum1 / stored1 * scale, sum2 * sum2 / stored2 * scale);
         }
 
-        /// <summary>A_s/A for shear along principal coordinate u[along] (the other one transverse).</summary>
-        private static double Factor(SectionMesh mesh, double[][] u, EnvelopeCholesky solver, int along, double nu)
+        /// <summary>The direction of the principal axis 1 in the coordinates of the outline: <see cref="ISectionShape.AngleX1"/>, except for a
+        /// rotated <see cref="SectionRectangular"/>, whose outline stays in its own axes (rotated by <see cref="SectionRectangular.Angle"/>).</summary>
+        private static double AxisOneInShape(ISectionShape section)
         {
-            int across = 1 - along; double[] x = u[across], y = u[along]; double c = nu / (2 * (1 + nu)), inertia = 0;
-            var rhs = new double[x.Length];
-            foreach (var t in mesh.Triangles)
+            double angle = section.AngleX1;
+            if (double.IsNaN(angle) || double.IsInfinity(angle)) throw new ArgumentException("ShearAreasRequirePrincipalAxes: " + section.Name);
+            var shape = section is GPC.Model.Sections.Steel.SteelSection steel ? steel.SectionShape : section;
+            return shape is SectionRectangular rectangle ? angle - rectangle.Angle : angle;
+        }
+
+        /// <summary>The triangulation the shear areas are computed on, in the coordinates of the section (mm), with zero-based triangles: the
+        /// regions joined as for <see cref="Compute(ISectionShape, double, out int)"/>. For comparisons with the native section of a solver.</summary>
+        public static (double[][] Vertices, int[][] Triangles) AnalysisMesh(ISectionShape section)
+        {
+            if (section == null) throw new ArgumentNullException(nameof(section));
+            return SectionMesh.Create(section).Export();
+        }
+
+        /// <summary>The flexure for shear along u[along] (the other coordinate transverse): I = ∫ u[along]² dA and the energy ∫|∇χ + a|² dA,
+        /// so that A_s = I²/energy.</summary>
+        private static (double Inertia, double Energy) Flexure(SectionMesh mesh, Frame frame, EnvelopeCholesky solver, int along, double c)
+        {
+            int across = 1 - along; double[] x = frame.U[across], y = frame.U[along];
+            var chi = solver.Solve(Load(mesh, frame, along, c, out double inertia));
+            double energy = 0; var triangles = mesh.Triangles;
+            for (int e = 0; e < triangles.Count; e++)
             {
-                var g = Gradients(u[0], u[1], t, out double area);
-                double xx = Quadrature(x, y, t, area, (px, py) => px * px); inertia += Quadrature(x, y, t, area, (px, py) => py * py);
-                // ∫ y N_a − ∫ a_y ∂N_a/∂y, a_y = c x², with ∫ y N_a = A (2 y_a + y_b + y_c)/12 for linear y.
-                for (int a = 0; a < 3; a++) rhs[t[a]] += area * (2 * y[t[a]] + y[t[(a + 1) % 3]] + y[t[(a + 2) % 3]]) / 12 - c * xx * g[a, along];
-            }
-            var chi = solver.Solve(rhs);
-            double energy = 0;
-            foreach (var t in mesh.Triangles)
-            {
-                var g = Gradients(u[0], u[1], t, out double area);
-                double gx = 0, gy = 0; for (int a = 0; a < 3; a++) { gx += g[a, across] * chi[t[a]]; gy += g[a, along] * chi[t[a]]; }
-                energy += Quadrature(x, y, t, area, (px, py) => gx * gx + (gy + c * px * px) * (gy + c * px * px));
+                var t = triangles[e]; int g = 6 * e;
+                double gx = 0, gy = 0; for (int a = 0; a < 3; a++) { gx += frame.Gradient[g + 2 * a + across] * chi[t[a]]; gy += frame.Gradient[g + 2 * a + along] * chi[t[a]]; }
+                // ∫ gx² + (gy + c x²)² with the Dunavant rule (see Quadrature).
+                double sum = 0;
+                for (int r = 0; r < 2; r++)
+                {
+                    double w = RuleA[r], b = 1 - 2 * w;
+                    for (int k = 0; k < 3; k++)
+                    {
+                        double l0 = k == 0 ? b : w, l1 = k == 1 ? b : w, l2 = k == 2 ? b : w;
+                        double px = l0 * x[t[0]] + l1 * x[t[1]] + l2 * x[t[2]], q = gy + c * px * px;
+                        sum += RuleW[r] * (gx * gx + q * q);
+                    }
+                }
+                energy += sum * frame.Area[e];
             }
             if (!(energy > 0)) throw new ArgumentException("DegenerateSectionShearFlow");
-            return inertia * inertia / (mesh.Area * energy);
+            return (inertia, energy);
         }
 
-        /// <summary>Linear-triangle gradients (∂N/∂u1, ∂N/∂u2) and area.</summary>
-        private static double[,] Gradients(double[] x, double[] y, int[] t, out double area)
+        /// <summary>The load of the flexure problem for shear along u[along], and I = ∫ u[along]² dA.</summary>
+        private static double[] Load(SectionMesh mesh, Frame frame, int along, double c, out double inertia)
         {
-            double x1 = x[t[0]], y1 = y[t[0]], x2 = x[t[1]], y2 = y[t[1]], x3 = x[t[2]], y3 = y[t[2]];
-            double det = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1); area = Math.Abs(det) / 2;
-            return new[,] { { (y2 - y3) / det, (x3 - x2) / det }, { (y3 - y1) / det, (x1 - x3) / det }, { (y1 - y2) / det, (x2 - x1) / det } };
-        }
-
-        // Dunavant 6-point rule, exact for polynomials of degree 4 on a triangle (barycentric a, a, 1 - 2a).
-        private static readonly double[] RuleA = { 0.445948490915965, 0.091576213509771 };
-        private static readonly double[] RuleW = { 0.223381589678011, 0.109951743655322 };
-        private static double Quadrature(double[] x, double[] y, int[] t, double area, Func<double, double, double> f)
-        {
-            double sum = 0;
-            for (int r = 0; r < 2; r++)
+            int across = 1 - along; double[] x = frame.U[across], y = frame.U[along]; inertia = 0;
+            var rhs = new double[x.Length]; var triangles = mesh.Triangles;
+            for (int e = 0; e < triangles.Count; e++)
             {
-                double a = RuleA[r], b = 1 - 2 * a;
-                for (int k = 0; k < 3; k++)
+                var t = triangles[e]; double area = frame.Area[e];
+                // ∫ x² and ∫ y² with the Dunavant rule (see Quadrature).
+                double sx = 0, sy = 0;
+                for (int r = 0; r < 2; r++)
                 {
-                    double l0 = k == 0 ? b : a, l1 = k == 1 ? b : a, l2 = k == 2 ? b : a;
-                    sum += RuleW[r] * f(l0 * x[t[0]] + l1 * x[t[1]] + l2 * x[t[2]], l0 * y[t[0]] + l1 * y[t[1]] + l2 * y[t[2]]);
+                    double w = RuleA[r], b = 1 - 2 * w;
+                    for (int k = 0; k < 3; k++)
+                    {
+                        double l0 = k == 0 ? b : w, l1 = k == 1 ? b : w, l2 = k == 2 ? b : w;
+                        double px = l0 * x[t[0]] + l1 * x[t[1]] + l2 * x[t[2]], py = l0 * y[t[0]] + l1 * y[t[1]] + l2 * y[t[2]];
+                        sx += RuleW[r] * (px * px); sy += RuleW[r] * (py * py);
+                    }
+                }
+                double xx = sx * area; inertia += sy * area;
+                // ∫ y N_a − ∫ a_y ∂N_a/∂y, a_y = c x², with ∫ y N_a = A (2 y_a + y_b + y_c)/12 for linear y.
+                for (int a = 0; a < 3; a++) rhs[t[a]] += area * (2 * y[t[a]] + y[t[(a + 1) % 3]] + y[t[(a + 2) % 3]]) / 12 - c * xx * frame.Gradient[6 * e + 2 * a + along];
+            }
+            return rhs;
+        }
+
+        /// <summary>The node coordinates in the axes of the shear and, for each triangle, the gradients (∂N_a/∂u1, ∂N_a/∂u2) and the area:
+        /// computed once for the factorization and both flexure problems (fewer allocations: several sections are solved in parallel).</summary>
+        private sealed class Frame
+        {
+            internal readonly double[][] U; internal readonly double[] Gradient, Area;
+            internal Frame(SectionMesh mesh, double[][] u)
+            {
+                U = u; var triangles = mesh.Triangles; Gradient = new double[6 * triangles.Count]; Area = new double[triangles.Count];
+                double[] x = u[0], y = u[1];
+                for (int e = 0; e < triangles.Count; e++)
+                {
+                    var t = triangles[e];
+                    double x1 = x[t[0]], y1 = y[t[0]], x2 = x[t[1]], y2 = y[t[1]], x3 = x[t[2]], y3 = y[t[2]];
+                    double det = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1); Area[e] = Math.Abs(det) / 2; int g = 6 * e;
+                    Gradient[g] = (y2 - y3) / det; Gradient[g + 1] = (x3 - x2) / det; Gradient[g + 2] = (y3 - y1) / det;
+                    Gradient[g + 3] = (x1 - x3) / det; Gradient[g + 4] = (y1 - y2) / det; Gradient[g + 5] = (x2 - x1) / det;
                 }
             }
-            return sum * area;
         }
+
+        // Dunavant 6-point rule, exact for polynomials of degree 4 on a triangle (barycentric a, a, 1 - 2a): for r in 0..1, k in 0..2 the
+        // point with barycentric b = 1 − 2 RuleA[r] at vertex k and RuleA[r] at the others, weight RuleW[r], the sum times the area.
+        private static readonly double[] RuleA = { 0.445948490915965, 0.091576213509771 };
+        private static readonly double[] RuleW = { 0.223381589678011, 0.109951743655322 };
 
         /// <summary>Direct solution of the singular Neumann problem K χ = f: reverse Cuthill–McKee ordering and envelope Cholesky with
         /// χ = 0 at the first node. The right-hand side is projected on the range of K (zero sum), so the pin leaves no residual;
-        /// χ is defined up to a constant that does not enter the stresses. Thin walls give a narrow envelope.</summary>
+        /// χ is defined up to a constant that does not enter the stresses. Thin walls give a narrow envelope. One connected body.</summary>
         private sealed class EnvelopeCholesky
         {
             private readonly int[] order, first; private readonly double[][] rows;
-            internal EnvelopeCholesky(SectionMesh mesh, double[][] u)
+            internal EnvelopeCholesky(SectionMesh mesh, Frame frame)
             {
-                int n = u[0].Length; var used = new bool[n]; var neighbours = new HashSet<int>[n];
+                int n = frame.U[0].Length; var used = new bool[n]; var neighbours = new HashSet<int>[n];
                 for (int i = 0; i < n; i++) neighbours[i] = new HashSet<int>();
                 foreach (var t in mesh.Triangles) for (int a = 0; a < 3; a++) { used[t[a]] = true; for (int b = 0; b < 3; b++) if (a != b) neighbours[t[a]].Add(t[b]); }
                 order = ReverseCuthillMcKee(neighbours, used); var position = new int[n];
@@ -98,13 +186,14 @@ namespace GPC.Converter
                 // Row 0 is the pinned node: no coupling with it is stored.
                 for (int i = 0; i < m; i++) { int f = i; foreach (int j in neighbours[order[i]]) if (position[j] > 0) f = Math.Min(f, position[j]); first[i] = i == 0 ? 0 : f; }
                 rows = Enumerable.Range(0, m).Select(i => new double[i - first[i] + 1]).ToArray();
-                foreach (var t in mesh.Triangles)
+                var triangles = mesh.Triangles; var gradient = frame.Gradient;
+                for (int e = 0; e < triangles.Count; e++)
                 {
-                    var g = Gradients(u[0], u[1], t, out double area);
+                    var t = triangles[e]; double area = frame.Area[e]; int g = 6 * e;
                     for (int a = 0; a < 3; a++) for (int b = 0; b < 3; b++)
                     {
                         int i = position[t[a]], j = position[t[b]]; if (j > i || i == 0 || j == 0) continue;
-                        rows[i][j - first[i]] += area * (g[a, 0] * g[b, 0] + g[a, 1] * g[b, 1]);
+                        rows[i][j - first[i]] += area * (gradient[g + 2 * a] * gradient[g + 2 * b] + gradient[g + 2 * a + 1] * gradient[g + 2 * b + 1]);
                     }
                 }
                 rows[0][0] = 1;
@@ -153,48 +242,57 @@ namespace GPC.Converter
             }
         }
 
-        /// <summary>Conforming triangle mesh of all section regions (coincident vertices of different parts merged).</summary>
+        /// <summary>Triangle mesh of the regions of a section: joined into one conforming mesh where they touch (a welded section, a single
+        /// region), each part on its own for the other built-up sections; its connected bodies.</summary>
         private sealed class SectionMesh
         {
-            private readonly List<double> px = new List<double>(), py = new List<double>();
-            internal List<int[]> Triangles = new List<int[]>();
+            private readonly List<double> px, py;
+            internal List<int[]> Triangles;
             internal double Area { get; private set; }
             private double cx, cy;
+            private SectionMesh(List<double> x, List<double> y, List<int[]> triangles) { px = x; py = y; Triangles = triangles; }
 
             internal static SectionMesh Create(ISectionShape section)
             {
                 var outlines = section is SectionBuiltUp built ? built.GetOutlines().ToArray() : section.Shape == null ? new GPC.Geometry.Shape2d[0] : new[] { section.Shape };
                 if (outlines.Length == 0) throw new NotSupportedException("ShearAreasRequireSectionGeometry: " + section.Name);
-                var result = new SectionMesh(); var merged = new Dictionary<(long, long), int>();
-                // Well-shaped triangles of about the target size, thin walls included.
-                double total = outlines.Sum(o => Math.Abs(new Section(o).Area)), spacing = Math.Sqrt(4 * total / (Math.Sqrt(3) * MinimumTriangles));
-                var meshes = outlines.Select(o => new Section(o).GetMesh(spacing)).ToArray();
+                // The parts of a welded section work as one region; those of another built-up section are connected at discrete points.
+                bool join = !(section is SectionBuiltUp) || section is SectionWelded;
+                // The default mesh of each region (DelaunayMesh size of the region), refined uniformly below to MinimumTriangles: the mesh of
+                // the C2 comparisons with R31 (review L4: the size computed before from `new Section(o).Area`, zero without its properties,
+                // was always this default; the triangles are unchanged).
+                var meshes = outlines.Select(o => new Section(o).GetMesh()).ToArray();
                 if (meshes.Any(m => m == null || m.Faces.Count == 0)) throw new ArgumentException("EmptySectionMesh: " + section.Name);
-                double size = meshes.SelectMany(m => m.Vertices).Max(v => Math.Max(Math.Abs(v.Point.X), Math.Abs(v.Point.Y))), grid = Math.Max(size, 1) * 1e-9;
-                foreach (var mesh in meshes)
+                double size = meshes.SelectMany(m => m.Vertices).Max(v => Math.Max(Math.Abs(v.Point.X), Math.Abs(v.Point.Y)));
+                // Length scale of the joining: the side of the target triangles (search cells), 1e-7 of it to merge or split.
+                double spacing = Math.Sqrt(4 * Math.Abs(section.Area) / (Math.Sqrt(3) * MinimumTriangles));
+                if (!(spacing > 0) || double.IsInfinity(spacing)) spacing = 1e-3 * Math.Max(size, 1);
+                double tolerance = 1e-7 * spacing;
+                var x = new List<double>(); var y = new List<double>(); var triangles = new List<int[]>(); var regions = new List<int>();
+                SectionMeshJoiner joiner = null;
+                for (int r = 0; r < meshes.Length; r++)
                 {
-                    var ids = new Dictionary<int, int>();
-                    foreach (var v in mesh.Vertices)
-                    {
-                        var key = ((long)Math.Round(v.Point.X / grid), (long)Math.Round(v.Point.Y / grid));
-                        if (!merged.TryGetValue(key, out int index)) { merged.Add(key, index = result.px.Count); result.px.Add(v.Point.X); result.py.Add(v.Point.Y); }
-                        ids.Add(v.Id, index);
-                    }
+                    if (joiner == null || !join) joiner = new SectionMeshJoiner(x, y, tolerance);
+                    var mesh = meshes[r]; var ids = new Dictionary<int, int>();
+                    foreach (var v in mesh.Vertices) ids.Add(v.Id, joiner.Vertex(v.Point.X, v.Point.Y));
                     foreach (var face in mesh.Faces)
                     {
                         var f = mesh.GetFaceVertices(face).Select(v => ids[v.Id]).ToArray();
-                        for (int k = 1; k + 1 < f.Length; k++) result.Triangles.Add(new[] { f[0], f[k], f[k + 1] });
+                        for (int k = 1; k + 1 < f.Length; k++) { triangles.Add(new[] { f[0], f[k], f[k + 1] }); regions.Add(r); }
                     }
                 }
+                // A vertex of a part on a side of another part splits that triangle (T-junctions of plates of different widths).
+                if (join && meshes.Length > 1) SectionMeshJoiner.Conform(x, y, triangles, regions, spacing, tolerance);
+                var result = new SectionMesh(x, y, triangles);
                 result.Triangles.RemoveAll(t => Math.Abs(result.Det(t)) <= 1e-14 * size * size);
-                result.Check();
+                result.Measure();
                 while (result.Triangles.Count < MinimumTriangles) result.Subdivide();
                 return result;
             }
             private double Det(int[] t) => (px[t[1]] - px[t[0]]) * (py[t[2]] - py[t[0]]) - (px[t[2]] - px[t[0]]) * (py[t[1]] - py[t[0]]);
 
-            /// <summary>Area, centroid and connectivity: disconnected parts cannot exchange shear flow.</summary>
-            private void Check()
+            /// <summary>Area and centroid.</summary>
+            private void Measure()
             {
                 double area = 0, sx = 0, sy = 0;
                 foreach (var t in Triangles)
@@ -204,11 +302,31 @@ namespace GPC.Converter
                 }
                 if (!(area > 0)) throw new ArgumentException("EmptySectionMesh");
                 Area = area; cx = sx / area; cy = sy / area;
+            }
+
+            /// <summary>The connected bodies: this mesh when it is connected, otherwise one mesh for each (no shear flow between them).</summary>
+            internal List<SectionMesh> Bodies()
+            {
                 var parent = Enumerable.Range(0, px.Count).ToArray();
                 Func<int, int> find = i => { while (parent[i] != i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
                 foreach (var t in Triangles) { parent[find(t[1])] = find(t[0]); parent[find(t[2])] = find(t[0]); }
-                var used = Triangles.SelectMany(t => t).Distinct().ToArray();
-                if (used.Select(find).Distinct().Count() != 1) throw new NotSupportedException("ShearAreasRequireConnectedSection");
+                var groups = new Dictionary<int, List<int[]>>(); var roots = new List<int>();
+                foreach (var t in Triangles)
+                {
+                    int root = find(t[0]);
+                    if (!groups.TryGetValue(root, out var list)) { groups.Add(root, list = new List<int[]>()); roots.Add(root); }
+                    list.Add(t);
+                }
+                if (roots.Count == 1) return new List<SectionMesh> { this };
+                var bodies = new List<SectionMesh>(roots.Count);
+                foreach (int root in roots)
+                {
+                    var index = new Dictionary<int, int>(); var x = new List<double>(); var y = new List<double>(); var triangles = new List<int[]>();
+                    foreach (var t in groups[root])
+                        triangles.Add(t.Select(i => { if (!index.TryGetValue(i, out int j)) { index.Add(i, j = x.Count); x.Add(px[i]); y.Add(py[i]); } return j; }).ToArray());
+                    var body = new SectionMesh(x, y, triangles); body.Measure(); bodies.Add(body);
+                }
+                return bodies;
             }
 
             /// <summary>Each triangle into four through its edge midpoints (shared, so the mesh stays conforming).</summary>
@@ -229,25 +347,34 @@ namespace GPC.Converter
                 Triangles = refined;
             }
 
-            /// <summary>Node coordinates about the centroid in the principal axes of the meshed region (axis 1: maximum inertia).</summary>
-            internal (double[] U1, double[] U2) Principal()
+            /// <summary>Node coordinates about the centroid in the axes at <paramref name="angle"/> (rad) from the section X axis: u1 along it.</summary>
+            internal double[][] Axes(double angle)
             {
-                double ixx = 0, iyy = 0, ixy = 0;
+                double c = Math.Cos(angle), s = Math.Sin(angle); var u1 = new double[px.Count]; var u2 = new double[px.Count];
+                for (int i = 0; i < px.Count; i++) { u1[i] = c * (px[i] - cx) + s * (py[i] - cy); u2[i] = -s * (px[i] - cx) + c * (py[i] - cy); }
+                return new[] { u1, u2 };
+            }
+
+            /// <summary>∫u2², ∫u1² and ∫u1u2 over the mesh, exact for the linear coordinates of <see cref="Axes"/>.</summary>
+            internal (double I11, double I22, double I12) Inertia(double[][] u)
+            {
+                double i11 = 0, i22 = 0, i12 = 0;
                 foreach (var t in Triangles)
                 {
-                    double a = Math.Abs(Det(t)) / 2;
-                    double x1 = px[t[0]] - cx, x2 = px[t[1]] - cx, x3 = px[t[2]] - cx, y1 = py[t[0]] - cy, y2 = py[t[1]] - cy, y3 = py[t[2]] - cy;
-                    ixx += a / 6 * (y1 * y1 + y2 * y2 + y3 * y3 + y1 * y2 + y2 * y3 + y3 * y1);
-                    iyy += a / 6 * (x1 * x1 + x2 * x2 + x3 * x3 + x1 * x2 + x2 * x3 + x3 * x1);
-                    ixy += a / 12 * (2 * (x1 * y1 + x2 * y2 + x3 * y3) + x1 * y2 + x2 * y1 + x1 * y3 + x3 * y1 + x2 * y3 + x3 * y2);
+                    double a = Math.Abs(Det(t)) / 2, x1 = u[0][t[0]], x2 = u[0][t[1]], x3 = u[0][t[2]], y1 = u[1][t[0]], y2 = u[1][t[1]], y3 = u[1][t[2]];
+                    i11 += a / 6 * (y1 * y1 + y2 * y2 + y3 * y3 + y1 * y2 + y2 * y3 + y3 * y1);
+                    i22 += a / 6 * (x1 * x1 + x2 * x2 + x3 * x3 + x1 * x2 + x2 * x3 + x3 * x1);
+                    i12 += a / 12 * (2 * (x1 * y1 + x2 * y2 + x3 * y3) + x1 * y2 + x2 * y1 + x1 * y3 + x3 * y1 + x2 * y3 + x3 * y2);
                 }
-                // A rigid rotation leaves the shear areas unchanged: use the axes of the meshed outline itself.
-                double theta = 0.5 * Math.Atan2(2 * ixy, iyy - ixx);
-                Func<double, double> about = angle => ixx * Math.Cos(angle) * Math.Cos(angle) + iyy * Math.Sin(angle) * Math.Sin(angle) - 2 * ixy * Math.Sin(angle) * Math.Cos(angle);
-                if (about(theta + Math.PI / 2) > about(theta)) theta += Math.PI / 2;
-                double c = Math.Cos(theta), s = Math.Sin(theta); var u1 = new double[px.Count]; var u2 = new double[px.Count];
-                for (int i = 0; i < px.Count; i++) { u1[i] = c * (px[i] - cx) + s * (py[i] - cy); u2[i] = -s * (px[i] - cx) + c * (py[i] - cy); }
-                return (u1, u2);
+                return (i11, i22, i12);
+            }
+
+            /// <summary>The vertices used by the triangles and the triangles, zero-based.</summary>
+            internal (double[][] Vertices, int[][] Triangles) Export()
+            {
+                var index = new Dictionary<int, int>(); var vertices = new List<double[]>();
+                var triangles = Triangles.Select(t => t.Select(i => { if (!index.TryGetValue(i, out int j)) { index.Add(i, j = vertices.Count); vertices.Add(new[] { px[i], py[i], 0 }); } return j; }).ToArray()).ToArray();
+                return (vertices.ToArray(), triangles);
             }
         }
     }

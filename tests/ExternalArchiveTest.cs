@@ -327,6 +327,103 @@ namespace UnitTest
             Assert.AreEqual("not an archive", File.ReadAllText(store.LastSave!.SetAside!));
         }
 
+        [TestMethod]
+        public void ReadFailuresWhileCheckingStopTheSaveAndLoseNoBlock()
+        {
+            // Review L4: an IO error while checking the copied blocks marked them damaged, and the save left them out of the new file.
+            ArchiveBlock a = Block("first block"), b = Block("second block"), c = Block("third"); string path = FileAt("a.bin");
+            var store = new BlockArchive(); store.Add(a); store.Add(b); store.Save(path, new[] { a.Address, b.Address }, () => { });
+            byte[] before = File.ReadAllBytes(path);
+            var session = new BlockArchive(path, new[] { a.Address, b.Address }); session.Add(c);
+            int failures = 0; session.ReadFault = address => address == b.Address && failures++ == 0 ? new IOException("transient read failure") : null;
+            bool written = false;
+            var error = Assert.ThrowsException<IOException>(() => session.Save(path, new[] { a.Address, b.Address, c.Address }, () => written = true));
+            StringAssert.Contains(error.Message, "non è stato salvato");
+            Assert.IsFalse(written); CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
+            Assert.AreEqual(0, session.Save(path, new[] { a.Address, b.Address, c.Address }, () => written = true));
+            Assert.IsTrue(written); Assert.AreEqual(0, session.LastSave!.Damaged.Count);
+            CollectionAssert.AreEquivalent(new[] { a.Address, b.Address, c.Address }, Addresses(File.ReadAllBytes(path)));
+            Assert.AreEqual("second block", Text(new BlockArchive(path), b.Address));
+        }
+
+        [TestMethod]
+        public void SaveAsStopsOnALockedRegionOfTheSourceInsteadOfDroppingItsBlocks()
+        {
+            // A real IO failure (a byte range locked by another handle) during Save As: the blocks were marked damaged and the new archive was
+            // written without them, so they were lost at once.
+            // Stored blocks of 20 kB: the header and the index stay readable, only the bytes of the second block are locked.
+            string Long(char c) => new string(Enumerable.Range(0, 20000).Select(i => (char)(c + i % 7)).ToArray());
+            ArchiveBlock a = Block(Long('a'), false), b = Block(Long('k'), false); string first = FileAt("a.bin"), second = FileAt("b.bin");
+            var store = new BlockArchive(); store.Add(a); store.Add(b); store.Save(first, new[] { a.Address, b.Address }, () => { });
+            // The block written second (its bytes after the first 20 kB, away from the header).
+            byte[] bytes = File.ReadAllBytes(first); int row = (int)BitConverter.ToInt64(bytes, 24) + 57;
+            long offset = BitConverter.ToInt64(bytes, row + 33), stored = BitConverter.ToInt64(bytes, row + 41);
+            Assert.IsTrue(offset > 20000);
+            var session = new BlockArchive(first, new[] { a.Address, b.Address }); bool written = false;
+            using (var holder = new FileStream(first, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                holder.Lock(offset, stored);
+                Assert.ThrowsException<IOException>(() => session.Save(second, new[] { a.Address, b.Address }, () => written = true));
+            }
+            Assert.IsFalse(written); Assert.IsFalse(File.Exists(second)); Assert.AreEqual(first, session.FilePath);
+            Assert.AreEqual(0, session.Save(second, new[] { a.Address, b.Address }, () => written = true));
+            Assert.IsTrue(written); Assert.AreEqual(Long('a'), Text(new BlockArchive(second), a.Address)); Assert.AreEqual(Long('k'), Text(new BlockArchive(second), b.Address));
+        }
+
+        [TestMethod]
+        public void ADamagedBlockRetiredForAnUndoIsNotWrittenBackAsChecked()
+        {
+            // Review L4: a damaged block left out of the new file stayed in memory as retired, unchecked; an undo citing it again wrote its damaged
+            // bytes into the next file, which the session then took as checked.
+            ArchiveBlock a = Block("first block"), b = Block("second block"), c = Block("third"); string path = FileAt("a.bin");
+            var store = new BlockArchive(); store.Add(a); store.Add(b); store.Save(path, new[] { a.Address, b.Address }, () => { });
+            byte[] bytes = File.ReadAllBytes(path); int row = (int)BitConverter.ToInt64(bytes, 24) + Array.IndexOf(Addresses(bytes), b.Address) * 57;
+            bytes[(int)BitConverter.ToInt64(bytes, row + 33)] ^= 0x40; File.WriteAllBytes(path, bytes);
+            var session = new BlockArchive(path, new[] { a.Address, b.Address }); session.Add(c);
+            Assert.AreEqual(1, session.Save(path, new[] { a.Address, c.Address }, () => { }));
+            CollectionAssert.AreEqual(new[] { b.Address }, session.LastSave!.Damaged.ToArray());
+            Assert.AreEqual(1, session.Save(path, new[] { a.Address, b.Address, c.Address }, () => { }), "the damaged block is unavailable, not written back");
+            CollectionAssert.AreEquivalent(new[] { a.Address, c.Address }, Addresses(File.ReadAllBytes(path)));
+            Assert.IsNotNull(session.Read(new[] { b.Address })[0].Failure);
+        }
+
+        [TestMethod]
+        public void SaveAsWaitsForTheWriterOfItsSource()
+        {
+            // Review L4: Save As locked only its destination; another writer of the source could replace it during the copy.
+            ArchiveBlock a = Block("a"); string first = FileAt("a.bin"), second = FileAt("b.bin");
+            var store = new BlockArchive { LockTimeout = TimeSpan.FromMilliseconds(200) }; store.Add(a); store.Save(first, new[] { a.Address }, () => { });
+            bool written = false;
+            using (new FileStream(first + ".lock", FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose))
+                Assert.ThrowsException<IOException>(() => store.Save(second, new[] { a.Address }, () => written = true));
+            Assert.IsFalse(written); Assert.IsFalse(File.Exists(second));
+            store.Save(second, new[] { a.Address }, () => written = true);
+            Assert.IsTrue(written); Assert.AreEqual("a", Text(new BlockArchive(second), a.Address)); Assert.IsFalse(File.Exists(first + ".lock"));
+        }
+
+        [TestMethod]
+        public void SaveAsStopsWhenTheSourceIsReplacedAfterItsIndexWasRead()
+        {
+            // Review L4: Save As copied from the session's file without holding it, and the blocks this session had checked were not checked
+            // again: another program replacing the file in between gave other bytes under valid addresses. The copy now reads only the file its
+            // index describes (length and index digest), so a replaced source stops the save.
+            ArchiveBlock a = Block("first block of the source"), b = Block("second block of the source"); string first = FileAt("a.bin"), second = FileAt("b.bin");
+            var store = new BlockArchive(); store.Add(a); store.Add(b); store.Save(first, new[] { a.Address, b.Address }, () => { });
+            // The same blocks after another one sorted first: the same addresses at other offsets, in a file at least as long.
+            ArchiveBlock z; int n = 0;
+            do z = Block("a block written by another program, long enough to move the others " + n++);
+            while (string.CompareOrdinal(z.Address, a.Address) > 0 || string.CompareOrdinal(z.Address, b.Address) > 0);
+            string replacement = FileAt("replacement.bin"); var other = new BlockArchive(); other.Add(z); other.Add(a); other.Add(b);
+            other.Save(replacement, new[] { z.Address, a.Address, b.Address }, () => { });
+            bool replaced = false;
+            store.ReadFault = address => { if (!replaced) { replaced = true; File.Copy(replacement, first, true); } return null; };
+            Assert.ThrowsException<IOException>(() => store.Save(second, new[] { a.Address, b.Address }, () => { }));
+            Assert.IsTrue(replaced); Assert.IsFalse(File.Exists(second));
+            store.ReadFault = null;
+            Assert.AreEqual(0, store.Save(second, new[] { a.Address, b.Address }, () => { }));
+            Assert.AreEqual("first block of the source", Text(new BlockArchive(second), a.Address)); Assert.AreEqual("second block of the source", Text(new BlockArchive(second), b.Address));
+        }
+
         private static Model ModelWithResults()
         {
             var model = ModelAssembly.Assemble(new[] { new NodeElement(new Point3d(1, 2, 3)), new NodeElement(new Point3d(4, 5, 6)) }, Guid.NewGuid());
