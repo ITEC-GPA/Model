@@ -16,6 +16,9 @@ namespace GPC.Model.Core
             [XName.Get("FormFindingMethod", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingMethod", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
             [XName.Get("FormFindingGoalKind", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingGoalKind", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
             [XName.Get("FabricDirection", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FabricDirection", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
+            // The namespace GPC.Model.Analysis is written with its historical name (see WriteNamespaces): new types of that namespace read back here.
+            [XName.Get("FormFindingGoalAttribute", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingGoalAttribute", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
+            [XName.Get("FormFindingCoordinateAttribute", "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")] = XName.Get("FormFindingCoordinateAttribute", "http://schemas.datacontract.org/2004/07/GPC.Model.Analysis"),
             [XName.Get("ArrayOfMultiPointsCostrain", "http://schemas.datacontract.org/2004/07/GPC.Model.Costrains")] = XName.Get("ArrayOfMultiPointsCostrain", "http://schemas.datacontract.org/2004/07/GPC.Model.Constraints"),
             [XName.Get("ArrayOfRigidLink", "http://schemas.datacontract.org/2004/07/GPC.Model.Costrains")] = XName.Get("ArrayOfRigidLink", "http://schemas.datacontract.org/2004/07/GPC.Model.Constraints"),
             [XName.Get("Costrain", "http://schemas.datacontract.org/2004/07/GPC.Model.Costrains")] = XName.Get("Costrain", "http://schemas.datacontract.org/2004/07/GPC.Model.Constraints"),

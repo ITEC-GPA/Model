@@ -24,6 +24,13 @@ namespace GPC.Model.Models
     {
         public static Model Assemble(IEnumerable<Element> input, Guid modelGuid, string name = "",
             double? mergeToleranceMm = null, IEnumerable<Guid> keepSeparate = null, bool supportsWarpedQuads = false)
+            => Assemble(input, modelGuid, name, mergeToleranceMm, keepSeparate, supportsWarpedQuads, null);
+
+        /// <summary>As <see cref="Assemble(IEnumerable{Element}, Guid, string, double?, IEnumerable{Guid}, bool)"/>, with the ids of nodes,
+        /// beams and shells numbered in the order of <paramref name="sequence"/> (ties and a null sequence: GUID order), e.g. the order
+        /// of the application that built the elements. The sequence is read on the input elements.</summary>
+        public static Model Assemble(IEnumerable<Element> input, Guid modelGuid, string name, double? mergeToleranceMm,
+            IEnumerable<Guid> keepSeparate, bool supportsWarpedQuads, Func<Element, long> sequence)
         {
             if (modelGuid == Guid.Empty) throw new ArgumentException("A stable model identity is required.", nameof(modelGuid));
             if (mergeToleranceMm.HasValue && NumericGuard.Finite(mergeToleranceMm.Value, nameof(mergeToleranceMm)) < 0) throw new ArgumentOutOfRangeException(nameof(mergeToleranceMm));
@@ -40,6 +47,8 @@ namespace GPC.Model.Models
                     throw new ArgumentException("ConflictingEntityGuid: " + group.Key);
                 return first;
             }).OrderBy(e => e.Guid).ToArray();
+            var rank = sequence == null ? null : distinct.ToDictionary(e => e.Guid, e => sequence(e));
+            long Rank(Element e) => rank == null ? 0 : rank[e.Guid];
             var memo = new Dictionary<object, string>(ReferenceComparer<object>.Instance);
             var protectedNodes = new HashSet<Guid>(keepSeparate ?? Enumerable.Empty<Guid>());
             if (protectedNodes.Except(distinct.OfType<NodeElement>().Select(n => n.Guid)).Any()) throw new ArgumentException("UnknownKeepSeparateNode");
@@ -62,7 +71,7 @@ namespace GPC.Model.Models
                 .ToDictionary(b => b.Guid, b => ByOldId(b.Assignments.OrientationNodeId.Value));
             var model = new Model(modelGuid, name);
             int next = 0;
-            foreach (var node in canonical.Values.Distinct(ReferenceComparer<NodeElement>.Instance).OrderBy(n => n.Guid))
+            foreach (var node in canonical.Values.Distinct(ReferenceComparer<NodeElement>.Instance).OrderBy(Rank).ThenBy(n => n.Guid))
             { node.Id = ++next; model.NodesElements.Add(node); }
             foreach (var node in model.NodesElements.Values)
             {
@@ -81,7 +90,7 @@ namespace GPC.Model.Models
                 }
             }
             next = 0;
-            foreach (var beam in copies.Values.OfType<BeamElement>().OrderBy(b => b.Guid))
+            foreach (var beam in copies.Values.OfType<BeamElement>().OrderBy(Rank).ThenBy(b => b.Guid))
             {
                 var a = canonical[beam.NodeI.Guid]; var b = canonical[beam.NodeJ.Guid];
                 if (ReferenceEquals(a, b)) throw new ArgumentException("MergeCollapsedBeam");
@@ -100,7 +109,7 @@ namespace GPC.Model.Models
                 model.BeamElements.Add(beam);
             }
             next = 0;
-            foreach (var shell in copies.Values.OfType<AreaElement>().OrderBy(s => s.Guid))
+            foreach (var shell in copies.Values.OfType<AreaElement>().OrderBy(Rank).ThenBy(s => s.Guid))
             {
                 var connected = shell.Nodes.Select(n => canonical[n.Guid]).ToArray();
                 if (connected.Select(n => n.Guid).Distinct().Count() != connected.Length) throw new ArgumentException("MergeCollapsedShell");
@@ -109,6 +118,9 @@ namespace GPC.Model.Models
             }
             foreach (var element in model.AllElements)
                 foreach (var load in element.Loads.Values) load.LoadCase = CanonicalCase(model, load.LoadCase, memo);
+            foreach (var element in model.AllElements)
+                foreach (var goal in element.Attributes.Values.OfType<Analysis.FormFindingGoalAttribute>())
+                    if (goal.LoadCase != null) goal.LoadCase = CanonicalCase(model, goal.LoadCase, memo);
             foreach (var element in model.AllElements)
                 PhysicalAssignments.RebindCases(element, c => CanonicalCase(model, c, memo), c => CanonicalFreedomCase(model, c, memo));
             RegisterGroups(model, memo);
@@ -131,7 +143,8 @@ namespace GPC.Model.Models
                 if (element.Guid == Guid.Empty || element.Results.Count != 0) throw new ArgumentException("AssemblyRequiresIdentifiedInputsWithoutResults");
                 // Legacy generic attributes can contain constraints and arbitrary element references.
                 // Explicit assignments are supported; an unimplemented remap is never copied silently.
-                if (element.Attributes.Count != 0) throw new NotSupportedException("AssemblyRequiresExplicitAssignments: legacy Attributes require an adapter.");
+                // Self-contained attributes (labels, element-level form-finding inputs) cite no other element and are kept.
+                if (element.Attributes.Values.Any(a => !SelfContained(a))) throw new NotSupportedException("AssemblyRequiresExplicitAssignments: legacy Attributes require an adapter.");
                 PhysicalAssignments.Validate(element);
                 found.Add(element);
                 if (element is NodeElement node)
@@ -146,6 +159,17 @@ namespace GPC.Model.Models
             }
             return found;
         }
+
+        /// <summary>Rebuilds the identity map of an assembled model after the application added or removed elements with their own
+        /// ids (e.g. the shells a form-finding solver generates from the cables): every element becomes its own canonical identity and
+        /// the records of the merged inputs are dropped. The model is otherwise unchanged; ids must be positive and unique per family.</summary>
+        public static void RefreshIdentityMap(Model model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            model.AssemblyMap = new AssemblyIdentityMap(model.Guid, model.AssemblyMap?.MergeToleranceMm, model.AllElements.Select(e => new AssemblyIdentityEntry(e, e, Model.FamilyOf(e))));
+        }
+
+        private static bool SelfContained(Attributes.Attribute value) => value is ElementLabelAttribute || value is Analysis.FormFindingGoalAttribute || value is Analysis.FormFindingCoordinateAttribute;
         private static EntityFamily Family(Element value) => value is NodeElement ? EntityFamily.Node : value is BeamElement ? EntityFamily.Beam : EntityFamily.Shell;
         private static string Content(Element element)
         {
@@ -160,6 +184,7 @@ namespace GPC.Model.Models
             var ids = new List<Guid>();
             void Add(ModelObject value) { if (value != null) ids.Add(value.Guid); }
             foreach (var load in element.Loads.Values) Add(load.LoadCase);
+            foreach (var goal in element.Attributes.Values.OfType<Analysis.FormFindingGoalAttribute>()) Add(goal.LoadCase);
             foreach (var group in element.Groups.Values) Add(group);
             PhysicalAssignments.RebindCases(element, c => { Add(c); return c; }, c => { Add(c); return c; });
             if (element is NodeElement node)

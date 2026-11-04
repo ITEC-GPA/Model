@@ -559,6 +559,30 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
+        /// Creates a generic section whose properties are all declared, with an optional outline for presentation (drawing, preview).
+        /// No property is computed from the outline, now or later: the declared values are the section, as given by an application
+        /// with its own section calculator (Arachne). The axes X-Y and the principal axes 1-2 are declared independently
+        /// (no consistency between them is imposed); torsion and warping constants are those given, plastic moduli are zero
+        /// (not available) and the shear centre is the centroid.
+        /// </summary>
+        /// <exception cref="ArgumentException">If a value is not finite or the area is negative. The other values are not checked: they belong to
+        /// the declaring calculator (FeMM, whose mirrored sections have negative moments, is reproduced as it is by Arachne).</exception>
+        public Section(Shape2d outline, double area, double jxx, double jyy, double jxy, double j11, double j22, double jt,
+            Point2d centroid, double angle, double elasticModulus1, double elasticModulus2, double elasticModulusX, double elasticModulusY, string name)
+            : base(name)
+        {
+            foreach (double value in new[] { area, jxx, jyy, jxy, j11, j22, jt, angle, elasticModulus1, elasticModulus2, elasticModulusX, elasticModulusY })
+                if (double.IsNaN(value) || double.IsInfinity(value)) throw new ArgumentException("NonFiniteDeclaredSectionProperty");
+            if (area < 0)
+                throw new ArgumentException("NegativeDeclaredSectionProperty");
+            _shape = outline; _area = area; _jxx = jxx; _jyy = jyy; _jxy = jxy; _j11 = j11; _j22 = j22; _jp = j11 + j22; _jt = jt; _jw = 0;
+            _centroid = centroid ?? throw new ArgumentNullException(nameof(centroid));
+            _shearCenter = new Point2d(centroid.X, centroid.Y); _angleX1 = angle;
+            _wel1Min = _wel1Max = elasticModulus1; _wel2Min = _wel2Max = elasticModulus2;
+            _welXMin = _welXMax = elasticModulusX; _welYMin = _welYMax = elasticModulusY;
+        }
+
+        /// <summary>
         /// Creates a generic section with explicitly declared minimum elastic section moduli [mm³].
         /// Each minimum is applied to both stress signs; unequal positive/negative moduli require an actual outline.
         /// Zero denotes an unspecified modulus, as for the historical generic-section constructor.

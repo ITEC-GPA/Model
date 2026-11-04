@@ -6,6 +6,7 @@
     <Compile Include="../tests/MovingLoadContractsTest.cs" Link="MovingLoadContractsTest.cs" />
     <Compile Include="../tests/PhysicalAssignmentsTest.cs" Link="PhysicalAssignmentsTest.cs" />
     <Compile Include="../tests/FormFindingContractsTest.cs" Link="FormFindingContractsTest.cs" />
+    <Compile Include="../tests/ArachneVocabularyTest.cs" Link="ArachneVocabularyTest.cs" />
     <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
     <None Include="../tests/Fixtures/anthea-blocks-v1-20261103.bin" Link="Fixtures/anthea-blocks-v1-20261103.bin" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
