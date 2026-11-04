@@ -76,7 +76,10 @@ namespace GPC.Model.Core
         internal static ResultStorage[] CaptureResults(Models.Model model, Element[] elements)
         {
             var cases = new ResultCaseTable(model);
-            return elements.Select(e => e.CaptureResults(cases)).ToArray();
+            var results = new ResultStorage[elements.Length];
+            // Each element encodes its own results (its lock, the read-only case table): in parallel, the same segments.
+            ParallelElements.For(elements.Length, i => results[i] = elements[i].CaptureResults(cases));
+            return results;
         }
 
         /// <summary>A new, independent graph. The compact results are attached, not decoded. The graph is read within what deflate

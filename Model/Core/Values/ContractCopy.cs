@@ -161,6 +161,20 @@ namespace GPC.Model.Core
                     var vector = (GPC.Geometry.Vector3d)value; var guid = vector.Guid;
                     return new GPC.Geometry.Vector3d(vector.X, vector.Y, vector.Z);
                 };
+                // The same for the sealed 2D leaves (their deserialization constructors read only X and Y): the outlines of the sections
+                // (64 points for a circle) were copied through GetObjectData point by point, most of the copy of a beam (lane L5).
+                if (type == typeof(GPC.Geometry.Point2d)) plan.LeafCopy = value =>
+                {
+                    var point = (GPC.Geometry.Point2d)value; var guid = point.Guid;
+                    return new GPC.Geometry.Point2d(point.X, point.Y);
+                };
+                if (type == typeof(GPC.Geometry.Vector2d)) plan.LeafCopy = value =>
+                {
+                    var vector = (GPC.Geometry.Vector2d)value; var guid = vector.Guid;
+                    return new GPC.Geometry.Vector2d(vector.X, vector.Y);
+                };
+                if (type == typeof(Elements.BeamElement)) plan.Initialize = (context, source, target) =>
+                    ((Elements.BeamElement)target).CopyContractFrom((Elements.BeamElement)source, context);
                 if (type == typeof(Elements.NodeElement)) plan.Initialize = (context, source, target) =>
                     ((Elements.NodeElement)target).CopyContractFrom((Elements.NodeElement)source, context);
                 if (type == typeof(Elements.AreaElement)) plan.Initialize = (context, source, target) =>

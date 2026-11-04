@@ -429,8 +429,10 @@ namespace GPC.Model.Persistence
             if (map == null) return;
             map.Validate();
             if (model.AssemblyMap == null || map.ModelGuid != model.Guid || map.AnalysisFingerprint != fingerprint) throw new InvalidOperationException("StaleSolverIdentityMap");
-            var expected = model.AssemblyMap.ToSolver(model, map.Solver, map.Entries.Select(e => new KeyValuePair<Guid, int>(e.EntityGuid, e.SolverId)));
-            if (ModelValues.Fingerprint(new object[] { expected }) != ModelValues.Fingerprint(new object[] { map })) throw new InvalidOperationException("SolverIdentityMapMismatch");
+            // fingerprint is the analysis fingerprint of the model, computed by the caller (and checked against the map above): it is not
+            // computed again, and the maps are compared member by member (the members of their fingerprint contract).
+            var expected = model.AssemblyMap.ToSolver(model, map.Solver, map.Entries.Select(e => new KeyValuePair<Guid, int>(e.EntityGuid, e.SolverId)), fingerprint);
+            if (!expected.SameContent(map)) throw new InvalidOperationException("SolverIdentityMapMismatch");
         }
 
         /// <summary>Write-only stream that keeps what is written in arrays of at most a part each.</summary>

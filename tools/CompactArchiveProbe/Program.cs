@@ -25,6 +25,43 @@ using GPC.Model.Structure.Assignments;
 using GPC.Persistence;
 
 var inv = CultureInfo.InvariantCulture;
+if (args[0] == "micro")
+{
+    // Cost of the per-segment primitives of the result codec: 60,000 segments of 2 KB.
+    var raw = new byte[2048]; new Random(1).NextBytes(raw); for (int i = 0; i < raw.Length; i += 3) raw[i] = 0;
+    var clock = Stopwatch.StartNew();
+    for (int i = 0; i < 60000; i++) using (var sha = System.Security.Cryptography.SHA256.Create()) sha.ComputeHash(raw);
+    Console.WriteLine("SHA256.Create + hash: " + clock.Elapsed.TotalSeconds.ToString("F3", inv) + " s"); clock.Restart();
+    using (var shared = System.Security.Cryptography.SHA256.Create()) for (int i = 0; i < 60000; i++) shared.ComputeHash(raw);
+    Console.WriteLine("hash, one instance: " + clock.Elapsed.TotalSeconds.ToString("F3", inv) + " s"); clock.Restart();
+    for (int i = 0; i < 60000; i++) using (var packed = new MemoryStream()) { using (var deflate = new System.IO.Compression.DeflateStream(packed, System.IO.Compression.CompressionLevel.Fastest, true)) deflate.Write(raw, 0, raw.Length); }
+    Console.WriteLine("DeflateStream per segment: " + clock.Elapsed.TotalSeconds.ToString("F3", inv) + " s"); clock.Restart();
+    System.Threading.Tasks.Parallel.For(0, 60000, i => { using (var packed = new MemoryStream()) { using (var deflate = new System.IO.Compression.DeflateStream(packed, System.IO.Compression.CompressionLevel.Fastest, true)) deflate.Write(raw, 0, raw.Length); } });
+    Console.WriteLine("DeflateStream per segment, parallel: " + clock.Elapsed.TotalSeconds.ToString("F3", inv) + " s"); clock.Restart();
+    System.Threading.Tasks.Parallel.For(0, 60000, i => { using (var sha = System.Security.Cryptography.SHA256.Create()) sha.ComputeHash(raw); });
+    Console.WriteLine("SHA256.Create + hash, parallel: " + clock.Elapsed.TotalSeconds.ToString("F3", inv) + " s");
+    return;
+}
+if (args[0] == "compact")
+{
+    // Encoding of decoded results (Model.CompactResults) on a net of k x k nodes with a displacement per node and a station force
+    // (with its axes) per bar, as the outputs of a form finding.
+    int k = int.Parse(args[1], inv);
+    var model = Grid(k);
+    var load = model.LoadCases.Values.First(); string input = model.AnalysisFingerprint();
+    foreach (var beam in model.BeamElements.Values)
+        beam.Results.Add(new BeamResult(new[] { new StationResultBeamForces(load, new ResultBeamForces(beam.Id * 0.5, 0, 0, 0, 0, 0,
+            new CoordinateSystem(beam.StartPoint, beam.EndPoint, new Point3d(beam.StartPoint.X, beam.StartPoint.Y, beam.StartPoint.Z + 1000))), 0.5)
+        { State = new ResultState { DatasetId = "form-finding", InputFingerprint = input, Step = load.Name } } }));
+    for (int r = 0; r < 3; r++)
+    {
+        foreach (var e in model.AllElements) { var count = e.Results.Count; }
+        GC.Collect(); var clock = Stopwatch.StartNew(); int gc0 = GC.CollectionCount(0), gc2 = GC.CollectionCount(2);
+        long bytes = model.CompactResults();
+        Console.WriteLine($"CompactResults {model.AllElements.Count()} elements: {clock.Elapsed.TotalSeconds:F3} s, {bytes:N0} B, gen0 {GC.CollectionCount(0) - gc0}, gen2 {GC.CollectionCount(2) - gc2}, server GC {System.Runtime.GCSettings.IsServerGC}");
+    }
+    return;
+}
 string output = Path.GetFullPath(args[0]);
 bool xmlSidecar = args.Contains("--xml-sidecar");
 var sides = args.Skip(1).Where(a => !a.StartsWith("--")).SelectMany(a => a.Split(',')).Select(int.Parse).DefaultIfEmpty(32).ToList();

@@ -226,6 +226,28 @@ namespace UnitTest
             Assert.AreEqual(Grid(4, results: true).AllElements.Count(), again.Open(saved[0]).Model.AllElements.Count());
         }
 
+        /// <summary>The results of the elements are encoded in parallel (lane L5): a result that cannot be encoded (a sample of another
+        /// element) raises the exception of that element, as one element after the other did, not an AggregateException; the same
+        /// segments as before for the others.</summary>
+        [TestMethod]
+        public void ParallelCompactionRaisesTheErrorOfTheElementAndKeepsTheSegments()
+        {
+            var model = Grid(10, results: true);
+            Assert.IsTrue(model.AllElements.Count() > 100);
+            string expected = Document(model); // every result decoded
+            var nodes = model.NodesElements.Values.ToArray();
+            nodes[3].Results.SelectMany(r => r.Results).First().State.DerivedFrom = new[] { nodes[70].Results.SelectMany(r => r.Results).First() };
+            try { model.CompactResults(); Assert.Fail("A foreign sample was encoded."); }
+            catch (NotSupportedException error) { Assert.AreEqual("ResultEncodingException", error.GetType().Name); }
+            nodes[3].Results.SelectMany(r => r.Results).First().State.DerivedFrom = null;
+            long bytes = model.CompactResults();
+            Assert.AreEqual(expected, Document(model));
+            // decoded again and unchanged: the same segments (results carry their own GUIDs, so another model is not a reference)
+            foreach (var element in model.AllElements) { var count = element.Results.Count; }
+            Assert.AreEqual(bytes, model.CompactResults());
+            Assert.AreEqual(expected, Document(model));
+        }
+
         // The digest of tools/ExternalArchiveProbe (Numeric), to check the fixture written by the version before.
         private static string ProbeNumbers(Model model)
         {

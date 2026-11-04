@@ -23,8 +23,8 @@ namespace GPC.Model.Core
     /// - a value of the declared type carries no type at all; the names of the entries of GetObjectData and of the data members are
     ///   written once per layout, strings once per archive;
     /// - doubles are exact (8 bytes, or one byte for 0, -0, 1, -1, a varint for an integral value): no text conversion;
-    /// - Point3d and Vector3d (sealed, their deserialization constructors read only X, Y and Z) are three doubles, as in
-    ///   ContractCopy; a CoordinateSystem whose matrix and inverse origin are those its axes and origin give is written as its
+    /// - Point3d and Vector3d (sealed, their deserialization constructors read only X, Y and Z) are three doubles, Point2d and
+    ///   Vector2d two, as in ContractCopy; a CoordinateSystem whose matrix and inverse origin are those its axes and origin give is written as its
     ///   origin, its axes and its name (the matrix and the inverse origin are rebuilt bit for bit, and keep their numbers).
     /// A shape this codec does not reproduce raises <see cref="ContractCopy.UnsupportedException"/> while writing: the caller writes
     /// the XML archive instead. Reading bounds every count by the bytes left, so a short input cannot declare large arrays.
@@ -32,7 +32,8 @@ namespace GPC.Model.Core
     internal static class ContractBinary
     {
         private const int Magic = 0x47425047; // "GPBG"
-        private const byte Version = 1;
+        // Version 2: Point2d and Vector2d are leaves too (two doubles). Version 1 (lane L5, first commit) is still read.
+        private const byte Version = 2;
         /// <summary>Deepest nesting written or read; deeper graphs are written as XML (and a deeper input is refused).</summary>
         internal const int MaximumDepth = 2000;
         private static readonly StreamingContext Context = new StreamingContext(StreamingContextStates.All);
@@ -276,6 +277,8 @@ namespace GPC.Model.Core
                     else { var vector = (Vector3d)value; var guid = vector.Guid; Register(value); Number(vector.X); Number(vector.Y); Number(vector.Z); }
                     return;
                 }
+                if (type == typeof(Point2d)) { var point = (Point2d)value; var guid = point.Guid; Register(value); Number(point.X); Number(point.Y); return; }
+                if (type == typeof(Vector2d)) { var vector = (Vector2d)value; var guid = vector.Guid; Register(value); Number(vector.X); Number(vector.Y); return; }
                 var info = new SerializationInfo(type, Converter);
                 ((ISerializable)value).GetObjectData(info, Context);
                 if (info.ObjectType != type || info.FullTypeName != type.FullName || info.AssemblyName != type.Assembly.FullName)
@@ -382,7 +385,9 @@ namespace GPC.Model.Core
             try
             {
                 if (reader.Int32() != Magic) throw new SerializationException("UnsupportedBinaryGraph");
-                if (reader.Byte() != Version) throw new SerializationException("UnsupportedBinaryGraphVersion");
+                byte version = reader.Byte();
+                if (version != Version && version != 1) throw new SerializationException("UnsupportedBinaryGraphVersion");
+                reader.Leaves2d = version >= 2;
                 var root = reader.Value(rootType, 0);
                 reader.End();
                 return root;
@@ -414,6 +419,8 @@ namespace GPC.Model.Core
             private readonly List<ReadLayout> _layouts = new List<ReadLayout>();
             private readonly Dictionary<Type, Dictionary<string, ContractCopy.Member>> _members = new Dictionary<Type, Dictionary<string, ContractCopy.Member>>();
             internal Reader(Stream source, long length) { _source = source; _left = length; }
+            /// <summary>Point2d and Vector2d written as two doubles (version 2).</summary>
+            internal bool Leaves2d;
 
             /// <summary>Bytes of the graph still to read: no valid graph declares more items than that.</summary>
             private long Remaining => _left + _count - _at;
@@ -626,6 +633,8 @@ namespace GPC.Model.Core
                 {
                     double x = Number(), y = Number(), z = Number(); var vector = new Vector3d(x, y, z); _objects.Add(vector); return vector;
                 }
+                if (Leaves2d && type == typeof(Point2d)) { double x = Number(), y = Number(); var point = new Point2d(x, y); _objects.Add(point); return point; }
+                if (Leaves2d && type == typeof(Vector2d)) { double x = Number(), y = Number(); var vector = new Vector2d(x, y); _objects.Add(vector); return vector; }
                 object value = type.IsValueType ? null : FormatterServices.GetUninitializedObject(type);
                 if (value != null) _objects.Add(value);
                 var layout = Layout(type, false);
