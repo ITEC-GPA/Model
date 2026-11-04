@@ -181,6 +181,27 @@ public partial class Straus7ApiWorkflowTest
     }
 
     [TestMethod]
+    public void UnderADistributedLoadAnExtremumNextToARegularStationIsMerged()
+    {
+        // Example 99 with E13: a regular station 0.5 and an extremum 2.75e-9 L after it, the shear varying along the beam (distributed load):
+        // the forces differ by the slope times the distance, within the snap check. Two result-dependent stations within the tolerance: one kept.
+        var converter = new Straus7ApiConverter(() => new SyntheticApi()); var imported = converter.Import(Request()); Partial(imported);
+        var model = imported.Model; var beam = model.BeamElements.Values.Single(); double length = beam.Length / 1000; // native m
+        double V(double x) => 10 - 20 * x; // kN, x parametric; slope 20 kN over the length
+        double M(double x) => 10 * x * length - 10 * x * x * length;
+        double e = 2.75e-9, tolerance = Math.Max(1e-3, beam.Length * 1e-6) / beam.Length;
+        var native = converter.ReadResults(ResultsRequest());
+        SetBeamRows(native, (0, Row(V(0), M(0))), (.5, Row(V(.5), M(.5))), (.5 + e, Row(V(.5 + e), M(.5 + e))), (.75, Row(V(.75), M(.75))),
+            (.75 + tolerance / 4, Row(V(.75 + tolerance / 4), M(.75 + tolerance / 4))), (.75 + tolerance / 2, Row(V(.75 + tolerance / 2), M(.75 + tolerance / 2))), (1, Row(V(1), M(1))));
+        var result = Straus7LinearStaticResults.Import(model, native, "slope", CaseMap, isSynthetic: true);
+        Assert.AreEqual(ImportStatus.Completed, result.Status, string.Join(";", result.Diagnostics.Select(d => d.Message)));
+        var stations = Verification.BeamSamples(beam, "slope", "Case 1: G").Select(x => x.ParametricDistance).ToArray();
+        // .75 is not regular for 3 minimum stations: the two extrema after it are result-dependent; the first of the pair stays.
+        CollectionAssert.AreEqual(new[] { 0, .5, .75, .75 + tolerance / 2, 1 }, stations);
+        StringAssert.StartsWith(result.Diagnostics.Single(d => d.Code == Straus7LinearStaticResults.StationSnapCode).Message, "2 ");
+    }
+
+    [TestMethod]
     public void StationsWithinRoundoffWithDifferentValuesAreRejected()
     {
         var converter = new Straus7ApiConverter(() => new SyntheticApi()); var imported = converter.Import(Request()); Partial(imported);

@@ -114,9 +114,11 @@ namespace GPC.Converter.Straus7
         /// result-dependent stations (extrema). A result-dependent station can fall within roundoff of a regular or load station (an extremum
         /// at the jump of a concentrated load, 1e-5 mm from its side station): two samples at one physical station that consumers cannot tell
         /// apart. Such a station is merged into the regular or load station when they are closer than max(1e-3 mm, L 1e-6) — half the
-        /// spacing of a load pair, so the two sides of a jump are never merged — and their values agree: forces within 1e-9 of the largest
-        /// force of the table (+ 1e-9), moments within the largest force times the distance (dM/dx = V) plus 1e-9 of the largest moment;
-        /// otherwise the import throws Straus7ResultStationSnapValuesDisagree. The regular or load station keeps its location.</summary>
+        /// spacing of a load pair, so the two sides of a jump are never merged — and their values agree: forces within twice the steepest
+        /// slope of the table (a distributed load, between stations at least 1e-4 of the length apart, so a jump is not a slope) times the
+        /// distance, moments within the largest force times the distance (dM/dx = V), each plus 1e-9 of the largest value (+ 1e-9);
+        /// otherwise the import throws Straus7ResultStationSnapValuesDisagree. The regular or load station keeps its location; of two
+        /// result-dependent stations within the tolerance the first is kept.</summary>
         internal static bool[] SnapStations(Straus7ResultTable table, double lengthMm, double lengthToMm, ref int snapped)
         {
             int rows = table.Rows; var keep = Enumerable.Repeat(true, rows).ToArray(); var p = table.Positions;
@@ -125,22 +127,31 @@ namespace GPC.Converter.Straus7
             int n = table.MinimumStations;
             bool Regular(int i) => n >= 2 && Math.Abs(p[i] * (n - 1) - Math.Round(p[i] * (n - 1))) <= 1e-9;
             // The two sides of a concentrated load are 2e-6 of the length apart.
-            bool LoadSide(int i) => Enumerable.Range(0, rows).Any(j => j != i && Math.Abs(Math.Abs(p[j] - p[i]) - 2e-6) <= 1e-9);
+            bool LoadSide(int i) => Enumerable.Range(0, rows).Any(j => j != i && Math.Abs(Math.Abs(p[j] - p[i]) - 2e-6) <= 1e-11);
             bool Fixed(int i) => Regular(i) || LoadSide(i);
             double forceScale = 0, momentScale = 0; var v = table.Values;
             for (int i = 0; i < rows; i++) for (int k = 0; k < 3; k++)
             { forceScale = Math.Max(forceScale, Math.Abs(v[6 * i + 2 * k])); momentScale = Math.Max(momentScale, Math.Abs(v[6 * i + 2 * k + 1])); }
+            double slope = 0; // largest force change per native length unit between stations at least 1e-4 of the length apart
+            for (int i = 0, j = 1; j < rows; j++)
+            {
+                if (p[j] - p[i] < 1e-4) continue;
+                double dx = (p[j] - p[i]) * lengthMm / lengthToMm;
+                for (int k = 0; k < 3; k++) slope = Math.Max(slope, Math.Abs(v[6 * j + 2 * k] - v[6 * i + 2 * k]) / dx);
+                i = j;
+            }
             for (int i = 0; i + 1 < rows; i++)
             {
                 if (!keep[i] || p[i + 1] - p[i] > tolerance) continue;
                 bool fixedI = Fixed(i), fixedJ = Fixed(i + 1);
-                if (fixedI == fixedJ) continue; // two regular/load stations, or two extrema: both kept
-                int drop = fixedI ? i + 1 : i, stay = fixedI ? i : i + 1;
+                if (fixedI && fixedJ) continue; // two regular or load stations: both kept (never closer than the tolerance in practice)
+                // A result-dependent station goes into the fixed one; of two result-dependent stations the first is kept.
+                int drop = fixedI || !fixedJ ? i + 1 : i, stay = drop == i + 1 ? i : i + 1;
                 double distance = (p[i + 1] - p[i]) * lengthMm / lengthToMm; // native length units, as the moments
                 for (int k = 0; k < 3; k++)
                 {
                     double df = Math.Abs(v[6 * drop + 2 * k] - v[6 * stay + 2 * k]), dm = Math.Abs(v[6 * drop + 2 * k + 1] - v[6 * stay + 2 * k + 1]);
-                    if (df > 1e-9 * forceScale + 1e-9 || dm > forceScale * distance + 1e-9 * momentScale + 1e-9)
+                    if (df > 2 * slope * distance + 1e-9 * forceScale + 1e-9 || dm > forceScale * distance + 1e-9 * momentScale + 1e-9)
                         throw new InvalidDataException("Straus7ResultStationSnapValuesDisagree: beam " + table.Number + ", case " + table.CaseNumber + ", stations "
                             + p[stay].ToString("R", System.Globalization.CultureInfo.InvariantCulture) + " and " + p[drop].ToString("R", System.Globalization.CultureInfo.InvariantCulture));
                 }
