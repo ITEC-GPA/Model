@@ -151,6 +151,40 @@ namespace GPC.Model.Sections
         /// <exception cref="ArgumentException">The mesh is empty or degenerate</exception>
         public static SectionShearAreaProperties Compute(ISectionShape section) => ComputeWithPoisson(section, 0);
 
+        /// <summary>The shear areas of a section made of parts of different materials, homogenised in the units of a reference material (a
+        /// steel–concrete girder in steel units, as its area and inertias): De Saint Venant at ν = 0 (decisione utente 4/11) with each part
+        /// weighted by E_k / E_ref = 1 / n_k, n_k its modular ratio. With w the weight, I* = ∫ w y² dA the homogenised inertia and
+        /// ∇·(w ∇χ) = −w y in the section (τ·n = 0 on every contour), the stresses are τ = (V / I*) w ∇χ (G_k = E_k / 2 at ν = 0) and the
+        /// shear area in reference units is A* = I*² / ∫ w |∇χ|² dA, the energy area of the homogenised section; with every n_k = 1 it is
+        /// <see cref="Compute"/>. A part whose n_k tends to infinity tends to carry nothing (the limit of the other parts alone).
+        /// <para>Parts that touch are joined into one conforming body, as the parts of a <see cref="SectionWelded"/> (a slab on the top flange
+        /// of the girder: shear flow passes between them); parts that overlap are not supported (embedded bars are a part of the slab, not
+        /// regions of their own).</para></summary>
+        /// <param name="parts">The outline of each part, in one coordinate system (mm), and its modular ratio n_k = E_ref / E_k (positive, finite;
+        /// 1 for the reference material)</param>
+        /// <param name="angleX1">The direction of the principal axis 1 of the homogenised section in that coordinate system (rad)</param>
+        /// <param name="name">The name of the section, for the messages</param>
+        /// <returns>The shear areas in the principal axes 1 and 2, in reference units (mm²)</returns>
+        public static SectionShearAreaProperties ComputeHomogenised(IReadOnlyList<(Shape2d Outline, double ModularRatio)> parts, double angleX1, string name = "")
+        {
+            if (parts == null) throw new ArgumentNullException(nameof(parts));
+            if (parts.Count == 0 || parts.Any(p => p.Outline == null)) throw new ArgumentException("HomogenisedShearAreasRequireParts", nameof(parts));
+            if (parts.Any(p => double.IsNaN(p.ModularRatio) || double.IsInfinity(p.ModularRatio) || p.ModularRatio <= 0))
+                throw new ArgumentOutOfRangeException(nameof(parts), "HomogenisedShearAreasRequirePositiveModularRatios");
+            if (double.IsNaN(angleX1) || double.IsInfinity(angleX1)) throw new ArgumentException("ShearAreasRequirePrincipalAxes: " + name);
+            var mesh = SectionMesh.Create(parts.Select(p => p.Outline).ToArray(), parts.Select(p => 1 / p.ModularRatio).ToArray(), name ?? "");
+            var bodies = mesh.Bodies();
+            int triangles = mesh.Triangles.Count, nodes = mesh.UsedNodes(); double size = mesh.Size;
+            double sum1 = 0, sum2 = 0, stored1 = 0, stored2 = 0;
+            foreach (var body in bodies)
+            {
+                var frame = new Frame(body, body.Axes(angleX1)); var solver = new EnvelopeCholesky(body, frame);
+                var (inertia1, energy1) = Flexure(body, frame, solver, 0, 0); var (inertia2, energy2) = Flexure(body, frame, solver, 1, 0);
+                sum1 += inertia1; stored1 += energy1; sum2 += inertia2; stored2 += energy2;
+            }
+            return new SectionShearAreaProperties(sum1 * sum1 / stored1, sum2 * sum2 / stored2, bodies.Count, 0, triangles, nodes, size);
+        }
+
         /// <summary>The shear areas with the Poisson term of the Saint-Venant flexure (−1 &lt; ν &lt; 0.5). Not for analysis (decisione utente
         /// 4/11: ν = 0, <see cref="Compute"/>): kept for the validation of the solver against the exact flexure solutions with ν.</summary>
         internal static SectionShearAreaProperties ComputeWithPoisson(ISectionShape section, double poissonRatio)
@@ -244,7 +278,7 @@ namespace GPC.Model.Sections
                         sum += RuleW[r] * (gx * gx + q * q);
                     }
                 }
-                energy += sum * frame.Area[e];
+                energy += sum * frame.Area[e] * mesh.Weight(e);
             }
             if (!(energy > 0)) throw new ArgumentException("DegenerateSectionShearFlow");
             return (inertia, energy);
@@ -270,9 +304,10 @@ namespace GPC.Model.Sections
                         sx += RuleW[r] * (px * px); sy += RuleW[r] * (py * py);
                     }
                 }
-                double xx = sx * area; inertia += sy * area;
+                double weight = mesh.Weight(e);
+                double xx = sx * area * weight; inertia += sy * area * weight;
                 // ∫ y N_a − ∫ a_y ∂N_a/∂y, a_y = c x², with ∫ y N_a = A (2 y_a + y_b + y_c)/12 for linear y.
-                for (int a = 0; a < 3; a++) rhs[t[a]] += area * (2 * y[t[a]] + y[t[(a + 1) % 3]] + y[t[(a + 2) % 3]]) / 12 - c * xx * frame.Gradient[6 * e + 2 * a + along];
+                for (int a = 0; a < 3; a++) rhs[t[a]] += weight * area * (2 * y[t[a]] + y[t[(a + 1) % 3]] + y[t[(a + 2) % 3]]) / 12 - c * xx * frame.Gradient[6 * e + 2 * a + along];
             }
             return rhs;
         }
@@ -323,7 +358,7 @@ namespace GPC.Model.Sections
                 var triangles = mesh.Triangles; var gradient = frame.Gradient;
                 for (int e = 0; e < triangles.Count; e++)
                 {
-                    var t = triangles[e]; double area = frame.Area[e]; int g = 6 * e;
+                    var t = triangles[e]; double area = frame.Area[e] * mesh.Weight(e); int g = 6 * e;
                     for (int a = 0; a < 3; a++) for (int b = 0; b < 3; b++)
                     {
                         int i = position[t[a]], j = position[t[b]]; if (j > i || i == 0 || j == 0) continue;
@@ -382,9 +417,31 @@ namespace GPC.Model.Sections
         {
             private readonly List<double> px, py;
             internal List<int[]> Triangles;
+            /// <summary>The weight of each triangle (E / E_ref of its part), null when every weight is 1.</summary>
+            private List<double> weights;
+            internal double Weight(int triangle) => weights == null ? 1 : weights[triangle];
             internal double Area { get; private set; }
             private double cx, cy;
             private SectionMesh(List<double> x, List<double> y, List<int[]> triangles) { px = x; py = y; Triangles = triangles; }
+
+            /// <summary>The mesh of parts of different materials, joined where they touch, with the weight of each part on its triangles.</summary>
+            internal static SectionMesh Create(IReadOnlyList<Shape2d> outlines, IReadOnlyList<double> partWeights, string name)
+            {
+                double area = outlines.Sum(o => Math.Abs(o.Fill2d.GetSignedArea()) - (o.Holes2d ?? new Polygon2d[0]).Sum(h => Math.Abs(h.GetSignedArea())));
+                double meshSize = MeshSize(area);
+                if (!(meshSize > 0) || double.IsInfinity(meshSize)) throw new NotSupportedException("ShearAreasRequireSectionGeometry: " + name);
+                var meshes = outlines.Select(o => Triangulate(o, meshSize, name)).ToArray();
+                double extent = meshes.SelectMany(m => m.Vertices).Max(v => Math.Max(Math.Abs(v.Point.X), Math.Abs(v.Point.Y)));
+                double spacing = Math.Sqrt(4 * area / (Math.Sqrt(3) * TargetTriangles));
+                var x = new List<double>(); var y = new List<double>(); var triangles = new List<int[]>(); var regions = new List<int>();
+                SectionMeshJoiner.Join(meshes, true, spacing, x, y, triangles, regions);
+                var result = new SectionMesh(x, y, new List<int[]>()) { Size = meshSize, weights = new List<double>() };
+                for (int i = 0; i < triangles.Count; i++)
+                    if (Math.Abs(result.Det(triangles[i])) > 1e-14 * extent * extent) { result.Triangles.Add(triangles[i]); result.weights.Add(partWeights[regions[i]]); }
+                result.Measure();
+                for (int level = 0; level < SubdivisionLevels; level++) result.Subdivide();
+                return result;
+            }
 
             internal static SectionMesh Create(ISectionShape section)
             {
@@ -431,9 +488,9 @@ namespace GPC.Model.Sections
             private void Measure()
             {
                 double area = 0, sx = 0, sy = 0;
-                foreach (var t in Triangles)
+                for (int e = 0; e < Triangles.Count; e++)
                 {
-                    double a = Math.Abs(Det(t)) / 2; area += a;
+                    var t = Triangles[e]; double a = Math.Abs(Det(t)) / 2 * Weight(e); area += a;
                     sx += a * (px[t[0]] + px[t[1]] + px[t[2]]) / 3; sy += a * (py[t[0]] + py[t[1]] + py[t[2]]) / 3;
                 }
                 if (!(area > 0)) throw new ArgumentException("EmptySectionMesh");
@@ -454,21 +511,25 @@ namespace GPC.Model.Sections
                 var parent = Enumerable.Range(0, px.Count).ToArray();
                 Func<int, int> find = i => { while (parent[i] != i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
                 foreach (var t in Triangles) { parent[find(t[1])] = find(t[0]); parent[find(t[2])] = find(t[0]); }
-                var groups = new Dictionary<int, List<int[]>>(); var roots = new List<int>();
-                foreach (var t in Triangles)
+                var groups = new Dictionary<int, List<int>>(); var roots = new List<int>();
+                for (int e = 0; e < Triangles.Count; e++)
                 {
-                    int root = find(t[0]);
-                    if (!groups.TryGetValue(root, out var list)) { groups.Add(root, list = new List<int[]>()); roots.Add(root); }
-                    list.Add(t);
+                    int root = find(Triangles[e][0]);
+                    if (!groups.TryGetValue(root, out var list)) { groups.Add(root, list = new List<int>()); roots.Add(root); }
+                    list.Add(e);
                 }
                 if (roots.Count == 1) return new List<SectionMesh> { this };
                 var bodies = new List<SectionMesh>(roots.Count);
                 foreach (int root in roots)
                 {
                     var index = new Dictionary<int, int>(); var x = new List<double>(); var y = new List<double>(); var triangles = new List<int[]>();
-                    foreach (var t in groups[root])
-                        triangles.Add(t.Select(i => { if (!index.TryGetValue(i, out int j)) { index.Add(i, j = x.Count); x.Add(px[i]); y.Add(py[i]); } return j; }).ToArray());
-                    var body = new SectionMesh(x, y, triangles); body.Measure(); bodies.Add(body);
+                    var bodyWeights = weights == null ? null : new List<double>();
+                    foreach (int e in groups[root])
+                    {
+                        triangles.Add(Triangles[e].Select(i => { if (!index.TryGetValue(i, out int j)) { index.Add(i, j = x.Count); x.Add(px[i]); y.Add(py[i]); } return j; }).ToArray());
+                        bodyWeights?.Add(weights[e]);
+                    }
+                    var body = new SectionMesh(x, y, triangles) { weights = bodyWeights }; body.Measure(); bodies.Add(body);
                 }
                 return bodies;
             }
@@ -483,12 +544,15 @@ namespace GPC.Model.Sections
                     if (!midpoints.TryGetValue(key, out int m)) { midpoints.Add(key, m = px.Count); px.Add((px[a] + px[b]) / 2); py.Add((py[a] + py[b]) / 2); }
                     return m;
                 };
-                foreach (var t in Triangles)
+                var refinedWeights = weights == null ? null : new List<double>(weights.Count * 4);
+                for (int e = 0; e < Triangles.Count; e++)
                 {
+                    var t = Triangles[e];
                     int ab = mid(t[0], t[1]), bc = mid(t[1], t[2]), ca = mid(t[2], t[0]);
                     refined.Add(new[] { t[0], ab, ca }); refined.Add(new[] { ab, t[1], bc }); refined.Add(new[] { ca, bc, t[2] }); refined.Add(new[] { ab, bc, ca });
+                    if (refinedWeights != null) for (int k = 0; k < 4; k++) refinedWeights.Add(weights[e]);
                 }
-                Triangles = refined;
+                Triangles = refined; weights = refinedWeights;
             }
 
             /// <summary>Node coordinates about the centroid in the axes at <paramref name="angle"/> (rad) from the section X axis: u1 along it.</summary>
@@ -503,9 +567,9 @@ namespace GPC.Model.Sections
             internal (double I11, double I22, double I12) Inertia(double[][] u)
             {
                 double i11 = 0, i22 = 0, i12 = 0;
-                foreach (var t in Triangles)
+                for (int e = 0; e < Triangles.Count; e++)
                 {
-                    double a = Math.Abs(Det(t)) / 2, x1 = u[0][t[0]], x2 = u[0][t[1]], x3 = u[0][t[2]], y1 = u[1][t[0]], y2 = u[1][t[1]], y3 = u[1][t[2]];
+                    var t = Triangles[e]; double a = Math.Abs(Det(t)) / 2 * Weight(e), x1 = u[0][t[0]], x2 = u[0][t[1]], x3 = u[0][t[2]], y1 = u[1][t[0]], y2 = u[1][t[1]], y3 = u[1][t[2]];
                     i11 += a / 6 * (y1 * y1 + y2 * y2 + y3 * y3 + y1 * y2 + y2 * y3 + y3 * y1);
                     i22 += a / 6 * (x1 * x1 + x2 * x2 + x3 * x3 + x1 * x2 + x2 * x3 + x3 * x1);
                     i12 += a / 12 * (2 * (x1 * y1 + x2 * y2 + x3 * y3) + x1 * y2 + x2 * y1 + x1 * y3 + x3 * y1 + x2 * y3 + x3 * y2);
