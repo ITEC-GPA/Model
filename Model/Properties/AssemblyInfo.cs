@@ -40,5 +40,3 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("FemModel")]
 
 [assembly: InternalsVisibleTo("GPC.Model.Persistence")]
-// The FE shear areas of the Converter join the regions of a section with the joiner of the torsion (SectionMeshJoiner), not a copy of it.
-[assembly: InternalsVisibleTo("GPC.Converter")]

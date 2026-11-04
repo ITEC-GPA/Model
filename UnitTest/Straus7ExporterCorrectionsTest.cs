@@ -10,6 +10,7 @@ using GPC.Model.Models;
 using GPC.Model.Restraints;
 using GPC.Model.Sections;
 using GPC.Model.Structure.Assignments;
+using SectionShearAreas = GPC.Model.Sections.SectionShearAreas;
 
 namespace UnitTest;
 

@@ -2,6 +2,7 @@ using GPC.Converter;
 using GPC.Converter.Straus7;
 using GPC.Geometry;
 using GPC.Model.Sections;
+using SectionShearAreas = GPC.Model.Sections.SectionShearAreas;
 
 namespace UnitTest;
 
@@ -113,10 +114,10 @@ public class ShearAreaPartsTest
     [TestMethod]
     public void L4_PartsAreCountedAsSeparateBodies()
     {
-        SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3, out int pair);
-        SectionShearAreas.Compute(SectionWelded.CruciformPlates(300, 300, 20), .3, out int cross);
-        SectionShearAreas.Compute(CoverPlated(), .3, out int plated);
-        SectionShearAreas.Compute(new SectionH(400, 10, 200, 15, 200, 15, "I"), .3, out int single);
+        int pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3).Bodies;
+        int cross = SectionShearAreas.Compute(SectionWelded.CruciformPlates(300, 300, 20), .3).Bodies;
+        int plated = SectionShearAreas.Compute(CoverPlated(), .3).Bodies;
+        int single = SectionShearAreas.Compute(new SectionH(400, 10, 200, 15, 200, 15, "I"), .3).Bodies;
         Assert.AreEqual(2, pair); Assert.AreEqual(1, cross); Assert.AreEqual(1, plated); Assert.AreEqual(1, single);
     }
 
@@ -205,7 +206,7 @@ public class ShearAreaPartsTest
             $"(sum {single[14] + single[15]:F1}, angle {single[5]:F4}, I11 {single[3]:E4}, I22 {single[4]:E4})");
         foreach (var c in cases)
         {
-            var gpc0 = SectionShearAreas.Compute(c.Section, 0, out int bodies); var gpc3 = SectionShearAreas.Compute(c.Section, .3);
+            var gpc0 = SectionShearAreas.Compute(c.Section, 0); int bodies = gpc0.Bodies; var gpc3 = SectionShearAreas.Compute(c.Section, .3);
             var (jv, jt) = SectionShearAreas.AnalysisMesh(c.Section); var joined = writer.NativeSectionMeshProperties(jv, jt);
             string separate = "-";
             if (c.Section is SectionBuiltUp built) { var (sv, sf) = SeparateMeshes(built); var p = writer.NativeSectionMeshProperties(sv, sf); separate = $"{p[14]:F1} / {p[15]:F1}"; }

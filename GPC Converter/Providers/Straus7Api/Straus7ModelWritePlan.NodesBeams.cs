@@ -319,7 +319,7 @@ namespace GPC.Converter.Straus7
                 System.Threading.Tasks.Parallel.ForEach(pending,item=>
                 {
                     var result=shearAreas[item.Key];
-                    try{var areas=SectionShearAreas.Compute(item.Value.Section,item.Value.Nu,out int bodies);result.Area1=areas.Area1;result.Area2=areas.Area2;result.Bodies=bodies;}
+                    try{var areas=global::GPC.Model.Sections.SectionShearAreas.Compute(item.Value.Section,item.Value.Nu);result.Area1=areas.Area1;result.Area2=areas.Area2;result.Bodies=areas.Bodies;}
                     catch(Exception error){result.Failure=System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error);}
                 });
             }
@@ -373,8 +373,8 @@ namespace GPC.Converter.Straus7
                     string key=ShearKey(section,material);
                     if(!shearAreas.TryGetValue(key,out var areas))
                     {
-                        areas=new ShearAreaResult();var computed=SectionShearAreas.Compute(section,material.Ni,out areas.Bodies);
-                        areas.Area1=computed.Area1;areas.Area2=computed.Area2;shearAreas.Add(key,areas);
+                        areas=new ShearAreaResult();var computed=global::GPC.Model.Sections.SectionShearAreas.Compute(section,material.Ni);
+                        areas.Area1=computed.Area1;areas.Area2=computed.Area2;areas.Bodies=computed.Bodies;shearAreas.Add(key,areas);
                     }
                     areas.Failure?.Throw();
                     shear1=areas.Area1;shear2=areas.Area2;
