@@ -266,6 +266,15 @@ namespace GPC.Converter.Straus7
                         return; // Explicit generic section properties have no geometric outline.
                     }
                     var vertices=new List<double[]>();var faces=new List<int[]>();
+                    // The parts of a welded section are one body: one conforming mesh, so that R31 computes its BXS properties and recovers the
+                    // stresses on the welded whole (review L6; before, parts on separate nodes: SA1 of a cruciform 13 % low). The parts of another
+                    // built-up section, connected at discrete points, stay on their own nodes.
+                    if(section is SectionWelded welded&&outlines.Count>1)
+                    {
+                        var conforming=welded.GetConformingMesh();
+                        foreach(var vertex in conforming.Vertices){var xyz=(double[])vertex.Clone();Finite(xyz);vertices.Add(xyz);}
+                        faces.AddRange(conforming.Triangles);outlines=Array.Empty<Shape2d>();
+                    }
                     foreach(var outline in outlines)
                     {
                         var mesh=new Section(outline).GetMesh(initialMeshOnly:true);

@@ -57,6 +57,141 @@ public class ReviewFixesL6Test
         Assert.IsTrue(pipe.Triangles > n && pipe.Triangles < 2 * n, pipe.ToString());
     }
 
+    /// <summary>A welded plate girder of three plates: bottom flange 800 × 40, web 1730 × 16, top flange 600 × 30 (a BridGHe girder).</summary>
+    internal static SectionWelded PlateGirder() => new SectionWelded(new[] {
+        new SectionBuiltUp.Part(new SectionRectangular(40, 800, "bottom flange"), -400, 0), new SectionBuiltUp.Part(new SectionRectangular(1730, 16, "web"), -8, 40),
+        new SectionBuiltUp.Part(new SectionRectangular(30, 600, "top flange"), -300, 1770) }, "welded girder");
+
+    /// <summary>The welded sections of the BXS checks: open and closed, plates of equal and different widths (T-junctions).</summary>
+    internal static (string Name, SectionWelded Section)[] WeldedSections() => new[] {
+        ("cruciform 317x263x13", SectionWelded.CruciformPlates(317, 263, 13, "cruciform")), ("cover plated I 400 + 300x20", ShearAreaPartsTest.CoverPlated()),
+        ("channel box 2 C 200x75", SectionWelded.ChannelBox(new SectionC(200, 8.5, 75, 11.5, 75, 11.5, "C 200 sharp"), "channel box")),
+        ("plate girder 1800", PlateGirder()) };
+
+    /// <summary>The BXS the writer sends for the section of a cantilever (elastic property: the BXS does not depend on the property type, and a
+    /// SteelSection does not take a generic polygon): vertices and faces of SetBeamSectionMesh.</summary>
+    private static (double[][] Vertices, int[][] Faces) SentBxs(ISectionShape section)
+    {
+        var model = Straus7ModelWriteTest.Cantilever();
+        model.BeamElements.Values.Single().BeamProperty = new GPC.Model.ElementProperties.ElasticBeamProperty("BXS", new GPC.Model.Materials.Material("E", 210000, .3, 0, 0), section);
+        var call = Straus7ExporterCorrectionsTest.Record(model).Named(nameof(GPC.Converter.Straus7.IStraus7SectionMeshWriteApi.SetBeamSectionMesh)).Single();
+        return ((double[][])call.Args[1]!, (int[][])call.Args[2]!);
+    }
+
+    /// <summary>The connected components of a triangulation (faces sharing a vertex) and the vertices lying strictly inside a side that only
+    /// one face uses (hanging nodes: the faces on the two sides of it are not connected along it).</summary>
+    private static (int Components, int Hanging) Topology(double[][] vertices, int[][] faces)
+    {
+        var parent = Enumerable.Range(0, vertices.Length).ToArray();
+        int Find(int i) { while (parent[i] != i) i = parent[i] = parent[parent[i]]; return i; }
+        foreach (var f in faces) for (int k = 1; k < f.Length; k++) parent[Find(f[k])] = Find(f[0]);
+        int components = faces.Select(f => Find(f[0])).Distinct().Count();
+        var uses = new Dictionary<(int, int), int>();
+        foreach (var f in faces) for (int k = 0; k < f.Length; k++) { int a = f[k], b = f[(k + 1) % f.Length]; var key = a < b ? (a, b) : (b, a); uses[key] = uses.TryGetValue(key, out int u) ? u + 1 : 1; }
+        double scale = vertices.Max(v => Math.Max(Math.Abs(v[0]), Math.Abs(v[1]))), tolerance = 1e-9 * scale; int hanging = 0;
+        foreach (var edge in uses.Where(e => e.Value == 1).Select(e => e.Key))
+        {
+            double[] p = vertices[edge.Item1], q = vertices[edge.Item2]; double ex = q[0] - p[0], ey = q[1] - p[1], length = Math.Sqrt(ex * ex + ey * ey);
+            for (int v = 0; v < vertices.Length; v++)
+            {
+                if (v == edge.Item1 || v == edge.Item2) continue;
+                double wx = vertices[v][0] - p[0], wy = vertices[v][1] - p[1], t = (wx * ex + wy * ey) / (length * length);
+                if (t * length > tolerance && (1 - t) * length > tolerance && Math.Abs(ex * wy - ey * wx) / length <= tolerance) hanging++;
+            }
+        }
+        return (components, hanging);
+    }
+
+    /// <summary>The BXS of the writer before L6: each outline meshed on its own (initial mesh), on separate nodes.</summary>
+    internal static (double[][] Vertices, int[][] Faces) PartsApart(IEnumerable<GPC.Geometry.Shape2d> outlines)
+    {
+        var vertices = new List<double[]>(); var faces = new List<int[]>();
+        foreach (var outline in outlines)
+        {
+            var mesh = new Section(outline).GetMesh(initialMeshOnly: true); var ids = new Dictionary<int, int>();
+            foreach (var v in mesh.Vertices) { ids.Add(v.Id, vertices.Count); vertices.Add(new[] { v.Point.X, v.Point.Y, v.Point.Z }); }
+            foreach (var face in mesh.Faces) faces.Add(mesh.GetFaceVertices(face).Select(v => ids[v.Id]).ToArray());
+        }
+        return (vertices.ToArray(), faces.ToArray());
+    }
+
+    [TestMethod]
+    public void L6_TheBxsOfAWeldedSectionIsOneConformingBody()
+    {
+        // Before: the parts of a welded section were meshed one by one on separate nodes, so R31 recovered the stresses of a disconnected
+        // cruciform (its own SA1 13 % low). Now the joined mesh of SectionWelded.GetConformingMesh: one body, no hanging node at the T-junctions.
+        foreach (var (name, welded) in WeldedSections())
+        {
+            var (vertices, faces) = SentBxs(welded);
+            var (components, hanging) = Topology(vertices, faces);
+            var apart = Topology(PartsApart(welded.GetOutlines()).Vertices, PartsApart(welded.GetOutlines()).Faces);
+            Console.WriteLine($"L6 BXS {name}: {vertices.Length} nodes, {faces.Length} faces, {components} component(s), {hanging} hanging; parts apart {apart.Components} components");
+            Assert.AreEqual(1, components, name); Assert.AreEqual(0, hanging, name);
+            Assert.IsTrue(apart.Components > 1, name + ": the old BXS had separate parts");
+            double area = faces.Sum(f => Math.Abs((vertices[f[1]][0] - vertices[f[0]][0]) * (vertices[f[2]][1] - vertices[f[0]][1]) - (vertices[f[2]][0] - vertices[f[0]][0]) * (vertices[f[1]][1] - vertices[f[0]][1])) / 2);
+            Assert.AreEqual(welded.Area, area, 1e-9 * welded.Area, name + " area of the BXS");
+        }
+        // Built-up sections connected at discrete points and single regions keep their BXS, value for value.
+        var pair = SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L");
+        foreach (var section in new ISectionShape[] { pair, new SectionL(100, 10, 100, 10, "L"), new SectionT(300, 10, 200, 15, "T") })
+        {
+            var (vertices, faces) = SentBxs(section);
+            var expected = PartsApart(section is SectionBuiltUp built ? built.GetOutlines() : new[] { section.Shape });
+            Assert.AreEqual(expected.Vertices.Length, vertices.Length, section.Name);
+            for (int i = 0; i < vertices.Length; i++) CollectionAssert.AreEqual(expected.Vertices[i], vertices[i], section.Name);
+            Assert.AreEqual(expected.Faces.Length, faces.Length, section.Name);
+            for (int i = 0; i < faces.Length; i++) CollectionAssert.AreEqual(expected.Faces[i], faces[i], section.Name);
+        }
+        Assert.AreEqual(2, Topology(SentBxs(pair).Vertices, SentBxs(pair).Faces).Components, "the double angle stays two bodies");
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void L6_NativeBxsOfWeldedSectionsGivesTheGpcProperties()
+    {
+        // What R31 computes on the BXS the writer sends (St7GenerateBXS: ipBXS Area 2, I11 3, I22 4, SA1 14, SA2 15, J 32), before (parts
+        // apart) and after (conforming mesh), against GPC: area and inertias exact, J of the joined FE torsion, SA at ν = 0 (R31 has no
+        // Poisson term). R31's axes may be swapped against GPC's: inertias and areas are compared as sorted pairs.
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder();
+        using var writer = new GPC.Converter.Straus7.Straus7NativeWriter(Path.Combine(folder, "bxs.st7"), folder);
+        foreach (var (name, welded) in WeldedSections())
+        {
+            var gpc = SectionShearAreas.Compute(welded, 0);
+            var (bv, bf) = PartsApart(welded.GetOutlines()); var before = writer.NativeSectionMeshProperties(bv, bf);
+            var (av, af) = SentBxs(welded); var after = writer.NativeSectionMeshProperties(av, af);
+            static double[] Pair(double a, double b) => new[] { a, b }.OrderBy(v => v).ToArray();
+            var inertia = Pair(welded.J11, welded.J22); var shear = Pair(gpc.Area1, gpc.Area2);
+            string Line(string label, double[] p) { var i = Pair(p[3], p[4]); var s = Pair(p[14], p[15]);
+                return $"{label}: A {p[2]:F1} ({p[2] / welded.Area - 1:P3}), I {i[1]:E5} / {i[0]:E5} ({i[1] / inertia[1] - 1:P3} / {i[0] / inertia[0] - 1:P3}), " +
+                    $"J {p[32]:E5} ({p[32] / welded.Jt - 1:P2}), SA {s[1]:F1} / {s[0]:F1} ({s[1] / shear[1] - 1:P2} / {s[0] / shear[0] - 1:P2})"; }
+            Console.WriteLine($"L6 native BXS {name}: GPC A {welded.Area:F1}, I {inertia[1]:E5} / {inertia[0]:E5}, J {welded.Jt:E5}, SA ν=0 {shear[1]:F1} / {shear[0]:F1}");
+            Console.WriteLine("L6 native BXS " + name + " " + Line("before (parts apart)", before));
+            Console.WriteLine("L6 native BXS " + name + " " + Line("after (conforming)", after));
+            Assert.AreEqual(welded.Area, after[2], 1e-6 * welded.Area, name + " A");
+            var ri = Pair(after[3], after[4]); Assert.AreEqual(inertia[1], ri[1], 1e-6 * inertia[1], name + " I11"); Assert.AreEqual(inertia[0], ri[0], 1e-6 * inertia[0], name + " I22");
+            Assert.AreEqual(welded.Jt, after[32], .03 * welded.Jt, name + " J");
+            var rs = Pair(after[14], after[15]); Assert.AreEqual(shear[1], rs[1], .02 * shear[1], name + " SA larger"); Assert.AreEqual(shear[0], rs[0], .02 * shear[0], name + " SA smaller");
+        }
+        // The disconnected cruciform of the old BXS: its smaller shear area 13 % low (L4); the conforming one within 2 %.
+        var cross = WeldedSections()[0].Section; var crossGpc = SectionShearAreas.Compute(cross, 0);
+        var old = writer.NativeSectionMeshProperties(PartsApart(cross.GetOutlines()).Vertices, PartsApart(cross.GetOutlines()).Faces);
+        Assert.IsTrue(Math.Min(old[14], old[15]) < .9 * Math.Min(crossGpc.Area1, crossGpc.Area2), "the old BXS was disconnected");
+        // Reference: the same geometry as one polygon, whose BXS the writer meshes as every single region (initial mesh, unchanged by L6).
+        foreach (var (name, outline) in new[] { ("cruciform 317x263x13 as one polygon", ShearAreaPartsTest.CrossOutline(317, 263, 13)), ("cover plated as one polygon", ShearAreaPartsTest.CoverPlatedOutline()) })
+        {
+            var (v, f) = SentBxs(outline); var p = writer.NativeSectionMeshProperties(v, f); var g = SectionShearAreas.Compute(outline, 0);
+            var s = new[] { p[14], p[15] }.OrderBy(x => x).ToArray(); var e = new[] { g.Area1, g.Area2 }.OrderBy(x => x).ToArray();
+            Console.WriteLine($"L6 native BXS {name}: {f.Length} faces; J {p[32]:E5} ({p[32] / outline.Jt - 1:P2} of GPC {outline.Jt:E5}), SA {s[1]:F1} / {s[0]:F1} ({s[1] / e[1] - 1:P2} / {s[0] / e[0] - 1:P2} of GPC {e[1]:F1} / {e[0]:F1})");
+        }
+        // Observation (reported, not a GPC rule): R31 merges coincident nodes of a BXS, so parts of a non-welded built-up section that touch
+        // vertex to vertex (backs of two angles in contact) are one body for its stress recovery, while GPC treats them as connected at points.
+        foreach (double gap in new[] { 0d, 10d })
+        {
+            var pair = SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), gap, "2L"); var (v, f) = SentBxs(pair); var p = writer.NativeSectionMeshProperties(v, f);
+            var g = SectionShearAreas.Compute(pair, 0);
+            Console.WriteLine($"L6 native BXS 2L 100x10 gap {gap} (not welded, parts apart): R31 J {p[32]:E5}, SA {p[14]:F1} / {p[15]:F1}; GPC J {pair.Jt:E5}, SA ν=0 {g.Area1:F1} / {g.Area2:F1} ({g.Bodies} bodies)");
+        }
+    }
+
     [TestMethod]
     public void L6_AGenericSectionFromAnOutlineNeedsNoPrecomputedProperties()
     {
