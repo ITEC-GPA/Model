@@ -99,4 +99,34 @@ public class Straus7SectionDefinitionTest
         Assert.AreEqual(ImportStatus.Completed,run.ImportResults(model,"BXS").Status);
         Assert.AreEqual(0,Directory.GetFiles(folder,"section-*.bxs").Length);
     }
+    [TestMethod,TestCategory("Straus7Native")]
+    public void SectionMeshIsADisplayTriangulationOfTheSectionAndLeavesNoFiles()
+    {
+        string folder=Folder();
+        static double Area(Straus7SectionMesh mesh)
+        {
+            var v=mesh.Vertices;double area=0;
+            foreach(var f in mesh.Faces)for(int k=1;k+1<f.Length;k++)
+                area+=((v[f[k]][0]-v[f[0]][0])*(v[f[k+1]][1]-v[f[0]][1])-(v[f[k+1]][0]-v[f[0]][0])*(v[f[k]][1]-v[f[0]][1]))/2;
+            return Math.Abs(area);
+        }
+        var rectangle=Straus7SectionLibrary.Mesh(Straus7SectionCatalog.Get("RectangleSolid").Create(new[]{20d,10}),folder);
+        Assert.AreEqual(200,Area(rectangle),1e-9);Assert.IsTrue(rectangle.Vertices.All(p=>p.Length==3&&p[2]==0));
+        Assert.AreEqual(200,rectangle.Section.ReferenceProperties[0],1e-9);
+        var input=Straus7SectionCatalog.Get("CircularHollow").Create(new[]{100d,10});
+        var resolved=Straus7SectionLibrary.Resolve(input,folder);
+        var tube=Straus7SectionLibrary.Mesh(input,folder,6);
+        // Properties read before the display discretisation: those of Resolve.
+        CollectionAssert.AreEqual(resolved.ReferenceProperties,tube.Section.ReferenceProperties);
+        Assert.IsTrue(Straus7SectionLibrary.Mesh(resolved,folder,6).Faces.Length==tube.Faces.Length);
+        // A coarse display polygon: within 3 % of the exact area that stays the analysis value.
+        Assert.AreEqual(resolved.ReferenceProperties[0],Area(tube),.03*resolved.ReferenceProperties[0]);
+        string library,item;
+        using(var api=new Straus7NativeApi()){var entry=api.SectionLibraryCatalog(false).First(p=>p.Value.Length!=0);library=entry.Key;item=entry.Value[0];}
+        var fromLibrary=Straus7SectionLibrary.MeshLibrary(false,library,item,folder);
+        CollectionAssert.AreEqual(Straus7SectionLibrary.ResolveLibrary(false,library,item,folder).ReferenceProperties,fromLibrary.Section.ReferenceProperties);
+        Assert.AreEqual(fromLibrary.Section.ReferenceProperties[0],Area(fromLibrary),.03*fromLibrary.Section.ReferenceProperties[0]);
+        Assert.AreEqual(0,Directory.GetFiles(folder).Length);
+        Assert.ThrowsException<ArgumentOutOfRangeException>(()=>Straus7SectionLibrary.Mesh(resolved,folder,-1));
+    }
 }
