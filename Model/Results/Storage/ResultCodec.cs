@@ -168,6 +168,10 @@ namespace GPC.Model.Results.Storage
         private sealed class Shape
         {
             internal Type Type; internal ShapeKind Kind; internal Member[] Members; internal Dictionary<string, Member> ByName;
+            /// <summary>The names of <see cref="Members"/>, in order (the layout the writer gives every object of the type).</summary>
+            internal string[] Names;
+            /// <summary>Geometry leaves: the names and values their GetObjectData gives, without it (see <see cref="Leaf"/>).</summary>
+            internal string[] LeafNames; internal Func<object, object[]> LeafValues;
             internal ConstructorInfo Constructor; internal bool Geometry;
             internal MethodInfo[] OnSerializing, OnSerialized, OnDeserializing, OnDeserialized;
         }
@@ -241,6 +245,7 @@ namespace GPC.Model.Results.Storage
             {
                 shape.Kind = t.GetCustomAttribute<DataContractAttribute>(false) != null ? ShapeKind.DataContract : ShapeKind.Serializable;
                 shape.Members = DeclaredMembers(t).ToArray(); shape.ByName = shape.Members.ToDictionary(m => m.Name, StringComparer.Ordinal);
+                shape.Names = shape.Members.Select(m => m.Name).ToArray();
             }
             else throw new ResultEncodingException("UnsupportedResultValue: " + t.FullName, false);
             MethodInfo[] Callbacks(Type attribute)
@@ -253,8 +258,36 @@ namespace GPC.Model.Results.Storage
             }
             shape.OnSerializing = Callbacks(typeof(OnSerializingAttribute)); shape.OnSerialized = Callbacks(typeof(OnSerializedAttribute));
             shape.OnDeserializing = Callbacks(typeof(OnDeserializingAttribute)); shape.OnDeserialized = Callbacks(typeof(OnDeserializedAttribute));
+            // The sealed geometry leaves (every coordinate system of a result holds five) are written without a SerializationInfo:
+            // the coordinates, under the names their GetObjectData gives, checked here on a sample (lane L9).
+            if (t == typeof(global::GPC.Geometry.Point3d))
+                Leaf(shape, new global::GPC.Geometry.Point3d(1.5, -2.25, 3.125), new[] { "X", "Y", "Z" }, v => { var p = (global::GPC.Geometry.Point3d)v; var guid = p.Guid; return new object[] { p.X, p.Y, p.Z }; });
+            else if (t == typeof(global::GPC.Geometry.Vector3d))
+                Leaf(shape, new global::GPC.Geometry.Vector3d(1.5, -2.25, 3.125), new[] { "X", "Y", "Z" }, v => { var p = (global::GPC.Geometry.Vector3d)v; var guid = p.Guid; return new object[] { p.X, p.Y, p.Z }; });
+            else if (t == typeof(global::GPC.Geometry.Point2d))
+                Leaf(shape, new global::GPC.Geometry.Point2d(1.5, -2.25), new[] { "X", "Y" }, v => { var p = (global::GPC.Geometry.Point2d)v; var guid = p.Guid; return new object[] { p.X, p.Y }; });
+            else if (t == typeof(global::GPC.Geometry.Vector2d))
+                Leaf(shape, new global::GPC.Geometry.Vector2d(1.5, -2.25), new[] { "X", "Y" }, v => { var p = (global::GPC.Geometry.Vector2d)v; var guid = p.Guid; return new object[] { p.X, p.Y }; });
             return shape;
         });
+
+        /// <summary>Uses <paramref name="values"/> for the objects of the shape when the contract of <paramref name="sample"/> is exactly
+        /// those names and values (GUID aside, as for every geometry) and the type has no writer callbacks; otherwise the shape keeps
+        /// the SerializationInfo.</summary>
+        private static void Leaf(Shape shape, object sample, string[] names, Func<object, object[]> values)
+        {
+            if (!shape.Geometry || shape.Kind != ShapeKind.Custom || !shape.Type.IsSealed || shape.OnSerializing.Length != 0 || shape.OnSerialized.Length != 0) return;
+            var info = new SerializationInfo(shape.Type, Converter);
+            ((ISerializable)sample).GetObjectData(info, Context);
+            if (info.ObjectType != shape.Type) return;
+            var entries = new List<SerializationEntry>();
+            foreach (SerializationEntry e in info) if (e.Name != "Guid") entries.Add(e);
+            var expected = values(sample);
+            if (entries.Count != names.Length) return;
+            for (int i = 0; i < names.Length; i++)
+                if (entries[i].Name != names[i] || !(entries[i].Value is double d) || !(expected[i] is double x) || BitConverter.DoubleToInt64Bits(d) != BitConverter.DoubleToInt64Bits(x)) return;
+            shape.LeafNames = names; shape.LeafValues = values;
+        }
 
         // Model objects that belong to the results (lists, samples, values); the entities of the model are never copied into them.
         private static bool IsResultObject(Type type) => type.Namespace != null && (type.Namespace == "GPC.Model.Results" || type.Namespace.StartsWith("GPC.Model.Results.", StringComparison.Ordinal));
@@ -296,7 +329,9 @@ namespace GPC.Model.Results.Storage
 
         private sealed class Writer
         {
-            private readonly MemoryStream _stream = new MemoryStream();
+            // A segment of the results of one element is a few KB: one buffer of that size instead of six doublings from 256 bytes.
+            private readonly MemoryStream _stream = new MemoryStream(4096);
+            private byte[] _text = new byte[256];
             private readonly BinaryWriter _out;
             private readonly ResultCaseTable _cases;
             private readonly Dictionary<object, int> _objects = new Dictionary<object, int>(ResultIdentity.Instance);
@@ -324,7 +359,11 @@ namespace GPC.Model.Results.Storage
             private void String(string value)
             {
                 if (_strings.TryGetValue(value, out int index)) { VarUInt(index + 1); return; }
-                VarUInt(0); var bytes = Encoding.UTF8.GetBytes(value); VarUInt(bytes.Length); _out.Write(bytes);
+                // The UTF-8 bytes of the string, through one buffer of the writer (the same bytes as Encoding.UTF8.GetBytes)
+                int length = Encoding.UTF8.GetByteCount(value);
+                if (length > _text.Length) _text = new byte[Math.Max(length, 2 * _text.Length)];
+                Encoding.UTF8.GetBytes(value, 0, value.Length, _text, 0);
+                VarUInt(0); VarUInt(length); _out.Write(_text, 0, length);
                 _strings.Add(value, _strings.Count);
             }
 
@@ -399,18 +438,23 @@ namespace GPC.Model.Results.Storage
                 var shape = ShapeOf(type);
                 Invoke(shape.OnSerializing, value);
                 string[] names; object[] values;
-                if (shape.Kind == ShapeKind.Custom)
+                // The same names and values as before, in the same order, without the intermediate lists (lane L9: the compaction of
+                // the results of a form finding allocated some 40 KB per element for 3 KB of codec bytes).
+                if (shape.LeafValues != null) { names = shape.LeafNames; values = shape.LeafValues(value); }
+                else if (shape.Kind == ShapeKind.Custom)
                 {
                     var info = new SerializationInfo(type, Converter);
                     ((ISerializable)value).GetObjectData(info, Context);
                     if (info.ObjectType != type) throw new ResultEncodingException("SerializationTypeChange: " + type.FullName, false);
-                    var entries = new List<SerializationEntry>(info.MemberCount);
-                    foreach (SerializationEntry e in info) if (!(shape.Geometry && e.Name == "Guid")) entries.Add(e);
-                    names = entries.Select(e => e.Name).ToArray(); values = entries.Select(e => e.Value).ToArray();
+                    names = new string[info.MemberCount]; values = new object[info.MemberCount];
+                    int n = 0;
+                    foreach (SerializationEntry e in info) if (!(shape.Geometry && e.Name == "Guid")) { names[n] = e.Name; values[n++] = e.Value; }
+                    if (n != names.Length) { Array.Resize(ref names, n); Array.Resize(ref values, n); }
                 }
                 else
                 {
-                    names = shape.Members.Select(m => m.Name).ToArray(); values = shape.Members.Select(m => m.Get(value)).ToArray();
+                    names = shape.Names; values = new object[names.Length];
+                    for (int i = 0; i < values.Length; i++) values[i] = shape.Members[i].Get(value);
                 }
                 Write(Tag.Object); Layout(type, names);
                 foreach (var v in values) Value(v);
