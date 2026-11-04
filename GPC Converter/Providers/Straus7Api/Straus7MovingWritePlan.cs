@@ -129,6 +129,7 @@ namespace GPC.Converter.Straus7
             {
                 var path=copy.Paths[pathIndex]; var template=path.Template;
                 if(!loadCaseIds.TryGetValue(path.CaseGuid,out int loadCase)) throw new ArgumentException("MissingStrausMovingCaseIdentity");
+                RequireCentrifugalInPathAxes(template);
                 int set=0;
                 if(path.Target==MovingPathTarget.Selection)
                 {
@@ -195,6 +196,26 @@ namespace GPC.Converter.Straus7
                 int pathId=pathIndex+1; ops.Add(a=>a.SetMovingPath(pathId,(int[])pathFlags.Clone(),(double[])coordinates.Clone(),toStatic)); convert|=toStatic;
             }
             return new Straus7MovingWritePlan(model.Guid,model.AnalysisFingerprint(),templates.Count,copy.Paths.Count,convert,advanced,ops);
+        }
+
+        /// <summary>R31 applies no centrifugal force to a moving force in global axes, even with its centrifugal flag set: checked natively
+        /// (review L4/L6, ReviewFixesL6Test), for point and distributed forces. Written as it is, the GPC model would lose its centrifugal force
+        /// without a trace, so the export is rejected (StrausCentrifugalForceRequiresPathAxes): give the force in path axes.
+        /// <para>Path axes in R31 (pinned by the native test L6_NativePathAxesFollowTheReferencePoint): x along the path from Start to End,
+        /// z = unit(x × (Reference − Start)) normal to the plane of the three points, y = z × x, in the plane on the side of the Reference.
+        /// So the "vertical" of the path depends on the side of the reference point: for a path in the XY plane with Z up, a gravity force
+        /// (0, 0, −F) in path axes acts downwards only with the reference point on the left of the direction of travel (seen from +Z); with it
+        /// on the right (for Start (0,0,0), End (1000,0,0) a reference at −Y) the force acts upwards.</para></summary>
+        private static void RequireCentrifugalInPathAxes(MovingLoadTemplate template)
+        {
+            foreach(var vehicle in template.Vehicles)
+            {
+                bool point=vehicle.PointForces.Any(f=>f.ApplyCentrifugal==true&&f.Axes==MovingLoadAxes.Global);
+                bool distributed=vehicle.DistributedForces.Any(f=>f.ApplyCentrifugal==true&&f.Axes==MovingLoadAxes.Global);
+                if(point||distributed)
+                    throw new NotSupportedException("StrausCentrifugalForceRequiresPathAxes: "+template.Name+" / "+vehicle.Name+" has a "+(point?"point":"distributed")+
+                        " force in global axes with ApplyCentrifugal; R31 applies no centrifugal force to it (use MovingLoadAxes.Path).");
+            }
         }
         public IReadOnlyDictionary<int,string> Write(IStraus7MovingWriteApi api,global::GPC.Model.Models.Model currentInput)
         {

@@ -109,6 +109,49 @@ namespace GPC.Model.Sections
             SectionTorsion.Calculate(GetOutlines().Select(o => new TorsionRegion(o)).ToArray(), meshSize);
 
         /// <summary>
+        /// The parts meshed one by one and joined into one conforming triangulation, as the torsion and the shear areas join them (review L6,
+        /// 4/11/2026): the coincident vertices are merged and a vertex of a part on a side of another one splits that triangle, so a solver that
+        /// computes its own properties or stresses on this mesh (the BXS of the Straus7 writer) sees the welded parts as one body. Each part
+        /// is the initial mesh of its outline (only the points of its boundary, divided by the default size: half the smaller side of the
+        /// part), the mesh the writer sends for every other section with an outline
+        /// </summary>
+        /// <returns>The vertices (X, Y, 0) in the coordinates of the section, mm, and the triangles (zero-based, counterclockwise)</returns>
+        /// <exception cref="ArgumentException">If the mesh of a part is empty</exception>
+        public (double[][] Vertices, int[][] Triangles) GetConformingMesh()
+        {
+            var outlines = GetOutlines();
+            var meshes = outlines.Select(o => new Section(o).GetMesh(initialMeshOnly: true)).ToArray();
+            if (meshes.Any(m => m == null || m.Faces.Count == 0))
+                throw new ArgumentException("EmptySectionMesh: " + Name);
+            // Length scale of the joining: the smallest default size of the parts (search cells), 1e-7 of it to merge or split.
+            double spacing = outlines.Select(o => { var size = o.Get2dBoundingBox().Size; return Math.Min(size.X, size.Y) / 2; }).Where(s => s > 0).DefaultIfEmpty(1).Min();
+            var x = new List<double>();
+            var y = new List<double>();
+            var triangles = new List<int[]>();
+            SectionMeshJoiner.Join(meshes, true, spacing, x, y, triangles);
+            var index = new Dictionary<int, int>();
+            var vertices = new List<double[]>();
+            var result = new List<int[]>(triangles.Count);
+            foreach (int[] t in triangles)
+            {
+                double doubleArea = (x[t[1]] - x[t[0]]) * (y[t[2]] - y[t[0]]) - (x[t[2]] - x[t[0]]) * (y[t[1]] - y[t[0]]);
+                if (Math.Abs(doubleArea) <= 1e-14 * spacing * spacing)
+                    continue;
+                int[] face = doubleArea > 0 ? t : new[] { t[0], t[2], t[1] };
+                result.Add(face.Select(i =>
+                {
+                    if (!index.TryGetValue(i, out int j))
+                    {
+                        index.Add(i, j = vertices.Count);
+                        vertices.Add(new[] { x[i], y[i], 0.0 });
+                    }
+                    return j;
+                }).ToArray());
+            }
+            return (vertices.ToArray(), result.ToArray());
+        }
+
+        /// <summary>
         /// The torsion constant, the warping constant and the shear centre are computed with the finite elements at the first access
         /// </summary>
         private protected override bool SolvesTorsionNumerically => true;

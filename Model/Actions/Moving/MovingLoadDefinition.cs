@@ -6,7 +6,19 @@ using GPC.Geometry;
 
 namespace GPC.Model.Actions.Moving
 {
-    public enum MovingLoadAxes { Path, Global }
+    /// <summary>The axes of the components of a moving force.</summary>
+    public enum MovingLoadAxes
+    {
+        /// <summary>The axes of the path: x along the path from <see cref="MovingLoadPath.Start"/> to <see cref="MovingLoadPath.End"/>,
+        /// y in the plane of Start, End and <see cref="MovingLoadPath.Reference"/>, towards the side of the reference point, z = x × y
+        /// (= unit(x × (Reference − Start))). The "vertical" of the path therefore depends on the side of the reference point: for a path in the
+        /// XY plane with Z up, a gravity force (0, 0, −F) acts downwards only with the reference point on the left of the direction of travel
+        /// (seen from +Z); on the right it acts upwards. Checked natively on Straus7 R31 (review L6, ReviewFixesL6Test). Required for a
+        /// centrifugal force: R31 applies none to a force in global axes, and the Straus7 writer rejects that combination.</summary>
+        Path,
+        /// <summary>The global axes of the model, whatever the path.</summary>
+        Global,
+    }
     public enum MovingPointMobility { Grouped, Floating }
     public enum MovingDistributionMobility { Grouped, Leading, Trailing, FullLength, Floating }
     public enum MovingVehiclePlacement { SingleLane, AdjacentLanePair }
