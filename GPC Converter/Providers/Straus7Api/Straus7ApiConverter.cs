@@ -315,7 +315,9 @@ namespace GPC.Converter.Straus7
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 if (!Active(Straus7Entity.Beam, b, c)) continue;
-                                Add(api.ReadBeamForces(b, c, perBeam.TryGetValue(b,out var minimum)?minimum:stations), Straus7Entity.Beam, b, c, "BeamForceGlobal");
+                                int minimumStations=perBeam.TryGetValue(b,out var minimum)?minimum:stations;
+                                var beamTable=api.ReadBeamForces(b, c, minimumStations); if(beamTable!=null)beamTable.MinimumStations=minimumStations;
+                                Add(beamTable, Straus7Entity.Beam, b, c, "BeamForceGlobal");
                                 if (request.IncludeElementNodeForces)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();

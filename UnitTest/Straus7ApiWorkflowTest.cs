@@ -145,6 +145,54 @@ public partial class Straus7ApiWorkflowTest
         if (fault == "result-mismatch") Assert.IsFalse(api.Lifecycle.Contains("open-results"));
     }
 
+    /// <summary>A beam force table of the synthetic fixture with extra rows: each (position, values) row of six native values.</summary>
+    private static void SetBeamRows(Straus7ResultsReport native, params (double Position, double[] Values)[] rows)
+    {
+        var table = native.Tables.Single(t => t.Entity == Straus7Entity.Beam);
+        table.Rows = rows.Length; table.Positions = rows.Select(r => r.Position).ToArray(); table.Values = rows.SelectMany(r => r.Values).ToArray();
+    }
+    private static double[] Row(double force, double moment) => new[] { force, moment, force, moment, force, moment };
+
+    [TestMethod]
+    public void ResultDependentStationWithinRoundoffOfARegularOrLoadStationIsMergedIntoIt()
+    {
+        var converter = new Straus7ApiConverter(() => new SyntheticApi()); var imported = converter.Import(Request()); Partial(imported);
+        var model = imported.Model; var beam = model.BeamElements.Values.Single(); double length = beam.Length;
+        Assert.AreEqual(3, converter.ReadResults(ResultsRequest()).Tables.Single(t => t.Entity == Straus7Entity.Beam).MinimumStations, "requested minimum stations recorded");
+        // Snap tolerance max(1e-3 mm, L 1e-6); an extremum at half of it from the end, the load pair at 0.25 -/+ 1e-6 with an extremum 1e-5 mm after its
+        // left side (the case of example 50), all with values equal to their fixed station (the moment within V times the distance; native kN, m).
+        double tolerance = Math.Max(1e-3, length * 1e-6) / length, load = .25, extremum = load - 1e-6 + 1e-5 / length;
+        var native = converter.ReadResults(ResultsRequest());
+        SetBeamRows(native, (0, Row(-10, -40)), (load - 1e-6, Row(-10, -40)), (extremum, Row(-10, -40 - 10 * 1e-8)), (load + 1e-6, Row(20, -40)),
+            (.5, Row(20, -40)), (1 - tolerance / 2, Row(20, -40)), (1, Row(20, -40)));
+        var result = Straus7LinearStaticResults.Import(model, native, "snapped", CaseMap, isSynthetic: true);
+        Assert.AreEqual(ImportStatus.Completed, result.Status, string.Join(";", result.Diagnostics.Select(d => d.Message)));
+        var stations = Verification.BeamSamples(beam, "snapped", "Case 1: G").Select(x => x.ParametricDistance).ToArray();
+        CollectionAssert.AreEqual(new[] { 0, load - 1e-6, load + 1e-6, .5, 1 }, stations, "the regular and load stations keep their location");
+        var diagnostic = result.Diagnostics.Single(d => d.Code == Straus7LinearStaticResults.StationSnapCode);
+        Assert.AreEqual(GPC.Model.Core.Diagnostics.DiagnosticSeverity.Information, diagnostic.Severity); StringAssert.StartsWith(diagnostic.Message, "2 ");
+        // Beyond the tolerance a result-dependent station is a station of its own.
+        native = converter.ReadResults(ResultsRequest());
+        SetBeamRows(native, (0, Row(-10, -40)), (.5, Row(-10, -40)), (1 - 2 * tolerance, Row(-10, -40)), (1, Row(-10, -40)));
+        imported = converter.Import(Request()); model = imported.Model; beam = model.BeamElements.Values.Single();
+        result = Straus7LinearStaticResults.Import(model, native, "kept", CaseMap, isSynthetic: true);
+        Assert.AreEqual(ImportStatus.Completed, result.Status); Assert.AreEqual(4, Verification.BeamSamples(beam, "kept", "Case 1: G").Count);
+        Assert.IsFalse(result.Diagnostics.Any(d => d.Code == Straus7LinearStaticResults.StationSnapCode));
+    }
+
+    [TestMethod]
+    public void StationsWithinRoundoffWithDifferentValuesAreRejected()
+    {
+        var converter = new Straus7ApiConverter(() => new SyntheticApi()); var imported = converter.Import(Request()); Partial(imported);
+        var model = imported.Model; double length = model.BeamElements.Values.Single().Length, tolerance = Math.Max(1e-3, length * 1e-6) / length;
+        var native = converter.ReadResults(ResultsRequest());
+        // A force jump within the snap tolerance of the end: not roundoff, a load at the end that needs an explicit side.
+        SetBeamRows(native, (0, Row(-10, -40)), (.5, Row(-10, -40)), (1 - tolerance / 2, Row(-10, -40)), (1, Row(90, -40)));
+        var result = Straus7LinearStaticResults.Import(model, native, "rejected-snap", CaseMap, isSynthetic: true);
+        Assert.AreEqual(ImportStatus.Rejected, result.Status);
+        StringAssert.Contains(result.Diagnostics.Single().Message, "Straus7ResultStationSnapValuesDisagree");
+    }
+
     [TestMethod]
     public void StaticNormalization_ConvertsCutBodyVectorsUnitsAndPlateTensor_ThenPersists()
     {

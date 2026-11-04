@@ -104,6 +104,51 @@ namespace GPC.Converter.Straus7
         /// state given by the profile, registration through <see cref="ResultMapper"/>. In a staged case (stage &gt; 0) element tables may come from elements born
         /// up to that stage, and node tables are kept for the nodes of the elements with results in the case or with a nonzero value: a node outside the
         /// active structure is not given a zero result.</summary>
+        /// <summary>The information diagnostic counting the merged result-dependent stations (<see cref="SnapStations"/>).</summary>
+        public const string StationSnapCode = "Straus7ResultStationsSnapped";
+        /// <summary>The snap tolerance of <see cref="SnapStations"/>.</summary>
+        public const string StationSnapRule = "max(1e-3 mm, L 1e-6)";
+
+        /// <summary>The rows of a beam force table that are kept. St7GetBeamResultArray returns the regular stations i / (n - 1) of the requested
+        /// minimum n, a pair of stations at each concentrated load (the load position ∓ 1e-6 of the length, the two sides of the jump) and
+        /// result-dependent stations (extrema). A result-dependent station can fall within roundoff of a regular or load station (an extremum
+        /// at the jump of a concentrated load, 1e-5 mm from its side station): two samples at one physical station that consumers cannot tell
+        /// apart. Such a station is merged into the regular or load station when they are closer than max(1e-3 mm, L 1e-6) — half the
+        /// spacing of a load pair, so the two sides of a jump are never merged — and their values agree: forces within 1e-9 of the largest
+        /// force of the table (+ 1e-9), moments within the largest force times the distance (dM/dx = V) plus 1e-9 of the largest moment;
+        /// otherwise the import throws Straus7ResultStationSnapValuesDisagree. The regular or load station keeps its location.</summary>
+        internal static bool[] SnapStations(Straus7ResultTable table, double lengthMm, double lengthToMm, ref int snapped)
+        {
+            int rows = table.Rows; var keep = Enumerable.Repeat(true, rows).ToArray(); var p = table.Positions;
+            if (rows < 2 || !(lengthMm > 0)) return keep;
+            double tolerance = Math.Max(1e-3, lengthMm * 1e-6) / lengthMm; // parametric
+            int n = table.MinimumStations;
+            bool Regular(int i) => n >= 2 && Math.Abs(p[i] * (n - 1) - Math.Round(p[i] * (n - 1))) <= 1e-9;
+            // The two sides of a concentrated load are 2e-6 of the length apart.
+            bool LoadSide(int i) => Enumerable.Range(0, rows).Any(j => j != i && Math.Abs(Math.Abs(p[j] - p[i]) - 2e-6) <= 1e-9);
+            bool Fixed(int i) => Regular(i) || LoadSide(i);
+            double forceScale = 0, momentScale = 0; var v = table.Values;
+            for (int i = 0; i < rows; i++) for (int k = 0; k < 3; k++)
+            { forceScale = Math.Max(forceScale, Math.Abs(v[6 * i + 2 * k])); momentScale = Math.Max(momentScale, Math.Abs(v[6 * i + 2 * k + 1])); }
+            for (int i = 0; i + 1 < rows; i++)
+            {
+                if (!keep[i] || p[i + 1] - p[i] > tolerance) continue;
+                bool fixedI = Fixed(i), fixedJ = Fixed(i + 1);
+                if (fixedI == fixedJ) continue; // two regular/load stations, or two extrema: both kept
+                int drop = fixedI ? i + 1 : i, stay = fixedI ? i : i + 1;
+                double distance = (p[i + 1] - p[i]) * lengthMm / lengthToMm; // native length units, as the moments
+                for (int k = 0; k < 3; k++)
+                {
+                    double df = Math.Abs(v[6 * drop + 2 * k] - v[6 * stay + 2 * k]), dm = Math.Abs(v[6 * drop + 2 * k + 1] - v[6 * stay + 2 * k + 1]);
+                    if (df > 1e-9 * forceScale + 1e-9 || dm > forceScale * distance + 1e-9 * momentScale + 1e-9)
+                        throw new InvalidDataException("Straus7ResultStationSnapValuesDisagree: beam " + table.Number + ", case " + table.CaseNumber + ", stations "
+                            + p[stay].ToString("R", System.Globalization.CultureInfo.InvariantCulture) + " and " + p[drop].ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                }
+                keep[drop] = false; snapped++;
+            }
+            return keep;
+        }
+
         internal static ResultImportReport Normalize(GPC.Model.Models.Model model, Straus7ResultsReport native, string datasetId, Func<Straus7ResultCase, string> caseOf,
             Func<Straus7ResultCase, int, ResultState> stateOf, AnalysisSemantics semantics, string readerVersion, bool isSynthetic, CancellationToken cancellationToken,
             SolverIdentityMap exportIdentities=null, AnalysisSource exportSource=null)
@@ -141,7 +186,7 @@ namespace GPC.Converter.Straus7
                     if (owner is BeamElement b) { set.Add(SourceId(b.NodeI)); set.Add(SourceId(b.NodeJ)); }
                     else if (owner is AreaElement a) foreach (var n in a.Nodes) set.Add(SourceId(n));
                 }
-                var keys = new HashSet<string>();
+                var keys = new HashSet<string>(); int snapped = 0;
                 foreach (var table in native.Tables)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -194,6 +239,7 @@ namespace GPC.Converter.Straus7
                     else if (table.Entity == Straus7Entity.Beam && table.Quantity == "BeamForceGlobal")
                     {
                         var beam = (BeamElement)element; var axes = beam.Assignments.SectionAxes; Axes.Validate(axes);
+                        var keep = SnapStations(table, beam.Length, units.LengthToMm, ref snapped);
                         if (table.BeamShearCentreOffsetGlobal != null)
                             Straus7ApiConverter.Finite(table.BeamShearCentreOffsetGlobal, 3, "Beam shear centre offset");
                         Straus7ApiConverter.Finite(table.Positions, table.Rows, "Beam stations");
@@ -202,6 +248,7 @@ namespace GPC.Converter.Straus7
                             throw new NotSupportedException("Ambiguous beam stations/discontinuity sides require an explicit profile; they cannot be merged or averaged.");
                         for (int row = 0; row < table.Rows; row++)
                         {
+                            if (!keep[row]) continue;
                             int at = row * 6; var v = table.Values;
                             var force = new Vector3d(-v[at], -v[at + 2], -v[at + 4]);
                             var moment = new Vector3d(-v[at + 1], -v[at + 3], -v[at + 5]);
@@ -277,6 +324,8 @@ namespace GPC.Converter.Straus7
                 var result = ResultMapper.Import(model, batch, cancellationToken);
                 if (result.Status == ImportStatus.Completed || result.Status == ImportStatus.Partial) model.PreservedSourceData.AddRange(evidence);
                 if (changed != null) result.Diagnostics.Add(changed);
+                if (snapped != 0) result.Diagnostics.Add(new ModelDiagnostic { Code = StationSnapCode, Severity = DiagnosticSeverity.Information, Dataset = datasetId,
+                    Message = snapped + " result-dependent beam stations merged into a regular or load station within " + StationSnapRule + " (values equal within the snap check)." });
                 return result;
             }
             catch (OperationCanceledException) { rejected.Status = ImportStatus.Cancelled; }
