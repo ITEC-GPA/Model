@@ -1,4 +1,6 @@
 {
+  "supersededBy": "f8-mappatura-tipi.json",
+  "supersededNote": "Superata il 4/11/2026 (F8, finding 0.2 di CORREZIONI.md). Questa matrice è una classificazione scritta prima di F6: in ogni campo meaning coincide con destination, identity è la stessa frase per i 2.309 campi e molte prove sono solo un rinvio al piano. Le destinazioni vere, con la prova nel codice, sono in f8-mappatura-tipi.json. Il resto di questo file è lasciato come era, come documento storico.",
   "schema": 2,
   "sourceInventory": "f2-inventario.json",
   "typeCount": 295,

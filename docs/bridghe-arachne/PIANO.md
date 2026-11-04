@@ -1,5 +1,70 @@
 # Migrazione comune BridGHe e Arachne a GPCModel
 
+## Aggiornamento del 4 novembre 2026 (F8)
+
+Questa sezione dice che cosa è cambiato rispetto al piano qui sotto e quali decisioni ha preso l'utente. Il testo del piano dopo questa sezione è quello concordato il 2 novembre, scritto da ChatGPT, e resta com'era.
+
+Stato reale per fase: [STATO.md](STATO.md). Ogni finding della revisione del 3/11, con stato, commit e prova: [CORREZIONI.md](../../../revisione-claude-20261103/CORREZIONI.md), in `C:\Users\g.pacini\Documents\Repository\gpc-unification-20261102\revisione-claude-20261103`.
+
+### Che cosa è cambiato rispetto al piano
+
+- **Chi lavora.** ChatGPT si è fermato il 3/11 alle 22:01, su richiesta dell'utente, con F6 incompleta. Claude ha rivisto il lavoro (`REVISIONE.md`), ha corretto tutti i finding e prosegue con F6, F7 e F8.
+- **F5.** La matrice `f5-matrice-revisione.json` era una classificazione, non un'implementazione (finding 0.2). È segnata come superata. La mappatura per tipo, con la prova nel codice, è in [f8-mappatura-tipi.json](f8-mappatura-tipi.json).
+- **F6, modelli FeMM.** Il piano prevedeva involucri intorno agli oggetti GPC. Ora i modelli FeMM si tolgono del tutto da BridGHe e Arachne. GUID e porte dei componenti restano invariati.
+- **F6, ordine in BridGHe.** Prima `GH_Model` e la fase (c), cioè analisi, risultati, verifiche e carichi mobili su GPC. Poi le fasi (a) e (b), i tipi GH. Si usa il lettore legacy già verificato su 50 e 99. Nessun convertitore temporaneo da GPC a FeMM.
+- **F6, lettore NRBF.** ChatGPT aveva aggiunto un lettore NRBF per i vecchi payload. È tolto, con `System.Formats.Nrbf`. I vecchi payload sono rifiutati con un messaggio.
+- **F3, salvataggio.** `GPC.Archive` vale per tutti, anche per ANTHEA, al posto della sua copia. Nel piano l'adattatore ANTHEA era opzionale.
+- **Formato compatto.** L5 ha introdotto `ModelArchive` v6, `ModelValueArchive` v2 e i sidecar a parti da 16 MiB. ANTHEA passa al formato compatto con la 1.19.0.
+- **Risultati nei file accanto.** Arachne: `<documento>.<InstanceGuid>.gpc-results` accanto al `.gh`. BridGHe: `<output>.bghr` (formato `BGHR2`) accanto al `.st7`, come fa master 0.3.0.
+- **Copie.** Le copie dei dati GH condividono le proprietà immutabili e i sistemi di riferimento (L9). Il modello resta una copia vera, quindi Duplicate resta più lento di master.
+- **Versioni.** I numeri dati sul branch in F2–F6 erano provvisori. F7a ha dato numeri nuovi; F8 li rifà sul set ufficiale. Regola del 12/10: fix → ultima componente, altro → seconda.
+- **Differenze nei risultati.** Alcune differenze sono approvate dall'utente: aree a taglio, G, Ecm, travi composte e altre. L'elenco è in [F6-CONCLUSIONE.md](F6-CONCLUSIONE.md).
+- **Rilascio.** «Tutto insieme», dopo la fine di BridGHe (vedi sotto e STATO.md).
+
+### Decisioni dell'utente
+
+3/11 sera:
+- tutti i finding di `REVISIONE.md` sono giusti e vanno corretti;
+- togliere del tutto i modelli FeMM da BridGHe e Arachne, mantenendo GUID e porte dei componenti;
+- writer Straus7: pannelli a taglio con G = E/2(1+ν); rigidezze delle travi dai valori GPC, con le aree a taglio calcolate da GPC;
+- togliere il lettore NRBF, con `System.Formats.Nrbf`;
+- `GPC.Archive` per tutti, ANTHEA compreso, ottimizzato;
+- tutto resta sul branch; a fine lavori si prova il merge su master; prima di push o installazioni si chiede.
+
+4/11 mattina:
+- aree a taglio di De Saint Venant con ν = 0 («seguirei la scienza delle costruzioni»);
+- parti separate che si inflettono insieme: la regola va bene;
+- travi composte: aree a taglio dalla sezione omogeneizzata, ν = 0, con l'n della proprietà;
+- Arachne: massa in IPS a scelta di Claude (libbra-massa coerente); via i vecchi test (da 171 a 162); Cable e Fixed Axial Force possono convivere, come in master;
+- BridGHe: M2, Ecm di GPC al posto degli E tabellati; M3, G = E/2(1+ν) anche nella torsione della griglia di soletta; M1, M4 e O1 a scelta di Claude.
+
+4/11 giorno:
+- ANTHEA passa al formato compatto dalla prossima versione minore; legge sempre i file vecchi; le versioni vecchie danno un messaggio chiaro;
+- proprietà immutabili condivise tra le copie GH; il modello resta una copia vera;
+- risultati nel file accanto.
+
+4/11 pomeriggio:
+- «A fine fase di correzioni unisci i vari rami. Riportiamo tutto il lavoro ad un repo pulito»;
+- sistemi di riferimento condivisi nelle copie: sì, con una prova che restino invariati;
+- cattura congelata `cattura-mainwindow` di ANTHEA: aggiornarla;
+- sezioni di ANTHEA 1.18 convertite al primo salvataggio: tenerla così;
+- ANTHEA con un archivio in uso da un altro programma: lasciarlo com'è (il salvataggio si ferma);
+- sezioni composte non saldate a contatto: separare i nodi nel writer;
+- offset centrifugo: GPC resta in N per veicolo e il writer converte;
+- leggi centrifughe che dipendono dal raggio: restano `AdapterDefined`;
+- `LineLoad.GetGlobalForces`: correggerlo;
+- D3 preparato una volta: «falli».
+
+4/11 sera, rilascio:
+- «Tutto insieme»: si aspetta la fine di BridGHe, poi il set ufficiale da master, ANTHEA 1.19.0 con la sua full, BridGHe 0.4.0, Arachne e ReBear sullo stesso set;
+- «Sì, push e pubblica»: se tutte le prove passano, push, tag, installer, bin dei plugin ricostruiti con Rhino chiuso e copia sul server X:, di notte se possibile, con il contenuto vecchio in una cartella da eliminare;
+- installer di ANTHEA anche in `\\STORAGESARZANA\Varie\20 - AGGIORNAMENTI_SOFTWARE\Anthea`, con il precedente spostato in `_SUPERATI`;
+- da ricostruire solo BridGHe, Arachne e ReBear.
+
+Il ritorno alla versione precedente è descritto in [RITORNO-VERSIONE-PRECEDENTE.md](RITORNO-VERSIONE-PRECEDENTE.md).
+
+---
+
 Piano concordato il 2 novembre 2026. Avvio autorizzato nella chat con richiesta di branch separato.
 
 Ordine operativo aggiornato su richiesta dell'utente: F1, F2, F3 e F4 in coda. F4 è stata poi avviata e completata il 3 novembre 2026 nel perimetro documentato in [F4-PILOTI.md](F4-PILOTI.md), con [evidenze di verifica](F4-VERIFICHE.md).

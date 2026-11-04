@@ -1,77 +1,205 @@
 # Stato della migrazione comune
 
-Aggiornamento del 3 novembre 2026. AttivitÃ  avviata su richiesta dell'utente; piano in [PIANO.md](PIANO.md).
+Aggiornamento del 4 novembre 2026, sera (F8). Sostituisce lo stato scritto da ChatGPT il 3 novembre.
 
-## Stato effettivo
+Fonti, nella cartella `C:\Users\g.pacini\Documents\Repository\gpc-unification-20261102\revisione-claude-20261103`:
+- [RIPRESA.md](../../../revisione-claude-20261103/RIPRESA.md): decisioni dell'utente, commit integrati e gate. È la fonte più recente;
+- [CORREZIONI.md](../../../revisione-claude-20261103/CORREZIONI.md): ogni finding della revisione del 3/11, con stato, commit e prova;
+- le note delle corsie `correzioni-*.md` (L1–L7, L9, L10, P2A, P2B, F7a).
 
-**F5 completata; F6 in corso, F7–F8 in coda.** [Avanzamento F6](F6-AVANZAMENTO.md). [Conclusione e vincoli per F6](F5-CONCLUSIONE.md), [evidenze finali](f5-conclusione-evidenze.json). La matrice copre **295 tipi e 2.309 campi, zero voci aperte**, con inventario sorgente invariato rispetto a F2. **Model 1.952 PASS, 7 esclusioni; Checker 10.382 PASS, 1 esclusione**; zero fallimenti, API e audit superati. Versioni Model **5.46.0.0**, Persistence **3.12.0.0**, Converter **2.18.0.0**, Checker.CompositeBridge **1.26.0.0**. Branch separato; nessun rilascio. La migrazione dei componenti di produzione rimane F6.
+I collegamenti relativi valgono nel workspace `gpc-unification-20261102`. Il piano è in [PIANO.md](PIANO.md).
 
-Checkpoint storico dell'exporter: [F5-EXPORTER.md](F5-EXPORTER.md), Model **1.868 PASS**, 12 esclusioni preesistenti; Checker **10.377 PASS**, un'esclusione preesistente; API e audit superati. Questi conteggi descrivono il checkpoint precedente, il nuovo set è verificato separatamente sopra.
+Altri documenti di F8:
+- [F6-CONCLUSIONE.md](F6-CONCLUSIONE.md): che cosa ha dato F6, per corsia, e le differenze nei risultati approvate;
+- [F7-PRESTAZIONI.md](F7-PRESTAZIONI.md): tempi prima e dopo, master contro F6;
+- [RITORNO-VERSIONE-PRECEDENTE.md](RITORNO-VERSIONE-PRECEDENTE.md): come si torna alla versione precedente;
+- [f8-mappatura-tipi.json](f8-mappatura-tipi.json): dove sta oggi ogni tipo dei vecchi modelli. Sostituisce la matrice F5.
 
-Checkpoint precedente: [F5-AVANZAMENTO.md](F5-AVANZAMENTO.md), [matrice aggiornata](f5-destinazioni-parziali.json), [evidenze storiche](f5-evidenze.json).
+## In breve
 
-F0–F4 completate nei rispettivi perimetri. F4: [piloti e contratti](F4-PILOTI.md), [verifiche](F4-VERIFICHE.md), [evidenze](f4-evidenze.json). GPCModel 5.40.0.0 e GPC.Model.Persistence 3.6.0.0; GPC.Archive resta 1.0.0.0. Due varianti ponte e quattro casi membrana, con calcolo, sidecar e riapertura anche in processi distinti. Model 1.779 PASS e 12 ignorati preesistenti; Checker 10.361 PASS. Le build predefinite dei plugin sono state ripristinate e verificate. A quel checkpoint non era ancora iniziata F5. La migrazione estesa dei componenti e il rilascio restano F6–F8.
-
-F1: [baseline](F1-BASELINE.md), [evidenze](f1-evidenze.json). F2: [contratti](F2-CONTRATTI.md), [verifiche](F2-VERIFICHE.md). F3: [persistenza](F3-PERSISTENZA.md), [verifiche](F3-VERIFICHE.md). L’adattatore ANTHEA rimane opt-in; adozione predefinita e snapshot restano F7/F8.
-
-Target copia F2: mediane 0,125 s su .NET 8 e 0,289 s su .NET Framework nel protocollo F1. Non Ã¨ un limite massimo per ogni chiamata: su Framework la prima copia Ã¨ 0,360 s e il massimo a caldo 0,304 s. Model: 1.737 test superati, 12 ignorati preesistenti. Checker: 10.361 superati. API e audit superati, fixture e attesi invariati.
-
-Le sessioni Codex visibili pertinenti erano inattive; la conclusione della precedente sessione Claude non Ã¨ attestabile da questi strumenti. La nuova autorizzazione della chat consente la preparazione e le verifiche nei worktree separati. Non assumere che una versione compilata equivalga a una release coordinata completata.
-
-## Branch e provenienza
-
-Branch `codex/gpc-unification-20261102` in sei repository indipendenti:
-
-| Repository | Commit iniziale | Note |
+| Fase | Fatto | Resta |
 |---|---|---|
-| Model | `2f934f9fe48ebfff0b06a98de5ccff7bdea43ea4` | GPCModel 5.38.0.0; ultima origin/master dopo fetch |
-| Checker | `6156e4ce00975b0774d172ea681e24377bfb3c9f` | Ricompilazione per GPCModel 5.38.0.0 |
-| BridGHe | `e7f650df3f8f052f80e930175898e72d1480b081` | Baseline con set pubblicato GPCModel 5.37.0.2 |
-| Arachne | `7b1108dbe083a55af41dc5d2f2f710d9cfcab3ef` | Baseline net48, 0.3.0-rc.7 |
-| tensilelib | `5e2576534f62ecca17d120430e3c29110a5e3de2` | Sorgenti separati; baseline usa DLL 2.5.0.1 catturata |
-| ANTHEA | `c4f68c5e69a88b4b0a13891fe2bd02db6afe7537` | Baseline selettiva con il suo set di librerie fissate; sorgente della persistenza F3 |
+| F0 | Workspace isolato `gpc-unification-20261102`, branch `codex/gpc-unification-20261102` | — |
+| F1 | Riferimenti congelati di BridGHe (esempi 50 e 99) e di Arachne | — |
+| F2 | Contratti, copie, assemblaggio | — |
+| F3 | Persistenza condivisa (`GPC.Archive`, `ExternalModelArchive`) | — |
+| F4 | Piloti ponte e membrana | — |
+| F5 | Dominio esteso, writer Straus7 nel Converter | La matrice F5 era una classificazione (finding 0.2). Ora è superata da `f8-mappatura-tipi.json` |
+| F6 | Librerie corrette (L1–L7, L9, L10). Arachne senza modelli FeMM | **BridGHe in corso**: prossimo passo C5 |
+| F7 | Set candidato, ANTHEA 1.19.0, ReBear sul set, tabelle dei tempi | Va rifatto sul set ufficiale in F8 |
+| F8 | Questa documentazione. Piano di rilascio deciso dall'utente | Tutto il rilascio, dopo la fine di BridGHe |
 
-Geometry e Utilities sono worktree detached su commit fissati. Le DLL corrispondono agli SHA-256 richiesti da Model. I branch di lavoro non hanno upstream sul master remoto. Non Ã¨ stato eseguito alcun merge o push.
+Nessun push, tag, installer o installazione è stato fatto per questo lavoro. Tutto sta sui branch.
 
-Il manifest [baseline-manifest.json](baseline-manifest.json) registra sette revisioni, dodici input e sei dipendenze. Il file `workspace.json` nella radice del workspace collega piano, stato, manifest e artefatti.
+## F1–F5 (ChatGPT, fino al 3/11)
 
-Il GHX REV003 modificato nel checkout principale di BridGHe Ã¨ stato lasciato intatto. La baseline catturata proviene dal file versionato del worktree (4.904.830 byte), non dal file dell'utente contenente risultati salvati.
+ChatGPT ha fatto F1–F5 e quattro incrementi di F6 per Arachne. L'utente lo ha fermato il 3/11 alle 22:01 ([F6-AVANZAMENTO.md](F6-AVANZAMENTO.md), «Arresto»).
 
-Durante i controlli finali il master principale di BridGHe Ã¨ risultato avanzato, per attivitÃ  esterna a questa chat, al commit locale `be9bb0b` (messaggio `minor`, 2 novembre 22:11). La sola differenza rispetto a `e7f650d` Ã¨ il GHX REV003, cresciuto da 4.904.830 a 886.961.214 byte; il master risulta un commit avanti al remoto. Il branch isolato resta fissato alla versione pubblicata `e7f650d`. Prima delle catture native distinguere eventuali differenze degli input da quelle dovute ai risultati memorizzati; non incorporare automaticamente il file grande nÃ© modificare il commit dell'utente.
+Claude ha rivisto il lavoro la sera del 3/11 (`REVISIONE.md`). L'utente ha confermato tutti i finding. CORREZIONI.md conta 50 righe: 44 corrette, 2 ritirate (A5, L4-8), 3 in corso, 1 aperta.
 
-## Verifiche effettivamente eseguite
+L'unica riga aperta era la 0.2: la matrice F5 `f5-matrice-revisione.json`. In quella matrice:
+- `meaning` coincide con la destinazione in ogni campo;
+- `identity` è la stessa frase per tutti i 2.309 campi;
+- molte prove sono solo un rinvio al piano.
 
-| Verifica | Esito |
-|---|---|
-| Build BridGHe Release e Smoke | PASS, zero errori e zero avvisi |
-| Audit contratti BridGHe | PASS, 152 file, 229 GUID, zero anomalie |
-| BridGHe Smoke `--core-only` | 269 PASS |
-| Build Arachne e ARAP | PASS; 54 test ARAP, zero fallimenti |
-| Arachne headless | 153 PASS: inventario 66, form-finding 38, patterning 43, reti 6 |
-| Model.Core.Tests | 63 PASS |
-| Model UnitTest | 1.628 PASS, 12 ignorati, zero fallimenti |
-| Model.NetFramework.Tests | 4 PASS |
-| Model API e audit uguaglianza | PASS; `build/Verify.ps1` completato con exit code 0 |
+In F8 la matrice è segnata come superata (campi `supersededBy` e `supersededNote` in testa). La mappatura vera è in [f8-mappatura-tipi.json](f8-mappatura-tipi.json):
+- 295 tipi, ognuno con la prova nel codice;
+- 231 mappati, 4 respinti dal lettore legacy di BridGHe, 60 non risolti;
+- i tipi respinti e non risolti sono tutti di BridGHe. Sono tipi che il lettore legacy rifiuta o non porta ancora in GPC (proprietà composte, stati di sezione), oppure tipi del plugin che usano ancora i modelli FeMM. P2B li deve ancora migrare.
 
-Dettagli, inclusi i test ignorati, in [verifiche-iniziali.json](verifiche-iniziali.json). I test ignorati non sono considerati superati nÃ© copertura delle analisi native.
+## F6 — migrazione dei plugin
 
-Log e TRX: `../../../artifacts/f1` rispetto a questa cartella. Principali file: `bridghe-build.log`, `bridghe-smoke-build.log`, `bridghe-contracts.json`, `bridghe-core.log`, `arachne-build-arap-verified.log`, `arachne-headless.log`, `model-verify-complete.log`, cartella `model-tests-complete`.
+### Librerie: finite e integrate
 
-## Problemi dell'ambiente risolti
+| Corsia | Che cosa | Commit principali |
+|---|---|---|
+| L1 | Dominio GPCModel: B1–B7, B9, A4 | Model `604f7067`, `d0ef70f5`, `dd8c70fb`, `64d61197`, `0eecc914`, `7101a045`, `ea705553`, `aeb2ef79` |
+| L2 | Writer Straus7 del Converter: C1–C7, B4, B8 | Model `3997b165`, `bada6d7b`, `1933f3e6`, `681805b9`, `0e499aad`, `a8574694`, `3ae686ab` |
+| L3 | `GPC.Archive` per blocchi, D3 del Checker, ANTHEA su `GPC.Archive` | Model `62508fef`; Checker `66bb2441`; ANTHEA `8be298a6` |
+| L4 | Revisione indipendente di P1: 10 finding | Model `3901d338`, `67dfe57b`, `7b472811`; Checker `9a4c3f85`; ANTHEA `a0c13df4` |
+| L5 | Formato compatto e prestazioni di Arachne | Model `e31af9e1`, `c12ef42f`, `aebb23dd`; Arachne `4c942a6`, `94a31f6`, `34f8d65` |
+| L6 | API pubblica delle aree a taglio a ν = 0, BXS conforme delle sezioni saldate | Model `fed32f3c`, `405b73e2` |
+| L7 | Blocco di `Super Element Check` | BridGHe `442733c` |
+| L9 | Proprietà e sistemi di riferimento condivisi nelle copie, `LineLoad.GetGlobalForces`, writer riusati | Model `9735e5ab`, `1ab5ac64`, `df660262`, `3312b802`, `9b7f26aa`, `9a91a9b9`; Arachne `6a2deef`, `57f0fd7`, `611a3d8` |
+| L10 | Decisioni 5, 6 e 9 dell'utente | Model `f3ee8807`, `ec99b709`; Checker `d85a9fda` |
 
-- Il primo build record di Arachne non conteneva il commit a causa della diversa proprietÃ  Windows dei worktree. Risolto con `safe.directory` limitato al processo; build e test ripetuti, commit del record verificato. Non modificata la configurazione Git globale.
-- La prima esecuzione di Model Verify si Ã¨ fermata alla compilazione UnitTest per il wrapper GMsh mancante nel checkout fratello. Aggiunta una copia della sola DLL managed, con hash verificato e destinazione riservata ai test; la suite completa successiva Ã¨ riuscita. Gmsh non Ã¨ stato aggiunto ai riferimenti di produzione o al set rilasciabile.
+Il dettaglio per corsia è in [F6-CONCLUSIONE.md](F6-CONCLUSIONE.md).
 
-## Gate F4 e seguito
+### Arachne: finita
 
-Baseline conclusa: vedere il rapporto F1 per copertura, misure, esclusioni e tentativi scartati. I dati iniziali sopra restano il resoconto storico della preparazione.
+- Corsia P2A (Arachne `321b6d0`), poi L5 e L9.
+- `Arachne.Common/Models` è tolto: 32 file FeMM. I data type GH portano oggetti GPC.
+- GUID e porte dei componenti sono invariati: inventario 66/66.
+- Il lettore NRBF è tolto. I vecchi payload sono rifiutati con un messaggio.
+- I risultati del Form Find stanno nel file accanto `<documento>.<InstanceGuid>.gpc-results`.
+- `Arachne.Compare` contro master `39c54a2`: 31 scenari identici bit per bit, 1 diverso per decisione (massa in IPS).
+- Il master di Arachne (`39c54a2`) è già unito nel branch (`b50cddb`). Il branch è 26 commit avanti e 0 indietro.
 
-F3 conclusa nello strato di persistenza: 1.765 test Model PASS, 12 ignorati preesistenti; 10.361 Checker PASS; ANTHEA prima/dopo e configurazione predefinita PASS per le due suite selezionate. Recupero incrociato .NET 8/Framework con valori binari identici; riferimento 457 byte, autosave invariato circa 14-15 ms di mediana nel probe (20.000 campioni).
+### BridGHe: in corso
 
-F4 avviata e conclusa il 3 novembre 2026 su richiesta esplicita dell’utente. Il perimetro transitorio e le esclusioni sono dichiarati nel rapporto F4: exporter Straus7 ancora nel backend BridGHe, preprocessore Arachne riutilizzato all’ingresso, componenti di produzione da migrare in F6. F5 è stata successivamente completata; vedere il rapporto finale sopra.
+Corsia P2B, cartella `gpc-f6-claude/P2B`, branch `claude/f6-bridghe`, testa `f142705`. Note in `correzioni-P2B.md`.
 
-Checkpoint F1: Model `4134bd1a`, BridGHe `2b2c4b3`, Arachne `63b9516`. Le modifiche F2 appartengono al solo repository Model; Checker Ã¨ stato ricompilato e verificato senza modifiche ai suoi sorgenti. Nessuna integrazione nei checkout principali.
+Fatto:
+- passi 0–5: analisi, export e sezioni native passano dal writer del Converter;
+- passo 7: tolti il binding St7API e il vecchio exporter. Nel plugin non c'è più nessun `DllImport`;
+- passi 8–9: aree a taglio a ν = 0 e travi composte omogeneizzate (E13);
+- passo 10: C5 nel confronto offline. D3 riproduce le verifiche di BridGHe: 99 con 2.808/2.808 righe, 50 con 66.960/66.960 righe identiche bit per bit;
+- passo 13: C1a, C2 e C3 primo passo (`GH_Model.Gpc`);
+- passi 16–17: **C4 e C3 finiti** (`029a40f`, `f142705`):
+  - i componenti Results leggono i dati GPC, uguali bit per bit ai risultati FEM su 01–10, 99 e 50;
+  - la giuntura copia `GpcInput` invece di riconvertire il modello FEM;
+  - corretto un difetto di unità introdotto in F6 per le definizioni non Nmm;
+  - risultati delle analisi in `<output>.bghr` (formato `BGHR2`) accanto al `.st7`, come master 0.3.0.
 
-ANTHEA aggiunta al workspace al commit c4f68c5e, sullo stesso branch separato; ModelWorkspace.Checks e Application.Tests superati con le sue librerie fissate. ReBear è stato successivamente individuato in `Repository/ConcreteSectionChecker`; il checkout principale non è stato modificato.
+Resta:
+1. **C5** (prossimo): `BridgeWorkflowExecutor.Prepare` in `Super Element Check`, un piano per workflow;
+2. C6: carichi mobili e utilità sui risultati GPC;
+3. fasi (a) e (b): tipi GH su GPC, con E10 (Ecm) ed E11 (G nella griglia di soletta);
+4. rimozione dei modelli FeMM (`BridGHe.Common/Models`, 55 file) e della giuntura `FemmAnalysisSeam`;
+5. merge di master (`87175b7`, `d7e4092`, `95ab7c3`), con i conflitti elencati al passo 12 di P2B;
+6. versione almeno 0.4.0 (master è 0.3.0).
 
-Checkpoint F2: Model `7e08ddc8`. F3 comprende Model (contenitore/API e test), ANTHEA (adattatore opt-in e registro differenze), Checker (inclusione della nuova DLL nel futuro set di rilascio). Tutte le modifiche restano nei worktree isolati; nessun merge o push.
+I tipi GH portano ancora i modelli FeMM. La conversione verso GPC la fa il lettore legacy (`src/BridGHe.Common/Gpc/Legacy`).
+
+## F7 — integrazione
+
+Corsia F7a, cartella `gpc-f6-claude/F7`. Note in `correzioni-F7a.md`.
+
+### Set candidato
+
+- Cartella `gpc-f6-claude\F7\sets\gpc-candidate-20261104-f7a`. 15 DLL uguali al manifest. Nessuna DLL di gmsh.
+- Prodotto con `Release-Set.ps1 -Candidate` da Model `4375e7a5` e Checker `5f6e4e44` (branch `claude/f7-set`).
+- Versioni: GPCModel 5.49.0.0, GPC.Model.Persistence 3.14.0.0, GPC.Archive 1.2.0.0, GPC.Converter 2.19.0.0, GPCChecker.CompositeBridge 1.27.0.0, GPCModelChecker 2.39.0.0.
+- **Il set è vecchio**: non contiene L9, L10 e il lavoro di libreria di P2B. Le versioni di F7a non sono in codex. F8 le rifà (almeno GPCModel 5.50.0.0).
+
+### ANTHEA 1.19.0
+
+- Branch codex di ANTHEA, testa `86a72f1b`. Commit: `31c5c5cb` (sezioni c.a. nel formato compatto, documento versione 5), `18d96c67` (numero 1.19.0), `566b2983` (cattura `cattura-mainwindow` aggiornata, con l'ok dell'utente).
+- origin/main è unito fino a `131f3738` (merge `e5ee8553`, registro `86a72f1b`). Restano da unire 3 commit di origin/main: `0c82e812`, `b222c9dc` (solo prove) e `4f38cffb`.
+- Sezioni 5–27 volte più piccole. Esempio: `progetto-1.18.0.programma` da 531 a 65 kB.
+- La 1.18.0 vera apre un file della 1.19 con sezioni compatte e dice «Formato o versione del file non supportati.».
+- `lib/Checker` contiene ancora il set candidato F7a (`ae62a4f3`).
+
+### ReBear
+
+- Branch `claude/f7-rebear`, commit `63a78f4`, sopra master `f2df907`. Solo `lib/GPC` dal set candidato, motore negli esempi, README.
+- `build/Verify.ps1 -AllowCandidate` 41/41; `build/Examples.ps1` 20/20.
+
+### Stesso processo Rhino
+
+I tre plugin caricano oggi build diverse. BridGHe (P2B) e Arachne caricano due GPCModel pilota 5.48.0.0 con SHA-256 diversi. Nello stesso Rhino la prima DLL caricata vale per tutti. F8 deve mettere i tre plugin sullo stesso set.
+
+### Tempi
+
+Le tabelle sono in [F7-PRESTAZIONI.md](F7-PRESTAZIONI.md). In sintesi:
+- Arachne: costruzione, salvataggio e apertura sono più veloci di master. Form Find a 60.000 nodi è alla pari con master.
+- Arachne: restano più lenti Duplicate, Force Density e Form Find a 10.000 nodi (+1–2 s), su .NET Framework.
+- BridGHe, esempio 50: D3 con il piano preparato una volta passa, nel ciclo C5 in Rhino, da 1.202 a 223 s.
+
+## F8 — documentazione e rilascio
+
+### Piano di rilascio deciso dall'utente (4/11 sera)
+
+**«Tutto insieme».** Si aspetta la fine di BridGHe. Poi, in quest'ordine:
+1. set ufficiale delle librerie da master:
+   - versioni nuove sopra quelle di F7a (almeno GPCModel 5.50.0.0);
+   - `Release-Set.ps1` senza `-Candidate`, con `-Previous` uguale al `release-set.json` di AU;
+2. ANTHEA 1.19.0 con il set ufficiale e il profilo full;
+3. BridGHe 0.4.0, Arachne e ReBear sullo stesso set;
+4. se tutte le prove passano («Sì, push e pubblica»):
+   - push e tag;
+   - installer di ANTHEA;
+   - bin dei plugin ricostruiti con Rhino chiuso;
+   - copia sul server `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN\<plugin>`, di notte se possibile, con il contenuto vecchio in una cartella da eliminare;
+5. installer di ANTHEA anche in `\\STORAGESARZANA\Varie\20 - AGGIORNAMENTI_SOFTWARE\Anthea`, con la 1.18.0 spostata in `_SUPERATI`.
+
+Plugin da ricostruire: BridGHe, Arachne e ReBear. Rhino2FEM, Pawper, Ant e Meerkat non usano Model né Checker, e Geometry e Utilities non cambiano: per loro non serve una versione nuova.
+
+### Altri passi di F8
+
+- Costruire il set da un checkout pulito. Gli a capo LF dei file di codex Model sono solo nel working tree; l'indice è normale.
+- Ricostruire `GPC.Archive` dal commit finale (SourceLink) prima del set.
+- Registrare il set ufficiale in ANTHEA (`tests/fixtures/f4/library-release.json`): la prova di provenienza F4 di `Architecture.Tests` passa solo con un set ufficiale.
+- Provare il merge su master in ogni repository e provare i pacchetti in un ambiente pulito.
+- Dopo i merge, ricostruire i bin che Rhino carica.
+- Chiedere all'utente prima di push o installazioni, salvo quanto già autorizzato sopra.
+
+## Commit integrati, per repository
+
+Branch `codex/gpc-unification-20261102`, worktree in `gpc-unification-20261102/<repo>`.
+
+| Repository | Testa | Contro master | Integrazioni (prima linea del branch) |
+|---|---|---|---|
+| Model | `9a91a9b9` | 92 avanti, 0 indietro rispetto a origin/master | `2a03aebc` L1, `270b9a4c` L2, `e54300b9` L3, `8c5cf519` L2 secondo giro, `8234b7d1`, `cc050bec` P2A, `d9c4db78` L4, `938508b2` L6, `b19dbe9d` L5, `9735e5ab` … `3312b802` L9, `e031e161` P2B, `91bdbadb`, `b2bf3d54` (con `f0fc9cb9`: L9 secondo giro e L10), `9a91a9b9` L9 quinto giro |
+| Checker | `cc9dbb16` | 15 avanti, 0 indietro | `a1e93191` L3, `c8cc0468` L4, `b829ff40` P2B (D3 `31670ac8`, `109d3b71`), `cc9dbb16` L10 |
+| ANTHEA | `86a72f1b` | 15 avanti, 3 indietro rispetto a origin/main | `f31f5672` L3, `6fb72d56` L4, `ae62a4f3`, `31c5c5cb`, `18d96c67` F7a, `566b2983`, `e5ee8553` merge di origin/main, `86a72f1b` |
+| Arachne | `611a3d8` | 26 avanti, 0 indietro rispetto a master `39c54a2` | `3992879` P2A, `40e074d` L5, `6a2deef` … `6f3931d` L9, `b50cddb` merge di master, `611a3d8` |
+| tensilelib | `5e25765` | invariato | — |
+| BridGHe | `a0dbd4d` (WIP di ChatGPT) | — | Nessuna: il lavoro è su `claude/f6-bridghe` (`f142705`, 28 commit sopra `a0dbd4d`), da integrare a fine P2B |
+| ReBear | — | — | `63a78f4` su `claude/f7-rebear`, nel workspace F7 |
+| Model e Checker, versioni F7a | — | — | `4375e7a5` e `5f6e4e44` su `claude/f7-set`, non in codex |
+
+## Gate più recenti
+
+| Dove | Commit | Esito |
+|---|---|---|
+| Model, `build/Verify.ps1` nativo (`int-13`) | codex `9a91a9b9` | 63 + 1.929 + 135 PASS, 7 ignorati come sempre |
+| Checker, `Verify.ps1 -Suites all` (`int-10` … `int-13`) | codex `cc9dbb16` su Model codex | 10.397 PASS (CompositeBridge 455), API senza rimozioni |
+| Arachne | `611a3d8` | headless 164, ARAP 54, `Arachne.Compare` 31 + 1 |
+| ANTHEA | `86a72f1b` | `ANTHEA.Projects.Checks` 22, `Application.Tests` 3.517, `ModelWorkspace.Checks` 731; profilo standard 56/57 (solo il NEW-FAIL atteso F4); UI 72/73, poi `ui/check-contrast` da sola PASS |
+| BridGHe | `f142705` (Checker pilota `cc9dbb16`) | `--core-only` 269, `--regression all` 85 (fallisce solo `gpc-release-set`, atteso), `--core-only --native` 392, `--examples all` 10/10, `--moving-load-tests --native` PASS, `--gpc-results-native` 16, 99 PASS (2.808 righe, impronta `EB5A1500`), 50 PASS (66.960 righe, impronta `F0B6964B`) |
+| ReBear | `63a78f4` | 41/41, esempi 20/20 (set candidato F7a) |
+| Set candidato F7a | Model `4375e7a5`, Checker `5f6e4e44` | Model nativo 63 + 1.901 + 128; Checker 10.390 |
+
+Note sui gate:
+- `int-12` ha avuto 3 fallimenti `St7Init -8`: la chiave USB era stata tolta. Con la chiave (`int-13`) tutto passa.
+- In `int-13` la prova `L6_NativePathAxesFollowTheReferencePoint` ha impiegato 4.943 s invece di 18–20 s, poi è passata. La causa probabile è un blocco di tutta la macchina dalle 18:54. Se si ripete va indagato.
+- I log sono in `gpc-f6-claude/INT/results`.
+
+## Che cosa non è ancora verificato
+
+- BridGHe dopo C5, C6 e le fasi (a)/(b): numeri, `.gh` con i contratti GPC, prestazioni.
+- Il salvataggio del `.gh` dell'esempio 50 con il formato finale: è misurato solo il formato attuale (23,06 MB).
+- I tempi di Arachne in Rhino 8 su .NET 8. Tutte le misure di Arachne sono su .NET Framework.
+- Il set ufficiale, il profilo full di ANTHEA e la prova in un ambiente pulito: si fanno in F8.
+- Le domande ancora aperte sono in CORREZIONI.md, «Domande aperte».

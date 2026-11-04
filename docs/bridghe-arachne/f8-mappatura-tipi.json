@@ -1,0 +1,3698 @@
+{
+  "schema": 1,
+  "titolo": "Mappatura per tipo dei modelli di BridGHe, Arachne e TensileLib verso GPC (F8)",
+  "data": "2026-11-04",
+  "sostituisce": "f5-matrice-revisione.json",
+  "livello": "tipo",
+  "motivo": "La matrice F5 era una classificazione: in ogni campo `meaning` era uguale alla destinazione, `identity` era la stessa frase per tutti i 2.309 campi e molte prove erano solo un rinvio al piano («production replacement remains F6»). Finding 0.2 della revisione del 3/11 (CORREZIONI.md). Questo file dice dove sta oggi ogni tipo, con la prova nel codice.",
+  "riferimenti": {
+    "Arachne": "codex/gpc-unification-20261102 a 611a3d8 (Arachne.Common/Models tolto in 321b6d0)",
+    "BridGHe": "claude/f6-bridghe a f142705 (P2B, in corso: i tipi GH portano ancora i modelli FeMM; la conversione verso GPC la fa il lettore legacy in src/BridGHe.Common/Gpc)",
+    "tensilelib": "5e25765 (TensileLib 2.5.0.1, invariato)",
+    "Model": "codex/gpc-unification-20261102 a 9a91a9b9",
+    "Checker": "codex/gpc-unification-20261102 a cc9dbb16"
+  },
+  "stati": {
+    "sostituito": "Arachne: il tipo FeMM è tolto; il ruolo lo ha l'oggetto GPC indicato, usato dai componenti.",
+    "rimosso-senza-uso": "Arachne: tipo tolto che master non usava fuori da Models; nessuna destinazione serve.",
+    "conservato-nel-solutore": "TensileLib: tipo interno del solutore, invariato per piano.",
+    "convertito-dal-lettore": "BridGHe: il tipo FeMM esiste ancora nel plugin; il lettore legacy (o la giuntura per i risultati) lo converte nell'oggetto GPC indicato. Sparisce con le fasi (a)/(b).",
+    "conservato-nel-plugin": "BridGHe: resta nel plugin e non cita i modelli FeMM.",
+    "rifiutato-dal-lettore": "BridGHe: il lettore lo rifiuta con un codice esplicito; nessuna destinazione oggi.",
+    "nel-tipo-padre": "Tipo annidato (enum o dati): segue il tipo padre; nessuna mappatura per campo verificata.",
+    "non-risolto": "Nessuna destinazione GPC nel codice di oggi, oppure non tracciabile: vedi la nota."
+  },
+  "esiti": {
+    "mappato": "La destinazione è tracciata nel codice, oppure il tipo resta per piano nel plugin o nel solutore. Per BridGHe vuol dire che la conversione verso GPC esiste: la migrazione dei tipi GH non è finita.",
+    "respinto": "Il lettore legacy di BridGHe lo rifiuta con un codice esplicito: oggi non ha destinazione.",
+    "non-risolto": "Nessuna destinazione GPC nel codice di oggi. Il motivo è nella nota e in `nonRisolti`."
+  },
+  "campi": "La matrice F5 aveva 2.309 campi. Qui la mappatura è per tipo: i campi non sono stati rimappati uno per uno, perché le note delle lane danno le destinazioni per tipo e non per campo.",
+  "conteggi": {
+    "tipi": 295,
+    "perStato": {
+      "conservato-nel-plugin": 40,
+      "conservato-nel-solutore": 11,
+      "convertito-dal-lettore": 67,
+      "nel-tipo-padre": 81,
+      "non-risolto": 57,
+      "rifiutato-dal-lettore": 3,
+      "rimosso-senza-uso": 2,
+      "sostituito": 34
+    },
+    "perEsito": {
+      "mappato": 231,
+      "non-risolto": 60,
+      "respinto": 4
+    },
+    "perRepository": {
+      "Arachne": {
+        "mappato": 59
+      },
+      "BridGHe": {
+        "mappato": 151,
+        "non-risolto": 60,
+        "respinto": 4
+      },
+      "tensilelib": {
+        "mappato": 21
+      }
+    },
+    "nonRisolti": 64
+  },
+  "tipi": [
+    {
+      "sourceType": "BridGHe.Common.Models.AttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/AttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base: ogni attributo concreto ha la sua destinazione; un attributo sconosciuto è rifiutato (`Legacy*AttributeNotMappedYet`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/AttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:178,352,403"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.AttributeModel`1",
+      "source": "BridGHe/src/BridGHe.Common/Models/AttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Come `AttributeModel`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/AttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:178,352,403"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamDistributedLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamLoadAssignment` (tratti lineari, `GpcBeamLoads.Distributed`); momento distribuito globale e sistema non globale rifiutati",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamDistributedLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:412,431-455"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamDistributedLoadModel+LoadType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamDistributedLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamDistributedLoadModel+LoadSchema",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamDistributedLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamDistributedLoadModel+LoadDirection",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamDistributedLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamDistributedLoadModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamDistributedLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamForceResultModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamForceResultModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Uscita della giuntura: righe scritte dal modello GPC analizzato (`BeamResult`) con le funzioni di `GpcResultRows`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamForceResultModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:135-146",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcResultRows.cs:149"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamGradientLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamGradientLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamTemperatureGradient` in `BeamPhysicalData.TemperatureGradients`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamGradientLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:420-423"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamGradientLoadModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamGradientLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamGradientLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamGradientLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamElement` con `Formulation`, `SectionAxes`, `OffsetI/J`, un gruppo",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:99-137"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamOutputStationsModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamOutputStationsModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamPhysicalData.MinimumOutputStations`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamOutputStationsModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:386-387"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamOutputStationsModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamOutputStationsModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamOutputStationsModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamOutputStationsModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPointLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPointLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamLoadAssignment` concentrato (`GpcBeamLoads.Concentrated`), letto in assi principali come prima",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPointLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:413,457-465"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPointLoadModel+LoadType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPointLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamPointLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPointLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPointLoadModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPointLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamPointLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPointLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPreLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPreLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamInitialState` (`AxialForce` o `AxialStrain`) in `BeamPhysicalData.InitialStates`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPreLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:414-419"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPreLoadModel+LoadType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPreLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamPreLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPreLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPropertyBaseModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPropertyBaseModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base delle proprietà di trave: vedi `BeamPropertyModel`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPropertyBaseModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:477-534"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPropertyType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPropertyModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamFormulation` dell'elemento; `CutoffBar` rifiutato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPropertyModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:480-484"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CutoffType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPropertyModel.cs",
+      "stato": "rifiutato-dal-lettore",
+      "destinazione": "Nessuna: `CutoffBar` è rifiutato (`LegacyCutoffBarNotMappedYet`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPropertyModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:484"
+      ],
+      "esito": "respinto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamPropertyModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamPropertyModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ElasticBeamProperty` (materiale, sezione, aree a taglio `SectionShearAreas.Compute`) oppure proprietà della sezione nativa Straus7; sezioni specchiate rifiutate",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamPropertyModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:477-534"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamReleasesAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamReleasesAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamReleasesAttribute` con `BeamDofConnection`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamReleasesAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:388-390,596-613"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamReleasesAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamReleasesAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamReleasesAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamReleasesAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamStringGroupAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamStringGroupModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamPhysicalData.StringGroup` (GUID per ID)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamStringGroupModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:401-402"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamStringGroupAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamStringGroupModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamStringGroupAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamStringGroupModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamDistributedSupport` in `BeamPhysicalData.Supports` (solo molle semplici sugli assi 1 e 2)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:391-392,617-645"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+SpringType",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+CoordinateSystem",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+SimpleSpringTypes",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+SpringTensionOrientation",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+LocalAxisDirection",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamSupportAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BeamSectionTaper`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamTaperAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:393-399,648-656"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AlignmentCodes",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamTaperAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamTaperAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.BeamTaperAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BeamTaperAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeMemberMetadata",
+      "source": "BridGHe/src/BridGHe.Common/Models/BridgeMemberAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Structure.Members.BridgeMemberMetadata` sulla parte `BeamMemberPart`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BridgeMemberAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:572-581"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeMemberAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BridgeMemberAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`PhysicalMemberDefinition` in `Model.PhysicalMembers`, una per `PhysicalId`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BridgeMemberAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:384,572-586"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeSectionAssignment",
+      "source": "BridGHe/src/BridGHe.Common/Models/BridgeSectionStateAttributeModel.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BridgeSectionStateAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:385"
+      ],
+      "nota": "Il lettore conta lo stato di sezione e non lo porta in GPC; la destinazione prevista (`BridgeBeamSectionState` delle azioni D3) arriva con C5",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeSectionStateAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/BridgeSectionStateAttributeModel.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/BridgeSectionStateAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:385"
+      ],
+      "nota": "Contato dal lettore («checks input, not exported»); destinazione prevista con C5",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CaseModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/CaseModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base dei casi: vedi `LoadCaseModel`; la giuntura la usa per scrivere i risultati FEM",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CaseModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:230-279",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:135"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/CompositeBeamModel.cs",
+      "stato": "rifiutato-dal-lettore",
+      "destinazione": "Nessuna: un elemento `CompositeBeamModel` nel modello è rifiutato (`LegacyElementTypeNotMappedYet`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CompositeBeamModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:51-52"
+      ],
+      "esito": "respinto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamPropertyModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/CompositeBeamPropertyModel.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CompositeBeamPropertyModel.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Nel lettore non c'è. Nei modelli di fase di 50 e 99 arrivano proprietà omogeneizzate generiche (con E13), convertite come `SectionModel`. La destinazione prevista (sezione `ReinforcedConcreteSection` e coefficienti n per trave, correzioni-P2B.md §4bis C1) non è ancora nel codice",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamSlabStrainModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/CompositeBeamSlabStrainModel.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CompositeBeamSlabStrainModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:425"
+      ],
+      "nota": "Contato come dato di verifica; la deformazione coincide con `Strain` dell'azione di ritiro del workflow (confronto C5, correzioni-P2B.md passo 10), ma il record non ha una destinazione GPC propria",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamSlabStrainModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/CompositeBeamSlabStrainModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.CompositeBeamSlabStrainModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CompositeBeamSlabStrainModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeSectionPreviewGeometry",
+      "source": "BridGHe/src/BridGHe.Common/Models/CompositeSectionPreviewGeometry.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CompositeSectionPreviewGeometry.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:516"
+      ],
+      "nota": "Contato come anteprima e dato di verifica, non portato in GPC",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CoordinateSystemModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/CoordinateSystemModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Solo assi globali dei carichi distribuiti e delle pressioni (`ShellFacePressure.Global`); un sistema non globale è rifiutato (`LegacyNonGlobalLoadCoordinateSystemWasIgnored`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/CoordinateSystemModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:198-202,446,707-708"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ElementIdAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/ElementIdAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ElementLabelAttribute` (nodi, travi, piastre); il writer Straus7 non lo scrive",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ElementIdAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:160,350,382,543-548"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ElementModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/ElementModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base: nodi, travi e piastre convertiti per tipo; ogni altro tipo di elemento è rifiutato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ElementModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:47-52"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.GroupModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/GroupModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`Group` (`Group.Create`, nome completo della gerarchia)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/GroupModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:57-67,691-696"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCaseModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCaseModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`LoadCaseBase`, oppure `LoadCase` SelfWeight con `ModelGravityLoad`; `InertiaMasses`; temperatura e fasi del caso contate, non esportate",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCaseModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:230-279"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCaseModel+GlobalInertiaLoads",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCaseModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadCaseModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCaseModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCaseModel+GravityDirections",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCaseModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadCaseModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCaseModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCaseModel+Stage",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCaseModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadCaseModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCaseModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCaseModel+Stage+BridgePhases",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCaseModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadCaseModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCaseModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadCombinationModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadCombinationModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`Combination` con coefficienti per caso",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadCombinationModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:209-217"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base: ogni carico concreto ha la sua destinazione; un carico sconosciuto è rifiutato (`Legacy*LoadNotMappedYet`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:195,369,426"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadModel`1",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Come `LoadModel`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:195,369,426"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadPatchTypeAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`LoadPatchDistribution` in `ShellPhysicalData.LoadPatch`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:161-167"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadPatchTypeAttributeModel+PatchType",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadPatchTypeAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.LoadPatchTypeAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.LoadPatchTypeAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/LoadPatchTypeAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`Material` GPC elastico N-mm (`GpcMaterials.Elastic`), tabella sigma-epsilon come risposta `Elastoplastic`; E10 (Ecm) non ancora applicato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:487-490,663-666",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMaterials.cs:13"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel+MaterialKind",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel+TemperatureOnTimeType",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel+MaterialMode",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel+HardeningType",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.MaterialModel+AlumiumTypes",
+      "source": "BridGHe/src/BridGHe.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/MaterialModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ModelModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/ModelModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Models.Model` (`GpcModels.FromFemm`, `GH_Model.Gpc`); unità della definizione in `BridgeUnits`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ModelModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:40-219",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcModels.cs:34-41"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ModelModel+ModelUnits",
+      "source": "BridGHe/src/BridGHe.Common/Models/ModelModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.ModelModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ModelModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeCoordinateAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeCoordinateAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Assi del vincolo (`CoordinateSystem` di `NodeRestrain`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeCoordinateAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:327-329"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeDisplResultModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeDisplResultModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Uscita della giuntura: righe scritte dal modello GPC analizzato (`NodeResult`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeDisplResultModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:141"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeDisplacementLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeDisplacementLoadModel.cs",
+      "stato": "rifiutato-dal-lettore",
+      "destinazione": "Nessuna: spostamenti imposti rifiutati (`LegacyPrescribedDisplacementNotMappedYet`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeDisplacementLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:336"
+      ],
+      "esito": "respinto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeDisplacementLoadModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeDisplacementLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.NodeDisplacementLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeDisplacementLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "respinto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeForceLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeForceLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`PointLoad` sul nodo, sommato per caso",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeForceLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:354-371"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`NodeElement` (stesso ordine e numerazione di prima, `SourceIdentity`)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:70-77"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeMomentLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeMomentLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`PointLoad` (momento) sul nodo, sommato per caso",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeMomentLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:354-371"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeReactResultModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeReactResultModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Uscita della giuntura: reazioni scritte dal modello GPC analizzato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeReactResultModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:142"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeRestraintAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeRestraintAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`RestrainAssignment` con `NodeRestrain` e `DofRestrain`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeRestraintAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:330-345"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeRestraintAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeRestraintAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.NodeRestraintAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeRestraintAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeStiffnessAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeStiffnessAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Molle `DofRestrain(dof, rigidezza)` nello stesso `NodeRestrain`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeStiffnessAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:331-343"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeStiffnessAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeStiffnessAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.NodeStiffnessAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeStiffnessAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeTemperatureLoadModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeTemperatureLoadModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`NodalTemperatureAssignment` di tipo `Reference` in `NodePhysicalData.Temperatures`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeTemperatureLoadModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:363-367"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeTemperatureLoadModel+LoadType",
+      "source": "BridGHe/src/BridGHe.Common/Models/NodeTemperatureLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.NodeTemperatureLoadModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/NodeTemperatureLoadModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateForceResultModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateForceResultModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Uscita della giuntura: righe delle piastre scritte dal modello GPC analizzato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateForceResultModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:152",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcResultRows.cs:167"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`AreaElement` (3 o 4 nodi, offset, un gruppo); angolo della piastra rifiutato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:143-205"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateModel+PlateType",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlateModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateNSMassModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateNSMassModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ShellNonStructuralMass` (solo unità Nmm)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateNSMassModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:189-194"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateNSMassModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateNSMassModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlateNSMassModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateNSMassModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePreStressModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePreStressModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ShellInitialStress`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePreStressModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:183-188"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePreStressModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePreStressModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlatePreStressModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePreStressModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePressureModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePressureModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ShellFacePressure` normale (faccia -Z) o globale",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePressureModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:195-202"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePressureModel+LoadFace",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePressureModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlatePressureModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePressureModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePressureModel+LoadData",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePressureModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlatePressureModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePressureModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePropertyType",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePropertyModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ElasticPlateFormulation` (Shell, Membrane, ShearPanel, LoadPatch)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePropertyModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:659-676"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlatePropertyModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlatePropertyModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ElasticPlateProperty`; tabelle sigma-epsilon delle piastre rifiutate",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlatePropertyModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:148-150,659-676"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`ShellDistributedSupport` sulla faccia -Z",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateSupportAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:168-177"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel+SupportedFace",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlateSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.PlateSupportAttributeModel+AttributeData",
+      "source": "BridGHe/src/BridGHe.Common/Models/PlateSupportAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.PlateSupportAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/PlateSupportAttributeModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ReinforcementMaterials",
+      "source": "BridGHe/src/BridGHe.Common/Models/ReinforcementMaterials.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ReinforcementMaterials.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Fa parte delle proprietà composte: nessuna destinazione nel codice di oggi",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ResultModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/ResultModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base dei risultati FEM che la giuntura scrive dal modello GPC analizzato",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/ResultModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/FemmAnalysisSeam.cs:135-152"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.RigidConnectionAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/RigidConnectionAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`RigidLink` fra i due nodi",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/RigidConnectionAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:82-92"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SectionConcreteSlabModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/SectionConcreteSlabModel.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/SectionConcreteSlabModel.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Fa parte delle proprietà composte: nessuna destinazione nel codice di oggi",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SectionModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/SectionModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Sezioni standard GPC (`SectionH`, `SectionRectangular`, `SectionRHS`, `SectionCircular`, `SectionCHS`), sezione generica esplicita o sezione nativa Straus7 (`GpcNativeSections.Resolve`); T, C, L, Omega, Z, forme generiche, composte e specchiate rifiutate",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/SectionModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:485-534",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcSections.cs:17-35"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SectionModel+SectionTypes",
+      "source": "BridGHe/src/BridGHe.Common/Models/SectionModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.SectionModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/SectionModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SectionModel+MirrorTypes",
+      "source": "BridGHe/src/BridGHe.Common/Models/SectionModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Models.SectionModel",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/SectionModel.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.StagedConstructionModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/StagedConstructionModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`Stage` con `StageAnalysisState` e il freedom case «Default restraints»",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/StagedConstructionModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:285-316"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SuperElementAttributeModel",
+      "source": "BridGHe/src/BridGHe.Common/Models/SuperElementAttributeModel.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Membro fisico `SuperElement:<nome>` in `Model.PhysicalMembers` (solo travi; sulle piastre resta rifiutato)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Models/SuperElementAttributeModel.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:383,561-591"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.BridgeMovingCombinationTable",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/BridgeMovingWorkflow.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/BridgeMovingWorkflow.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Nel plugin, non letto dalla conversione: fa parte di C6 (carichi mobili sui risultati GPC)",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.BridgeMovingWorkflow",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/BridgeMovingWorkflow.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/BridgeMovingWorkflow.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Nel plugin, non letto dalla conversione: fa parte di C6",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingObject",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "Classe base degli oggetti mobili: vedi i tipi concreti",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:22-140"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPointForce",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Actions.Moving.MovingPointForce`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:113-124"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingDistributedForce",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Actions.Moving.MovingDistributedForce`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:129-132"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingHeatSource",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Actions.Moving.MovingHeatSource` (solo unità Nmm)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:138-140"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingVehicle",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Actions.Moving.MovingVehicle`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:102-108"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingCentrifugal",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`MovingCentrifugalLaw` del template, da `Straus7CentrifugalExpression.ToDomain(template, ...)` (offset in N per veicolo, decisione 6)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:85-96"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingTemplate",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`MovingLoadTemplate` (o template di libreria risolto)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:31-41,75-100"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingPath",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingLoadModels.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`MovingLoadPath` in `MovingLoadDefinition`",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingLoadModels.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/GpcMoving.cs:22-41"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingModelBuilder",
+      "source": "BridGHe/src/BridGHe.Common/MovingLoads/MovingModelBuilder.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/MovingLoads/MovingModelBuilder.cs (il tipo FeMM esiste ancora)"
+      ],
+      "nota": "Usa ancora i modelli FeMM; fa parte di C6",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeCheckAdapter",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeCheckAdapter.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeCheckAdapter.cs (5 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeCreepCoefficient",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeCreepCoefficient.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeCreepCoefficient.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeForceConvention",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeForceConvention.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeForceConvention.cs (2 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeForceResampling",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeForceResampling.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeForceResampling.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeGpc",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeGpc.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeGpc.cs (2 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeMergeValidation",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeMergeValidation.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeMergeValidation.cs (3 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseActions",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgePhaseAssembler.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgePhaseAssembler.cs (17 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseAssembler",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgePhaseAssembler.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgePhaseAssembler.cs (17 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseAssembler+ResultIndex",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgePhaseAssembler.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Checks.BridgePhaseAssembler",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgePhaseAssembler.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeResultLabelFormat",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeResultLabels.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeResultLabels.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeResultLabels",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeResultLabels.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeResultLabels.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeResultSource",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeResultSource.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeResultSource.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.StiffenerPlotRole",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.CheckPlotDisplay",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.StiffenerPlotReading",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeStiffenerPlotChecks",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeStiffenerPlotChecks.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeStressResult",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeStressResult.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeStressResult.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeSupportReactions",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeSupportReactions.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeSupportReactions.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeActionBehavior",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Checkers.CompositeBridge.BridgeActionBehavior` (stessi nomi)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:44,61-63"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeSectionState",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Checkers.CompositeBridge.BridgeWorkflowSectionState` (stessi nomi)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:54,61-63"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowMethod",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Checkers.CompositeBridge.BridgeWorkflowMethod` (stessi nomi)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:51,61-63"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeActionDefinition",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseDefinition",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflow",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Checkers.CompositeBridge.BridgeWorkflowDefinition` (D3); `Super Element Check` usa ancora il tipo BridGHe fino a C5",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:22-58"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowPhase",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BridgeWorkflowPhaseDefinition` (D3)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:52-56"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowAction",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflow.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`BridgeWorkflowActionDefinition` (D3)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflow.cs (il tipo FeMM esiste ancora)",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyWorkflowImport.cs:37-48"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowBuildResult",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflowBuilder.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflowBuilder.cs (24 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowBuilder",
+      "source": "BridGHe/src/BridGHe.Common/Checks/BridgeWorkflowBuilder.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/BridgeWorkflowBuilder.cs (24 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.CompositeSectionFactory",
+      "source": "BridGHe/src/BridGHe.Common/Checks/CompositeSectionFactory.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/CompositeSectionFactory.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.CompositeShrinkageActions",
+      "source": "BridGHe/src/BridGHe.Common/Checks/CompositeShrinkageActions.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/CompositeShrinkageActions.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.ConcreteShrinkageResult",
+      "source": "BridGHe/src/BridGHe.Common/Checks/ConcreteShrinkage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/ConcreteShrinkage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.ConcreteShrinkage",
+      "source": "BridGHe/src/BridGHe.Common/Checks/ConcreteShrinkage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Checks/ConcreteShrinkage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentSign",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BeamMomentClassification.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BeamMomentClassification.cs (3 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentState",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BeamMomentClassification.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BeamMomentClassification.cs (3 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentClassification",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BeamMomentClassification.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BeamMomentClassification.cs (3 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeAlignmentInputsResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeAlignmentInputs.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeAlignmentInputs.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeAlignmentInputs",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeAlignmentInputs.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeAlignmentInputs.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearingKind",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeBearings.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeBearings.cs (7 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearingLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeBearings.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeBearings.cs (7 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearings",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeBearings.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeBearings.cs (7 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConnections",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeConnections.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeConnections.cs (9 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConstructionSnapshot",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeConstructionSequence.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeConstructionSequence.cs (24 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConstructionSequence",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeConstructionSequence.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeConstructionSequence.cs (24 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckStrip",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckConnection",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckGrillageResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckGrillage",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckGrillage.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckMesh.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckMesh.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckMesh",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDeckMesh.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDeckMesh.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.IBridgeSegments",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeFamilyProperty",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSupportLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeGirderLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeMeshSettings",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDiaphragmLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeJointSet",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeFabricationPlan",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDefinition",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDefinition.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDefinition.cs (1 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDetailPlacement",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDetailLayout.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDetailLayout.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDetailLayoutResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDetailLayout.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDetailLayout.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDetailLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeDetailLayout.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeDetailLayout.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeGeometryEditor",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeGeometryEditor.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeGeometryEditor.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeGeometryTools",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeGeometryTools.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeGeometryTools.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeLongitudinalBracing",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeLongitudinalBracing.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeLongitudinalBracing.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeParametricLayoutResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeParametricLayout.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeParametricLayout.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeParametricLayout",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeParametricLayout.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeParametricLayout.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSectionRule",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs (13 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeAssignment",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs (13 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeMemberAssignment",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSectionSchedule.cs (13 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentCompositeResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentComposite.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentComposite.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentComposite",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentComposite.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentComposite.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentOverrideResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentOverride.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentOverride.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentOverride",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentOverride.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentOverride.cs (4 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSectionResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentSections.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentSections.cs (5 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentTableUpdate",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentSections.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentSections.cs (5 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSections",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentSections.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentSections.cs (5 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSections+Row",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSegmentSections.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Geometry.BridgeSegmentSections",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSegmentSections.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSlabGrillageResult",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSlabGrillage.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSlabGrillage.cs (8 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSlabGrillage",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSlabGrillage.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSlabGrillage.cs (8 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSpanAlternative",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSpanAdvice",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSpanAdvisor",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeSpanAdvisor.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeStateOverride",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/BridgeStateOverride.cs",
+      "stato": "non-risolto",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/BridgeStateOverride.cs (7 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "nota": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo.",
+      "esito": "non-risolto"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.Shapes",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/Shapes.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/Shapes.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.SimpleBridgeBuilder",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeBuilder.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeBuilder.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.SimpleBridgeBuilder+Builder",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeBuilder.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "BridGHe.Common.Geometry.SimpleBridgeBuilder",
+      "destinazione": null,
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeBuilder.cs"
+      ],
+      "nota": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegments",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeTrussPattern",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDiaphragms",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.SimpleBridgeInput",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeMemberFamily",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "convertito-dal-lettore",
+      "destinazione": "`GPC.Model.Structure.Members.BridgeMemberFamily` (stessi nomi)",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+        "BridGHe f142705:src/BridGHe.Common/Gpc/Legacy/LegacyModelImport.cs:575"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeGeometryMember",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentRange",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSupportPoint",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeJointPoint",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.SimpleBridgeGeometry",
+      "source": "BridGHe/src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs",
+      "stato": "conservato-nel-plugin",
+      "destinazione": "Resta nel plugin: il file non cita i modelli FeMM.",
+      "prova": [
+        "BridGHe f142705:src/BridGHe.Common/Geometry/SimpleBridgeDefinitions.cs (0 riferimenti ai tipi di BridGHe.Common/Models)"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.AttributeModel",
+      "source": "Arachne/src/Arachne.Common/Models/AttributeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Attributi GPC su `Element.Attributes` (`ElementLabelAttribute`, `FormFindingGoalAttribute`, `FormFindingCoordinateAttribute`); vincoli in `Assignments.Restrains`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:124-135"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.AttributeModel`1",
+      "source": "Arachne/src/Arachne.Common/Models/AttributeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Come `AttributeModel`: ogni attributo concreto è un attributo o un'assegnazione GPC",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:124-135"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamDistributedLoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`BeamLoadAssignment` con `LineLoad` in `BeamElement.Assignments.Loads`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Loads/BeamDistributedLoadComponent.cs:148-154"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamDistributedLoadModel+LoadType",
+      "source": "Arachne/src/Arachne.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamDistributedLoadModel+LoadSchema",
+      "source": "Arachne/src/Arachne.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamDistributedLoadModel+LoadDirection",
+      "source": "Arachne/src/Arachne.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamDistributedLoadModel+LoadData",
+      "source": "Arachne/src/Arachne.Common/Models/BeamDistributedLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamDistributedLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`BeamElement` (`GH_Beam`); angolo in `RotationAroundFirstAxis`, offset in `SectionCentroidOffset`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Beam.cs:20",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Models/BeamComponent.cs:62-63"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamNonPrismaticPropertyModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamNonPrismaticPropertyModel.cs",
+      "stato": "rimosso-senza-uso",
+      "destinazione": "Nessuna: Arachne master non lo usava fuori da `Models`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 39c54a2: nessun riferimento fuori da src/Arachne.Common/Models"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamNonPrismaticPropertyModel+LengthTypes",
+      "source": "Arachne/src/Arachne.Common/Models/BeamNonPrismaticPropertyModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamNonPrismaticPropertyModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamNonPrismaticPropertyModel+InertiaTypes",
+      "source": "Arachne/src/Arachne.Common/Models/BeamNonPrismaticPropertyModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamNonPrismaticPropertyModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPointLoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPointLoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`BeamLoadAssignment` concentrato con `PointLoad`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Loads/BeamPointLoadComponent.cs:72"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPointLoadModel+LoadType",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPointLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamPointLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPointLoadModel+LoadData",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPointLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamPointLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPreLoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPreLoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Sforzo assiale `N` di `StationResultBeamForces` nel `BeamResult` del dataset `form-finding` (era un'uscita del form finding)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/FormFindingOutputProjection.cs:67-73,123"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPreLoadModel+LoadType",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPreLoadModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamPreLoadModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPropertyBaseModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPropertyBaseModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`ElasticBeamProperty` (`GH_BeamProperty`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_BeamProperty.cs:10"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPropertyType",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPropertyModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`BeamFormulation` dell'elemento, portata da `GH_BeamProperty`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/ElementProperties/BeamPropertyComponent.cs:209-217"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.CutoffType",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPropertyModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`BeamCutoffLaw` della proprietà di trave",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/ElementProperties/BeamPropertyComponent.cs:207"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamPropertyModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamPropertyModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`ElasticBeamProperty` (materiale + sezione) più `BeamFormulation`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_BeamProperty.cs:10",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/ElementProperties/BeamPropertyComponent.cs:207-217"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel",
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "rimosso-senza-uso",
+      "destinazione": "Nessuna: Arachne master non lo usava fuori da `Models`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 39c54a2: nessun riferimento fuori da src/Arachne.Common/Models"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AlignmentCodes",
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamTaperAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.BeamTaperAttributeModel+AttributeData",
+      "source": "Arachne/src/Arachne.Common/Models/BeamTaperAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.BeamTaperAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.CaseModel",
+      "source": "Arachne/src/Arachne.Common/Models/CaseModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`LoadCaseBase` (base di `GH_LoadCase`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_LoadCase.cs:9"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.CoordinateSystemModel",
+      "source": "Arachne/src/Arachne.Common/Models/CoordinateSystemModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`GPC.Geometry.CoordinateSystem` (`GH_CoordinateSystem`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_CoordinateSystem.cs:8"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ElementIdAttributeModel",
+      "source": "Arachne/src/Arachne.Common/Models/ElementIdAttributeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`ElementLabelAttribute`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/ElementIdComponent.cs:61"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ElementModel",
+      "source": "Arachne/src/Arachne.Common/Models/ElementModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Elementi GPC (`NodeElement`, `BeamElement`, `AreaElement`); fusione per GUID in Build Model (`ElementDrafts.Merge`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:89"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.FixedAxialForceModel",
+      "source": "Arachne/src/Arachne.Common/Models/FixedAxialForceModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`FormFindingGoalAttribute` con obiettivo di forza assiale",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/FixedAxialForceComponent.cs:58"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.FixedLengthModel",
+      "source": "Arachne/src/Arachne.Common/Models/FixedLengthModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`FormFindingGoalAttribute` con obiettivo di lunghezza (Fixed Length, Fixed Compensation)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/FixedLengthComponent.cs:59",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/FixedCompensationComponent.cs:61"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ForceDensityModel",
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`FormFindingGoalAttribute` con `FormFindingGoalKind` e `FabricDirection`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/ForceDensityComponent.cs:73-78",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/ForceDensityCableComponent.cs:60",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/ForceDensityMembraneComponent.cs:65-69"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ForceDensityModel+ForceDensityTypes",
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.ForceDensityModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ForceDensityModel+MembraneTypes",
+      "source": "Arachne/src/Arachne.Common/Models/ForceDensityModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.ForceDensityModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.GroupModel",
+      "source": "Arachne/src/Arachne.Common/Models/GroupModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`Group` (`GH_Group`, `Group.Create`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Group.cs:8",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:34"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.LoadCaseModel",
+      "source": "Arachne/src/Arachne.Common/Models/LoadCaseModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`LoadCaseBase` / `LoadCase` (`GH_LoadCase`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_LoadCase.cs:9"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.LoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/LoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`PointLoad` in `NodeElement.Loads`; `BeamLoadAssignment` in `BeamElement.Assignments.Loads`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Loads/NodeLoadComponent.cs:51",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:117"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.LoadModel`1",
+      "source": "Arachne/src/Arachne.Common/Models/LoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Come `LoadModel`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:117"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`Material` GPC generico (E, nu, densità, alfa, resistenze) oppure `MembranePlateProperty` per Membrane Material; il tipo acciaio/calcestruzzo/alluminio e il G esplicito non sono conservati (correzioni-P2A.md §3)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Material.cs:11",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Materials/MaterialMembraneComponent.cs:51"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel+MaterialKind",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel+TemperatureOnTimeType",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel+MaterialMode",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel+HardeningType",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.MaterialModel+AlumiumTypes",
+      "source": "Arachne/src/Arachne.Common/Models/MaterialModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.MaterialModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ModelModel",
+      "source": "Arachne/src/Arachne.Common/Models/ModelModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`GPC.Model.Models.Model` (`GH_Model`), N-mm; le unità del documento restano stato GH (`ModelUnits`, `FormFindingUnits`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Model.cs:17",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/FormFindingUnits.cs:9"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ModelModel+ModelUnits",
+      "source": "Arachne/src/Arachne.Common/Models/ModelModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.ModelModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeForceLoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodeForceLoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`PointLoad` in `NodeElement.Loads`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Loads/NodeLoadComponent.cs:51"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`NodeElement` (`GH_Node`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Node.cs:19"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodePressureLoadModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodePressureLoadModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Forze nodali di pressione come risultati `NodalForceKind.AppliedPressure`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/FormFindingInputBuilder.cs:60"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeReactResultModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodeReactResultModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`NodeResultForces` con `NodalForceKind.SupportReaction` nel dataset `form-finding`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Analysis/SupportReactionsComponent.cs:58-59"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeRestraintAttributeModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodeRestraintAttributeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`RestrainAssignment` con `NodeRestrain` e `DofRestrain`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/NodeRestraintsComponent.cs:86",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/ElementDrafts.cs:135"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeRestraintAttributeModel+AttributeData",
+      "source": "Arachne/src/Arachne.Common/Models/NodeRestraintAttributeModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.NodeRestraintAttributeModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.NodeWeightAttributeModel",
+      "source": "Arachne/src/Arachne.Common/Models/NodeWeightAttributeModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`FormFindingCoordinateAttribute` (Keep Position)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/Attributes/KeepPositionComponent.cs:52"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.PlateModel",
+      "source": "Arachne/src/Arachne.Common/Models/PlateModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`AreaElement` (`GH_Plate`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_Plate.cs:18"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.PlateModel+PlateType",
+      "source": "Arachne/src/Arachne.Common/Models/PlateModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.PlateModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.PlatePropertyModel",
+      "source": "Arachne/src/Arachne.Common/Models/PlatePropertyModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`ElasticPlateProperty` o `MembranePlateProperty` (`GH_PlateProperty`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_PlateProperty.cs:9",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/Components/ElementProperties/PlatePropertyComponent.cs:58"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.ResultModel",
+      "source": "Arachne/src/Arachne.Common/Models/ResultModel.cs",
+      "stato": "sostituito",
+      "destinazione": "Risultati GPC sull'elemento (`NodeResult`, `BeamResult`), dataset `form-finding`; `GH_NodeResults`, `GH_BeamResults`, `GH_PlateResults` portano l'elemento",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_NodeResults.cs:8",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_BeamResults.cs:8",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_PlateResults.cs:8"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.SectionModel",
+      "source": "Arachne/src/Arachne.Common/Models/SectionModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`Section` GPC con contorno e proprietà dichiarate (`GH_BeamSection`), calcolate da `SectionCalculator`",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_BeamSection.cs:8",
+        "Arachne 611a3d8:src/Arachne.Common/Geometry/SectionCalculator.cs:142-146"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.SectionModel+SectionTypes",
+      "source": "Arachne/src/Arachne.Common/Models/SectionModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.SectionModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.SectionModel+MirrorTypes",
+      "source": "Arachne/src/Arachne.Common/Models/SectionModel.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "Arachne.Common.Models.SectionModel",
+      "destinazione": null,
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)"
+      ],
+      "nota": "Tipo annidato tolto con il suo file; segue la destinazione del tipo padre. La mappatura per campo non è verificata.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "Arachne.Common.Models.SolverOptionsModel",
+      "source": "Arachne/src/Arachne.Common/Models/SolverOptionsModel.cs",
+      "stato": "sostituito",
+      "destinazione": "`FormFindingOptions` con `FormFindingDefinition` (`GH_SolverOptions`)",
+      "prova": [
+        "Arachne 321b6d0: `src/Arachne.Common/Models` tolto (correzioni-P2A.md §2)",
+        "Arachne 611a3d8:src/Arachne.Grasshopper/DataTypes/GH_SolverOptions.cs:15",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/FormFindingOptions.cs:12-21"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Beam",
+      "source": "tensilelib/TensileLib/Geometry/Beam.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Beam.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Beam+ForceDensitySources",
+      "source": "tensilelib/TensileLib/Geometry/Beam.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Beam",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Beam.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Beam+MembraneTypes",
+      "source": "tensilelib/TensileLib/Geometry/Beam.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Beam",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Beam.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Element",
+      "source": "tensilelib/TensileLib/Geometry/Element.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Element.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.ElementCollection`1",
+      "source": "tensilelib/TensileLib/Geometry/ElementCollection.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/ElementCollection.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Model",
+      "source": "tensilelib/TensileLib/Geometry/Model.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Model.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Model+DirectedBeam",
+      "source": "tensilelib/TensileLib/Geometry/Model.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Model",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Model.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Model+ExploredSolution",
+      "source": "tensilelib/TensileLib/Geometry/Model.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Model",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Model.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Model+CandidateQueue",
+      "source": "tensilelib/TensileLib/Geometry/Model.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Model",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Model.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Node",
+      "source": "tensilelib/TensileLib/Geometry/Node.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Node.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Plate",
+      "source": "tensilelib/TensileLib/Geometry/Plate.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Plate.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.Geometry.Plate+PlateTypes",
+      "source": "tensilelib/TensileLib/Geometry/Plate.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.Geometry.Plate",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/Geometry/Plate.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.ForceDensitySolver",
+      "source": "tensilelib/TensileLib/FormFinding/ForceDensitySolver.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/ForceDensitySolver.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.ForceDensitySolver+SkewCoordinates",
+      "source": "tensilelib/TensileLib/FormFinding/ForceDensitySolver.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.FormFinding.ForceDensitySolver",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/ForceDensitySolver.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.LinearForceDensitySolver",
+      "source": "tensilelib/TensileLib/FormFinding/LinearForceDensitySolver.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/LinearForceDensitySolver.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.NonLinearForceDensitySolver",
+      "source": "tensilelib/TensileLib/FormFinding/NonLinearForceDensitySolver.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/NonLinearForceDensitySolver.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.PlanarFixedLengthsSolver",
+      "source": "tensilelib/TensileLib/FormFinding/PlanarFixedLengthsSolver.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/PlanarFixedLengthsSolver.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.PlanarFixedLengthsSolver+PlanarFixedLengthsResult",
+      "source": "tensilelib/TensileLib/FormFinding/PlanarFixedLengthsSolver.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.FormFinding.PlanarFixedLengthsSolver",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/PlanarFixedLengthsSolver.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.Solver",
+      "source": "tensilelib/TensileLib/FormFinding/Solver.cs",
+      "stato": "conservato-nel-solutore",
+      "destinazione": "Resta in TensileLib (solutore, invariato). Lo costruisce e lo legge `TensileModelAdapter` dal grafo GPC di form finding.",
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/Solver.cs",
+        "Arachne 611a3d8:src/Arachne.Common/Analysis/TensileModelAdapter.cs:20-25"
+      ],
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.Solver+ResultCodes",
+      "source": "tensilelib/TensileLib/FormFinding/Solver.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.FormFinding.Solver",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/Solver.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    },
+    {
+      "sourceType": "TensileLib.FormFinding.Solver+OriginShift",
+      "source": "tensilelib/TensileLib/FormFinding/Solver.cs",
+      "stato": "nel-tipo-padre",
+      "padre": "TensileLib.FormFinding.Solver",
+      "destinazione": null,
+      "prova": [
+        "tensilelib 5e25765:TensileLib/FormFinding/Solver.cs"
+      ],
+      "nota": "Tipo annidato del solutore, invariato.",
+      "esito": "mappato"
+    }
+  ],
+  "nonRisolti": [
+    {
+      "sourceType": "BridGHe.Common.Models.CutoffType",
+      "esito": "respinto",
+      "motivo": "Nessuna: `CutoffBar` è rifiutato (`LegacyCutoffBarNotMappedYet`)"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeSectionAssignment",
+      "esito": "non-risolto",
+      "motivo": "Il lettore conta lo stato di sezione e non lo porta in GPC; la destinazione prevista (`BridgeBeamSectionState` delle azioni D3) arriva con C5"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.BridgeSectionStateAttributeModel",
+      "esito": "non-risolto",
+      "motivo": "Contato dal lettore («checks input, not exported»); destinazione prevista con C5"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamModel",
+      "esito": "respinto",
+      "motivo": "Nessuna: un elemento `CompositeBeamModel` nel modello è rifiutato (`LegacyElementTypeNotMappedYet`)"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamPropertyModel",
+      "esito": "non-risolto",
+      "motivo": "Nel lettore non c'è. Nei modelli di fase di 50 e 99 arrivano proprietà omogeneizzate generiche (con E13), convertite come `SectionModel`. La destinazione prevista (sezione `ReinforcedConcreteSection` e coefficienti n per trave, correzioni-P2B.md §4bis C1) non è ancora nel codice"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamSlabStrainModel",
+      "esito": "non-risolto",
+      "motivo": "Contato come dato di verifica; la deformazione coincide con `Strain` dell'azione di ritiro del workflow (confronto C5, correzioni-P2B.md passo 10), ma il record non ha una destinazione GPC propria"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeBeamSlabStrainModel+LoadData",
+      "esito": "non-risolto",
+      "motivo": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata."
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.CompositeSectionPreviewGeometry",
+      "esito": "non-risolto",
+      "motivo": "Contato come anteprima e dato di verifica, non portato in GPC"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeDisplacementLoadModel",
+      "esito": "respinto",
+      "motivo": "Nessuna: spostamenti imposti rifiutati (`LegacyPrescribedDisplacementNotMappedYet`)"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.NodeDisplacementLoadModel+LoadData",
+      "esito": "respinto",
+      "motivo": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata."
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.ReinforcementMaterials",
+      "esito": "non-risolto",
+      "motivo": "Fa parte delle proprietà composte: nessuna destinazione nel codice di oggi"
+    },
+    {
+      "sourceType": "BridGHe.Common.Models.SectionConcreteSlabModel",
+      "esito": "non-risolto",
+      "motivo": "Fa parte delle proprietà composte: nessuna destinazione nel codice di oggi"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.BridgeMovingCombinationTable",
+      "esito": "non-risolto",
+      "motivo": "Nel plugin, non letto dalla conversione: fa parte di C6 (carichi mobili sui risultati GPC)"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.BridgeMovingWorkflow",
+      "esito": "non-risolto",
+      "motivo": "Nel plugin, non letto dalla conversione: fa parte di C6"
+    },
+    {
+      "sourceType": "BridGHe.Common.MovingLoads.MovingModelBuilder",
+      "esito": "non-risolto",
+      "motivo": "Usa ancora i modelli FeMM; fa parte di C6"
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeCheckAdapter",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeForceConvention",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeForceResampling",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeGpc",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeMergeValidation",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseActions",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseAssembler",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseAssembler+ResultIndex",
+      "esito": "non-risolto",
+      "motivo": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeSupportReactions",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeActionDefinition",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgePhaseDefinition",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowBuildResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.BridgeWorkflowBuilder",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Checks.CompositeShrinkageActions",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentSign",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentState",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BeamMomentClassification",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearingKind",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearingLayout",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeBearings",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConnections",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConstructionSnapshot",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeConstructionSequence",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckMesh",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.IBridgeSegments",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeFamilyProperty",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSupportLayout",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeGirderLayout",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDeckLayout",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeMeshSettings",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDiaphragmLayout",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeJointSet",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeFabricationPlan",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeDefinition",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSectionRule",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeAssignment",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeMemberAssignment",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentCompositeResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentComposite",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentOverrideResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentOverride",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSectionResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentTableUpdate",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSections",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSegmentSections+Row",
+      "esito": "non-risolto",
+      "motivo": "Tipo annidato: i suoi valori sono letti nella conversione del tipo padre. La mappatura per campo non è verificata."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSlabGrillageResult",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeSlabGrillage",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    },
+    {
+      "sourceType": "BridGHe.Common.Geometry.BridgeStateOverride",
+      "esito": "non-risolto",
+      "motivo": "Resta nel plugin, ma il suo file usa ancora i modelli FeMM: la destinazione GPC arriva con le fasi (a)/(b), C5 o C6 di P2B. Il conteggio dei riferimenti è per file, non per tipo."
+    }
+  ]
+}
