@@ -84,9 +84,11 @@ public class ReviewFixesL4Test
         Console.WriteLine($"L4 centrifugal V²/(gR): expected {expected:G8} N with R = {radius:G9} mm; R31 {string.Join(", ", speed.Select(f => f.ToString("G8")))}");
         Assert.AreEqual(4, speed.Count, "loaded cases");
         foreach (double force in speed) Assert.AreEqual(expected, force, 1e-5 * expected, "V²/(g R) N-mm law");
-        // Observed on R31 (reported, not a GPC rule): a force in global axes gets no centrifugal force at all, even with ApplyCentrifugal.
-        var global = HorizontalReactions(new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 }, onTheArc, MovingLoadAxes.Global, "global");
-        Console.WriteLine("L4 centrifugal of a force in global axes (R31): " + string.Join(", ", global.Select(f => f.ToString("G6"))) + " N");
+        // Observed on R31: a force in global axes gets no centrifugal force at all, even with ApplyCentrifugal. Review L6 rejects it at Prepare
+        // (StrausCentrifugalForceRequiresPathAxes); the native observation is ReviewFixesL6Test.L6_NativeR31AppliesNoCentrifugalForceInGlobalAxes.
+        var global = Assert.ThrowsException<NotSupportedException>(() => HorizontalReactions(
+            new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 }, onTheArc, MovingLoadAxes.Global, "global"));
+        StringAssert.Contains(global.Message, "StrausCentrifugalForceRequiresPathAxes");
     }
 
     private static Dictionary<string, string> Files(string folder, string stem) => Directory.GetFiles(folder, stem + ".*")

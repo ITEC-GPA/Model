@@ -1,4 +1,7 @@
+using System.Reflection;
+using GPC.Converter.Straus7;
 using GPC.Geometry;
+using GPC.Model.Actions.Moving;
 using GPC.Model.Sections;
 using SectionShearAreas = GPC.Model.Sections.SectionShearAreas;
 
@@ -189,6 +192,145 @@ public class ReviewFixesL6Test
             var pair = SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), gap, "2L"); var (v, f) = SentBxs(pair); var p = writer.NativeSectionMeshProperties(v, f);
             var g = SectionShearAreas.Compute(pair, 0);
             Console.WriteLine($"L6 native BXS 2L 100x10 gap {gap} (not welded, parts apart): R31 J {p[32]:E5}, SA {p[14]:F1} / {p[15]:F1}; GPC J {pair.Jt:E5}, SA ν=0 {g.Area1:F1} / {g.Area2:F1} ({g.Bodies} bodies)");
+        }
+    }
+
+    /// <summary>A vehicle of one point force and/or one distributed force (1000 N in total each, 20 m/s), in the given axes.</summary>
+    private static MovingLoadTemplate Vehicle(MovingLoadAxes axes, Vector3d force, bool point, bool distributed, bool? centrifugal, MovingCentrifugalLaw? law)
+    {
+        var points = point ? new[] { new MovingPointForce { Force = force, Axes = axes, ApplyCentrifugal = centrifugal } } : new MovingPointForce[0];
+        // 100 mm long, 10 N/mm along path x: 1000 N.
+        var lines = distributed ? new[] { new MovingDistributedForce { Mobility = MovingDistributionMobility.Grouped, X1 = -50, X2 = 50, Y1 = -50, Y2 = 50,
+            ForcePerLength = new Vector3d(force.X / 100, force.Y / 100, force.Z / 100), Axes = axes, ApplyCentrifugal = centrifugal } } : new MovingDistributedForce[0];
+        return new MovingLoadTemplate { Name = "axle", Centrifugal = law, Vehicles = new[] { new MovingVehicle { Name = "P1000", Speed = 20000, PointForces = points, DistributedForces = lines } } };
+    }
+
+    /// <summary>The cantilever of Straus7ModelWriteTest (beam from (0,0,0) to (1000,0,0), clamped at X = 0) with a moving-load path along it,
+    /// converted to static cases.</summary>
+    private static (GPC.Model.Models.Model Model, MovingLoadPath Path) PathOnTheCantilever(MovingLoadTemplate template, MovingPathShape shape, Point3d reference)
+    {
+        var model = Straus7ModelWriteTest.Cantilever(); foreach (var node in model.NodesElements.Values) node.Loads.Clear();
+        var path = new MovingLoadPath { Id = Guid.NewGuid(), CaseGuid = model.LoadCases.Values.Single().Guid, Divisions = 4, Shape = shape,
+            Start = new Point3d(0, 0, 0), End = new Point3d(1000, 0, 0), Reference = reference, Target = MovingPathTarget.Beams, Template = template };
+        model.MovingLoads = new MovingLoadDefinition(); model.MovingLoads.Paths.Add(path); model.MovingLoads.Validate(model);
+        return (model, path);
+    }
+
+    /// <summary>Every writer API of the native writer, for a forwarding proxy.</summary>
+    public interface IForwardedWriter : IStraus7ModelWriteApi, IStraus7WriteApi, IStraus7DistributionWriteApi, IStraus7MaterialWriteApi,
+        IStraus7SectionGeometryWriteApi, IStraus7SectionMeshWriteApi, IStraus7NativeSectionWriteApi, IStraus7InertiaWriteApi,
+        IStraus7ConstraintWriteApi, IStraus7SurfacePressureWriteApi, IStraus7MovingWriteApi, IStraus7AdvancedMovingWriteApi, IStraus7StageWriteApi { }
+
+    /// <summary>Forwards every call to the native writer, setting the centrifugal flag (flags[3]) of the moving forces in global axes as the
+    /// writer did before L6: what R31 receives from such a model, now rejected at Prepare.</summary>
+    public class GlobalCentrifugalFlag : DispatchProxy
+    {
+        internal Straus7NativeWriter Target = null!; internal int Flagged;
+        protected override object? Invoke(MethodInfo? method, object?[]? args)
+        {
+            if ((method!.Name == nameof(IStraus7MovingWriteApi.AddMovingPointForce) || method.Name == nameof(IStraus7MovingWriteApi.AddMovingDistributedForce))
+                && args![3] is int[] flags && flags[1] == (int)MovingLoadAxes.Global) { flags[3] = 1; Flagged++; }
+            try { return method.Invoke(Target, args); }
+            catch (TargetInvocationException error) { System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error.InnerException!).Throw(); throw; }
+        }
+        internal static (IForwardedWriter Api, GlobalCentrifugalFlag Proxy) Create(Straus7NativeWriter target)
+        {
+            var api = DispatchProxy.Create<IForwardedWriter, GlobalCentrifugalFlag>(); var proxy = (GlobalCentrifugalFlag)(object)api; proxy.Target = target; return (api, proxy);
+        }
+    }
+
+    /// <summary>The reaction of the clamp in each generated static case that carries a load (written natively, optionally through
+    /// <see cref="GlobalCentrifugalFlag"/>).</summary>
+    private static List<double[]> ClampReactions(GPC.Model.Models.Model model, MovingLoadPath path, string name, bool flagGlobalCentrifugal = false)
+    {
+        var plan = Straus7ModelWritePlan.Prepare(model, new Dictionary<Guid, Straus7MovingPathOptions> { { path.Id, new Straus7MovingPathOptions { ConvertToStaticCases = true } } });
+        string folder = Straus7ExporterCorrectionsTest.NativeFolder(), output = Path.Combine(folder, name + ".st7"), result; IReadOnlyDictionary<int, string> generated;
+        using (var writer = new Straus7NativeWriter(output, folder))
+        {
+            if (flagGlobalCentrifugal) { var (api, proxy) = GlobalCentrifugalFlag.Create(writer); generated = plan.Write(api, model); Assert.IsTrue(proxy.Flagged > 0, name + ": no force flagged"); }
+            else generated = plan.Write(writer, model);
+            writer.Save(); result = writer.Solve();
+        }
+        int clamp = model.NodesElements.Values.Single(n => n.Position.X == 0).Id; var reactions = new List<double[]>();
+        using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(output, folder); reader.OpenResults(result);
+        foreach (int c in generated.Keys)
+        {
+            var r = reader.ReadNodeResult(clamp, c, true).Values;
+            Console.WriteLine($"L6 {name} case {c}: reaction X {r[0]:G6} Y {r[1]:G6} Z {r[2]:G6} N");
+            if (Math.Abs(r[0]) + Math.Abs(r[1]) + Math.Abs(r[2]) > 1e-6) reactions.Add(r.Take(3).ToArray());
+        }
+        return reactions;
+    }
+
+    [TestMethod]
+    public void L6_CentrifugalForcesInGlobalAxesAreRejectedAtPrepare()
+    {
+        // Before: written as they were; R31 applies no centrifugal force to them (native test below), so the centrifugal force of the GPC model
+        // was lost without a trace. Now rejected at Prepare, for the moving-load plan and for the full export.
+        var law = new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 };
+        var reference = new Point3d(500, -1.25, 0);
+        foreach (var (point, distributed) in new[] { (true, false), (false, true) })
+        {
+            var (model, path) = PathOnTheCantilever(Vehicle(MovingLoadAxes.Global, new Vector3d(0, 0, -1000), point, distributed, true, law), MovingPathShape.Circular, reference);
+            var full = Assert.ThrowsException<NotSupportedException>(() => Straus7ModelWritePlan.Prepare(model));
+            StringAssert.Contains(full.Message, "StrausCentrifugalForceRequiresPathAxes"); StringAssert.Contains(full.Message, point ? "point force" : "distributed force");
+            var moving = Assert.ThrowsException<NotSupportedException>(() => Straus7MovingWritePlan.Prepare(model, new Dictionary<Guid, int> { { path.CaseGuid, 1 } }));
+            StringAssert.Contains(moving.Message, "StrausCentrifugalForceRequiresPathAxes");
+            // In path axes, or in global axes without centrifugal force, the export goes on.
+            Straus7ModelWritePlan.Prepare(PathOnTheCantilever(Vehicle(MovingLoadAxes.Path, new Vector3d(0, 0, -1000), point, distributed, true, law), MovingPathShape.Circular, reference).Model);
+            Straus7ModelWritePlan.Prepare(PathOnTheCantilever(Vehicle(MovingLoadAxes.Global, new Vector3d(0, 0, -1000), point, distributed, null, law), MovingPathShape.Circular, reference).Model);
+        }
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void L6_NativeR31AppliesNoCentrifugalForceInGlobalAxes()
+    {
+        // The rejection above rests on this: the forces written with the centrifugal flag set, as before L6 (through a forwarding proxy),
+        // along the circular path of the L4 test (radius 100000.625 mm). In path axes R31 applies 50 + 0.1 × 1000 = 150 N; in global axes nothing.
+        var law = new MovingCentrifugalLaw { FactorKind = MovingCentrifugalFactorKind.Constant, Factor = .1, OffsetForce = 50 };
+        var onTheArc = new Point3d(500, -1.25, 0);
+        static double Horizontal(double[] r) => Math.Sqrt(r[0] * r[0] + r[1] * r[1]);
+        foreach (var (point, distributed, kind) in new[] { (true, false, "point"), (false, true, "distributed") })
+        {
+            var (inPath, pathP) = PathOnTheCantilever(Vehicle(MovingLoadAxes.Path, new Vector3d(0, 0, -1000), point, distributed, true, law), MovingPathShape.Circular, onTheArc);
+            var path = ClampReactions(inPath, pathP, kind + "-path-axes");
+            var (inGlobal, pathG) = PathOnTheCantilever(Vehicle(MovingLoadAxes.Global, new Vector3d(0, 0, -1000), point, distributed, null, law), MovingPathShape.Circular, onTheArc);
+            var global = ClampReactions(inGlobal, pathG, kind + "-global-axes-flagged", flagGlobalCentrifugal: true);
+            Console.WriteLine($"L6 centrifugal {kind} force: path axes {string.Join(", ", path.Select(r => Horizontal(r).ToString("G6")))} N; " +
+                $"global axes with the flag {string.Join(", ", global.Select(r => Horizontal(r).ToString("G6")))} N");
+            Assert.IsTrue(path.Count >= 3 && global.Count >= 3, kind + ": loaded cases");
+            foreach (var r in path) Assert.IsTrue(Horizontal(r) > 100, kind + " in path axes gets its centrifugal force: " + Horizontal(r));
+            if (point) foreach (var r in path) Assert.AreEqual(150, Horizontal(r), 1e-3, "point force in path axes: 50 N + 0.1 × 1000 N");
+            foreach (var r in global) { Assert.AreEqual(1000, r[2], 1e-6, kind + " vertical load applied"); Assert.AreEqual(0, Horizontal(r), 1e-6, kind + " in global axes: no centrifugal force"); }
+        }
+    }
+
+    [TestMethod, TestCategory("Straus7Native")]
+    public void L6_NativePathAxesFollowTheReferencePoint()
+    {
+        // The sign convention of the path axes, pinned for the BridGHe adapter (review L4: with the reference point at −Y, the force (0, 0, −1000)
+        // went upwards). Straight path from (0,0,0) to (1000,0,0) along the cantilever; a force (300, 200, −1000) in path axes. The applied force is
+        // minus the reaction of the clamp. Expected: x = +X (Start to End); y towards the reference point; z = x × y.
+        var force = new Vector3d(300, 200, -1000);
+        foreach (var (side, reference, expected) in new[] {
+            ("reference at +Y (left of the travel)", new Point3d(500, 1000, 0), new[] { 300d, 200, -1000 }),
+            ("reference at -Y (right of the travel)", new Point3d(500, -1000, 0), new[] { 300d, -200, 1000 }) })
+        {
+            var (model, path) = PathOnTheCantilever(Vehicle(MovingLoadAxes.Path, force, true, false, null, null), MovingPathShape.Straight, reference);
+            var reactions = ClampReactions(model, path, "path-axes-" + (reference.Y > 0 ? "plus" : "minus") + "-y");
+            Assert.IsTrue(reactions.Count >= 3, side + ": loaded cases");
+            foreach (var r in reactions)
+            {
+                Console.WriteLine($"L6 path axes, {side}: applied force ({-r[0]:G6}, {-r[1]:G6}, {-r[2]:G6}) N for (300, 200, -1000) in path axes");
+                for (int k = 0; k < 3; k++) Assert.AreEqual(expected[k], -r[k], 1e-6, side + " component " + k);
+            }
+        }
+        // Global axes do not depend on the reference point.
+        foreach (var reference in new[] { new Point3d(500, 1000, 0), new Point3d(500, -1000, 0) })
+        {
+            var (model, path) = PathOnTheCantilever(Vehicle(MovingLoadAxes.Global, force, true, false, null, null), MovingPathShape.Straight, reference);
+            foreach (var r in ClampReactions(model, path, "global-axes-" + (reference.Y > 0 ? "plus" : "minus") + "-y"))
+                for (int k = 0; k < 3; k++) Assert.AreEqual(new[] { 300d, 200, -1000 }[k], -r[k], 1e-6, "global axes, reference " + reference.Y + ", component " + k);
         }
     }
 
