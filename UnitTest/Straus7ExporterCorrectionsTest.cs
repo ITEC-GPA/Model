@@ -633,7 +633,11 @@ public class MovingCentrifugalContractTest
     public void B8_Straus7DialectStaysInTheConverter()
     {
         var expression = new Straus7CentrifugalExpression { OffsetExpression = "1.5", FactorExpression = "V^2/(g*R)", LengthUnit = "m", ForceUnit = "kN", LimitFactor = true, MinimumFactor = 0, MaximumFactor = .3 };
-        var law = expression.ToDomain(out var none); Assert.IsNull(none); Assert.AreEqual(1500, law.OffsetForce, 1e-9);
+        // Review L10 (user decision 6): R31's offset is per force, GPC's per vehicle; the conversion needs the vehicles of the template (here one
+        // point force with the centrifugal flag, so the two agree). Without them a nonzero offset stays in the dialect (ReviewFixesL10CentrifugalTest).
+        var onePoint = new GPC.Model.Actions.Moving.MovingLoadTemplate { Name = "one point", Vehicles = new[] { new GPC.Model.Actions.Moving.MovingVehicle { Name = "axle",
+            PointForces = new[] { new GPC.Model.Actions.Moving.MovingPointForce { Force = new Vector3d(0, 0, -1000), ApplyCentrifugal = true } } } } };
+        var law = expression.ToDomain(onePoint, out var none); Assert.IsNull(none); Assert.AreEqual(1500, law.OffsetForce, 1e-9);
         var written = Straus7CentrifugalExpression.FromDomain(law, null);
         Assert.AreEqual("1500", written.OffsetExpression); Assert.AreEqual("V^2/(g*R)", written.FactorExpression); Assert.AreEqual("mm", written.LengthUnit); Assert.AreEqual("N", written.ForceUnit);
         // A radius-dependent library law (EN 1991-2 style) stays in the R3 dialect, outside Model, bound by record and SHA-256.

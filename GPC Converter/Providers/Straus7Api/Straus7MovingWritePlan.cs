@@ -155,8 +155,9 @@ namespace GPC.Converter.Straus7
                     ops.Add(a=>a.CreateMovingTemplate(id,template.Name,(int[])flags.Clone(),(double[])values.Clone()));
                     if(template.Centrifugal!=null)
                     {
-                        // The N-mm GPC law becomes R3 expressions in mm and N (B8): the dialect and its unit codes stay in the Converter.
-                        var law=Straus7CentrifugalExpression.FromDomain(template.Centrifugal,model);
+                        // The N-mm GPC law becomes R3 expressions in mm and N (B8): the dialect and its unit codes stay in the Converter. The
+                        // offset of the vehicle becomes R31's offset per flagged force (user decision 6 of 4/11, review L10).
+                        var law=Straus7CentrifugalExpression.FromDomain(template.Centrifugal,model,template);
                         int length=Straus7CentrifugalExpression.LengthUnits.ToList().IndexOf(law.LengthUnit),force=Straus7CentrifugalExpression.ForceUnits.ToList().IndexOf(law.ForceUnit);
                         int[] cf={law.LimitFactor?1:0,length,force};double[] limits={law.MinimumFactor,law.MaximumFactor};advanced=true;
                         ops.Add(a=>((IStraus7AdvancedMovingWriteApi)a).SetMovingCentrifugal(id,law.OffsetExpression,law.FactorExpression,(int[])cf.Clone(),(double[])limits.Clone()));

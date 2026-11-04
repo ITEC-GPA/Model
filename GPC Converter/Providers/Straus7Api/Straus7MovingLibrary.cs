@@ -89,8 +89,9 @@ namespace GPC.Converter.Straus7
                 vehicles.Add(vehicle);
             }
             template.Vehicles=vehicles.ToArray();var centrifugal=ReadMovingCentrifugal(id);PreservedAssignment record=null;
-            // N-mm GPC law; an R3 expression that is not representable stays in its dialect as preserved data (B8).
-            template.Centrifugal=centrifugal.IsEmpty?null:centrifugal.ToDomain(out record);
+            // N-mm GPC law; an R3 expression that is not representable stays in its dialect as preserved data (B8). R31's offset per force
+            // becomes the offset of the vehicle (user decision 6 of 4/11, review L10).
+            template.Centrifugal=centrifugal.IsEmpty?null:centrifugal.ToDomain(template,out record);
             template.Validate();return new Straus7ResolvedMovingTemplate {Template=template,ApiVersion=Version,PreservedData=record==null?new PreservedAssignment[0]:new[]{record},
                 Options=new Straus7MovingPathOptions {Colour=flags[0],TransitionTrailingLoad=flags[3]!=0,BeamLateralTolerance=flags[4]!=0,RelativeTolerance=parameters[0]}};
         }
