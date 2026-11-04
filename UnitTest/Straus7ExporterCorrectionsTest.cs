@@ -111,25 +111,27 @@ public class Straus7ExporterCorrectionsTest
         // ν = 0: every rectangle has k = 5/6 (energy and Cowper coincide); rotation of the outline does not matter.
         foreach (var rectangle in new[] { new SectionRectangular(200, 100), new SectionRectangular(100, 100), new SectionRectangular(200, 100, 0.3) })
         {
-            var (r1, r2) = SectionShearAreas.Compute(rectangle, 0);
+            var (r1, r2) = SectionShearAreas.Compute(rectangle);
             Assert.AreEqual(5d / 6 * rectangle.Area, r1, 2e-4 * rectangle.Area); Assert.AreEqual(5d / 6 * rectangle.Area, r2, 2e-4 * rectangle.Area);
         }
-        // Solid circle against the exact flexure solution, with and without the Poisson term.
+        // Solid circle against the exact flexure solution, with and without the Poisson term (the internal solution with ν validates the
+        // solver; analysis uses ν = 0, decisione utente 4/11, the same solution bit for bit).
         var circle = new SectionCircular(100);
+        Assert.AreEqual(SectionShearAreas.ComputeWithPoisson(circle, 0).Area1, SectionShearAreas.Compute(circle).Area1);
         foreach (double nu in new[] { 0, .3 })
         {
-            var (c1, c2) = SectionShearAreas.Compute(circle, nu);
+            var (c1, c2) = SectionShearAreas.ComputeWithPoisson(circle, nu);
             Assert.AreEqual(CircleEnergyCoefficient(nu) * circle.Area, c1, 1e-3 * circle.Area, "ν=" + nu); Assert.AreEqual(c1, c2, 1e-3 * circle.Area);
         }
         // Thin tube: A/2 (the chord method of the first correction gave 2/3 A).
-        var pipe = new SectionCHS(500, 5); var (p1, p2) = SectionShearAreas.Compute(pipe, .3);
+        var pipe = new SectionCHS(500, 5); var (p1, p2) = SectionShearAreas.Compute(pipe);
         Assert.AreEqual(.5 * pipe.Area, p1, .005 * pipe.Area); Assert.AreEqual(p1, p2, 1e-6 * pipe.Area);
         // Axis 1 is the strong axis: shear along it is carried by the flanges, shear along axis 2 by the web.
-        var h = new SectionH(300, 10, 200, 15, 200, 15, "I"); var (h1, h2) = SectionShearAreas.Compute(h, .3);
+        var h = new SectionH(300, 10, 200, 15, 200, 15, "I"); var (h1, h2) = SectionShearAreas.Compute(h);
         Assert.IsTrue(h1 > 5d / 6 * 2 * 200 * 15 && h1 < 2 * 200 * 15, h1.ToString("R"));
         Assert.IsTrue(h2 > (300 - 30) * 10 && h2 < 1.1 * 300 * 10, h2.ToString("R"));
         // Cowper's rectangle k = 10(1+ν)/(12+11ν) is not an energy coefficient: for ν ≠ 0 the two definitions differ (reported, not asserted).
-        var square = new SectionRectangular(100, 100); var (s1, _) = SectionShearAreas.Compute(square, .3);
+        var square = new SectionRectangular(100, 100); var (s1, _) = SectionShearAreas.ComputeWithPoisson(square, .3);
         Console.WriteLine("C2 square ν=0.3: energy k=" + (s1 / square.Area).ToString("F4") + ", Cowper k=" + (13 / 15.3).ToString("F4"));
     }
 
@@ -147,8 +149,8 @@ public class Straus7ExporterCorrectionsTest
         foreach (var c in cases)
         {
             var native = Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(c.Shape, c.Dimensions), folder).ReferenceProperties;
-            var free = SectionShearAreas.Compute(c.Section, 0); var steel = SectionShearAreas.Compute(c.Section, .3);
-            Console.WriteLine($"C2 {c.Name}: Straus7 {native[6]:F1} / {native[7]:F1}; GPC ν=0 {free.Area1:F1} / {free.Area2:F1}; GPC ν=0.3 {steel.Area1:F1} / {steel.Area2:F1}");
+            var free = SectionShearAreas.Compute(c.Section);
+            Console.WriteLine($"C2 {c.Name}: Straus7 {native[6]:F1} / {native[7]:F1}; GPC ν=0 {free.Area1:F1} / {free.Area2:F1}");
             // R31 computes its standard-section shear areas without the Poisson term: compare at ν = 0.
             Assert.AreEqual(native[6], free.Area1, .005 * native[6], c.Name + " SA1"); Assert.AreEqual(native[7], free.Area2, .005 * native[7], c.Name + " SA2");
         }
@@ -164,9 +166,9 @@ public class Straus7ExporterCorrectionsTest
     public void C2_SteelSectionSendsGpcShearAreasAndElasticPropertyKeepsExplicitOnes()
     {
         var shape = new SectionRectangular(200, 100); var section = (double[])Record(SteelCantilever(shape)).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Single().Args[3]!;
-        // Computed with the ν of the steel material (0.3).
-        var expected = SectionShearAreas.Compute(shape, .3); Assert.AreEqual(expected.Area1, section[6]); Assert.AreEqual(expected.Area2, section[7]);
-        Assert.AreEqual(5d / 6 * shape.Area, section[7], 1e-3 * shape.Area); Assert.IsTrue(section[6] < .8 * shape.Area, section[6].ToString("R"));
+        // De Saint Venant at ν = 0 whatever the material (decisione utente 4/11; before L6 the ν of the steel, 0.3): 5/6 A on both axes.
+        var expected = SectionShearAreas.Compute(shape); Assert.AreEqual(expected.Area1, section[6]); Assert.AreEqual(expected.Area2, section[7]);
+        Assert.AreEqual(5d / 6 * shape.Area, section[7], 1e-3 * shape.Area); Assert.AreEqual(5d / 6 * shape.Area, section[6], 1e-3 * shape.Area);
         var elastic = (double[])Record(Straus7ModelWriteTest.Cantilever()).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Single().Args[3]!;
         Assert.AreEqual(0, elastic[6]); Assert.AreEqual(0, elastic[7]); // explicit ElasticBeamProperty contract: 0 = no shear deformation
     }
@@ -178,8 +180,8 @@ public class Straus7ExporterCorrectionsTest
         var run = Straus7ModelWritePlan.Prepare(model).RunLinearStatic(model, Path.Combine(folder, "timoshenko.st7"), folder);
         var material = ((GPC.Model.Sections.Steel.SteelSection)model.BeamElements.Values.Single().BeamProperty).SteelMaterial;
         double e = material.E, g = material.GetShearModule(), l = 1000, p = 1000;
-        // Load along the section axis 2 (global Z): bending about axis 1 and the GPC shear area along axis 2 (≈ 5/6 A for ν = 0.3).
-        double shearArea = SectionShearAreas.Compute(shape, material.Ni).Area2;
+        // Load along the section axis 2 (global Z): bending about axis 1 and the GPC shear area along axis 2 (5/6 A: ν = 0, decisione utente 4/11).
+        double shearArea = SectionShearAreas.Compute(shape).Area2;
         double expected = -(p * l * l * l / (3 * e * shape.J11) + p * l / (g * shearArea));
         int freeId = model.NodesElements.Values.Single(n => n.Position.X == 1000).Id;
         using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(run.ModelPath, folder); reader.OpenResults(run.ResultPath);

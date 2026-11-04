@@ -45,13 +45,15 @@ namespace GPC.Model.Sections
         public bool HasSeparateParts => Bodies > 1;
 
         /// <summary>
-        /// The method of the calculation: <see cref="SectionShearAreas.SaintVenantFlexure"/> or
-        /// <see cref="SectionShearAreas.SeparatePartsBendingTogether"/> (a text, not an enum: a computed value, never archived)
+        /// The method of the calculation, with the Poisson ratio of the flexure solution: <see cref="SectionShearAreas.SaintVenantFlexure"/> or
+        /// <see cref="SectionShearAreas.SeparatePartsBendingTogether"/> for the public <see cref="SectionShearAreas.Compute"/> (ν = 0). A text,
+        /// not an enum: a computed value, never archived
         /// </summary>
-        public string Method => Bodies > 1 ? SectionShearAreas.SeparatePartsBendingTogether : SectionShearAreas.SaintVenantFlexure;
+        public string Method => (Bodies > 1 ? "SeparatePartsBendingTogether" : "SaintVenantFlexure") +
+            "(nu=" + PoissonRatio.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + ")";
 
         /// <summary>
-        /// The Poisson ratio of the material used in the flexure solution
+        /// The Poisson ratio of the flexure solution: 0 for the public <see cref="SectionShearAreas.Compute"/> (user decision 4/11/2026)
         /// </summary>
         public double PoissonRatio { get; }
 
@@ -72,7 +74,7 @@ namespace GPC.Model.Sections
         public double MeshSize { get; }
 
         /// <summary>
-        /// The two areas, for <c>var (a1, a2) = SectionShearAreas.Compute(section, nu)</c>
+        /// The two areas, for <c>var (a1, a2) = SectionShearAreas.Compute(section)</c>
         /// </summary>
         public void Deconstruct(out double area1, out double area2)
         {
@@ -91,7 +93,11 @@ namespace GPC.Model.Sections
     /// Saint-Venant flexure solved by finite elements (Trefftz/Pilkey energy method): for a shear force V along a principal
     /// axis y, with x the other principal axis and I = ∫y² dA, the shear stresses are τ = (V/I)(∇χ + a), a = (0, ν x²/(2(1+ν))),
     /// where ∇²χ = −y in the section and τ·n = 0 on every contour (outer and holes). A_s = V²/∫τ² dA = I²/∫|∇χ + a|² dA.
-    /// Linear triangles on a section mesh; ν is the Poisson ratio of the material (a section carries no material).
+    /// Linear triangles on a section mesh.
+    /// <para>Decisione utente 4/11: De Saint Venant a ν = 0 («seguirei la scienza delle costruzioni»). The public <see cref="Compute"/> solves
+    /// the flexure without the Poisson term (a = 0), for every analysis: it gives Jourawski's 5/6 A on rectangles and A/2 on thin tubes and
+    /// agrees with R31 within 0.3 % (R31 has no Poisson term either). The term stays only in the internal ComputeWithPoisson, which keeps the
+    /// validation of the solver against the exact flexure solutions with ν (Timoshenko–Goodier circle) testable.</para>
     /// <para>Axes (review L4, 4/11/2026): 1 and 2 are the principal axes of the GPC section (<see cref="ISectionShape.AngleX1"/>, J11 about
     /// axis 1), the axes of the Straus7 writer. They are not derived again from the mesh, where two equal moments of inertia leave them
     /// undetermined and SA1/SA2 could be swapped.</para>
@@ -117,12 +123,12 @@ namespace GPC.Model.Sections
     /// 1.9 s, now 1.5 s (24 processors, one by one).</para></summary>
     public static class SectionShearAreas
     {
-        /// <summary>Method of one connected body: the Saint-Venant flexure solved by finite elements (Trefftz energy), A = I² / ∫|∇χ + a|² dA.</summary>
-        public const string SaintVenantFlexure = "SaintVenantFlexure";
+        /// <summary>Method of one connected body: the Saint-Venant flexure solved by finite elements (Trefftz energy) at ν = 0, A = I² / ∫|∇χ|² dA.</summary>
+        public const string SaintVenantFlexure = "SaintVenantFlexure(nu=0)";
 
         /// <summary>Method of separate bodies (the parts of a built-up section connected at discrete points, or regions that do not touch) that
-        /// bend together without shear flow between them: the flexure of each body, A = (Σ I_k)² / Σ U_k.</summary>
-        public const string SeparatePartsBendingTogether = "SeparatePartsBendingTogether";
+        /// bend together without shear flow between them: the flexure of each body at ν = 0, A = (Σ I_k)² / Σ U_k.</summary>
+        public const string SeparatePartsBendingTogether = "SeparatePartsBendingTogether(nu=0)";
 
         /// <summary>The number of triangles the analysis mesh aims at (about this many; more where walls are thinner than the mesh size).</summary>
         public const int TargetTriangles = 20000;
@@ -134,16 +140,20 @@ namespace GPC.Model.Sections
         /// <see cref="TargetTriangles"/>, so that the mesh after <see cref="SubdivisionLevels"/> subdivisions has about N triangles.</summary>
         public static double MeshSize(double area) => 6.4 * Math.Sqrt(area / TargetTriangles);
 
-        /// <summary>The shear areas of the section in its principal axes 1 and 2 (Straus7 ipSA1/ipSA2), with the separate bodies and the method.
+        /// <summary>The shear areas of the section in its principal axes 1 and 2 (Straus7 ipSA1/ipSA2), with the separate bodies and the method:
+        /// De Saint Venant at ν = 0 (decisione utente 4/11, see the class), whatever the material, so they depend on the section only.
         /// <para>A generic <see cref="Section"/> built from an outline whose properties are not computed yet (area not positive) is solved on a
         /// copy of its outline with <see cref="Section.SetMechanicalProperties"/>: the section itself is not changed.</para></summary>
         /// <param name="section">The section, with a geometric outline (a single shape or the outlines of a <see cref="SectionBuiltUp"/>)</param>
-        /// <param name="poissonRatio">The Poisson ratio of the material (−1 &lt; ν &lt; 0.5)</param>
         /// <returns>The shear areas</returns>
         /// <exception cref="NotSupportedException">The section has no geometric outline or no properties, or its outline does not match its
         /// principal axes (ShearAreasRequireSectionGeometry, ShearAreasRequireSectionProperties, ShearAreasAxesDoNotMatchSectionGeometry)</exception>
         /// <exception cref="ArgumentException">The mesh is empty or degenerate</exception>
-        public static SectionShearAreaProperties Compute(ISectionShape section, double poissonRatio)
+        public static SectionShearAreaProperties Compute(ISectionShape section) => ComputeWithPoisson(section, 0);
+
+        /// <summary>The shear areas with the Poisson term of the Saint-Venant flexure (−1 &lt; ν &lt; 0.5). Not for analysis (decisione utente
+        /// 4/11: ν = 0, <see cref="Compute"/>): kept for the validation of the solver against the exact flexure solutions with ν.</summary>
+        internal static SectionShearAreaProperties ComputeWithPoisson(ISectionShape section, double poissonRatio)
         {
             if (section == null) throw new ArgumentNullException(nameof(section));
             if (double.IsNaN(poissonRatio) || poissonRatio <= -1 || poissonRatio >= .5) throw new ArgumentOutOfRangeException(nameof(poissonRatio));

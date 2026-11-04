@@ -24,17 +24,37 @@ public class ReviewFixesL6Test
         Assert.IsFalse(typeof(SectionShearAreas).Assembly.GetCustomAttributes(typeof(System.Runtime.CompilerServices.InternalsVisibleToAttribute), false)
             .Cast<System.Runtime.CompilerServices.InternalsVisibleToAttribute>().Any(a => a.AssemblyName == "GPC.Converter"), "no InternalsVisibleTo for the Converter");
         var h = new SectionH(300, 10, 200, 15, 200, 15, "I");
-        var single = SectionShearAreas.Compute(h, .3);
+        var single = SectionShearAreas.Compute(h);
         Assert.AreEqual(1, single.Bodies); Assert.IsFalse(single.HasSeparateParts); Assert.AreEqual(SectionShearAreas.SaintVenantFlexure, single.Method);
-        Assert.AreEqual(.3, single.PoissonRatio); Assert.IsTrue(single.Nodes > single.Triangles / 3, single.ToString());
+        Assert.AreEqual("SaintVenantFlexure(nu=0)", single.Method);
+        Assert.AreEqual(0, single.PoissonRatio); Assert.IsTrue(single.Nodes > single.Triangles / 3, single.ToString());
         var (a1, a2) = single; Assert.AreEqual(single.Area1, a1); Assert.AreEqual(single.Area2, a2);
-        var pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3);
+        var pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"));
         Assert.AreEqual(2, pair.Bodies); Assert.IsTrue(pair.HasSeparateParts); Assert.AreEqual(SectionShearAreas.SeparatePartsBendingTogether, pair.Method);
-        // The forwarder kept for the F6 branches gives the same values, bit for bit.
+        // The forwarder kept for the F6 branches gives the same values, bit for bit, at ν = 0 whatever ν it gets (P2B passes the material's).
 #pragma warning disable CS0618
         var forwarded = GPC.Converter.SectionShearAreas.Compute(h, .3, out int bodies);
 #pragma warning restore CS0618
         Assert.AreEqual(single.Area1, forwarded.Area1); Assert.AreEqual(single.Area2, forwarded.Area2); Assert.AreEqual(1, bodies);
+    }
+
+    [TestMethod]
+    public void L6_ShearAreasForAnalysisAreDeSaintVenantAtNuZero()
+    {
+        // Decisione utente 4/11: De Saint Venant a ν = 0 («seguirei la scienza delle costruzioni»). Before: the writer used the ν of the steel
+        // (0.3), so a 2:1 rectangle had SA1 = 15 689 mm² instead of Jourawski's 5/6 A = 16 667 along its wide side.
+        var rectangle = new SectionRectangular(200, 100);
+        var areas = SectionShearAreas.Compute(rectangle);
+        Assert.AreEqual(5d / 6 * rectangle.Area, areas.Area1, 2e-4 * rectangle.Area, "Jourawski 5/6 A"); Assert.AreEqual(5d / 6 * rectangle.Area, areas.Area2, 2e-4 * rectangle.Area);
+        Assert.AreEqual(SectionShearAreas.ComputeWithPoisson(rectangle, 0).Area1, areas.Area1, "the public API is the solution without the Poisson term");
+        var pipe = new SectionCHS(500, 5); Assert.AreEqual(pipe.Area / 2, SectionShearAreas.Compute(pipe).Area1, .005 * pipe.Area, "thin tube A/2");
+        // The Straus7 writer sends them for a steel section (ν = 0.3 in its material), not the ones with the Poisson term.
+        var model = Straus7ModelWriteTest.Cantilever();
+        model.BeamElements.Values.Single().BeamProperty = new GPC.Model.Sections.Steel.SteelSection(rectangle, GPC.Model.Data.Steel.SteelMaterialEN1993Data.S355);
+        Assert.AreEqual(.3, ((GPC.Model.Sections.Steel.SteelSection)model.BeamElements.Values.Single().BeamProperty).SteelMaterial.Ni);
+        var sent = (double[])Straus7ExporterCorrectionsTest.Record(model).Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).Single().Args[3]!;
+        Assert.AreEqual(areas.Area1, sent[6]); Assert.AreEqual(areas.Area2, sent[7]);
+        Assert.IsTrue(sent[6] - SectionShearAreas.ComputeWithPoisson(rectangle, .3).Area1 > .03 * rectangle.Area, "not the ν = 0.3 value: " + sent[6].ToString("R"));
     }
 
     [TestMethod]
@@ -49,14 +69,14 @@ public class ReviewFixesL6Test
             ShearAreaPartsTest.CoverPlated(), SectionWelded.CruciformPlates(317, 263, 13) };
         foreach (var section in sections)
         {
-            var areas = SectionShearAreas.Compute(section, .3);
+            var areas = SectionShearAreas.Compute(section);
             Console.WriteLine($"L6 mesh {section.Name} {section.GetType().Name}: {areas}");
             Assert.AreEqual(SectionShearAreas.MeshSize(section.Area), areas.MeshSize, 1e-12 * areas.MeshSize, section.Name);
             Assert.AreEqual(6.4 * Math.Sqrt(section.Area / n), areas.MeshSize, 1e-12 * areas.MeshSize, section.Name);
             Assert.IsTrue(areas.Triangles > .85 * n && areas.Triangles < 1.25 * n, section.Name + ": " + areas.Triangles + " triangles");
         }
         // A wall thinner than the size gets smaller triangles, not a coarser solution.
-        var pipe = SectionShearAreas.Compute(new SectionCHS(500, 5), .3);
+        var pipe = SectionShearAreas.Compute(new SectionCHS(500, 5));
         Assert.IsTrue(pipe.Triangles > n && pipe.Triangles < 2 * n, pipe.ToString());
     }
 
@@ -158,7 +178,7 @@ public class ReviewFixesL6Test
         using var writer = new GPC.Converter.Straus7.Straus7NativeWriter(Path.Combine(folder, "bxs.st7"), folder);
         foreach (var (name, welded) in WeldedSections())
         {
-            var gpc = SectionShearAreas.Compute(welded, 0);
+            var gpc = SectionShearAreas.Compute(welded);
             var (bv, bf) = PartsApart(welded.GetOutlines()); var before = writer.NativeSectionMeshProperties(bv, bf);
             var (av, af) = SentBxs(welded); var after = writer.NativeSectionMeshProperties(av, af);
             static double[] Pair(double a, double b) => new[] { a, b }.OrderBy(v => v).ToArray();
@@ -175,13 +195,13 @@ public class ReviewFixesL6Test
             var rs = Pair(after[14], after[15]); Assert.AreEqual(shear[1], rs[1], .02 * shear[1], name + " SA larger"); Assert.AreEqual(shear[0], rs[0], .02 * shear[0], name + " SA smaller");
         }
         // The disconnected cruciform of the old BXS: its smaller shear area 13 % low (L4); the conforming one within 2 %.
-        var cross = WeldedSections()[0].Section; var crossGpc = SectionShearAreas.Compute(cross, 0);
+        var cross = WeldedSections()[0].Section; var crossGpc = SectionShearAreas.Compute(cross);
         var old = writer.NativeSectionMeshProperties(PartsApart(cross.GetOutlines()).Vertices, PartsApart(cross.GetOutlines()).Faces);
         Assert.IsTrue(Math.Min(old[14], old[15]) < .9 * Math.Min(crossGpc.Area1, crossGpc.Area2), "the old BXS was disconnected");
         // Reference: the same geometry as one polygon, whose BXS the writer meshes as every single region (initial mesh, unchanged by L6).
         foreach (var (name, outline) in new[] { ("cruciform 317x263x13 as one polygon", ShearAreaPartsTest.CrossOutline(317, 263, 13)), ("cover plated as one polygon", ShearAreaPartsTest.CoverPlatedOutline()) })
         {
-            var (v, f) = SentBxs(outline); var p = writer.NativeSectionMeshProperties(v, f); var g = SectionShearAreas.Compute(outline, 0);
+            var (v, f) = SentBxs(outline); var p = writer.NativeSectionMeshProperties(v, f); var g = SectionShearAreas.Compute(outline);
             var s = new[] { p[14], p[15] }.OrderBy(x => x).ToArray(); var e = new[] { g.Area1, g.Area2 }.OrderBy(x => x).ToArray();
             Console.WriteLine($"L6 native BXS {name}: {f.Length} faces; J {p[32]:E5} ({p[32] / outline.Jt - 1:P2} of GPC {outline.Jt:E5}), SA {s[1]:F1} / {s[0]:F1} ({s[1] / e[1] - 1:P2} / {s[0] / e[0] - 1:P2} of GPC {e[1]:F1} / {e[0]:F1})");
         }
@@ -190,7 +210,7 @@ public class ReviewFixesL6Test
         foreach (double gap in new[] { 0d, 10d })
         {
             var pair = SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), gap, "2L"); var (v, f) = SentBxs(pair); var p = writer.NativeSectionMeshProperties(v, f);
-            var g = SectionShearAreas.Compute(pair, 0);
+            var g = SectionShearAreas.Compute(pair);
             Console.WriteLine($"L6 native BXS 2L 100x10 gap {gap} (not welded, parts apart): R31 J {p[32]:E5}, SA {p[14]:F1} / {p[15]:F1}; GPC J {pair.Jt:E5}, SA ν=0 {g.Area1:F1} / {g.Area2:F1} ({g.Bodies} bodies)");
         }
     }
@@ -249,7 +269,8 @@ public class ReviewFixesL6Test
         {
             if (flagGlobalCentrifugal) { var (api, proxy) = GlobalCentrifugalFlag.Create(writer); generated = plan.Write(api, model); Assert.IsTrue(proxy.Flagged > 0, name + ": no force flagged"); }
             else generated = plan.Write(writer, model);
-            writer.Save(); result = writer.Solve();
+            result = writer.Solve(); // Solve saves the model first
+
         }
         int clamp = model.NodesElements.Values.Single(n => n.Position.X == 0).Id; var reactions = new List<double[]>();
         using var reader = new Straus7NativeApi(); reader.OpenModelReadOnly(output, folder); reader.OpenResults(result);
@@ -342,16 +363,16 @@ public class ReviewFixesL6Test
         var bare = new Section(IOutline(), "I outline");
         Assert.AreEqual(0, bare.Area);
         var computed = new Section(IOutline(), "I outline"); computed.SetMechanicalProperties();
-        var expected = SectionShearAreas.Compute(computed, .3);
-        var areas = SectionShearAreas.Compute(bare, .3);
+        var expected = SectionShearAreas.Compute(computed);
+        var areas = SectionShearAreas.Compute(bare);
         Assert.AreEqual(expected.Area1, areas.Area1); Assert.AreEqual(expected.Area2, areas.Area2);
         Assert.IsTrue(areas.Area1 > 2 * 200 * 15 * .7 && areas.Area2 > 270 * 10, areas.ToString());
         Assert.AreEqual(0, bare.Area, "the caller's section is not changed");
         // The same outline as a SectionH: same shear areas (same geometry, same principal axes).
-        var h = SectionShearAreas.Compute(new SectionH(300, 10, 200, 15, 200, 15, "I"), .3);
+        var h = SectionShearAreas.Compute(new SectionH(300, 10, 200, 15, 200, 15, "I"));
         Assert.AreEqual(h.Area1, areas.Area1, 1e-3 * h.Area1); Assert.AreEqual(h.Area2, areas.Area2, 1e-3 * h.Area2);
         // A section without an outline cannot be solved: an explicit error, never zero areas.
         var declared = new Section(1000, 1e6, 1e5, 1e4, 0, new Point2d(0, 0), new Point3d(0, 0, 0), 0, "declared");
-        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => SectionShearAreas.Compute(declared, .3)).Message, "ShearAreasRequireSectionGeometry");
+        StringAssert.Contains(Assert.ThrowsException<NotSupportedException>(() => SectionShearAreas.Compute(declared)).Message, "ShearAreasRequireSectionGeometry");
     }
 }

@@ -297,38 +297,38 @@ namespace GPC.Converter.Straus7
                 Operations.Add(a=>((IStraus7SectionGeometryWriteApi)a).SetBeamSectionGeometry(id,shape,(double[])dimensions.Clone(),(double[])properties.Clone()));
             }
 
-            // Caches of this export only (no static cache): fingerprints per object instance, shear areas per section value and ν,
-            // native beam property per equivalent property data.
+            // Caches of this export only (no static cache): fingerprints per object instance, shear areas per section value (ν = 0 for every
+            // material: decisione utente 4/11, De Saint Venant a ν = 0), native beam property per equivalent property data.
             private readonly Dictionary<object,string> fingerprints=new Dictionary<object,string>(ReferenceComparer.Instance);
             private readonly Dictionary<string,ShearAreaResult> shearAreas=new Dictionary<string,ShearAreaResult>(StringComparer.Ordinal);
             private readonly Dictionary<string,int> beamProperties=new Dictionary<string,int>(StringComparer.Ordinal);
             /// <summary>Warnings of the preparation (the plan's <see cref="Straus7ModelWritePlan.Diagnostics"/>).</summary>
             internal readonly List<ModelDiagnostic> Diagnostics=new List<ModelDiagnostic>();
 
-            /// <summary>The FE shear areas of one section value and ν, or the failure the serial computation would have thrown at that beam.</summary>
+            /// <summary>The FE shear areas of one section value, or the failure the serial computation would have thrown at that beam.</summary>
             private sealed class ShearAreaResult
             {
                 internal double Area1,Area2;internal int Bodies;internal System.Runtime.ExceptionServices.ExceptionDispatchInfo Failure;internal bool Reported;
             }
-            private string ShearKey(ISectionShape section,Material material)=>FingerprintOf(section)+"|"+material.Ni.ToString("R",System.Globalization.CultureInfo.InvariantCulture);
+            private string ShearKey(ISectionShape section)=>FingerprintOf(section);
 
             /// <summary>The shear areas of the distinct steel sections of this export, computed in parallel before the beams are written (0.05–1.5 s
             /// each; BridGHe girders have many segment sections). Same values as one by one: each section is solved on its own. A failure is kept and
             /// thrown at its beam, in beam order, as the serial preparation did.</summary>
             private void PrepareShearAreas()
             {
-                var pending=new List<KeyValuePair<string,(ISectionShape Section,double Nu)>>();
+                var pending=new List<KeyValuePair<string,ISectionShape>>();
                 foreach(var beam in Model.BeamElements.Values.OrderBy(b=>Entities[b.Guid]))
                 {
                     if(beam.Assignments.AnalysisProfile!=null||!(beam.BeamProperty is SteelSection steel)||steel.SteelMaterial==null||steel.SectionShape==null)continue;
-                    string key=ShearKey(steel.SectionShape,steel.SteelMaterial);
+                    string key=ShearKey(steel.SectionShape);
                     if(shearAreas.ContainsKey(key))continue;
-                    shearAreas.Add(key,new ShearAreaResult());pending.Add(new KeyValuePair<string,(ISectionShape,double)>(key,(steel.SectionShape,steel.SteelMaterial.Ni)));
+                    shearAreas.Add(key,new ShearAreaResult());pending.Add(new KeyValuePair<string,ISectionShape>(key,steel.SectionShape));
                 }
                 System.Threading.Tasks.Parallel.ForEach(pending,item=>
                 {
                     var result=shearAreas[item.Key];
-                    try{var areas=global::GPC.Model.Sections.SectionShearAreas.Compute(item.Value.Section,item.Value.Nu);result.Area1=areas.Area1;result.Area2=areas.Area2;result.Bodies=areas.Bodies;}
+                    try{var areas=global::GPC.Model.Sections.SectionShearAreas.Compute(item.Value);result.Area1=areas.Area1;result.Area2=areas.Area2;result.Bodies=areas.Bodies;}
                     catch(Exception error){result.Failure=System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error);}
                 });
             }
@@ -378,11 +378,11 @@ namespace GPC.Converter.Straus7
                 {
                     // GPC shear areas from the section geometry (user decision 3/11): Straus7 no longer derives them.
                     material=steel.SteelMaterial;section=steel.SectionShape;
-                    // The flexure solution depends on the section geometry and on the Poisson ratio of the material of this beam.
-                    string key=ShearKey(section,material);
+                    // De Saint Venant at ν = 0 (decisione utente 4/11): the areas depend on the section geometry only, not on the material.
+                    string key=ShearKey(section);
                     if(!shearAreas.TryGetValue(key,out var areas))
                     {
-                        areas=new ShearAreaResult();var computed=global::GPC.Model.Sections.SectionShearAreas.Compute(section,material.Ni);
+                        areas=new ShearAreaResult();var computed=global::GPC.Model.Sections.SectionShearAreas.Compute(section);
                         areas.Area1=computed.Area1;areas.Area2=computed.Area2;areas.Bodies=computed.Bodies;shearAreas.Add(key,areas);
                     }
                     areas.Failure?.Throw();

@@ -37,13 +37,13 @@ public class ShearAreaPartsTest
         // axes at ±45°: bending about X or Y is half bending about each, V = k (J11 + J22)/2 with V1 = k J22/√2 along axis 1 and V2 = k J11/√2,
         // energy V1²/SA1 + V2²/SA2. For the pair, on both axes: A = (J11 + J22)² / (J22²/SA1 + J11²/SA2) of one angle (R31: 1232 at ν = 0).
         var angle = new SectionL(100, 10, 100, 10, "L100x10");
-        var (a1, a2) = SectionShearAreas.Compute(angle, .3);
+        var (a1, a2) = SectionShearAreas.Compute(angle);
         double expected = Math.Pow(angle.J11 + angle.J22, 2) / (angle.J22 * angle.J22 / a1 + angle.J11 * angle.J11 / a2);
         foreach (double gap in new[] { 10d, 0d })
         {
             // Backs in contact (gap 0) are still connected at discrete points only, as for the torsion constant of SectionBuiltUp.
             var pair = SectionBuiltUp.DoubleAngle(angle, gap, "2L");
-            var (p1, p2) = SectionShearAreas.Compute(pair, .3);
+            var (p1, p2) = SectionShearAreas.Compute(pair);
             Assert.AreEqual(expected, p1, 2e-3 * expected, "gap " + gap + " SA1"); Assert.AreEqual(expected, p2, 2e-3 * expected, "gap " + gap + " SA2");
         }
     }
@@ -54,8 +54,8 @@ public class ShearAreaPartsTest
         // Before: the half plates touched the horizontal plate at no common vertex (T-junctions): far too small or no shear areas.
         foreach (var (width, height, thickness) in new[] { (300d, 300d, 20d), (317d, 263d, 13d), (411d, 177d, 9d) })
         {
-            var (w1, w2) = SectionShearAreas.Compute(SectionWelded.CruciformPlates(width, height, thickness), .3);
-            var (o1, o2) = SectionShearAreas.Compute(CrossOutline(width, height, thickness), .3);
+            var (w1, w2) = SectionShearAreas.Compute(SectionWelded.CruciformPlates(width, height, thickness));
+            var (o1, o2) = SectionShearAreas.Compute(CrossOutline(width, height, thickness));
             Console.WriteLine($"L4 cruciform {width}x{height}x{thickness}: welded {w1:F1} / {w2:F1}, outline {o1:F1} / {o2:F1}");
             Assert.AreEqual(o1, w1, 3e-3 * o1, width + " SA1"); Assert.AreEqual(o2, w2, 3e-3 * o2, width + " SA2");
         }
@@ -64,8 +64,8 @@ public class ShearAreaPartsTest
     [TestMethod]
     public void L4_CoverPlatesWiderThanTheFlangesJoinAlongTheirWholeContact()
     {
-        var (w1, w2) = SectionShearAreas.Compute(CoverPlated(), .3);
-        var (o1, o2) = SectionShearAreas.Compute(CoverPlatedOutline(), .3);
+        var (w1, w2) = SectionShearAreas.Compute(CoverPlated());
+        var (o1, o2) = SectionShearAreas.Compute(CoverPlatedOutline());
         Assert.AreEqual(o1, w1, 3e-3 * o1, "SA1"); Assert.AreEqual(o2, w2, 3e-3 * o2, "SA2");
     }
 
@@ -90,7 +90,7 @@ public class ShearAreaPartsTest
         // Before: the axes were derived again from the mesh, where Jyy > Jxx by 1e-11: SA1 and SA2 were swapped against the axes the writer
         // gives to Straus7 (AngleX1 = 0, J11 = Jxx). The thick flanges carry the shear along X, the thin webs along Y.
         var box = EqualInertiaBox(); Assert.AreEqual(0, box.AngleX1); Assert.AreEqual(box.Jxx, box.J11);
-        var (s1, s2) = SectionShearAreas.Compute(box, .3);
+        var (s1, s2) = SectionShearAreas.Compute(box);
         double flanges = 2 * 20 * box.Width, webs = 2 * 8 * (300 - 40);
         Assert.IsTrue(s1 > .7 * flanges && s1 < flanges, "SA1 " + s1.ToString("R") + " flanges " + flanges);
         Assert.IsTrue(s2 > .8 * webs && s2 < 1.3 * webs, "SA2 " + s2.ToString("R") + " webs " + webs);
@@ -101,12 +101,14 @@ public class ShearAreaPartsTest
     {
         // Review L4 on the C2 test (only ν = 0 on rectangles, where both axes give 5/6 A): with ν = 0.3 the two axes of a 2:1 rectangle differ
         // by 6 %, so a swap or a wrong rotation shows.
-        var plain = new SectionRectangular(200, 100); var (p1, p2) = SectionShearAreas.Compute(plain, .3);
+        // Review L6: analysis uses ν = 0 (decisione utente 4/11), where both axes of a rectangle give 5/6 A; the axes are checked on the internal
+        // Poisson solution, which shares them with the analysis one.
+        var plain = new SectionRectangular(200, 100); var (p1, p2) = SectionShearAreas.ComputeWithPoisson(plain, .3);
         Assert.IsTrue(p2 - p1 > .05 * p2, p1.ToString("R") + " / " + p2.ToString("R"));
         foreach (double angle in new[] { .3, -1.1 })
         {
             var rotated = new SectionRectangular(200, 100, angle); Assert.AreEqual(angle, rotated.AngleX1, 1e-12);
-            var (r1, r2) = SectionShearAreas.Compute(rotated, .3);
+            var (r1, r2) = SectionShearAreas.ComputeWithPoisson(rotated, .3);
             Assert.AreEqual(p1, r1, 2e-4 * plain.Area, "angle " + angle + " SA1"); Assert.AreEqual(p2, r2, 2e-4 * plain.Area, "angle " + angle + " SA2");
         }
     }
@@ -114,10 +116,10 @@ public class ShearAreaPartsTest
     [TestMethod]
     public void L4_PartsAreCountedAsSeparateBodies()
     {
-        int pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L"), .3).Bodies;
-        int cross = SectionShearAreas.Compute(SectionWelded.CruciformPlates(300, 300, 20), .3).Bodies;
-        int plated = SectionShearAreas.Compute(CoverPlated(), .3).Bodies;
-        int single = SectionShearAreas.Compute(new SectionH(400, 10, 200, 15, 200, 15, "I"), .3).Bodies;
+        int pair = SectionShearAreas.Compute(SectionBuiltUp.DoubleAngle(new SectionL(100, 10, 100, 10, "L"), 10, "2L")).Bodies;
+        int cross = SectionShearAreas.Compute(SectionWelded.CruciformPlates(300, 300, 20)).Bodies;
+        int plated = SectionShearAreas.Compute(CoverPlated()).Bodies;
+        int single = SectionShearAreas.Compute(new SectionH(400, 10, 200, 15, 200, 15, "I")).Bodies;
         Assert.AreEqual(2, pair); Assert.AreEqual(1, cross); Assert.AreEqual(1, plated); Assert.AreEqual(1, single);
     }
 
@@ -147,7 +149,7 @@ public class ShearAreaPartsTest
         var model = SteelRow(new ISectionShape[] { pair, SectionWelded.CruciformPlates(317, 263, 13, "cross") });
         var plan = Straus7ModelWritePlan.Prepare(model); var (api, log) = Straus7ExporterCorrectionsTest.Recorder.Create(); plan.Write(api, model);
         var sent = log.Named(nameof(IStraus7ModelWriteApi.CreateBeamProperty)).ToDictionary(c => (string)c.Args[1]!, c => (double[])c.Args[3]!);
-        var expected = SectionShearAreas.Compute(pair, .3);
+        var expected = SectionShearAreas.Compute(pair);
         Assert.AreEqual(expected.Area1, sent["2L100x10"][6]); Assert.AreEqual(expected.Area2, sent["2L100x10"][7]);
         var warning = plan.Diagnostics.Single();
         Assert.AreEqual("SeparateSectionPartsShearAreas", warning.Code); Assert.AreEqual(GPC.Model.Core.Diagnostics.DiagnosticSeverity.Warning, warning.Severity);
@@ -161,7 +163,7 @@ public class ShearAreaPartsTest
         var girders = Enumerable.Range(0, 50).Select(i => (ISectionShape)new SectionH(1800 + 8 * i, 16, 600, 30 + i % 10, 800, 40 + i / 5, "G" + i)).ToArray();
         Straus7ModelWritePlan.Prepare(SteelRow(new ISectionShape[] { new SectionH(1000, 12, 300, 20, 300, 20, "warm-up") })); // JIT, first meshes
         var serial = System.Diagnostics.Stopwatch.StartNew();
-        var expected = girders.ToDictionary(g => g.Name, g => SectionShearAreas.Compute(g, .3)); serial.Stop();
+        var expected = girders.ToDictionary(g => g.Name, g => SectionShearAreas.Compute(g)); serial.Stop();
         var model = SteelRow(girders); var watch = System.Diagnostics.Stopwatch.StartNew();
         var plan = Straus7ModelWritePlan.Prepare(model); watch.Stop();
         var elastic = SteelRow(girders); foreach (var beam in elastic.BeamElements.Values)
@@ -201,16 +203,16 @@ public class ShearAreaPartsTest
         using var writer = new Straus7NativeWriter(Path.Combine(folder, "bxs.st7"), folder);
         // One angle on its own, in its principal axes (±45°) and as R31 computes it: the parts of the first case.
         var angle = new SectionL(100, 10, 100, 10, "L"); var (lv, lt) = SectionShearAreas.AnalysisMesh(angle); var single = writer.NativeSectionMeshProperties(lv, lt);
-        var a0 = SectionShearAreas.Compute(angle, 0);
+        var a0 = SectionShearAreas.Compute(angle);
         Console.WriteLine($"L4 native L 100x10 alone: GPC ν=0 {a0.Area1:F1} / {a0.Area2:F1} (sum {a0.Area1 + a0.Area2:F1}); R31 {single[14]:F1} / {single[15]:F1} " +
             $"(sum {single[14] + single[15]:F1}, angle {single[5]:F4}, I11 {single[3]:E4}, I22 {single[4]:E4})");
         foreach (var c in cases)
         {
-            var gpc0 = SectionShearAreas.Compute(c.Section, 0); int bodies = gpc0.Bodies; var gpc3 = SectionShearAreas.Compute(c.Section, .3);
+            var gpc0 = SectionShearAreas.Compute(c.Section); int bodies = gpc0.Bodies;
             var (jv, jt) = SectionShearAreas.AnalysisMesh(c.Section); var joined = writer.NativeSectionMeshProperties(jv, jt);
             string separate = "-";
             if (c.Section is SectionBuiltUp built) { var (sv, sf) = SeparateMeshes(built); var p = writer.NativeSectionMeshProperties(sv, sf); separate = $"{p[14]:F1} / {p[15]:F1}"; }
-            Console.WriteLine($"L4 native {c.Name}: bodies {bodies}; GPC ν=0 {gpc0.Area1:F1} / {gpc0.Area2:F1}; GPC ν=0.3 {gpc3.Area1:F1} / {gpc3.Area2:F1}; " +
+            Console.WriteLine($"L4 native {c.Name}: bodies {bodies}; GPC ν=0 {gpc0.Area1:F1} / {gpc0.Area2:F1}; " +
                 $"R31 joined mesh {joined[14]:F1} / {joined[15]:F1} (A {joined[2]:F1}, I11 {joined[3]:E4}, I22 {joined[4]:E4}, angle {joined[5]:F4}); R31 parts apart {separate}");
             Assert.AreEqual(c.Section.Area, joined[2], 1e-6 * c.Section.Area, c.Name + " area of the analysis mesh");
             // R31 computes without the Poisson term: compare at ν = 0 (its axes may be swapped when I11 = I22: compare the sorted pair).
