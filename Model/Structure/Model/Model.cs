@@ -1780,7 +1780,7 @@ namespace GPC.Model.Models
             base.GetObjectData(info, context);
 
             // No domain validation here: a model with dangling stage or moving-load references stays copyable and saveable.
-            info.AddValue("ModelSchemaVersion", LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 10 : (MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) ? 9 : PhysicalAssignments.UsesExtendedExportContract(this) ? 8 : StageAnalysisState.HasData(this) ? 7 : (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null || PhysicalMembers.Values.Any(m => m.HasBridgeMetadata) ? 4 : PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            info.AddValue("ModelSchemaVersion", LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 10 : (MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) ? 9 : PhysicalAssignments.UsesExtendedExportContract(this) ? 8 : StageAnalysisState.HasData(this) ? 7 : (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null ? 4 :PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
             if (FormFinding != null) info.AddValue("FormFinding", FormFinding);
             if (MovingLoads != null) info.AddValue("MovingLoads", MovingLoads);
             if (AssemblyMap != null) info.AddValue("AssemblyMap", AssemblyMap);

@@ -38,9 +38,9 @@ namespace GPC.Model.Models
                 // Group membership is physical input only when a stage activates elements by group.
                 // Preserve the historical fingerprints of models with purely organizational groups.
                 if (stagedActivation) yield return e.Groups.Values.Select(g => g.Guid).OrderBy(id => id).ToArray();
-                // The descriptive bridge attributes (member, super element, section state, rigid connection: lane L11) do not change the
-                // mechanical model and are left out; without them the collection itself enters, as before.
-                yield return e.Loads; yield return global::GPC.Model.Structure.Bridges.BridgeElementAttributes.AnalysisView(e);
+                // The descriptive rigid connections (lane L11) do not change the mechanical model and are left out; without them the
+                // collection itself enters, as before.
+                yield return e.Loads; yield return global::GPC.Model.Attributes.RigidConnections.AnalysisView(e);
                 if (e is NodeElement n)
                 {
                     yield return n.Position;

@@ -22,21 +22,11 @@ namespace GPC.Model.Structure.Members
         [field: System.Runtime.Serialization.DataMember(Name = "<AlongIJ>k__BackingField", IsRequired = true)]
         public bool AlongIJ { get; private set; }
 
-        /// <summary>Bridge labels of this FE part (review B4): BridGHe splits one physical member into parts "Id/P1", "Id/P2"...,
-        /// each with its own stations, SectionUp and GeometryId. Null keeps the historical archive text and fingerprint.</summary>
-        [field: System.Runtime.Serialization.OptionalField]
-        [field: System.Runtime.Serialization.DataMember(Name = "<BridgeMetadata>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
-        public BridgeMemberMetadata BridgeMetadata { get; private set; }
-
         public BeamMemberPart(int beamId, bool alongIJ)
         {
             BeamId = beamId;
             AlongIJ = alongIJ;
         }
-
-        /// <summary>A part with its own bridge labels; their PhysicalId must be the id of the member that lists the part.</summary>
-        public BeamMemberPart(int beamId, bool alongIJ, BridgeMemberMetadata bridgeMetadata) : this(beamId, alongIJ)
-        { BridgeMetadata = bridgeMetadata; }
     }
 
     /// <summary>Explicit physical identity. A group or LogicalMember label never creates this definition implicitly.</summary>
@@ -65,12 +55,7 @@ namespace GPC.Model.Structure.Members
         [field: System.Runtime.Serialization.OptionalField]
         [field: System.Runtime.Serialization.DataMember(Name = "<ServiceabilityLimits>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
         public MemberServiceabilityLimits ServiceabilityLimits { get; private set; }
-        [field: System.Runtime.Serialization.OptionalField]
-        [field: System.Runtime.Serialization.DataMember(Name = "<BridgeMetadata>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
-        public BridgeMemberMetadata BridgeMetadata { get; private set; }
         public IReadOnlyList<BeamMemberPart> Parts => Array.AsReadOnly(_parts);
-        /// <summary>True when the member or one of its parts carries bridge labels.</summary>
-        public bool HasBridgeMetadata => BridgeMetadata != null || _parts.Any(p => p?.BridgeMetadata != null);
 
         public PhysicalMemberDefinition(string id, IEnumerable<BeamMemberPart> parts, string stationDomain, string name = null, string source = null)
         {
@@ -80,7 +65,6 @@ namespace GPC.Model.Structure.Members
                 throw new ArgumentException("An ordered, nonempty list of distinct complete beam elements is required.");
             if (stationDomain != "NodeToNode" && stationDomain != "OffsetToOffset")
                 throw new NotSupportedException("A physical path must retain rigid zones: use NodeToNode or OffsetToOffset.");
-            if (_parts.Any(p => p.BridgeMetadata != null && p.BridgeMetadata.PhysicalId != id)) throw new ArgumentException("BridgePhysicalIdentityMismatch");
             Id = id;
             Name = name ?? id;
             Source = source;
@@ -94,17 +78,6 @@ namespace GPC.Model.Structure.Members
             copy.ServiceabilityLimits = limits;
             return copy;
         }
-
-        /// <summary>Bridge identity is explicit and must refer to this physical member.</summary>
-        public PhysicalMemberDefinition WithBridgeMetadata(BridgeMemberMetadata metadata)
-        {
-            if (metadata != null && metadata.PhysicalId != Id) throw new ArgumentException("BridgePhysicalIdentityMismatch");
-            var copy = (PhysicalMemberDefinition)MemberwiseClone(); copy.BridgeMetadata = metadata; return copy;
-        }
-
-        [System.Runtime.Serialization.OnDeserialized]
-        private void ValidateBridgeMetadata(System.Runtime.Serialization.StreamingContext context)
-        { if (BridgeMetadata != null && BridgeMetadata.PhysicalId != Id) throw new System.Runtime.Serialization.SerializationException("BridgePhysicalIdentityMismatch"); }
 
         /// <summary>The member path without its serviceability declarations: the definition of the snapshots and of the scope digest.</summary>
         internal PhysicalMemberDefinition Path => ServiceabilityLimits == null ? this : WithServiceabilityLimits(null);

@@ -242,27 +242,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void BridgeMetadataIsExplicitDetachedPersistedAndFingerprintSensitive()
-        {
-            var direction = new Vector3d(0, 0, 1);
-            var member = new PhysicalMemberDefinition("girder-1", new[] { new BeamMemberPart(1, true) }, "NodeToNode");
-            var baseline = ModelValues.Fingerprint(new object[] { member });
-            var metadata = new BridgeMemberMetadata(member.Id, BridgeMemberFamily.Girder, 2, 3, 1, 12000, 18000, direction, "alignment-1");
-            var tagged = member.WithBridgeMetadata(metadata); direction.Z = 8; metadata.SectionUp.Z = 9;
-            Assert.AreEqual(1.0, metadata.SectionUp.Z); Assert.IsNull(member.BridgeMetadata);
-            Assert.AreNotEqual(baseline, ModelValues.Fingerprint(new object[] { tagged }));
-            Assert.AreEqual(baseline, ModelValues.Fingerprint(new object[] { tagged.WithBridgeMetadata(null) }));
-            var model = new Model(); model.PhysicalMembers.Add(tagged.Id, tagged);
-            using (var stream = new MemoryStream())
-            {
-                ModelArchive.Save(model, stream); stream.Position = 0; var loaded = ModelArchive.Load(stream).PhysicalMembers[tagged.Id];
-                Assert.AreEqual(ModelValues.Fingerprint(new object[] { tagged }), ModelValues.Fingerprint(new object[] { loaded }));
-                Assert.AreEqual(18000.0, loaded.BridgeMetadata.StationToMm);
-            }
-            Assert.ThrowsException<ArgumentException>(() => new PhysicalMemberDefinition("other", new[] { new BeamMemberPart(1, true) }, "NodeToNode").WithBridgeMetadata(metadata));
-        }
-
-        [TestMethod]
         public void RestraintReferencesAndSharedIntegerLinksAreRemappedOnce()
         {
             var a = Node(0, id: 101); var b = Node(1, id: 500); var c = Node(2, id: 999);

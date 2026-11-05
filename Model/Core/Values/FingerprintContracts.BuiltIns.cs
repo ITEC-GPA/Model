@@ -28,12 +28,14 @@ namespace GPC.Model.Core
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
             "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion", "MembranePlatePropertyVersion",
             "FormFindingGoalAttributeVersion", "FormFindingCoordinateAttributeVersion", "ElementLabelAttributeVersion",
-            "BridgeMemberAttributeVersion", "SuperElementAttributeVersion", "BridgeSectionStateAttributeVersion", "RigidConnectionAttributeVersion",
+            "RigidConnectionAttributeVersion",
         };
 
         private static void RegisterBuiltIns()
         {
-            RegisterBridgeContracts();
+            Register("GPC.Model.LoadCases.InertiaMassSelection", "GPC.Model.LoadCases.InertiaMassSelection",
+                Field("GPC.Model.LoadCases.InertiaMassSelection", "<Structural>k__BackingField", "Structural", false),
+                Field("GPC.Model.LoadCases.InertiaMassSelection", "<NonStructural>k__BackingField", "NonStructural", false));
             Register("GPC.Model.Stages.StageCaseFactor", "GPC.Model.Stages.StageCaseFactor",
                 Field("GPC.Model.Stages.StageCaseFactor", "<CaseGuid>k__BackingField", "CaseGuid", false),
                 Field("GPC.Model.Stages.StageCaseFactor", "<Factor>k__BackingField", "Factor", false));
@@ -128,15 +130,6 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<Factor>k__BackingField", "Factor", false),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<AdapterRecord>k__BackingField", "AdapterRecord", true),
                 Field("GPC.Model.Actions.Moving.MovingCentrifugalLaw", "<AdapterContentHash>k__BackingField", "AdapterContentHash", true));
-            Register("GPC.Model.Analysis.CompositeSectionDefinition", "GPC.Model.Analysis.CompositeSectionDefinition",
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "schema", "schema", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<Id>k__BackingField", "Id", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<PhysicalSection>k__BackingField", "PhysicalSection", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<LongTermRatio>k__BackingField", "LongTermRatio", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<ShortTermRatio>k__BackingField", "ShortTermRatio", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<ShrinkageRatio>k__BackingField", "ShrinkageRatio", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<IncludeConcrete>k__BackingField", "IncludeConcrete", false),
-                Field("GPC.Model.Analysis.CompositeSectionDefinition", "<IncludeReinforcement>k__BackingField", "IncludeReinforcement", false));
             Register("GPC.Model.Materials.MaterialDeclarations", "GPC.Model.Materials.MaterialDeclarations",
                 Field("GPC.Model.Materials.MaterialDeclarations", "schema", "schema", false),
                 Field("GPC.Model.Materials.MaterialDeclarations", "<ExpectedYieldStress>k__BackingField", "ExpectedYieldStress", false),
@@ -281,16 +274,6 @@ namespace GPC.Model.Core
             Register("GPC.Model.Analysis.FormFindingMethod", "GPC.Model.Analysis.FormFindingMethod", Field("GPC.Model.Analysis.FormFindingMethod", "value__", "value__", false));
             Register("GPC.Model.Analysis.FormFindingGoalKind", "GPC.Model.Analysis.FormFindingGoalKind", Field("GPC.Model.Analysis.FormFindingGoalKind", "value__", "value__", false));
             Register("GPC.Model.Analysis.FabricDirection", "GPC.Model.Analysis.FabricDirection", Field("GPC.Model.Analysis.FabricDirection", "value__", "value__", false));
-            Register("GPC.Model.Structure.Members.BridgeMemberMetadata", "GPC.Model.Structure.Members.BridgeMemberMetadata",
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<PhysicalId>k__BackingField", "PhysicalId", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Family>k__BackingField", "Family", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Group>k__BackingField", "Group", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Segment>k__BackingField", "Segment", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<Span>k__BackingField", "Span", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<StationFromMm>k__BackingField", "StationFromMm", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<StationToMm>k__BackingField", "StationToMm", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "sectionUp", "sectionUp", false),
-                Field("GPC.Model.Structure.Members.BridgeMemberMetadata", "<GeometryId>k__BackingField", "GeometryId", false));
             Register("GPC.Model.Core.Identity.AssemblyIdentityMap", "GPC.Model.Core.Identity.AssemblyIdentityMap",
                 Field("GPC.Model.Core.Identity.AssemblyIdentityMap", "entries", "entries", false),
                 Field("GPC.Model.Core.Identity.AssemblyIdentityMap", "<ModelGuid>k__BackingField", "ModelGuid", false),
@@ -470,9 +453,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Loads.Assignments.BeamLoadAssignment", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false));
             Register("GPC.Model.Structure.Members.BeamMemberPart", "GPC.Model.PostProcessing.BeamMemberPart",
                 Field("GPC.Model.Structure.Members.BeamMemberPart", "<AlongIJ>k__BackingField", "<AlongIJ>k__BackingField", false),
-                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false),
-                // Per-part bridge labels (review B4): absent on the historical parts, whose fingerprints are unchanged.
-                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BridgeMetadata>k__BackingField", "<BridgeMetadata>k__BackingField", true));
+                Field("GPC.Model.Structure.Members.BeamMemberPart", "<BeamId>k__BackingField", "<BeamId>k__BackingField", false));
             Register("GPC.Model.Structure.Assignments.BeamSectionAssignment", "GPC.Model.PostProcessing.BeamSectionAssignment",
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<End>k__BackingField", "<End>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.BeamSectionAssignment", "<EndSection>k__BackingField", "<EndSection>k__BackingField", false),
@@ -766,8 +747,7 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<StationDomain>k__BackingField", "<StationDomain>k__BackingField", false),
                 Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "_parts", "_parts", false),
                 // Member serviceability declarations (30/10/2026): absent on the historical definitions, whose fingerprints are unchanged.
-                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true),
-                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<BridgeMetadata>k__BackingField", "<BridgeMetadata>k__BackingField", true));
+                Field("GPC.Model.Structure.Members.PhysicalMemberDefinition", "<ServiceabilityLimits>k__BackingField", "<ServiceabilityLimits>k__BackingField", true));
             Register("GPC.Model.Checking.Preparation.PreparationRequest", "GPC.Model.PostProcessing.PreparationRequest",
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Mechanisms>k__BackingField", "<Mechanisms>k__BackingField", false),
                 Field("GPC.Model.Checking.Preparation.PreparationRequest", "<Results>k__BackingField", "<Results>k__BackingField", false),
