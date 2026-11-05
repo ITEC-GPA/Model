@@ -112,6 +112,13 @@ namespace GPC.Converter.Straus7
                     values[3]+=moment.X;values[4]+=moment.Y;values[5]+=moment.Z;
                     for(int k=0;k<6;k++)total[k]+=values[k];
                 }
+                // 5/11/2026: the work-equivalent nodal forces of the varying plate pressures (PlatePressureNodeForces), global as the point loads.
+                if(pressureNodeForces.TryGetValue(node.Guid,out var pressures))
+                    foreach(var pair in pressures)
+                    {
+                        if(!totals.TryGetValue(pair.Key,out var total))totals.Add(pair.Key,total=new double[6]);
+                        total[0]+=pair.Value.X;total[1]+=pair.Value.Y;total[2]+=pair.Value.Z;
+                    }
                 foreach(var pair in totals)
                 {int lc=pair.Key;Finite(pair.Value);var force=pair.Value.Take(3).ToArray();var moment=pair.Value.Skip(3).ToArray();Operations.Add(a=>a.SetNodeLoad(id,lc,false,(double[])force.Clone()));Operations.Add(a=>a.SetNodeLoad(id,lc,true,(double[])moment.Clone()));}
             }

@@ -127,18 +127,51 @@ namespace GPC.Model.Loads
         }
 
         /// <summary>
+        /// The work-equivalent (consistent) nodal forces in the global system, one per vertex in the order of <see cref="Vertices"/>:
+        /// F_i = d ∫ N_i p dA, with d the Z axis of the coordinate system, N_i the shape functions of the pressure (linear on the triangle,
+        /// bilinear on the quadrilateral) and the integration points of <see cref="GetGlobalResultant"/>. Their sum is the resultant force and
+        /// their moment about any pole is the resultant moment, to round-off.
+        /// <para>5/11/2026 (request of the user, «forze nodali»): the form in which a solver without varying plate pressures receives the load
+        /// (the Straus7 writer, whose plate pressures are constant over the element). On three- and four-node elements it is the load vector the
+        /// solver itself builds from a distributed pressure, so displacements and stresses are the same.</para>
+        /// </summary>
+        /// <returns>The nodal forces, global (new vectors)</returns>
+        public Vector3d[] GetGlobalNodalForces()
+        {
+            Validate();
+            var integrals = new double[_vertices.Length];
+            IntegrationPoints((weight, n) =>
+            {
+                double p = 0;
+                for (int i = 0; i < n.Length; i++) p += n[i] * _pressures[i];
+                for (int i = 0; i < n.Length; i++) integrals[i] += weight * n[i] * p;
+            });
+            var direction = Direction();
+            return integrals.Select(value => direction * value).ToArray();
+        }
+
+        /// <summary>
         /// Integral of the pressure (scalar) and of the pressure times the arm from the pole (vector)
         /// </summary>
         private (double Force, Vector3d Arm) Integrate(Point3d pole)
         {
             Validate();
             double total = 0; var arm = new Vector3d(0, 0, 0);
-            void Add(double weight, double[] n)
+            IntegrationPoints((weight, n) =>
             {
                 double p = 0, x = 0, y = 0, z = 0;
                 for (int i = 0; i < n.Length; i++) { p += n[i] * _pressures[i]; x += n[i] * _vertices[i].X; y += n[i] * _vertices[i].Y; z += n[i] * _vertices[i].Z; }
                 total += weight * p; arm = arm + new Vector3d(x - pole.X, y - pole.Y, z - pole.Z) * (weight * p);
-            }
+            });
+            return (total, arm);
+        }
+
+        /// <summary>
+        /// The integration points over the area, in order, as (weight, shape functions at the point): three mid-edge points on the triangle
+        /// (weight area / 3), 2 x 2 Gauss points on the quadrilateral (weight |dx/dxi x dx/deta|)
+        /// </summary>
+        private void IntegrationPoints(Action<double, double[]> Add)
+        {
             if (_vertices.Length == 3)
             {
                 double area = Normal(_vertices[0], _vertices[1], _vertices[2]).Length / 2;
@@ -157,7 +190,6 @@ namespace GPC.Model.Loads
                         Add(dxi.CrossProduct(deta).Length, n);
                     }
             }
-            return (total, arm);
         }
 
         private Vector3d Combine(double[] weights)

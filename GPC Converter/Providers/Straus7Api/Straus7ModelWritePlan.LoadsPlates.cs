@@ -133,6 +133,7 @@ namespace GPC.Converter.Straus7
                     if(load is AreaLoad area){FullPlateCoverage(area.Shape,plate);pressure=Global(new Vector3d(area.P1,area.P2,area.P3),area.CoordinateSystem);}
                     else if(load is NormalAreaLoad normal){FullPlateCoverage(normal.Shape,plate);pressure=normal.Shape.GetCoordinateSystem().V3*normal.Pressure;}
                     else if(load is ShellFacePressure)continue; // Face and follower pressures: SurfacePressures below.
+                    else if(load is NonUniformPlatePressure)continue; // Work-equivalent nodal forces: PlatePressureNodeForces, written by Node.
                     else throw new NotSupportedException("UnsupportedStrausPlateLoad: "+load.GetType().Name);
                     int lc=Load(load.LoadCase);Values(pressure);
                     totals[lc]=totals.TryGetValue(lc,out var previous)?previous+pressure:pressure;
@@ -148,6 +149,36 @@ namespace GPC.Converter.Straus7
                 bool matches=boundary.Length==count&&Enumerable.Range(0,count).Any(start=>new[]{1,-1}.Any(direction=>
                     Enumerable.Range(0,count).All(i=>Axes.Length(boundary[(start+direction*i+count)%count]-nodes[i])<1e-7)));
                 if(!matches)throw new NotSupportedException("PlatePressureRequiresFullElementCoverage");
+            }
+            /// <summary>The work-equivalent nodal forces of the varying plate pressures, per node (Guid) and native load case, in the global system.</summary>
+            private readonly Dictionary<Guid,Dictionary<int,Vector3d>> pressureNodeForces=new Dictionary<Guid,Dictionary<int,Vector3d>>();
+            /// <summary>
+            /// 5/11/2026 (request of the user, «forze nodali»): the Straus7 API has only plate pressures constant over the element
+            /// (St7SetPlateNormalPressure2, St7SetPlateGlobalPressure3S, St7SetPlateShear2), so a <see cref="NonUniformPlatePressure"/> is written
+            /// as its work-equivalent nodal forces (<see cref="NonUniformPlatePressure.GetGlobalNodalForces"/>), added by Node to the
+            /// point loads of the same node and case in the global system. On the three- and four-node plates of this writer they are the load
+            /// vector Straus7 builds from a distributed pressure: displacements, stresses and reactions are the same.
+            /// <para>Output only: the .st7 holds node forces, so reading it back gives point loads on the nodes, not a plate pressure. Their sum
+            /// and moment per case are the resultant of the pressure; a comparison after a round trip compares the resultants per case.</para>
+            /// The vertices of the load must be the corners of its plate (in any order), as the import and ANTHEA create it.
+            /// </summary>
+            private void PlatePressureNodeForces()
+            {
+                foreach(var plate in Model.AreaElements.Values.OrderBy(p=>Entities[p.Guid]))
+                    foreach(var pressure in plate.Loads.Values.OfType<NonUniformPlatePressure>())
+                    {
+                        int lc=Load(pressure.LoadCase);var vertices=pressure.Vertices;var nodes=plate.Nodes;var forces=pressure.GetGlobalNodalForces();
+                        if(vertices.Count!=nodes.Count)throw new NotSupportedException("NonUniformPlatePressureRequiresThePlateCorners");
+                        var used=new bool[nodes.Count];
+                        for(int i=0;i<vertices.Count;i++)
+                        {
+                            int j=Enumerable.Range(0,nodes.Count).Where(k=>!used[k]&&Axes.Length(vertices[i]-nodes[k].Position)<1e-7).DefaultIfEmpty(-1).First();
+                            if(j<0)throw new NotSupportedException("NonUniformPlatePressureRequiresThePlateCorners");
+                            used[j]=true;Values(forces[i]);
+                            if(!pressureNodeForces.TryGetValue(nodes[j].Guid,out var cases))pressureNodeForces.Add(nodes[j].Guid,cases=new Dictionary<int,Vector3d>());
+                            cases[lc]=cases.TryGetValue(lc,out var previous)?previous+forces[i]:forces[i];
+                        }
+                    }
             }
             internal bool RequiresInertiaApi;
             private void ModelActions()

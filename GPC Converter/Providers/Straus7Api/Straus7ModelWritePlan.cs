@@ -169,6 +169,7 @@ namespace GPC.Converter.Straus7
                 }
                 Number(Model.NodesElements.Values);Number(Model.BeamElements.Values);Number(Model.AreaElements.Values);
                 PrepareShearAreas();
+                PlatePressureNodeForces();
                 foreach(var node in Model.NodesElements.Values.OrderBy(n=>Entities[n.Guid])) Node(node);
                 foreach(var beam in Model.BeamElements.Values.OrderBy(n=>Entities[n.Guid])) Beam(beam);
                 foreach(var plate in Model.AreaElements.Values.OrderBy(n=>Entities[n.Guid])) Plate(plate);
