@@ -28,6 +28,7 @@ namespace GPC.Model.Core
             "ElasticBeamPropertyVersion", "ElasticPlatePropertyVersion", "LoadCaseBaseVersion",
             "StageVersion", "StageDefinitionVersion", "StageGroupChangeVersion", "StageResultCaseVersion", "ShellFacePressureVersion", "MembranePlatePropertyVersion",
             "FormFindingGoalAttributeVersion", "FormFindingCoordinateAttributeVersion", "ElementLabelAttributeVersion",
+            "BridgeMemberAttributeVersion", "SuperElementAttributeVersion", "BridgeSectionStateAttributeVersion", "RigidConnectionAttributeVersion",
         };
 
         private static void RegisterBuiltIns()

@@ -23,8 +23,14 @@ namespace GPC.Converter.Straus7
         {
             /// <summary>The attributes that enter the native model: an element label (<see cref="ElementLabelAttribute"/>, an
             /// identifier given by the user to select the element, e.g. the Element Id of BridGHe and Arachne) is descriptive and is not
-            /// written (the native numbering is the GPC one), as the former BridGHe exporter.</summary>
-            private static int Exported(Element element)=>element.Attributes.Values.Count(a=>!(a is ElementLabelAttribute));
+            /// written (the native numbering is the GPC one), as the former BridGHe exporter. The bridge attributes (member, super element,
+            /// section state, rigid connection: lane L11) are descriptive too: the application lifts them into the physical members, the
+            /// verification recipe and the rigid links of the model, which are written. The domain preflight refuses them on the wrong
+            /// kind of element.</summary>
+            private static int Exported(Element element)=>element.Attributes.Values.Count(a=>!Descriptive(a));
+            private static bool Descriptive(GPC.Model.Attributes.Attribute a)=>a is ElementLabelAttribute
+                || a is GPC.Model.Structure.Bridges.BridgeMemberAttribute || a is GPC.Model.Structure.Bridges.SuperElementAttribute
+                || a is GPC.Model.Structure.Bridges.BridgeSectionStateAttribute || a is GPC.Model.Structure.Bridges.RigidConnectionAttribute;
 
             private void Node(NodeElement node)
             {
@@ -178,7 +184,7 @@ namespace GPC.Converter.Straus7
                     throw new NotSupportedException("SectionCentroidOffsetRequiresExplicitReferenceConvention");
                 if(offsets.Any(v=>v!=0))Operations.Add(a=>a.SetBeamOffset(id,(double[])offsets.Clone()));
                 if(beam.Attributes.Values.Count(a=>a is BeamReleasesAttribute)>1)throw new ArgumentException("DuplicateBeamReleases");
-                foreach(var attribute in beam.Attributes.Values.Where(a=>!(a is ElementLabelAttribute)))
+                foreach(var attribute in beam.Attributes.Values.Where(a=>!Descriptive(a)))
                 {
                     if(!(attribute is BeamReleasesAttribute release)||release.Phase!=null||release.CoordinateSystem!=null&&!Same(release.CoordinateSystem,axes)&&!Same(release.CoordinateSystem,principal))
                         throw new NotSupportedException("UnsupportedStrausBeamAttributeOrReleaseAxes");

@@ -25,6 +25,8 @@ namespace GPC.Model.Models
             foreach (var property in model.PlateProperties.Values)
                 if (property is ElasticPlateProperty elastic) Check(result, "InvalidElasticProperty", elastic.Validate, elastic.Name);
                 else if (property is MembranePlateProperty membrane) Check(result, "InvalidElasticProperty", membrane.Validate, membrane.Name);
+            // Descriptive bridge attributes (lane L11) on the wrong kind of element or repeated.
+            result.AddRange(global::GPC.Model.Structure.Bridges.BridgeElementAttributes.Diagnose(model));
             return result.AsReadOnly();
         }
 

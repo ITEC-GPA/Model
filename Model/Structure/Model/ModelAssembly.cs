@@ -169,7 +169,9 @@ namespace GPC.Model.Models
             model.AssemblyMap = new AssemblyIdentityMap(model.Guid, model.AssemblyMap?.MergeToleranceMm, model.AllElements.Select(e => new AssemblyIdentityEntry(e, e, Model.FamilyOf(e))));
         }
 
-        private static bool SelfContained(Attributes.Attribute value) => value is ElementLabelAttribute || value is Analysis.FormFindingGoalAttribute || value is Analysis.FormFindingCoordinateAttribute;
+        // The descriptive bridge attributes (lane L11) cite no element either: a rigid connection holds its target point, not a node.
+        private static bool SelfContained(Attributes.Attribute value) => value is ElementLabelAttribute || value is Analysis.FormFindingGoalAttribute || value is Analysis.FormFindingCoordinateAttribute
+            || Structure.Bridges.BridgeElementAttributes.Is(value);
         private static EntityFamily Family(Element value) => value is NodeElement ? EntityFamily.Node : value is BeamElement ? EntityFamily.Beam : EntityFamily.Shell;
         private static string Content(Element element)
         {
@@ -198,10 +200,18 @@ namespace GPC.Model.Models
             else if (element is AreaElement shell) Add(shell.PlateProperty);
             return string.Join(",", ids);
         }
-        private static string MergeContent(NodeElement node) => ModelValues.Fingerprint(new object[] {
-            node.Name, node.CoordinateSystem, node.Groups, node.Assignments.Dofs, node.Assignments.Active, node.Assignments.Mass,
-            node.Assignments.GroundSprings, node.Assignments.Links, node.Assignments.Physical,
-            node.Assignments.Restrains.Select(r => new object[] { r.Case, r.FreedomCase, r.Phase, r.SourceRecord, r.Restrain?.Name, r.Restrain?.CoordinateSystem, r.Restrain?.Restrains }).ToArray() });
+        private static string MergeContent(NodeElement node)
+        {
+            var content = new List<object> {
+                node.Name, node.CoordinateSystem, node.Groups, node.Assignments.Dofs, node.Assignments.Active, node.Assignments.Mass,
+                node.Assignments.GroundSprings, node.Assignments.Links, node.Assignments.Physical,
+                node.Assignments.Restrains.Select(r => new object[] { r.Case, r.FreedomCase, r.Phase, r.SourceRecord, r.Restrain?.Name, r.Restrain?.CoordinateSystem, r.Restrain?.Restrains }).ToArray() };
+            // Rigid connections (lane L11) are kept by the canonical node only: coincident nodes with different ones are a conflict, never a
+            // silent loss. Nodes without them give the content of before.
+            var targets = Structure.Bridges.BridgeElementAttributes.MergeTargets(node);
+            if (targets != null) content.Add(targets);
+            return ModelValues.Fingerprint(content);
+        }
 
         private static void Merge(NodeElement[] nodes, Dictionary<Guid, NodeElement> map, HashSet<Guid> separate, double tolerance)
         {

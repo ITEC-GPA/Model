@@ -46,6 +46,12 @@ namespace GPC.Model.Core
             typeof(global::GPC.Model.Structure.Bridges.BridgeSegmentRange),
             typeof(global::GPC.Model.Structure.Bridges.BridgeFabricationPlan),
             typeof(global::GPC.Model.Structure.Bridges.BridgeTrussPattern),
+            // Descriptive bridge attributes of the elements (lane L11).
+            typeof(global::GPC.Model.Structure.Bridges.BridgeSectionBehavior),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeMemberAttribute),
+            typeof(global::GPC.Model.Structure.Bridges.SuperElementAttribute),
+            typeof(global::GPC.Model.Structure.Bridges.BridgeSectionStateAttribute),
+            typeof(global::GPC.Model.Structure.Bridges.RigidConnectionAttribute),
 
             typeof(global::GPC.Model.Actions.Moving.MovingLoadDefinition),
             typeof(global::GPC.Model.Actions.Moving.MovingLoadPath),
