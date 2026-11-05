@@ -147,9 +147,10 @@ namespace GPC.Model.Models
                     var normal = edge.CrossProduct(p[2] - p[0]);
                     double length = Axes.Length(normal);
                     if (length < 1e-9) issues.Add(ModelDiagnostic.Error("DegenerateShell", element));
-                    // Same planarity tolerance as the polygons of the geometry kernel (shell shapes and area loads): the round-off of
-                    // exported coordinates (1e-5 mm) is planar, an actual warping is not.
-                    else if (p.Length == 4 && Math.Abs(Axes.Dot(p[3] - p[0], normal)) / length > planarityToleranceMm)
+                    // Same planarity rule as the shape of the shell (AreaElement.Shape): the deviation from the mean plane within the larger
+                    // of planarityToleranceMm and 1e-5 of the plate size (ShellPlanarity, 5/11/2026). The round-off of exported coordinates
+                    // (about 1 µm on a model in metres, not 1e-5 mm as assumed before) is planar, an actual warping is not.
+                    else if (p.Length == 4 && !Structure.Topology.ShellPlanarity.IsPlanar(p, planarityToleranceMm))
                         issues.Add(ModelDiagnostic.Error("NonPlanarShell", element));
                     else if (p.Length == 4)
                     {
