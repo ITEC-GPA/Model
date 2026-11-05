@@ -16,6 +16,9 @@ namespace GPC.Model.Structure.Members
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class BeamMemberPart
     {
+        /// <summary>The same part on the beam <paramref name="beamId"/> (<see cref="Core.ModelValues.Renumber"/>); every other field kept.</summary>
+        internal BeamMemberPart Renumbered(int beamId) { var copy = (BeamMemberPart)MemberwiseClone(); copy.BeamId = beamId; return copy; }
+
         [field: System.Runtime.Serialization.DataMember(Name = "<BeamId>k__BackingField", IsRequired = true)]
         public int BeamId { get; private set; }
 
@@ -44,8 +47,17 @@ namespace GPC.Model.Structure.Members
     [System.Runtime.Serialization.DataContract(Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing")]
     public sealed class PhysicalMemberDefinition
     {
+        /// <summary>The same member with the beam ids of its parts renumbered (<see cref="Core.ModelValues.Renumber"/>): a bijection of the
+        /// ids, so the parts stay distinct; every other field kept.</summary>
+        internal PhysicalMemberDefinition Renumbered(Func<int, int> beamId)
+        {
+            var copy = (PhysicalMemberDefinition)MemberwiseClone();
+            copy._parts = _parts.Select(p => p.Renumbered(beamId(p.BeamId))).ToArray();
+            return copy;
+        }
+
         [System.Runtime.Serialization.DataMember(IsRequired = true)]
-        private readonly BeamMemberPart[] _parts;
+        private BeamMemberPart[] _parts;
         [field: System.Runtime.Serialization.DataMember(Name = "<Id>k__BackingField", IsRequired = true)]
         public string Id { get; private set; }
 
