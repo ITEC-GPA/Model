@@ -1,5 +1,6 @@
 using GPC.Geometry;
 using GPC.Model.LoadCases;
+using GPC.Model.Structure.Topology;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,7 +87,12 @@ namespace GPC.Model.Loads
         /// The area of the load
         /// </summary>
         /// <returns>A new shape on copies of the vertices</returns>
-        public Shape GetGeometry() => new Shape(new Polygon3d(Vertices));
+        public Shape GetGeometry()
+        {
+            // 5/11/2026: planar within ShellPlanarity (relative to the size of the area), as the shells, not the absolute GeometryBase.Tolerance.
+            var corners = Vertices.ToArray();
+            return new Shape(new Polygon3d(corners, ShellPlanarity.ToleranceMm(corners)));
+        }
 
         /// <summary>
         /// The area of the load (see <see cref="GetGeometry"/>)
@@ -186,12 +192,9 @@ namespace GPC.Model.Loads
                 var turn = Normal(a, b, c);
                 if (turn.X * normal.X + turn.Y * normal.Y + turn.Z * normal.Z <= 0) throw new ArgumentException("The pressure area must be convex.");
             }
-            if (_vertices.Length == 4)
-            {
-                var d = new Vector3d(_vertices[3].X - _vertices[0].X, _vertices[3].Y - _vertices[0].Y, _vertices[3].Z - _vertices[0].Z);
-                double scale = Math.Max(1, new Vector3d(_vertices[2].X - _vertices[0].X, _vertices[2].Y - _vertices[0].Y, _vertices[2].Z - _vertices[0].Z).Length);
-                if (Math.Abs(d.X * normal.X + d.Y * normal.Y + d.Z * normal.Z) > 1e-7 * scale) throw new ArgumentException("The pressure area must be planar.");
-            }
+            // 5/11/2026: the planarity rule of the shells (ShellPlanarity), whose corners these vertices usually are. Until then 1e-7 of the
+            // diagonal on the fourth vertex refused the round-off of the coordinates of a real Straus7 model; every area accepted then is accepted.
+            if (_vertices.Length == 4 && !ShellPlanarity.IsPlanar(_vertices)) throw new ArgumentException("The pressure area must be planar.");
         }
 
         private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);

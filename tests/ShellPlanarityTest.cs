@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using GPC.Geometry;
 using GPC.Model.Elements;
+using GPC.Model.LoadCases;
+using GPC.Model.Loads;
 using GPC.Model.Models;
 using GPC.Model.Structure.Topology;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -92,6 +94,21 @@ namespace UnitTest
             Assert.AreEqual(0, ShellPlanarity.DeviationMm(Twisted(0)));
             Assert.AreEqual(Side * Side, shell.Shape.GetArea(), 1e-6);
             Assert.AreEqual(0, model.ValidateTopology().Count);
+        }
+
+        [TestMethod]
+        public void NonUniformPressureFollowsTheShellRule()
+        {
+            // Until 5/11/2026 the constructor refused the fourth vertex beyond 1e-7 of the diagonal (here about 2e-3 mm against 5e-5 mm)
+            // and GetGeometry used the absolute 1e-4 mm.
+            var pressures = new[] { 1d, 2, 3, 4 };
+            var load = new NonUniformPlatePressure(Twisted(5e-4), pressures, new LoadCaseBase("H"), CoordinateSystem.Global);
+            Assert.AreEqual(4, load.GetGeometry().Fill.Count);
+            Assert.AreEqual(Side * Side * pressures.Average(), load.GetTotalPressure(), 1e-9 * Side * Side * pressures.Average(),
+                "the bilinear integral is the one of the flat square: the vertices are not moved");
+            Assert.ThrowsException<ArgumentException>(() => new NonUniformPlatePressure(Twisted(0.5), pressures, new LoadCaseBase("H"), CoordinateSystem.Global));
+            Assert.ThrowsException<ArgumentException>(() => new NonUniformPlatePressure(Twisted(2e-4, 10), pressures, new LoadCaseBase("H"), CoordinateSystem.Global),
+                "a small area keeps the 1e-4 mm floor");
         }
     }
 }
