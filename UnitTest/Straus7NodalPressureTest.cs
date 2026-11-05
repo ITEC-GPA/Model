@@ -176,8 +176,12 @@ public class Straus7NodalPressureTest
         var back = new Straus7ApiConverter().Import(new Straus7ImportRequest { ModelPath = run.ModelPath, ModelRevision = "nodal-pressure", AnalysisId = "nodal-pressure" });
         Assert.IsNotNull(back.Model, string.Join("; ", back.Diagnostics.Select(d => d.Message)));
         Assert.IsFalse(back.Model.AreaElements.Values.SelectMany(p => p.Loads.Values).OfType<NonUniformPlatePressure>().Any());
-        var reread = back.Model.NodesElements.Values.SelectMany(n => n.Loads.Values.OfType<PointLoad>()).Where(l => l.LoadCase.Name == varying.Name)
-            .Select(l => { var g = l.GetGlobalForces(); return new Vector3d(g[0], g[1], g[2]); }).Aggregate(new Vector3d(0, 0, 0), (s, f) => s + f);
+        // The importer names the cases "Case <number>: <name>" (Straus7ApiConverter.CaseName); "3 varying" is the third case written.
+        var rereadLoads = back.Model.NodesElements.Values.SelectMany(n => n.Loads.Values.OfType<PointLoad>())
+            .Where(l => l.LoadCase.Name == Straus7ApiConverter.CaseName(3, varying.Name)).ToArray();
+        Assert.IsTrue(rereadLoads.Length > 0, "no point loads read back in case 3: " + string.Join(", ", back.Model.NodesElements.Values
+            .SelectMany(n => n.Loads.Values.OfType<PointLoad>()).Select(l => l.LoadCase.Name).Distinct()));
+        var reread = rereadLoads.Select(l => { var g = l.GetGlobalForces(); return new Vector3d(g[0], g[1], g[2]); }).Aggregate(new Vector3d(0, 0, 0), (s, f) => s + f);
         var expectedTotal = plates.Select(p => p.Loads.Values.OfType<NonUniformPlatePressure>().Single(l => l.LoadCase.Name == varying.Name).GetGlobalLoadVector()).Aggregate((x, y) => x + y);
         AssertVector(expectedTotal, reread, 1e-6 * expectedTotal.Length, "resultant read back");
         Console.WriteLine("Nodal pressure: " + run.ModelPath);
