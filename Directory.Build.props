@@ -2,6 +2,11 @@
   <PropertyGroup>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <GpcDependencyDir Condition="'$(GpcDependencyDir)' == ''">$(MSBuildThisFileDirectory).dependencies</GpcDependencyDir>
+    <!-- A plug-in solution that references these projects without containing them (Arachne.sln: GPC.Model.Persistence)
+         would build their own references (GPCModel, GPC.Archive) in their default configuration, Debug, and compile the Release
+         Persistence against them: other bytes than the Release set, written into bin/Release. References keep the
+         configuration of the project that builds them. No effect on builds of these projects or of GPCModel.sln. -->
+    <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
   </PropertyGroup>
   <!-- Release DLLs independent of the checkout path: SourceLink maps the repository root to /_/ in the PDB and in the PE
        debug directory, so the SHA-256 depends on sources, commit and referenced assemblies only. Debug keeps local paths. -->
