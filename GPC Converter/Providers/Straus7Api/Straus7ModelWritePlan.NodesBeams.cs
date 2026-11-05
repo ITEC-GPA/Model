@@ -23,14 +23,12 @@ namespace GPC.Converter.Straus7
         {
             /// <summary>The attributes that enter the native model: an element label (<see cref="ElementLabelAttribute"/>, an
             /// identifier given by the user to select the element, e.g. the Element Id of BridGHe and Arachne) is descriptive and is not
-            /// written (the native numbering is the GPC one), as the former BridGHe exporter. The bridge attributes (member, super element,
-            /// section state, rigid connection: lane L11) are descriptive too: the application lifts them into the physical members, the
-            /// verification recipe and the rigid links of the model, which are written. The domain preflight refuses them on the wrong
+            /// written (the native numbering is the GPC one), as the former BridGHe exporter. A rigid connection (lane L11) is descriptive
+            /// too: the application lifts it into a rigid link of the model, which is written. The domain preflight refuses it on the wrong
             /// kind of element.</summary>
             private static int Exported(Element element)=>element.Attributes.Values.Count(a=>!Descriptive(a));
             private static bool Descriptive(GPC.Model.Attributes.Attribute a)=>a is ElementLabelAttribute
-                || a is GPC.Model.Structure.Bridges.BridgeMemberAttribute || a is GPC.Model.Structure.Bridges.SuperElementAttribute
-                || a is GPC.Model.Structure.Bridges.BridgeSectionStateAttribute || a is GPC.Model.Structure.Bridges.RigidConnectionAttribute;
+                || a is GPC.Model.Attributes.RigidConnectionAttribute;
 
             private void Node(NodeElement node)
             {

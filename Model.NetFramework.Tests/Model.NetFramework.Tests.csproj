@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup><Compile Include="../tests/BridgeDefinitionContractsTest.cs" Link="BridgeDefinitionContractsTest.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../tests/ElasticExportContractsTest.cs" Link="ElasticExportContractsTest.cs" /></ItemGroup>
   <ItemGroup><Compile Include="../tests/StageAnalysisContractsTest.cs" Link="StageAnalysisContractsTest.cs" /></ItemGroup>
   <ItemGroup>
@@ -7,7 +6,7 @@
     <Compile Include="../tests/PhysicalAssignmentsTest.cs" Link="PhysicalAssignmentsTest.cs" />
     <Compile Include="../tests/FormFindingContractsTest.cs" Link="FormFindingContractsTest.cs" />
     <Compile Include="../tests/ArachneVocabularyTest.cs" Link="ArachneVocabularyTest.cs" />
-    <Compile Include="../tests/BridgeElementAttributesTest.cs" Link="BridgeElementAttributesTest.cs" />
+    <Compile Include="../tests/RigidConnectionAttributeTest.cs" Link="RigidConnectionAttributeTest.cs" />
     <Compile Include="../tests/ModelIdentityCopyTest.cs" Link="ModelIdentityCopyTest.cs" />
     <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
     <Compile Include="../tests/CompactArchiveTest.cs" Link="CompactArchiveTest.cs" />
