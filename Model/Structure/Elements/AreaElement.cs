@@ -53,7 +53,16 @@ namespace GPC.Model.Elements
         /// <summary>
         /// The shape of the element
         /// </summary>
-        public Shape Shape { get => _nodes == null ? _shape : new Shape(new Polygon3d(_nodes.Select(n => n.Position))); set { if (_nodes != null) throw new InvalidOperationException("Edit connected node positions instead of replacing shell geometry."); _shape = value; } }
+        public Shape Shape { get => _nodes == null ? _shape : ConnectedShape(); set { if (_nodes != null) throw new InvalidOperationException("Edit connected node positions instead of replacing shell geometry."); _shape = value; } }
+
+        /// <summary>The shape on the connected nodes (the instances of their positions are kept). 5/11/2026: planar within
+        /// <see cref="Structure.Topology.ShellPlanarity"/> (relative to the plate size), not the absolute GeometryBase.Tolerance, which refused the
+        /// round-off of the coordinates of a real Straus7 model.</summary>
+        private Shape ConnectedShape()
+        {
+            var corners = _nodes.Select(n => n.Position).ToArray();
+            return new Shape(new Polygon3d(corners, Structure.Topology.ShellPlanarity.ToleranceMm(corners)));
+        }
 
         /// <summary>
         /// The external border of the shape (<see cref="Shape.Fill"/>)
