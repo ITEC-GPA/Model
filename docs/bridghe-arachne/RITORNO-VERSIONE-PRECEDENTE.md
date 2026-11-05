@@ -1,28 +1,46 @@
 # Ritorno alla versione precedente
 
-Guida per utenti e amministratori. Scritta il 4 novembre 2026, prima del rilascio di F8. Il rilascio è descritto in [STATO.md](STATO.md), «F8».
+Guida per utenti e amministratori. Scritta il 4 novembre 2026, aggiornata il 5 novembre (F8, corsia D8), prima del rilascio. Il rilascio è descritto in [STATO.md](STATO.md), «F8».
 
-Dopo F8 escono insieme:
-- il set ufficiale delle librerie GPC (GPCModel almeno 5.50.0.0);
+Escono insieme:
+- il set ufficiale delle librerie GPC (sul set candidato F7b: GPCModel 5.50.0.0; i numeri finali li dà F8);
 - ANTHEA 1.19.0;
-- BridGHe 0.4.0, Arachne e ReBear sullo stesso set.
+- BridGHe 0.4.0, Arachne 0.4.0 e ReBear 0.3.4, sullo stesso set.
 
-Questa guida dice come tornare alle versioni di prima e che cosa succede ai file.
+Questa guida dice come tornare alle versioni di prima e che cosa succede ai file. Dove c'è scritto «dal codice», la frase descrive il codice e non una prova con il pacchetto vero.
 
 ## Le versioni precedenti
 
 | Prodotto | Versione | Commit | Librerie GPC |
 |---|---|---|---|
-| ANTHEA | 1.18.0 | tag `v1.18.0` = `2efb5ab0` | set AU in `lib/Checker` |
+| ANTHEA | 1.18.0 | tag `v1.18.0` = `2efb5ab0` | set AU in `lib/Checker` (GPCModel 5.38.0.0) |
 | BridGHe | 0.3.0 | master `95ab7c3` (su origin) | set del 2/11 in `lib/GPC` (GPCModel 5.37.0.2) |
 | Arachne | 0.3.0-rc.8 (DLL 0.3.0.8) | master `39c54a2` (su origin) | solo GPCGeometry 2.3.0.0 e GPCUtilities 3.0.0.0, più TensileLib 2.5.0.1 |
 | ReBear | 0.3.3 | master `f2df907` | set del 2/11 in `lib/GPC` (GPCModel 5.37.0.2) |
 
-Rhino2FEM, Pawper, Ant e Meerkat non cambiano con F8: per loro non c'è nulla da riportare indietro.
+Rhino2FEM, Pawper, Ant e Meerkat non cambiano con questo rilascio: per loro non c'è nulla da riportare indietro.
+
+**BridGHe sul server.** Il 4/11 sera sul server c'era BridGHe 0.2.1 (`BridGHe.Grasshopper.gha` 0.2.1.0, 4/11 alle 11:58), non la 0.3.0. Il compito programmato delle 02:00 poteva copiare la 0.3.0 la notte del 5/11. [da verificare: quale versione c'è sul server al momento del rilascio.] Se c'è ancora la 0.2.1, la cartella messa da parte al rilascio conterrà la 0.2.1, e per la 0.3.0 serve ricostruirla da `95ab7c3`.
 
 ## Prima di tutto: copie dei file
 
-Alcuni file salvati con le versioni nuove non si aprono con quelle vecchie. **Prima di aprire con la versione nuova un file che serve ancora con quella vecchia, farne una copia.** I dettagli sono più sotto, per ogni prodotto.
+Molti file salvati con le versioni nuove non si aprono con quelle vecchie, e nessun prodotto ha un convertitore all'indietro. **Prima di aprire con la versione nuova un file che serve ancora con quella vecchia, farne una copia**, insieme ai suoi file accanto (`.anthea-risultati`, `.gpc-results`, `.bghr`).
+
+## I formati nuovi dei file
+
+| Formato | Chi lo scrive | Le versioni precedenti |
+|---|---|---|
+| `ModelArchive` compatto, versione 6 («GPCMOD», L5) | sezioni c.a. di ANTHEA 1.19; dati internalizzati e file `.gpc-results` di Arachne 0.4; file `.bghr` (`BGHR2`) e dati internalizzati (`BGHGPC1`) di BridGHe 0.4 | GPCModel fino a 5.38 non conosce il formato compatto. Gli archivi GPC sono compatibili solo all'indietro: un dato di un GPCModel più nuovo si rifiuta invece di leggerlo male (regola di `AGENTS.md` di Model) |
+| Documento ANTHEA versione 5 (`CompactSectionDocumentPersistence`) | ANTHEA 1.19, quando il progetto ha almeno una sezione c.a. | ANTHEA 1.18.0 dice «Operazione non completata» — «Formato o versione del file non supportati.» (provato con la vera 1.18.0, F7a) |
+| `ARCGPC3` (contratti GPC nel `.gh`) | Arachne 0.4, dati internalizzati | Arachne 0.3 li legge con BinaryFormatter, la lettura fallisce e il dato si perde. Componenti e fili restano |
+| `<documento>.<InstanceGuid>.gpc-results` accanto al `.gh` | Arachne 0.4, risultati del Form Find | Arachne 0.3 non lo legge: il Form Find va rilanciato |
+| `BGHR2` in `<output>.bghr` accanto al `.st7` | BridGHe 0.4, risultati delle analisi (intestazione, versione, archivio compatto v6 del modello con i risultati) | BridGHe 0.3.0 legge solo `BGHR1`: con un `BGHR2` dice «Formato del file dei risultati non riconosciuto: <percorso>» e servono nuove analisi (dal codice) |
+| `BGHGPC1` nel `.gh` (`GpcGooArchive`) | BridGHe 0.4, dati internalizzati. Un modello di ponte va nella stessa busta come pacchetto `GPCBRG` versione 1 (`BridgeModel.Save`) | BridGHe 0.3.0 accetta solo `BGHA1` e dice «Formato archivio non BridGHe. Gli archivi legacy non vengono deserializzati con BinaryFormatter.» Il dato si perde all'apertura (dal codice) |
+| JSON di ReBear (`ModelCodec`) | ReBear, invariato | nessun cambio: senza nomi di tipo né versioni GPC |
+
+**Stato di BridGHe.** La persistenza `BGHGPC1` di tutti i tipi GH è un passo della catena E, non ancora finito (`b579e10`). [da verificare a fine BridGHe: quali tipi scrivono `BGHGPC1` nella 0.4.0 e quali dati internalizzati della 0.3.0 la 0.4.0 legge ancora.]
+
+Il formato unico (solo compatto in scrittura) arriva con il rilascio successivo, per decisione dell'utente. Questo rilascio scrive ancora l'XML dove lo scriveva prima.
 
 ## ANTHEA: tornare a 1.18.0
 
@@ -47,11 +65,12 @@ Non è verificato se l'installer della 1.18.0 si installa sopra una 1.19.0 senza
 ### File di ANTHEA
 
 - **Un documento della 1.19 con almeno una sezione c.a. non si apre con la 1.18.**
-  - La 1.19 salva le sezioni c.a. nel formato compatto e mette il documento alla versione 5.
+  - La 1.19 salva le sezioni c.a. nel formato compatto (contratto della sezione 2: `ModelArchive` compatto v6 in base64) e mette il documento alla versione 5.
   - La 1.18.0 dice «Operazione non completata» — «Formato o versione del file non supportati.». È lo stesso messaggio di ogni file di una versione più recente. Provato con la vera 1.18.0 (F7a).
 - **Un progetto della 1.18 aperto e salvato con la 1.19 non si apre più con la 1.18**, anche senza modifiche. Al primo salvataggio la 1.19 converte le sezioni nel formato compatto. È la scelta dell'utente («tenila così»). Quindi: copia del file prima di salvarlo con la 1.19.
 - Un documento della 1.19 **senza** sezioni c.a. compatte tiene le versioni 1–4 e i suoi byte. Lo dice il codice (`CompactSectionDocumentPersistence`); con la vera 1.18.0 non è stato provato.
-- L'archivio dei risultati (blocchi di `GPC.Archive`) è identico byte per byte a quello della 1.18.0 (L3).
+- L'archivio dei risultati (blocchi di `GPC.Archive`, `.anthea-risultati`) è identico byte per byte a quello della 1.18.0 (L3).
+- Un archivio dei risultati illeggibile la 1.19 non lo sovrascrive: lo mette da parte come `.danneggiato-<data>` e mostra «Salvataggio con avvisi» (L4). Il file messo da parte resta, anche dopo il ritorno alla 1.18.
 - Non esiste un convertitore dalla 1.19 alla 1.18.
 
 ### Per ricostruire la 1.18.0 dai sorgenti
@@ -59,59 +78,60 @@ Non è verificato se l'installer della 1.18.0 si installa sopra una 1.19.0 senza
 - Il tag `v1.18.0` (`2efb5ab0`) contiene in `lib/Checker` il set AU: stessa data e stessi commit del suo `release-set.json`.
 - Per riportare il set AU in un altro checkout di ANTHEA: `tools/libs/Update-Snapshot.ps1 -ReleaseSet <cartella del set> -Install`. Lo script ricontrolla gli SHA-256.
 
-## Plugin: tornare a BridGHe 0.3.0, Arachne master e ReBear master
+## Plugin: tornare a BridGHe 0.3.0, Arachne 0.3.0-rc.8 e ReBear 0.3.3
 
 ### Riportarli tutti e tre insieme
 
-In uno stesso Rhino la prima copia caricata di una DLL GPC vale per tutti i plugin. BridGHe 0.3.0 e ReBear master usano lo stesso set del 2/11. Arachne master non carica GPCModel. Se un plugin nuovo resta accanto a quelli vecchi, i controlli al caricamento segnalano le DLL diverse. Per questo i tre plugin vanno riportati indietro insieme.
+In uno stesso Rhino la prima copia caricata di una DLL GPC vale per tutti i plugin. BridGHe 0.3.0 e ReBear 0.3.3 usano lo stesso set del 2/11. Arachne 0.3.0-rc.8 non carica GPCModel. Se un plugin nuovo resta accanto a quelli vecchi, i controlli al caricamento segnalano le DLL diverse. Per questo i tre plugin vanno riportati indietro insieme.
 
 ### Dal server
 
 - Cartelle dei plugin: `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN\<plugin>`. I colleghi prendono i plugin da lì.
-- Alla pubblicazione di F8 il contenuto vecchio si sposta, per rinomina, in `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN_da-eliminare_<data>`. Sta fuori dall'albero dei plugin, perché Grasshopper può leggere le sottocartelle. La cancella l'utente.
+- Al rilascio il contenuto vecchio si sposta, per rinomina, in una cartella da eliminare fuori dall'albero dei plugin, per esempio `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN_da-eliminare_<data>`: Grasshopper può leggere le sottocartelle. La cancella l'utente. [da verificare: nome esatto della cartella usata dal compito programmato delle 02:00.]
 - Finché quella cartella esiste, il ritorno più rapido è questo, con Rhino chiuso:
   1. spostare il contenuto nuovo di `<plugin>` in un'altra cartella da eliminare;
   2. rimettere in `<plugin>` il contenuto vecchio;
   3. controllare gli SHA-256 dei file copiati;
   4. tenere una sola `.gha` per cartella.
-- **Attenzione, BridGHe.** Oggi (4/11 sera) sul server c'è `BridGHe.Grasshopper.gha` con versione del file 0.2.1.0, del 4/11 alle 11:58: non la 0.3.0. Arachne è 0.3.0.8 e ReBear 0.3.3.0. Se il server non cambia prima di F8, la cartella da eliminare conterrà BridGHe 0.2.1. Per tornare alla 0.3.0 serve ricostruirla da `95ab7c3`.
+- Il compito delle 02:00 aggiorna le cartelle i cui `.gha` hanno una versione diversa dal bin rilasciato, leggendo `gpc-f6-claude/INT/rilascio-plugin-pronto.json`. Prima di un ritorno manuale sul server va fermato, o va tolto quel file, altrimenti la notte dopo riporta la versione nuova. [da verificare con la sessione che gestisce il compito.]
 
 ### Dai sorgenti
 
 1. Creare un worktree sul commit della tabella in alto, per esempio `git worktree add <cartella> 95ab7c3`.
 2. Costruire in Release, con Rhino chiuso, come per ogni rilascio del plugin.
    - BridGHe e ReBear: il set di librerie è già nel commit (`lib/GPC`).
-   - Arachne master legge GPCGeometry e GPCUtilities da `..\Geometry` e `..\Utilities` (`Directory.Build.props`). Servono i bin di Geometry `6734eee` e Utilities `e57b440`, che F8 non cambia.
-   - Arachne: costruire `Arachne.sln` con `-p:ShouldUnsetParentConfigurationAndPlatform=false`, altrimenti i progetti fuori dalla soluzione si compilano in Debug (nota P2A).
+   - Arachne 0.3.0-rc.8 legge GPCGeometry e GPCUtilities da `..\Geometry` e `..\Utilities` (`Directory.Build.props`). Servono i bin di Geometry `6734eee` e Utilities `e57b440`, che il rilascio non cambia.
+   - Arachne 0.4 cita anche `..\Model`; la 0.3.0-rc.8 no.
 3. Il controllo al caricamento avvisa se il bin non viene dal commit del checkout. Ricostruire il bin dopo ogni cambio di commit.
 4. Copiare bin ed esempi sul server presi da git (`git archive`), non dal working tree, e controllare gli SHA-256.
 
 ### File di BridGHe
 
 - **File dei risultati `<output>.bghr` accanto al `.st7`.**
-  - La 0.4.0 scrive il formato `BGHR2` nello stesso percorso della 0.3.0, con gli stessi elementi nel documento (`ResultsFile`, `ResultsHash`).
+  - La 0.3.0 li ha introdotti (`d7e4092`): nel documento restano solo il percorso e lo SHA-256 (`ResultsFile`, `ResultsHash`). Chi viene dalla 0.2.1 trova questo cambio insieme alla 0.4.0.
+  - La 0.4.0 scrive il formato `BGHR2` nello stesso percorso della 0.3.0, con gli stessi elementi nel documento.
   - La 0.3.0 legge solo `BGHR1`. Con un file `BGHR2` dà «Formato del file dei risultati non riconosciuto: <percorso>» e servono nuove analisi (Run).
   - Al contrario, se la 0.3.0 rilancia l'analisi, riscrive il file in `BGHR1`. La 0.4.0 lo riconosce e dice «Risultati di una versione precedente di BridGHe: rilanciare Run.».
   - Se si usano le due versioni sullo stesso progetto, conviene una cartella di output diversa per ognuna.
-  - Questo comportamento viene dal codice (BridGHe master `95ab7c3` e branch F6 `f142705`); non è provato con un documento vero.
+  - Il comportamento viene dal codice (master `95ab7c3`, branch F6 `b579e10`); non è provato con un documento vero.
 - **Dati internalizzati nei `.gh`.**
-  - Al commit F6 di oggi (`f142705`) i tipi GH scrivono ancora i payload FeMM `BGHA1`, che la 0.3.0 legge.
-  - Con le fasi (a) e (b) di P2B i dati passeranno ai contratti GPC (`BGHGPC1`, `GpcGooArchive`). La 0.3.0 rifiuta un payload che non è `BGHA1` («Formato archivio non BridGHe…») e il dato si perde all'apertura.
+  - La 0.4.0 scrive i contratti GPC (`BGHGPC1`). La 0.3.0 rifiuta un payload che non è `BGHA1` e il dato si perde all'apertura.
+  - La 0.4.0 legge i `BGHA1` della 0.3.0 con il lettore legacy: gli ingressi (nodi, travi, piastre, materiali, sezioni, proprietà, casi, combinazioni, gruppi, sistemi di riferimento, fasi, modelli costruiti) si convertono in GPC; risultati e cache di calcolo si scartano con «Dati di una versione precedente di BridGHe (risultati o cache di calcolo): non più letti. Ricalcolare il componente.» (progetto P2B §1.8 e codice di `b579e10`).
   - **Da verificare a fine BridGHe**, sul formato finale della 0.4.0.
+- **Esempio 99 REV003.** La revisione d'archivio del 21/10 non arriva più a Build Model senza errore nella 0.4.0 (una trave in due superelementi). La 0.3.0 la apre. È superata dalla REV004.
 
 ### File di Arachne
 
-Le note delle corsie non provano l'apertura in master di un `.gh` scritto da F6. Dal codice:
-- F6 scrive i dati internalizzati nei contratti GPC (`ARCGPC3`): elementi nella voce `Data`, `GH_Model` nella voce `Model`.
-- Master `39c54a2` legge quei dati con BinaryFormatter. La lettura fallisce, `Read` restituisce false e il dato si perde. Il codice di master scrive solo una riga di debug.
-- Il `.gh` si apre: componenti e fili restano, perché GUID e porte sono invariati (inventario 66/66). I dati internalizzati vanno rifatti dagli ingressi.
-- I risultati del Form Find di F6 stanno nel file `<documento>.<InstanceGuid>.gpc-results`. Master non lo legge: il Form Find va rilanciato.
-
-Nell'altro verso, F6 rifiuta con un messaggio i vecchi payload BinaryFormatter, NRBF e `ARCGPC2`; gli ingressi collegati si ricalcolano.
+- **Esempi e `.gh` con soli dati Grasshopper standard** (curve, punti, numeri): si aprono uguali nei due versi. A8 l'ha provato sui 6 esempi distribuiti: la 0.3.0-rc.8 apre gli esempi risalvati dalla 0.4 con gli stessi numeri, bit per bit.
+- **Dati internalizzati di Arachne** (un modello, un'asta, un materiale):
+  - la 0.4 scrive i contratti GPC (`ARCGPC3`): elementi nella voce `Data`, `GH_Model` nella voce `Model`;
+  - la 0.3.0-rc.8 li legge con BinaryFormatter. La lettura fallisce, `Read` restituisce false e il dato si perde; il codice della 0.3 scrive solo una riga di debug. Il `.gh` si apre: componenti e fili restano (GUID e porte invariati, inventario 66/66), i dati internalizzati vanno rifatti dagli ingressi (dal codice);
+  - nell'altro verso la 0.4 rifiuta con un messaggio i vecchi payload BinaryFormatter, NRBF e `ARCGPC2`; gli ingressi collegati si ricalcolano.
+- **Risultati del Form Find:** la 0.4 li scrive in `<documento>.<InstanceGuid>.gpc-results`. La 0.3 non li legge: il Form Find va rilanciato. Nel `.ghx` risalvato dalla 0.4 c'è in più il blocco `GpcAnalyses`, che la 0.3 ignora.
 
 ### File di ReBear
 
-Per F8 ReBear cambia solo le librerie in `lib/GPC` (F7a, commit `63a78f4`). Le note non segnalano cambi di formato dei file di ReBear. Non è verificato.
+ReBear salva gli ingressi internalizzati con il proprio JSON (`ModelCodec`), senza nomi di tipo o versioni GPC. R8 ha scritto i dati con una build e li ha riletti con l'altra, nei due versi: 73/73 uguali. Un `.gh` salvato con la 0.3.4 si apre con la 0.3.3 e viceversa.
 
 ## Il set di librerie precedente
 
@@ -139,9 +159,9 @@ Per F8 ReBear cambia solo le librerie in `lib/GPC` (F7a, commit `63a78f4`). Le n
 | GPCChecker.Masonry.dll | 0.10.0.31 | `0C28D861852DDADFBE03CB2E782DE95FD8C822FB69C1FA2961605425FCA2719F` |
 | GPC.Design.dll | 0.45.0.5 | `706C6BA0E7D42533C1555AEF65AB82985D6F6337F808E07183278FC38EF8187D` |
 
-`GPC.Archive` non c'è nel set AU: entra con F8.
+`GPC.Archive` non c'è nel set AU: entra con questo rilascio.
 
-### Set del 2/11 mattina (BridGHe 0.3.0 e ReBear master)
+### Set del 2/11 mattina (BridGHe 0.3.0 e ReBear 0.3.3)
 
 **I plugin non sono sul set AU.** BridGHe `95ab7c3` e ReBear `f2df907` hanno in `lib/GPC` il set ufficiale del 2/11 alle 10:36:
 - commit Model `15587299`, Checker `742f45f3`, Utilities `e57b440b`, Geometry `6734eee1`;
@@ -153,6 +173,7 @@ Una copia del set è in `%TEMP%\gpc-release-20261102-742f45f3`, con lo stesso `r
 ## Che cosa non è verificato
 
 - L'installazione della 1.18.0 sopra la 1.19.0 senza disinstallare.
-- L'apertura in master di un `.gh` di Arachne scritto da F6: la guida descrive il codice, non una prova.
-- I `.gh` di BridGHe 0.4.0 con il formato finale dei dati internalizzati: P2B non è finita.
-- I file di ReBear.
+- L'apertura in Arachne 0.3 di un `.gh` con dati internalizzati scritti dalla 0.4: la guida descrive il codice. Gli esempi senza dati internalizzati sono provati (A8).
+- I `.gh` di BridGHe 0.4.0 con il formato finale dei dati internalizzati: BridGHe non è finito.
+- Le letture incrociate dei file `.bghr` fra 0.3.0 e 0.4.0 con documenti veri.
+- Un ritorno completo, con i pacchetti del rilascio, in un ambiente pulito: si fa in F8.

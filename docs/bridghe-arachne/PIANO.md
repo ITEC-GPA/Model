@@ -1,5 +1,16 @@
 # Migrazione comune BridGHe e Arachne a GPCModel
 
+## Aggiornamento del 5 novembre 2026 (F8)
+
+Cambiamenti rispetto all'aggiornamento del 4/11 qui sotto. Lo stato reale è in [STATO.md](STATO.md).
+
+- **Il vocabolario del ponte esce da GPCModel** (utente: «Toglilo prima», per composizione). `BridgeModel` = `Model` GPC generico + `BridgeModelData`, nel Checker CompositeBridge; i dati di ogni trave stanno in `BridgeBeamData`, per GUID. I tipi del generatore del ponte di F5 sono cancellati. Corsia L12; regola e collocazione dei dati in [REGOLA-GPCMODEL.md](REGOLA-GPCMODEL.md).
+- **Regola di GPCModel** (utente): struttura, carichi, analisi e risultati. I dati delle verifiche stanno nelle librerie di dominio. Il form finding resta in GPCModel per ora.
+- **Rilascio:** «Aspetta la 0.4.0». Nessun BridGHe 0.3.1 intermedio: ANTHEA 1.19.0, BridGHe 0.4.0, Arachne 0.4.0 e ReBear 0.3.4 escono insieme sul set ufficiale.
+- **Nella 1.19.0** entrano la planarità relativa delle piastre, le pressioni variabili scritte in Straus7 come forze nodali equivalenti e la classe del calcestruzzo da «fc = N MPa».
+- **Barre della trave composta:** la 0.4.0 tiene una barra per fila nell'analisi, come la 0.3.0 («Dopo il rilascio»). Dopo il rilascio, BridGHe 0.5.0 con l'armatura distribuita (diametro + passo) e una sola sezione per analisi e verifiche.
+- **Dopo il rilascio:** un solo formato di salvataggio (solo compatto in scrittura), revisione dell'API di GPCModel con una sola API di copia, forse la separazione del form finding.
+
 ## Aggiornamento del 4 novembre 2026 (F8)
 
 Questa sezione dice che cosa è cambiato rispetto al piano qui sotto e quali decisioni ha preso l'utente. Il testo del piano dopo questa sezione è quello concordato il 2 novembre, scritto da ChatGPT, e resta com'era.

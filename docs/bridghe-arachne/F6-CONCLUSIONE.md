@@ -2,6 +2,14 @@
 
 Stato al 4 novembre 2026, sera. **Arachne è finita. BridGHe è in corso** (corsia P2B): questa parte del documento va completata quando P2B finisce.
 
+**Aggiornamento del 5 novembre** (corsia D8). Il testo qui sotto resta quello del 4/11. Nel frattempo:
+- **L11** (Model `61bd8251`, `9736405e`; Checker `e7fee77c`): `BridgeCompositeSectionDefinition` nel Checker e `ModelValues.Copy(model, options, Guid)`, la copia con un'identità di modello nuova.
+- **L12** (Model `30d776a7`, `f98a6e39`; Checker `e87a2ffd`, `d018ff28`): il vocabolario del ponte esce da GPCModel. Gli attributi di ponte di L11 e i metadati dei membri (`BeamMemberPart.BridgeMetadata`, la correzione B4 di L1) sono sostituiti da `BridgeModel` = `Model` + `BridgeModelData` in CompositeBridge. `RigidConnectionAttribute` resta in `GPC.Model.Attributes`, e ora scrive il punto che tiene (prima due salvataggi dello stesso modello davano byte diversi). Vedi [REGOLA-GPCMODEL.md](REGOLA-GPCMODEL.md).
+- **Sessione Azioni** (Model `d52b93a3`, `92537906`, `59d2b9b5`, `fd89a333`, `81a62065`): planarità delle piastre relativa alla loro dimensione, max(1e-4 mm, 1e-5 × distanza massima fra i vertici), anche per `NonUniformPlatePressure`; ogni piastra accettata prima resta accettata. Pressioni variabili scritte in Straus7 come forze nodali equivalenti, solo in uscita. Classe EN 206/NTC del calcestruzzo da «fc = N MPa» nel lettore Straus7, con l'avviso `MaterialGradeFromStrength`.
+- **P2G** (Model `75f5a370`): `ModelValues.Renumber` per la Construction Sequence di BridGHe.
+- **A8** (Model `bc5a7a07`): proprietà di build che tiene in Release i riferimenti costruiti da una soluzione che non li contiene. Nessuna DLL cambia.
+- **P2C–P2I** (BridGHe fino a `b579e10`): catene C e D, R3, R7, R8, migrazione di L12, catena E fino al punto (c). Le differenze elencate per il changelog 0.4.0 sono in CORREZIONI.md e in `correzioni-P2B.md`.
+
 Fonti, nella cartella `C:\Users\g.pacini\Documents\Repository\gpc-unification-20261102\revisione-claude-20261103`: [CORREZIONI.md](../../../revisione-claude-20261103/CORREZIONI.md) («Differenze nei risultati»), [RIPRESA.md](../../../revisione-claude-20261103/RIPRESA.md) e le note `correzioni-<corsia>.md`. Lo stato generale è in [STATO.md](STATO.md).
 
 Abbreviazioni:
