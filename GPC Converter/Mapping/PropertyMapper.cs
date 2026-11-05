@@ -25,13 +25,21 @@ namespace GPC.Converter
     }
 
     /// <summary>Builds Model materials, section shapes and element properties from normalized source records.
-    /// Strengths come from a recognised grade (EN 1993 steels, EN 1992 concrete classes) or from the caller's resolver;
+    /// Strengths come from a recognised grade (EN 1993 steels, EN 1992 concrete classes), from a concrete compressive strength
+    /// declared in the designation ("fc = 32 MPa", the Straus7 library names) or from the caller's resolver;
     /// elastic source values never generate a strength. An unresolved record leaves the element without property.</summary>
     internal sealed class PropertyMapper
     {
         // Whole words anywhere in the designation: "S355", "S 355 JR", "Steel S355", "C30/37", "Concrete C30/37".
         private static readonly Regex SteelGrade = new Regex(@"(?<![A-Za-z0-9])S\s*(\d{3})(?!\d)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         private static readonly Regex ConcreteClass = new Regex(@"(?<![A-Za-z0-9])C\s*(\d{2,3}(?:[.,]\d+)?)\s*[/_\-]\s*(\d{2,3})(?!\d)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        // 5/11/2026 (user, «Sì, nella 1.19.0»): the Straus7 material library names concrete by its compressive strength,
+        // "Concrete: Compressive Strength fc = 32 MPa" (f'c of AS 3600, the characteristic cylinder strength). Also "fck = 25 N/mm²", "f'c=40MPa".
+        private static readonly Regex CompressiveStrength = new Regex(@"(?<![A-Za-z0-9])f'?ck?\s*=\s*(\d{2,3}(?:[.,]\d+)?)\s*(?:MPa|N/mm(?:2|²|\^2))(?![A-Za-z0-9])",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        // EN 206 / NTC 2018 Tab. 4.1.I strength classes in the EN 1992 range (fck → fck,cube). A declared strength outside them stays unresolved.
+        private static readonly (double Fck, int Cube)[] ConcreteClasses = { (12, 15), (16, 20), (20, 25), (25, 30), (28, 35), (30, 37), (32, 40), (35, 45),
+            (40, 50), (45, 55), (50, 60), (55, 67), (60, 75), (70, 85), (80, 95), (90, 105) };
 
         private readonly ImportBatch batch;
         private readonly MappingOptions options;
@@ -170,6 +178,17 @@ namespace GPC.Converter
                 if (material != null && fromName)
                     Report("MaterialGradeFromName", record.Record, "Material " + record.Name + ": strength class read from the name, the source declares no database grade.",
                         DiagnosticSeverity.Information);
+                if (material == null && record.Kind != MaterialKind.Steel)
+                    foreach (var designationText in new[] { record.Grade, record.Name })
+                    {
+                        var strength = CompressiveStrength.Match(designationText ?? "");
+                        if (!strength.Success) continue;
+                        material = ClassFromStrength(double.Parse(strength.Groups[1].Value.Replace(',', '.'), CultureInfo.InvariantCulture));
+                        if (material != null)
+                            Report("MaterialGradeFromStrength", record.Record, "Material " + (record.Name ?? record.Id) + ": strength class " + material.Name
+                                + " assigned from \"" + strength.Value + "\", read as the characteristic cylinder strength fck; the source declares no strength class.");
+                        break;
+                    }
             }
             if (material == null)
                 Report("MaterialGradeUnresolved", record.Record, "Material " + (record.Name ?? record.Id) + (record.Grade == null ? "" : " (" + record.Grade + ")")
@@ -193,6 +212,16 @@ namespace GPC.Converter
             }
             materials.Add(record.Id, material);
             return material;
+        }
+
+        /// <summary>The EN 1992 class whose fck is the declared strength, named "C32/40"; null when no class has that fck.</summary>
+        private static Material ClassFromStrength(double fck)
+        {
+            foreach (var c in ConcreteClasses)
+                if (Math.Abs(c.Fck - fck) < 1e-9)
+                    return new ConcreteMaterialEN1992("C" + c.Fck.ToString(CultureInfo.InvariantCulture) + "/" + c.Cube.ToString(CultureInfo.InvariantCulture), c.Fck,
+                        ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
+            return null;
         }
 
         private static Material Grade(string designation, MaterialKind kind)

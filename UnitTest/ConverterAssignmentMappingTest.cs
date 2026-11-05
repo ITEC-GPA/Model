@@ -124,6 +124,53 @@ public class ConverterAssignmentMappingTest
         Assert.AreEqual(300, ((SteelSection)resolved.Model.BeamElements.Values.Single(b => b.Source.OriginalId == "10").BeamProperty).SteelMaterial.Fyk);
     }
 
+    // 5/11/2026 (user, «Sì, nella 1.19.0»): the Straus7 material library names concrete by its compressive strength (the real model
+    // P118-25-D-FM01 imported its two concretes without property). The declared strength is fck and gives the class with that fck.
+    [DataTestMethod]
+    [DataRow("Concrete: Compressive Strength fc = 32 MPa", MaterialKind.Unknown, 32d, "C32/40", "fc = 32 MPa")]
+    [DataRow("Concrete: Compressive Strength fc = 20 MPa", MaterialKind.Unknown, 20d, "C20/25", "fc = 20 MPa")]
+    [DataRow("Calcestruzzo fck=25 N/mm²", MaterialKind.Concrete, 25d, "C25/30", "fck=25 N/mm²")]
+    [DataRow("f'c = 40.0 MPa", MaterialKind.Unknown, 40d, "C40/50", "f'c = 40.0 MPa")]
+    public void DeclaredCompressiveStrength_GivesTheClassWithThatFck(string name, MaterialKind kind, double fck, string strengthClass, string matched)
+    {
+        var batch = Batch(); var record = batch.Materials[1]; record.Name = name; record.Kind = kind; record.Grade = null;
+        var report = Map(batch); var m = report.Model;
+        var rc = (ReinforcedConcreteSection)m.BeamElements.Values.Single(b => b.Source.OriginalId == "11").BeamProperty;
+        var concrete = (ConcreteMaterialEuropeanCommon)rc.ConcreteMaterial;
+        Assert.AreEqual(fck, Math.Abs(concrete.Fck), 1e-12); Assert.AreEqual(name, concrete.Name, "The analysis name is kept.");
+        Assert.IsNotNull(m.AreaElements.Values.Single().PlateProperty, "Plates of the material get their property too.");
+        var diagnostic = report.Diagnostics.Single(d => d.Code == "MaterialGradeFromStrength");
+        Assert.AreEqual(DiagnosticSeverity.Warning, diagnostic.Severity); Assert.AreEqual("M-C", diagnostic.Record);
+        StringAssert.Contains(diagnostic.Message, strengthClass); StringAssert.Contains(diagnostic.Message, "\"" + matched + "\"");
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "MaterialGradeUnresolved" || d.Code == "MaterialGradeFromName"));
+    }
+
+    [DataTestMethod]
+    [DataRow("Concrete: Compressive Strength fc = 65 MPa", MaterialKind.Unknown)] // AS 3600 grade with no EN 206 class
+    [DataRow("Concrete fc = 33 MPa", MaterialKind.Concrete)]
+    [DataRow("Concrete fc = 32 MPa", MaterialKind.Steel)]                         // a steel record is never read as concrete
+    [DataRow("Concrete fcm = 38 MPa", MaterialKind.Unknown)]                      // the mean strength is not fck
+    [DataRow("Concrete fc = 32 ksi", MaterialKind.Unknown)]
+    public void DeclaredStrengthWithoutAClass_StaysUnresolved(string name, MaterialKind kind)
+    {
+        var batch = Batch(); var record = batch.Materials[1]; record.Name = name; record.Kind = kind; record.Grade = null;
+        var report = Map(batch);
+        Assert.IsNull(report.Model.BeamElements.Values.Single(b => b.Source.OriginalId == "11").BeamProperty);
+        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "MaterialGradeUnresolved" && d.Record == "M-C"));
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "MaterialGradeFromStrength"));
+    }
+
+    [TestMethod]
+    public void AnExplicitClass_WinsOverTheDeclaredStrength()
+    {
+        var batch = Batch(); batch.Materials[1].Name = "C30/37 fc = 32 MPa";
+        var report = Map(batch);
+        var rc = (ReinforcedConcreteSection)report.Model.BeamElements.Values.Single(b => b.Source.OriginalId == "11").BeamProperty;
+        Assert.AreEqual(30, Math.Abs(((ConcreteMaterialEuropeanCommon)rc.ConcreteMaterial).Fck));
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "MaterialGradeFromStrength"));
+        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "MaterialGradeFromName" && d.Record == "M-C"));
+    }
+
     [TestMethod]
     public void SameSectionWithTwoMaterials_GivesTwoNamedProperties()
     {
