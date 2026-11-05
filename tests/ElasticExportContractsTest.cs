@@ -27,27 +27,22 @@ namespace UnitTest {
         {ModelValueArchive.Save(section,stream);stream.Position=0;var restored=ModelValueArchive.Load<Section>(stream);Assert.AreEqual(80,restored.Wel1);Assert.AreEqual(ModelValues.Fingerprint(new object[]{section}),ModelValues.Fingerprint(new object[]{restored}));}
         Assert.ThrowsException<ArgumentOutOfRangeException>(()=>new Section(100,800,200,30,0,new Point2d(0,0),new Point3d(0,0,0),0,"bad",double.NaN,40));
     }
-    [TestMethod] public void CompositeDefinitionAndInclusionFlagsRetainPhysicalGeometryAndArchiveIndependently()
+    /// <summary>The inclusion flags work on a detached copy of the physical section (the composite section definition with the modular
+    /// ratios is a contract of GPC.Checkers.CompositeBridge since lane L12).</summary>
+    [TestMethod] public void CompositeInclusionFlagsRetainPhysicalGeometry()
     {
         var concrete=new ConcreteMaterialEN1992("C30",30,ConcreteMaterial.CompressionStressStrainDiagrams.ParabolaRectangle);
         var steel=new SteelMaterialEN1993("S355",210000,355,510);
         var section=GPC.Model.Sections.Concrete.ReinforcedConcreteSection.CreateBridgeSection(1000,200,concrete,null,0,40,null,0,new SectionRectangular(300,200),steel);
         double n0=steel.ElasticModulusTension/concrete.ElasticModulusCompression;
-        var definition=new GPC.Model.Analysis.CompositeSectionDefinition {PhysicalSection=section,LongTermRatio=2*n0,ShortTermRatio=n0,IncludeReinforcement=false};
-        definition.Validate();string fingerprint=ModelValues.Fingerprint(new object[]{definition});
-        using(var stream=new MemoryStream())
-        {
-            ModelValueArchive.Save(definition,stream);stream.Position=0;var copy=ModelValueArchive.Load<GPC.Model.Analysis.CompositeSectionDefinition>(stream);
-            Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{copy}));Assert.AreEqual(2*n0,copy.EffectiveShrinkageRatio);
-            copy.ShrinkageRatio=3*n0;Assert.AreNotEqual(fingerprint,ModelValues.Fingerprint(new object[]{copy}));Assert.IsNull(definition.ShrinkageRatio);
-        }
+        string fingerprint=ModelValues.Fingerprint(new object[]{section});
         var full=GPC.Model.Analysis.CompositeSectionProperties.Calculate(section,0,true,false,true);
         Assert.AreEqual(200000+n0*60000,full.areaH,1e-6);
         var steelOnly=GPC.Model.Analysis.CompositeSectionProperties.Calculate(section,0,false,false,true);
         Assert.AreEqual(n0*60000,steelOnly.areaH,1e-6);Assert.AreEqual(-150,steelOnly.centroidH.Y,1e-8);
-        Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{definition}));
+        Assert.AreEqual(fingerprint,ModelValues.Fingerprint(new object[]{section}),"the section is not changed");
         Assert.ThrowsException<ArgumentOutOfRangeException>(()=>GPC.Model.Analysis.CompositeSectionProperties.Calculate(section,-1,true,true,true));
-        definition.ShortTermRatio=double.NaN;Assert.ThrowsException<ArgumentException>(()=>definition.Validate());
+        Assert.IsNull(typeof(ModelValues).Assembly.GetType("GPC.Model.Analysis.CompositeSectionDefinition"));
     }
     [TestMethod] public void MaterialDeclarationsRetainValuesWithoutChangingConstitutiveResponse()
     {

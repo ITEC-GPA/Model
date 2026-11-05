@@ -17,6 +17,8 @@ namespace GPC.Model.Core.Identity
         [DataMember(Order = 5)] public SourceIdentity Source { get; private set; }
         internal AssemblyIdentityEntry(Element input, Element canonical, EntityFamily family)
         { InputGuid = input.Guid; CanonicalGuid = canonical.Guid; Family = family; ModelId = canonical.Id; OriginalModelId = input.Id; Source = input.Source; }
+        /// <summary>The same entry with the id of its canonical element renumbered (<see cref="ModelValues.Renumber"/>).</summary>
+        internal AssemblyIdentityEntry Renumbered(int modelId) { var copy = (AssemblyIdentityEntry)MemberwiseClone(); copy.ModelId = modelId; return copy; }
     }
 
     /// <summary>Persistent assembly provenance, including every coincident node merged into
@@ -34,6 +36,8 @@ namespace GPC.Model.Core.Identity
         /// <summary>The same provenance (entries, tolerance) for the model <paramref name="modelGuid"/>: a copy of the model under another
         /// identity, with the same elements.</summary>
         internal AssemblyIdentityMap ForModel(Guid modelGuid) => new AssemblyIdentityMap(modelGuid, MergeToleranceMm, entries);
+        /// <summary>The same map with the ids of the canonical elements renumbered (<see cref="ModelValues.Renumber"/>): (family, id) to id.</summary>
+        internal AssemblyIdentityMap Renumbered(Func<EntityFamily, int, int> modelId) => new AssemblyIdentityMap(ModelGuid, MergeToleranceMm, entries.Select(e => e.Renumbered(modelId(e.Family, e.ModelId))));
         public void Validate()
         {
             if (ModelGuid == Guid.Empty || MergeToleranceMm.HasValue && (double.IsNaN(MergeToleranceMm.Value) || double.IsInfinity(MergeToleranceMm.Value) || MergeToleranceMm < 0) || entries == null)

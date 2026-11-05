@@ -11,8 +11,12 @@ namespace GPC.Model.Structure.Members
     [System.Runtime.Serialization.DataContract(Name = "SurfaceZoneDefinition", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Structure")]
     public sealed class SurfaceZoneDefinition
     {
+        /// <summary>The same zone with its shell ids renumbered (<see cref="Core.ModelValues.Renumber"/>); every other field kept.</summary>
+        internal SurfaceZoneDefinition Renumbered(Func<int, int> shellId)
+        { var copy = (SurfaceZoneDefinition)MemberwiseClone(); copy._elements = _elements.Select(shellId).ToArray(); return copy; }
+
         [System.Runtime.Serialization.DataMember(IsRequired = true)]
-        private readonly int[] _elements;
+        private int[] _elements;
         [field: System.Runtime.Serialization.DataMember(Name = "<Id>k__BackingField", IsRequired = true)]
         public string Id { get; private set; }
         [field: System.Runtime.Serialization.DataMember(Name = "<Name>k__BackingField", IsRequired = true)]
@@ -34,10 +38,19 @@ namespace GPC.Model.Structure.Members
     [System.Runtime.Serialization.DataContract(Name = "PhysicalSurfaceDefinition", Namespace = "http://schemas.datacontract.org/2004/07/GPC.Model.Structure")]
     public sealed class PhysicalSurfaceDefinition
     {
+        /// <summary>The same surface with the shell ids of its elements and zones renumbered (<see cref="Core.ModelValues.Renumber"/>);
+        /// every other field kept.</summary>
+        internal PhysicalSurfaceDefinition Renumbered(Func<int, int> shellId)
+        {
+            var copy = (PhysicalSurfaceDefinition)MemberwiseClone();
+            copy._elements = _elements.Select(shellId).ToArray(); copy._zones = _zones.Select(z => z.Renumbered(shellId)).ToArray();
+            return copy;
+        }
+
         [System.Runtime.Serialization.DataMember(IsRequired = true)]
-        private readonly int[] _elements;
+        private int[] _elements;
         [System.Runtime.Serialization.DataMember(IsRequired = true)]
-        private readonly SurfaceZoneDefinition[] _zones;
+        private SurfaceZoneDefinition[] _zones;
         [field: System.Runtime.Serialization.DataMember(Name = "<Id>k__BackingField", IsRequired = true)]
         public string Id { get; private set; }
         [field: System.Runtime.Serialization.DataMember(Name = "<Name>k__BackingField", IsRequired = true)]

@@ -153,6 +153,18 @@ namespace GPC.Model.Core
             copy.ReplaceIdentity(modelIdentity);
             return copy;
         }
+        /// <summary>A copy of an input model (as <see cref="Copy(Models.Model)"/>: the same model identity, the same GUIDs of the elements and of
+        /// everything else) with the ids of its nodes, beams, shells and solids numbered 1..n per family in the order of <paramref name="sequence"/>,
+        /// read on the elements of <paramref name="model"/> (equal keys: the current order of the ids), and every reference by id remapped: the
+        /// orientation nodes of the beams, the other nodes of the nodal links, the beams of the parts of the physical members, the shells of the
+        /// physical surfaces and of their zones, the canonical ids of the assembly map. E.g. an application that removes elements from a copy
+        /// and numbers the rest in its own order. The source is not changed.</summary>
+        /// <exception cref="ArgumentNullException">A null model or sequence.</exception>
+        /// <exception cref="ArgumentException">A model with results, datasets, an analysis snapshot or source, a verification context or check
+        /// reports (they name the elements by id); an assembly map of another element set (refresh it with
+        /// <see cref="Models.ModelAssembly.RefreshIdentityMap"/> after adding or removing elements); a reference to an element that is not in
+        /// the model.</exception>
+        public static Models.Model Renumber(Models.Model model, Func<Elements.Element, long> sequence) => Models.ModelRenumbering.Renumber(model, sequence);
         public static string Fingerprint(IEnumerable<object> input) => InputFingerprint.Compute(input);
         /// <summary>Content equality of two registered values through their fingerprints. Never throws: a value whose fingerprint
         /// cannot be computed (incomplete or unregistered content) is equal only to itself.</summary>
