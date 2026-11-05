@@ -224,6 +224,16 @@ namespace GPC.Model.Models
         /// <summary>Optional provenance of deterministic assembly; aliases survive copies and archives.</summary>
         public global::GPC.Model.Core.Identity.AssemblyIdentityMap AssemblyMap { get; internal set; }
 
+        /// <summary>Gives a copy that nobody else holds another persistent identity (<see cref="Core.ModelValues.Copy(Model, Core.ModelCopyOptions, Guid)"/>):
+        /// the GUID of the model and the model its assembly map names, which must agree (an archive refuses the map of another model).
+        /// Nothing else changes.</summary>
+        internal void ReplaceIdentity(Guid guid)
+        {
+            if (guid == Guid.Empty) throw new ArgumentException("EmptyModelGuid", nameof(guid));
+            _guid = guid;
+            if (AssemblyMap != null) AssemblyMap = AssemblyMap.ForModel(guid);
+        }
+
         /// <summary>Optional physical form-finding inputs in the canonical unit system.</summary>
         public FormFindingDefinition FormFinding { get; set; }
 

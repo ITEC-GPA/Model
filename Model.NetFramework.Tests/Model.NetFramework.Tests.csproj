@@ -8,6 +8,7 @@
     <Compile Include="../tests/FormFindingContractsTest.cs" Link="FormFindingContractsTest.cs" />
     <Compile Include="../tests/ArachneVocabularyTest.cs" Link="ArachneVocabularyTest.cs" />
     <Compile Include="../tests/BridgeElementAttributesTest.cs" Link="BridgeElementAttributesTest.cs" />
+    <Compile Include="../tests/ModelIdentityCopyTest.cs" Link="ModelIdentityCopyTest.cs" />
     <Compile Include="../tests/ExternalArchiveTest.cs" Link="ExternalArchiveTest.cs" />
     <Compile Include="../tests/CompactArchiveTest.cs" Link="CompactArchiveTest.cs" />
     <Compile Include="../tests/SharedPropertyCopyTest.cs" Link="SharedPropertyCopyTest.cs" />

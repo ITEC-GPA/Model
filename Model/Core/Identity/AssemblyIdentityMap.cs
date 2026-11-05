@@ -31,6 +31,9 @@ namespace GPC.Model.Core.Identity
         internal AssemblyIdentityMap(Guid modelGuid, double? tolerance, IEnumerable<AssemblyIdentityEntry> entries)
         { ModelGuid = modelGuid; MergeToleranceMm = tolerance; this.entries = entries.OrderBy(e => e.InputGuid).ToArray(); Validate(); }
         [OnDeserialized] private void OnRead(StreamingContext context) => Validate();
+        /// <summary>The same provenance (entries, tolerance) for the model <paramref name="modelGuid"/>: a copy of the model under another
+        /// identity, with the same elements.</summary>
+        internal AssemblyIdentityMap ForModel(Guid modelGuid) => new AssemblyIdentityMap(modelGuid, MergeToleranceMm, entries);
         public void Validate()
         {
             if (ModelGuid == Guid.Empty || MergeToleranceMm.HasValue && (double.IsNaN(MergeToleranceMm.Value) || double.IsInfinity(MergeToleranceMm.Value) || MergeToleranceMm < 0) || entries == null)

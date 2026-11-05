@@ -135,6 +135,24 @@ namespace GPC.Model.Core
             copy.Analysis?.Validate();
             return copy;
         }
+        /// <summary>As <see cref="Copy(Models.Model, ModelCopyOptions)"/>, with <paramref name="modelIdentity"/> as the persistent identity of the
+        /// copy (e.g. a model an application builds from a reference model it keeps): the <see cref="ModelObject.Guid"/> of the copy and the
+        /// model its <see cref="Models.Model.AssemblyMap"/> names are <paramref name="modelIdentity"/>; the elements, properties, cases, groups and
+        /// everything else keep the identities of the source, and <paramref name="options"/> share what they share in that copy.
+        /// <para>The analysis state (snapshot, datasets, results, verification context and reports) is copied as that copy copies it, unchanged:
+        /// it still names the source model. The model identity is an input of <see cref="Models.ModelRevisions.AnalysisFingerprint"/>, so for
+        /// the copy it is the analysis of another model (its results are stale and its snapshot is foreign until it is analysed again); a copy
+        /// back to the identity of the source gives the fingerprints of the source again.</para></summary>
+        /// <exception cref="ArgumentNullException">A null model.</exception>
+        /// <exception cref="ArgumentException"><paramref name="modelIdentity"/> is <see cref="Guid.Empty"/>.</exception>
+        public static Models.Model Copy(Models.Model model, ModelCopyOptions options, Guid modelIdentity)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+            if (modelIdentity == Guid.Empty) throw new ArgumentException("EmptyModelGuid", nameof(modelIdentity));
+            var copy = Copy(model, options);
+            copy.ReplaceIdentity(modelIdentity);
+            return copy;
+        }
         public static string Fingerprint(IEnumerable<object> input) => InputFingerprint.Compute(input);
         /// <summary>Content equality of two registered values through their fingerprints. Never throws: a value whose fingerprint
         /// cannot be computed (incomplete or unregistered content) is equal only to itself.</summary>
