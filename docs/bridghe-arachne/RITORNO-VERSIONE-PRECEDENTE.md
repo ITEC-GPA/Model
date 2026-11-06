@@ -20,7 +20,7 @@ Questa guida dice come tornare alle versioni di prima e che cosa succede ai file
 
 Rhino2FEM, Pawper, Ant e Meerkat non cambiano con questo rilascio: per loro non c'è nulla da riportare indietro.
 
-**BridGHe sul server.** Il 4/11 sera sul server c'era BridGHe 0.2.1 (`BridGHe.Grasshopper.gha` 0.2.1.0, 4/11 alle 11:58), non la 0.3.0. Il compito programmato delle 02:00 poteva copiare la 0.3.0 la notte del 5/11. [da verificare: quale versione c'è sul server al momento del rilascio.] Se c'è ancora la 0.2.1, la cartella messa da parte al rilascio conterrà la 0.2.1, e per la 0.3.0 serve ricostruirla da `95ab7c3`.
+**BridGHe sul server.** Fino al 5/11 sul server c'era BridGHe 0.2.1 (`BridGHe.Grasshopper.gha` 0.2.1.0, 4/11 alle 11:58). **Dal 6/11 alle 07:38 c'è la 0.3.0** (`0.3.0+95ab7c36a4df0f5b524c891684d49875e7b68679`), copiata dal compito programmato su richiesta dell'utente: 25 file del bin uguali per SHA-256 al bin di `95ab7c3`, 45 file d'esempio, nessun file di Gmsh. La 0.2.1 è nella cartella da eliminare `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN_da-eliminare_2026-11-06\BridGHe`. Al rilascio della 0.4.0 la cartella messa da parte conterrà quindi la 0.3.0, che è la versione a cui tornare.
 
 ## Prima di tutto: copie dei file
 
@@ -87,13 +87,14 @@ In uno stesso Rhino la prima copia caricata di una DLL GPC vale per tutti i plug
 ### Dal server
 
 - Cartelle dei plugin: `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN\<plugin>`. I colleghi prendono i plugin da lì.
-- Al rilascio il contenuto vecchio si sposta, per rinomina, in una cartella da eliminare fuori dall'albero dei plugin, per esempio `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN_da-eliminare_<data>`: Grasshopper può leggere le sottocartelle. La cancella l'utente. [da verificare: nome esatto della cartella usata dal compito programmato delle 02:00.]
+- Al rilascio il contenuto vecchio si sposta, per rinomina, in una cartella da eliminare fuori dall'albero dei plugin, `X:\ITEC-MODELLI\5-RHINO\SGBIM-GR_PLUGIN_da-eliminare_<aaaa-mm-gg>` (nome usato dal compito programmato, per esempio `SGBIM-GR_PLUGIN_da-eliminare_2026-11-06` con dentro `BridGHe`): fuori dall'albero dei plugin, perché Grasshopper può leggere le sottocartelle. La cancella l'utente.
 - Finché quella cartella esiste, il ritorno più rapido è questo, con Rhino chiuso:
   1. spostare il contenuto nuovo di `<plugin>` in un'altra cartella da eliminare;
   2. rimettere in `<plugin>` il contenuto vecchio;
   3. controllare gli SHA-256 dei file copiati;
   4. tenere una sola `.gha` per cartella.
-- Il compito delle 02:00 aggiorna le cartelle i cui `.gha` hanno una versione diversa dal bin rilasciato, leggendo `gpc-f6-claude/INT/rilascio-plugin-pronto.json`. Prima di un ritorno manuale sul server va fermato, o va tolto quel file, altrimenti la notte dopo riporta la versione nuova. [da verificare con la sessione che gestisce il compito.]
+- Il compito programmato `bridghe-030-copia-server` (ogni notte alle 02:00) aggiorna le cartelle del server il cui `.gha` ha una versione diversa da quella del bin rilasciato. Rilasciato vuol dire: nel checkout principale in `Repository`, HEAD uguale al ramo a monte, nessuna modifica tracciata, bin costruito da HEAD. `gpc-f6-claude/INT/rilascio-plugin-pronto.json` serve solo da controllo incrociato: un plugin il cui commit o versione non coincide con HEAD e con il bin si salta. Togliere quel file quindi **non** ferma la copia. Prima di un ritorno manuale sul server va **disattivato il compito** (Attività programmate), altrimenti la notte dopo riporta la versione dei checkout principali, cioè quella nuova.
+- Il compito chiede l'autorizzazione dei suoi comandi: la notte del 6/11 si è fermato al primo comando, finché l'utente non li ha approvati la mattina.
 
 ### Dai sorgenti
 
