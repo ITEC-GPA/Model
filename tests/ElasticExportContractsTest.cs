@@ -82,6 +82,33 @@ namespace UnitTest {
         material.AnalysisData.StressStrainPairs[2]=-1;Assert.ThrowsException<ArgumentException>(()=>material.AnalysisData.Validate());
         material.AnalysisData.StressStrainPairs=null;Assert.ThrowsException<ArgumentException>(()=>material.AnalysisData.Validate());
     }
+    /// <summary>A04: a material defined by its stress-strain table may have E = 0, on a beam and on a plate; every other refusal of the modulus stays.</summary>
+    [TestMethod] public void AMaterialDefinedByItsTableMayHaveAZeroModulusAndNothingElseChanges()
+    {
+        static MaterialAnalysisData Table()=>new MaterialAnalysisData {StressStrainPairs=new[]{0d,0,.001,200,.01,250},NonlinearResponse=MaterialNonlinearResponse.Elastoplastic};
+        var section=new SectionRectangular(10,10);
+        var material=new Material("table",0,.3,0,0){AnalysisData=Table()};
+        var beam=new ElasticBeamProperty("beam",material,section);beam.Validate();
+        var plate=new ElasticPlateProperty("plate",material,10,10);plate.Validate();
+        Assert.AreEqual(0,beam.Material.E);CollectionAssert.AreEqual(Table().StressStrainPairs,beam.Material.AnalysisData.StressStrainPairs);
+        static string Refusal(Action action)=>Assert.ThrowsException<ArgumentException>(action).Message;
+        void Refused(Material m,string message)
+        {
+            Assert.AreEqual(message,Refusal(()=>new ElasticBeamProperty("beam",m,section)));
+            Assert.AreEqual(message,Refusal(()=>new ElasticPlateProperty("plate",m,10,10)));
+        }
+        Refused(new Material("no table",0,.3,0,0),"ZeroElasticModulus");
+        Refused(new Material("data without a table",0,.3,0,0){AnalysisData=new MaterialAnalysisData {BeamShearModulus=80000}},"ZeroElasticModulus");
+        Assert.ThrowsException<ArgumentException>(()=>new Material("negative",-1,.3,0,0){AnalysisData=Table()}); // the material itself refuses it
+        Refused(new Material("NaN",double.NaN,.3,0,0){AnalysisData=Table()},"ZeroElasticModulus"); // Material.E reads 0 when the two moduli differ, and NaN differs from itself
+        Refused(new Material("bimodular",new StressStrainTable(null,null),new StressStrainTable(null,null),0,1000,.3,0,0){AnalysisData=Table()},"ZeroElasticModulus");
+        Refused(new Material("infinite",double.PositiveInfinity,.3,0,0){AnalysisData=Table()},"InvalidElasticModulus");
+        Refused(new Material("Poisson",0,.5,0,0){AnalysisData=Table()},"InvalidPoissonRatio");
+        var invalid=Table();invalid.StressStrainPairs[2]=-1;
+        Assert.ThrowsException<ArgumentException>(()=>new ElasticBeamProperty("beam",new Material("invalid table",0,.3,0,0){AnalysisData=invalid},section));
+        // The change is the check alone: a property with a modulus and a table is validated as before.
+        new ElasticBeamProperty("beam",new Material("modulus and table",210000,.3,0,0){AnalysisData=Table()},section).Validate();
+    }
     internal static Model Cantilever(bool distributed=false)
     {
         var fixedNode=new NodeElement(new Point3d(0,0,0));var freeNode=new NodeElement(new Point3d(1000,0,0));

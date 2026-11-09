@@ -13,19 +13,27 @@ namespace GPC.Converter.Straus7
 {
     /// <summary>Detached native geometry, in mm. Standard/BGL dimensions or embedded BXS bytes.
     /// Libraries are resolved once; subsequent exports require neither a library nor a source BXS path.
-    /// The explicit binary codec retains IEEE double bits and rejects unknown schemas.</summary>
+    /// The explicit binary codec retains IEEE double bits and rejects unknown schemas. A standard (dimensional, non-circular) shape may
+    /// carry the native mirror option (double channels and angles): schema 2 of the codec, and part of the fingerprint. A definition
+    /// without a mirror is always schema 1, with the bytes and the fingerprint it had before the option existed.</summary>
     public sealed class Straus7SectionDefinition
     {
         public int Shape { get; }
         public bool IsBgl { get; }
         public string Source { get; }
-        private readonly double[] dimensions,reference;
+        /// <summary>The native mirror option: 0 none, or Straus7's mtTop 1, mtBottom 2, mtLeft 3, mtRight 4.</summary>
+        public int MirrorType { get; }
+        /// <summary>Compatible twist of the two mirrored parts (St7SetBeamMirrorOption); false without a mirror.</summary>
+        public bool CompatibleTwist { get; }
+        private readonly double[] dimensions,reference,mirrorGaps;
         private readonly byte[] bxs;
         public double[] Dimensions=>(double[])dimensions.Clone();
         public double[] ReferenceProperties=>(double[])reference.Clone();
         public byte[] BxsData=>(byte[])bxs.Clone();
+        /// <summary>The two gaps of the mirror option (mm); zeros without a mirror.</summary>
+        public double[] MirrorGaps=>(double[])mirrorGaps.Clone();
         public bool IsResolved=>reference.Length==11;
-        internal Straus7SectionDefinition(int shape,bool bgl,double[] dimensions,byte[] bxs,double[] reference,string source)
+        internal Straus7SectionDefinition(int shape,bool bgl,double[] dimensions,byte[] bxs,double[] reference,string source,int mirrorType=0,double[] mirrorGaps=null,bool compatibleTwist=false)
         {
             Shape=shape;IsBgl=bgl;this.dimensions=(double[])(dimensions??Array.Empty<double>()).Clone();
             this.bxs=(byte[])(bxs??Array.Empty<byte>()).Clone();this.reference=(double[])(reference??Array.Empty<double>()).Clone();Source=source??"";
@@ -34,8 +42,20 @@ namespace GPC.Converter.Straus7
             if(this.reference.Length==11&&(this.reference[0]<=0||this.reference.Skip(1).Take(3).Any(v=>v<0)))throw new ArgumentException("NativeSectionHasNoPhysicalProperties");
             if(this.bxs.Length!=0){if(shape!=11||bgl||this.dimensions.Length!=0)throw new ArgumentException("InvalidBxsSectionDefinition");}
             else if(this.dimensions.Length!=(bgl?16:6)||shape<1||shape>(bgl?6:16)||!bgl&&shape==11)throw new ArgumentException("InvalidNativeSectionDimensions");
+            if(mirrorType<0||mirrorType>4)throw new ArgumentException("InvalidNativeSectionMirror");
+            // No mirror: no mirror data, so that the bytes and the fingerprint are those of a definition that never had the option.
+            MirrorType=mirrorType;CompatibleTwist=mirrorType!=0&&compatibleTwist;this.mirrorGaps=mirrorType==0?new double[2]:(double[])(mirrorGaps??Array.Empty<double>()).Clone();
+            if(mirrorType!=0)
+            {
+                if(this.mirrorGaps.Length!=2||this.mirrorGaps.Any(v=>double.IsNaN(v)||double.IsInfinity(v)))throw new ArgumentException("InvalidNativeSectionMirror");
+                // Straus7 has the option for the dimensional standard shapes only: not for the circular ones, BXS or BGL (ReadExpandedSection).
+                if(bgl||this.bxs.Length!=0||shape==1||shape==2)throw new ArgumentException("NativeSectionMirrorRequiresStandardShape");
+            }
         }
         public static Straus7SectionDefinition Standard(int shape,double[] dimensions)=>new Straus7SectionDefinition(shape,false,dimensions,null,null,"standard");
+        /// <summary>A standard shape with the native mirror option (<paramref name="mirrorType"/> 0: none, the same definition as without it).</summary>
+        public static Straus7SectionDefinition Standard(int shape,double[] dimensions,int mirrorType,double[] mirrorGaps,bool compatibleTwist=false)=>
+            new Straus7SectionDefinition(shape,false,dimensions,null,null,"standard",mirrorType,mirrorGaps,compatibleTwist);
         public static Straus7SectionDefinition Bgl(int shape,double[] dimensions)=>new Straus7SectionDefinition(shape,true,dimensions,null,null,"BGL geometry");
         public static Straus7SectionDefinition CaptureBxs(string path)=>new Straus7SectionDefinition(11,false,null,File.ReadAllBytes(path),null,"BXS/"+Path.GetFileName(path));
         public ElasticBeamProperty ToBeamProperty(string name,Material material)
@@ -51,9 +71,10 @@ namespace GPC.Converter.Straus7
         {
             using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream,Encoding.UTF8,true))
             {
-                writer.Write(0x53435047);writer.Write(1);writer.Write(Shape);writer.Write(IsBgl);writer.Write(Source);
+                writer.Write(0x53435047);writer.Write(MirrorType==0?1:2);writer.Write(Shape);writer.Write(IsBgl);writer.Write(Source);
                 writer.Write(dimensions.Length);foreach(double d in dimensions)writer.Write(d);
                 writer.Write(reference.Length);foreach(double d in reference)writer.Write(d);
+                if(MirrorType!=0){writer.Write(MirrorType);writer.Write(CompatibleTwist);writer.Write(mirrorGaps[0]);writer.Write(mirrorGaps[1]);}
                 writer.Write(bxs.Length);writer.Write(bxs);writer.Flush();return stream.ToArray();
             }
         }
@@ -62,14 +83,22 @@ namespace GPC.Converter.Straus7
             if(data==null||data.Length>65*1024*1024)throw new ArgumentException("NativeSectionArchiveSize");
             using(var stream=new MemoryStream(data,false))using(var reader=new BinaryReader(stream,Encoding.UTF8,true))
             {
-                if(reader.ReadInt32()!=0x53435047||reader.ReadInt32()!=1)throw new InvalidDataException("UnsupportedNativeSectionSchema");
+                if(reader.ReadInt32()!=0x53435047)throw new InvalidDataException("UnsupportedNativeSectionSchema");
+                int schema=reader.ReadInt32();if(schema!=1&&schema!=2)throw new InvalidDataException("UnsupportedNativeSectionSchema");
                 int shape=reader.ReadInt32();bool bgl=reader.ReadBoolean();string source=reader.ReadString();
                 int n=reader.ReadInt32();if(n!=0&&n!=6&&n!=16)throw new InvalidDataException("InvalidNativeSectionDimensions");
                 var dimensions=Enumerable.Range(0,n).Select(_=>reader.ReadDouble()).ToArray();
                 n=reader.ReadInt32();if(n!=0&&n!=11)throw new InvalidDataException("InvalidNativeSectionProperties");
                 var reference=Enumerable.Range(0,n).Select(_=>reader.ReadDouble()).ToArray();
+                // Schema 2 holds a mirror by definition: a definition without one is schema 1, one form for one definition.
+                int mirror=0;bool twist=false;double[] gaps=null;
+                if(schema==2)
+                {
+                    mirror=reader.ReadInt32();if(mirror<1||mirror>4)throw new InvalidDataException("InvalidNativeSectionMirror");
+                    twist=reader.ReadBoolean();gaps=new[]{reader.ReadDouble(),reader.ReadDouble()};
+                }
                 n=reader.ReadInt32();if(n<0||n>64*1024*1024||n!=stream.Length-stream.Position)throw new InvalidDataException("InvalidBxsPayloadSize");
-                return new Straus7SectionDefinition(shape,bgl,dimensions,reader.ReadBytes(n),reference,source);
+                return new Straus7SectionDefinition(shape,bgl,dimensions,reader.ReadBytes(n),reference,source,mirror,gaps,twist);
             }
         }
         public string Fingerprint(){using(var hash=SHA256.Create())return BitConverter.ToString(hash.ComputeHash(Save())).Replace("-","");}
@@ -178,6 +207,8 @@ namespace GPC.Converter.Straus7
             {
                 string op=definition.IsBgl?"St7SetBeamSectionGeometryBGL":"St7SetBeamSectionGeometry";
                 api.CheckWrite(api.WriteFunction<ThreeDoubles>(op)(Id,property,definition.Shape,definition.Dimensions),op);
+                // The mirror is part of what Straus7 calculates: after the geometry, before the section properties.
+                if(definition.MirrorType!=0)api.CheckWrite(api.WriteFunction<SectionMirror>("St7SetBeamMirrorOption")(Id,property,definition.MirrorType,definition.CompatibleTwist?1:0,definition.MirrorGaps),"St7SetBeamMirrorOption");
                 if(!definition.IsBgl)api.CheckWrite(api.WriteFunction<SectionCalculate>("St7CalculateBeamSectionProperties")(Id,property,1),"St7CalculateBeamSectionProperties");
             }
         }
@@ -239,6 +270,7 @@ namespace GPC.Converter.Straus7
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int MeshConnection(int file,int entity,int number,[Out] int[] connection);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionLibraryAssign(int a,int b,int c,int d,int[] flags);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionCalculate(int a,int b,byte shear);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SectionMirror(int file,int property,int mirrorType,int compatibleTwist,double[] gaps);
     }
     public sealed partial class Straus7NativeApi
     {
@@ -251,10 +283,12 @@ namespace GPC.Converter.Straus7
         internal Straus7SectionDefinition ReadExpandedSection(int property,string scratch,string source)
         {
             int type=0;var dimensions=new double[6];Check(Call<SectionCall>("St7GetBeamSectionGeometry")(FileId,property,ref type,dimensions),"St7GetBeamSectionGeometry");
+            int mirror=0,twist=0;var gaps=new double[2];
             if(type!=1&&type!=2)
             {
-                int mirror=0,twist=0;var gaps=new double[2];Check(Call<MirrorCall>("St7GetBeamMirrorOption")(FileId,property,ref mirror,ref twist,gaps),"St7GetBeamMirrorOption");
-                if(mirror!=0)throw new NotSupportedException("NativeSectionMirrorRequiresExplicitExpandedPhysicalGeometry");
+                Check(Call<MirrorCall>("St7GetBeamMirrorOption")(FileId,property,ref mirror,ref twist,gaps),"St7GetBeamMirrorOption");
+                // A standard shape keeps its mirror in the definition; a BXS or BGL section has no dimensional form of it.
+                if(mirror!=0&&(type==11||type==17))throw new NotSupportedException("NativeSectionMirrorRequiresExplicitExpandedPhysicalGeometry");
             }
             var integers=new int[4];var values=new double[20];Check(Call<SectionData>("St7GetBeamSectionPropertyData")(FileId,property,integers,values),"St7GetBeamSectionPropertyData");
             bool bgl=type==17;byte[] payload=null;
@@ -265,7 +299,7 @@ namespace GPC.Converter.Straus7
                 try{Check(Call<SectionExport>("St7ExportBXS")(FileId,property,path),"St7ExportBXS");payload=File.ReadAllBytes(path);dimensions=null;}
                 finally{if(File.Exists(path))File.Delete(path);}
             }
-            return new Straus7SectionDefinition(type,bgl,dimensions,payload,values.Take(11).ToArray(),source+"; "+Version);
+            return new Straus7SectionDefinition(type,bgl,dimensions,payload,values.Take(11).ToArray(),source+"; "+Version,mirror,gaps,twist!=0);
         }
         public System.Collections.Generic.IReadOnlyDictionary<string,string[]> SectionLibraryCatalog(bool bgl)
         {

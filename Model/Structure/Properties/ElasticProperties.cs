@@ -107,7 +107,14 @@ namespace GPC.Model.ElementProperties
             Nonnegative(material.Density, "Density");
             if (double.IsNaN(material.AlfaThermalExpansion) || double.IsInfinity(material.AlfaThermalExpansion)) throw new ArgumentException("InvalidThermalExpansion");
             if (material.Orthotropy != null) material.Orthotropy.Validate();
-            else { Positive(material.E, "ElasticModulus"); if (material.Ni <= -1 || material.Ni >= .5 || double.IsNaN(material.Ni)) throw new ArgumentException("InvalidPoissonRatio"); }
+            else
+            {
+                // A material defined by its stress-strain table may have no elastic modulus (E = 0: the native writer keeps E and the table as given).
+                // Both moduli are read: Material.E is also 0 when they differ (a bimodular material or a NaN), which stays refused.
+                bool definedByTable = material.ElasticModulusCompression == 0 && material.ElasticModulusTension == 0 && material.AnalysisData?.StressStrainPairs != null;
+                if (!definedByTable) Positive(material.E, "ElasticModulus");
+                if (material.Ni <= -1 || material.Ni >= .5 || double.IsNaN(material.Ni)) throw new ArgumentException("InvalidPoissonRatio");
+            }
         }
     }
 }

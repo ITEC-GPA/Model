@@ -8,6 +8,7 @@ using GPC.Model.Loads;
 using GPC.Model.Persistence;
 using GPC.Model.Sections;
 using GPC.Model.Structure.Assignments;
+using System.Runtime.InteropServices;
 
 namespace UnitTest;
 
@@ -30,6 +31,168 @@ public class Straus7SectionDefinitionTest
         bytes[4]=2;Assert.ThrowsException<InvalidDataException>(()=>Straus7SectionDefinition.Load(bytes));
         Assert.ThrowsException<InvalidDataException>(()=>Straus7SectionDefinition.Load(original.Save().Concat(new byte[]{1}).ToArray()));
         Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(3,new[]{double.NaN,1,0,0,0,0}));
+    }
+    /// <summary>A02b: schema 1 is frozen. The bytes are spelled out here, independently of the codec, with the SHA-256 they had before the mirror option.</summary>
+    [TestMethod]
+    public void ADefinitionWithoutAMirrorKeepsSchema1ItsBytesAndItsFingerprint()
+    {
+        var dimensions=new[]{150d,100,0,10,12,0};
+        byte[] expected;
+        using(var stream=new MemoryStream())using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
+        {
+            writer.Write(0x53435047);writer.Write(1);writer.Write(9);writer.Write(false);writer.Write("standard");
+            writer.Write(6);foreach(double d in dimensions)writer.Write(d);writer.Write(0);writer.Write(0);writer.Flush();expected=stream.ToArray();
+        }
+        const string frozen="A07015C17E2AE2D6015E6EDA5B691897501DE3710D96FE03ACC4911992E3FB22";
+        var plain=Straus7SectionDefinition.Standard(9,dimensions);
+        CollectionAssert.AreEqual(expected,plain.Save());Assert.AreEqual(frozen,plain.Fingerprint());
+        // The mirror overload without a mirror is the same definition, whatever gaps and twist it is given.
+        var none=Straus7SectionDefinition.Standard(9,dimensions,0,new[]{8d,3},true);
+        CollectionAssert.AreEqual(expected,none.Save());Assert.AreEqual(frozen,none.Fingerprint());
+        Assert.AreEqual(0,none.MirrorType);Assert.IsFalse(none.CompatibleTwist);CollectionAssert.AreEqual(new double[2],none.MirrorGaps);
+        // Schema 1 still reads, without a mirror, and writes back the same bytes.
+        var read=Straus7SectionDefinition.Load(expected);
+        Assert.AreEqual(0,read.MirrorType);Assert.IsFalse(read.CompatibleTwist);CollectionAssert.AreEqual(new double[2],read.MirrorGaps);CollectionAssert.AreEqual(expected,read.Save());
+    }
+    /// <summary>A02b: schema 2 holds the mirror, keeps its bits and enters the fingerprint; invalid mirrors are refused by the factory and by the codec.</summary>
+    [TestMethod]
+    public void AMirroredDefinitionIsSchema2AndEntersTheFingerprint()
+    {
+        var dimensions=new[]{150d,100,0,10,12,0};double negativeZero=BitConverter.Int64BitsToDouble(long.MinValue);
+        var mirrored=Straus7SectionDefinition.Standard(9,dimensions,3,new[]{8.5,negativeZero},true);
+        var bytes=mirrored.Save();Assert.AreEqual(2,BitConverter.ToInt32(bytes,4));
+        var copy=Straus7SectionDefinition.Load(bytes);
+        Assert.AreEqual(3,copy.MirrorType);Assert.IsTrue(copy.CompatibleTwist);Assert.AreEqual(8.5,copy.MirrorGaps[0]);Assert.AreEqual(long.MinValue,BitConverter.DoubleToInt64Bits(copy.MirrorGaps[1]));
+        CollectionAssert.AreEqual(bytes,copy.Save());Assert.AreEqual(mirrored.Fingerprint(),copy.Fingerprint());
+        var gaps=copy.MirrorGaps;gaps[0]=99;Assert.AreEqual(8.5,copy.MirrorGaps[0]);
+        // Each mirror datum moves the fingerprint, and a mirror differs from no mirror.
+        var fingerprints=new[]
+        {
+            mirrored.Fingerprint(),Straus7SectionDefinition.Standard(9,dimensions).Fingerprint(),
+            Straus7SectionDefinition.Standard(9,dimensions,4,new[]{8.5,negativeZero},true).Fingerprint(),
+            Straus7SectionDefinition.Standard(9,dimensions,3,new[]{8.6,negativeZero},true).Fingerprint(),
+            Straus7SectionDefinition.Standard(9,dimensions,3,new[]{8.5,1d},true).Fingerprint(),
+            Straus7SectionDefinition.Standard(9,dimensions,3,new[]{8.5,negativeZero},false).Fingerprint(),
+        };
+        Assert.AreEqual(fingerprints.Length,fingerprints.Distinct().Count());
+        // Invalid mirrors.
+        foreach(int type in new[]{-1,5})Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(9,dimensions,type,new[]{0d,0}));
+        Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(9,dimensions,3,new[]{1d}));
+        Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(9,dimensions,3,null));
+        Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(9,dimensions,3,new[]{double.NaN,0}));
+        Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(9,dimensions,3,new[]{0d,double.PositiveInfinity}));
+        // The circular shapes have no native mirror option.
+        foreach(int shape in new[]{1,2})Assert.ThrowsException<ArgumentException>(()=>Straus7SectionDefinition.Standard(shape,new[]{100d,0,0,5,0,0},3,new[]{0d,0}));
+        // Schema 2 without a mirror, a mirror of an unknown type or an unknown schema are refused.
+        foreach(int type in new[]{0,5})
+        {
+            var invalid=(byte[])bytes.Clone();BitConverter.GetBytes(type).CopyTo(invalid,invalid.Length-4-2*sizeof(double)-1-sizeof(int));
+            Assert.ThrowsException<InvalidDataException>(()=>Straus7SectionDefinition.Load(invalid));
+        }
+        var unknown=(byte[])bytes.Clone();unknown[4]=3;Assert.ThrowsException<InvalidDataException>(()=>Straus7SectionDefinition.Load(unknown));
+        Assert.ThrowsException<InvalidDataException>(()=>Straus7SectionDefinition.Load(bytes.Concat(new byte[]{1}).ToArray()));
+    }
+    [DllImport("kernel32",CharSet=CharSet.Unicode)] private static extern IntPtr GetModuleHandle(string name);
+    [DllImport("kernel32",CharSet=CharSet.Ansi)] private static extern IntPtr GetProcAddress(IntPtr module,string name);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int NewFile(int uid,string path,string scratch);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int OneInt(int uid);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int Units(int uid,int[] units);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi,CharSet=CharSet.Ansi)] private delegate int NewProperty(int uid,int property,int type,string name);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int IntDoubles(int uid,int property,int value,double[] doubles);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int IntsDoubles(int uid,int property,int[] ints,double[] doubles);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int Doubles(int uid,int property,double[] doubles);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int Update(int uid,int type,int property);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int Calculate(int uid,int property,byte shear);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int SetMirror(int uid,int property,int type,int twist,double[] gaps);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GetMirror(int uid,int property,ref int type,ref int twist,[Out] double[] gaps);
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int GetGeometry(int uid,int property,ref int type,[Out] double[] dimensions);
+    private static T St7<T>(string name) where T:class=>Marshal.GetDelegateForFunctionPointer(GetProcAddress(GetModuleHandle("St7api.dll"),name),typeof(T)) as T;
+    private static void Ok(int code,string what){if(code!=0)throw new InvalidOperationException(what+" returned "+code);}
+    /// <summary>A02b: a double angle and a double channel written and read back through the Converter give the type, the dimensions, the mirror
+    /// option and the section data of the call sequence of BridGHe 0.3.0 (StrausR3Helper at 95ab7c3: geometry, the section data of the single
+    /// section, St7SetBeamMirrorOption with mtLeft, btFalse and the two gaps, material, update, St7CalculateBeamSectionProperties with the shear).</summary>
+    [DataTestMethod,TestCategory("Straus7Native")]
+    [DataRow(9,150d,100d,0d,10d,12d,0d,8d,0d)]
+    [DataRow(9,150d,100d,0d,10d,12d,0d,8d,3d)]
+    [DataRow(5,100d,300d,0d,10d,8d,8d,12d,0d)]
+    [DataRow(5,100d,300d,0d,10d,8d,8d,0d,0d)]
+    public void AMirroredStandardSectionIsTheOneOfTheFormerCallSequence(int shape,double d0,double d1,double d2,double d3,double d4,double d5,double gapA,double gapB)
+    {
+        const int mtLeft=3;string folder=Folder();var dimensions=new[]{d0,d1,d2,d3,d4,d5};var gaps=new[]{gapA,gapB};
+        var resolved=Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(shape,dimensions,mtLeft,gaps),folder);
+        Assert.AreEqual(shape,resolved.Shape);CollectionAssert.AreEqual(dimensions,resolved.Dimensions);
+        Assert.AreEqual(mtLeft,resolved.MirrorType);Assert.IsFalse(resolved.CompatibleTwist);CollectionAssert.AreEqual(gaps,resolved.MirrorGaps);
+        var restored=Straus7SectionDefinition.Load(resolved.Save());Assert.AreEqual(resolved.Fingerprint(),restored.Fingerprint());
+        var single=Straus7SectionLibrary.Resolve(Straus7SectionDefinition.Standard(shape,dimensions),folder).ReferenceProperties;
+        // The double section: twice the area of the single one.
+        Assert.AreEqual(2*single[0],resolved.ReferenceProperties[0],1e-9*single[0]);
+        var material=new Material("S",210000,.3,7.85e-9,1.2e-5);
+        var model=ElasticExportContractsTest.Cantilever();var beam=model.BeamElements.Values.Single();beam.BeamProperty=restored.ToBeamProperty("double",material);
+        var plan=Straus7ModelWritePlan.Prepare(model,null,null,new Dictionary<Guid,Straus7SectionDefinition>{{beam.Guid,restored}});
+        string path=Path.Combine(folder,"double.st7");
+        using(var writer=new Straus7NativeWriter(path,folder)){plan.Write(writer,model);writer.Save();}
+        using(var reader=new Straus7NativeApi())
+        {
+            reader.OpenModelReadOnly(path,folder);
+            var captured=reader.ReadSectionDefinition(1,folder);var property=reader.ReadProperty(Straus7Entity.Beam,1);
+            Assert.AreEqual(shape,captured.Shape);CollectionAssert.AreEqual(dimensions,captured.Dimensions);
+            Assert.AreEqual(mtLeft,captured.MirrorType);Assert.IsFalse(captured.CompatibleTwist);CollectionAssert.AreEqual(gaps,captured.MirrorGaps);
+            Assert.AreEqual(mtLeft,property.MirrorType);CollectionAssert.AreEqual(gaps,property.MirrorGaps);Assert.AreEqual(false,property.CompatibleTwist);
+            // 0.3.0 replayed on a scratch model: the section data written before the mirror are those of the single section.
+            const int former=7;
+            Ok(St7<NewFile>("St7NewFile")(former,Path.Combine(folder,"former.st7"),folder),"St7NewFile");
+            try
+            {
+                Ok(St7<Units>("St7SetUnits")(former,new[]{2,0,2,1,0,0}),"St7SetUnits");
+                Ok(St7<NewProperty>("St7NewBeamProperty")(former,1,6,"former"),"St7NewBeamProperty");
+                Ok(St7<IntDoubles>("St7SetBeamSectionGeometry")(former,1,shape,dimensions),"St7SetBeamSectionGeometry");
+                Ok(St7<IntsDoubles>("St7SetBeamSectionPropertyData")(former,1,new[]{0},single),"St7SetBeamSectionPropertyData");
+                Ok(St7<SetMirror>("St7SetBeamMirrorOption")(former,1,mtLeft,0,gaps),"St7SetBeamMirrorOption");
+                var m=new double[9];m[0]=210000;m[2]=.3;m[3]=7.85e-9;m[4]=1.2e-5;
+                Ok(St7<Doubles>("St7SetBeamMaterialData")(former,1,m),"St7SetBeamMaterialData");
+                Ok(St7<Update>("St7UpdateElementPropertyData")(former,1,1),"St7UpdateElementPropertyData");
+                Ok(St7<Calculate>("St7CalculateBeamSectionProperties")(former,1,1),"St7CalculateBeamSectionProperties");
+                int type=0,mirror=0,twist=0;var read=new double[6];var readGaps=new double[2];var expected=new double[20];
+                Ok(St7<GetGeometry>("St7GetBeamSectionGeometry")(former,1,ref type,read),"St7GetBeamSectionGeometry");
+                Ok(St7<GetMirror>("St7GetBeamMirrorOption")(former,1,ref mirror,ref twist,readGaps),"St7GetBeamMirrorOption");
+                Ok(St7<IntsDoubles>("St7GetBeamSectionPropertyData")(former,1,new int[4],expected),"St7GetBeamSectionPropertyData");
+                Assert.AreEqual(type,captured.Shape);CollectionAssert.AreEqual(read,captured.Dimensions);
+                Assert.AreEqual(mirror,captured.MirrorType);Assert.AreEqual(twist,captured.CompatibleTwist?1:0);CollectionAssert.AreEqual(readGaps,captured.MirrorGaps);
+                var data=captured.ReferenceProperties;
+                double worst=Enumerable.Range(0,11).Max(j=>Math.Abs(data[j]-expected[j])/Math.Max(1,Math.Abs(expected[j])));
+                Console.WriteLine("A02b shape "+shape+" gaps "+gapA+" "+gapB+": section data "+string.Join(" ",data.Select(v=>v.ToString("R",System.Globalization.CultureInfo.InvariantCulture)))
+                    +"; former sequence "+string.Join(" ",expected.Take(11).Select(v=>v.ToString("R",System.Globalization.CultureInfo.InvariantCulture)))+"; worst relative difference "+worst.ToString("R",System.Globalization.CultureInfo.InvariantCulture));
+                Assert.IsTrue(worst<=1e-12,"section data differ from the former sequence by "+worst);
+            }
+            finally{St7<OneInt>("St7CloseFile")(former);}
+        }
+    }
+    /// <summary>A02b: a mirror on a BXS or BGL section stays refused on reading.</summary>
+    [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
+    public void AMirrorOnABxsOrBglSectionStaysRefused(bool bgl)
+    {
+        string folder=Folder(),path=Path.Combine(folder,"source.st7"),mirrored=Path.Combine(folder,"mirrored.st7");
+        var model=ElasticExportContractsTest.Cantilever();var beam=model.BeamElements.Values.Single();var material=new Material("S",210000,.3,0,0);
+        Dictionary<Guid,Straus7SectionDefinition> native=null;
+        if(bgl)
+        {
+            var resolved=Straus7SectionLibrary.Resolve(Straus7SectionCatalog.Get("BglRectangle").Create(new[]{100d,50,5,5,0,0}),folder);
+            beam.BeamProperty=resolved.ToBeamProperty("bgl",material);native=new Dictionary<Guid,Straus7SectionDefinition>{{beam.Guid,resolved}};
+        }
+        else beam.BeamProperty=new ElasticBeamProperty("bxs",material,new SectionRectangular(20,10,.17));
+        using(var writer=new Straus7NativeWriter(path,folder)){Straus7ModelWritePlan.Prepare(model,null,null,native).Write(writer,model);writer.Save();}
+        using(var reader=new Straus7NativeApi()){reader.OpenModelReadOnly(path,folder);Assert.AreEqual(0,reader.ReadSectionDefinition(1,folder).MirrorType);}
+        File.Copy(path,mirrored);
+        using(var reader=new Straus7NativeApi())
+        {
+            const int file=7;
+            Ok(St7<NewFile>("St7OpenFile")(file,mirrored,folder),"St7OpenFile");
+            try{Ok(St7<SetMirror>("St7SetBeamMirrorOption")(file,1,3,0,new[]{0d,0}),"St7SetBeamMirrorOption");Ok(St7<OneInt>("St7SaveFile")(file),"St7SaveFile");}
+            finally{St7<OneInt>("St7CloseFile")(file);}
+            reader.OpenModelReadOnly(mirrored,folder);
+            var e=Assert.ThrowsException<NotSupportedException>(()=>reader.ReadSectionDefinition(1,folder));
+            Assert.AreEqual("NativeSectionMirrorRequiresExplicitExpandedPhysicalGeometry",e.Message);
+        }
     }
     [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
     public void ResolvedNativeHollowSectionKeepsItsTaperRuleAndAnalyticalAxialResponse(bool bgl)
