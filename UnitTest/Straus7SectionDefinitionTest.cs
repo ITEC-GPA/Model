@@ -167,11 +167,13 @@ public class Straus7SectionDefinitionTest
             finally{St7<OneInt>("St7CloseFile")(former);}
         }
     }
-    /// <summary>A02b: a mirror on a BXS or BGL section stays refused on reading.</summary>
+    /// <summary>A02b: Straus7 itself has no mirror for a BXS or BGL section: St7SetBeamMirrorOption refuses it (ERR7_SectionCannotBeMirrored, 67), so the refusal of
+    /// ReadExpandedSection is only a guard, and such a section reads without a mirror.</summary>
     [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
-    public void AMirrorOnABxsOrBglSectionStaysRefused(bool bgl)
+    public void Straus7HasNoMirrorForABxsOrBglSection(bool bgl)
     {
-        string folder=Folder(),path=Path.Combine(folder,"source.st7"),mirrored=Path.Combine(folder,"mirrored.st7");
+        const int sectionCannotBeMirrored=67;
+        string folder=Folder(),path=Path.Combine(folder,"source.st7");
         var model=ElasticExportContractsTest.Cantilever();var beam=model.BeamElements.Values.Single();var material=new Material("S",210000,.3,0,0);
         Dictionary<Guid,Straus7SectionDefinition> native=null;
         if(bgl)
@@ -181,17 +183,13 @@ public class Straus7SectionDefinitionTest
         }
         else beam.BeamProperty=new ElasticBeamProperty("bxs",material,new SectionRectangular(20,10,.17));
         using(var writer=new Straus7NativeWriter(path,folder)){Straus7ModelWritePlan.Prepare(model,null,null,native).Write(writer,model);writer.Save();}
-        using(var reader=new Straus7NativeApi()){reader.OpenModelReadOnly(path,folder);Assert.AreEqual(0,reader.ReadSectionDefinition(1,folder).MirrorType);}
-        File.Copy(path,mirrored);
         using(var reader=new Straus7NativeApi())
         {
+            reader.OpenModelReadOnly(path,folder);Assert.AreEqual(0,reader.ReadSectionDefinition(1,folder).MirrorType);reader.CloseModel();
             const int file=7;
-            Ok(St7<NewFile>("St7OpenFile")(file,mirrored,folder),"St7OpenFile");
-            try{Ok(St7<SetMirror>("St7SetBeamMirrorOption")(file,1,3,0,new[]{0d,0}),"St7SetBeamMirrorOption");Ok(St7<OneInt>("St7SaveFile")(file),"St7SaveFile");}
+            Ok(St7<NewFile>("St7OpenFile")(file,path,folder),"St7OpenFile");
+            try{Assert.AreEqual(sectionCannotBeMirrored,St7<SetMirror>("St7SetBeamMirrorOption")(file,1,3,0,new[]{0d,0}));}
             finally{St7<OneInt>("St7CloseFile")(file);}
-            reader.OpenModelReadOnly(mirrored,folder);
-            var e=Assert.ThrowsException<NotSupportedException>(()=>reader.ReadSectionDefinition(1,folder));
-            Assert.AreEqual("NativeSectionMirrorRequiresExplicitExpandedPhysicalGeometry",e.Message);
         }
     }
     [DataTestMethod,DataRow(false),DataRow(true),TestCategory("Straus7Native")]
