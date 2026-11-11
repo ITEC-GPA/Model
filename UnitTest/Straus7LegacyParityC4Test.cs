@@ -152,7 +152,10 @@ public class Straus7LegacyParityC4Test
             Assert.IsTrue(supports[0].Values.All(v => v == 0) && supports[2].Values.All(v => v == 0));
             CollectionAssert.AreEqual(new[] { .01, -.02 }, reader.ReadBeamTemperatureGradient(1, 1));
             CollectionAssert.AreEqual(new[] { 1, .8 }, reader.ReadBeamTaper(1, 1, out int alignment1)); Assert.AreEqual(1, alignment1, "btTop");
-            CollectionAssert.AreEqual(new[] { 1.0, 1 }, reader.ReadBeamTaper(1, 2, out int alignment2)); Assert.AreEqual(0, alignment2, "btSymm");
+            // The unit symmetric taper of axis 2 is not kept by Straus7 (St7GetBeamTaper2: «Data not found», measured on R31 on 11/11): no taper
+            // on axis 2, as in the file of 0.3.0, which wrote none.
+            string axis2 = null; try { axis2 = string.Join(",", reader.ReadBeamTaper(1, 2, out int alignment2)) + " " + alignment2; } catch (Straus7ApiException) { }
+            Assert.IsNull(axis2, "no taper on axis 2: " + axis2);
             // The native axes of the beam are the principal axes of the plan (the section axes turned by the principal angle).
             var axes = reader.ReadElement(Straus7Entity.Beam, 1).InitialAxes; double angle = ((ElasticBeamProperty)beam.BeamProperty).Section.AngleX1, c = Math.Cos(angle), s = Math.Sin(angle);
             var v1 = beam.Assignments.SectionAxes.V1 * c + beam.Assignments.SectionAxes.V2 * s;
