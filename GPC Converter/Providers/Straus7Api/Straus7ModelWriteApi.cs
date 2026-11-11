@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -183,16 +184,40 @@ namespace GPC.Converter.Straus7
         }
         /// <summary>Runs only this newly created output. Existing result files are never overwritten.</summary>
         public string Solve(bool stagedNonlinear=false,bool nonlinearGeometry=false,bool nonlinearMaterial=false)
+            =>Solve(new Straus7SolveOptions {StagedNonlinear=stagedNonlinear,NonlinearGeometry=nonlinearGeometry,NonlinearMaterial=nonlinearMaterial});
+        /// <summary>C2 (P26-04, P26-06): as <see cref="Solve(bool,bool,bool)"/>, with the LSA load cases to enable (the others disabled) and
+        /// the nonlinear switches to set (a null switch keeps the setting of the file, as BridGHe 0.3.0 did).</summary>
+        public string Solve(Straus7SolveOptions options)
         {
+            if(options==null)throw new ArgumentNullException(nameof(options));
+            bool stagedNonlinear=options.StagedNonlinear;
             string result=System.IO.Path.ChangeExtension(OutputPath,stagedNonlinear?"nla":"lsa");
             if(System.IO.File.Exists(result))throw new System.IO.IOException("RefusingToOverwriteStrausResults");
-            api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearGeometry")(Id,(byte)(nonlinearGeometry?1:0)),"St7SetSolverNonlinearGeometry");
-            api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearMaterial")(Id,(byte)(nonlinearMaterial?1:0)),"St7SetSolverNonlinearMaterial");
+            if(options.NonlinearGeometry.HasValue)api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearGeometry")(Id,(byte)(options.NonlinearGeometry.Value?1:0)),"St7SetSolverNonlinearGeometry");
+            if(options.NonlinearMaterial.HasValue)api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearMaterial")(Id,(byte)(options.NonlinearMaterial.Value?1:0)),"St7SetSolverNonlinearMaterial");
+            int enabledCount=0;
             if(!stagedNonlinear)
             {
                 if(api.StageCount!=0)throw new InvalidOperationException("StagedModelRequiresExplicitStagedSolve");
                 if(api.FreedomCaseCount!=1)throw new NotSupportedException("LinearSolveRequiresExplicitFreedomCasePairing");
-                for(int i=1;i<=api.LoadCaseCount;i++) api.CheckWrite(api.WriteFunction<MovingThree>("St7EnableLSALoadCase")(Id,i,1),"St7EnableLSALoadCase");
+                int count=api.LoadCaseCount;
+                if(options.EnabledLoadCases==null)
+                {
+                    for(int i=1;i<=count;i++) api.CheckWrite(api.WriteFunction<MovingThree>("St7EnableLSALoadCase")(Id,i,1),"St7EnableLSALoadCase");
+                    enabledCount=count;
+                }
+                else
+                {
+                    var enabled=new HashSet<int>(options.EnabledLoadCases);
+                    if(enabled.Any(i=>i<1||i>count))throw new ArgumentOutOfRangeException(nameof(options),"EnabledLoadCaseOutOfRange");
+                    // As BridGHe 0.3.0 (StrausAnalysis): every case of the file enabled or disabled explicitly, in native order.
+                    for(int i=1;i<=count;i++)
+                    {
+                        string op=enabled.Contains(i)?"St7EnableLSALoadCase":"St7DisableLSALoadCase";
+                        api.CheckWrite(api.WriteFunction<MovingThree>(op)(Id,i,1),op);
+                    }
+                    enabledCount=enabled.Count;
+                }
             }
             else if(!api.ReadStagedAnalysis())throw new InvalidOperationException("StagedAnalysisDefinitionRequired");
             Save();api.CheckWrite(api.WriteFunction<Four>("St7RunSolver")(Id,stagedNonlinear?3:1,3,1),"St7RunSolver");
@@ -201,7 +226,7 @@ namespace GPC.Converter.Straus7
             var opened=api.OpenResults(result);
             try
             {
-                int expected=stagedNonlinear?Enumerable.Range(1,api.StageCount).Where(api.ReadStageEnabled).Sum(api.ReadStageIncrementCount):api.LoadCaseCount;
+                int expected=stagedNonlinear?Enumerable.Range(1,api.StageCount).Where(api.ReadStageEnabled).Sum(api.ReadStageIncrementCount):enabledCount;
                 if(opened.PrimaryCases<expected)throw new InvalidOperationException("StrausSolverProducedIncompleteResults");
                 if(stagedNonlinear&&Enumerable.Range(1,opened.PrimaryCases).Any(c=>!api.ReadResultConverged(c)))throw new InvalidOperationException("StrausNonconvergedResult");
             }

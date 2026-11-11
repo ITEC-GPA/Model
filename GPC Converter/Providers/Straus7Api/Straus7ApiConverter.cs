@@ -270,10 +270,13 @@ namespace GPC.Converter.Straus7
                         ValidateSelection(beams, Bounded(api.Count(Straus7Entity.Beam))); ValidateSelection(plates, Bounded(api.Count(Straus7Entity.Plate))); ValidateSelection(nodes, Bounded(api.Count(Straus7Entity.Node)));
                         report.File = api.ValidateResults(resultPath);
                         if (report.File == null || report.File.ValidationFlags != 0) throw new InvalidDataException("St7ValidateResultFile rejected the model/result association; flags=" + report.File?.ValidationFlags);
-                        var opened = api.OpenResults(resultPath);
+                        var combinationApi = api as IStraus7CombinationResultReadApi;
+                        if (request.IncludeCombinations && combinationApi == null) throw new NotSupportedException("The API binding does not provide the LSA combination cases.");
+                        var opened = request.IncludeCombinations ? combinationApi.OpenResultsWithCombinations(resultPath) : api.OpenResults(resultPath);
                         report.File.PrimaryCases = Bounded(opened.PrimaryCases); report.File.SecondaryCases = Bounded(opened.SecondaryCases);
                         if (cases.Length == 0) cases = Enumerable.Range(1, report.File.PrimaryCases).ToArray();
-                        ValidateSelection(cases, report.File.PrimaryCases); // No implicit combinations/envelopes.
+                        // No implicit combinations/envelopes: combination cases only when requested explicitly (C2, P26-07).
+                        ValidateSelection(cases, report.File.PrimaryCases + (request.IncludeCombinations ? report.File.SecondaryCases : 0));
                         long values = 0; var inactive = new Dictionary<int, int>();
                         // An element outside the active stage of a case has no results (St7GetElementResultState: inactive): it is skipped, never filled.
                         bool Active(Straus7Entity entity, int number, int c)

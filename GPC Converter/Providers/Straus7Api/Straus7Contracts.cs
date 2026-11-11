@@ -263,6 +263,24 @@ namespace GPC.Converter.Straus7
         Straus7ResultTable ReadPlateResult(int number, int resultCase, bool moments);
         Straus7ResultTable ReadNodeResult(int number, int resultCase, bool reactions);
     }
+    /// <summary>C2 (P26-06): the nonlinear solver settings saved in a Straus7 model.</summary>
+    public sealed class Straus7SolverSettings
+    {
+        public bool NonlinearGeometry { get; set; }
+        public bool NonlinearMaterial { get; set; }
+        public bool StagedAnalysis { get; set; }
+        public double DisplacementTolerance { get; set; }
+        public double ResidualTolerance { get; set; }
+        public int MaximumIterations { get; set; }
+        public override string ToString() => "geometry " + (NonlinearGeometry ? 1 : 0) + ", material " + (NonlinearMaterial ? 1 : 0) + ", staged " + (StagedAnalysis ? 1 : 0)
+            + ", tolerances " + DisplacementTolerance.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "/" + ResidualTolerance.ToString("R", System.Globalization.CultureInfo.InvariantCulture)
+            + ", iterations " + MaximumIterations.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+    /// <summary>C2 (P26-07): the result file opened with the LSA combination cases that Straus7 computes (kGenerateNewCombinations).</summary>
+    public interface IStraus7CombinationResultReadApi
+    {
+        Straus7ResultFile OpenResultsWithCombinations(string path);
+    }
     public sealed class Straus7ApiException : Exception
     {
         public int NativeCode { get; }
@@ -295,6 +313,9 @@ namespace GPC.Converter.Straus7
         public bool IncludeElementNodeForces { get; set; }
         /// <summary>Also reads the plate force/moment tensors at the element nodes, without averaging (corner values of each plate).</summary>
         public bool IncludePlateNodeResults { get; set; }
+        /// <summary>C2 (P26-07): opens the result file with the LSA combination cases Straus7 computes (kGenerateNewCombinations): the case numbers
+        /// may then also select the combination cases, after the primary cases. Off: primary cases only, as before.</summary>
+        public bool IncludeCombinations { get; set; }
     }
     public sealed class Straus7ResultsReport
     {

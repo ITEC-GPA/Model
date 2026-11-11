@@ -10,7 +10,7 @@ namespace GPC.Converter.Straus7
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
     public sealed partial class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi,
-        IStraus7StageReadApi, IStraus7MassTemperatureReadApi
+        IStraus7StageReadApi, IStraus7MassTemperatureReadApi, IStraus7CombinationResultReadApi
     {
         private IntPtr library;
         private bool initialized, modelOpen, resultsOpen, ownsRuntime;
@@ -84,10 +84,20 @@ namespace GPC.Converter.Straus7
         private void Check(int code, string operation)
         {
             if (code == 0) return;
-            var text = new StringBuilder(1024);
-            var address = GetProcAddress(library, "St7GetAPIErrorString");
-            if (address != IntPtr.Zero) ((ErrorString)Marshal.GetDelegateForFunctionPointer(address, typeof(ErrorString)))(code, text, text.Capacity);
-            throw new Straus7ApiException(operation, code, text.ToString());
+            throw new Straus7ApiException(operation, code, ErrorText(code));
+        }
+        /// <summary>The text of a native error code: the API catalogue (St7GetAPIErrorString), otherwise the solver catalogue
+        /// (St7GetSolverErrorString), as BridGHe 0.3.0 described its errors (StrausRuntime, StrausR3Helper); empty when neither knows it.</summary>
+        internal string ErrorText(int code)
+        {
+            foreach (var name in new[] { "St7GetAPIErrorString", "St7GetSolverErrorString" })
+            {
+                var address = GetProcAddress(library, name);
+                if (address == IntPtr.Zero) continue;
+                var text = new StringBuilder(1024);
+                if (((ErrorString)Marshal.GetDelegateForFunctionPointer(address, typeof(ErrorString)))(code, text, text.Capacity) == 0 && text.Length != 0) return text.ToString();
+            }
+            return "";
         }
         public void OpenModelReadOnly(string path, string scratchPath)
         {
@@ -198,24 +208,55 @@ namespace GPC.Converter.Straus7
             }
             properties.Add(key, p); return p;
         }
+        /// <summary>C2 (P26-06): the nonlinear solver settings of the open model (St7GetSolverNonlinearGeometry/Material, St7GetSolverDefaultsDouble
+        /// spNonlinDispTolerance and spNonlinResidualTolerance, St7GetSolverDefaultsInteger spMaxIterationNonlin) and the staged flag.</summary>
+        public Straus7SolverSettings ReadSolverSettings()
+        {
+            byte geometry = 0, material = 0, staged = 0; double displacement = 0, residual = 0; int iterations = 0;
+            Check(Call<BoolOnly>("St7GetSolverNonlinearGeometry")(FileId, ref geometry), "St7GetSolverNonlinearGeometry");
+            Check(Call<BoolOnly>("St7GetSolverNonlinearMaterial")(FileId, ref material), "St7GetSolverNonlinearMaterial");
+            Check(Call<BoolOnly>("St7GetNLAStagedAnalysis")(FileId, ref staged), "St7GetNLAStagedAnalysis");
+            Check(Call<DefaultDouble>("St7GetSolverDefaultsDouble")(FileId, 4, ref displacement), "St7GetSolverDefaultsDouble/displacement");
+            Check(Call<DefaultDouble>("St7GetSolverDefaultsDouble")(FileId, 5, ref residual), "St7GetSolverDefaultsDouble/residual");
+            Check(Call<TwoIntRef>("St7GetSolverDefaultsInteger")(FileId, 5, ref iterations), "St7GetSolverDefaultsInteger/iterations");
+            return new Straus7SolverSettings { NonlinearGeometry = geometry != 0, NonlinearMaterial = material != 0, StagedAnalysis = staged != 0,
+                DisplacementTolerance = displacement, ResidualTolerance = residual, MaximumIterations = iterations };
+        }
+        /// <summary>C2 (P26-04): whether a load case is enabled for the linear static solver (St7GetLSALoadCaseState, freedom case 1).</summary>
+        public bool ReadLinearCaseEnabled(int loadCase)
+        {
+            byte enabled = 0; Check(Call<CaseState>("St7GetLSALoadCaseState")(FileId, loadCase, 1, ref enabled), "St7GetLSALoadCaseState " + loadCase); return enabled != 0;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int BoolOnly(int a, ref byte b);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DefaultDouble(int a, int b, ref double c);
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int CaseState(int a, int b, int c, ref byte d);
         public Straus7ResultFile ValidateResults(string path)
         {
             int flags = 0, solver = 0;
             Check(Call<ValidateCall>("St7ValidateResultFile")(FileId, path, ref flags, ref solver), "St7ValidateResultFile");
             return new Straus7ResultFile { ValidationFlags = flags, Solver = solver };
         }
-        public Straus7ResultFile OpenResults(string path)
+        public Straus7ResultFile OpenResults(string path) => OpenResults(path, false);
+        /// <summary>C2 (P26-07): the results with the LSA combination cases that Straus7 computes on opening (kGenerateNewCombinations), as BridGHe
+        /// 0.3.0 opened them: the combinations follow the primary cases (secondary cases, in native combination order). Verified on R31 (11/11/2026)
+        /// that the model and result files are left unchanged. The names of the primary cases are then "&lt;result case&gt;: [&lt;load case&gt;: &lt;name&gt;]",
+        /// those of the combinations "&lt;result case&gt;: [&lt;combination&gt;: &lt;name&gt;] [Combination]".</summary>
+        public Straus7ResultFile OpenResultsWithCombinations(string path) => OpenResults(path, true);
+        private Straus7ResultFile OpenResults(string path, bool combinations)
         {
             if (resultsOpen) throw new InvalidOperationException("Results already open.");
             int primary = 0, secondary = 0;
-            Check(Call<OpenResult>("St7OpenResultFile")(FileId, path, "", 0, ref primary, ref secondary), "St7OpenResultFile(kNoCombinations)"); resultsOpen = true;
+            Check(Call<OpenResult>("St7OpenResultFile")(FileId, path, "", combinations ? 1 : 0, ref primary, ref secondary), combinations ? "St7OpenResultFile(kGenerateNewCombinations)" : "St7OpenResultFile(kNoCombinations)"); resultsOpen = true;
+            openedPrimary = primary;
             Check(Call<OneInt>("St7DisableModelRotationUnit")(FileId), "St7DisableModelRotationUnit(radians)");
             Check(Call<ReferenceDisplacement>("St7SetReferenceDisplacement")(FileId, 0, 0), "St7SetReferenceDisplacement(absolute)");
             return new Straus7ResultFile { PrimaryCases = primary, SecondaryCases = secondary };
         }
         public void CloseResults()
-        { if (resultsOpen) { Check(Call<OneInt>("St7CloseResultFile")(FileId), "St7CloseResultFile"); resultsOpen = false; } }
-        public Straus7ResultCase ReadResultCase(int number) => new Straus7ResultCase { Number = number, Name = Name("St7GetResultCaseName", number), Stage = Attribute("St7GetResultCaseStage", number) };
+        { if (resultsOpen) { Check(Call<OneInt>("St7CloseResultFile")(FileId), "St7CloseResultFile"); resultsOpen = false; openedPrimary = int.MaxValue; } }
+        /// <summary>The primary cases of the open result file: a later (combination) case has no stage (St7GetResultCaseStage: 13), stage 0.</summary>
+        private int openedPrimary = int.MaxValue;
+        public Straus7ResultCase ReadResultCase(int number) => new Straus7ResultCase { Number = number, Name = Name("St7GetResultCaseName", number), Stage = number > openedPrimary ? 0 : Attribute("St7GetResultCaseStage", number) };
         private int[] State(Straus7Entity entity, int number, int resultCase)
         {
             var state = new int[3]; Check(Call<StateCall>("St7GetElementResultState")(FileId, (int)entity, number, resultCase, state), "St7GetElementResultState " + entity + "/" + number); return state;

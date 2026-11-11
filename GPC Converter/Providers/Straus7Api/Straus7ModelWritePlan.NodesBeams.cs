@@ -158,12 +158,15 @@ namespace GPC.Converter.Straus7
                 var beamMaterial=(beam.BeamProperty as ElasticBeamProperty)?.Material??(beam.BeamProperty as SteelSection)?.SteelMaterial;
                 if(cutoff!=null&&beamMaterial?.AnalysisData?.StressStrainPairs!=null)throw new NotSupportedException("CutoffLawCannotBeCombinedWithMaterialStressStrainLaw");
                 // Equivalent beams share one native property, BXS and material law, named after the GPC property and material (C5).
-                string key=PropertyKey(beam,formulation,property,nativeSection,sliced?slices:0);
+                string label=WriteOptions.Label(beam.Guid);
+                string key=PropertyKey(beam,formulation,property,nativeSection,sliced?slices:0)+(label==null?"":"|label:"+label);
                 if(!beamProperties.TryGetValue(key,out int pid))
                 {
                     pid=beamProperties.Count+1;beamProperties.Add(key,pid);
                     string name=string.IsNullOrWhiteSpace(beam.BeamProperty?.Name)?"Beam property "+pid:beam.BeamProperty.Name;
                     Operations.Add(a=>a.CreateBeamProperty(pid,name,formulation,(double[])property.Section.Clone(),(double[])property.Material.Clone()));
+                    // C2 (P26-01): the section label of the 0.3.0 exporter, after the creation and before the geometry, as it wrote it.
+                    if(label!=null){RequiresNameApi=true;Operations.Add(a=>((IStraus7PropertyNameWriteApi)a).SetBeamSectionName(pid,label));}
                     string materialName=input.AnalysisProfile==null?beamMaterial?.Name:null;
                     if(!string.IsNullOrWhiteSpace(materialName))Operations.Add(a=>a.SetBeamMaterialName(pid,materialName));
                     if(cutoff!=null)

@@ -118,9 +118,31 @@ namespace GPC.Converter.Straus7
                 Finite(values);var nodes=plate.Nodes.Select(n=>Entities[n.Guid]).ToArray();string name=string.IsNullOrWhiteSpace(plate.Name)?"Plate "+id:plate.Name;
                 double bending=p?.BendingThickness??0,membrane=p?.MembraneThickness??1;bool orthotropic=o!=null||fabric!=null;
                 if(orthotropic&&plate.Assignments.LayerAxes==null)throw new ArgumentException("OrthotropicPlateRequiresMaterialAxes");
-                Operations.Add(a=>a.CreatePlateProperty(id,name,formulation,bending,membrane,(double[])values.Clone(),orthotropic));
-                MaterialLaw(id,2,material);
-                Operations.Add(a=>a.SetElement(2,id,id,(int[])nodes.Clone()));Group(plate,2);
+                // C2 (P26-03, option): one native property per distinct GPC plate property, named as the property, as 0.3.0. Every datum of the
+                // property operations comes from the GPC property (formulation, thicknesses, material values, material law): plates of one property
+                // have the same native property data; axes and offset are element data, written below for each plate.
+                int pid=id;bool create=true;
+                if(WriteOptions.PlatePropertiesByProperty)
+                {
+                    string propertyName=plate.PlateProperty?.Name;
+                    string key=string.Join("|",new[]{propertyName??"",formulation.ToString(System.Globalization.CultureInfo.InvariantCulture),Doubles(new[]{bending,membrane}),Doubles(values),
+                        orthotropic?"orthotropic":"",FingerprintOf(plate.PlateProperty)});
+                    if(plateProperties.TryGetValue(key,out pid))create=false;
+                    else {pid=plateProperties.Count+1;plateProperties.Add(key,pid);}
+                    name=string.IsNullOrWhiteSpace(propertyName)?"Plate property "+pid:propertyName;
+                }
+                if(create)
+                {
+                    int created=pid;string propertyLabel=name;
+                    Operations.Add(a=>a.CreatePlateProperty(created,propertyLabel,formulation,bending,membrane,(double[])values.Clone(),orthotropic));
+                    // C2 (P26-02, option): the name of the material of the plate property, as 0.3.0 (St7SetMaterialName, ptPLATEPROP); not for load patches.
+                    string materialName=formulation==7?null:material?.Name;
+                    if(WriteOptions.PlateMaterialNames&&!string.IsNullOrWhiteSpace(materialName))
+                    {RequiresNameApi=true;Operations.Add(a=>((IStraus7PropertyNameWriteApi)a).SetPlateMaterialName(created,materialName));}
+                    MaterialLaw(created,2,material);
+                }
+                int property=pid;
+                Operations.Add(a=>a.SetElement(2,id,property,(int[])nodes.Clone()));Group(plate,2);
                 if(plate.Assignments.LayerAxes!=null){var axes=AxesData(plate.Assignments.LayerAxes);Operations.Add(a=>a.SetPlateAxes(id,(double[])axes.Clone()));}
                 if(plate.Assignments.PhysicalThickness.HasValue&&Math.Abs(plate.Assignments.PhysicalThickness.Value-membrane)>1e-9)
                     throw new ArgumentException("LegacyShellThicknessConflictsWithPhysicalProperty");
@@ -150,6 +172,8 @@ namespace GPC.Converter.Straus7
                     Enumerable.Range(0,count).All(i=>Axes.Length(boundary[(start+direction*i+count)%count]-nodes[i])<1e-7)));
                 if(!matches)throw new NotSupportedException("PlatePressureRequiresFullElementCoverage");
             }
+            /// <summary>C2 (P26-03): the native plate properties by their data key, when they are shared (<see cref="Straus7WriteOptions.PlatePropertiesByProperty"/>).</summary>
+            private readonly Dictionary<string,int> plateProperties=new Dictionary<string,int>(StringComparer.Ordinal);
             /// <summary>The work-equivalent nodal forces of the varying plate pressures, per node (Guid) and native load case, in the global system.</summary>
             private readonly Dictionary<Guid,Dictionary<int,Vector3d>> pressureNodeForces=new Dictionary<Guid,Dictionary<int,Vector3d>>();
             /// <summary>
@@ -206,6 +230,7 @@ namespace GPC.Converter.Straus7
                 {
                     int id=++i;string name=combination.Name;var pairs=combination.GetLoadCaseCoefficientsPair();
                     var cases=pairs.Select(c=>Load(c.Key)).ToArray();var factors=pairs.Select(c=>c.Value).ToArray();Finite(factors);
+                    Combinations.Add(combination.Guid,id);
                     Operations.Add(a=>a.AddCombination(id,name,(int[])cases.Clone(),(double[])factors.Clone(),1));
                 }
             }
