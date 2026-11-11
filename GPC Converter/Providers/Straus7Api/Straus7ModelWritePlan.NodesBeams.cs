@@ -201,8 +201,11 @@ namespace GPC.Converter.Straus7
                     {
                         int beamEnd=end;bool rotation=r==1;var connections=(end==1?release.I:release.J).Skip(r*3).Take(3).ToArray();
                         if(connections.Any(c=>c==null||c.Kind==BeamConnectionKind.RelativeFixity))throw new NotSupportedException("RelativeBeamFixityRequiresStiffnessConversion");
-                        // Native releases act in the principal axes: a section-frame release must be the same about both transverse axes.
-                        if(rotated&&!(release.CoordinateSystem!=null&&Same(release.CoordinateSystem,principal))&&(connections[0].Kind!=connections[1].Kind||connections[0].Value!=connections[1].Value))
+                        // Native releases act in the principal axes: a section-frame release must be the same about both transverse axes,
+                        // unless the caller asks for the convention of BridGHe 0.3.0 (C5: the components along and about the section axes 1, 2
+                        // and 3 written on the native axes 1, 2 and 3 as given, StrausR3Helper.cs:894-947 of 95ab7c3).
+                        if(rotated&&!WriteOptions.SectionAxisDataOnNativeAxes&&!(release.CoordinateSystem!=null&&Same(release.CoordinateSystem,principal))
+                            &&(connections[0].Kind!=connections[1].Kind||connections[0].Value!=connections[1].Value))
                             throw new NotSupportedException("SectionFrameBeamReleaseDiffersInPrincipalAxes");
                         // R3 constants: brReleased=0, brFixed=1, brPartial=2.
                         var status=connections.Select(c=>c.Kind==BeamConnectionKind.Continuous?1:c.Kind==BeamConnectionKind.Released?0:2).ToArray();
