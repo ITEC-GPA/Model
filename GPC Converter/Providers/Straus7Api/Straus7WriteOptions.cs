@@ -8,7 +8,8 @@ namespace GPC.Converter.Straus7
     /// <summary>
     /// Optional metadata of the Straus7 file, as the BridGHe 0.3.0 exporter (StrausR3Helper) wrote it. The default (no options, or a new
     /// instance) writes the file of today: no section label, no plate material name, one native plate property per plate named after the
-    /// plate. None of the options changes a value the solver uses (C2, 11/11/2026, points P26-01, P26-02 and P26-03).
+    /// plate. None of the options changes a value the solver uses (C2, 11/11/2026, points P26-01, P26-02 and P26-03). C4 (11/11/2026): the
+    /// axis data of a rotated section as 0.3.0 wrote them (a model refused before), the order of the unstaged nonlinear increments.
     /// </summary>
     public sealed class Straus7WriteOptions
     {
@@ -25,8 +26,17 @@ namespace GPC.Converter.Straus7
         /// property when their GPC properties have the same name and the same native data; the axes and the offset are element data and are
         /// written on each plate as before.</summary>
         public bool PlatePropertiesByProperty { get; set; }
+        /// <summary>C4 (point 1): a beam with a principal angle (an angle, a double angle, any rotated section) with distributed supports,
+        /// temperature gradients or a non-uniform taper is written as BridGHe 0.3.0 wrote it (StrausR3Helper, BeamSupportExport): the axes 1 and
+        /// 2 of its section frame are the native axes 1 and 2, with no turn by the principal angle (St7SetBeamSupport2 ±1/±2 from the direction
+        /// along the section axes, St7SetBeamTempGradient2 with the gradients along 1 and 2, St7SetBeamTaper2 on the axes 1 and 2). These are
+        /// the calls of a beam without a principal angle. Default: refused (PrincipalAngleWithTaperGradientOrSupportRequiresExplicitAxisConvention).</summary>
+        public bool SectionAxisDataOnNativeAxes { get; set; }
+        /// <summary>C4 (point 3): the nonlinear increments of a model without stages (one per combination, stage 0) in the order of the
+        /// combinations of the model (Model.Combinations), as BridGHe 0.3.0 wrote them (its list of combinations); default: by name.</summary>
+        public bool NonlinearIncrementsInModelOrder { get; set; }
 
-        internal bool Any => (BeamSectionLabels?.Count ?? 0) != 0 || PlateMaterialNames || PlatePropertiesByProperty;
+        internal bool Any => (BeamSectionLabels?.Count ?? 0) != 0 || PlateMaterialNames || PlatePropertiesByProperty || SectionAxisDataOnNativeAxes || NonlinearIncrementsInModelOrder;
         internal string Label(Guid beam) => BeamSectionLabels != null && BeamSectionLabels.TryGetValue(beam, out var label) && !string.IsNullOrEmpty(label) ? label : null;
     }
 
@@ -79,6 +89,9 @@ namespace GPC.Converter.Straus7
     public sealed class Straus7SolveOptions
     {
         public bool StagedNonlinear { get; set; }
+        /// <summary>C4 (point 3): a nonlinear static solve without stages (NLA, staged flag off, the increments of stage 0), as BridGHe 0.3.0
+        /// solved the nonlinear increments (solver 1). Not with <see cref="StagedNonlinear"/>.</summary>
+        public bool UnstagedNonlinear { get; set; }
         /// <summary>Linear solve: the native load case numbers enabled (St7EnableLSALoadCase); the others are disabled. Null: every load case.</summary>
         public IReadOnlyCollection<int> EnabledLoadCases { get; set; }
         /// <summary>St7SetSolverNonlinearGeometry; null: not set (the setting of the file).</summary>

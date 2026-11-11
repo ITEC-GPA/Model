@@ -190,13 +190,20 @@ namespace GPC.Converter.Straus7
         public string Solve(Straus7SolveOptions options)
         {
             if(options==null)throw new ArgumentNullException(nameof(options));
-            bool stagedNonlinear=options.StagedNonlinear;
-            string result=System.IO.Path.ChangeExtension(OutputPath,stagedNonlinear?"nla":"lsa");
+            bool stagedNonlinear=options.StagedNonlinear,unstagedNonlinear=options.UnstagedNonlinear,nonlinear=stagedNonlinear||unstagedNonlinear;
+            if(stagedNonlinear&&unstagedNonlinear)throw new ArgumentException("StagedAndUnstagedNonlinearSolve");
+            string result=System.IO.Path.ChangeExtension(OutputPath,nonlinear?"nla":"lsa");
             if(System.IO.File.Exists(result))throw new System.IO.IOException("RefusingToOverwriteStrausResults");
             if(options.NonlinearGeometry.HasValue)api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearGeometry")(Id,(byte)(options.NonlinearGeometry.Value?1:0)),"St7SetSolverNonlinearGeometry");
             if(options.NonlinearMaterial.HasValue)api.CheckWrite(api.WriteFunction<StageBool>("St7SetSolverNonlinearMaterial")(Id,(byte)(options.NonlinearMaterial.Value?1:0)),"St7SetSolverNonlinearMaterial");
             int enabledCount=0;
-            if(!stagedNonlinear)
+            if(unstagedNonlinear)
+            {
+                // C4 (point 3): BridGHe 0.3.0 solved the nonlinear increments without stages: the increments of stage 0, staged flag off.
+                if(api.StageCount!=0||api.ReadStagedAnalysis())throw new InvalidOperationException("UnstagedNonlinearSolveRequiresNoStages");
+                if(api.ReadStageIncrementCount(0)==0)throw new InvalidOperationException("UnstagedNonlinearSolveRequiresIncrements");
+            }
+            else if(!stagedNonlinear)
             {
                 if(api.StageCount!=0)throw new InvalidOperationException("StagedModelRequiresExplicitStagedSolve");
                 if(api.FreedomCaseCount!=1)throw new NotSupportedException("LinearSolveRequiresExplicitFreedomCasePairing");
@@ -220,15 +227,16 @@ namespace GPC.Converter.Straus7
                 }
             }
             else if(!api.ReadStagedAnalysis())throw new InvalidOperationException("StagedAnalysisDefinitionRequired");
-            Save();api.CheckWrite(api.WriteFunction<Four>("St7RunSolver")(Id,stagedNonlinear?3:1,3,1),"St7RunSolver");
+            Save();api.CheckWrite(api.WriteFunction<Four>("St7RunSolver")(Id,nonlinear?3:1,3,1),"St7RunSolver");
             if(!System.IO.File.Exists(result))throw new InvalidOperationException("StrausSolverProducedNoResults");
             if(api.ValidateResults(result).ValidationFlags!=0)throw new InvalidOperationException("StrausSolverProducedIncompatibleResults");
             var opened=api.OpenResults(result);
             try
             {
-                int expected=stagedNonlinear?Enumerable.Range(1,api.StageCount).Where(api.ReadStageEnabled).Sum(api.ReadStageIncrementCount):enabledCount;
+                int expected=stagedNonlinear?Enumerable.Range(1,api.StageCount).Where(api.ReadStageEnabled).Sum(api.ReadStageIncrementCount)
+                    :unstagedNonlinear?api.ReadStageIncrementCount(0):enabledCount;
                 if(opened.PrimaryCases<expected)throw new InvalidOperationException("StrausSolverProducedIncompleteResults");
-                if(stagedNonlinear&&Enumerable.Range(1,opened.PrimaryCases).Any(c=>!api.ReadResultConverged(c)))throw new InvalidOperationException("StrausNonconvergedResult");
+                if(nonlinear&&Enumerable.Range(1,opened.PrimaryCases).Any(c=>!api.ReadResultConverged(c)))throw new InvalidOperationException("StrausNonconvergedResult");
             }
             finally {api.CloseResults();}
             return result;

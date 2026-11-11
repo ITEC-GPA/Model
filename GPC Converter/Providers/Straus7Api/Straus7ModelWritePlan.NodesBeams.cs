@@ -140,8 +140,9 @@ namespace GPC.Converter.Straus7
                 // Native beam axes are principal axes: the section frame rotated by the principal angle about the beam axis (C5).
                 var principal=PrincipalAxes(axes,property.Section[10]);var axesData=AxesData(principal);bool rotated=!ReferenceEquals(principal,axes);
                 var taper=input.Physical?.Taper;bool uniformTaper=taper==null||taper.ScaleI1==taper.ScaleI2&&taper.ScaleJ1==taper.ScaleJ2&&taper.Alignment1==TaperAlignment.Symmetric&&taper.Alignment2==TaperAlignment.Symmetric;
-                // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame.
-                if(rotated&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
+                // Uniform symmetric tapers do not depend on the transverse axes; other axis-wise data would be applied in the wrong frame,
+                // unless the caller asks for the convention of BridGHe 0.3.0 (C4: section axes 1 and 2 written as the native axes 1 and 2).
+                if(rotated&&!WriteOptions.SectionAxisDataOnNativeAxes&&input.Physical!=null&&(!uniformTaper||input.Physical.TemperatureGradients.Count!=0||input.Physical.Supports.Count!=0))
                     throw new NotSupportedException("PrincipalAngleWithTaperGradientOrSupportRequiresExplicitAxisConvention");
                 var cutoff=(beam.BeamProperty as ElasticBeamProperty)?.CutoffLaw;
                 if((cutoff!=null)!=(formulation==4)||cutoff!=null&&input.AnalysisProfile!=null)throw new ArgumentException("CutoffLawRequiresCutoffBarFormulationAndExplicitSection");

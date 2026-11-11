@@ -212,11 +212,13 @@ namespace GPC.Converter.Straus7
                     foreach(var e in family.Items.OrderBy(e=>Entities[e.Guid])){int type=family.Type,number=Entities[e.Guid],user=e.Id;Operations.Add(a=>a.SetEntityUserId(type,number,user));}
             }
             /// <summary>Legacy behaviour: without stages every LSA combination is also an unstaged NLA increment (stage 0).
-            /// Freedom-case factors keep the native default; staged models write only their explicit stage increments.</summary>
+            /// Freedom-case factors keep the native default; staged models write only their explicit stage increments. By name, or (C4,
+            /// <see cref="Straus7WriteOptions.NonlinearIncrementsInModelOrder"/>) in the order of the combinations of the model, as 0.3.0.</summary>
             private void NonlinearCombinationIncrements()
             {
                 if(Model.Stages.Count!=0)return;
-                foreach(var combination in Model.Combinations.Values.OrderBy(c=>c.Name,StringComparer.Ordinal))
+                var combinations=WriteOptions.NonlinearIncrementsInModelOrder?Model.Combinations.Values.ToArray():Model.Combinations.Values.OrderBy(c=>c.Name,StringComparer.Ordinal).ToArray();
+                foreach(var combination in combinations)
                 {
                     string name=combination.Name;var pairs=combination.GetLoadCaseCoefficientsPair();
                     var cases=pairs.Select(c=>Load(c.Key)).ToArray();var factors=pairs.Select(c=>c.Value).ToArray();Finite(factors);

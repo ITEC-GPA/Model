@@ -37,12 +37,15 @@ namespace GPC.Converter.Straus7
         private readonly int[] solved;
         /// <summary>C2 (P26-07): the GPC combinations read from the Straus7 LSA combination cases, by native combination number.</summary>
         private readonly SortedDictionary<int,Guid> combinations;
+        /// <summary>C4 (point 3): a nonlinear run without stages: every result case is in stage 0, its phase is the one of <see cref="stageIncrements"/>.</summary>
+        private readonly bool unstaged;
         /// <summary>C2 (P26-04): the native load case numbers solved by this run, in native order (every load case when no selection was given).</summary>
         public IReadOnlyList<int> SolvedLoadCases => solved ?? Enumerable.Range(1,loadCases.Count+generatedCases.Count).ToArray();
         internal Straus7ModelRun(Straus7ModelWritePlan plan,string modelPath,string resultPath,string apiVersion,
             IReadOnlyDictionary<int,string> generated=null,Guid? stagedOutput=null,KeyValuePair<string,int>[] stageIncrements=null,
-            int[] solved=null,IReadOnlyDictionary<int,Guid> combinations=null)
+            int[] solved=null,IReadOnlyDictionary<int,Guid> combinations=null,bool unstaged=false)
         {
+            this.unstaged=unstaged;
             this.solved=solved;this.combinations=new SortedDictionary<int,Guid>((combinations??new Dictionary<int,Guid>()).ToDictionary(p=>p.Key,p=>p.Value));
             ModelPath=modelPath;ResultPath=resultPath;this.apiVersion=apiVersion;
             ConfigurationFingerprint=plan.ConfigurationFingerprint;
@@ -89,8 +92,10 @@ namespace GPC.Converter.Straus7
                     IncludeElementNodeForces=includeElementNodeForces,IncludePlateNodeResults=includePlateNodeResults,IncludeCombinations=combined},cancellation);
                 if(native.Status!=ImportStatus.Completed||native.File==null||native.File.ValidationFlags!=0||native.File.Solver!=(stagedOutput.HasValue?3:1)
                     ||native.ModelHash!=ModelHash||native.ResultHash!=ResultHash||native.ApiVersion!=apiVersion||!stagedOutput.HasValue&&native.File.PrimaryCases!=primaryCount
-                    ||native.Cases.Count!=caseNumbers.Length||native.Cases.Any(c=>stagedOutput.HasValue?c.Stage<1||c.Stage>stageIncrements.Length:c.Stage!=0))throw new InvalidDataException("InvalidStrausExportResultFile");
-                if(stagedOutput.HasValue&&Enumerable.Range(1,stageIncrements.Length).Any(s=>native.Cases.Count(c=>c.Stage==s)!=stageIncrements[s-1].Value))throw new InvalidDataException("UnexpectedStageIncrementCount");
+                    ||native.Cases.Count!=caseNumbers.Length||native.Cases.Any(c=>stagedOutput.HasValue&&!unstaged?c.Stage<1||c.Stage>stageIncrements.Length:c.Stage!=0))throw new InvalidDataException("InvalidStrausExportResultFile");
+                if(stagedOutput.HasValue&&!unstaged&&Enumerable.Range(1,stageIncrements.Length).Any(s=>native.Cases.Count(c=>c.Stage==s)!=stageIncrements[s-1].Value))throw new InvalidDataException("UnexpectedStageIncrementCount");
+                // C4 (point 3): the increments of stage 0, one result case each.
+                if(unstaged&&native.Cases.Count!=stageIncrements.Single().Value)throw new InvalidDataException("UnexpectedStageIncrementCount");
                 var names=model.LoadCases.Values.ToDictionary(c=>loadCases[c.Guid],c=>c.Name);
                 var cases=new Dictionary<int,string>();var parentNames=new Dictionary<int,string>();var steps=new Dictionary<int,string>();
                 string Text(int n)=>n.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -128,7 +133,7 @@ namespace GPC.Converter.Straus7
                 var report=Straus7LinearStaticResults.Normalize(model,native,datasetId,c=>cases[c.Number],(c,n)=>new ResultState {
                     Semantics=semantics,IsCombined=!stagedOutput.HasValue&&c.Number>primaryCount,IsCumulative=true,
                     ConcomitantStateId=!stagedOutput.HasValue&&c.Number>primaryCount?"Straus7 combination case "+c.Number:"Straus7 primary case "+c.Number,
-                    Phase=stagedOutput.HasValue?stageIncrements[c.Stage-1].Key:null,
+                    Phase=stagedOutput.HasValue?stageIncrements[unstaged?0:c.Stage-1].Key:null,
                     Step=stagedOutput.HasValue?Straus7StageResults.Step(c):steps.TryGetValue(c.Number,out var step)?step:null,
                     HistoryId=stagedOutput.HasValue?"Straus7 NLA stages":null,
                     Components=Enumerable.Repeat(ComponentAvailability.Available,n).ToArray(),Coverage="Explicit exported entities and native stations; no continuous envelope."},
@@ -221,6 +226,33 @@ namespace GPC.Converter.Straus7
                     string result=writer.Solve(options.FileDefaults?new Straus7SolveOptions {StagedNonlinear=true,NonlinearGeometry=null,NonlinearMaterial=null}
                         :new Straus7SolveOptions {StagedNonlinear=true,NonlinearGeometry=false,NonlinearMaterial=options.NonlinearMaterial});
                     return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,null,outputCaseGuid,increments);
+                }
+            });
+        }
+        /// <summary>C4 (point 3): the nonlinear static solve without stages of BridGHe 0.3.0 (its solver 1, StrausAnalysis.cs of 0.3.0): the
+        /// increments of stage 0 that every plan of a model without stages writes (one per combination, NonlinearCombinationIncrements), solved by
+        /// the NLA solver with the staged flag off. The results of every increment are attached to the declared output case, as those of a staged
+        /// run, with Phase = <paramref name="phase"/> and Step = the native name of the increment ("k: name"); the provenance labels are those of
+        /// the staged run. <paramref name="options"/>: the solver settings, as <see cref="RunStagedNonlinear(GPC.Model.Models.Model,Guid,string,string,Straus7NonlinearRunOptions)"/>.</summary>
+        public Straus7ModelRun RunUnstagedNonlinear(global::GPC.Model.Models.Model model,Guid outputCaseGuid,string outputPath,string scratchPath,Straus7NonlinearRunOptions options,string phase)
+        {
+            if(model==null)throw new ArgumentNullException(nameof(model));IdentityMap.ValidateAgainst(model);
+            if(options==null)throw new ArgumentNullException(nameof(options));
+            if(string.IsNullOrWhiteSpace(phase))throw new ArgumentException("UnstagedRunRequiresPhaseName");
+            if(model.Stages.Count!=0)throw new NotSupportedException("UnstagedRunRequiresModelWithoutStages");
+            if(!model.LoadCases.Values.Any(c=>c.Guid==outputCaseGuid&&c is GPC.Model.Stages.StageResultCase))throw new ArgumentException("UnstagedRunRequiresDeclaredOutputCase");
+            if(model.Combinations.Count==0)throw new ArgumentException("UnstagedRunRequiresCombinations");
+            if(GroupFingerprint(model)!=groupFingerprint)throw new InvalidOperationException("StaleStrausModelPlan");
+            var increments=new[]{new KeyValuePair<string,int>(phase,model.Combinations.Count)};
+            return Fresh(outputPath,()=>
+            {
+                using(var writer=new Straus7NativeWriter(outputPath,scratchPath))
+                {
+                    if(!options.FileDefaults)writer.SetNonlinearConvergence(options.DisplacementTolerance,options.ResidualTolerance,options.MaximumIterations);
+                    Write(writer,model);
+                    string result=writer.Solve(options.FileDefaults?new Straus7SolveOptions {UnstagedNonlinear=true,NonlinearGeometry=null,NonlinearMaterial=null}
+                        :new Straus7SolveOptions {UnstagedNonlinear=true,NonlinearGeometry=false,NonlinearMaterial=options.NonlinearMaterial});
+                    return new Straus7ModelRun(this,writer.OutputPath,result,writer.Reader.Version,null,outputCaseGuid,increments,unstaged:true);
                 }
             });
         }
