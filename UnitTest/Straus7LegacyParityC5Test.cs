@@ -115,14 +115,16 @@ public class Straus7LegacyParityC5Test
     /// the second a rectangle 200 × 100 without releases that holds B.</summary>
     internal static Model Propped(bool angle)
     {
-        var a = new NodeElement(new Point3d(0, 0, 0)); var b = new NodeElement(new Point3d(1000, 0, 0)); var c = new NodeElement(new Point3d(2000, 0, 0));
+        // Fixed GUIDs: ModelAssembly numbers the elements in GUID order, the Converter by Id; random GUIDs gave another numbering per instance.
+        static Guid Fixed(int k) => new Guid(0x0c5026a0, 0x1111, 0x2026, 0, 0, 0, 0, 0, 0, 0, (byte)k);
+        var a = new NodeElement(Fixed(1), new Point3d(0, 0, 0)); var b = new NodeElement(Fixed(2), new Point3d(1000, 0, 0)); var c = new NodeElement(Fixed(3), new Point3d(2000, 0, 0));
         var freedom = new FreedomCase("Supports"); var lc = new LoadCaseBase("P");
         foreach (var n in new[] { a, c })
             n.Assignments.Restrains.Add(new RestrainAssignment { FreedomCase = freedom, Restrain = new NodeRestrain(n, Enumerable.Range(0, 6).Select(i => new DofRestrain((GeometryRestrain.DOF)i, true)).ToList()) });
         var material = new Material("S355", 210000, .3, 7.85e-9, 1.2e-5);
-        var released = new BeamElement(a.Position, b.Position, new ElasticBeamProperty(angle ? "L 150x100" : "Rect 200x100", material, angle ? new SectionL(150, 10, 100, 12, "L 150x10/100x12") : new SectionRectangular(200, 100)));
+        var released = new BeamElement(Fixed(11), a.Position, b.Position, new ElasticBeamProperty(angle ? "L 150x100" : "Rect 200x100", material, angle ? new SectionL(150, 10, 100, 12, "L 150x10/100x12") : new SectionRectangular(200, 100)));
         released.ConnectNodes(a, b);
-        var holding = new BeamElement(b.Position, c.Position, new ElasticBeamProperty("Rect 200x100 holding", material, new SectionRectangular(200, 100))); holding.ConnectNodes(b, c);
+        var holding = new BeamElement(Fixed(12), b.Position, c.Position, new ElasticBeamProperty("Rect 200x100 holding", material, new SectionRectangular(200, 100))); holding.ConnectNodes(b, c);
         foreach (var beam in new[] { released, holding })
         {
             beam.Assignments.Formulation = BeamFormulation.StraightTwoNode;
@@ -131,7 +133,7 @@ public class Straus7LegacyParityC5Test
         }
         b.Loads.Add(new PointLoad(0, -300, -1000, 0, 0, 0, b.Position, lc));
         // The assembly takes no attributes (AssemblyRequiresExplicitAssignments): the releases go on the assembled beam.
-        var model = ModelAssembly.Assemble(new Element[] { released, holding }, Guid.NewGuid());
+        var model = ModelAssembly.Assemble(new Element[] { released, holding }, Fixed(20));
         model.BeamElements.Values.Single(e => e.NodeI.Position.X == 0).Attributes.Add(Mixed());
         return model;
     }

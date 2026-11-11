@@ -117,10 +117,13 @@ public class Straus7LegacyParityTest
     }
 
     /// <summary>Two clamped spans of 1000 mm on x: case A a concentrated force at 0.37 of the first span (off the regular stations), case B a
-    /// distributed force on the second span, case C a nodal force at the middle support; combinations AB = 1.35 A + 1.5 B and AC = A + C.</summary>
+    /// distributed force on the second span, case C a nodal force at the middle support; combinations AB = 1.35 A + 1.5 B and AC = A + C.
+    /// Fixed GUIDs (C5, 11/11): ModelAssembly numbers the elements in GUID order and the Converter numbers them by Id, so with random GUIDs two
+    /// instances (P26-04 compares two) had another native numbering, and values differed at bit level from the equation order.</summary>
     internal static Model TwoSpans()
     {
-        var nodes = new[] { new NodeElement(new Point3d(0, 0, 0)), new NodeElement(new Point3d(1000, 0, 0)), new NodeElement(new Point3d(2000, 0, 0)) };
+        static Guid Fixed(int k) => new Guid(0x0c2026a0, 0x1111, 0x2026, 0, 0, 0, 0, 0, 0, 0, (byte)k);
+        var nodes = new[] { new NodeElement(Fixed(1), new Point3d(0, 0, 0)), new NodeElement(Fixed(2), new Point3d(1000, 0, 0)), new NodeElement(Fixed(3), new Point3d(2000, 0, 0)) };
         var freedom = new FreedomCase("Supports");
         foreach (var n in new[] { nodes[0], nodes[2] })
             n.Assignments.Restrains.Add(new RestrainAssignment { FreedomCase = freedom, Restrain = new NodeRestrain(n, Enumerable.Range(0, 6).Select(i => new DofRestrain((GeometryRestrain.DOF)i, true)).ToList()) });
@@ -129,7 +132,7 @@ public class Straus7LegacyParityTest
         var beams = new List<Element>();
         for (int i = 0; i < 2; i++)
         {
-            var beam = new BeamElement(nodes[i].Position, nodes[i + 1].Position, property); beam.ConnectNodes(nodes[i], nodes[i + 1]);
+            var beam = new BeamElement(Fixed(11 + i), nodes[i].Position, nodes[i + 1].Position, property); beam.ConnectNodes(nodes[i], nodes[i + 1]);
             beam.Assignments.Formulation = BeamFormulation.StraightTwoNode;
             beam.Assignments.SectionAxes = new CoordinateSystem(nodes[i].Position, new Vector3d(0, 1, 0), new Vector3d(0, 0, 1));
             beam.Assignments.Physical = new BeamPhysicalData { MinimumOutputStations = 5 };
@@ -140,7 +143,7 @@ public class Straus7LegacyParityTest
         second.Assignments.Loads.Add(new BeamLoadAssignment { Start = 0, End = 1, LengthConvention = BeamLoadLengthConvention.ActualLength,
             StartIntensity = new LineLoad(0, 0, -2, 0, 0, 0, second.Line, b), EndIntensity = new LineLoad(0, 0, -2, 0, 0, 0, second.Line, b) });
         nodes[1].Loads.Add(new PointLoad(0, 0, -500, 0, 0, 0, nodes[1].Position, c));
-        var model = ModelAssembly.Assemble(beams, Guid.NewGuid());
+        var model = ModelAssembly.Assemble(beams, Fixed(20));
         var ab = new Combination("AB"); ab.AddLoadCaseCoefficients(new List<LoadCaseBase> { model.LoadCases["A"], model.LoadCases["B"] }, new List<double> { 1.35, 1.5 }); model.Combinations.Add(ab);
         var ac = new Combination("AC"); ac.AddLoadCaseCoefficients(new List<LoadCaseBase> { model.LoadCases["A"], model.LoadCases["C"] }, new List<double> { 1, 1 }); model.Combinations.Add(ac);
         return model;
