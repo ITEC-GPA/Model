@@ -95,6 +95,14 @@ public class ReviewFixesL6Test
     /// SteelSection does not take a generic polygon): vertices and faces of SetBeamSectionMesh.</summary>
     internal static (double[][] Vertices, int[][] Faces) SentBxs(ISectionShape section)
     {
+        // 190: standard T/L and identical C/L pairs now export parametrically (UniqueOpenSections190Test).
+        // Keep this BXS-specific regression on the exact same polygons as generic sections; no mesh oracle changes.
+        static Section Polygon(ISectionShape s) => new Section(s.Shape, s.Area, s.Jxx, s.Jyy, s.Jxy, s.J11, s.J22, s.Jt,
+            s.Centroid, s.AngleX1, 0, 0, 0, 0, s.Name);
+        if (section is SectionBuiltUp built && !(section is SectionWelded))
+            section = new SectionBuiltUp(built.Parts.Select(p => new SectionBuiltUp.Part(Polygon(p.Section), p.X, p.Y, p.MirrorX, p.MirrorY)), built.Name);
+        else if (section is SectionT || section is SectionL)
+            section = Polygon(section);
         var model = Straus7ModelWriteTest.Cantilever();
         model.BeamElements.Values.Single().BeamProperty = new GPC.Model.ElementProperties.ElasticBeamProperty("BXS", new GPC.Model.Materials.Material("E", 210000, .3, 0, 0), section);
         var call = Straus7ExporterCorrectionsTest.Record(model).Named(nameof(GPC.Converter.Straus7.IStraus7SectionMeshWriteApi.SetBeamSectionMesh)).Single();
