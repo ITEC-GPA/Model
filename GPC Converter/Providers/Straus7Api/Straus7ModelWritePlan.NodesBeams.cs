@@ -234,6 +234,7 @@ namespace GPC.Converter.Straus7
             {if(v==null)return new Vector3d(0,0,0);Axes.Validate(axes);return axes.V1*v.X+axes.V2*v.Y+axes.V3*v.Z;}
 
             internal bool RequiresSectionGeometryApi;
+            internal bool RequiresGpcNativeSectionApi;
             internal bool RequiresSectionMeshApi;
             private readonly Dictionary<int,int> prescribedCases=new Dictionary<int,int>();
 
@@ -269,7 +270,15 @@ namespace GPC.Converter.Straus7
                 if(beam.Assignments.AnalysisProfile!=null)throw new NotSupportedException("TaperRequiresDimensionalSectionGeometry");
                 var section=(beam.BeamProperty as ElasticBeamProperty)?.Section??(beam.BeamProperty as SteelSection)?.SectionShape;
                 int shape;double[] dimensions;
-                if(section is SectionRectangular rectangle && rectangle.Angle==0)
+                var pair=OpenSectionPair(section,properties);
+                if(pair!=null)
+                {
+                    RequiresGpcNativeSectionApi=true;
+                    Operations.Add(a=>((IStraus7NativeSectionWriteApi)a).SetNativeSection(id,pair,(double[])pair.ReferenceProperties.Clone()));
+                    return;
+                }
+                if(OpenSectionGeometry(section,out shape,out dimensions)) { }
+                else if(section is SectionRectangular rectangle && rectangle.Angle==0)
                 {shape=3;dimensions=new[]{rectangle.Width,rectangle.Height,0,0,0,0};}
                 else if(section is SectionCircular circle)
                 {shape=1;dimensions=new[]{circle.Diameter,0,0,0,0,0};}

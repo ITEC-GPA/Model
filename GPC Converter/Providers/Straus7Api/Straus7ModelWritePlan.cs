@@ -57,7 +57,7 @@ namespace GPC.Converter.Straus7
             requiresMaterialApi=builder.RequiresMaterialApi;
             requiresSectionGeometryApi=builder.RequiresSectionGeometryApi;
             requiresSectionMeshApi=builder.RequiresSectionMeshApi;
-            requiresNativeSectionApi=builder.NativeSections.Count!=0;
+            requiresNativeSectionApi=builder.NativeSections.Count!=0||builder.RequiresGpcNativeSectionApi;
             NativeSections=new ReadOnlyDictionary<Guid,Straus7SectionDefinition>(builder.NativeSections);
             BeamIntegrationSlices=new ReadOnlyDictionary<Guid,int>(builder.IntegrationSlices.ToDictionary(p=>p.Key,p=>p.Value));
             ConfigurationFingerprint=ModelValues.Fingerprint(new object[]{builder.ConfigurationValues()});
