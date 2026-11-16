@@ -234,6 +234,18 @@ namespace GPC.Model.Sections
             Declared(property, PropertyAvailability.Approximate, PropertyAvailability.Approximate, PropertyAvailability.Approximate);
 
         /// <summary>
+        /// The declared availability of the open sections whose torsion constant and shear centre are solved with the finite elements
+        /// (<see cref="SectionT"/>, <see cref="SectionC"/>, <see cref="SectionL"/>): numerical when they are left to compute at the first
+        /// access, approximate when they are the thin-walled ones (a degenerate outline, or a section read from an archive written before the
+        /// finite elements); the warping constant from the thin-walled formulas, approximate
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        private protected PropertyAvailability NumericalTorsionAvailability(SectionProperty property) =>
+            Declared(property, double.IsNaN(_jt) ? PropertyAvailability.Numerical : PropertyAvailability.Approximate,
+                PropertyAvailability.Approximate, _shearCenter is null ? PropertyAvailability.Numerical : PropertyAvailability.Approximate);
+
+        /// <summary>
         /// Calculate the centroid: the thin walls plus the corners (see <see cref="GetCorners"/>)
         /// </summary>
         /// <returns>The centroid</returns>

@@ -299,20 +299,52 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the torsion constant: sum of b t³ / 3 of the walls (middle line lengths)
+        /// True if the outline is a region for the finite elements of the torsion: all the dimensions positive, the flanges longer than the web
+        /// thickness and thinner than the height together (otherwise the thin-walled formulas are kept, see <see cref="ThinWallTorsionConstant"/>)
+        /// </summary>
+        private bool HasTorsionRegion => _tw > 0.0 && _tTop > 0.0 && _tBottom > 0.0 && _lengthTop > _tw && _lengthBottom > _tw &&
+            _h > _tTop + _tBottom;
+
+        /// <summary>
+        /// Calculate the torsion constant: solved with the finite elements on the outline (with the fillets, the welds and the tapered flanges)
+        /// at the first access to <see cref="Section.Jt"/> (see <see cref="Section.CalculateTorsionProperties"/>); the thin-walled one
+        /// (<see cref="ThinWallTorsionConstant"/>) for a degenerate outline. Before, always the thin-walled formula: +1.8% for a C 75x200 with
+        /// tw 10 and tf 12, +5.8% for the stocky C 40x30 with tw 12 and tf 14 (thin-walled 71413, finite elements 67808, Straus7 67477 mm4)
+        /// </summary>
+        /// <returns><see cref="double.NaN"/>: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override double CalculateJt()
+        {
+            return HasTorsionRegion ? double.NaN : ThinWallTorsionConstant();
+        }
+
+        /// <summary>
+        /// The torsion constant of the thin-walled theory: sum of b t³ / 3 of the walls (middle line lengths)
         /// </summary>
         /// <returns>The torsion constant</returns>
-        protected override double CalculateJt()
+        internal double ThinWallTorsionConstant()
         {
             return 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop / 2.0 - _tBottom / 2.0) *
                 Math.Pow(_tw, 3.0) + 1.0 / 3.0 * (_lengthBottom - _tw / 2.0) * Math.Pow(_tBottom, 3.0);
         }
 
         /// <summary>
-        /// Calculate the shear center (CNR DT 208/2001, with the bottom flange): on the left of the web, at the height of the centroid
+        /// Calculate the shear center: solved with the finite elements on the outline at the first access to <see cref="Section.ShearCenter"/>
+        /// (see <see cref="Section.CalculateTorsionProperties"/>), on the axis of symmetry when the flanges are equal; the thin-walled one
+        /// (<see cref="ThinWallShearCenter"/>) for a degenerate outline. Before, always the thin-walled formula: for the stocky C 40x30 with tw 12
+        /// and tf 14 the shear centre is 18.5 mm from the centroid instead of 29.6 mm (Straus7 18.6 mm)
+        /// </summary>
+        /// <returns>null: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override Point2d CalculateShearCenter()
+        {
+            return HasTorsionRegion ? null : ThinWallShearCenter();
+        }
+
+        /// <summary>
+        /// The shear center of the thin-walled theory (CNR DT 208/2001, with the bottom flange): on the left of the web, at the height of the
+        /// centroid
         /// </summary>
         /// <returns>The shear center</returns>
-        protected override Point2d CalculateShearCenter()
+        internal Point2d ThinWallShearCenter()
         {
             //CNR DT 208/2001
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
@@ -419,6 +451,13 @@ namespace GPC.Model.Sections
         {
             return Jyy / DistanceXCentroidFromLeft();
         }
+
+        /// <summary>
+        /// Geometric properties exact; torsion constant and shear centre numerical (approximate when thin-walled), warping constant approximate
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) => NumericalTorsionAvailability(property);
 
         /// <summary>
         /// The section is symmetric respect to X if the flanges are equal

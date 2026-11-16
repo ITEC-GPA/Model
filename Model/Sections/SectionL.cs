@@ -512,22 +512,60 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the torsion constant: sum of b t³ / 3 of the legs (middle line lengths)
+        /// True if the outline is a region for the finite elements of the torsion: all the dimensions positive, each leg longer than the
+        /// thickness of the other one (otherwise the thin-walled formulas are kept, see <see cref="ThinWallTorsionConstant"/>)
+        /// </summary>
+        private bool HasTorsionRegion => _horizontalLegThickness > 0.0 && _verticalLegThickness > 0.0 &&
+            _horizontalLegLength > _verticalLegThickness && _verticalLegLength > _horizontalLegThickness;
+
+        /// <summary>
+        /// Calculate the torsion constant: solved with the finite elements on the outline (with the root fillet or weld and the toe radii) at
+        /// the first access to <see cref="Section.Jt"/> (see <see cref="Section.CalculateTorsionProperties"/>); the thin-walled one
+        /// (<see cref="ThinWallTorsionConstant"/>) for a degenerate outline. Before, always the thin-walled formula: +2.2% for an L 100x150 with
+        /// tf 12 and tw 10, +11% for the stocky L 40x30 with tf 14 and tw 12 (thin-walled 44347, finite elements 40046, Straus7 39954 mm4)
+        /// </summary>
+        /// <returns><see cref="double.NaN"/>: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override double CalculateJt()
+        {
+            return HasTorsionRegion ? double.NaN : ThinWallTorsionConstant();
+        }
+
+        /// <summary>
+        /// The torsion constant of the thin-walled theory: sum of b t³ / 3 of the legs (middle line lengths)
         /// </summary>
         /// <returns>The torsion constant</returns>
-        protected override double CalculateJt()
+        internal double ThinWallTorsionConstant()
         {
             return 1.0 / 3.0 * (_horizontalLegLength - _verticalLegThickness / 2.0) * Math.Pow(_horizontalLegThickness, 3.0) + 1.0 / 3.0 * (_verticalLegLength - _horizontalLegThickness / 2.0) * Math.Pow(_verticalLegThickness, 3.0);
         }
 
         /// <summary>
-        /// Calculate the shear center: the intersection of the middle lines of the legs
+        /// Calculate the shear center: solved with the finite elements on the outline at the first access to <see cref="Section.ShearCenter"/>
+        /// (see <see cref="Section.CalculateTorsionProperties"/>); the thin-walled one (<see cref="ThinWallShearCenter"/>) for a degenerate
+        /// outline. Before, always the intersection of the middle lines of the legs: for the stocky L 40x30 with tf 14 and tw 12 the shear centre
+        /// is inside the corner, (10.3; 7.0) mm instead of (6; 7) mm from the outer corner (Straus7 within 0.01 mm of the finite elements)
+        /// </summary>
+        /// <returns>null: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override Point2d CalculateShearCenter()
+        {
+            return HasTorsionRegion ? null : ThinWallShearCenter();
+        }
+
+        /// <summary>
+        /// The shear center of the thin-walled theory: the intersection of the middle lines of the legs
         /// </summary>
         /// <returns>The shear center</returns>
-        protected override Point2d CalculateShearCenter()
+        internal Point2d ThinWallShearCenter()
         {
             return new Point2d(_verticalLegThickness / 2.0, _horizontalLegThickness / 2.0);
         }
+
+        /// <summary>
+        /// Geometric properties exact; torsion constant and shear centre numerical (approximate when thin-walled), warping constant approximate
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) => NumericalTorsionAvailability(property);
 
         /// <summary>
         /// Calculate the centroid from the static moments of the two thin walls (with the corners, the one of <see cref="ThinWallSection"/>)

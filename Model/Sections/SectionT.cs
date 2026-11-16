@@ -397,10 +397,28 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the shear center: the intersection of the middle lines (the middle of the flange)
+        /// True if the outline is a region for the finite elements of the torsion: all the dimensions positive, the web below the flange and
+        /// not wider than it (otherwise the thin-walled formulas are kept, see <see cref="ThinWallTorsionConstant"/>)
+        /// </summary>
+        private bool HasTorsionRegion => _b > 0.0 && _tf > 0.0 && _tw > 0.0 && _h > _tf && _tw < _b;
+
+        /// <summary>
+        /// Calculate the shear center: solved with the finite elements on the outline at the first access to <see cref="Section.ShearCenter"/>
+        /// (see <see cref="Section.CalculateTorsionProperties"/>), on the axis of symmetry; the thin-walled one
+        /// (<see cref="ThinWallShearCenter"/>) for a degenerate outline. Before, always the middle of the flange: for the stocky T the shear
+        /// centre is lower (T 48x40, tw 16, tf 18: 3.33 mm instead of 5.79 mm above the centroid, Straus7 3.35 mm)
+        /// </summary>
+        /// <returns>null: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override Point2d CalculateShearCenter()
+        {
+            return HasTorsionRegion ? null : ThinWallShearCenter();
+        }
+
+        /// <summary>
+        /// The shear center of the thin-walled theory: the intersection of the middle lines (the middle of the flange)
         /// </summary>
         /// <returns>The shear center</returns>
-        protected override Point2d CalculateShearCenter()
+        internal Point2d ThinWallShearCenter()
         {
             return new Point2d(_b / 2.0, Height - _tf / 2.0);
         }
@@ -415,10 +433,23 @@ namespace GPC.Model.Sections
         }
 
         /// <summary>
-        /// Calculate the torsion constant: (b tf³ + (h - tf / 2) tw³) / 3
+        /// Calculate the torsion constant: solved with the finite elements on the outline (with the fillets or the welds) at the first access
+        /// to <see cref="Section.Jt"/> (see <see cref="Section.CalculateTorsionProperties"/>); the thin-walled one
+        /// (<see cref="ThinWallTorsionConstant"/>) for a degenerate outline. Before, always the thin-walled formula: +2.7% for a T 140x300 with
+        /// tw 8 and tf 12, +16% for the stocky T 48x40 with tw 16 and tf 18 (thin-walled 135637, finite elements 117018, Straus7 116458 mm4)
+        /// </summary>
+        /// <returns><see cref="double.NaN"/>: computed at the first access (the thin-walled one for a degenerate outline)</returns>
+        protected override double CalculateJt()
+        {
+            return HasTorsionRegion ? double.NaN : ThinWallTorsionConstant();
+        }
+
+        /// <summary>
+        /// The torsion constant of the thin-walled theory: (b tf³ + (h - tf / 2) tw³) / 3; with the fillets, half of the formula of the rolled
+        /// I sections (<see cref="SectionH"/>)
         /// </summary>
         /// <returns>The torsion constant</returns>
-        protected override double CalculateJt()
+        internal double ThinWallTorsionConstant()
         {
             if (_edgeWorking == EdgeType.Fillet && _r > 0.0)
             {
@@ -431,6 +462,13 @@ namespace GPC.Model.Sections
             }
             return (_b * Math.Pow(_tf, 3.0) + (Height - _tf / 2.0) * Math.Pow(_tw, 3.0)) / 3.0;
         }
+
+        /// <summary>
+        /// Geometric properties exact; torsion constant and shear centre numerical (approximate when thin-walled), warping constant approximate
+        /// </summary>
+        /// <param name="property">The property</param>
+        /// <returns>The declared availability</returns>
+        protected override PropertyAvailability DeclaredAvailability(SectionProperty property) => NumericalTorsionAvailability(property);
 
         /// <summary>
         /// The section is never symmetric respect to X
