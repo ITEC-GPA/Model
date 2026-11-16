@@ -263,9 +263,15 @@ namespace GPC.Converter.Straus7
                 var byGuid=model.AllElements.ToDictionary(e=>e.Guid);
                 var nativeEntities=exportIdentities?.Entries.ToDictionary(e=>(e.Family,e.SolverId),e=>byGuid[e.EntityGuid]);
                 var nativeIds=exportIdentities?.Entries.ToDictionary(e=>e.EntityGuid,e=>Straus7ApiConverter.Id(e.SolverId));
-                Element Find(EntityFamily family,int number)=>nativeEntities==null
-                    ?model.FindBySource(new SourceIdentity("Straus7",source.ModelRevision,family,Straus7ApiConverter.Id(number)))
-                    :nativeEntities.TryGetValue((family,number),out var value)?value:null;
+                // One lookup per table, as ResultMapper: Model.FindBySource scans every element (a unique match, null when none).
+                var bySource=nativeEntities==null?model.AllElements.Where(e=>e.Source!=null).ToLookup(e=>e.Source):null;
+                Element Find(EntityFamily family,int number)
+                {
+                    if(nativeEntities!=null) return nativeEntities.TryGetValue((family,number),out var value)?value:null;
+                    var matches=bySource[new SourceIdentity("Straus7",source.ModelRevision,family,Straus7ApiConverter.Id(number))].Take(2).ToArray();
+                    if(matches.Length>1) throw new InvalidOperationException("DuplicateSourceIdentity");
+                    return matches.FirstOrDefault();
+                }
                 string SourceId(Element element)=>nativeIds==null?element.Source?.OriginalId:nativeIds[element.Guid];
                 SourceIdentity SourceOf(Element element)=>new SourceIdentity("Straus7",source.ModelRevision,global::GPC.Model.Models.Model.FamilyOf(element),SourceId(element));
                 var cases = native.Cases.ToDictionary(c => c.Number);
@@ -286,6 +292,9 @@ namespace GPC.Converter.Straus7
                     else if (owner is AreaElement a) foreach (var n in a.Nodes) set.Add(SourceId(n));
                 }
                 var keys = new HashSet<string>(); int snapped = 0;
+                // The plate tables by plate, case and quantity, in their order: one pass instead of a scan of every table for each plate (a model of
+                // 5142 plates and 15 cases has about 387 000 tables, so the scans took minutes).
+                var plateTables = native.Tables.Where(t => t != null && t.Entity == Straus7Entity.Plate).ToLookup(t => (t.Number, t.CaseNumber, t.Quantity));
                 foreach (var table in native.Tables)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -367,7 +376,7 @@ namespace GPC.Converter.Straus7
                     else if (table.Entity == Straus7Entity.Plate && table.Quantity == "PlateForceLocalCentroid")
                     {
                         var shell = (AreaElement)element;
-                        var moments = native.Tables.Where(t => t.Entity == Straus7Entity.Plate && t.Number == table.Number && t.CaseNumber == table.CaseNumber && t.Quantity == "PlateMomentLocalCentroid").ToArray();
+                        var moments = plateTables[(table.Number, table.CaseNumber, "PlateMomentLocalCentroid")].ToArray();
                         if (table.Rows != 1 || moments.Length != 1 || moments[0].Rows != 1 || moments[0].Columns != 6) throw new InvalidDataException("Matching centroid force and moment tables are required.");
                         Straus7ApiConverter.Finite(moments[0].Values, 6, "Plate moments");
                         var f = table.Values; var m = moments[0].Values;
@@ -383,7 +392,7 @@ namespace GPC.Converter.Straus7
                     {
                         // The element's own values at its nodes (no averaging between plates): one sample per corner, at the node in local coordinates.
                         var shell = (AreaElement)element;
-                        var moments = native.Tables.Where(t => t.Entity == Straus7Entity.Plate && t.Number == table.Number && t.CaseNumber == table.CaseNumber && t.Quantity == "PlateMomentLocalNodes").ToArray();
+                        var moments = plateTables[(table.Number, table.CaseNumber, "PlateMomentLocalNodes")].ToArray();
                         var nodes = shell.Nodes.ToArray();
                         if (moments.Length != 1 || table.Rows != nodes.Length || moments[0].Rows != nodes.Length || moments[0].Columns != 6 || table.NodeNumbers == null || moments[0].NodeNumbers == null
                             || !table.NodeNumbers.Select(Straus7ApiConverter.Id).SequenceEqual(nodes.Select(n => SourceId(n)))
@@ -409,7 +418,8 @@ namespace GPC.Converter.Straus7
                 foreach (var moments in native.Tables.Where(t => t.Quantity == "PlateMomentLocalCentroid" || t.Quantity == "PlateMomentLocalNodes"))
                 {
                     var forces = moments.Quantity == "PlateMomentLocalCentroid" ? "PlateForceLocalCentroid" : "PlateForceLocalNodes";
-                    if (!native.Tables.Any(t => t.Quantity == forces && t.Entity == moments.Entity && t.Number == moments.Number && t.CaseNumber == moments.CaseNumber))
+                    if (moments.Entity == Straus7Entity.Plate ? !plateTables[(moments.Number, moments.CaseNumber, forces)].Any()
+                        : !native.Tables.Any(t => t.Quantity == forces && t.Entity == moments.Entity && t.Number == moments.Number && t.CaseNumber == moments.CaseNumber))
                         throw new InvalidDataException("Plate moments without matching forces.");
                 }
                 var evidence = new[]
