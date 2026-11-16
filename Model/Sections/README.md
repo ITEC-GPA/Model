@@ -91,9 +91,10 @@ metodo di estensione `ISectionShape.GetAvailability` (per il calcestruzzo: le pr
 | `SectionRectangular` | approssimata (Roark, < 0,5%) | approssimata (0) | esatto |
 | `SectionRHS`, `SectionRHSRoundedCorners` | approssimata (Bredt, EN 10210-2) | approssimata (0) | esatto con doppia simmetria, altrimenti non disponibile |
 | `SectionH` e derivate | approssimata | approssimata | esatto con doppia simmetria, altrimenti approssimato |
-| Altre a parete sottile (C, L, T, HDoubleBottomFlange, HInclinedWeb) | approssimata | approssimata | approssimato |
+| `SectionT`, `SectionC`, `SectionL` e derivate (ali rastremate) | numerica | approssimata | numerico (sugli assi di simmetria) |
+| Altre a parete sottile (HDoubleBottomFlange, HInclinedWeb) | approssimata | approssimata | approssimato |
 | `SectionSteelBox` | approssimata | non disponibile | non disponibile |
-| `SectionBuiltUp` | approssimata (somma delle parti) | non disponibile | approssimato |
+| `SectionBuiltUp` | approssimata (somma delle parti, numeriche per T, C, L) | non disponibile | approssimato |
 | Sezione per valori | assegnata | assegnata | assegnato (moduli non disponibili) |
 
 ## Torsione e ingobbamento numerici
@@ -106,8 +107,24 @@ somma e Iw e il centro di taglio non sono definiti. Mesh predefinita: metà dell
 più 40000 elementi.
 
 Per le sezioni generiche (e parametriche, sagomate, saldate) Jt, Jw e ShearCenter sono calcolati così al primo
-accesso (prima valevano 0, 0 e il baricentro). Le classi con formule mantengono i loro valori: il metodo permette il
+accesso (prima valevano 0, 0 e il baricentro). Le altre classi con formule mantengono i loro valori: il metodo permette il
 confronto.
+
+T, C e L (`SectionT`, `SectionC`, `SectionL`, con le ali rastremate, i raccordi e i cordoni): dal 16/11/2026 (opzione B
+delle sezioni aperte) anche Jt e ShearCenter sono calcolati così al primo accesso, sul contorno di `GetPlasticShape`; Jw
+resta la formula a parete sottile. Prima erano le formule a parete sottile (Σ b t³ / 3 sulle linee medie, centro di taglio
+all'incrocio delle linee medie o con la formula CNR DT 208 del canale), che per i profili tozzi sbagliano: J +16% per il
+T 48x40 (tw 16, tf 18), +11% per l'L 40x30, +5,8% per il C 40x30; centro di taglio del C 40x30 a 29,6 mm dal
+baricentro invece di 18,5 mm. Nei 19 casi della qualifica nativa 198 di BridGHe i valori numerici stanno entro lo 0,5%
+(J) e lo 0,2% della dimensione massima (centro di taglio) da quelli del calcolatore di sezioni di Straus7; nel limite a
+parete sottile ritrovano le formule (0,15% per t = b/100). Restano le formule (`ThinWallTorsionConstant`,
+`ThinWallShearCenter`, disponibilità approssimata) per i contorni degeneri: anima o ali assenti, anima larga come l'ala,
+ala corta come lo spessore dell'altra. Una sezione letta da un archivio scritto prima conserva i valori salvati
+(disponibilità approssimata): gli archivi non cambiano. Le coppie `SectionBuiltUp` (2C, 2L) sommano le J numeriche delle
+parti, come prescrive la torsione di Saint-Venant per parti separate (collegate per punti); il centro di taglio della 2L
+speculare sta sull'asse di simmetria all'altezza di quello delle due L. Il calcolatore di Straus7 dà per le coppie
+speculari il 5-5,6% meno del doppio della propria J della parte e il centro di taglio nel baricentro: non sono valori da
+riprodurre (vedi `OpenSectionTorsionTest`).
 
 Precisione (test `SectionTorsionTest`): triangolo equilatero It e Iw esatti entro 1e-5 (convergenza h⁴);
 rettangoli entro 2e-4 dalla serie di Saint-Venant; ellisse e corona circolare entro 1e-3 (poligoni di 720 lati);

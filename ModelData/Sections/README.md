@@ -150,6 +150,16 @@ Lettura:
   alle punte, dove la coordinata settoriale è massima (AISC C, MC, S, ST: Iw fino al 20% minore), i raccordi
   aggiungono materiale (UPE, PFC: 7-8% maggiore).
 - Le formule delle classi non sono cambiate (i risultati del Checker restano quelli).
+- 16/11/2026, opzione B delle sezioni aperte: T, C e L (anche rastremati) usano It e centro di taglio numerici, sul
+  contorno con raccordi e ali rastremate. La colonna «It formula della classe» qui sopra resta quella del 01/10 per
+  confronto. Scarto medio / massimo di It dal pubblicato, prima → dopo: UPE e PFC 6,9% / 16,2% → 0,1% / 0,5%; UPN
+  8,1% / 11,6% → 1,4% / 4,4%; AISC C 13,9% / 19,5% → 1,0% / 2,8%; MC 9,9% / 15,8% → 1,2% / 2,6%; ST 13,7% / 19,0%
+  → 2,4% / 4,6%; WT 0,5% / 2,4% → 0,3% / 1,3%; MT 1,3% / 3,7% → 1,4% / 3,1%. Le posizioni pubblicate del centro di
+  taglio dei canali (ym di UPE e PFC, eo di AISC C e MC) e il ro delle doppie L dell'AISC sono della teoria a parete
+  sottile: i valori numerici se ne scostano (eo di AISC C fino al 33%, in media 23%; MC fino al 26%; ym di UPE e PFC
+  fino al 4,9%; ro delle 2L fino al 5,1%), oltre le tolleranze del 30/09 di `SectionCatalogsTest`. La traccia
+  `TorsionDeviations.csv` scende da 239 a 185 profili. Tolleranze e traccia non sono aggiornate: attendono l'ok
+  dell'utente.
 
 Traccia: i profili con It o Iw delle formule di Model oltre il 5% dal valore pubblicato (soglia `TorsionDeviations.Threshold`; i valori
 pubblicati hanno 3-4 cifre significative) sono in [TorsionDeviations.csv](TorsionDeviations.csv), incorporato nell'assembly e letto da
