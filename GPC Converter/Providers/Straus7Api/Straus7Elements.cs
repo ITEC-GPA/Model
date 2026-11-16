@@ -181,33 +181,90 @@ namespace GPC.Converter.Straus7
 
         private static bool IsGlobal(CoordinateSystem axes) => axes != null && Math.Abs(axes.V1.X - 1) <= 1e-12 && Math.Abs(axes.V2.Y - 1) <= 1e-12 && Math.Abs(axes.V3.Z - 1) <= 1e-12;
 
-        /// <summary>LSA combinations as linear combinations of the load cases (factors of freedom case 1); combinations of LSA combinations
-        /// are preserved only.</summary>
+        /// <summary>The freedom cases and linear static pairs of a model with several freedom cases, when the binding reads them; null otherwise.</summary>
+        public Straus7FreedomCaseData FreedomCaseData { get; private set; }
+
+        /// <summary>A model with several freedom cases: their names and the load case / freedom case pairs of the linear static solver settings
+        /// (<see cref="Straus7FreedomCaseData"/>). Nothing with one freedom case or a binding without <see cref="IStraus7FreedomCaseReadApi"/>.</summary>
+        public void FreedomCases(int cases)
+        {
+            if (api == null || !(api is IStraus7FreedomCaseReadApi reader)) return;
+            int count = api.FreedomCaseCount;
+            if (count <= 1) return;
+            if (count > 100000) throw new InvalidDataException("Invalid freedom case count.");
+            var data = new Straus7FreedomCaseData();
+            for (int f = 1; f <= count; f++) data.FreedomCases.Add(new Straus7FreedomCaseInfo { Number = f, Name = reader.ReadFreedomCase(f) ?? "" });
+            for (int l = 1; l <= cases; l++)
+                for (int f = 1; f <= count; f++)
+                    if (reader.ReadLinearCaseEnabled(l, f)) data.LinearCases.Add(new Straus7LinearCasePair { LoadCase = l, Case = Case(l, "LoadCase/" + l.ToString(CultureInfo.InvariantCulture)), FreedomCase = f });
+            FreedomCaseData = data;
+        }
+
+        /// <summary>LSA combinations as linear combinations of the load cases; combinations of LSA combinations are preserved only. One freedom case:
+        /// the factors of freedom case 1. Several freedom cases with their linear static pairs (<see cref="FreedomCaseData"/>): a factor on load case l
+        /// under freedom case f is a term of load case l when the settings solve l under f only, as the result case of l maps to l; a combination
+        /// with a factor on a pair the settings do not solve, or on a load case solved under several freedom cases, is preserved with a warning.
+        /// Without the pairs, the combinations with factors of other freedom cases are preserved.</summary>
         public void Combinations(int cases)
         {
             if (api == null || extended == null) return;
             int count = extended.CombinationCount, freedom = api.FreedomCaseCount;
             if (count < 0 || count > 100000) throw new InvalidDataException("Invalid LSA combination count.");
+            var pairs = FreedomCaseData;
             for (int c = 1; c <= count; c++)
             {
                 var data = extended.ReadCombination(c, cases, freedom); var record = "LSACombination/" + c.ToString(CultureInfo.InvariantCulture);
                 if (data == null || data.Number != c || data.Factors == null || data.Factors.Length != cases * freedom) throw new InvalidDataException("Invalid LSA combination: " + record);
                 Straus7ApiConverter.Finite(data.Factors, data.Factors.Length, record);
                 batch.Uninterpreted.Add(Straus7ApiConverter.Evidence(record, data, "Native LSA combination factors by load case and freedom case."));
-                if (Enumerable.Range(0, cases).Any(l => Enumerable.Range(1, freedom - 1).Any(f => data.Factors[l * freedom + f] != 0)))
+                if (pairs == null && Enumerable.Range(0, cases).Any(l => Enumerable.Range(1, freedom - 1).Any(f => data.Factors[l * freedom + f] != 0)))
                 { Warn("Straus7CombinationFreedomCasesPreserved", "LSA combinations", "Combinations of several freedom cases are preserved only."); continue; }
                 var definition = new CombinationRecord { Id = "LSA/" + c.ToString(CultureInfo.InvariantCulture), Name = string.IsNullOrWhiteSpace(data.Name) ? record : data.Name.Trim(),
                     Kind = CombinationKind.Linear, Status = data.Enabled ? "ACTIVE" : "INACTIVE", Source = "LSA", Record = record };
-                for (int l = 1; l <= cases; l++)
-                {
-                    double factor = data.Factors[(l - 1) * freedom];
-                    if (factor != 0) definition.Terms.Add(new CombinationTermRecord { Name = Case(l, record), IsStaticCase = true, Analysis = "LSA", Factor = factor });
-                }
+                if (pairs == null)
+                    for (int l = 1; l <= cases; l++)
+                    {
+                        double factor = data.Factors[(l - 1) * freedom];
+                        if (factor != 0) definition.Terms.Add(new CombinationTermRecord { Name = Case(l, record), IsStaticCase = true, Analysis = "LSA", Factor = factor });
+                    }
+                else if (!PairedTerms(data, cases, freedom, pairs, definition)) continue;
                 if (definition.Terms.Count == 0) { Warn("Straus7EmptyCombinationPreserved", "LSA combinations", "LSA combinations without factors are preserved only."); continue; }
                 batch.Combinations.Add(definition);
             }
             if (extended.CombinedCombinationCount > 0)
                 Warn("Straus7CombinedCombinationsPreserved", "Combined LSA combinations", "Combinations of LSA combinations are preserved in the source file, not mapped.");
+        }
+
+        /// <summary>The terms of an LSA combination of a model with several freedom cases (see <see cref="Combinations"/>); false when it is preserved.</summary>
+        private bool PairedTerms(Straus7Combination data, int cases, int freedom, Straus7FreedomCaseData pairs, CombinationRecord definition)
+        {
+            string Pair(int l, int f) => l.ToString(CultureInfo.InvariantCulture) + " under " + Straus7FreedomCaseData.Label(f);
+            var terms = new List<(int Load, int Freedom, double Factor)>();
+            for (int l = 1; l <= cases; l++)
+                for (int f = 1; f <= freedom; f++)
+                    if (data.Factors[(l - 1) * freedom + f - 1] != 0) terms.Add((l, f, data.Factors[(l - 1) * freedom + f - 1]));
+            var unsolved = terms.Where(t => !pairs.Solves(t.Load, t.Freedom)).ToArray();
+            if (unsolved.Length != 0)
+            {
+                Warn("Straus7CombinationUnsolvedPairPreserved", definition.Record, "LSA combination '" + definition.Name + "' has factors on load cases under freedom cases that the linear static settings do not solve ("
+                    + string.Join(", ", unsolved.Select(t => Pair(t.Load, t.Freedom))) + "): preserved only.");
+                return false;
+            }
+            var shared = terms.Where(t => pairs.FreedomCasesOf(t.Load).Count > 1).Select(t => t.Load).Distinct().ToArray();
+            if (shared.Length != 0)
+            {
+                Warn("Straus7CombinationSharedCasePreserved", definition.Record, "LSA combination '" + definition.Name + "' uses load cases solved under several freedom cases ("
+                    + string.Join(", ", shared.Select(l => l.ToString(CultureInfo.InvariantCulture))) + "): their results are not one Model load case; preserved only.");
+                return false;
+            }
+            foreach (var t in terms)
+                definition.Terms.Add(new CombinationTermRecord { Name = Case(t.Load, definition.Record), IsStaticCase = true, Analysis = "LSA", Factor = t.Factor });
+            var used = terms.Select(t => t.Freedom).Distinct().OrderBy(f => f).ToArray();
+            if (used.Length > 1)
+                batch.Diagnostics.Add(new GPC.Model.Core.Diagnostics.ModelDiagnostic { Code = "Straus7CombinationAcrossFreedomCases", Severity = GPC.Model.Core.Diagnostics.DiagnosticSeverity.Information,
+                    Record = definition.Record, Message = "LSA combination '" + definition.Name + "' adds load cases solved under different freedom cases ("
+                        + string.Join(", ", terms.Select(t => Pair(t.Load, t.Freedom))) + "): mapped as Straus7 combines them, by superposition of the result cases." });
+            return true;
         }
     }
 }

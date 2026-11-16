@@ -25,30 +25,105 @@ namespace GPC.Converter.Straus7
         private static readonly System.Text.RegularExpressions.Regex ResultCase = new System.Text.RegularExpressions.Regex(@"^(\d+): (.*)$",
             System.Text.RegularExpressions.RegexOptions.CultureInvariant | System.Text.RegularExpressions.RegexOptions.Singleline);
 
-        /// <summary>Native result case number to Model load case (<see cref="Straus7ApiConverter.CaseName"/>). Straus7 names a linear static
-        /// result case "&lt;load case number&gt;: &lt;load case name&gt;" and numbers the result cases consecutively over the solved load cases
-        /// (verified on R31: with load case 2 left out of the solution, result case 2 is "3: C"), so the name gives the load case exactly.
-        /// A name without the number is matched to the load case names, told apart by the number when equal; result cases without a
-        /// single match are left out.</summary>
+        private static readonly System.Text.RegularExpressions.Regex PairCase = new System.Text.RegularExpressions.Regex(@"^(\d+): \[(\d+): ",
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+        private static readonly System.Text.RegularExpressions.Regex PairFreedom = new System.Text.RegularExpressions.Regex(@"^(\d+): (.*)\]$",
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+        /// <summary>Native result case number to Model load case (<see cref="Straus7ApiConverter.CaseName"/>): the result cases of
+        /// <see cref="Cases"/> with a Model load case.</summary>
         public static IReadOnlyDictionary<int, string> CaseMap(GPC.Model.Models.Model model, IEnumerable<Straus7ResultCase> cases)
         {
+            var map = new Dictionary<int, string>();
+            foreach (var c in Cases(model, cases)) if (c.ModelCase != null) map[c.Number] = c.ModelCase;
+            return map;
+        }
+
+        /// <summary>Each linear static result case with its load case, its freedom case and its Model load case. Straus7 (verified on R31, API 3.1.5)
+        /// names a result case "&lt;load case number&gt;: &lt;load case name&gt;" when the solution uses one freedom case and numbers the result
+        /// cases consecutively over the solved load cases (with load case 2 left out, result case 2 is "3: C"), so the name gives the load case
+        /// exactly; a name without the number is matched to the load case names, told apart by the number when equal. When the solution uses
+        /// several freedom cases, a result case is a load case under a freedom case, named "&lt;result case&gt;: [&lt;load case&gt;: &lt;name&gt;]
+        /// [&lt;freedom case&gt;: &lt;name&gt;]" and numbered by freedom case, then by load case (native-freedom-cases-r31.zip). GPC.Model keeps the
+        /// results of a load case: such a result case maps to its load case when that load case is the only result case of its load case in the
+        /// listing and, for a model imported with its freedom cases (<see cref="Straus7FreedomCaseData"/>), when the linear static settings of
+        /// the model solve the load case under that freedom case only (the LSA combinations of the model were built on those pairs) and the
+        /// freedom case keeps its name. Other result cases are left out, with the reason.</summary>
+        public static IReadOnlyList<Straus7LinearStaticCase> Cases(GPC.Model.Models.Model model, IEnumerable<Straus7ResultCase> cases)
+        {
             if (model == null || cases == null) throw new ArgumentNullException();
+            var listed = cases.ToArray();
             var loadCases = model.LoadCases.Keys.Select(k => ModelCase.Match(k)).Where(m => m.Success)
                 .Select(m => (Name: m.Value, Number: int.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture), Label: m.Groups[2].Value)).ToArray();
-            var map = new Dictionary<int, string>();
-            foreach (var c in cases)
+            string Single(Straus7ResultCase c)
             {
                 var numbered = ResultCase.Match(c.Name ?? "");
                 if (numbered.Success && int.TryParse(numbered.Groups[1].Value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var number))
                 {
                     var exact = Straus7ApiConverter.CaseName(number, numbered.Groups[2].Value);
-                    if (model.LoadCases.ContainsKey(exact)) { map[c.Number] = exact; continue; }
+                    if (model.LoadCases.ContainsKey(exact)) return exact;
                 }
                 var named = loadCases.Where(l => l.Label == (c.Name ?? "")).ToArray();
                 if (named.Length > 1) named = named.Where(l => l.Number == c.Number).ToArray();
-                if (named.Length == 1) map[c.Number] = named[0].Name;
+                return named.Length == 1 ? named[0].Name : null;
             }
-            return map;
+            // Load case labels by number, for the pair names (a number held by one Model load case only).
+            var labels = loadCases.GroupBy(l => l.Number).Where(g => g.Count() == 1).ToDictionary(g => g.Key, g => g.Single());
+            var single = listed.Select(Single).ToArray();
+            var pairs = new (int Load, int Freedom, string FreedomName)?[listed.Length];
+            for (int i = 0; i < listed.Length; i++)
+            {
+                if (single[i] != null) continue;
+                var name = listed[i].Name ?? ""; var head = PairCase.Match(name);
+                if (!head.Success || !int.TryParse(head.Groups[1].Value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var number) || number != listed[i].Number
+                    || !int.TryParse(head.Groups[2].Value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var load)
+                    || !labels.TryGetValue(load, out var label) || !name.StartsWith(head.Value + label.Label + "] [", StringComparison.Ordinal)) continue;
+                var tail = PairFreedom.Match(name.Substring(head.Value.Length + label.Label.Length + 3));
+                if (tail.Success && int.TryParse(tail.Groups[1].Value, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var freedom) && freedom > 0)
+                    pairs[i] = (load, freedom, tail.Groups[2].Value);
+            }
+            var data = pairs.Any(p => p != null) ? Straus7FreedomCaseData.Read(model) : null;
+            string Numbers(IEnumerable<int> values) => string.Join(", ", values.Select(v => v.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            var result = new List<Straus7LinearStaticCase>();
+            for (int i = 0; i < listed.Length; i++)
+            {
+                var c = listed[i];
+                if (single[i] != null)
+                {
+                    var m = ModelCase.Match(single[i]);
+                    result.Add(new Straus7LinearStaticCase { Number = c.Number, Name = c.Name, ModelCase = single[i], LoadCase = int.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture),
+                        Label = m.Groups[1].Value + ": " + m.Groups[2].Value });
+                    continue;
+                }
+                if (pairs[i] == null)
+                {
+                    result.Add(new Straus7LinearStaticCase { Number = c.Number, Name = c.Name, Label = c.Name,
+                        Reason = "No load case of the Model has the number and the name of the result case." });
+                    continue;
+                }
+                var (load, freedom, freedomName) = pairs[i].Value; var label = labels[load];
+                var entry = new Straus7LinearStaticCase { Number = c.Number, Name = c.Name, LoadCase = load, FreedomCase = freedom, FreedomCaseName = freedomName,
+                    Label = load.ToString(System.Globalization.CultureInfo.InvariantCulture) + ": " + label.Label + " · " + Straus7FreedomCaseData.Label(freedom) };
+                var others = Enumerable.Range(0, listed.Length).Where(j => j != i && pairs[j]?.Load == load).Select(j => pairs[j].Value.Freedom).ToArray();
+                var settings = data?.FreedomCasesOf(load);
+                var known = data?.FreedomCases.FirstOrDefault(f => f.Number == freedom);
+                if (data != null && known == null)
+                    entry.Reason = "The model has no freedom case " + freedom.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".";
+                else if (data != null && known.Name != freedomName)
+                    entry.Reason = "Freedom case " + freedom.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of the model is named '" + known.Name + "', not '" + freedomName + "'.";
+                else if (settings != null && !settings.Contains(freedom))
+                    entry.Reason = "The linear static settings of the imported model solve load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        + (settings.Count == 0 ? " under no freedom case" : " under " + string.Join(", ", settings.Select(Straus7FreedomCaseData.Label))) + ", not under " + Straus7FreedomCaseData.Label(freedom) + ".";
+                else if (settings != null && settings.Count > 1)
+                    entry.Reason = "The linear static settings solve load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture) + " under "
+                        + string.Join(", ", settings.Select(Straus7FreedomCaseData.Label)) + ": GPC.Model keeps the results of a load case, not of each freedom case.";
+                else if (settings == null && others.Length != 0)
+                    entry.Reason = "The result file solves load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture) + " under "
+                        + Numbers(others.Concat(new[] { freedom }).Distinct().OrderBy(f => f)) + " (freedom cases): GPC.Model keeps the results of a load case, not of each freedom case.";
+                else entry.ModelCase = label.Name;
+                result.Add(entry);
+            }
+            return result;
         }
 
         /// <summary>As the explicit overload, with the result cases mapped to the Model load cases by <see cref="CaseMap"/>.</summary>
@@ -90,6 +165,13 @@ namespace GPC.Converter.Straus7
                         Message = "Linear static results of the active stage " + stage + (data == null ? "" : " '" + data.Name + "'")
                             + ": the elements inactive in that stage have no results; the cases combine as linear static cases of that configuration." });
                 }
+                var paired = Cases(model, native.Cases).Where(x => x.FreedomCase != null).ToArray();
+                if (paired.Length != 0 && (result.Status == ImportStatus.Completed || result.Status == ImportStatus.Partial))
+                    result.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7FreedomCaseResults", Severity = DiagnosticSeverity.Information, Dataset = datasetId,
+                        Message = "Result cases of a solution with several freedom cases: " + string.Join("; ", paired.Select(x => x.Number.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                            + " = " + caseMap[x.Number] + " under " + Straus7FreedomCaseData.Label(x.FreedomCase.Value) + " '" + x.FreedomCaseName + "'"))
+                            + ". The support reactions of each case are those of its freedom case, as reported by the solver at the nodes read; the Model holds no restraints or node springs"
+                            + " of several freedom cases, so the equilibrium of a case needs the reactions of every node that is restrained or on a spring in its freedom case." });
                 return result;
             }
             catch (OperationCanceledException) { rejected.Status = ImportStatus.Cancelled; }

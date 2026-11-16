@@ -183,7 +183,7 @@ namespace GPC.Converter.Straus7
                     (beam ? beamGroups : plateGroups)[i] = e.GroupId;
                 }
             }
-            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.Combinations(cases);
+            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.FreedomCases(cases); assignments.Combinations(cases);
             int stages = Bounded(api.StageCount);
             var stageApi = api as IStraus7StageReadApi;
             Preserve("St7GetNumStages", stages, stages == 0 ? null : stageApi == null ? "The API binding reads no stage definitions."
@@ -202,6 +202,11 @@ namespace GPC.Converter.Straus7
             assignments.Finish();
             var modelData = assignments.ModelData;
             if (modelData.Stages.Count + modelData.Masses.Count + modelData.Temperatures.Count != 0) { var item = modelData.Preserve(); batch.Uninterpreted.Add(item); report.Preserved.Add(item); }
+            if (assignments.FreedomCaseData is Straus7FreedomCaseData freedom)
+            {
+                var item = freedom.Preserve(); batch.Uninterpreted.Add(item); report.Preserved.Add(item);
+                batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7FreedomCases", Severity = DiagnosticSeverity.Information, Record = Straus7FreedomCaseData.Record, Message = freedom.Summary() });
+            }
             batch.Diagnostics.Add(assignments.Available
                 ? new ModelDiagnostic { Code = "Straus7AssignmentsPartlyMapped", Severity = DiagnosticSeverity.Warning,
                     Message = assignments.Extended

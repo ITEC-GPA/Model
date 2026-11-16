@@ -10,7 +10,7 @@ namespace GPC.Converter.Straus7
     /// <summary>Windows x64 / Straus7 R3 ABI. Owns the native runtime; use a dedicated process when another plug-in uses St7API.
     /// Only read calls and transient result-query settings are exposed. No save, editing, solver or combination generation.</summary>
     public sealed partial class Straus7NativeApi : IStraus7ReadApi, IStraus7ElementNodeReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7PlateNodeResultReadApi,
-        IStraus7StageReadApi, IStraus7MassTemperatureReadApi, IStraus7CombinationResultReadApi
+        IStraus7StageReadApi, IStraus7MassTemperatureReadApi, IStraus7CombinationResultReadApi, IStraus7FreedomCaseReadApi
     {
         private IntPtr library;
         private bool initialized, modelOpen, resultsOpen, ownsRuntime;
@@ -223,10 +223,14 @@ namespace GPC.Converter.Straus7
                 DisplacementTolerance = displacement, ResidualTolerance = residual, MaximumIterations = iterations };
         }
         /// <summary>C2 (P26-04): whether a load case is enabled for the linear static solver (St7GetLSALoadCaseState, freedom case 1).</summary>
-        public bool ReadLinearCaseEnabled(int loadCase)
+        public bool ReadLinearCaseEnabled(int loadCase) => ReadLinearCaseEnabled(loadCase, 1);
+        /// <summary>Whether the linear static solver solves the load case under the freedom case (St7GetLSALoadCaseState).</summary>
+        public bool ReadLinearCaseEnabled(int loadCase, int freedomCase)
         {
-            byte enabled = 0; Check(Call<CaseState>("St7GetLSALoadCaseState")(FileId, loadCase, 1, ref enabled), "St7GetLSALoadCaseState " + loadCase); return enabled != 0;
+            byte enabled = 0; Check(Call<CaseState>("St7GetLSALoadCaseState")(FileId, loadCase, freedomCase, ref enabled),
+                "St7GetLSALoadCaseState " + loadCase + (freedomCase == 1 ? "" : "/" + freedomCase)); return enabled != 0;
         }
+        public string ReadFreedomCase(int number) => Name("St7GetFreedomCaseName", number);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int BoolOnly(int a, ref byte b);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int DefaultDouble(int a, int b, ref double c);
         [UnmanagedFunctionPointer(CallingConvention.Winapi)] private delegate int CaseState(int a, int b, int c, ref byte d);

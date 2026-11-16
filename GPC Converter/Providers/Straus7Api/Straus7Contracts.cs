@@ -193,6 +193,15 @@ namespace GPC.Converter.Straus7
         Straus7Combination ReadCombination(int number, int loadCases, int freedomCases);
         int CombinedCombinationCount { get; }
     }
+    /// <summary>Optional read-only access to the freedom cases of the model and to the load case / freedom case pairs that the linear static
+    /// solver solves (Solver &gt; Linear Static &gt; Load/Freedom Cases). Read only when the model has several freedom cases.</summary>
+    public interface IStraus7FreedomCaseReadApi
+    {
+        /// <summary>St7GetFreedomCaseName (names need not be unique).</summary>
+        string ReadFreedomCase(int number);
+        /// <summary>St7GetLSALoadCaseState: true when the linear static solver solves <paramref name="loadCase"/> under <paramref name="freedomCase"/>.</summary>
+        bool ReadLinearCaseEnabled(int loadCase, int freedomCase);
+    }
     /// <summary>Optional plate results at the element nodes, without averaging between elements (spNodesAverageNever).</summary>
     public interface IStraus7PlateNodeResultReadApi
     {
