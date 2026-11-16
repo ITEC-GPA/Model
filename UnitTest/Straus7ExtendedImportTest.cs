@@ -14,8 +14,13 @@ namespace UnitTest;
 /// with the conventions verified on the native solver by <see cref="Straus7NativeElementsTest"/>; values are invented, not solver output.</summary>
 public partial class Straus7AssignmentImportTest
 {
-    private sealed class ExtendedApi : IStraus7ReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7StageReadApi, IStraus7MassTemperatureReadApi
+    private sealed class ExtendedApi : IStraus7ReadApi, IStraus7AssignmentReadApi, IStraus7ExtendedReadApi, IStraus7StageReadApi, IStraus7MassTemperatureReadApi, IStraus7FreedomCaseReadApi
     {
+        /// <summary>Freedom case names and the (load case, freedom case) pairs of the linear static settings; read only with several freedom cases.</summary>
+        public string[] FreedomNames = { "Freedom Case 1" };
+        public readonly HashSet<(int Load, int Freedom)> Pairs = new();
+        public string ReadFreedomCase(int number) => FreedomNames[number - 1];
+        public bool ReadLinearCaseEnabled(int loadCase, int freedomCase) => Pairs.Contains((loadCase, freedomCase));
         public readonly List<Straus7Stage> Stages = new();
         public readonly Dictionary<(Straus7Entity, int, int), double[]> MassValues = new();
         public readonly Dictionary<(Straus7Entity, int, int), double[]> TemperatureValues = new();
