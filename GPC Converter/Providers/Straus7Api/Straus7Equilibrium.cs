@@ -75,11 +75,21 @@ namespace GPC.Converter.Straus7
             foreach (var beam in model.BeamElements.Values)
                 foreach (var load in beam.Assignments.Loads.Where(l => (l.Concentrated?.LoadCase ?? l.StartIntensity?.LoadCase)?.Name == caseName))
                     contributions.Add(Equilibrium.BeamLoad(beam, load));
+            // Equilibrium.ShellPressure integrates a uniform pressure on a plane convex plate only (plane within 1e-7 mm): on another plate the
+            // resultant is not known, so the case is not evaluated (before, the exception stopped the caller, e.g. the whole ANTHEA import).
+            var unintegrated = new List<string>();
             foreach (var shell in model.AreaElements.Values)
                 foreach (var load in shell.Loads.Values.Where(l => l.LoadCase?.Name == caseName))
                 {
-                    if (load is NormalAreaLoad normal) contributions.Add(Equilibrium.ShellPressure(shell, Global(normal.CoordinateSystem, 0, 0, normal.Pressure), caseName, Id("plate pressure"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name));
-                    else if (load is AreaLoad area) contributions.Add(Equilibrium.ShellPressure(shell, Global(area.CoordinateSystem, area.P1, area.P2, area.P3), caseName, Id("plate traction"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name));
+                    if (load is NormalAreaLoad || load is AreaLoad)
+                    {
+                        try
+                        {
+                            if (load is NormalAreaLoad normal) contributions.Add(Equilibrium.ShellPressure(shell, Global(normal.CoordinateSystem, 0, 0, normal.Pressure), caseName, Id("plate pressure"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name));
+                            else { var area = (AreaLoad)load; contributions.Add(Equilibrium.ShellPressure(shell, Global(area.CoordinateSystem, area.P1, area.P2, area.P3), caseName, Id("plate traction"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name)); }
+                        }
+                        catch (ArgumentException ex) { unintegrated.Add("plate load " + load.GetType().Name + " on plate " + shell.Source?.OriginalId + " (" + ex.Message + ")"); }
+                    }
                     else if (load is NonUniformPlatePressure pressure) contributions.Add(Equilibrium.PlatePressure(pressure, Id("plate pressure")));
                     else missing.Add("plate load " + load.GetType().Name + " on plate " + shell.Source?.OriginalId);
                 }
@@ -101,6 +111,13 @@ namespace GPC.Converter.Straus7
                     contributions.Add(Equilibrium.Explicit(Id(node ? "node mass" : "element mass"), "gravity", caseName, point,
                         new Vector3d(mass.X * g.X, mass.Y * g.Y, mass.Z * g.Z), new Vector3d(0, 0, 0), m.Record));
                 }
+            }
+            if (unintegrated.Count != 0)
+            {
+                diagnostics.Add(new ModelDiagnostic { Code = "Straus7EquilibriumNotEvaluated", Severity = DiagnosticSeverity.Information, Record = caseName,
+                    Message = unintegrated.Count.ToString(CultureInfo.InvariantCulture) + " plate pressures of the case have no resultant in Equilibrium.ShellPressure, which needs a plane"
+                        + " (within 1e-7 mm), convex plate (first: " + unintegrated[0] + "): the balance of the case is not evaluated." });
+                balance.NotRepresented = missing.Concat(unintegrated).ToArray(); balance.Diagnostics = diagnostics; return balance;
             }
             if (Current(model, datasetId, reactions))
                 foreach (var (node, sample) in reactions)
