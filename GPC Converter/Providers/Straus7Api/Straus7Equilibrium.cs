@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.Analysis;
 using GPC.Model.Core.Coordinates;
 using GPC.Model.Core.Diagnostics;
 using GPC.Model.Core.Identity;
 using GPC.Model.Elements;
 using GPC.Model.Loads;
+using GPC.Model.Models;
 using GPC.Model.Results.Locations;
 using GPC.Model.Results.Processing;
 using GPC.Model.Results.Queries;
@@ -100,7 +102,16 @@ namespace GPC.Converter.Straus7
                         new Vector3d(mass.X * g.X, mass.Y * g.Y, mass.Z * g.Z), new Vector3d(0, 0, 0), m.Record));
                 }
             }
-            foreach (var (node, sample) in reactions) contributions.Add(Equilibrium.NodalAction(model, node.Id, sample, ActionBody.OnNode, Id("reaction"), "reaction"));
+            if (Current(model, datasetId, reactions))
+                foreach (var (node, sample) in reactions)
+                {
+                    // As Equilibrium.NodalAction for a reaction on the node (sign +1), with the same arithmetic, after one currency check of the
+                    // dataset for all the reactions instead of one per reaction (each recomputed the analysis fingerprint of the whole model).
+                    var axes = sample.ResultBeamForces.CoordinateSystem;
+                    contributions.Add(Equilibrium.Explicit(Id("reaction"), "reaction", sample.Case.Name, axes.Origin, Global(axes, sample.Fx, sample.Fy, sample.Fz) * 1d,
+                        Global(axes, sample.Mx, sample.My, sample.Mz) * 1d, sample.State.SourceRecord ?? sample.State.ConcomitantStateId));
+                }
+            else foreach (var (node, sample) in reactions) contributions.Add(Equilibrium.NodalAction(model, node.Id, sample, ActionBody.OnNode, Id("reaction"), "reaction"));
             var scope = new EquilibriumScope { Selection = new ResultSelection { Dataset = datasetId, Case = caseName, ConcomitantState = states[0].ConcomitantStateId },
                 CoverageEvidence = "Loads of the imported Straus7 model and the reported support reactions of the case.", CompleteCoverageConfirmed = true,
                 RelativeTolerance = RelativeTolerance };
@@ -122,6 +133,31 @@ namespace GPC.Converter.Straus7
         }
 
         private static double[] Components(Vector3d v) => new[] { v.X, v.Y, v.Z };
+
+        /// <summary>The checks of <see cref="Equilibrium.NodalAction"/> on every reaction of a case, with the analysis fingerprint of the model computed
+        /// once (NodalAction computes it for each reaction, about 0.2 s each on a model of 7800 elements: more than half an hour per case with the
+        /// reactions of 2563 nodes). False when one reaction fails or is not a plain reaction on its node: then every reaction goes through
+        /// NodalAction, which reports the failure as before.</summary>
+        private static bool Current(GPC.Model.Models.Model model, string datasetId, IReadOnlyList<(NodeElement Node, NodeResultForces Sample)> reactions)
+        {
+            if (!model.Datasets.TryGetValue(datasetId, out var ds) || ds == null || ds.NormalizedUnits != "N,mm,rad" || ds.InputFingerprint != model.AnalysisFingerprint()) return false;
+            foreach (var (node, sample) in reactions)
+            {
+                var state = sample.State; var axes = sample.ResultBeamForces?.CoordinateSystem;
+                if (state == null || sample.Case == null || axes == null || sample.Kind != NodalForceKind.SupportReaction || sample.Body != ActionBody.OnNode
+                    || state.DatasetId != datasetId || state.InputFingerprint != ds.InputFingerprint || state.ModelRevision != ds.ModelRevision || state.Semantics != ds.Semantics
+                    || string.IsNullOrWhiteSpace(state.ConcomitantStateId) || state.Components == null || state.Components.Length != 6 || state.Components.Any(c => c != ComponentAvailability.Available)
+                    || state.Semantics != AnalysisSemantics.LinearStatic && state.Semantics != AnalysisSemantics.NonlinearStatic && state.Semantics != AnalysisSemantics.ConcomitantEnvelopeState
+                    || state.Mode.HasValue || state.IsCumulative == false || state.Phase != null || !ResultAlgebra.HasCurrentDerivation(model, node, state)
+                    || new[] { sample.Fx, sample.Fy, sample.Fz, sample.Mx, sample.My, sample.Mz }.Any(v => double.IsNaN(v) || double.IsInfinity(v))
+                    || string.IsNullOrWhiteSpace(state.SourceRecord ?? state.ConcomitantStateId)) return false;
+                try { Axes.Validate(axes); NodalActions.Validate(model, node, sample); }
+                catch (ArgumentException) { return false; }
+                catch (NotSupportedException) { return false; }
+                if (Axes.Length(axes.Origin - node.Position) > 1e-8) return false;
+            }
+            return true;
+        }
         private static Vector3d Global(CoordinateSystem axes, double x, double y, double z) => axes.V1 * x + axes.V2 * y + axes.V3 * z;
 
         /// <summary>Mass vector (per global direction, t) and centre of a node or element mass of <see cref="Straus7ModelData"/>; null when the

@@ -90,6 +90,7 @@ public class Straus7NativeFreedomCasesTest
             Assert.AreEqual(true, balance.Balanced, name);
             Assert.AreEqual(z, balance.AppliedForce[2], 0.5, name); Assert.AreEqual(-z, balance.ReactionForce[2], 0.5, name);
             Assert.AreEqual(0, balance.NotRepresented.Count, name);
+            Straus7ApiWorkflowTest.SameAsNodalActions(m, name, "lsa", balance);
         }
         // Node 2: on the spring kz = 200 N/mm in freedom case 1 (reaction -k uz), restrained in freedom case 2 (no displacement).
         var node2 = Node(m, "2");
