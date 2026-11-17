@@ -1,3 +1,4 @@
+using GPC.Geometry;
 using GPC.Model.Data.Sections;
 using GPC.Model.Sections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -398,7 +399,8 @@ namespace UnitTest
                 yield return ("Wply", section.WplX);
                 yield return ("Wplz", section.WplY);
                 yield return ("zs", section.Centroid.Y);
-                double dx = section.ShearCenter.X - section.Centroid.X, dy = section.ShearCenter.Y - section.Centroid.Y;
+                Point2d thinWall = ThinWallShearCenter(section);
+                double dx = thinWall.X - section.Centroid.X, dy = thinWall.Y - section.Centroid.Y;
                 yield return ("ro", Math.Sqrt(dx * dx + dy * dy + (section.Jxx + section.Jyy) / section.Area));
                 yield break;
             }
@@ -415,10 +417,12 @@ namespace UnitTest
                 if (profile.Family == SectionFamily.ParallelFlangeChannel || profile.Family == SectionFamily.TaperFlangeChannel)
                 {
                     // ys: centroid from the back of the web; ym: distance of the shear centre (outside the web, at negative X) from the
-                    // centroid (ym = ys + e for the UPE 300 of the source: 29 + 31.4 = 60 mm); eo (AISC): shear centre from the back of the web
+                    // centroid (ym = ys + e for the UPE 300 of the source: 29 + 31.4 = 60 mm); eo (AISC): shear centre from the back of the web.
+                    // The published positions are of the thin-walled theory: compared with it (ThinWallShearCenter, user decision D4)
+                    Point2d thinWall = ThinWallShearCenter(section);
                     yield return ("ys", section.Centroid.X);
-                    yield return ("ym", section.Centroid.X - section.ShearCenter.X);
-                    yield return ("eo", -section.ShearCenter.X);
+                    yield return ("ym", section.Centroid.X - thinWall.X);
+                    yield return ("eo", -thinWall.X);
                 }
             }
             else
@@ -432,9 +436,43 @@ namespace UnitTest
         }
 
         /// <summary>
+        /// The shear centre of the thin-walled theory, from which the published positions of the channels (ym, eo) and the ro of the double
+        /// angles come: <see cref="SectionC.ThinWallShearCenter"/> (also tapered); for a built-up section the one of
+        /// <see cref="SectionBuiltUp"/> with the thin-walled shear centres of its angles. The shear centre of Model of T, C and L is solved with
+        /// the finite elements since 16/11/2026 (option B) and is checked against Straus7 in <see cref="OpenSectionTorsionTest"/>: it is up to
+        /// 33% (eo of AISC C) from the thin-walled positions. User decision D4 of 17/11/2026: the published positions are compared with the
+        /// thin-walled formula, with the tolerances of 30/09 unchanged
+        /// </summary>
+        private static Point2d ThinWallShearCenter(Section section)
+        {
+            switch (section)
+            {
+                case SectionC channel:
+                    return channel.ThinWallShearCenter();
+                case SectionL angle:
+                    return angle.ThinWallShearCenter();
+                case SectionBuiltUp builtUp:
+                    double x = 0, y = 0, jxx = 0, jyy = 0;
+                    foreach (SectionBuiltUp.Part part in builtUp.Parts)
+                    {
+                        Point2d own = ThinWallShearCenter(part.Section), placed = part.Place(own.X, own.Y);
+                        x += part.Section.Jxx * placed.X;
+                        y += part.Section.Jyy * placed.Y;
+                        jxx += part.Section.Jxx;
+                        jyy += part.Section.Jyy;
+                    }
+                    return new Point2d(x / jxx, y / jyy);
+                default:
+                    throw new ArgumentException($"no thin-walled shear centre for {section.GetType().Name}", nameof(section));
+            }
+        }
+
+        /// <summary>
         /// The accepted deviation, from the maximum measured on 30/09/2026 (the published values have 3 or 4 significant digits). Area, moments
-        /// of inertia and moduli come from the exact geometry; the torsion and warping constants of the channels and of the taper flange
-        /// sections come from the thin wall formulas of Model (It up to 20% less, Iw up to 18% more than the published ones)
+        /// of inertia and moduli come from the exact geometry; the warping constants of the channels and of the taper flange sections come from
+        /// the thin wall formulas of Model (Iw up to 18% more than the published ones), the torsion constants of T, C and L from the finite
+        /// elements since 16/11/2026 (before, from the thin wall formulas: It up to 20% less than the published ones; the tolerances of It are
+        /// the ones of 30/09); the shear centre positions are checked on the thin wall formulas (see <see cref="ThinWallShearCenter"/>)
         /// </summary>
         private static double Tolerance(string group, string property)
         {

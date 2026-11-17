@@ -158,13 +158,20 @@ Lettura:
   taglio dei canali (ym di UPE e PFC, eo di AISC C e MC) e il ro delle doppie L dell'AISC sono della teoria a parete
   sottile: i valori numerici se ne scostano (eo di AISC C fino al 33%, in media 23%; MC fino al 26%; ym di UPE e PFC
   fino al 4,9%; ro delle 2L fino al 5,1%), oltre le tolleranze del 30/09 di `SectionCatalogsTest`. La traccia
-  `TorsionDeviations.csv` scende da 239 a 185 profili. Tolleranze e traccia non sono aggiornate: attendono l'ok
-  dell'utente.
+  `TorsionDeviations.csv` scende da 239 a 185 profili.
+- 17/11/2026, decisione D4 dell'utente: le posizioni pubblicate (ym, eo, ro) si confrontano con il centro di taglio
+  a parete sottile (`SectionC.ThinWallShearCenter`, `SectionL.ThinWallShearCenter` per le parti delle doppie L), da cui
+  vengono, con le tolleranze del 30/09 invariate; il centro di taglio numerico lo qualifica il confronto con Straus7
+  (`OpenSectionTorsionTest`). La traccia è rigenerata: 185 profili.
 
 Traccia: i profili con It o Iw delle formule di Model oltre il 5% dal valore pubblicato (soglia `TorsionDeviations.Threshold`; i valori
 pubblicati hanno 3-4 cifre significative) sono in [TorsionDeviations.csv](TorsionDeviations.csv), incorporato nell'assembly e letto da
 `TorsionDeviations.All` e `TorsionDeviations.Find(profilo)`: valore pubblicato, della formula di Model e numerico, per It e Iw. Al
-01/10/2026 sono 239: IPN (21), J (10), UPE (14), PFC (6), UPN (18), AISC S (28), C (32), MC (38), L (44), ST (28). Il test
+01/10/2026 erano 239: IPN (21), J (10), UPE (14), PFC (6), UPN (18), AISC S (28), C (32), MC (38), L (44), ST (28). Dal 17/11/2026
+(opzione B, It numerico di T, C, L: per questi profili la colonna «di Model» è il valore numerico) sono 185: IPN (21), J (10),
+UPE (8), PFC (5), UPN (18), AISC S (28), L (95). Escono gli AISC C, MC e ST; gli angolari AISC salgono da 44 a 95, perché l'AISC
+pubblica J = Σ b t³ / 3 sulle gambe intere e gli angolari AISC di Model non hanno raccordi (It numerico fino al 15% sotto il
+pubblicato). Il test
 `SectionCatalogsTest.TorsionDeviationsAreTraced` controlla che la traccia sia aggiornata; se formule o cataloghi cambiano, scrive la nuova
 traccia in `%TEMP%\TorsionDeviations.csv` da copiare qui.
 
