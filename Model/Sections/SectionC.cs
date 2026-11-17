@@ -358,12 +358,17 @@ namespace GPC.Model.Sections
         /// </summary>
         /// <remarks>With fillets or welds <see cref="double.NaN"/>: the exact modulus of the outline (see <see cref="GetPlasticShape"/>) is
         /// computed at the first access. Before, the closed form used the area with the corners on the geometry without them: Wpl,z of a
-        /// UPE 330 was 14% greater than the published one and the UPN 120 and 160 threw an exception (a T with a negative web)</remarks>
+        /// UPE 330 was 14% greater than the published one and the UPN 120 and 160 threw an exception (a T with a negative web). A symmetric
+        /// channel without flanges beyond the web (flanges not longer than the web thickness) is the rectangle of the web, h tw² / 4: before,
+        /// the closed form built the same degenerate channel with half the web again and again and the constructor overflowed the stack</remarks>
         /// <returns>The plastic modulus respect to Y</returns>
         protected override double CalculateWplY()
         {
             if (HasWorkedCorners)
                 return double.NaN;
+
+            if (IsSymmetricAlongXLocalAxis && _lengthTop <= _tw)
+                return _h * _tw * _tw / 4.0;
 
             if (IsSymmetricAlongXLocalAxis)
             {

@@ -205,14 +205,16 @@ namespace UnitTest
         [TestMethod]
         public void DegenerateOutlinesKeepTheThinWalledFormulas()
         {
-            // no web below the flange, a web as wide as the flange, an angle with a leg as long as the thickness of the other one: not a region
-            // for the finite elements, the thin-walled values (approximate) as before. (A channel without flanges beyond the web is not built:
-            // its constructor overflows the stack in CalculateWplY, before and after this change)
+            // no web below the flange, a web as wide as the flange, an angle with a leg as long as the thickness of the other one, a channel
+            // without flanges beyond the web: not a region for the finite elements, the thin-walled values (approximate) as before. (The
+            // channel without flanges is built since the correction D8 of 17/11/2026: before, its constructor overflowed the stack in
+            // CalculateWplY)
             foreach (var (section, thin) in new (Section, double)[]
             {
                 (new SectionT(12, 100, 10, 12, "no web"), new SectionT(12, 100, 10, 12, "no web").ThinWallTorsionConstant()),
                 (new SectionT(100, 10, 10, 12, "web as wide as the flange"), new SectionT(100, 10, 10, 12, "").ThinWallTorsionConstant()),
                 (new SectionL(10, 12, 100, 10, "short leg"), new SectionL(10, 12, 100, 10, "").ThinWallTorsionConstant()),
+                (new SectionC(200, 10, 10, 12, 10, 12, "no flanges"), new SectionC(200, 10, 10, 12, 10, 12, "").ThinWallTorsionConstant()),
             })
             {
                 Assert.AreEqual(thin, section.Jt, section.Name);

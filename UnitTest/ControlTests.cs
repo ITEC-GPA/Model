@@ -262,6 +262,31 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void ChannelWithoutFlangesBeyondTheWebIsTheRectangleOfTheWeb()
+        {
+            // flanges as long as the web thickness (D8 of 17/11/2026): the section is the rectangle tw x h of the web. Before, the closed
+            // form of the plastic modulus about Y built the same channel with half the web again and again: the constructor overflowed the
+            // stack (also in the set AX)
+            double h = 200, tw = 10, tf = 12;
+            var s = new SectionC(h, tw, tw, tf, tw, tf, "");
+            Rel(h * tw, s.Area);
+            Rel(tw / 2, s.Centroid.X);
+            Rel(h / 2, s.Centroid.Y);
+            Rel(tw * Math.Pow(h, 3) / 12, s.Jxx);
+            Rel(h * Math.Pow(tw, 3) / 12, s.Jyy);
+            Rel(h * tw * tw / 4, s.WplY);
+            Rel(tw * h * h / 4, s.WplX);
+            // not a region for the finite elements of the torsion: the thin-walled formulas, approximate
+            Rel(s.ThinWallTorsionConstant(), s.Jt);
+            Assert.AreEqual(PropertyAvailability.Approximate, s.GetAvailability(SectionProperty.TorsionConstant));
+
+            // the rectangle of the web
+            var rectangle = new SectionRectangular(h, tw, "");
+            Rel(rectangle.WplY, s.WplY);
+            Rel(rectangle.WplX, s.WplX);
+        }
+
+        [TestMethod]
         public void CopiesHaveTheSameProperties()
         {
             var t = new SectionT(300, 200, 10, 20, "T");
