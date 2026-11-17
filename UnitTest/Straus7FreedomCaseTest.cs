@@ -37,11 +37,15 @@ public partial class Straus7AssignmentImportTest
             Result(3, "3: [4: W] [1: Freedom Case 1]"), Result(4, "4: [2: Q] [2: Freedom Case 1]"), Result(5, "5: [3: G1] [2: Freedom Case 1]") });
         CollectionAssert.AreEqual(new[] { "Case 1: G1", null, "Case 4: W", null, "Case 3: G1" }, shared.Select(c => c.ModelCase).ToArray());
         StringAssert.Contains(shared[1].Reason, "load case 2 under 1, 2"); StringAssert.Contains(shared[3].Reason, "not of each freedom case");
+        CollectionAssert.AreEqual(new[] { Straus7CaseExclusionReason.None, Straus7CaseExclusionReason.ListedUnderSeveralFreedomCases, Straus7CaseExclusionReason.None,
+            Straus7CaseExclusionReason.ListedUnderSeveralFreedomCases, Straus7CaseExclusionReason.None }, shared.Select(c => c.ReasonCode).ToArray(), "No freedom case data: the listing decides.");
 
         // Not a pair of the model: another result case number, a load case name or number of no Model load case.
         var wrong = Straus7LinearStaticResults.Cases(model, new[] { Result(1, "7: [1: G1] [1: Freedom Case 1]"), Result(2, "2: [1: G2] [1: Freedom Case 1]"),
             Result(3, "3: [9: G1] [1: Freedom Case 1]"), Result(4, "4: [1: G1] [x: Freedom Case 1]") });
         Assert.IsTrue(wrong.All(c => c.ModelCase == null && c.FreedomCase == null && c.Reason != null));
+        Assert.IsTrue(wrong.All(c => c.ReasonCode == Straus7CaseExclusionReason.NoMatchingLoadCase));
+        Assert.IsTrue(cases.All(c => c.ReasonCode == Straus7CaseExclusionReason.None));
 
         // One freedom case: the names and the map of R31 single-freedom-case solutions are unchanged.
         var single = Straus7LinearStaticResults.Cases(model, new[] { Result(1, "1: G1"), Result(2, "4: W") });
@@ -109,6 +113,44 @@ public partial class Straus7AssignmentImportTest
         Assert.IsTrue(other.All(c => c.ModelCase == null));
         StringAssert.Contains(other[0].Reason, "under FC 1, not under FC 2"); StringAssert.Contains(other[1].Reason, "named 'Freedom Case 1'");
         StringAssert.Contains(other[2].Reason, "no freedom case 5");
+        CollectionAssert.AreEqual(new[] { Straus7CaseExclusionReason.None, Straus7CaseExclusionReason.SolvedUnderSeveralFreedomCases, Straus7CaseExclusionReason.None,
+            Straus7CaseExclusionReason.SolvedUnderSeveralFreedomCases }, cases.Select(c => c.ReasonCode).ToArray());
+        CollectionAssert.AreEqual(new[] { Straus7CaseExclusionReason.NotSolvedUnderFreedomCase, Straus7CaseExclusionReason.FreedomCaseRenamed,
+            Straus7CaseExclusionReason.FreedomCaseMissing }, other.Select(c => c.ReasonCode).ToArray());
+        // The parameters of each reason are data of the case and of the import, not only words of the text.
+        var data = Straus7FreedomCaseData.Read(m)!;
+        Assert.AreEqual(1, other[0].LoadCase); Assert.AreEqual(2, other[0].FreedomCase); CollectionAssert.AreEqual(new[] { 1 }, data.FreedomCasesOf(1).ToArray());
+        Assert.AreEqual("Supports", other[1].FreedomCaseName); Assert.AreEqual("Freedom Case 1", data.FreedomCases.Single(f => f.Number == other[1].FreedomCase).Name);
+        Assert.AreEqual(5, other[2].FreedomCase); Assert.IsFalse(data.FreedomCases.Any(f => f.Number == 5));
+        CollectionAssert.AreEqual(new[] { 1, 2 }, data.FreedomCasesOf(cases[1].LoadCase!.Value).ToArray());
+    }
+
+    /// <summary>17/11/2026 (GPC.Converter 2.25): the code of a reason is a contract of callers (ANTHEA translates the reasons by code, not by
+    /// text): each value keeps its number and its name, None is exactly a mapped case, and every other value comes with its English text.</summary>
+    [TestMethod]
+    public void ExclusionReasonCodes_AreStableAndMatchTheMapping()
+    {
+        CollectionAssert.AreEqual(new[] { "None=0", "NoMatchingLoadCase=1", "FreedomCaseMissing=2", "FreedomCaseRenamed=3", "NotSolvedUnderFreedomCase=4",
+            "SolvedUnderSeveralFreedomCases=5", "ListedUnderSeveralFreedomCases=6" },
+            Enum.GetValues(typeof(Straus7CaseExclusionReason)).Cast<Straus7CaseExclusionReason>().Select(v => v + "=" + (int)v).ToArray());
+        var m = Import(FreedomScenario()).Model;
+        var listed = new[] { Result(1, "1: [1: Loads] [1: Freedom Case 1]"), Result(2, "2: [3: Seismic] [1: Freedom Case 1]"), Result(3, "3: [2: Gravity] [2: Freedom Case 1]"),
+            Result(4, "4: [1: Loads] [2: Freedom Case 1]"), Result(5, "5: [1: Loads] [1: Supports]"), Result(6, "6: [1: Loads] [7: Freedom Case 1]"), Result(7, "7: Wind") };
+        var withData = Straus7LinearStaticResults.Cases(m, listed);
+        var noData = Straus7LinearStaticResults.Cases(CaseModel("G1", "Q"), new[] { Result(1, "1: [1: G1] [1: Freedom Case 1]"), Result(2, "2: [1: G1] [2: Freedom Case 1]"),
+            Result(3, "3: [2: Q] [2: Freedom Case 1]") });
+        CollectionAssert.AreEqual(new[] { Straus7CaseExclusionReason.None, Straus7CaseExclusionReason.SolvedUnderSeveralFreedomCases, Straus7CaseExclusionReason.None,
+            Straus7CaseExclusionReason.NotSolvedUnderFreedomCase, Straus7CaseExclusionReason.FreedomCaseRenamed, Straus7CaseExclusionReason.FreedomCaseMissing,
+            Straus7CaseExclusionReason.NoMatchingLoadCase }, withData.Select(c => c.ReasonCode).ToArray());
+        CollectionAssert.AreEqual(new[] { Straus7CaseExclusionReason.ListedUnderSeveralFreedomCases, Straus7CaseExclusionReason.ListedUnderSeveralFreedomCases,
+            Straus7CaseExclusionReason.None }, noData.Select(c => c.ReasonCode).ToArray());
+        foreach (var c in withData.Concat(noData))
+        {
+            Assert.AreEqual(c.ModelCase != null, c.ReasonCode == Straus7CaseExclusionReason.None, c.Name);
+            Assert.AreEqual(c.ReasonCode == Straus7CaseExclusionReason.None, c.Reason == null, c.Name);
+        }
+        // One freedom case: every case maps, with no reason (the codes add nothing to the models of one freedom case).
+        Assert.IsTrue(Straus7LinearStaticResults.Cases(CaseModel("G1", "Q"), new[] { Result(1, "1: G1"), Result(2, "2: Q") }).All(c => c.ReasonCode == Straus7CaseExclusionReason.None && c.Reason == null));
     }
 
     /// <summary>Two LSA combinations with one name, one per freedom case (as "SLE_QP" in a model of the user): two Model combinations with the label of their

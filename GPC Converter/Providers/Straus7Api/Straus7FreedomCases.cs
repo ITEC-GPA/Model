@@ -83,9 +83,35 @@ namespace GPC.Converter.Straus7
         }
     }
 
+    /// <summary>Why <see cref="Straus7LinearStaticResults.Cases"/> leaves a linear static result case out: the code of
+    /// <see cref="Straus7LinearStaticCase.Reason"/>, for callers that translate or sort the reasons without reading the English text
+    /// (GPC.Converter 2.25). The text stays as before. The values are stable: a new reason gets a new value, a value is never reused.</summary>
+    public enum Straus7CaseExclusionReason
+    {
+        /// <summary>Not left out: the result case maps to <see cref="Straus7LinearStaticCase.ModelCase"/> and has no reason.</summary>
+        None = 0,
+        /// <summary>No Model load case has the number and the name of the result case, and the name is not a load case / freedom case pair of a
+        /// Model load case ("No load case of the Model has the number and the name of the result case."). LoadCase and FreedomCase are null.</summary>
+        NoMatchingLoadCase = 1,
+        /// <summary>The freedom case of the pair is not a freedom case of the imported model ("The model has no freedom case 5.").</summary>
+        FreedomCaseMissing = 2,
+        /// <summary>The freedom case of the pair has another name in the imported model ("Freedom case 2 of the model is named 'A', not 'B'.");
+        /// the name in the model is that of <see cref="Straus7FreedomCaseData.FreedomCases"/>, the one of the listing is FreedomCaseName.</summary>
+        FreedomCaseRenamed = 3,
+        /// <summary>The linear static settings of the imported model do not solve the load case under this freedom case ("... solve load case 1
+        /// under FC 1, not under FC 2.", or "under no freedom case"); the freedom cases they use are <see cref="Straus7FreedomCaseData.FreedomCasesOf"/>.</summary>
+        NotSolvedUnderFreedomCase = 4,
+        /// <summary>The linear static settings of the imported model solve the load case under several freedom cases
+        /// (<see cref="Straus7FreedomCaseData.FreedomCasesOf"/>): GPC.Model keeps the results of a load case, not of each freedom case.</summary>
+        SolvedUnderSeveralFreedomCases = 5,
+        /// <summary>Without freedom case data of the import (<see cref="Straus7FreedomCaseData.Read"/> null), the listing has the load case under
+        /// several freedom cases (the result cases with the same LoadCase): GPC.Model keeps the results of a load case, not of each freedom case.</summary>
+        ListedUnderSeveralFreedomCases = 6,
+    }
+
     /// <summary>A linear static result case with its load case and freedom case (<see cref="Straus7LinearStaticResults.Cases"/>). LoadCase and
     /// FreedomCase come from the native name; FreedomCase is null when the name gives none (a solution of one freedom case). ModelCase is the
-    /// Model load case of the results, null when the case cannot be mapped (Reason).</summary>
+    /// Model load case of the results, null when the case cannot be mapped (Reason, with its code in ReasonCode).</summary>
     public sealed class Straus7LinearStaticCase
     {
         /// <summary>The result case number.</summary>
@@ -98,6 +124,9 @@ namespace GPC.Converter.Straus7
         public string ModelCase { get; internal set; }
         /// <summary>"&lt;load case&gt;: &lt;name&gt;", with " · FC &lt;freedom case&gt;" for a result case of several freedom cases: unique when names repeat.</summary>
         public string Label { get; internal set; }
+        /// <summary>Why the case is left out, in English; null when it maps (ModelCase).</summary>
         public string Reason { get; internal set; }
+        /// <summary>The code of <see cref="Reason"/>: <see cref="Straus7CaseExclusionReason.None"/> exactly when ModelCase is not null.</summary>
+        public Straus7CaseExclusionReason ReasonCode { get; internal set; }
     }
 }

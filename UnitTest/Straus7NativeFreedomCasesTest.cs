@@ -42,7 +42,7 @@ public class Straus7NativeFreedomCasesTest
         var listing = converter.ReadResults(new Straus7ResultsRequest { ModelPath = Path.Combine(folder, "freedom.st7"), ResultPath = Path.Combine(folder, results) });
         Assert.AreEqual(ImportStatus.Completed, listing.Status);
         var cases = Straus7LinearStaticResults.Cases(m, listing.Cases);
-        foreach (var c in cases) Console.WriteLine($"{results} {c.Number} '{c.Name}' -> {c.ModelCase ?? "-"} [{c.Label}] {c.Reason}");
+        foreach (var c in cases) Console.WriteLine($"{results} {c.Number} '{c.Name}' -> {c.ModelCase ?? "-"} [{c.Label}] {c.ReasonCode} {c.Reason}");
         return cases;
     }
     private static NodeElement Node(GPC.Model.Models.Model m, string id) => m.NodesElements.Values.Single(n => n.Source.OriginalId == id);
@@ -138,6 +138,8 @@ public class Straus7NativeFreedomCasesTest
         var shared = Listing(converter, folder, "freedom-shared.LSA", m);
         CollectionAssert.AreEqual(new[] { "Case 1: G1", null, "Case 4: W", "Case 2: Q", "Case 3: G1" }, shared.Select(c => c.ModelCase).ToArray());
         StringAssert.Contains(shared[1].Reason, "not under FC 1");
+        Assert.AreEqual(Straus7CaseExclusionReason.NotSolvedUnderFreedomCase, shared[1].ReasonCode);
+        Assert.IsTrue(shared.Where(c => c.ModelCase != null).All(c => c.ReasonCode == Straus7CaseExclusionReason.None));
         var mapped = shared.Where(c => c.ModelCase != null).Select(c => c.Number).ToArray();
         var native = Read(converter, folder, "freedom-shared.LSA", mapped);
         var imported = Straus7LinearStaticResults.Import(m, native, "shared"); Print(imported.Diagnostics);

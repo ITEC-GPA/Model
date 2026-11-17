@@ -49,7 +49,8 @@ namespace GPC.Converter.Straus7
         /// (<see cref="Straus7FreedomCaseData"/>) the settings of the imported model decide: the result case maps when those settings solve
         /// its load case under its freedom case only (the LSA combinations of the model were built on those pairs) and the freedom case keeps
         /// its name, whatever else the listing contains. Without them the listing decides: the result case maps when no other result case of
-        /// the listing has the same load case. Other result cases are left out, with the reason.</summary>
+        /// the listing has the same load case. Other result cases are left out, with the reason in English (Reason) and its code
+        /// (ReasonCode, <see cref="Straus7CaseExclusionReason"/>).</summary>
         public static IReadOnlyList<Straus7LinearStaticCase> Cases(GPC.Model.Models.Model model, IEnumerable<Straus7ResultCase> cases)
         {
             if (model == null || cases == null) throw new ArgumentNullException();
@@ -99,7 +100,7 @@ namespace GPC.Converter.Straus7
                 if (pairs[i] == null)
                 {
                     result.Add(new Straus7LinearStaticCase { Number = c.Number, Name = c.Name, Label = c.Name,
-                        Reason = "No load case of the Model has the number and the name of the result case." });
+                        Reason = "No load case of the Model has the number and the name of the result case.", ReasonCode = Straus7CaseExclusionReason.NoMatchingLoadCase });
                     continue;
                 }
                 var (load, freedom, freedomName) = pairs[i].Value; var label = labels[load];
@@ -109,18 +110,33 @@ namespace GPC.Converter.Straus7
                 var settings = data?.FreedomCasesOf(load);
                 var known = data?.FreedomCases.FirstOrDefault(f => f.Number == freedom);
                 if (data != null && known == null)
+                {
                     entry.Reason = "The model has no freedom case " + freedom.ToString(System.Globalization.CultureInfo.InvariantCulture) + ".";
+                    entry.ReasonCode = Straus7CaseExclusionReason.FreedomCaseMissing;
+                }
                 else if (data != null && known.Name != freedomName)
+                {
                     entry.Reason = "Freedom case " + freedom.ToString(System.Globalization.CultureInfo.InvariantCulture) + " of the model is named '" + known.Name + "', not '" + freedomName + "'.";
+                    entry.ReasonCode = Straus7CaseExclusionReason.FreedomCaseRenamed;
+                }
                 else if (settings != null && !settings.Contains(freedom))
+                {
                     entry.Reason = "The linear static settings of the imported model solve load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture)
                         + (settings.Count == 0 ? " under no freedom case" : " under " + string.Join(", ", settings.Select(Straus7FreedomCaseData.Label))) + ", not under " + Straus7FreedomCaseData.Label(freedom) + ".";
+                    entry.ReasonCode = Straus7CaseExclusionReason.NotSolvedUnderFreedomCase;
+                }
                 else if (settings != null && settings.Count > 1)
+                {
                     entry.Reason = "The linear static settings solve load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture) + " under "
                         + string.Join(", ", settings.Select(Straus7FreedomCaseData.Label)) + ": GPC.Model keeps the results of a load case, not of each freedom case.";
+                    entry.ReasonCode = Straus7CaseExclusionReason.SolvedUnderSeveralFreedomCases;
+                }
                 else if (settings == null && others.Length != 0)
+                {
                     entry.Reason = "The result file solves load case " + load.ToString(System.Globalization.CultureInfo.InvariantCulture) + " under "
                         + Numbers(others.Concat(new[] { freedom }).Distinct().OrderBy(f => f)) + " (freedom cases): GPC.Model keeps the results of a load case, not of each freedom case.";
+                    entry.ReasonCode = Straus7CaseExclusionReason.ListedUnderSeveralFreedomCases;
+                }
                 else entry.ModelCase = label.Name;
                 result.Add(entry);
             }
