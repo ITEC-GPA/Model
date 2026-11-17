@@ -533,8 +533,10 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The torsion constant of the thin-walled theory: sum of b t³ / 3 of the legs (middle line lengths)
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published values of the thin-walled theory (CISC,
+        /// catalogs), while <see cref="Section.Jt"/> is solved with the finite elements</remarks>
         /// <returns>The torsion constant</returns>
-        internal double ThinWallTorsionConstant()
+        public double ThinWallTorsionConstant()
         {
             return 1.0 / 3.0 * (_horizontalLegLength - _verticalLegThickness / 2.0) * Math.Pow(_horizontalLegThickness, 3.0) + 1.0 / 3.0 * (_verticalLegLength - _horizontalLegThickness / 2.0) * Math.Pow(_verticalLegThickness, 3.0);
         }
@@ -554,8 +556,10 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The shear center of the thin-walled theory: the intersection of the middle lines of the legs
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published positions of the thin-walled theory
+        /// (CISC, catalogs), while <see cref="Section.ShearCenter"/> is solved with the finite elements</remarks>
         /// <returns>The shear center</returns>
-        internal Point2d ThinWallShearCenter()
+        public Point2d ThinWallShearCenter()
         {
             return new Point2d(_verticalLegThickness / 2.0, _horizontalLegThickness / 2.0);
         }

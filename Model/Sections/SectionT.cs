@@ -417,8 +417,10 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The shear center of the thin-walled theory: the intersection of the middle lines (the middle of the flange)
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published positions of the thin-walled theory
+        /// (CISC, catalogs), while <see cref="Section.ShearCenter"/> is solved with the finite elements</remarks>
         /// <returns>The shear center</returns>
-        internal Point2d ThinWallShearCenter()
+        public Point2d ThinWallShearCenter()
         {
             return new Point2d(_b / 2.0, Height - _tf / 2.0);
         }
@@ -448,8 +450,10 @@ namespace GPC.Model.Sections
         /// The torsion constant of the thin-walled theory: (b tf³ + (h - tf / 2) tw³) / 3; with the fillets, half of the formula of the rolled
         /// I sections (<see cref="SectionH"/>)
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published values of the thin-walled theory (CISC,
+        /// catalogs), while <see cref="Section.Jt"/> is solved with the finite elements</remarks>
         /// <returns>The torsion constant</returns>
-        internal double ThinWallTorsionConstant()
+        public double ThinWallTorsionConstant()
         {
             if (_edgeWorking == EdgeType.Fillet && _r > 0.0)
             {

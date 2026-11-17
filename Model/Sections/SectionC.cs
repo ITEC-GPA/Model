@@ -320,8 +320,10 @@ namespace GPC.Model.Sections
         /// <summary>
         /// The torsion constant of the thin-walled theory: sum of b t³ / 3 of the walls (middle line lengths)
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published values of the thin-walled theory (CISC,
+        /// catalogs), while <see cref="Section.Jt"/> is solved with the finite elements</remarks>
         /// <returns>The torsion constant</returns>
-        internal double ThinWallTorsionConstant()
+        public double ThinWallTorsionConstant()
         {
             return 1.0 / 3.0 * (_lengthTop - _tw / 2.0) * Math.Pow(_tTop, 3.0) + 1.0 / 3.0 * (_h - _tTop / 2.0 - _tBottom / 2.0) *
                 Math.Pow(_tw, 3.0) + 1.0 / 3.0 * (_lengthBottom - _tw / 2.0) * Math.Pow(_tBottom, 3.0);
@@ -343,8 +345,10 @@ namespace GPC.Model.Sections
         /// The shear center of the thin-walled theory (CNR DT 208/2001, with the bottom flange): on the left of the web, at the height of the
         /// centroid
         /// </summary>
+        /// <remarks>Public since 17/11/2026 (user decision D5): the reference of the published positions of the thin-walled theory
+        /// (CISC, catalogs), while <see cref="Section.ShearCenter"/> is solved with the finite elements</remarks>
         /// <returns>The shear center</returns>
-        internal Point2d ThinWallShearCenter()
+        public Point2d ThinWallShearCenter()
         {
             //CNR DT 208/2001
             double hf = _h - _tTop / 2.0 - _tBottom / 2.0;
