@@ -45,10 +45,11 @@ namespace GPC.Converter.Straus7
         /// exactly; a name without the number is matched to the load case names, told apart by the number when equal. When the solution uses
         /// several freedom cases, a result case is a load case under a freedom case, named "&lt;result case&gt;: [&lt;load case&gt;: &lt;name&gt;]
         /// [&lt;freedom case&gt;: &lt;name&gt;]" and numbered by freedom case, then by load case (native-freedom-cases-r31.zip). GPC.Model keeps the
-        /// results of a load case: such a result case maps to its load case when that load case is the only result case of its load case in the
-        /// listing and, for a model imported with its freedom cases (<see cref="Straus7FreedomCaseData"/>), when the linear static settings of
-        /// the model solve the load case under that freedom case only (the LSA combinations of the model were built on those pairs) and the
-        /// freedom case keeps its name. Other result cases are left out, with the reason.</summary>
+        /// results of a load case, so such a result case maps to its load case as follows. With the freedom case data of the import
+        /// (<see cref="Straus7FreedomCaseData"/>) the settings of the imported model decide: the result case maps when those settings solve
+        /// its load case under its freedom case only (the LSA combinations of the model were built on those pairs) and the freedom case keeps
+        /// its name, whatever else the listing contains. Without them the listing decides: the result case maps when no other result case of
+        /// the listing has the same load case. Other result cases are left out, with the reason.</summary>
         public static IReadOnlyList<Straus7LinearStaticCase> Cases(GPC.Model.Models.Model model, IEnumerable<Straus7ResultCase> cases)
         {
             if (model == null || cases == null) throw new ArgumentNullException();

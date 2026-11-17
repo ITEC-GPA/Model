@@ -19,7 +19,7 @@ namespace GPC.Converter.Straus7
     public sealed class Straus7LinearCasePair
     {
         public int LoadCase { get; set; }
-        public string Case { get; set; }
+        public string ModelCase { get; set; }
         public int FreedomCase { get; set; }
     }
 
@@ -63,7 +63,7 @@ namespace GPC.Converter.Straus7
             {
                 new DataContractJsonSerializer(typeof(Straus7FreedomCaseData)).WriteObject(stream, this);
                 return new GPC.Model.Structure.Assignments.PreservedAssignment { Kind = Kind, SourceRecord = Record, RawData = Encoding.UTF8.GetString(stream.ToArray()),
-                    UnitsAndAxes = "Straus7 numbers of load cases and freedom cases; Case is the name of the Model load case.",
+                    UnitsAndAxes = "Straus7 numbers of load cases and freedom cases; ModelCase is the name of the Model load case.",
                     UnsupportedReason = "GPC.Model has no load case / freedom case pairing and no restraints of several freedom cases: the pairs are data." };
             }
         }
@@ -78,7 +78,7 @@ namespace GPC.Converter.Straus7
             });
             var shared = LinearCases.GroupBy(p => p.LoadCase).Where(g => g.Select(p => p.FreedomCase).Distinct().Count() > 1).Select(g => g.Key).OrderBy(l => l).ToArray();
             return FreedomCases.Count.ToString(CultureInfo.InvariantCulture) + " freedom cases in the linear static settings: " + string.Join("; ", parts) + "."
-                + (shared.Length == 0 ? "" : " Load cases " + Numbers(shared) + " are solved under several freedom cases: their result cases and the LSA combinations that use them are not mapped.")
+                + (shared.Length == 0 ? "" : (shared.Length == 1 ? " Load case " + Numbers(shared) + " is" : " Load cases " + Numbers(shared) + " are") + " solved under several freedom cases: their result cases and the LSA combinations that use them are not mapped.")
                 + " A result case maps to its load case when the load case is solved under one freedom case; restraints and node springs of the freedom cases are not mapped.";
         }
     }

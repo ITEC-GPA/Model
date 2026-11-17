@@ -196,7 +196,7 @@ namespace GPC.Converter.Straus7
             for (int f = 1; f <= count; f++) data.FreedomCases.Add(new Straus7FreedomCaseInfo { Number = f, Name = reader.ReadFreedomCase(f) ?? "" });
             for (int l = 1; l <= cases; l++)
                 for (int f = 1; f <= count; f++)
-                    if (reader.ReadLinearCaseEnabled(l, f)) data.LinearCases.Add(new Straus7LinearCasePair { LoadCase = l, Case = Case(l, "LoadCase/" + l.ToString(CultureInfo.InvariantCulture)), FreedomCase = f });
+                    if (reader.ReadLinearCaseEnabled(l, f)) data.LinearCases.Add(new Straus7LinearCasePair { LoadCase = l, ModelCase = Case(l, "LoadCase/" + l.ToString(CultureInfo.InvariantCulture)), FreedomCase = f });
             FreedomCaseData = data;
         }
 
@@ -204,13 +204,14 @@ namespace GPC.Converter.Straus7
         /// the factors of freedom case 1. Several freedom cases with their linear static pairs (<see cref="FreedomCaseData"/>): a factor on load case l
         /// under freedom case f is a term of load case l when the settings solve l under f only, as the result case of l maps to l; a combination
         /// with a factor on a pair the settings do not solve, or on a load case solved under several freedom cases, is preserved with a warning.
-        /// Without the pairs, the combinations with factors of other freedom cases are preserved.</summary>
+        /// Without the pairs, the combinations with factors of other freedom cases are preserved. With the pairs, LSA combinations that share a name
+        /// get the label of their freedom case (" · FC n"), or their Id when that is not enough, so that each one is a Model combination.</summary>
         public void Combinations(int cases)
         {
             if (api == null || extended == null) return;
             int count = extended.CombinationCount, freedom = api.FreedomCaseCount;
             if (count < 0 || count > 100000) throw new InvalidDataException("Invalid LSA combination count.");
-            var pairs = FreedomCaseData;
+            var pairs = FreedomCaseData; var paired = new List<(CombinationRecord Definition, int[] Freedoms)>();
             for (int c = 1; c <= count; c++)
             {
                 var data = extended.ReadCombination(c, cases, freedom); var record = "LSACombination/" + c.ToString(CultureInfo.InvariantCulture);
@@ -227,17 +228,20 @@ namespace GPC.Converter.Straus7
                         double factor = data.Factors[(l - 1) * freedom];
                         if (factor != 0) definition.Terms.Add(new CombinationTermRecord { Name = Case(l, record), IsStaticCase = true, Analysis = "LSA", Factor = factor });
                     }
-                else if (!PairedTerms(data, cases, freedom, pairs, definition)) continue;
+                else if (!PairedTerms(data, cases, freedom, pairs, definition, out var freedoms)) continue;
+                else if (definition.Terms.Count != 0) paired.Add((definition, freedoms));
                 if (definition.Terms.Count == 0) { Warn("Straus7EmptyCombinationPreserved", "LSA combinations", "LSA combinations without factors are preserved only."); continue; }
                 batch.Combinations.Add(definition);
             }
+            if (pairs != null) QualifyRepeatedNames(paired);
             if (extended.CombinedCombinationCount > 0)
                 Warn("Straus7CombinedCombinationsPreserved", "Combined LSA combinations", "Combinations of LSA combinations are preserved in the source file, not mapped.");
         }
 
         /// <summary>The terms of an LSA combination of a model with several freedom cases (see <see cref="Combinations"/>); false when it is preserved.</summary>
-        private bool PairedTerms(Straus7Combination data, int cases, int freedom, Straus7FreedomCaseData pairs, CombinationRecord definition)
+        private bool PairedTerms(Straus7Combination data, int cases, int freedom, Straus7FreedomCaseData pairs, CombinationRecord definition, out int[] freedoms)
         {
+            freedoms = new int[0];
             string Pair(int l, int f) => l.ToString(CultureInfo.InvariantCulture) + " under " + Straus7FreedomCaseData.Label(f);
             var terms = new List<(int Load, int Freedom, double Factor)>();
             for (int l = 1; l <= cases; l++)
@@ -259,12 +263,35 @@ namespace GPC.Converter.Straus7
             }
             foreach (var t in terms)
                 definition.Terms.Add(new CombinationTermRecord { Name = Case(t.Load, definition.Record), IsStaticCase = true, Analysis = "LSA", Factor = t.Factor });
-            var used = terms.Select(t => t.Freedom).Distinct().OrderBy(f => f).ToArray();
+            var used = terms.Select(t => t.Freedom).Distinct().OrderBy(f => f).ToArray(); freedoms = used;
             if (used.Length > 1)
                 batch.Diagnostics.Add(new GPC.Model.Core.Diagnostics.ModelDiagnostic { Code = "Straus7CombinationAcrossFreedomCases", Severity = GPC.Model.Core.Diagnostics.DiagnosticSeverity.Information,
                     Record = definition.Record, Message = "LSA combination '" + definition.Name + "' adds load cases solved under different freedom cases ("
                         + string.Join(", ", terms.Select(t => Pair(t.Load, t.Freedom))) + "): mapped as Straus7 combines them, by superposition of the result cases." });
             return true;
+        }
+
+        /// <summary>LSA combinations of a model with several freedom cases that share a name (one per freedom case, as "SLE_QP" in a model of the user): the
+        /// Model keeps one combination per name, so the second would be lost. Each one gets " · FC n" when its terms are of freedom case n only
+        /// and that name is free, otherwise " [&lt;Id&gt;]" (Id "LSA/c", unique).</summary>
+        private void QualifyRepeatedNames(List<(CombinationRecord Definition, int[] Freedoms)> paired)
+        {
+            var taken = new HashSet<string>(paired.Select(p => p.Definition.Name), StringComparer.Ordinal); var renamed = new List<string>();
+            foreach (var group in paired.GroupBy(p => p.Definition.Name, StringComparer.Ordinal).Where(g => g.Count() > 1).ToArray())
+            {
+                var items = group.ToArray();
+                var labels = items.Select(p => p.Freedoms.Length == 1 ? group.Key + " · " + Straus7FreedomCaseData.Label(p.Freedoms[0]) : null).ToArray();
+                for (int i = 0; i < items.Length; i++)
+                {
+                    var label = labels[i];
+                    if (label == null || labels.Count(l => l == label) > 1 || taken.Contains(label)) label = group.Key + " [" + items[i].Definition.Id + "]";
+                    taken.Add(label); renamed.Add("'" + group.Key + "' (" + items[i].Definition.Record + ") as '" + label + "'");
+                    items[i].Definition.Name = label;
+                }
+            }
+            if (renamed.Count != 0)
+                batch.Diagnostics.Add(new GPC.Model.Core.Diagnostics.ModelDiagnostic { Code = "Straus7CombinationNamesQualified", Severity = GPC.Model.Core.Diagnostics.DiagnosticSeverity.Information,
+                    Record = "LSA combinations", Message = "LSA combinations of different freedom cases with the same name are Model combinations with distinct names: " + string.Join("; ", renamed) + "." });
         }
     }
 }

@@ -70,9 +70,9 @@ public partial class Straus7AssignmentImportTest
         CollectionAssert.AreEqual(new[] { 1, 2 }, data.FreedomCases.Select(f => f.Number).ToArray());
         Assert.IsTrue(data.FreedomCases.All(f => f.Name == "Freedom Case 1"));
         CollectionAssert.AreEqual(new[] { "1/1/Case 1: Loads", "2/2/Case 2: Gravity", "3/1/Case 3: Seismic", "3/2/Case 3: Seismic" },
-            data.LinearCases.Select(p => p.LoadCase + "/" + p.FreedomCase + "/" + p.Case).ToArray());
+            data.LinearCases.Select(p => p.LoadCase + "/" + p.FreedomCase + "/" + p.ModelCase).ToArray());
         var info = report.Diagnostics.Single(d => d.Code == "Straus7FreedomCases"); Assert.AreEqual(DiagnosticSeverity.Information, info.Severity);
-        StringAssert.Contains(info.Message, "FC 2 'Freedom Case 1' (load cases 2, 3)"); StringAssert.Contains(info.Message, "Load cases 3 are solved under several freedom cases");
+        StringAssert.Contains(info.Message, "FC 2 'Freedom Case 1' (load cases 2, 3)"); StringAssert.Contains(info.Message, "Load case 3 is solved under several freedom cases");
 
         var definitions = CombinationExpansion.Definitions(m).ToDictionary(d => d.Name);
         CollectionAssert.AreEquivalent(new[] { "FC1", "MIX" }, definitions.Keys.ToArray());
@@ -109,6 +109,34 @@ public partial class Straus7AssignmentImportTest
         Assert.IsTrue(other.All(c => c.ModelCase == null));
         StringAssert.Contains(other[0].Reason, "under FC 1, not under FC 2"); StringAssert.Contains(other[1].Reason, "named 'Freedom Case 1'");
         StringAssert.Contains(other[2].Reason, "no freedom case 5");
+    }
+
+    /// <summary>Two LSA combinations with one name, one per freedom case (as "SLE_QP" in a model of the user): two Model combinations with the label of their
+    /// freedom case, each resolved by its own id. A third with the same name across freedom cases keeps its id; the Model loses none.</summary>
+    [TestMethod]
+    public void SeveralFreedomCases_CombinationsWithOneNameBecomeDistinctModelCombinations()
+    {
+        var api = FreedomScenario(); api.Combinations.Clear();
+        api.Combinations.Add(new Straus7Combination { Number = 1, Name = "SLE_QP", Enabled = true, Factors = new[] { 1.0, 0, 0, 0, 0, 0 } });
+        api.Combinations.Add(new Straus7Combination { Number = 2, Name = "SLE_QP", Enabled = true, Factors = new[] { 0, 0, 0, 0.6, 0, 0 } });
+        api.Combinations.Add(new Straus7Combination { Number = 3, Name = "SLE_QP", Enabled = true, Factors = new[] { 1.0, 0, 0, 1.0, 0, 0 } });
+        api.Combinations.Add(new Straus7Combination { Number = 4, Name = "ULS", Enabled = true, Factors = new[] { 1.35, 0, 0, 0, 0, 0 } });
+        var report = Import(api); Partial(report); var m = report.Model;
+        CollectionAssert.AreEquivalent(new[] { "SLE_QP · FC 1", "SLE_QP · FC 2", "SLE_QP [LSA/3]", "ULS" }, m.Combinations.Keys.ToArray());
+        CollectionAssert.AreEqual(new[] { "SLE_QP · FC 1", "SLE_QP · FC 2", "SLE_QP [LSA/3]", "ULS" }, CombinationExpansion.Definitions(m).Select(d => d.Name).ToArray());
+        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "Straus7CombinationNamesQualified" && d.Message.Contains("as 'SLE_QP · FC 2'")));
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "CombinationNameRepeated"));
+        var first = CombinationResults.Resolve(m, "LSA/1"); var second = CombinationResults.Resolve(m, "LSA/2");
+        Assert.AreEqual("SLE_QP · FC 1", first.Output.Name); Assert.AreEqual("SLE_QP · FC 2", second.Output.Name);
+        Assert.AreEqual(1.0, first.Alternatives.Single().Factors["Case 1: Loads"]); Assert.AreEqual(0.6, second.Alternatives.Single().Factors["Case 2: Gravity"]);
+        // One freedom case: the names stay as before; the Model skips the second with a warning instead of in silence.
+        var single = new ExtendedApi();
+        single.Combinations.Add(new Straus7Combination { Number = 1, Name = "ULS", Enabled = true, Factors = new[] { 1.35, 0, 0 } });
+        single.Combinations.Add(new Straus7Combination { Number = 2, Name = "ULS", Enabled = true, Factors = new[] { 0, 1.5, 0 } });
+        var one = Import(single); Partial(one);
+        CollectionAssert.AreEqual(new[] { "ULS", "ULS" }, CombinationExpansion.Definitions(one.Model).Select(d => d.Name).ToArray());
+        Assert.AreEqual(1, one.Model.Combinations.Count);
+        Assert.AreEqual("LSACombination/2", one.Diagnostics.Single(d => d.Code == "CombinationNameRepeated").Record);
     }
 
     [TestMethod]

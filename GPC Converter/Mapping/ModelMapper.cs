@@ -140,7 +140,14 @@ namespace GPC.Converter
                     {
                         cancellationToken.ThrowIfCancellationRequested(); record = definition.Record;
                         var name = CombinationExpansion.ModelName(definitions, definition, cases.ContainsKey);
-                        if (model.Combinations.ContainsKey(name)) continue;
+                        if (model.Combinations.ContainsKey(name))
+                        {
+                            // Two source definitions with one Model name: the later one stays a definition only (it was skipped without a word).
+                            report.Diagnostics.Add(new ModelDiagnostic { Code = "CombinationNameRepeated", Severity = DiagnosticSeverity.Warning, Record = definition.Record,
+                                Message = "Combination '" + definition.Name + "' (" + definition.Id + ") has the Model name '" + name + "' of an earlier combination:"
+                                    + " it is kept as a source definition (CombinationExpansion), without a Model combination of its own." });
+                            continue;
+                        }
                         var combination = CombinationExpansion.ToCombination(definitions, definition, cases, name);
                         if (combination != null) { if (model.AddCombination(combination)) linear++; }
                         // An envelope is declared without coefficients: it names the concomitant states rebuilt from the static
