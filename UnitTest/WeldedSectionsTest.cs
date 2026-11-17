@@ -85,5 +85,27 @@ namespace UnitTest
             Rel(2 * RectangleTorsion(200, 100), regions.Jt, 1e-3);
             Rel(2 * 100 * Math.Pow(200, 3) / 12, regions.Jxx);
         }
+
+        [TestMethod]
+        public void DifferentPartsShareTheShearAsTheirInertias()
+        {
+            // correction D8 of 17/11/2026: the parts bend together, a vertical shear is shared as their Ixx and passes through their shear
+            // centres (x = Σ Ixx,i xs,i / Σ Ixx,i), a horizontal one as their Iyy (y = Σ Iyy,i ys,i / Σ Iyy,i). Before, the weights were
+            // exchanged: x 33.33 and y 47.22 for these two plates instead of 11.11 and 41.67
+            Shape2d Plate(double x, double height) => new Shape2d(new Polygon2d(new[] { new Point2d(x - 5, 0), new Point2d(x + 5, 0), new Point2d(x + 5, height), new Point2d(x - 5, height) }));
+            var regions = SectionBuiltUp.FromRegions(new[] { Plate(0, 100), Plate(100, 50) }, "two plates");
+            double ixx1 = 10 * Math.Pow(100, 3) / 12, ixx2 = 10 * Math.Pow(50, 3) / 12, iyy1 = 100 * Math.Pow(10, 3) / 12, iyy2 = 50 * Math.Pow(10, 3) / 12;
+            Assert.AreEqual((ixx1 * 0 + ixx2 * 100) / (ixx1 + ixx2), regions.ShearCenter.X, 1e-6 * 100, "vertical shear");
+            Assert.AreEqual((iyy1 * 50 + iyy2 * 25) / (iyy1 + iyy2), regions.ShearCenter.Y, 1e-6 * 100, "horizontal shear");
+            Assert.AreEqual(100.0 / 9.0, regions.ShearCenter.X, 1e-4);
+            Assert.AreEqual(125.0 / 3.0, regions.ShearCenter.Y, 1e-4);
+
+            // equal or mirrored parts: unchanged, the weights are the same (double angle back to back: shear centre at the height of the one of
+            // its angles, on the axis of symmetry)
+            var angle = new SectionL(100, 10, 150, 12, "L");
+            var pair = SectionBuiltUp.DoubleAngle(angle, 10, "2L");
+            Assert.AreEqual(pair.Centroid.X, pair.ShearCenter.X, 1e-9 * 100);
+            Assert.AreEqual(pair.Parts[0].Place(angle.ShearCenter.X, angle.ShearCenter.Y).Y, pair.ShearCenter.Y, 1e-9 * 150);
+        }
     }
 }

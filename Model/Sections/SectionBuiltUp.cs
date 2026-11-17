@@ -15,8 +15,10 @@ namespace GPC.Model.Sections
     /// <item>Elastic moduli: from the extreme vertices of the outlines of the parts; plastic moduli: exact on the union of the outlines.</item>
     /// <item>Torsion constant: the sum of the ones of the parts (open parts connected at discrete points, as the double angles).</item>
     /// <item>Warping constant: not available (<see cref="double.NaN"/>): it depends on the connection of the parts.</item>
-    /// <item>Shear centre: Σ(Iyy,i xs,i) / Σ Iyy,i, Σ(Ixx,i ys,i) / Σ Ixx,i with the moments of the parts about their centroids, exact
-    /// when the shear centres of the parts are aligned, as in the double angles back to back.</item>
+    /// <item>Shear centre: Σ(Ixx,i xs,i) / Σ Ixx,i, Σ(Iyy,i ys,i) / Σ Iyy,i with the moments of the parts about their centroids: the parts
+    /// bend together, a vertical shear is shared by the parts as their Ixx and passes through their shear centres, a horizontal one as their
+    /// Iyy; exact when the shear centres of the parts are aligned, as in the double angles back to back. Before 17/11/2026 (correction D8)
+    /// the weights were exchanged: the same values for parts equal or mirrored (2C, 2L, cruciform), wrong for different parts.</item>
     /// </list>
     /// Pairs 2C and 2L (user decision D2 of 17/11/2026): J is twice the J of the part, the Saint-Venant torsion of two regions connected at
     /// discrete points, with or without a gap; the shear centre of the mirrored 2L is on the axis of symmetry at the height of the shear
@@ -435,12 +437,12 @@ namespace GPC.Model.Sections
             foreach (Part part in _parts)
             {
                 Point2d s = part.Place(part.Section.ShearCenter.X, part.Section.ShearCenter.Y);
-                x += part.Section.Jyy * s.X;
-                y += part.Section.Jxx * s.Y;
+                x += part.Section.Jxx * s.X;
+                y += part.Section.Jyy * s.Y;
                 jxx += part.Section.Jxx;
                 jyy += part.Section.Jyy;
             }
-            return new Point2d(x / jyy, y / jxx);
+            return new Point2d(x / jxx, y / jyy);
         }
 
         /// <summary>The plastic modulus about X: the exact one of the outlines, computed at the first access</summary>
