@@ -124,8 +124,8 @@ public class ConverterAssignmentMappingTest
         Assert.AreEqual(300, ((SteelSection)resolved.Model.BeamElements.Values.Single(b => b.Source.OriginalId == "10").BeamProperty).SteelMaterial.Fyk);
     }
 
-    // 5/11/2026 (user, «Sì, nella 1.19.0»): the Straus7 material library names concrete by its compressive strength (the real model
-    // P118-25-D-FM01 imported its two concretes without property). The declared strength is fck and gives the class with that fck.
+    // 5/11/2026 (user, «Sì, nella 1.19.0»): the Straus7 material library names concrete by its compressive strength (a real model
+    // imported its two concretes without property). The declared strength is fck and gives the class with that fck.
     [DataTestMethod]
     [DataRow("Concrete: Compressive Strength fc = 32 MPa", MaterialKind.Unknown, 32d, "C32/40", "fc = 32 MPa")]
     [DataRow("Concrete: Compressive Strength fc = 20 MPa", MaterialKind.Unknown, 20d, "C20/25", "fc = 20 MPa")]

@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTest
 {
     /// <summary>
-    /// 5/11/2026: the planarity of the shells is relative to their size (ShellPlanarity). A real Straus7 model (P118-25-D-FM01, 2507 planar
+    /// 5/11/2026: the planarity of the shells is relative to their size (ShellPlanarity). A real Straus7 model (2507 planar
     /// quads up to 9 m from the origin) was rejected because the round-off of its coordinates (a deviation from the mean plane up to
     /// 0.24 µm) exceeded the absolute GeometryBase.Tolerance of 1e-4 mm. GeometryBase.Tolerance does not change.
     /// </summary>

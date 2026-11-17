@@ -10,7 +10,7 @@ namespace GPC.Model.Structure.Topology
     /// the larger of an absolute floor, <see cref="GeometryBase.Tolerance"/> by default, and <see cref="RelativeTolerance"/> times the largest
     /// distance between two corners.
     /// <para>Why: the coordinates a solver exports carry a round-off of about 1 µm on a model in metres. With the absolute 1e-4 mm alone,
-    /// 575 of the 2507 planar quads of a real Straus7 model (P118-25-D-FM01, corners up to 9 m from the origin, largest deviation 0.24 µm,
+    /// 575 of the 2507 planar quads of a real Straus7 model (corners up to 9 m from the origin, largest deviation 0.24 µm,
     /// 6.8e-7 of the plate size) were refused as not planar and the whole import was rejected. A relative bound accepts that round-off for
     /// any plate larger than about 0.1 m and still refuses an actual warping, for example a corner 1 mm out of the plane of a 1 m plate.
     /// <see cref="GeometryBase.Tolerance"/> itself does not change.</para>
