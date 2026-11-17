@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>5.51.0.5</Version>
+    <Version>5.52.0.0</Version>
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>    
   <RootNamespace>GPC.Model</RootNamespace>    
   <Configurations>Debug;Release;DebugLocalLibs</Configurations>
