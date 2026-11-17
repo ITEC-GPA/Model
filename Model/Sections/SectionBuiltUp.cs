@@ -18,6 +18,11 @@ namespace GPC.Model.Sections
     /// <item>Shear centre: Σ(Iyy,i xs,i) / Σ Iyy,i, Σ(Ixx,i ys,i) / Σ Ixx,i with the moments of the parts about their centroids, exact
     /// when the shear centres of the parts are aligned, as in the double angles back to back.</item>
     /// </list>
+    /// Pairs 2C and 2L (user decision D2 of 17/11/2026): J is twice the J of the part, the Saint-Venant torsion of two regions connected at
+    /// discrete points, with or without a gap; the shear centre of the mirrored 2L is on the axis of symmetry at the height of the shear
+    /// centre of its angles (the parts bend together without shear flow between them), the one of the 2C at the centroid. They are not the
+    /// values of the section calculator of Straus7 for its mirrored pairs (5.0-5.6% less than twice its own J of the part, shear centre at the
+    /// centroid): a native comparison of a pair is against twice the Straus7 J of the single part and against the shear centre of the part.
     /// The section has no single shape: <see cref="Section.Shape"/> is null and the mesh is not available (mesh the parts)
     /// </summary>
     [Serializable]

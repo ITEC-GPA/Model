@@ -126,6 +126,13 @@ speculare sta sull'asse di simmetria all'altezza di quello delle due L. Il calco
 speculari il 5-5,6% meno del doppio della propria J della parte e il centro di taglio nel baricentro: non sono valori da
 riprodurre (vedi `OpenSectionTorsionTest`).
 
+Decisioni dell'utente del 17/11/2026 (opzione B, «ok per tutte le voci»): D1 J e centro di taglio numerici di T, C, L;
+D2 coppie 2C e 2L con J = 2 × J della parte e centro di taglio della 2L all'altezza di quello delle L. Il confronto
+nativo di una coppia con Straus7 si fa contro 2 × la J della sezione singola di Straus7 e contro il centro di taglio
+della parte, non contro i valori di Straus7 della coppia. D3: Iw resta la formula a parete sottile (gli elementi finiti
+per Iw sono un passo a parte, dopo una misura sulle verifiche di svergolamento di Steel). D6: le sezioni lette da
+archivi già salvati non si ricalcolano.
+
 Precisione (test `SectionTorsionTest`): triangolo equilatero It e Iw esatti entro 1e-5 (convergenza h⁴);
 rettangoli entro 2e-4 dalla serie di Saint-Venant; ellisse e corona circolare entro 1e-3 (poligoni di 720 lati);
 canale e I sottili entro 1-2% dalla teoria a parete sottile, che il calcolo numerico ritrova al 0,01% per t = b/100.
