@@ -146,7 +146,20 @@ namespace GPC.Model.Results.Processing
                 beam.Assignments.RigidLengthI, beam.Assignments.RigidLengthJ, load });
             result.ValueFingerprint = result.Fingerprint(); return result;
         }
-        /// <summary>Uniform global traction on the full planar triangular/quadrilateral connectivity, in N/mm².</summary>
+        /// <summary>Uniform global traction on the full triangular/quadrilateral connectivity, in N/mm². A quadrilateral must be convex and planar by
+        /// the rule of the shells (<see cref="ShellPlanarity.IsPlanar"/>, as the topology of the import and <see cref="NonUniformPlatePressure"/>).</summary>
+        /// <remarks>Plane of a quadrilateral (17/11/2026). Until then the fourth corner had to lie within 1e-7 mm of the plane of the first three, an
+        /// absolute bound about three orders below the round-off of the coordinates a solver exports: on a real Straus7 model, imported with plates
+        /// planar by <see cref="ShellPlanarity"/>, 1816 to 2901 pressures per case were refused and the balance of 10 cases out of 15 was not evaluated.
+        /// A plate within 1e-7 mm keeps exactly the arithmetic and the result of before; one beyond it is accepted when <see cref="ShellPlanarity.IsPlanar"/>
+        /// accepts its corners (deviation from the mean plane within the larger of 1e-4 mm and 1e-5 of the largest distance between two corners), and
+        /// refused as before otherwise: a corner 1 mm out of the plane of a 1 m plate is an actual warping and has no resultant here.
+        /// <para>Accuracy on an accepted plate: the two triangles (p0, p1, p2) and (p0, p2, p3) are integrated with their area projected on the plane
+        /// of the first one and their own centroid. The projection shortens the second area by 1 − cos θ, θ the angle between the two triangles
+        /// (about 4√2 times the deviation over the side for a twisted square): at most about 2e-9 of the force at the bound of ShellPlanarity and
+        /// about 1e-11 for the round-off of exported coordinates, far below the tolerances of a balance (1e-8 by default, 1e-6 for Straus7).
+        /// For a traction along the normal of the first triangle the force is exactly the normal component of the resultant of that pressure on
+        /// the bilinear surface, whose vector area ½ (p2 − p0) × (p3 − p1) is the sum of the vector areas of the two triangles.</para></remarks>
         public static EquilibriumContribution ShellPressure(AreaElement shell, Vector3d globalTraction, string caseName, string physicalAction, string sourceRecord)
         {
             var points = shell?.Points;
@@ -162,7 +175,8 @@ namespace GPC.Model.Results.Processing
             for (int i = 1; i < points.Length - 1; i++)
             {
                 Vector3d v = points[i] - points[0], w = points[i + 1] - points[0]; double area = Axes.Dot(v.CrossProduct(w), normal) / 2;
-                if (area <= 0 || Math.Abs(Axes.Dot(w, normal)) > 1e-7) throw new ArgumentException("InvalidPressureWindingOrPlane");
+                // The plane: 1e-7 mm as before, else the rule of the shells (see the remarks); the arithmetic is the same for both.
+                if (area <= 0 || Math.Abs(Axes.Dot(w, normal)) > 1e-7 && !ShellPlanarity.IsPlanar(points)) throw new ArgumentException("InvalidPressureWindingOrPlane");
                 var f = globalTraction * area; force += f; moment += ((v + w) / 3).CrossProduct(f);
             }
             var c = Explicit(physicalAction, "area", caseName, points[0], force, moment, sourceRecord);

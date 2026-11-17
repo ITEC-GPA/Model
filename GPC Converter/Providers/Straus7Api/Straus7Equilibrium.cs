@@ -75,8 +75,11 @@ namespace GPC.Converter.Straus7
             foreach (var beam in model.BeamElements.Values)
                 foreach (var load in beam.Assignments.Loads.Where(l => (l.Concentrated?.LoadCase ?? l.StartIntensity?.LoadCase)?.Name == caseName))
                     contributions.Add(Equilibrium.BeamLoad(beam, load));
-            // Equilibrium.ShellPressure integrates a uniform pressure on a plane convex plate only (plane within 1e-7 mm): on another plate the
-            // resultant is not known, so the case is not evaluated (before, the exception stopped the caller, e.g. the whole ANTHEA import).
+            // Equilibrium.ShellPressure integrates a uniform pressure on a convex plate planar by the rule of the shells (ShellPlanarity, the rule of
+            // the import, since GPCModel 5.52). A plate it refuses for its plane or its winding (InvalidPressureWindingOrPlane: warped after the import,
+            // or a Model built otherwise) has no known resultant, so the case is not evaluated instead of stopping the caller (for example the whole
+            // ANTHEA import). Any other refusal (a non-convex, degenerate or unsupported plate, a value that is not finite) is a fault of the model
+            // or of the caller: it is not caught and stops the check with its own reason, as before 16/11/2026.
             var unintegrated = new List<string>();
             foreach (var shell in model.AreaElements.Values)
                 foreach (var load in shell.Loads.Values.Where(l => l.LoadCase?.Name == caseName))
@@ -88,7 +91,7 @@ namespace GPC.Converter.Straus7
                             if (load is NormalAreaLoad normal) contributions.Add(Equilibrium.ShellPressure(shell, Global(normal.CoordinateSystem, 0, 0, normal.Pressure), caseName, Id("plate pressure"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name));
                             else { var area = (AreaLoad)load; contributions.Add(Equilibrium.ShellPressure(shell, Global(area.CoordinateSystem, area.P1, area.P2, area.P3), caseName, Id("plate traction"), "Plate/" + shell.Source?.OriginalId + "/" + load.GetType().Name)); }
                         }
-                        catch (ArgumentException ex) { unintegrated.Add("plate load " + load.GetType().Name + " on plate " + shell.Source?.OriginalId + " (" + ex.Message + ")"); }
+                        catch (ArgumentException ex) when (ex.Message == "InvalidPressureWindingOrPlane") { unintegrated.Add("plate load " + load.GetType().Name + " on plate " + shell.Source?.OriginalId + " (" + ex.Message + ")"); }
                     }
                     else if (load is NonUniformPlatePressure pressure) contributions.Add(Equilibrium.PlatePressure(pressure, Id("plate pressure")));
                     else missing.Add("plate load " + load.GetType().Name + " on plate " + shell.Source?.OriginalId);
@@ -115,8 +118,9 @@ namespace GPC.Converter.Straus7
             if (unintegrated.Count != 0)
             {
                 diagnostics.Add(new ModelDiagnostic { Code = "Straus7EquilibriumNotEvaluated", Severity = DiagnosticSeverity.Information, Record = caseName,
-                    Message = unintegrated.Count.ToString(CultureInfo.InvariantCulture) + " plate pressures of the case have no resultant in Equilibrium.ShellPressure, which needs a plane"
-                        + " (within 1e-7 mm), convex plate (first: " + unintegrated[0] + "): the balance of the case is not evaluated." });
+                    Message = unintegrated.Count.ToString(CultureInfo.InvariantCulture) + " plate pressures of the case have no resultant in Equilibrium.ShellPressure: their plate"
+                        + " is not planar by the rule of the shells (ShellPlanarity: within the larger of 1e-4 mm and 1e-5 of the plate size) or not wound consistently"
+                        + " (first: " + unintegrated[0] + "): the balance of the case is not evaluated." });
                 balance.NotRepresented = missing.Concat(unintegrated).ToArray(); balance.Diagnostics = diagnostics; return balance;
             }
             if (Current(model, datasetId, reactions))

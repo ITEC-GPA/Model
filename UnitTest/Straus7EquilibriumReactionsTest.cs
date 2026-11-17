@@ -42,13 +42,17 @@ public partial class Straus7ApiWorkflowTest
         Assert.ThrowsException<ArgumentException>(() => Straus7Equilibrium.Check(model, "Case 1: G", "fixture-results"), "NodalAction: DatasetMismatchOrStaleAnalysis.");
     }
 
-    /// <summary>A uniform normal pressure on a 1000 x 1000 mm quadrilateral (−1 kN) against a support reaction at node 1 that balances it. With the fourth
-    /// node 1e-4 mm out of plane (accepted by the planarity rule of the import, not by Equilibrium.ShellPressure, 1e-7 mm) the case is not evaluated,
-    /// without an exception; plane, it is evaluated and balanced.</summary>
+    /// <summary>A uniform normal pressure on a 1000 x 1000 mm quadrilateral (−1 kN) against a support reaction at node 1 that balances it. Plane, or with
+    /// the fourth node 1e-4 mm out of plane (planar by the rule of the shells, ShellPlanarity, as for the import; until GPCModel 5.52 Equilibrium.ShellPressure
+    /// refused it beyond 1e-7 mm and the case was not evaluated), the case is evaluated and balanced. With the fourth node moved after the import 1 mm out
+    /// of plane (an actual warping) the case is not evaluated, without an exception; moved inside the triangle of the others (a non-convex plate) the
+    /// check stops with the reason of Equilibrium.ShellPressure.</summary>
     [DataTestMethod]
-    [DataRow(0d, true)]
-    [DataRow(1e-4, false)]
-    public void Equilibrium_PressureOnAPlateOutOfPlaneIsNotEvaluated_OnAPlanePlateItIs(double lift, bool evaluated)
+    [DataRow(0d, "", true)]
+    [DataRow(1e-4, "", true)]
+    [DataRow(0d, "warped", false)]
+    [DataRow(0d, "non-convex", false)]
+    public void Equilibrium_PressureOnAPlanarPlateIsEvaluated_OnAWarpedPlateItIsNot(double lift, string after, bool evaluated)
     {
         var geometry = new ImportBatch { Program = "Fixture", SolverVersion = "1", ModelRevision = "v1", AnalysisId = "G", SourceHash = "fixture-geometry" };
         geometry.Nodes.Add(new NodeRecord { Id = "1", GlobalPosition = new Point3d(0, 0, 0) });
@@ -68,6 +72,15 @@ public partial class Straus7ApiWorkflowTest
             State = new ResultState { Semantics = AnalysisSemantics.LinearStatic, ConcomitantStateId = "G", IsCombined = false, IsCumulative = true,
                 Components = Enumerable.Repeat(ComponentAvailability.Available, 6).ToArray() } });
         var imported = ResultMapper.Import(m, batch); Assert.AreEqual(ImportStatus.Completed, imported.Status, string.Join(";", imported.Diagnostics.Select(d => d.Message)));
+        var fourth = m.AreaElements.Values.Single().Nodes[3].Position;
+        if (after == "warped") fourth.Z += 1;
+        if (after == "non-convex") { fourth.X = 700; fourth.Y = 300; }
+        if (after == "non-convex")
+        {
+            var stop = Assert.ThrowsException<ArgumentException>(() => Straus7Equilibrium.Check(m, "G", "pressure"));
+            Assert.AreEqual("NonConvexPressureGeometry", stop.Message);
+            return;
+        }
         var balance = Straus7Equilibrium.Check(m, "G", "pressure");
         if (evaluated)
         {

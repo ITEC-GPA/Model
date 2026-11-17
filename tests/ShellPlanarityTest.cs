@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
 using GPC.Geometry;
+using GPC.Model.Core.Coordinates;
 using GPC.Model.Elements;
 using GPC.Model.LoadCases;
 using GPC.Model.Loads;
 using GPC.Model.Models;
+using GPC.Model.Results.Processing;
 using GPC.Model.Structure.Topology;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -109,6 +111,63 @@ namespace UnitTest
             Assert.ThrowsException<ArgumentException>(() => new NonUniformPlatePressure(Twisted(0.5), pressures, new LoadCaseBase("H"), CoordinateSystem.Global));
             Assert.ThrowsException<ArgumentException>(() => new NonUniformPlatePressure(Twisted(2e-4, 10), pressures, new LoadCaseBase("H"), CoordinateSystem.Global),
                 "a small area keeps the 1e-4 mm floor");
+        }
+
+        /// <summary>Resultant of <see cref="Equilibrium.ShellPressure"/> for a traction of 2 N/mm² along global Z on <paramref name="corners"/>, or the
+        /// message of its refusal.</summary>
+        private static (EquilibriumContribution Pressure, string Refusal) Pressure(Point3d[] corners)
+        {
+            var (_, shell) = Connected(corners);
+            try { return (Equilibrium.ShellPressure(shell, new Vector3d(0, 0, 2), "H", "pressure", "test"), null); }
+            catch (ArgumentException ex) { return (null, ex.Message); }
+        }
+
+        [TestMethod]
+        public void UniformPressureFollowsTheShellRule_OnBothSidesOfTheBound()
+        {
+            // 17/11/2026: until then Equilibrium.ShellPressure refused the fourth corner beyond 1e-7 mm of the plane of the first three. A twisted
+            // square is 4 times its deviation away from it: here 2e-3 mm, refused, although the plate is planar for the import (bound 4.95e-3 mm).
+            double bound = ShellPlanarity.ToleranceMm(Twisted(0));
+            Assert.AreEqual(1e-5 * Side * Math.Sqrt(2), bound, 1e-15);
+            foreach (var deviation in new[] { 5e-4, 0.99 * bound })
+            {
+                var (accepted, refusal) = Pressure(Twisted(deviation));
+                Assert.IsNull(refusal, "deviation " + deviation + " mm, within the bound of the shells");
+                Assert.AreEqual(2 * Side * Side, accepted.Force.Z, 1e-8 * 2 * Side * Side, "the area of the square, to second order in the deviation");
+                Assert.AreEqual(0, accepted.Force.X, 0); Assert.AreEqual(0, accepted.Force.Y, 0);
+                // About the first corner, the centroid of the square (Side/2, Side/2) times the force.
+                Assert.AreEqual(2 * Side * Side * Side / 2, accepted.Moment.X, 1e-7 * 2 * Side * Side * Side);
+                Assert.AreEqual(-2 * Side * Side * Side / 2, accepted.Moment.Y, 1e-7 * 2 * Side * Side * Side);
+            }
+            Assert.AreEqual("InvalidPressureWindingOrPlane", Pressure(Twisted(1.01 * bound)).Refusal, "just beyond the bound of the shells");
+            Assert.AreEqual("InvalidPressureWindingOrPlane", Pressure(Twisted(0.5)).Refusal, "0.5 mm on a 350 mm plate is an actual warping");
+            var oneMetre = new[] { new Point3d(0, 0, 0), new Point3d(1000, 0, 0), new Point3d(1000, 1000, 0), new Point3d(0, 1000, 1) };
+            Assert.AreEqual("InvalidPressureWindingOrPlane", Pressure(oneMetre).Refusal, "a corner 1 mm out of the plane of a 1 m plate is an actual warping");
+            oneMetre[3] = new Point3d(0, 1000, 0.05);
+            Assert.IsNull(Pressure(oneMetre).Refusal, "0.05 mm on a 1 m plate: deviation 0.0125 mm, bound 0.0141 mm");
+            Assert.IsNull(Pressure(Twisted(9e-5, 10)).Refusal, "a small plate keeps the 1e-4 mm floor");
+            Assert.AreEqual("InvalidPressureWindingOrPlane", Pressure(Twisted(2e-4, 10)).Refusal, "beyond the 1e-4 mm floor of a small plate");
+        }
+
+        [TestMethod]
+        public void UniformPressureWithinTheFormerBoundKeepsItsResultBitForBit()
+        {
+            // Within 1e-7 mm the plate takes the arithmetic of before: two triangles from the first corner, each with its area along the normal
+            // of the first one and its centroid. The same sums here, in the same order.
+            foreach (var corners in new[] { Twisted(0), Twisted(2e-8), Twisted(0, 5) })
+            {
+                var c = Pressure(corners).Pressure; var traction = new Vector3d(0, 0, 2);
+                Vector3d ab = corners[1] - corners[0], ac = corners[2] - corners[0]; var normal = ab.CrossProduct(ac); normal /= Axes.Length(normal);
+                var force = new Vector3d(0, 0, 0); var moment = new Vector3d(0, 0, 0);
+                for (int i = 1; i < 3; i++)
+                {
+                    Vector3d v = corners[i] - corners[0], w = corners[i + 1] - corners[0];
+                    var f = traction * (Axes.Dot(v.CrossProduct(w), normal) / 2); force += f; moment += ((v + w) / 3).CrossProduct(f);
+                }
+                Assert.AreEqual(force.X, c.Force.X, 0); Assert.AreEqual(force.Y, c.Force.Y, 0); Assert.AreEqual(force.Z, c.Force.Z, 0);
+                Assert.AreEqual(moment.X, c.Moment.X, 0); Assert.AreEqual(moment.Y, c.Moment.Y, 0); Assert.AreEqual(moment.Z, c.Moment.Z, 0);
+                Assert.AreEqual(corners[0].X, c.Point.X, 0); Assert.AreEqual(corners[0].Y, c.Point.Y, 0); Assert.AreEqual(corners[0].Z, c.Point.Z, 0);
+            }
         }
     }
 }
