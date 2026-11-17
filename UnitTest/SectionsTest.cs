@@ -1309,7 +1309,12 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
-            Assert.AreEqual(Math.Abs(Jt / sec.Jt) - 1.0, 0, 0.03);
+            // the reference of Straus (b tf³ + (h - tf) tw³) / 3 is a thin-walled formula: compared with the thin-walled formula of Model
+            // (16525000, -1.3%), as before option B (user decision D4 bis of 17/11/2026). Jt is solved with the finite elements (15417785,
+            // SAP 15845817): above the exact lower bound of the disjoint rectangles of the flange and of the web (15001547)
+            Assert.AreEqual(Math.Abs(Jt / sec.ThinWallTorsionConstant()) - 1.0, 0, 0.03);
+            Assert.IsTrue(sec.Jt > UnitTest.OpenSectionTorsionTest.RectangleTorsion(b, tf) + UnitTest.OpenSectionTorsionTest.RectangleTorsion(h - tf, tw),
+                $"Jt {sec.Jt}");
         }
 
         [TestMethod]
@@ -1383,7 +1388,13 @@ namespace ModelObjectTest
             Assert.AreEqual(Math.Abs(Welx / sec.Wel1) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wply / sec.Wpl2) - 1, 0, 0.001);
             Assert.AreEqual(Math.Abs(Wplx / sec.Wpl1) - 1, 0, 0.001);
-            Assert.AreEqual(Jt / sec.Jt - 1.0, 0, 0.03);
+            // the references of SAP and Straus are formulas of the walls: their mean compared with the thin-walled formula of Model
+            // (2156250, -1.8%), as before option B (user decision D4 bis of 17/11/2026). Jt is solved with the finite elements (2045672):
+            // above the exact lower bound of the disjoint rectangles, the flanges b x tf and the web between them (2033772, the value of SAP)
+            var channel = (SectionC)sec.SectionShape;
+            Assert.AreEqual(Jt / channel.ThinWallTorsionConstant() - 1.0, 0, 0.03);
+            Assert.IsTrue(sec.Jt > 2 * UnitTest.OpenSectionTorsionTest.RectangleTorsion(b, tf) + UnitTest.OpenSectionTorsionTest.RectangleTorsion(h - 2 * tf, tw),
+                $"Jt {sec.Jt}");
             Assert.AreEqual(JwSAP / sec.Jw - 1, 0, 0.07);
         }
 

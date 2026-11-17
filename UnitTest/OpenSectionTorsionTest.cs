@@ -15,9 +15,10 @@ namespace UnitTest
     public class OpenSectionTorsionTest
     {
         /// <summary>
-        /// The torsion constant of the rectangle (series of Saint-Venant): a b³ [1/3 - 64 b / (π⁵ a) Σ tanh(n π a / 2b) / n⁵], n odd, a ≥ b
+        /// The torsion constant of the rectangle (series of Saint-Venant): a b³ [1/3 - 64 b / (π⁵ a) Σ tanh(n π a / 2b) / n⁵], n odd, a ≥ b;
+        /// the sum over the disjoint rectangles of the walls of a section is a lower bound of its exact torsion constant
         /// </summary>
-        private static double RectangleTorsion(double a, double b)
+        internal static double RectangleTorsion(double a, double b)
         {
             if (a < b)
                 (a, b) = (b, a);

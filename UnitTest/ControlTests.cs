@@ -200,7 +200,14 @@ namespace UnitTest
             Rel(tf * Math.Pow(b, 3) / 12 + hw * Math.Pow(tw, 3) / 12, s.Jyy);
             Rel(s.Jxx / yc, s.WelXMin, 1e-9, "the bottom fibre is the farthest one");
             Rel(s.Jxx / (h - yc), s.WelXMax, 1e-9);
-            Rel((b * Math.Pow(tf, 3) + (h - tf / 2) * Math.Pow(tw, 3)) / 3, s.Jt);
+            // torsion (user decision D4 bis of 17/11/2026): the formula of the thin-walled theory is the thin-walled one of Model; Jt is solved
+            // with the finite elements (option B) and stays above the exact lower bound of the disjoint rectangles of the flange and of the web
+            // (602614 against the formula 630000 and the rectangles 590953 mm4), the shear centre on the axis of symmetry
+            Rel((b * Math.Pow(tf, 3) + (h - tf / 2) * Math.Pow(tw, 3)) / 3, s.ThinWallTorsionConstant());
+            Assert.IsTrue(s.Jt > OpenSectionTorsionTest.RectangleTorsion(b, tf) + OpenSectionTorsionTest.RectangleTorsion(hw, tw), $"Jt {s.Jt}");
+            Rel(b / 2, s.ThinWallShearCenter().X);
+            Rel(h - tf / 2, s.ThinWallShearCenter().Y);
+            Rel(b / 2, s.ShearCenter.X);
             Assert.IsTrue(s.IsSymmetricAlongYLocalAxis);
             Assert.IsFalse(s.IsSymmetricAlongXLocalAxis);
         }
@@ -236,10 +243,14 @@ namespace UnitTest
             Assert.AreEqual(0, Math.Cos(2 * s.AngleX1), 1e-9, "principal axes at ±45°");
             Assert.IsFalse(s.IsSymmetricAlongXLocalAxis);
             Assert.IsFalse(s.IsSymmetricAlongYLocalAxis);
-            // torsion and shear center on the middle lines
-            Rel((95 * 1000 + 95 * 1000) / 3.0, s.Jt);
-            Rel(5, s.ShearCenter.X);
-            Rel(5, s.ShearCenter.Y);
+            // torsion and shear center of the thin-walled theory on the middle lines (user decision D4 bis of 17/11/2026); Jt and the shear
+            // centre are solved with the finite elements (option B): Jt above the exact lower bound of the disjoint rectangles of the legs
+            // (62030 against the formula 63333 and the rectangles 59132 mm4), the shear centre on the axis of symmetry of the equal angle
+            Rel((95 * 1000 + 95 * 1000) / 3.0, s.ThinWallTorsionConstant());
+            Rel(5, s.ThinWallShearCenter().X);
+            Rel(5, s.ThinWallShearCenter().Y);
+            Assert.IsTrue(s.Jt > OpenSectionTorsionTest.RectangleTorsion(100, 10) + OpenSectionTorsionTest.RectangleTorsion(90, 10), $"Jt {s.Jt}");
+            Assert.AreEqual(s.ShearCenter.X, s.ShearCenter.Y, 1e-5 * 100, "on the diagonal, within the asymmetry of the mesh (2e-6 mm)");
         }
 
         [TestMethod]
