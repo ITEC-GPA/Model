@@ -1,0 +1,742 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<GpcModelArchive version="1">
+  <Model xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns:x="http://www.w3.org/2001/XMLSchema" z:Id="1" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/" xmlns="http://schemas.datacontract.org/2004/07/GPC.Model.Models">
+    <SerializationVersion z:Id="2" i:type="x:int" xmlns="">0</SerializationVersion>
+    <Guid z:Id="3" i:type="z:guid" xmlns="">a2e5ef93-718a-4946-ba65-86c0619f5ecd</Guid>
+    <Name z:Id="4" i:type="x:string" xmlns=""></Name>
+    <ModelSchemaVersion z:Id="5" i:type="x:int" xmlns="">11</ModelSchemaVersion>
+    <CheckReports z:Id="6" xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:type="d2p1:ArrayOfCheckReport" z:Size="0" xmlns="" />
+    <PreservedSourceData z:Id="7" xmlns:d2p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:type="d2p1:ArrayOfPreservedAssignment" z:Size="0" xmlns="" />
+    <Datasets z:Id="8" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringAnalysisDatasetB9nMxPbP" z:Size="0" xmlns="" />
+    <AnalysisSource i:nil="true" xmlns="" />
+    <Nodes z:Id="9" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintNodeElementc7_SeMrZW" z:Size="2" xmlns="">
+      <d2p1:KeyValueOfintNodeElementc7_SeMrZW>
+        <d2p1:Key>1</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.Elements" z:Id="10">
+          <SerializationVersion z:Id="11" i:type="x:int">0</SerializationVersion>
+          <Guid z:Id="12" i:type="z:guid">3dabb890-1c24-4b8f-a2a5-8abb39b59b57</Guid>
+          <Name z:Ref="4" i:nil="true" />
+          <Id z:Id="13" i:type="x:int">1</Id>
+          <CoordinateSystem z:Id="14" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d5p1:CoordinateSystem">
+            <Guid z:Id="15" i:type="z:guid">4652465b-b6af-4689-a3e7-a509680d2609</Guid>
+            <Origin z:Id="16" i:type="d5p1:Point3d">
+              <Guid z:Id="17" i:type="z:guid">9f0564ca-79bc-4696-9f9f-024d94af9fe9</Guid>
+              <X z:Id="18" i:type="x:double">0</X>
+              <Y z:Id="19" i:type="x:double">0</Y>
+              <Z z:Id="20" i:type="x:double">0</Z>
+            </Origin>
+            <V1Direction z:Id="21" i:type="d5p1:Vector3d">
+              <Guid z:Id="22" i:type="z:guid">f5629ddc-777b-4198-843e-a9efd2df84bc</Guid>
+              <X z:Id="23" i:type="x:double">1</X>
+              <Y z:Id="24" i:type="x:double">0</Y>
+              <Z z:Id="25" i:type="x:double">0</Z>
+            </V1Direction>
+            <V2Direction z:Id="26" i:type="d5p1:Vector3d">
+              <Guid z:Id="27" i:type="z:guid">54156ec2-1845-47b2-b4a5-7b7aa112ec22</Guid>
+              <X z:Id="28" i:type="x:double">0</X>
+              <Y z:Id="29" i:type="x:double">1</Y>
+              <Z z:Id="30" i:type="x:double">0</Z>
+            </V2Direction>
+            <V3Direction z:Id="31" i:type="d5p1:Vector3d">
+              <Guid z:Id="32" i:type="z:guid">0e783053-490f-4396-8357-db0474d82bb0</Guid>
+              <X z:Id="33" i:type="x:double">0</X>
+              <Y z:Id="34" i:type="x:double">-0</Y>
+              <Z z:Id="35" i:type="x:double">1</Z>
+            </V3Direction>
+            <InvariantOrigin z:Id="36" i:type="d5p1:Vector3d">
+              <Guid z:Id="37" i:type="z:guid">556f7b0e-9318-4a70-826a-68c921b8d0d9</Guid>
+              <X z:Id="38" i:type="x:double">-0</X>
+              <Y z:Id="39" i:type="x:double">-0</Y>
+              <Z z:Id="40" i:type="x:double">-0</Z>
+            </InvariantOrigin>
+            <TransformationMatrix z:Id="41" xmlns:d6p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d6p1:DenseMatrix">
+              <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+              <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+              <_x003C_Storage_x003E_k__BackingField xmlns:d7p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="42" i:type="d7p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                <d7p1:RowCount>3</d7p1:RowCount>
+                <d7p1:ColumnCount>4</d7p1:ColumnCount>
+                <d7p1:Data z:Id="43" z:Size="12">
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>-0</d2p1:double>
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                </d7p1:Data>
+              </_x003C_Storage_x003E_k__BackingField>
+              <d6p1:_columnCount>4</d6p1:_columnCount>
+              <d6p1:_rowCount>3</d6p1:_rowCount>
+              <d6p1:_values z:Ref="43" i:nil="true" />
+            </TransformationMatrix>
+            <Name z:Id="44" i:type="x:string">Global coordinate system</Name>
+          </CoordinateSystem>
+          <Groups z:Id="45" i:type="d2p1:ArrayOfKeyValueOfstringGroup95FNrBFv" z:Size="0" />
+          <Source i:nil="true" />
+          <ElementVersion z:Id="46" i:type="x:int">1</ElementVersion>
+          <Attributes z:Id="47" i:type="d2p1:ArrayOfKeyValueOfintAttribute95FNrBFv" z:Size="0" />
+          <Loads z:Id="48" i:type="d2p1:ArrayOfKeyValueOfintLoadnmWPibuy" z:Size="0" />
+          <Results z:Id="49" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Model.Results.ElementResults" i:type="d5p1:ArrayOfElementResult" z:Size="0" />
+          <NodeAssignments z:Id="50" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:type="d5p1:NodeAssignments">
+            <d5p1:_x003C_Active_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_Dofs_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_GroundSprings_x003E_k__BackingField z:Id="51" z:Size="1">
+              <d5p1:SpringMatrix z:Id="52">
+                <d5p1:_values z:Id="53" z:Size="36">
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>500</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                </d5p1:_values>
+                <d5p1:_x003C_CoordinateSystem_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" z:Id="54">
+                  <Guid z:Id="55" i:type="z:guid">58cc1d4f-4116-4df9-80b5-21429870943f</Guid>
+                  <Origin z:Id="56" i:type="d8p1:Point3d">
+                    <Guid z:Id="57" i:type="z:guid">6284298c-7afb-4804-9f0e-8d7ddcf16ccb</Guid>
+                    <X z:Id="58" i:type="x:double">0</X>
+                    <Y z:Id="59" i:type="x:double">0</Y>
+                    <Z z:Id="60" i:type="x:double">0</Z>
+                  </Origin>
+                  <V1Direction z:Id="61" i:type="d8p1:Vector3d">
+                    <Guid z:Id="62" i:type="z:guid">d5d62055-3984-4f1d-a326-bf5c23baaac7</Guid>
+                    <X z:Id="63" i:type="x:double">1</X>
+                    <Y z:Id="64" i:type="x:double">0</Y>
+                    <Z z:Id="65" i:type="x:double">0</Z>
+                  </V1Direction>
+                  <V2Direction z:Id="66" i:type="d8p1:Vector3d">
+                    <Guid z:Id="67" i:type="z:guid">2bd123c5-eed2-4d6c-b07f-ef58bfb102f3</Guid>
+                    <X z:Id="68" i:type="x:double">0</X>
+                    <Y z:Id="69" i:type="x:double">1</Y>
+                    <Z z:Id="70" i:type="x:double">0</Z>
+                  </V2Direction>
+                  <V3Direction z:Id="71" i:type="d8p1:Vector3d">
+                    <Guid z:Id="72" i:type="z:guid">e678ac38-7946-4ee5-8d8b-e1cf0f49b02e</Guid>
+                    <X z:Id="73" i:type="x:double">0</X>
+                    <Y z:Id="74" i:type="x:double">-0</Y>
+                    <Z z:Id="75" i:type="x:double">1</Z>
+                  </V3Direction>
+                  <InvariantOrigin z:Id="76" i:type="d8p1:Vector3d">
+                    <Guid z:Id="77" i:type="z:guid">1617b97f-3f48-4312-940f-de3beb30ea3c</Guid>
+                    <X z:Id="78" i:type="x:double">-0</X>
+                    <Y z:Id="79" i:type="x:double">-0</Y>
+                    <Z z:Id="80" i:type="x:double">-0</Z>
+                  </InvariantOrigin>
+                  <TransformationMatrix z:Id="81" xmlns:d9p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d9p1:DenseMatrix">
+                    <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+                    <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+                    <_x003C_Storage_x003E_k__BackingField xmlns:d10p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="82" i:type="d10p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                      <d10p1:RowCount>3</d10p1:RowCount>
+                      <d10p1:ColumnCount>4</d10p1:ColumnCount>
+                      <d10p1:Data z:Id="83" z:Size="12">
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>-0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                      </d10p1:Data>
+                    </_x003C_Storage_x003E_k__BackingField>
+                    <d9p1:_columnCount>4</d9p1:_columnCount>
+                    <d9p1:_rowCount>3</d9p1:_rowCount>
+                    <d9p1:_values z:Ref="83" i:nil="true" />
+                  </TransformationMatrix>
+                  <Name z:Ref="44" i:nil="true" />
+                </d5p1:_x003C_CoordinateSystem_x003E_k__BackingField>
+                <d5p1:_x003C_FreedomCase_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Id="84">
+                  <SerializationVersion z:Id="85" i:type="x:int">0</SerializationVersion>
+                  <Guid z:Id="86" i:type="z:guid">42383649-ee05-4bf3-b9e2-b81cb50cb201</Guid>
+                  <Name z:Id="87" i:type="x:string">B</Name>
+                </d5p1:_x003C_FreedomCase_x003E_k__BackingField>
+                <d5p1:_x003C_Kind_x003E_k__BackingField>SymmetricElastic</d5p1:_x003C_Kind_x003E_k__BackingField>
+                <d5p1:_x003C_SourceRecord_x003E_k__BackingField z:Id="88">spring</d5p1:_x003C_SourceRecord_x003E_k__BackingField>
+              </d5p1:SpringMatrix>
+            </d5p1:_x003C_GroundSprings_x003E_k__BackingField>
+            <d5p1:_x003C_Links_x003E_k__BackingField z:Id="89" z:Size="0" />
+            <d5p1:_x003C_Mass_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_Restrains_x003E_k__BackingField z:Id="90" z:Size="2">
+              <d5p1:RestrainAssignment z:Id="91">
+                <d5p1:_x003C_Case_x003E_k__BackingField i:nil="true" />
+                <d5p1:_x003C_FreedomCase_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Id="92">
+                  <SerializationVersion z:Id="93" i:type="x:int">0</SerializationVersion>
+                  <Guid z:Id="94" i:type="z:guid">bd21d5a7-4fc7-4ded-abe9-08379c5aa541</Guid>
+                  <Name z:Id="95" i:type="x:string">A</Name>
+                </d5p1:_x003C_FreedomCase_x003E_k__BackingField>
+                <d5p1:_x003C_Phase_x003E_k__BackingField i:nil="true" />
+                <d5p1:_x003C_Restrain_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.Restrains" z:Id="96">
+                  <SerializationVersion z:Id="97" i:type="x:int">0</SerializationVersion>
+                  <Guid z:Id="98" i:type="z:guid">37172c34-76fb-4a9b-993d-bb520957c4a6</Guid>
+                  <Name z:Ref="4" i:nil="true" />
+                  <Id z:Id="99" i:type="x:int">-1</Id>
+                  <RestrainCoordinateSystem z:Id="100" xmlns:d9p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d9p1:CoordinateSystem">
+                    <Guid z:Id="101" i:type="z:guid">cc3a223b-032f-4310-aa21-a255ad3ee65e</Guid>
+                    <Origin z:Id="102" i:type="d9p1:Point3d">
+                      <Guid z:Id="103" i:type="z:guid">7a1b1222-be25-4668-956f-3d17dfced8b0</Guid>
+                      <X z:Id="104" i:type="x:double">0</X>
+                      <Y z:Id="105" i:type="x:double">0</Y>
+                      <Z z:Id="106" i:type="x:double">0</Z>
+                    </Origin>
+                    <V1Direction z:Id="107" i:type="d9p1:Vector3d">
+                      <Guid z:Id="108" i:type="z:guid">f604ecb0-8a70-4a44-bc52-d4548c768d5f</Guid>
+                      <X z:Id="109" i:type="x:double">1</X>
+                      <Y z:Id="110" i:type="x:double">0</Y>
+                      <Z z:Id="111" i:type="x:double">0</Z>
+                    </V1Direction>
+                    <V2Direction z:Id="112" i:type="d9p1:Vector3d">
+                      <Guid z:Id="113" i:type="z:guid">8ae4fcd5-4497-4cb5-b3eb-8481e8c95a13</Guid>
+                      <X z:Id="114" i:type="x:double">0</X>
+                      <Y z:Id="115" i:type="x:double">1</Y>
+                      <Z z:Id="116" i:type="x:double">0</Z>
+                    </V2Direction>
+                    <V3Direction z:Id="117" i:type="d9p1:Vector3d">
+                      <Guid z:Id="118" i:type="z:guid">f740e120-30a9-457e-b36d-4904d3a8689a</Guid>
+                      <X z:Id="119" i:type="x:double">0</X>
+                      <Y z:Id="120" i:type="x:double">-0</Y>
+                      <Z z:Id="121" i:type="x:double">1</Z>
+                    </V3Direction>
+                    <InvariantOrigin z:Id="122" i:type="d9p1:Vector3d">
+                      <Guid z:Id="123" i:type="z:guid">477085b4-dc01-42df-aa19-a2dccf9ba6e2</Guid>
+                      <X z:Id="124" i:type="x:double">-0</X>
+                      <Y z:Id="125" i:type="x:double">-0</Y>
+                      <Z z:Id="126" i:type="x:double">-0</Z>
+                    </InvariantOrigin>
+                    <TransformationMatrix z:Id="127" xmlns:d10p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d10p1:DenseMatrix">
+                      <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+                      <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+                      <_x003C_Storage_x003E_k__BackingField xmlns:d11p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="128" i:type="d11p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                        <d11p1:RowCount>3</d11p1:RowCount>
+                        <d11p1:ColumnCount>4</d11p1:ColumnCount>
+                        <d11p1:Data z:Id="129" z:Size="12">
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>-0</d2p1:double>
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                        </d11p1:Data>
+                      </_x003C_Storage_x003E_k__BackingField>
+                      <d10p1:_columnCount>4</d10p1:_columnCount>
+                      <d10p1:_rowCount>3</d10p1:_rowCount>
+                      <d10p1:_values z:Ref="129" i:nil="true" />
+                    </TransformationMatrix>
+                    <Name z:Ref="44" i:nil="true" />
+                  </RestrainCoordinateSystem>
+                  <Restrains z:Id="130" i:type="d8p1:ArrayOfDofRestrain" z:Size="1">
+                    <d8p1:DofRestrain z:Id="131">
+                      <SerializationVersion z:Id="132" i:type="x:int">0</SerializationVersion>
+                      <Guid z:Id="133" i:type="z:guid">b86b27b9-6046-412e-9335-9519f2051a32</Guid>
+                      <Name z:Ref="4" i:nil="true" />
+                      <Dof z:Id="134" i:type="d8p1:GeometryRestrain.DOF">DZ</Dof>
+                      <Restrained z:Id="135" i:type="x:boolean">true</Restrained>
+                      <Stiffness z:Id="136" i:type="x:double">0</Stiffness>
+                      <ImposedDisplacement z:Id="137" i:type="x:double">0</ImposedDisplacement>
+                      <ExplicitImposedDisplacement z:Id="138" i:type="x:boolean">false</ExplicitImposedDisplacement>
+                    </d8p1:DofRestrain>
+                  </Restrains>
+                  <Point z:Ref="10" i:nil="true" />
+                </d5p1:_x003C_Restrain_x003E_k__BackingField>
+                <d5p1:_x003C_SourceRecord_x003E_k__BackingField z:Id="139">test</d5p1:_x003C_SourceRecord_x003E_k__BackingField>
+              </d5p1:RestrainAssignment>
+              <d5p1:RestrainAssignment z:Id="140">
+                <d5p1:_x003C_Case_x003E_k__BackingField i:nil="true" />
+                <d5p1:_x003C_FreedomCase_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Ref="84" i:nil="true" />
+                <d5p1:_x003C_Phase_x003E_k__BackingField i:nil="true" />
+                <d5p1:_x003C_Restrain_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.Restrains" z:Id="141">
+                  <SerializationVersion z:Id="142" i:type="x:int">0</SerializationVersion>
+                  <Guid z:Id="143" i:type="z:guid">d6100f8c-3ea4-4ba8-b0c5-fc130b2f88ec</Guid>
+                  <Name z:Ref="4" i:nil="true" />
+                  <Id z:Id="144" i:type="x:int">-1</Id>
+                  <RestrainCoordinateSystem z:Id="145" xmlns:d9p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d9p1:CoordinateSystem">
+                    <Guid z:Id="146" i:type="z:guid">222d1c47-0752-43f3-8191-d7e045d80c6c</Guid>
+                    <Origin z:Id="147" i:type="d9p1:Point3d">
+                      <Guid z:Id="148" i:type="z:guid">d34a4ebf-b7b7-469a-8daf-3937fa8101c4</Guid>
+                      <X z:Id="149" i:type="x:double">0</X>
+                      <Y z:Id="150" i:type="x:double">0</Y>
+                      <Z z:Id="151" i:type="x:double">0</Z>
+                    </Origin>
+                    <V1Direction z:Id="152" i:type="d9p1:Vector3d">
+                      <Guid z:Id="153" i:type="z:guid">d3b7b633-e8af-4a6b-8ae7-3047e5ff5347</Guid>
+                      <X z:Id="154" i:type="x:double">1</X>
+                      <Y z:Id="155" i:type="x:double">0</Y>
+                      <Z z:Id="156" i:type="x:double">0</Z>
+                    </V1Direction>
+                    <V2Direction z:Id="157" i:type="d9p1:Vector3d">
+                      <Guid z:Id="158" i:type="z:guid">5a4fd6f6-cbb8-4e73-a099-433afb5d2932</Guid>
+                      <X z:Id="159" i:type="x:double">0</X>
+                      <Y z:Id="160" i:type="x:double">1</Y>
+                      <Z z:Id="161" i:type="x:double">0</Z>
+                    </V2Direction>
+                    <V3Direction z:Id="162" i:type="d9p1:Vector3d">
+                      <Guid z:Id="163" i:type="z:guid">f5331444-50d1-41d4-b9f1-cd9164196e35</Guid>
+                      <X z:Id="164" i:type="x:double">0</X>
+                      <Y z:Id="165" i:type="x:double">-0</Y>
+                      <Z z:Id="166" i:type="x:double">1</Z>
+                    </V3Direction>
+                    <InvariantOrigin z:Id="167" i:type="d9p1:Vector3d">
+                      <Guid z:Id="168" i:type="z:guid">41507a28-85ee-4f56-b759-e83e74784bca</Guid>
+                      <X z:Id="169" i:type="x:double">-0</X>
+                      <Y z:Id="170" i:type="x:double">-0</Y>
+                      <Z z:Id="171" i:type="x:double">-0</Z>
+                    </InvariantOrigin>
+                    <TransformationMatrix z:Id="172" xmlns:d10p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d10p1:DenseMatrix">
+                      <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+                      <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+                      <_x003C_Storage_x003E_k__BackingField xmlns:d11p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="173" i:type="d11p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                        <d11p1:RowCount>3</d11p1:RowCount>
+                        <d11p1:ColumnCount>4</d11p1:ColumnCount>
+                        <d11p1:Data z:Id="174" z:Size="12">
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>-0</d2p1:double>
+                          <d2p1:double>1</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                          <d2p1:double>0</d2p1:double>
+                        </d11p1:Data>
+                      </_x003C_Storage_x003E_k__BackingField>
+                      <d10p1:_columnCount>4</d10p1:_columnCount>
+                      <d10p1:_rowCount>3</d10p1:_rowCount>
+                      <d10p1:_values z:Ref="174" i:nil="true" />
+                    </TransformationMatrix>
+                    <Name z:Ref="44" i:nil="true" />
+                  </RestrainCoordinateSystem>
+                  <Restrains z:Id="175" i:type="d8p1:ArrayOfDofRestrain" z:Size="2">
+                    <d8p1:DofRestrain z:Id="176">
+                      <SerializationVersion z:Id="177" i:type="x:int">0</SerializationVersion>
+                      <Guid z:Id="178" i:type="z:guid">feb09a86-3d35-4991-b791-7a1ea9fe210e</Guid>
+                      <Name z:Ref="4" i:nil="true" />
+                      <Dof z:Id="179" i:type="d8p1:GeometryRestrain.DOF">DX</Dof>
+                      <Restrained z:Id="180" i:type="x:boolean">true</Restrained>
+                      <Stiffness z:Id="181" i:type="x:double">0</Stiffness>
+                      <ImposedDisplacement z:Id="182" i:type="x:double">0</ImposedDisplacement>
+                      <ExplicitImposedDisplacement z:Id="183" i:type="x:boolean">false</ExplicitImposedDisplacement>
+                    </d8p1:DofRestrain>
+                    <d8p1:DofRestrain z:Id="184">
+                      <SerializationVersion z:Id="185" i:type="x:int">0</SerializationVersion>
+                      <Guid z:Id="186" i:type="z:guid">175f015b-3637-4911-99ff-1daa00cef785</Guid>
+                      <Name z:Ref="4" i:nil="true" />
+                      <Dof z:Id="187" i:type="d8p1:GeometryRestrain.DOF">DZ</Dof>
+                      <Restrained z:Id="188" i:type="x:boolean">true</Restrained>
+                      <Stiffness z:Id="189" i:type="x:double">0</Stiffness>
+                      <ImposedDisplacement z:Id="190" i:type="x:double">0</ImposedDisplacement>
+                      <ExplicitImposedDisplacement z:Id="191" i:type="x:boolean">false</ExplicitImposedDisplacement>
+                    </d8p1:DofRestrain>
+                  </Restrains>
+                  <Point z:Ref="10" i:nil="true" />
+                </d5p1:_x003C_Restrain_x003E_k__BackingField>
+                <d5p1:_x003C_SourceRecord_x003E_k__BackingField z:Ref="139" i:nil="true" />
+              </d5p1:RestrainAssignment>
+            </d5p1:_x003C_Restrains_x003E_k__BackingField>
+          </NodeAssignments>
+          <NodeElementVersion z:Id="192" i:type="x:double">0</NodeElementVersion>
+          <Point z:Id="193" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d5p1:Point3d">
+            <Guid z:Id="194" i:type="z:guid">d6d353c7-9a1e-4db9-a680-dbdf6b478f3b</Guid>
+            <X z:Id="195" i:type="x:double">0</X>
+            <Y z:Id="196" i:type="x:double">0</Y>
+            <Z z:Id="197" i:type="x:double">0</Z>
+          </Point>
+        </d2p1:Value>
+      </d2p1:KeyValueOfintNodeElementc7_SeMrZW>
+      <d2p1:KeyValueOfintNodeElementc7_SeMrZW>
+        <d2p1:Key>2</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.Elements" z:Id="198">
+          <SerializationVersion z:Id="199" i:type="x:int">0</SerializationVersion>
+          <Guid z:Id="200" i:type="z:guid">740a1b84-8357-4685-a0d1-351070d7bfae</Guid>
+          <Name z:Ref="4" i:nil="true" />
+          <Id z:Id="201" i:type="x:int">2</Id>
+          <CoordinateSystem z:Id="202" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d5p1:CoordinateSystem">
+            <Guid z:Id="203" i:type="z:guid">0e1949bd-8018-4a63-9596-6d652508e9dd</Guid>
+            <Origin z:Id="204" i:type="d5p1:Point3d">
+              <Guid z:Id="205" i:type="z:guid">3a75eed7-15ed-40c2-868c-844d44a27c25</Guid>
+              <X z:Id="206" i:type="x:double">0</X>
+              <Y z:Id="207" i:type="x:double">0</Y>
+              <Z z:Id="208" i:type="x:double">0</Z>
+            </Origin>
+            <V1Direction z:Id="209" i:type="d5p1:Vector3d">
+              <Guid z:Id="210" i:type="z:guid">0c765228-93bb-4ea4-af4f-d8c9222807b8</Guid>
+              <X z:Id="211" i:type="x:double">1</X>
+              <Y z:Id="212" i:type="x:double">0</Y>
+              <Z z:Id="213" i:type="x:double">0</Z>
+            </V1Direction>
+            <V2Direction z:Id="214" i:type="d5p1:Vector3d">
+              <Guid z:Id="215" i:type="z:guid">0fb3beb8-9749-4ada-bab6-631f9f10295e</Guid>
+              <X z:Id="216" i:type="x:double">0</X>
+              <Y z:Id="217" i:type="x:double">1</Y>
+              <Z z:Id="218" i:type="x:double">0</Z>
+            </V2Direction>
+            <V3Direction z:Id="219" i:type="d5p1:Vector3d">
+              <Guid z:Id="220" i:type="z:guid">29c52542-8521-481c-8dfc-b12f6700683d</Guid>
+              <X z:Id="221" i:type="x:double">0</X>
+              <Y z:Id="222" i:type="x:double">-0</Y>
+              <Z z:Id="223" i:type="x:double">1</Z>
+            </V3Direction>
+            <InvariantOrigin z:Id="224" i:type="d5p1:Vector3d">
+              <Guid z:Id="225" i:type="z:guid">a1847638-fd8b-4b9f-9823-fbb359175976</Guid>
+              <X z:Id="226" i:type="x:double">-0</X>
+              <Y z:Id="227" i:type="x:double">-0</Y>
+              <Z z:Id="228" i:type="x:double">-0</Z>
+            </InvariantOrigin>
+            <TransformationMatrix z:Id="229" xmlns:d6p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d6p1:DenseMatrix">
+              <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+              <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+              <_x003C_Storage_x003E_k__BackingField xmlns:d7p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="230" i:type="d7p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                <d7p1:RowCount>3</d7p1:RowCount>
+                <d7p1:ColumnCount>4</d7p1:ColumnCount>
+                <d7p1:Data z:Id="231" z:Size="12">
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>-0</d2p1:double>
+                  <d2p1:double>1</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                </d7p1:Data>
+              </_x003C_Storage_x003E_k__BackingField>
+              <d6p1:_columnCount>4</d6p1:_columnCount>
+              <d6p1:_rowCount>3</d6p1:_rowCount>
+              <d6p1:_values z:Ref="231" i:nil="true" />
+            </TransformationMatrix>
+            <Name z:Ref="44" i:nil="true" />
+          </CoordinateSystem>
+          <Groups z:Id="232" i:type="d2p1:ArrayOfKeyValueOfstringGroup95FNrBFv" z:Size="0" />
+          <Source i:nil="true" />
+          <ElementVersion z:Id="233" i:type="x:int">1</ElementVersion>
+          <Attributes z:Id="234" i:type="d2p1:ArrayOfKeyValueOfintAttribute95FNrBFv" z:Size="0" />
+          <Loads z:Id="235" i:type="d2p1:ArrayOfKeyValueOfintLoadnmWPibuy" z:Size="0" />
+          <Results z:Id="236" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Model.Results.ElementResults" i:type="d5p1:ArrayOfElementResult" z:Size="0" />
+          <NodeAssignments z:Id="237" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Model.PostProcessing" i:type="d5p1:NodeAssignments">
+            <d5p1:_x003C_Active_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_Dofs_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_GroundSprings_x003E_k__BackingField z:Id="238" z:Size="2">
+              <d5p1:SpringMatrix z:Id="239">
+                <d5p1:_values z:Id="240" z:Size="36">
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>100</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                </d5p1:_values>
+                <d5p1:_x003C_CoordinateSystem_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" z:Id="241">
+                  <Guid z:Id="242" i:type="z:guid">d15a26cf-b835-491a-adbc-dfb064446489</Guid>
+                  <Origin z:Id="243" i:type="d8p1:Point3d">
+                    <Guid z:Id="244" i:type="z:guid">7d12f4ca-8eaa-4d4b-8355-bd8e10ca42fe</Guid>
+                    <X z:Id="245" i:type="x:double">0</X>
+                    <Y z:Id="246" i:type="x:double">0</Y>
+                    <Z z:Id="247" i:type="x:double">0</Z>
+                  </Origin>
+                  <V1Direction z:Id="248" i:type="d8p1:Vector3d">
+                    <Guid z:Id="249" i:type="z:guid">d74d4c78-b7d8-4a89-b458-d3176252b9bd</Guid>
+                    <X z:Id="250" i:type="x:double">1</X>
+                    <Y z:Id="251" i:type="x:double">0</Y>
+                    <Z z:Id="252" i:type="x:double">0</Z>
+                  </V1Direction>
+                  <V2Direction z:Id="253" i:type="d8p1:Vector3d">
+                    <Guid z:Id="254" i:type="z:guid">ba8b7449-ea2d-4ba2-a2b2-7d107151bdba</Guid>
+                    <X z:Id="255" i:type="x:double">0</X>
+                    <Y z:Id="256" i:type="x:double">1</Y>
+                    <Z z:Id="257" i:type="x:double">0</Z>
+                  </V2Direction>
+                  <V3Direction z:Id="258" i:type="d8p1:Vector3d">
+                    <Guid z:Id="259" i:type="z:guid">64ee9f60-3e60-48b1-8bb2-2a3dd2f46132</Guid>
+                    <X z:Id="260" i:type="x:double">0</X>
+                    <Y z:Id="261" i:type="x:double">-0</Y>
+                    <Z z:Id="262" i:type="x:double">1</Z>
+                  </V3Direction>
+                  <InvariantOrigin z:Id="263" i:type="d8p1:Vector3d">
+                    <Guid z:Id="264" i:type="z:guid">46b4f5bc-a26a-42c6-bb19-04f9d7111699</Guid>
+                    <X z:Id="265" i:type="x:double">-0</X>
+                    <Y z:Id="266" i:type="x:double">-0</Y>
+                    <Z z:Id="267" i:type="x:double">-0</Z>
+                  </InvariantOrigin>
+                  <TransformationMatrix z:Id="268" xmlns:d9p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d9p1:DenseMatrix">
+                    <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+                    <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+                    <_x003C_Storage_x003E_k__BackingField xmlns:d10p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="269" i:type="d10p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                      <d10p1:RowCount>3</d10p1:RowCount>
+                      <d10p1:ColumnCount>4</d10p1:ColumnCount>
+                      <d10p1:Data z:Id="270" z:Size="12">
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>-0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                      </d10p1:Data>
+                    </_x003C_Storage_x003E_k__BackingField>
+                    <d9p1:_columnCount>4</d9p1:_columnCount>
+                    <d9p1:_rowCount>3</d9p1:_rowCount>
+                    <d9p1:_values z:Ref="270" i:nil="true" />
+                  </TransformationMatrix>
+                  <Name z:Ref="44" i:nil="true" />
+                </d5p1:_x003C_CoordinateSystem_x003E_k__BackingField>
+                <d5p1:_x003C_Kind_x003E_k__BackingField>SymmetricElastic</d5p1:_x003C_Kind_x003E_k__BackingField>
+                <d5p1:_x003C_SourceRecord_x003E_k__BackingField z:Ref="88" i:nil="true" />
+              </d5p1:SpringMatrix>
+              <d5p1:SpringMatrix z:Id="271">
+                <d5p1:_values z:Id="272" z:Size="36">
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0.3333333333333333</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                  <d2p1:double>0</d2p1:double>
+                </d5p1:_values>
+                <d5p1:_x003C_CoordinateSystem_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" z:Id="273">
+                  <Guid z:Id="274" i:type="z:guid">e89f4d83-31c0-4442-9238-eac13b59255d</Guid>
+                  <Origin z:Id="275" i:type="d8p1:Point3d">
+                    <Guid z:Id="276" i:type="z:guid">cc98e9d0-0965-4009-9143-bdc772832788</Guid>
+                    <X z:Id="277" i:type="x:double">0</X>
+                    <Y z:Id="278" i:type="x:double">0</Y>
+                    <Z z:Id="279" i:type="x:double">0</Z>
+                  </Origin>
+                  <V1Direction z:Id="280" i:type="d8p1:Vector3d">
+                    <Guid z:Id="281" i:type="z:guid">d6f824e2-2af1-4ea5-a4c1-955072185ded</Guid>
+                    <X z:Id="282" i:type="x:double">1</X>
+                    <Y z:Id="283" i:type="x:double">0</Y>
+                    <Z z:Id="284" i:type="x:double">0</Z>
+                  </V1Direction>
+                  <V2Direction z:Id="285" i:type="d8p1:Vector3d">
+                    <Guid z:Id="286" i:type="z:guid">312a2f70-6dca-44cd-af6c-af8a76d71980</Guid>
+                    <X z:Id="287" i:type="x:double">0</X>
+                    <Y z:Id="288" i:type="x:double">1</Y>
+                    <Z z:Id="289" i:type="x:double">0</Z>
+                  </V2Direction>
+                  <V3Direction z:Id="290" i:type="d8p1:Vector3d">
+                    <Guid z:Id="291" i:type="z:guid">55deec47-9467-4f0a-b749-939b938729bf</Guid>
+                    <X z:Id="292" i:type="x:double">0</X>
+                    <Y z:Id="293" i:type="x:double">-0</Y>
+                    <Z z:Id="294" i:type="x:double">1</Z>
+                  </V3Direction>
+                  <InvariantOrigin z:Id="295" i:type="d8p1:Vector3d">
+                    <Guid z:Id="296" i:type="z:guid">d5ee43ea-764f-46dd-a34a-94661e429c2f</Guid>
+                    <X z:Id="297" i:type="x:double">-0</X>
+                    <Y z:Id="298" i:type="x:double">-0</Y>
+                    <Z z:Id="299" i:type="x:double">-0</Z>
+                  </InvariantOrigin>
+                  <TransformationMatrix z:Id="300" xmlns:d9p1="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra.Double" i:type="d9p1:DenseMatrix">
+                    <_x003C_ColumnCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">4</_x003C_ColumnCount_x003E_k__BackingField>
+                    <_x003C_RowCount_x003E_k__BackingField xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">3</_x003C_RowCount_x003E_k__BackingField>
+                    <_x003C_Storage_x003E_k__BackingField xmlns:d10p1="urn:MathNet/Numerics/LinearAlgebra" z:Id="301" i:type="d10p1:DenseColumnMajorMatrixStorageOfdouble" xmlns="http://schemas.datacontract.org/2004/07/MathNet.Numerics.LinearAlgebra">
+                      <d10p1:RowCount>3</d10p1:RowCount>
+                      <d10p1:ColumnCount>4</d10p1:ColumnCount>
+                      <d10p1:Data z:Id="302" z:Size="12">
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>-0</d2p1:double>
+                        <d2p1:double>1</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                        <d2p1:double>0</d2p1:double>
+                      </d10p1:Data>
+                    </_x003C_Storage_x003E_k__BackingField>
+                    <d9p1:_columnCount>4</d9p1:_columnCount>
+                    <d9p1:_rowCount>3</d9p1:_rowCount>
+                    <d9p1:_values z:Ref="302" i:nil="true" />
+                  </TransformationMatrix>
+                  <Name z:Ref="44" i:nil="true" />
+                </d5p1:_x003C_CoordinateSystem_x003E_k__BackingField>
+                <d5p1:_x003C_FreedomCase_x003E_k__BackingField xmlns:d8p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Ref="92" i:nil="true" />
+                <d5p1:_x003C_Kind_x003E_k__BackingField>SymmetricElastic</d5p1:_x003C_Kind_x003E_k__BackingField>
+                <d5p1:_x003C_SourceRecord_x003E_k__BackingField z:Ref="88" i:nil="true" />
+              </d5p1:SpringMatrix>
+            </d5p1:_x003C_GroundSprings_x003E_k__BackingField>
+            <d5p1:_x003C_Links_x003E_k__BackingField z:Id="303" z:Size="0" />
+            <d5p1:_x003C_Mass_x003E_k__BackingField i:nil="true" />
+            <d5p1:_x003C_Restrains_x003E_k__BackingField z:Id="304" z:Size="0" />
+          </NodeAssignments>
+          <NodeElementVersion z:Id="305" i:type="x:double">0</NodeElementVersion>
+          <Point z:Id="306" xmlns:d5p1="http://schemas.datacontract.org/2004/07/GPC.Geometry" i:type="d5p1:Point3d">
+            <Guid z:Id="307" i:type="z:guid">b9772a86-3a7b-4f3b-b855-8fc379b479a6</Guid>
+            <X z:Id="308" i:type="x:double">1000</X>
+            <Y z:Id="309" i:type="x:double">0</Y>
+            <Z z:Id="310" i:type="x:double">0</Z>
+          </Point>
+        </d2p1:Value>
+      </d2p1:KeyValueOfintNodeElementc7_SeMrZW>
+    </Nodes>
+    <Beams z:Id="311" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintBeamElementc7_SeMrZW" z:Size="0" xmlns="" />
+    <Areas z:Id="312" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintAreaElementc7_SeMrZW" z:Size="0" xmlns="" />
+    <Volumes z:Id="313" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintVolumeElementc7_SeMrZW" z:Size="0" xmlns="" />
+    <Costrains z:Id="314" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintCostrain7GngFXTz" z:Size="0" xmlns="" />
+    <BeamProperties z:Id="315" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringBeamPropertyFh1SplXi" z:Size="0" xmlns="" />
+    <PlateProperties z:Id="316" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringPlatePropertyFh1SplXi" z:Size="0" xmlns="" />
+    <BrickProperties z:Id="317" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringBrickPropertyFh1SplXi" z:Size="0" xmlns="" />
+    <LoadCaseBases z:Id="318" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringLoadCaseBase4H22pTbD" z:Size="3" xmlns="">
+      <d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+        <d2p1:Key z:Id="319">G</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.LoadCases" z:Id="320">
+          <SerializationVersion z:Id="321" i:type="x:int">0</SerializationVersion>
+          <Guid z:Id="322" i:type="z:guid">66385031-b81d-4ec8-9689-2cf94cdc1e55</Guid>
+          <Name z:Ref="319" i:nil="true" />
+          <LoadCaseBaseVersion z:Id="323" i:type="x:int">2</LoadCaseBaseVersion>
+          <InertiaMasses z:Id="324" i:type="d4p1:InertiaMassSelection">
+            <d4p1:_x003C_Structural_x003E_k__BackingField>true</d4p1:_x003C_Structural_x003E_k__BackingField>
+            <d4p1:_x003C_NonStructural_x003E_k__BackingField>false</d4p1:_x003C_NonStructural_x003E_k__BackingField>
+          </InertiaMasses>
+          <FreedomCase z:Ref="92" i:nil="true" />
+        </d2p1:Value>
+      </d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+      <d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+        <d2p1:Key z:Id="325">Q</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.LoadCases" z:Id="326">
+          <SerializationVersion z:Id="327" i:type="x:int">0</SerializationVersion>
+          <Guid z:Id="328" i:type="z:guid">03c7ba81-7e1a-4b7a-983f-6cf153f08d18</Guid>
+          <Name z:Ref="325" i:nil="true" />
+          <LoadCaseBaseVersion z:Id="329" i:type="x:int">2</LoadCaseBaseVersion>
+          <FreedomCase z:Ref="84" i:nil="true" />
+        </d2p1:Value>
+      </d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+      <d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+        <d2p1:Key z:Id="330">W</d2p1:Key>
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.LoadCases" z:Id="331">
+          <SerializationVersion z:Id="332" i:type="x:int">0</SerializationVersion>
+          <Guid z:Id="333" i:type="z:guid">baa66f0a-22a3-4982-ae0e-d03c2ab24284</Guid>
+          <Name z:Ref="330" i:nil="true" />
+        </d2p1:Value>
+      </d2p1:KeyValueOfstringLoadCaseBase4H22pTbD>
+    </LoadCaseBases>
+    <FreedomCases z:Id="334" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringFreedomCase7hVIgURy" z:Size="2" xmlns="">
+      <d2p1:KeyValueOfstringFreedomCase7hVIgURy>
+        <d2p1:Key z:Ref="95" i:nil="true" />
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Ref="92" i:nil="true" />
+      </d2p1:KeyValueOfstringFreedomCase7hVIgURy>
+      <d2p1:KeyValueOfstringFreedomCase7hVIgURy>
+        <d2p1:Key z:Ref="87" i:nil="true" />
+        <d2p1:Value xmlns:d4p1="http://schemas.datacontract.org/2004/07/GPC.Model.FreedomCases" z:Ref="84" i:nil="true" />
+      </d2p1:KeyValueOfstringFreedomCase7hVIgURy>
+    </FreedomCases>
+    <Combinations z:Id="335" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringCombination5qjmKiEE" z:Size="0" xmlns="" />
+    <StageCombinationsMap z:Id="336" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintArrayOfstringty7Ep6D1" z:Size="0" xmlns="" />
+    <Stages z:Id="337" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfintStage_SR00s7p_S" z:Size="0" xmlns="" />
+    <Groups z:Id="338" xmlns:d2p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" i:type="d2p1:ArrayOfKeyValueOfstringGroup95FNrBFv" z:Size="0" xmlns="" />
+  </Model>
+</GpcModelArchive>

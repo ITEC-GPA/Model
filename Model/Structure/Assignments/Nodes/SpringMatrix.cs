@@ -29,6 +29,14 @@ namespace GPC.Model.Structure.Assignments
         [field: System.Runtime.Serialization.DataMember(Name = "<SourceRecord>k__BackingField", IsRequired = true)]
         public string SourceRecord { get; set; }
 
+        /// <summary>Freedom case (set of restraints and springs to ground, <see cref="Models.Model.FreedomCases"/>) of a spring to ground, as
+        /// <see cref="RestrainAssignment.FreedomCase"/>: the spring acts in the analyses of that freedom case (<see cref="LoadCases.LoadCaseBase.FreedomCase"/>).
+        /// Null means the default restraint set, as before GPCModel 5.53 (18/11/2026); a null value is neither archived nor fingerprinted.
+        /// A spring of a node link (<see cref="NodalLink.Spring"/>) has no freedom case.</summary>
+        [field: OptionalField]
+        [field: DataMember(Name = "<FreedomCase>k__BackingField", IsRequired = false, EmitDefaultValue = false)]
+        public GPC.Model.FreedomCases.FreedomCase FreedomCase { get; set; }
+
         public SpringMatrix(double[] rowMajor, CoordinateSystem axes, SpringKind kind = SpringKind.SymmetricElastic)
         {
             _values = rowMajor == null ? null : (double[])rowMajor.Clone();
@@ -118,7 +126,8 @@ namespace GPC.Model.Structure.Assignments
                             result[r * 6 + c] += q[r, i] * this[i, j] * q[c, j];
             return new SpringMatrix(result, target, Kind)
             {
-                SourceRecord = SourceRecord
+                SourceRecord = SourceRecord,
+                FreedomCase = FreedomCase
             };
         }
     }

@@ -142,6 +142,10 @@ namespace GPC.Model.Structure.Assignments
             model.NodesElements.Values.Any(n => n.Assignments.Restrains.Any(r => r.FreedomCase != null)) ||
             model.BeamElements.Values.Any(b => b.BeamProperty is ElementProperties.ElasticBeamProperty || b.Assignments.Physical?.StringGroup != null) ||
             model.AreaElements.Values.Any(s => s.PlateProperty is ElementProperties.ElasticPlateProperty || s.PlateProperty is ElementProperties.MembranePlateProperty || s.Assignments.Physical?.LoadPatch != null);
+        /// <summary>A load case or a spring to ground with a freedom case (GPCModel 5.53, 18/11/2026): the archive needs Model schema 11
+        /// (ModelDocument schema 10), so that an older GPCModel refuses it instead of reading it without the freedom cases.</summary>
+        internal static bool UsesFreedomCaseScopes(Models.Model model) =>
+            model.LoadCases.Values.Any(c => c?.FreedomCase != null) || model.NodesElements.Values.Any(n => n.Assignments.GroundSprings.Any(s => s?.FreedomCase != null));
         internal static object Data(Element element) => element is NodeElement n ? (object)n.Assignments.Physical
             : element is BeamElement b ? (object)b.Assignments.Physical : element is AreaElement s ? s.Assignments.Physical : null;
 

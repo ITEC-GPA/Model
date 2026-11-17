@@ -249,7 +249,7 @@ namespace GPC.Model.Models
             : base(info, context)
         {
             int schemaVersion = SerializationFields.Read(info, "ModelSchemaVersion", 0);
-            if (schemaVersion < 0 || schemaVersion > 10) throw new SerializationException("Unsupported Model schema version.");
+            if (schemaVersion < 0 || schemaVersion > 11) throw new SerializationException("Unsupported Model schema version.");
             AssemblyMap = SerializationFields.Read<global::GPC.Model.Core.Identity.AssemblyIdentityMap>(info, "AssemblyMap");
             if (AssemblyMap != null && (schemaVersion < 4 || AssemblyMap.ModelGuid != Guid)) throw new SerializationException("InvalidModelAssemblyMap");
             FormFinding = SerializationFields.Read<FormFindingDefinition>(info, "FormFinding");
@@ -290,6 +290,7 @@ namespace GPC.Model.Models
             if ((MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) && schemaVersion < 6)
                 throw new SerializationException("ExtendedPhysicalSchemaMismatch");
             if(LoadCases.Values.Any(c=>c.InertiaMasses!=null) && schemaVersion<10)throw new SerializationException("InertiaMassSchemaMismatch");
+            if(PhysicalAssignments.UsesFreedomCaseScopes(this) && schemaVersion<11)throw new SerializationException("FreedomCaseScopeSchemaMismatch");
             if ((MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) && schemaVersion < 9) throw new SerializationException("ExtendedMovingSchemaMismatch");
             if (StageAnalysisState.HasData(this) && schemaVersion < 7) throw new SerializationException("StageAnalysisSchemaMismatch");
             // Schema checks only: reading never runs domain validation (ModelEditSession.Validate and the export preflight do).
@@ -1780,7 +1781,7 @@ namespace GPC.Model.Models
             base.GetObjectData(info, context);
 
             // No domain validation here: a model with dangling stage or moving-load references stays copyable and saveable.
-            info.AddValue("ModelSchemaVersion", LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 10 : (MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) ? 9 : PhysicalAssignments.UsesExtendedExportContract(this) ? 8 : StageAnalysisState.HasData(this) ? 7 : (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null ? 4 :PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
+            info.AddValue("ModelSchemaVersion", PhysicalAssignments.UsesFreedomCaseScopes(this) ? 11 : LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 10 : (MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(this)) ? 9 : PhysicalAssignments.UsesExtendedExportContract(this) ? 8 : StageAnalysisState.HasData(this) ? 7 : (MovingLoads != null || PhysicalAssignments.HasData(this) || FormFinding?.UsesExtendedContract == true) ? 6 : FormFinding != null ? 5 : AssemblyMap != null ? 4 :PhysicalSurfaces.Count != 0 ? 3 : Analysis != null || VerificationContext != null || VerificationScenarios.Count != 0 ? 2 : 1);
             if (FormFinding != null) info.AddValue("FormFinding", FormFinding);
             if (MovingLoads != null) info.AddValue("MovingLoads", MovingLoads);
             if (AssemblyMap != null) info.AddValue("AssemblyMap", AssemblyMap);

@@ -50,7 +50,7 @@ public class Straus7NativeFreedomCasesTest
         node.Results.SelectMany(r => r.Results).OfType<T>().Single(s => s.Case?.Name == name && s.State?.DatasetId == dataset);
 
     [TestMethod, TestCategory("Straus7Native")]
-    public void NativeFreedomCases_PairsAndCombinationsAreImported_SupportsStayPreserved()
+    public void NativeFreedomCases_PairsAndCombinationsAreImported_SupportsKeepTheirFreedomCase()
     {
         var folder = Folder(); var report = Import(new Straus7ApiConverter(), folder); var m = report.Model;
         Assert.AreEqual(7, m.NodesElements.Count); Assert.AreEqual(2, m.BeamElements.Count); Assert.AreEqual(1, m.AreaElements.Count);
@@ -58,8 +58,19 @@ public class Straus7NativeFreedomCasesTest
         var data = Straus7FreedomCaseData.Read(m)!;
         CollectionAssert.AreEqual(new[] { "1 Freedom Case 1", "2 Freedom Case 1" }, data.FreedomCases.Select(f => f.Number + " " + f.Name).ToArray(), "Two freedom cases with the same name.");
         CollectionAssert.AreEqual(new[] { "1/1", "2/2", "3/2", "4/1" }, data.LinearCases.Select(p => p.LoadCase + "/" + p.FreedomCase).ToArray());
-        Assert.AreEqual(0, m.NodesElements.Values.Sum(n => n.Assignments.Restrains.Count + n.Assignments.GroundSprings.Count));
-        Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "Straus7FreedomCasesPreserved"));
+        // GPC.Converter 2.27 (18/11/2026; until 2.26 preserved with Straus7FreedomCasesPreserved): the supports of the generator with their
+        // freedom case. FC 1: node 1 DX DY DZ RX, node 3 DY DZ, nodes 4 and 7 fixed, the spring kz = 200 N/mm of node 2. FC 2: node 1 DX DY DZ RX,
+        // nodes 2 and 3 DY DZ, nodes 4 and 7 fixed. Each load case is tied to the freedom case that solves it.
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "Straus7FreedomCasesPreserved"));
+        var fc1 = m.FreedomCases["Freedom Case 1 · FC 1"]; var fc2 = m.FreedomCases["Freedom Case 1 · FC 2"]; Assert.AreEqual(2, m.FreedomCases.Count);
+        string Dofs(string node, GPC.Model.FreedomCases.FreedomCase fc) => string.Join(" ", Node(m, node).Assignments.RestrainsOf(fc).SelectMany(r => r.Restrain.Restrains).Select(d => d.Dof));
+        CollectionAssert.AreEqual(new[] { "DX DY DZ RX", "", "DY DZ", "DX DY DZ RX RY RZ", "", "", "DX DY DZ RX RY RZ" }, Enumerable.Range(1, 7).Select(n => Dofs(n.ToString(), fc1)).ToArray());
+        CollectionAssert.AreEqual(new[] { "DX DY DZ RX", "DY DZ", "DY DZ", "DX DY DZ RX RY RZ", "", "", "DX DY DZ RX RY RZ" }, Enumerable.Range(1, 7).Select(n => Dofs(n.ToString(), fc2)).ToArray());
+        var spring = Node(m, "2").Assignments.GroundSprings.Single(); Assert.AreSame(fc1, spring.FreedomCase); Assert.AreEqual(200, spring[2, 2], 1e-9);
+        Assert.AreEqual(1, m.NodesElements.Values.Sum(n => n.Assignments.GroundSprings.Count));
+        CollectionAssert.AreEqual(new[] { fc1, fc2, fc2, fc1 }, new[] { "Case 1: G1", "Case 2: Q", "Case 3: G1", "Case 4: W" }.Select(c => m.LoadCases[c].FreedomCase).ToArray());
+        Assert.IsFalse(GPC.Model.Structure.Assignments.AssignmentValidation.ValidateAssignments(m).Any(d => d.Severity == DiagnosticSeverity.Error),
+            string.Join("; ", GPC.Model.Structure.Assignments.AssignmentValidation.ValidateAssignments(m).Select(d => d.Code)));
         var definitions = CombinationExpansion.Definitions(m).ToDictionary(d => d.Name, d => string.Join(" + ", d.Terms.Select(t => t.Factor.ToString(System.Globalization.CultureInfo.InvariantCulture) + " " + t.Name)));
         Assert.AreEqual("1.35 Case 1: G1 + 1.5 Case 4: W", definitions["ULS1"]);
         Assert.AreEqual("1.5 Case 2: Q + 1.35 Case 3: G1", definitions["ULS2"]);

@@ -14,6 +14,13 @@ namespace GPC.Model.LoadCases
         /// <summary>Explicit mass families participating in inertia actions. Null retains the historical solver default.
         /// Selection changes applied inertia loads, not the mass stored in the model.</summary>
         public InertiaMassSelection InertiaMasses { get; set; }
+
+        /// <summary>The freedom case (set of restraints and springs to ground, <see cref="Models.Model.FreedomCases"/>) under which the case is
+        /// analysed: its results (reactions, displacements) belong to the restraints (<see cref="Structure.Assignments.RestrainAssignment.FreedomCase"/>)
+        /// and springs to ground (<see cref="Structure.Assignments.SpringMatrix.FreedomCase"/>) of that freedom case. Null means the default
+        /// restraint set, or a case not tied to one freedom case, as before GPCModel 5.53 (18/11/2026); a null value is neither archived nor
+        /// fingerprinted. The cases of the construction stages follow the freedom cases of their stage (<see cref="Stages.StageAnalysisState.ActiveFreedomCaseGuids"/>).</summary>
+        public FreedomCases.FreedomCase FreedomCase { get; set; }
         #region PUBLIC CONSTRUCTOR
 
         /// <summary>Creates an input entity with the persistent identity supplied by its owner.</summary>
@@ -40,14 +47,23 @@ namespace GPC.Model.LoadCases
         protected LoadCaseBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            int version=SerializationVersions.Read(info,"LoadCaseBaseVersion",1,0);
+            // Version 2 (GPCModel 5.53, 18/11/2026): the freedom case, with the inertia masses when present.
+            int version=SerializationVersions.Read(info,"LoadCaseBaseVersion",2,0);
             if(version==1)InertiaMasses=(InertiaMassSelection)info.GetValue("InertiaMasses",typeof(InertiaMassSelection));
+            if(version==2)
+            {
+                InertiaMasses=SerializationFields.Read<InertiaMassSelection>(info,"InertiaMasses");
+                FreedomCase=SerializationFields.Read<FreedomCases.FreedomCase>(info,"FreedomCase") ?? throw new SerializationException("MissingLoadCaseFreedomCase");
+            }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info,context);
-            if(InertiaMasses!=null)
+            // Without a freedom case the entries of before, so the archives and fingerprints of those cases do not change.
+            if(FreedomCase!=null)
+            {info.AddValue("LoadCaseBaseVersion",2);if(InertiaMasses!=null)info.AddValue("InertiaMasses",InertiaMasses);info.AddValue("FreedomCase",FreedomCase);}
+            else if(InertiaMasses!=null)
             {info.AddValue("LoadCaseBaseVersion",1);info.AddValue("InertiaMasses",InertiaMasses);}
         }
 

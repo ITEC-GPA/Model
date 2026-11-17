@@ -53,9 +53,16 @@ namespace GPC.Model.Structure.Assignments
                     if (dofs.Any(d => d.HasImposedDisplacement) && restraint.Case == null) result.Add(ModelDiagnostic.Error("MissingImposedDisplacementCase", node));
                     try { Axes.Validate(restraint.Restrain.CoordinateSystem); } catch (ArgumentException) { result.Add(ModelDiagnostic.Error("InvalidRestrainAxes", node)); }
                 }
-                foreach (var scope in data.Restrains.Where(r => r?.Restrain != null).GroupBy(r => new { r.Case, r.Phase }))
+                // One scope per case, freedom case and phase, as NodeAssignments.AssignRestrain (18/11/2026, GPCModel 5.53): two freedom cases may
+                // restrain the same DOF of a node. Without freedom cases the scopes are those of before.
+                foreach (var scope in data.Restrains.Where(r => r?.Restrain != null).GroupBy(r => new { r.Case, FreedomCase = r.FreedomCase?.Guid, r.Phase }))
                     if (scope.SelectMany(r => r.Restrain.Restrains).GroupBy(d => d.Dof).Any(g => g.Count() > 1)) result.Add(ModelDiagnostic.Error("ConflictingRestrainScope", node));
-                foreach (var spring in data.GroundSprings) result.AddRange(spring.Diagnose());
+                foreach (var spring in data.GroundSprings)
+                {
+                    result.AddRange(spring.Diagnose());
+                    if (spring.FreedomCase != null && !Registered(model, spring.FreedomCase))
+                        result.Add(ModelDiagnostic.Error("UnregisteredFreedomCase", node, "Spring to ground of node " + node.Id + ": freedom case '" + spring.FreedomCase.Name + "' is not a freedom case of the model."));
+                }
                 if (data.Mass != null && (data.Mass.Matrix6x6RowMajor == null || data.Mass.Matrix6x6RowMajor.Length != 36 || data.Mass.Matrix6x6RowMajor.Any(v => !Finite(v))))
                     result.Add(ModelDiagnostic.Error("InvalidMassMatrix", node));
                 if (data.Mass != null) try { Axes.Validate(data.Mass.Axes); } catch (ArgumentException) { result.Add(ModelDiagnostic.Error("InvalidMassAxes", node)); }
@@ -63,6 +70,7 @@ namespace GPC.Model.Structure.Assignments
                 {
                     if (!model.NodesElements.ContainsKey(link.OtherNodeId)) result.Add(ModelDiagnostic.Error("DanglingLinkReference", node));
                     if (link.Spring != null) result.AddRange(link.Spring.Diagnose());
+                    if (link.Spring?.FreedomCase != null) result.Add(ModelDiagnostic.Error("FreedomCaseOnLinkSpring", node, "A node link is not a boundary condition: its spring has no freedom case."));
                     if (link.KinematicCoefficients != null && (link.RightHandSide == null || link.KinematicCoefficients.Length != 12 * link.RightHandSide.Length
                         || link.KinematicCoefficients.Any(v => !Finite(v)) || link.RightHandSide.Any(v => !Finite(v)))) result.Add(ModelDiagnostic.Error("InvalidMpcMatrix", node));
                     if (link.UnsupportedLaw != null) result.Add(ModelDiagnostic.Error("UnsupportedLinkLaw", node));
@@ -141,9 +149,15 @@ namespace GPC.Model.Structure.Assignments
                 }
                 catch(ArgumentException ex) { result.Add(ModelDiagnostic.Error(ex.Message,shell)); }
             }
+            foreach (var loadCase in model.LoadCases.Values.Where(c => c?.FreedomCase != null && !Registered(model, c.FreedomCase)))
+                result.Add(ModelDiagnostic.Error("UnregisteredFreedomCase", message: "Load case '" + loadCase.Name + "': freedom case '" + loadCase.FreedomCase.Name + "' is not a freedom case of the model."));
             result.AddRange(model.ValidatePhysicalSurfaces());
             return result;
         }
+
+        /// <summary>True when <paramref name="freedomCase"/> is the freedom case of the model with its name (same Guid).</summary>
+        private static bool Registered(Models.Model model, GPC.Model.FreedomCases.FreedomCase freedomCase)
+            => model.FreedomCases.TryGetValue(freedomCase.Name ?? "", out var registered) && registered.Guid == freedomCase.Guid;
         public static IReadOnlyList<ModelDiagnostic> ValidateRebars(ReinforcedConcreteSection section, Element owner = null)
         {
             var issues = new List<ModelDiagnostic>();

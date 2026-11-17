@@ -27,7 +27,8 @@ namespace GPC.Converter.Straus7
     /// settings, read by <see cref="Straus7ApiConverter"/> and kept as one preserved record of the Model (<see cref="Kind"/>); a model with
     /// one freedom case has none. GPC.Model keeps the results of a load case, not of a pair: a result case maps to its load case when the
     /// settings solve that load case under one freedom case (<see cref="Straus7LinearStaticResults.Cases"/>), and an LSA combination is a
-    /// Model combination when each of its terms is such a pair. Restraints and node springs of the freedom cases are not mapped.</summary>
+    /// Model combination when each of its terms is such a pair. Since GPC.Converter 2.27 (18/11/2026) the freedom cases are Model freedom cases,
+    /// the restraints and node springs carry theirs and a load case solved under one freedom case is tied to it (LoadCaseBase.FreedomCase).</summary>
     public sealed class Straus7FreedomCaseData
     {
         public const string Kind = "Straus7 freedom cases", Record = "Straus7FreedomCases";
@@ -64,7 +65,7 @@ namespace GPC.Converter.Straus7
                 new DataContractJsonSerializer(typeof(Straus7FreedomCaseData)).WriteObject(stream, this);
                 return new GPC.Model.Structure.Assignments.PreservedAssignment { Kind = Kind, SourceRecord = Record, RawData = Encoding.UTF8.GetString(stream.ToArray()),
                     UnitsAndAxes = "Straus7 numbers of load cases and freedom cases; ModelCase is the name of the Model load case.",
-                    UnsupportedReason = "GPC.Model has no load case / freedom case pairing and no restraints of several freedom cases: the pairs are data." };
+                    UnsupportedReason = "GPC.Model keeps one freedom case per load case (LoadCaseBase.FreedomCase), not the pairs of the solver settings: the pairs are data." };
             }
         }
 
@@ -79,7 +80,21 @@ namespace GPC.Converter.Straus7
             var shared = LinearCases.GroupBy(p => p.LoadCase).Where(g => g.Select(p => p.FreedomCase).Distinct().Count() > 1).Select(g => g.Key).OrderBy(l => l).ToArray();
             return FreedomCases.Count.ToString(CultureInfo.InvariantCulture) + " freedom cases in the linear static settings: " + string.Join("; ", parts) + "."
                 + (shared.Length == 0 ? "" : (shared.Length == 1 ? " Load case " + Numbers(shared) + " is" : " Load cases " + Numbers(shared) + " are") + " solved under several freedom cases: their result cases and the LSA combinations that use them are not mapped.")
-                + " A result case maps to its load case when the load case is solved under one freedom case; restraints and node springs of the freedom cases are not mapped.";
+                + " A result case maps to its load case when the load case is solved under one freedom case; the Model ties that load case to its freedom case.";
+        }
+
+        /// <summary>The Model freedom cases of the restraints and node springs (GPC.Converter 2.27), and the load cases tied to them.</summary>
+        internal string SupportsSummary(IReadOnlyDictionary<int, string> names)
+        {
+            string Numbers(IEnumerable<int> values) => string.Join(", ", values.Select(v => v.ToString(CultureInfo.InvariantCulture)));
+            var parts = FreedomCases.Select(f =>
+            {
+                var tied = LinearCases.Where(p => p.FreedomCase == f.Number && FreedomCasesOf(p.LoadCase).Count == 1).Select(p => p.LoadCase).Distinct().OrderBy(l => l).ToArray();
+                return Label(f.Number) + " as Model freedom case '" + names[f.Number] + "'" + (tied.Length == 0 ? "" : ", load cases " + Numbers(tied));
+            });
+            var untied = LinearCases.Select(p => p.LoadCase).Distinct().Where(l => FreedomCasesOf(l).Count > 1).OrderBy(l => l).ToArray();
+            return "Restraints and node springs of the " + FreedomCases.Count.ToString(CultureInfo.InvariantCulture) + " freedom cases are mapped with their freedom case: "
+                + string.Join("; ", parts) + "." + (untied.Length == 0 ? "" : " Load cases " + Numbers(untied) + " are solved under several freedom cases: they have no freedom case in the Model.");
         }
     }
 

@@ -88,6 +88,8 @@ namespace GPC.Model.Models
                     if (restraint.FreedomCase != null) restraint.FreedomCase = CanonicalFreedomCase(model, restraint.FreedomCase, memo);
                     if (restraint.Case != null) restraint.Case = CanonicalCase(model, restraint.Case as LoadCaseBase ?? throw new NotSupportedException("AssemblyRequiresLoadCaseBase"), memo);
                 }
+                foreach (var spring in node.Assignments.GroundSprings)
+                    if (spring?.FreedomCase != null) spring.FreedomCase = CanonicalFreedomCase(model, spring.FreedomCase, memo);
             }
             next = 0;
             foreach (var beam in copies.Values.OfType<BeamElement>().OrderBy(Rank).ThenBy(b => b.Guid))
@@ -190,7 +192,10 @@ namespace GPC.Model.Models
             foreach (var group in element.Groups.Values) Add(group);
             PhysicalAssignments.RebindCases(element, c => { Add(c); return c; }, c => { Add(c); return c; });
             if (element is NodeElement node)
+            {
                 foreach (var restraint in node.Assignments.Restrains) { Add(restraint?.FreedomCase); Add(restraint?.Case as ModelObject); }
+                foreach (var spring in node.Assignments.GroundSprings) Add(spring?.FreedomCase);
+            }
             else if (element is BeamElement beam)
             {
                 Add(beam.BeamProperty);
@@ -262,6 +267,7 @@ namespace GPC.Model.Models
             if (value == null) throw new ArgumentException("MissingAssemblyLoadCase");
             if (model.LoadCases.TryGetValue(value.Name, out var previous))
             { SameEntity(previous, value, "LoadCaseIdentityConflict", "LoadCaseConflict", memo); return previous; }
+            if (value.FreedomCase != null) value.FreedomCase = CanonicalFreedomCase(model, value.FreedomCase, memo);
             model.AddLoadCase(value); return value;
         }
         private static ElementProperty CanonicalProperty(Model model, ElementProperty value, Dictionary<object, string> memo)

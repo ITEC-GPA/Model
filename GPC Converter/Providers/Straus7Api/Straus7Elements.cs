@@ -11,7 +11,8 @@ using GPC.Model.Structure.Assignments;
 namespace GPC.Converter.Straus7
 {
     /// <summary>Straus7 element families other than beams and plates, beam end releases, node springs, links and LSA combinations.
-    /// Releases are in the principal axes 1, 2, 3 of the beam (GPC V1, V2, V3); node springs and restraints of the single freedom case.</summary>
+    /// Releases are in the principal axes 1, 2, 3 of the beam (GPC V1, V2, V3); node springs and restraints of the single freedom case, or of
+    /// each freedom case with its freedom case (GPC.Converter 2.27, with the freedom case data).</summary>
     internal sealed partial class Straus7Assignments
     {
         private readonly IStraus7ExtendedReadApi extended;
@@ -94,31 +95,37 @@ namespace GPC.Converter.Straus7
             if (any) batch.BeamReleases.Add(new BeamReleaseRecord { BeamId = beam.Id, Release = release, Record = release.SourceRecord });
         }
 
-        /// <summary>Node translational/rotational stiffnesses of the single freedom case, as a ground spring in their UCS at the node.</summary>
+        /// <summary>Node translational/rotational stiffnesses, as a ground spring in their UCS at the node: of the single freedom case, or (GPC.Converter
+        /// 2.27) of each freedom case of a model with several of them, with its freedom case (<see cref="FreedomCaseNames"/>).</summary>
         private void NodeSprings(int node, Point3d point, int freedomCases, string record)
         {
             var translation = Attributes(Straus7Entity.Node, node, Straus7Attributes.KTranslation);
             var rotation = Attributes(Straus7Entity.Node, node, Straus7Attributes.KRotation);
             if (translation.Length + rotation.Length == 0) return;
             if (extended == null) { Warn("Straus7NodeSpringsPreserved", "Node springs", "The API binding does not read node springs: preserved in the source file."); return; }
-            if (freedomCases != 1) { Warn("Straus7FreedomCasesPreserved", "Freedom cases", "Restraints and node springs of models with several freedom cases are not mapped."); return; }
-            var parts = new List<(Straus7NodeStiffness Data, bool Rotational)>();
-            if (translation.Length != 0) parts.Add((extended.ReadNodeStiffness(node, 1, false), false));
-            if (rotation.Length != 0) parts.Add((extended.ReadNodeStiffness(node, 1, true), true));
-            foreach (var group in parts.GroupBy(p => p.Data?.Ucs ?? 0))
+            if (freedomCases != 1 && FreedomCaseNames == null) { Warn("Straus7FreedomCasesPreserved", "Freedom cases", "Restraints and node springs of models with several freedom cases are not mapped."); return; }
+            foreach (int fc in AttributeFreedomCases(freedomCases, translation.Concat(rotation), record))
             {
-                var axes = group.Key == 1 ? CoordinateSystem.Global : Ucs(group.Key);
-                if (axes == null) { Warn("Straus7SpringUcsPreserved", "Node spring UCS", "Node springs in non-Cartesian coordinate systems are not mapped."); continue; }
-                var k = new double[36];
-                foreach (var (data, rotational) in group)
+                // One freedom case: the records of before. Several: one record per freedom case, named by it.
+                string scope = freedomCases == 1 ? "" : "/freedom case " + fc.ToString(CultureInfo.InvariantCulture);
+                var parts = new List<(Straus7NodeStiffness Data, bool Rotational)>();
+                if (translation.Any(a => freedomCases == 1 || a.Case == fc)) parts.Add((extended.ReadNodeStiffness(node, fc, false), false));
+                if (rotation.Any(a => freedomCases == 1 || a.Case == fc)) parts.Add((extended.ReadNodeStiffness(node, fc, true), true));
+                foreach (var group in parts.GroupBy(p => p.Data?.Ucs ?? 0))
                 {
-                    Straus7ApiConverter.Finite(data.Values, 3, record + " stiffness");
-                    if (data.Values.Any(v => v < 0)) throw new InvalidDataException("Negative node stiffness: " + record);
-                    for (int c = 0; c < 3; c++) k[(rotational ? 3 + c : c) * 7] = data.Values[c] * (rotational ? force * length : force / length);
+                    var axes = group.Key == 1 ? CoordinateSystem.Global : Ucs(group.Key);
+                    if (axes == null) { Warn("Straus7SpringUcsPreserved", "Node spring UCS", "Node springs in non-Cartesian coordinate systems are not mapped."); continue; }
+                    var k = new double[36];
+                    foreach (var (data, rotational) in group)
+                    {
+                        Straus7ApiConverter.Finite(data.Values, 3, record + " stiffness");
+                        if (data.Values.Any(v => v < 0)) throw new InvalidDataException("Negative node stiffness: " + record);
+                        for (int c = 0; c < 3; c++) k[(rotational ? 3 + c : c) * 7] = data.Values[c] * (rotational ? force * length : force / length);
+                    }
+                    if (k.All(v => v == 0)) continue;
+                    batch.NodeSprings.Add(new NodeSpringRecord { NodeId = Straus7ApiConverter.Id(node), Spring = new SpringMatrix(k, Frames.At(axes, point)) { SourceRecord = record + "/stiffness" + scope },
+                        Record = record + "/stiffness" + scope, FreedomCase = freedomCases == 1 ? null : FreedomCaseNames[fc] });
                 }
-                if (k.All(v => v == 0)) continue;
-                batch.NodeSprings.Add(new NodeSpringRecord { NodeId = Straus7ApiConverter.Id(node), Spring = new SpringMatrix(k, Frames.At(axes, point)) { SourceRecord = record + "/stiffness" },
-                    Record = record + "/stiffness" });
             }
         }
 
@@ -198,6 +205,41 @@ namespace GPC.Converter.Straus7
                 for (int f = 1; f <= count; f++)
                     if (reader.ReadLinearCaseEnabled(l, f)) data.LinearCases.Add(new Straus7LinearCasePair { LoadCase = l, ModelCase = Case(l, "LoadCase/" + l.ToString(CultureInfo.InvariantCulture)), FreedomCase = f });
             FreedomCaseData = data;
+            // GPC.Converter 2.27 (18/11/2026): the freedom cases become Model freedom cases, named as in Straus7 when the name is unique, else
+            // "<name> · FC n" (as the LSA combinations of one name); restraints and node springs carry theirs (Nodes), and a load case solved under
+            // one freedom case by the linear static settings is tied to it.
+            var names = new Dictionary<int, string>();
+            string Own(Straus7FreedomCaseInfo f) => (f.Name ?? "").Trim();
+            string Qualified(Straus7FreedomCaseInfo f) => Own(f).Length == 0 ? Straus7FreedomCaseData.Label(f.Number) : Own(f) + " · " + Straus7FreedomCaseData.Label(f.Number);
+            foreach (var f in data.FreedomCases)
+                names[f.Number] = Own(f).Length != 0 && data.FreedomCases.Count(o => Own(o) == Own(f)) == 1 ? Own(f) : Qualified(f);
+            if (names.Values.Distinct(StringComparer.Ordinal).Count() != names.Count) foreach (var f in data.FreedomCases) names[f.Number] = Qualified(f);
+            if (names.Values.Distinct(StringComparer.Ordinal).Count() != names.Count) foreach (var f in data.FreedomCases) names[f.Number] = Straus7FreedomCaseData.Label(f.Number);
+            FreedomCaseNames = names;
+            foreach (var f in data.FreedomCases)
+                batch.FreedomCases.Add(new FreedomCaseRecord { Name = names[f.Number], Record = "FreedomCase/" + f.Number.ToString(CultureInfo.InvariantCulture) });
+            for (int l = 1; l <= cases; l++)
+            {
+                var solving = data.FreedomCasesOf(l);
+                if (solving.Count != 1) continue;
+                string name = Case(l, "LoadCase/" + l.ToString(CultureInfo.InvariantCulture));
+                var loadCase = batch.LoadCases.Single(c => c.Name == name && c.StageSourceCaseName == null);
+                loadCase.FreedomCase = names[solving[0]];
+            }
+        }
+
+        /// <summary>The Model names of the freedom cases of a model with several of them (<see cref="FreedomCases"/>), by Straus7 number; null otherwise:
+        /// then restraints and node springs of several freedom cases are preserved, as before GPC.Converter 2.27.</summary>
+        public IReadOnlyDictionary<int, string> FreedomCaseNames { get; private set; }
+
+        /// <summary>The freedom cases of the restraint or spring attributes of a node: freedom case 1 with one freedom case (as before), else the
+        /// cases of the attributes, ascending, each a freedom case of the model.</summary>
+        private IEnumerable<int> AttributeFreedomCases(int freedomCases, IEnumerable<Straus7Attribute> attributes, string record)
+        {
+            if (freedomCases == 1) return new[] { 1 };
+            var numbers = attributes.Select(a => a.Case).Distinct().OrderBy(f => f).ToArray();
+            if (numbers.Any(f => !FreedomCaseNames.ContainsKey(f))) throw new InvalidDataException("Restraint or spring of an unknown freedom case: " + record);
+            return numbers;
         }
 
         /// <summary>LSA combinations as linear combinations of the load cases; combinations of LSA combinations are preserved only. One freedom case:

@@ -183,7 +183,9 @@ namespace GPC.Converter.Straus7
                     (beam ? beamGroups : plateGroups)[i] = e.GroupId;
                 }
             }
-            assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.FreedomCases(cases); assignments.Combinations(cases);
+            // The freedom cases first (GPC.Converter 2.27): the restraints and node springs of several freedom cases carry theirs. With one freedom
+            // case FreedomCases reads nothing, so the order of before.
+            assignments.FreedomCases(cases); assignments.Nodes(points); assignments.Links(links, points); assignments.Gravity(cases); assignments.Combinations(cases);
             int stages = Bounded(api.StageCount);
             var stageApi = api as IStraus7StageReadApi;
             Preserve("St7GetNumStages", stages, stages == 0 ? null : stageApi == null ? "The API binding reads no stage definitions."
@@ -206,12 +208,17 @@ namespace GPC.Converter.Straus7
             {
                 var item = freedom.Preserve(); batch.Uninterpreted.Add(item); report.Preserved.Add(item);
                 batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7FreedomCases", Severity = DiagnosticSeverity.Information, Record = Straus7FreedomCaseData.Record, Message = freedom.Summary() });
+                if (assignments.FreedomCaseNames != null)
+                    batch.Diagnostics.Add(new ModelDiagnostic { Code = "Straus7FreedomCaseSupports", Severity = DiagnosticSeverity.Information, Record = Straus7FreedomCaseData.Record,
+                        Message = freedom.SupportsSummary(assignments.FreedomCaseNames) });
             }
+            // With several freedom cases mapped (GPC.Converter 2.27) the restraints and node springs are those of every freedom case; otherwise the text of before.
+            string supports = assignments.FreedomCaseNames != null ? "restraints and node springs of every freedom case, with their freedom case" : "restraints and node springs of a single freedom case";
             batch.Diagnostics.Add(assignments.Available
                 ? new ModelDiagnostic { Code = "Straus7AssignmentsPartlyMapped", Severity = DiagnosticSeverity.Warning,
                     Message = assignments.Extended
-                        ? "Properties, offsets, end releases, restraints and node springs of a single freedom case, rigid/master-slave/pinned links, nodal/beam/plate loads, gravity and LSA combinations imported; stages, masses and temperatures as data (Straus7ModelData); other links are not mapped."
-                        : "Properties, offsets, restraints of a single freedom case, nodal/beam/plate loads and gravity imported; the API binding reads no releases, springs, links or combinations." }
+                        ? "Properties, offsets, end releases, " + supports + ", rigid/master-slave/pinned links, nodal/beam/plate loads, gravity and LSA combinations imported; stages, masses and temperatures as data (Straus7ModelData); other links are not mapped."
+                        : "Properties, offsets, " + (assignments.FreedomCaseNames != null ? "restraints of every freedom case, with their freedom case" : "restraints of a single freedom case") + ", nodal/beam/plate loads and gravity imported; the API binding reads no releases, springs, links or combinations." }
                 : new ModelDiagnostic { Code = "Straus7AssignmentsNotMapped", Severity = DiagnosticSeverity.Warning,
                     Message = "The API binding reads no element attributes: properties are imported, loads, restraints and offsets are not." });
             return batch;

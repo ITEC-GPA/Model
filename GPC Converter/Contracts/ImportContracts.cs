@@ -230,6 +230,16 @@ namespace GPC.Converter
         public string Record { get; set; }
         /// <summary>Non-null for a construction-stage output case; Name is its distinct model scope, not a static load case.</summary>
         public string StageSourceCaseName { get; set; }
+        /// <summary>Name of the freedom case (<see cref="ImportBatch.FreedomCases"/>) under which the case is analysed
+        /// (<see cref="GPC.Model.LoadCases.LoadCaseBase.FreedomCase"/>); null: none, as before GPC.Converter 2.27 (18/11/2026).</summary>
+        public string FreedomCase { get; set; }
+    }
+    /// <summary>A freedom case of the source model: a named set of restraints and springs to ground (<see cref="GPC.Model.FreedomCases.FreedomCase"/>).
+    /// Its name is unique in the batch.</summary>
+    public sealed class FreedomCaseRecord
+    {
+        public string Name { get; set; }
+        public string Record { get; set; }
     }
     public sealed class NodeLoadRecord
     {
@@ -246,6 +256,8 @@ namespace GPC.Converter
         public bool[] FixedDofs { get; set; } // DX,DY,DZ,RX,RY,RZ; permanent restraints only.
         public CoordinateSystem CoordinateSystem { get; set; }
         public string Record { get; set; }
+        /// <summary>Name of the freedom case of the restraint (<see cref="ImportBatch.FreedomCases"/>); null: the default restraint set.</summary>
+        public string FreedomCase { get; set; }
     }
     public sealed class BeamReleaseRecord
     {
@@ -259,6 +271,8 @@ namespace GPC.Converter
         public string NodeId { get; set; }
         public SpringMatrix Spring { get; set; }
         public string Record { get; set; }
+        /// <summary>Name of the freedom case of the spring (<see cref="ImportBatch.FreedomCases"/>); null: the default restraint set.</summary>
+        public string FreedomCase { get; set; }
     }
     public sealed class NodeLinkRecord
     {
@@ -280,6 +294,8 @@ namespace GPC.Converter
         public List<ShellRecord> Shells { get; } = new List<ShellRecord>();
         public List<GroupRecord> Groups { get; } = new List<GroupRecord>();
         public List<LoadCaseRecord> LoadCases { get; } = new List<LoadCaseRecord>();
+        /// <summary>Freedom cases referenced by name from restraints, springs and load cases (GPC.Converter 2.27); empty: none, as before.</summary>
+        public List<FreedomCaseRecord> FreedomCases { get; } = new List<FreedomCaseRecord>();
         public List<GPC.Model.Stages.Stage> Stages { get; } = new List<GPC.Model.Stages.Stage>();
         public List<NodeLoadRecord> NodeLoads { get; } = new List<NodeLoadRecord>();
         public List<NodeRestrainRecord> NodeRestrains { get; } = new List<NodeRestrainRecord>();

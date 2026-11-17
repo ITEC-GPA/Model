@@ -185,7 +185,7 @@ public partial class Straus7AssignmentImportTest
         private readonly Dictionary<(Straus7Entity, int, int), List<Straus7Attribute>> attributes = new();
         private readonly Dictionary<(int, Straus7LoadFrame, int, int, int), Straus7DistributedLoad> distributed = new();
         private readonly Dictionary<(int, int, int, bool, bool), double[]> points = new();
-        private readonly Dictionary<int, Straus7Restraint> restraints = new();
+        private readonly Dictionary<(int Node, int Freedom), Straus7Restraint> restraints = new();
         public readonly Dictionary<(int, int, bool), double[]> NodeLoads = new();
         public readonly Dictionary<int, double[]> BeamOffsets = new(), PlateOffsets = new(), PlateThicknesses = new();
         public readonly Dictionary<(int, int), double[]> NormalPressures = new();
@@ -228,15 +228,16 @@ public partial class Straus7AssignmentImportTest
             Add(Straus7Entity.Beam, beam, moment ? global ? Straus7Attributes.BeamCMG : Straus7Attributes.BeamCML : global ? Straus7Attributes.BeamCFG : Straus7Attributes.BeamCFL, 0, lc, id);
             points[(beam, lc, id, moment, global)] = new[] { x, y, z, position };
         }
-        public void Restraint(int node, int ucs, int[] status, double[]? values = null)
+        /// <summary>A restraint of <paramref name="node"/> in <paramref name="freedomCase"/> (the case of its attribute, as St7GetEntityAttributeSequence).</summary>
+        public void Restraint(int node, int ucs, int[] status, double[]? values = null, int freedomCase = 1)
         {
-            Add(Straus7Entity.Node, node, Straus7Attributes.Restraint, lc: 1);
-            restraints[node] = new() { Ucs = ucs, Status = status, Values = values ?? new double[6] };
+            Add(Straus7Entity.Node, node, Straus7Attributes.Restraint, lc: freedomCase);
+            restraints[(node, freedomCase)] = new() { Ucs = ucs, Status = status, Values = values ?? new double[6] };
         }
 
         public Straus7Attribute[] ReadAttributes(Straus7Entity entity, int number, int attribute) => attributes.TryGetValue((entity, number, attribute), out var list) ? list.ToArray() : Array.Empty<Straus7Attribute>();
         public int FreedomCaseCount => FreedomCases;
-        public Straus7Restraint ReadRestraint(int node, int freedomCase) => restraints[node];
+        public Straus7Restraint ReadRestraint(int node, int freedomCase) => restraints[(node, freedomCase)];
         public Straus7Ucs ReadUcs(int id) => Systems[id];
         public double[] ReadNodeLoad(int node, int loadCase, bool moment) => NodeLoads[(node, loadCase, moment)];
         public double[] ReadBeamOffset(int beam) => BeamOffsets[beam];

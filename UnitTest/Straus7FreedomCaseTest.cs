@@ -63,11 +63,14 @@ public partial class Straus7AssignmentImportTest
         api.Combinations.Add(new Straus7Combination { Number = 2, Name = "MIX", Enabled = true, Factors = new[] { 1.0, 0, 0, 1.5, 0, 0 } });
         api.Combinations.Add(new Straus7Combination { Number = 3, Name = "UNSOLVED", Enabled = true, Factors = new[] { 0, 0, 1.0, 0, 0, 0 } });
         api.Combinations.Add(new Straus7Combination { Number = 4, Name = "SHARED", Enabled = false, Factors = new[] { 1.0, 0, 0, 0, 0, 1.0 } });
+        // The restraints of Scenario are in freedom case 1; node 1 is also pinned in freedom case 2, node 3 has a spring in freedom case 2.
+        api.Inner.Restraint(1, 1, new[] { 1, 1, 1, 0, 0, 0 }, freedomCase: 2);
+        api.Add(Straus7Entity.Node, 3, Straus7Attributes.KTranslation, lc: 2); api.FreedomSprings[(3, 2, false)] = new() { Ucs = 1, Values = new[] { 0, 0, 500d } };
         return api;
     }
 
     [TestMethod]
-    public void SeveralFreedomCases_PairsAreModelData_CombinationsFollowThem_RestraintsStayPreserved()
+    public void SeveralFreedomCases_PairsAreModelData_CombinationsFollowThem_SupportsKeepTheirFreedomCase()
     {
         var report = Import(FreedomScenario()); Partial(report); var m = report.Model;
         var data = Straus7FreedomCaseData.Read(m)!;
@@ -91,10 +94,43 @@ public partial class Straus7AssignmentImportTest
         Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "Straus7CombinationFreedomCasesPreserved"), "With the pairs each combination has its own reason.");
         Assert.AreEqual(4, report.Preserved.Count(p => p.SourceRecord.StartsWith("LSACombination/")), "Every native combination stays preserved.");
 
-        // Restraints and node springs of several freedom cases: not in GPC.Model (validation and ground springs know no freedom case).
-        Assert.AreEqual(0, m.NodesElements.Values.Sum(n => n.Assignments.Restrains.Count));
+        // GPC.Converter 2.27 (18/11/2026): the freedom cases are Model freedom cases (the repeated name qualified), the restraints and node springs
+        // carry theirs, and a load case solved under one freedom case is tied to it. Until 2.26 they were preserved (Straus7FreedomCasesPreserved).
+        CollectionAssert.AreEqual(new[] { "Freedom Case 1 · FC 1", "Freedom Case 1 · FC 2" }, m.FreedomCases.Values.Select(f => f.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray());
+        var fc1 = m.FreedomCases["Freedom Case 1 · FC 1"]; var fc2 = m.FreedomCases["Freedom Case 1 · FC 2"];
+        GPC.Model.Elements.NodeElement Node(string id) => m.NodesElements.Values.Single(n => n.Source.OriginalId == id);
+        Assert.AreEqual(6, Node("1").Assignments.RestrainsOf(fc1).Single().Restrain.Restrains.Count);
+        Assert.AreEqual(3, Node("1").Assignments.RestrainsOf(fc2).Single().Restrain.Restrains.Count, "The same DOFs restrained in two freedom cases.");
+        Assert.AreEqual("Node/1/restraint/freedom case 2", Node("1").Assignments.RestrainsOf(fc2).Single().SourceRecord);
+        Assert.AreSame(fc1, Node("2").Assignments.Restrains.Single().FreedomCase, "The skew restraint of node 2, in its UCS, under freedom case 1.");
+        Assert.AreEqual(0, m.NodesElements.Values.Sum(n => n.Assignments.RestrainsOf(null).Count()));
+        var spring = Node("3").Assignments.GroundSprings.Single();
+        Assert.AreSame(fc2, spring.FreedomCase); Assert.AreEqual(500, spring[2, 2], 1e-9, "500 kN/m as N/mm."); Assert.AreEqual("Node/3/stiffness/freedom case 2", spring.SourceRecord);
+        Assert.AreSame(fc1, m.LoadCases["Case 1: Loads"].FreedomCase); Assert.AreSame(fc2, m.LoadCases["Case 2: Gravity"].FreedomCase);
+        Assert.IsNull(m.LoadCases["Case 3: Seismic"].FreedomCase, "Solved under both freedom cases: no freedom case.");
+        var issues = GPC.Model.Structure.Assignments.AssignmentValidation.ValidateAssignments(m).Select(d => d.Code).ToArray();
+        Assert.IsFalse(issues.Contains("ConflictingRestrainScope") || issues.Contains("UnregisteredFreedomCase"), string.Join(", ", issues));
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "Straus7FreedomCasesPreserved"));
+        var supports = report.Diagnostics.Single(d => d.Code == "Straus7FreedomCaseSupports"); Assert.AreEqual(DiagnosticSeverity.Information, supports.Severity);
+        StringAssert.Contains(supports.Message, "FC 2 as Model freedom case 'Freedom Case 1 · FC 2', load cases 2"); StringAssert.Contains(supports.Message, "Load cases 3 are solved under several");
+        StringAssert.Contains(report.Diagnostics.Single(d => d.Code == "Straus7AssignmentsPartlyMapped").Message, "of every freedom case, with their freedom case");
+    }
+
+    /// <summary>A binding without the freedom case data (no <see cref="IStraus7FreedomCaseReadApi"/>): the restraints of several freedom cases
+    /// stay preserved, as before GPC.Converter 2.27; and with one freedom case nothing names a freedom case.</summary>
+    [TestMethod]
+    public void WithoutFreedomCaseData_OrWithOneFreedomCase_TheSupportsOfBefore()
+    {
+        var api = Scenario(); api.FreedomCases = 2; api.Restraint(1, 1, new[] { 1, 1, 1, 0, 0, 0 }, freedomCase: 2);
+        var report = Import(api); Partial(report); var m = report.Model;
+        Assert.AreEqual(0, m.NodesElements.Values.Sum(n => n.Assignments.Restrains.Count)); Assert.AreEqual(0, m.FreedomCases.Count);
         Assert.IsTrue(report.Diagnostics.Any(d => d.Code == "Straus7FreedomCasesPreserved"));
-        Assert.AreEqual(0, m.FreedomCases.Count);
+        Assert.IsFalse(report.Diagnostics.Any(d => d.Code == "Straus7FreedomCaseSupports"));
+
+        var single = Import(Scenario()).Model;
+        Assert.AreEqual(0, single.FreedomCases.Count); Assert.AreEqual(2, single.NodesElements.Values.Sum(n => n.Assignments.Restrains.Count));
+        Assert.IsTrue(single.NodesElements.Values.SelectMany(n => n.Assignments.Restrains).All(r => r.FreedomCase == null && r.SourceRecord.EndsWith("/restraint", StringComparison.Ordinal)));
+        Assert.IsTrue(single.LoadCases.Values.All(c => c.FreedomCase == null));
     }
 
     [TestMethod]

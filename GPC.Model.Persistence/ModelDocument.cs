@@ -66,7 +66,7 @@ namespace GPC.Model.Persistence
 
         internal static ModelDocument Capture(Models.Model model) => new ModelDocument {
             FormFinding = model.FormFinding, MovingLoads = model.MovingLoads,
-            Schema=model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 9 : (model.MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(model)) ? 8 : StageSchema(model) ? (PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : 6) : PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : (model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) ? 5 : model.FormFinding != null ? 4 : model.AssemblyMap != null ? 3 :model.PhysicalSurfaces.Count==0 ? 1 : 2,
+            Schema=PhysicalAssignments.UsesFreedomCaseScopes(model) ? 10 : model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) ? 9 : (model.MovingLoads?.UsesExtendedContract == true || PhysicalAssignments.UsesSurfacePressureContract(model)) ? 8 : StageSchema(model) ? (PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : 6) : PhysicalAssignments.UsesExtendedExportContract(model) ? 7 : (model.MovingLoads != null || PhysicalAssignments.HasData(model) || model.FormFinding?.UsesExtendedContract == true) ? 5 : model.FormFinding != null ? 4 : model.AssemblyMap != null ? 3 :model.PhysicalSurfaces.Count==0 ? 1 : 2,
             AssemblyMap = model.AssemblyMap, Surfaces=model.PhysicalSurfaces.Count==0 ? null : model.PhysicalSurfaces.Values.ToArray(),
             Id = model.Guid, Name = model.Name, Nodes = model.NodesElements, Beams = model.BeamElements,
             Plates = model.AreaElements, Solids = model.VolumeElements, Constraints = model.Costrains,
@@ -82,7 +82,7 @@ namespace GPC.Model.Persistence
 
         internal Models.Model Restore()
         {
-            if (Schema != 1 && Schema != 2 && Schema != 3 && Schema != 4 && Schema != 5 && Schema != 6 && Schema != 7 && Schema != 8 && Schema != 9) throw new SerializationException("Unsupported ModelDocument schema.");
+            if (Schema != 1 && Schema != 2 && Schema != 3 && Schema != 4 && Schema != 5 && Schema != 6 && Schema != 7 && Schema != 8 && Schema != 9 && Schema != 10) throw new SerializationException("Unsupported ModelDocument schema.");
             if (Schema==2 && (Surfaces==null || Surfaces.Length==0) || Schema==1 && Surfaces!=null && Surfaces.Length!=0) throw new SerializationException("PhysicalSurfaceSchemaMismatch");
             if (Nodes == null || Beams == null || Plates == null || Solids == null || Constraints == null || BeamProperties == null
                 || PlateProperties == null || SolidProperties == null || Cases == null || FreedomCases == null || Combinations == null
@@ -122,6 +122,7 @@ namespace GPC.Model.Persistence
                 Surfaces = Surfaces });
             model.AssemblyMap = AssemblyMap;
             if(model.LoadCases.Values.Any(c=>c.InertiaMasses!=null) && Schema<9)throw new SerializationException("InertiaMassSchemaMismatch");
+            if(PhysicalAssignments.UsesFreedomCaseScopes(model) && Schema<10)throw new SerializationException("FreedomCaseScopeSchemaMismatch");
             if (PhysicalAssignments.UsesExtendedExportContract(model) && Schema < 7) throw new SerializationException("ElasticExportSchemaMismatch");
             if (FormFinding != null && Schema < 4) throw new SerializationException("FormFindingSchemaMismatch");
             // Schema checks only: domain references are diagnosed by ModelEditSession.Validate and the export preflight, so an

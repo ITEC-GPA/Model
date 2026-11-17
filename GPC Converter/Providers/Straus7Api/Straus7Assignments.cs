@@ -277,7 +277,8 @@ namespace GPC.Converter.Straus7
             PlateData(number, record);
         }
 
-        /// <summary>Restraints of a single freedom case (global or Cartesian UCS, no enforced values) and nodal forces/moments of every load case.</summary>
+        /// <summary>Restraints (global or Cartesian UCS, no enforced values) and nodal forces/moments of every load case. Restraints of the single
+        /// freedom case, or (GPC.Converter 2.27, with the freedom cases read by <see cref="FreedomCases"/>) of each freedom case with its freedom case.</summary>
         public void Nodes(IReadOnlyDictionary<int, Point3d> points)
         {
             if (api == null) return;
@@ -288,16 +289,18 @@ namespace GPC.Converter.Straus7
                 var restraints = Attributes(Straus7Entity.Node, node, Straus7Attributes.Restraint);
                 if (restraints.Length != 0)
                 {
-                    if (freedomCases != 1) Warn("Straus7FreedomCasesPreserved", "Freedom cases", "Restraints of models with several freedom cases are not mapped.");
-                    else
+                    if (freedomCases != 1 && FreedomCaseNames == null) Warn("Straus7FreedomCasesPreserved", "Freedom cases", "Restraints of models with several freedom cases are not mapped.");
+                    else foreach (int fc in AttributeFreedomCases(freedomCases, restraints, record))
                     {
-                        var r = api.ReadRestraint(node, 1);
+                        var r = api.ReadRestraint(node, fc);
                         if (r?.Status == null || r.Status.Length != 6 || r.Values == null || r.Values.Length != 6) throw new InvalidDataException("Invalid restraint: " + record);
                         bool global = r.Ucs == 1; CoordinateSystem axes = global ? CoordinateSystem.Global : Ucs(r.Ucs);
                         if (axes == null) Warn("Straus7RestraintUcsPreserved", "Restraint UCS", "Restraints in non-Cartesian coordinate systems are not mapped.");
                         else if (Enumerable.Range(0, 6).Any(i => r.Status[i] != 0 && r.Values[i] != 0)) Warn("Straus7EnforcedDisplacementPreserved", "Enforced displacements", "Restraints with enforced displacements are not mapped.");
                         else batch.NodeRestrains.Add(new NodeRestrainRecord { NodeId = Straus7ApiConverter.Id(node), FixedDofs = r.Status.Select(s => s != 0).ToArray(),
-                            CoordinateSystem = global ? axes : Frames.At(axes, pair.Value), Record = record + "/restraint" });
+                            CoordinateSystem = global ? axes : Frames.At(axes, pair.Value),
+                            Record = record + "/restraint" + (freedomCases == 1 ? "" : "/freedom case " + fc.ToString(CultureInfo.InvariantCulture)),
+                            FreedomCase = freedomCases == 1 ? null : FreedomCaseNames[fc] });
                     }
                 }
                 NodeSprings(node, pair.Value, freedomCases, record);

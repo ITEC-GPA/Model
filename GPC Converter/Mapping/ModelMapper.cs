@@ -113,6 +113,19 @@ namespace GPC.Converter
                     cancellationToken.ThrowIfCancellationRequested(); record = g.Record;
                     model.ReparentGroup(g.Name, g.ParentName);
                 }
+                // Freedom cases (GPC.Converter 2.27, 18/11/2026): restraints, springs to ground and load cases name them; none in a batch
+                // without freedom cases, so its Model is the one of before.
+                var freedomCases = new Dictionary<string, GPC.Model.FreedomCases.FreedomCase>(StringComparer.Ordinal);
+                foreach (var f in batch.FreedomCases)
+                {
+                    cancellationToken.ThrowIfCancellationRequested(); record = f?.Record;
+                    if (string.IsNullOrWhiteSpace(f?.Name) || freedomCases.ContainsKey(f.Name) || model.FreedomCases.ContainsKey(f.Name))
+                        throw new ArgumentException("MissingOrDuplicateFreedomCase: " + f?.Name);
+                    var freedomCase = new GPC.Model.FreedomCases.FreedomCase(f.Name);
+                    freedomCases.Add(f.Name, freedomCase); model.FreedomCases.Add(freedomCase);
+                }
+                GPC.Model.FreedomCases.FreedomCase Freedom(string name) => name == null ? null
+                    : freedomCases.TryGetValue(name, out var found) ? found : throw new ArgumentException("UnknownFreedomCase: " + name);
                 var cases = new Dictionary<string, LoadCaseBase>(StringComparer.Ordinal);
                 var selfWeight = new HashSet<string>(batch.Gravity.Select(g => g.Case), StringComparer.Ordinal);
                 foreach (var c in batch.LoadCases)
@@ -122,6 +135,7 @@ namespace GPC.Converter
                     if (c.StageSourceCaseName != null && selfWeight.Contains(c.Name)) throw new ArgumentException("StageCaseCannotBeStaticLoad: " + c.Name);
                     var loadCase = c.StageSourceCaseName != null ? new GPC.Model.Stages.StageResultCase(c.Name, c.StageSourceCaseName) :
                         selfWeight.Contains(c.Name) ? new LoadCase(c.Name, LoadCase.LoadCaseTypes.SelfWeight) : new LoadCaseBase(c.Name);
+                    if (c.FreedomCase != null) loadCase.FreedomCase = Freedom(c.FreedomCase);
                     cases.Add(c.Name, loadCase); model.LoadCases.Add(loadCase);
                 }
                 foreach (var stage in batch.Stages)
@@ -257,7 +271,7 @@ namespace GPC.Converter
                         .Select(i => new DofRestrain((GeometryRestrain.DOF)i)).ToList();
                     if (dofs.Count != 0) node.Assignments.AssignRestrain(new RestrainAssignment
                     {
-                        Restrain = new NodeRestrain(node, r.CoordinateSystem, dofs), SourceRecord = r.Record
+                        Restrain = new NodeRestrain(node, r.CoordinateSystem, dofs), SourceRecord = r.Record, FreedomCase = Freedom(r.FreedomCase)
                     }, AssignmentMode.Add);
                 }
                 foreach (var s in batch.NodeSprings)
@@ -266,6 +280,8 @@ namespace GPC.Converter
                     var spring = s.Spring ?? throw new ArgumentException("MissingNodeSpring");
                     if (spring.Diagnose().Any(d => d.Severity == DiagnosticSeverity.Error)) throw new ArgumentException("InvalidNodeSpring");
                     if (spring.SourceRecord == null) spring.SourceRecord = s.Record;
+                    if (s.FreedomCase != null) spring.FreedomCase = Freedom(s.FreedomCase);
+                    else if (spring.FreedomCase != null) throw new ArgumentException("NodeSpringFreedomCaseOutsideTheBatch: name it in NodeSpringRecord.FreedomCase.");
                     nodes[s.NodeId].Assignments.GroundSprings.Add(spring);
                 }
                 foreach (var r in batch.BeamReleases)

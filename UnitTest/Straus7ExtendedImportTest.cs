@@ -51,7 +51,10 @@ public partial class Straus7AssignmentImportTest
             list.Add(new Straus7Attribute { Local = local, Case = lc, Id = id });
         }
         public Straus7BeamRelease ReadBeamRelease(int beam, int end, bool rotational) => Releases[(beam, end, rotational)];
-        public Straus7NodeStiffness ReadNodeStiffness(int node, int freedomCase, bool rotational) => Springs[(node, rotational)];
+        /// <summary>Node springs of a freedom case other than the one of <see cref="Springs"/> (several freedom cases, GPC.Converter 2.27).</summary>
+        public readonly Dictionary<(int Node, int Freedom, bool Rotational), Straus7NodeStiffness> FreedomSprings = new();
+        public Straus7NodeStiffness ReadNodeStiffness(int node, int freedomCase, bool rotational) =>
+            FreedomSprings.TryGetValue((node, freedomCase, rotational), out var scoped) ? scoped : Springs[(node, rotational)];
         public Straus7Link ReadLink(int number) => Links[number - 1];
         public int CombinationCount => Combinations.Count;
         public Straus7Combination ReadCombination(int number, int loadCases, int freedomCases) => Combinations[number - 1];

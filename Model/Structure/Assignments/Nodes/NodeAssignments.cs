@@ -38,7 +38,17 @@ namespace GPC.Model.Structure.Assignments
         [field: System.Runtime.Serialization.DataMember(Name = "<Mass>k__BackingField", IsRequired = true)]
         public NodalMass Mass { get; set; }
 
-        /// <summary>Add rejects overlapping DOFs in the same case/phase; ReplaceScope explicitly replaces that scope.</summary>
+        /// <summary>The restraints of a freedom case (<see cref="RestrainAssignment.FreedomCase"/> with the Guid of <paramref name="freedomCase"/>;
+        /// null: the restraints without a freedom case), for example those of the freedom case of a load case (<see cref="LoadCaseBase.FreedomCase"/>).
+        /// A filter of <see cref="Restrains"/>, in their order.</summary>
+        public IEnumerable<RestrainAssignment> RestrainsOf(GPC.Model.FreedomCases.FreedomCase freedomCase)
+            => Restrains.Where(r => r != null && r.FreedomCase?.Guid == freedomCase?.Guid);
+
+        /// <summary>The springs to ground of a freedom case (<see cref="SpringMatrix.FreedomCase"/>, as <see cref="RestrainsOf"/>).</summary>
+        public IEnumerable<SpringMatrix> GroundSpringsOf(GPC.Model.FreedomCases.FreedomCase freedomCase)
+            => GroundSprings.Where(s => s != null && s.FreedomCase?.Guid == freedomCase?.Guid);
+
+        /// <summary>Add rejects overlapping DOFs in the same case/freedom case/phase; ReplaceScope explicitly replaces that scope.</summary>
         public void AssignRestrain(RestrainAssignment assignment, AssignmentMode mode)
         {
             if (assignment?.Restrain == null)

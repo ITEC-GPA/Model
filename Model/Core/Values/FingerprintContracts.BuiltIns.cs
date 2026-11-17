@@ -868,6 +868,8 @@ namespace GPC.Model.Core
                 Field("GPC.Model.Core.Identity.SourceIdentity", "<Program>k__BackingField", "<Program>k__BackingField", false));
             Register("GPC.Model.Structure.Assignments.SpringMatrix", "GPC.Model.PostProcessing.SpringMatrix",
                 Field("GPC.Model.Structure.Assignments.SpringMatrix", "<CoordinateSystem>k__BackingField", "<CoordinateSystem>k__BackingField", false),
+                // 18/11/2026 (GPCModel 5.53): omitted when null, so the fingerprints of the springs without a freedom case do not change.
+                Field("GPC.Model.Structure.Assignments.SpringMatrix", "<FreedomCase>k__BackingField", "<FreedomCase>k__BackingField", true),
                 Field("GPC.Model.Structure.Assignments.SpringMatrix", "<Kind>k__BackingField", "<Kind>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.SpringMatrix", "<SourceRecord>k__BackingField", "<SourceRecord>k__BackingField", false),
                 Field("GPC.Model.Structure.Assignments.SpringMatrix", "_values", "_values", false));
